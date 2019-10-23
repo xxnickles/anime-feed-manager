@@ -42,7 +42,7 @@ namespace AnimeFeedManager.Application.Subscriptions.Commands
                 ? Success<ValidationError, ImmutableList<NonEmptyString>>(animeIds.Select(NonEmptyString.FromString).ToImmutableList())
                 : Fail<ValidationError, ImmutableList<NonEmptyString>>(ValidationError.Create("AnimeIds", "The given list is empty"));
 
-        private  Task<Either<DomainError, SubscriptionCollection>> Persist(Subscription subscription)
+        private Task<Either<DomainError, SubscriptionCollection>> Persist(Subscription subscription)
         {
             return _subscriptionRepository.Merge(MapToStorage(subscription))
                 .MapAsync(Mapper.ProjectToSubscriptionCollection);

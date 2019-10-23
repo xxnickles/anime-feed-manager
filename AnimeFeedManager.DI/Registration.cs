@@ -1,14 +1,11 @@
-﻿using System;
-using System.Reflection;
+﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Services.Collectors.HorribleSubs;
 using AnimeFeedManager.Services.Collectors.LiveChart;
 using AnimeFeedManager.Storage.Domain;
-using AnimeFeedManager.Storage.Infrastructure;
-using AnimeFeedManager.Storage.Interface;
-using AnimeFeedManager.Storage.Repositories;
 using MediatR;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace AnimeFeedManager.DI
 {
@@ -39,7 +36,7 @@ namespace AnimeFeedManager.DI
 
         public static IServiceCollection RegisterApplicationServices(this IServiceCollection services)
         {
-            services.AddMediatR(Assembly.GetExecutingAssembly());
+            services.AddMediatR(typeof(GetSeasonCollection).Assembly);
             return services;
         }
 

@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Functions"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Application.Test", "AnimeFeedManager.Application.Test\AnimeFeedManager.Application.Test.csproj", "{C482DEFC-D6D3-4807-AC06-EF75B424398F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.DI", "AnimeFeedManager.DI\AnimeFeedManager.DI.csproj", "{4E725CCD-2F22-48A3-AE60-8FA470D055B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.DI", "AnimeFeedManager.DI\AnimeFeedManager.DI.csproj", "{4E725CCD-2F22-48A3-AE60-8FA470D055B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

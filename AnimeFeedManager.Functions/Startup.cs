@@ -1,5 +1,8 @@
-﻿using AnimeFeedManager.DI;
+﻿using System;
+using AnimeFeedManager.DI;
+using AnimeFeedManager.Functions.Infrastructure;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 [assembly: FunctionsStartup(typeof(AnimeFeedManager.Functions.Startup))]
 namespace AnimeFeedManager.Functions
@@ -8,10 +11,22 @@ namespace AnimeFeedManager.Functions
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+            var storageConnection = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+
+
             builder.Services
-                .RegisterStorage("UseDevelopmentStorage=true")
+                .RegisterStorage(storageConnection)
                 .RegisterAppServices()
-                .RegisterApplicationServices();
+                .RegisterApplicationServices()
+                .AddSingleton<ISendGridConfiguration>(GetSendGridConfiguration());
+        }
+
+        private SendGridConfiguration GetSendGridConfiguration()
+        {
+            var defaultFromEmail = Environment.GetEnvironmentVariable("FromEmail") ?? "test@test.com";
+            var defaultFromName = Environment.GetEnvironmentVariable("FromName") ?? "Test";
+            bool.TryParse(Environment.GetEnvironmentVariable("Sandbox"), out var sandbox);
+            return new SendGridConfiguration(defaultFromEmail, defaultFromName, sandbox);
         }
     }
 }
