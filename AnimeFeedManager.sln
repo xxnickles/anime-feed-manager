@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Storage", "AnimeManager.Infrastructure\AnimeFeedManager.Storage.csproj", "{08E5431D-5F9F-4F7B-AA26-06B4ECF0B760}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Storage", "src\AnimeManager.Infrastructure\AnimeFeedManager.Storage.csproj", "{08E5431D-5F9F-4F7B-AA26-06B4ECF0B760}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Application", "AnimeManager.Application\AnimeFeedManager.Application.csproj", "{6D5C103E-EBF5-4299-8193-5544C37574EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Application", "src\AnimeManager.Application\AnimeFeedManager.Application.csproj", "{6D5C103E-EBF5-4299-8193-5544C37574EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Core", "AnimeManager.Core\AnimeFeedManager.Core.csproj", "{925E7161-8209-497B-9262-C72CFD20B29A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Core", "src\AnimeManager.Core\AnimeFeedManager.Core.csproj", "{925E7161-8209-497B-9262-C72CFD20B29A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Services", "AnimeFeedManager.Services\AnimeFeedManager.Services.csproj", "{C1D132D4-AC7B-4B45-8DA5-8F6F67D79B12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Services", "src\AnimeFeedManager.Services\AnimeFeedManager.Services.csproj", "{C1D132D4-AC7B-4B45-8DA5-8F6F67D79B12}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Functions", "AnimeFeedManager.Functions\AnimeFeedManager.Functions.csproj", "{0900AC25-B01E-448D-BA15-20AF1741ED5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Functions", "src\AnimeFeedManager.Functions\AnimeFeedManager.Functions.csproj", "{0900AC25-B01E-448D-BA15-20AF1741ED5B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Application.Test", "AnimeFeedManager.Application.Test\AnimeFeedManager.Application.Test.csproj", "{C482DEFC-D6D3-4807-AC06-EF75B424398F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Application.Test", "src\AnimeFeedManager.Application.Test\AnimeFeedManager.Application.Test.csproj", "{C482DEFC-D6D3-4807-AC06-EF75B424398F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.DI", "AnimeFeedManager.DI\AnimeFeedManager.DI.csproj", "{4E725CCD-2F22-48A3-AE60-8FA470D055B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.DI", "src\AnimeFeedManager.DI\AnimeFeedManager.DI.csproj", "{4E725CCD-2F22-48A3-AE60-8FA470D055B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
