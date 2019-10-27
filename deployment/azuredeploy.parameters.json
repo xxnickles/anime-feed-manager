@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "value": "51a440e1-d847-4090-aa95-759756be5f96"
+        },
+        "name": {
+            "value": "anime-feed-manager"
+        },
+        "location": {
+            "value": "East US"
+        },
+        "hostingEnvironment": {
+            "value": ""
+        },
+        "hostingPlanName": {
+            "value": "ASP-anime-feed-manager-hosting"
+        },
+        "serverFarmResourceGroup": {
+            "value": "anime-feed-manager-resouce-group"
+        },
+        "alwaysOn": {
+            "value": false
+        },
+        "storageAccountName": {
+            "value": "animefeedmanagerstorage"
+        },
+        "linuxFxVersion": {
+            "value": "DOCKER|mcr.microsoft.com/azure-functions/dotnet:2.0-appservice"
+        },
+        "sku": {
+            "value": "Dynamic"
+        },
+        "skuCode": {
+            "value": "Y1"
+        },
+        "workerSize": {
+            "value": "0"
+        },
+        "workerSizeId": {
+            "value": "0"
+        },
+        "numberOfWorkers": {
+            "value": "1"
+        }
+    }
+}
