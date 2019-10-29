@@ -15,7 +15,6 @@ namespace AnimeFeedManager.Application.Test.Services
             sut.Match(
                 val =>
                 {
-                    Assert.NotEmpty(val);
                     Assert.DoesNotContain(val, x => x.PublicationDate < DateTime.Today);
                 },
                 _ => { });
