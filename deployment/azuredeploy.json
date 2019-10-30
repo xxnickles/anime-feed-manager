@@ -131,10 +131,8 @@
         }
     ],
     "variables": {
-        "storageResourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name)]",
-        "storageApiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]",
-        "functionsResourceId": "[resourceId('Microsoft.Web/sites/functions', variables('functionApp').name, variables('functionApp').functionName)]",
-        "functionsApiVersion": "[providers('Microsoft.Web', 'sites').apiVersions[0]]"
+        "storageResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+        "storageApiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]"               
     },
     "outputs": {
         "storageAccountKey": {
@@ -144,6 +142,10 @@
         "functionsEndpoint": {
             "type": "string",
             "value": "[parameters('name')].azurewebsites.net"
+        },
+        "appName": {
+            "type": "string",
+            "value": "[parameters('name')]"
         }
     }
 }
