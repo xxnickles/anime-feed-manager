@@ -9,13 +9,20 @@ trigger:
 variables:
   # Azure Resource Manager connection created during pipeline creation
   azureSubscription: 'a5dfc76c-c47a-4b8b-81d7-82e241224502'
+  # Agent VM image name
+  vmImageName: 'windows-latest'
 
 jobs:
   # Build the python packages in a virtual env
   - job: Build
     pool:
-      vmImage: ubuntu-16.04
+      vmImage: $(vmImageName)
     steps:
+    - task: UseDotNet@2
+      displayName: "SDK Install"
+      inputs:
+        version: '3.0.x'
+        performMultiLevelLookup: true
     - script: |
         dotnet restore
         dotnet build --configuration Release
@@ -33,15 +40,15 @@ jobs:
         arguments: '--configuration Release --output $(System.DefaultWorkingDirectory)/publish_output'
         projects: '**/*.Functions.csproj'
         publishWebProjects: false
-        modifyOutputPath: true
+        modifyOutputPath: false
         zipAfterPublish: false
     - task: ArchiveFiles@2
       displayName: "Archive files"
       inputs:
         rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
         includeRootFolder: false
-        archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+        archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId)-functions.zip"
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip'
+        PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId)-functions.zip'
         name: 'drop'
