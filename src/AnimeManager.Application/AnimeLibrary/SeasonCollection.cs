@@ -3,14 +3,27 @@ using LanguageExt;
 
 namespace AnimeFeedManager.Application.AnimeLibrary
 {
+    public sealed class FeedInfo : Record<FeedInfo>
+    {
+        public bool Available { get; }
+        public string? Title { get; }
+
+        public FeedInfo(bool available, string? title)
+        {
+            Available = available;
+            Title = title;
+        }
+
+       
+    }
+
     public sealed class SimpleAnime : Record<SimpleAnime>
     {
         public string Id { get; }
         public string? ImageUrl { get;  }
         public string Title { get; }
         public string? Synopsis { get; }
-        public bool HasAvailableFeed { get; }
-        public string? FeedTitle { get; }
+        public FeedInfo FeedInformation { get; }
 
         public SimpleAnime(string id, string? imageUrl, string title, string? synopsis, bool hasAvailableFeed, string? feedTitle)
         {
@@ -18,8 +31,7 @@ namespace AnimeFeedManager.Application.AnimeLibrary
             ImageUrl = imageUrl;
             Title = title;
             Synopsis = synopsis ?? "Not Available";
-            HasAvailableFeed = hasAvailableFeed;
-            FeedTitle = feedTitle;
+            FeedInformation = new FeedInfo(hasAvailableFeed, feedTitle);
         }
     }
 
