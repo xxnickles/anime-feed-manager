@@ -27,7 +27,7 @@
             "value": "animefeedmanagerstorage"
         },
         "linuxFxVersion": {
-            "value": "DOCKER|mcr.microsoft.com/azure-functions/dotnet:2.0-appservice"
+            "value": "2.2"
         },
         "sku": {
             "value": "Dynamic"
