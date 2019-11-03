@@ -26,7 +26,7 @@ namespace AnimeFeedManager.Functions
              notifications.Match(
                  v => QueueStorage.StoreInQueue(v, queueCollector, log,
                      x => $"Queueing subscriptions for {x.Subscriber}"),
-                 e => log.LogError($"[{e.CorrelationId}]: {e.Error}")
+                 e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
              );
         }
 

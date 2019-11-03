@@ -19,7 +19,7 @@ namespace AnimeFeedManager.Core.Error
         {
             var builder = new StringBuilder();
             var innerErrors = ExtractErrors(Exception);
-            builder.AppendLine($"{CorrelationId} - {Error}");
+            builder.AppendLine($"{CorrelationId} - {Message}");
             if (!innerErrors.Any()) return builder.ToString();
             builder.AppendLine($"Inner Errors: ");
             foreach (var error in innerErrors)

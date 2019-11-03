@@ -5,13 +5,13 @@ namespace AnimeFeedManager.Core.Error
 {
     public class ValidationError
     {
-        public string Source { get; }
-        public string Error { get; }
+        public string Field { get; }
+        public string Description { get; }
 
-        public ValidationError(string source, string error)
+        public ValidationError(string field, string description)
         {
-            Source = source;
-            Error = error;
+            Field = field;
+            Description = description;
         }
 
         public static ValidationError Create(string source, string error) => new ValidationError(source,error);

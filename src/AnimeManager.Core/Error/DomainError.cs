@@ -3,12 +3,12 @@
     public abstract class DomainError
     {
         public string CorrelationId { get; }
-        public string Error { get; }
+        public string Message { get; }
 
-        protected DomainError(string correlationId, string error)
+        protected DomainError(string correlationId, string message)
         {
             CorrelationId = correlationId;
-            Error = error;
+            Message = message;
         }
 
     }

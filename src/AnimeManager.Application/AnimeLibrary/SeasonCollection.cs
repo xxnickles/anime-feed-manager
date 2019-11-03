@@ -13,8 +13,6 @@ namespace AnimeFeedManager.Application.AnimeLibrary
             Available = available;
             Title = title;
         }
-
-       
     }
 
     public sealed class SimpleAnime : Record<SimpleAnime>

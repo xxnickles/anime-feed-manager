@@ -24,7 +24,7 @@ namespace AnimeFeedManager.Functions
             var result = await _mediator.Send(new GetExternalLibrary());
             result.Match(
                 v => QueueStorage.StoreInQueue(v, queueCollector, log, x => $"Queueing {x.Title}"),
-                e => log.LogError($"[{e.CorrelationId}]: {e.Error}")
+                e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
             );
 
         }

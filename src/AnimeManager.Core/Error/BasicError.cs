@@ -2,11 +2,11 @@
 {
     public class BasicError : DomainError
     {
-        public BasicError(string correlationId, string error) : base(correlationId, error)
+        public BasicError(string correlationId, string message) : base(correlationId, message)
         {
         }
 
-        public static BasicError Create(string correlationId, string error) => 
-            new BasicError(correlationId, error);
+        public static BasicError Create(string correlationId, string message) => 
+            new BasicError(correlationId, message);
     }
 }
