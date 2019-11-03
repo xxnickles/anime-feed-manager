@@ -17,17 +17,17 @@ namespace AnimeFeedManager.Functions
         [FunctionName("EnqueueNotifications")]
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
-            [TimerTrigger("0 0 18 * * *")]TimerInfo myTimer,
+            [TimerTrigger("0 0 18 * * *")] TimerInfo myTimer,
             [Queue("notifications")] IAsyncCollector<Notification> queueCollector,
             ILogger log)
         {
             var notifications = await _mediator.Send(new GetNotifications());
-               
-             notifications.Match(
-                 v => QueueStorage.StoreInQueue(v, queueCollector, log,
-                     x => $"Queueing subscriptions for {x.Subscriber}"),
-                 e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
-             );
+
+            notifications.Match(
+                v => QueueStorage.StoreInQueue(v, queueCollector, log,
+                    x => $"Queueing subscriptions for {x.Subscriber}"),
+                e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
+            );
         }
 
     }

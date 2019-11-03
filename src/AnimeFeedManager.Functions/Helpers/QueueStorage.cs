@@ -1,8 +1,8 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Helpers
 {

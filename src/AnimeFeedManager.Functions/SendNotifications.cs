@@ -18,7 +18,8 @@ namespace AnimeFeedManager.Functions
 
         [FunctionName("SendNotifications")]
         public void Run(
-            [QueueTrigger("notifications", Connection = "AzureWebJobsStorage")]Notification notification,
+            [QueueTrigger("notifications", Connection = "AzureWebJobsStorage")]
+            Notification notification,
             [SendGrid(ApiKey = "SendGridKey")] out SendGridMessage message,
             ILogger log)
         {

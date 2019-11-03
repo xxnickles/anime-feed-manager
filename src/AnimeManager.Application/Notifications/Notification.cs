@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 
 namespace AnimeFeedManager.Application.Notifications
@@ -7,11 +8,13 @@ namespace AnimeFeedManager.Application.Notifications
     {
         public string Title { get; }
         public string Link { get; }
+        public DateTime PublicationDate { get; }
 
-        public SubscribedFeed(string title, string link)
+        public SubscribedFeed(string title, string link, DateTime publicationDate)
         {
             Title = title;
             Link = link;
+            PublicationDate = publicationDate;
         }
     }
 

@@ -1,10 +1,12 @@
 ﻿using System;
 using AnimeFeedManager.DI;
+using AnimeFeedManager.Functions;
 using AnimeFeedManager.Functions.Infrastructure;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 
-[assembly: FunctionsStartup(typeof(AnimeFeedManager.Functions.Startup))]
+[assembly: FunctionsStartup(typeof(Startup))]
+
 namespace AnimeFeedManager.Functions
 {
     public class Startup : FunctionsStartup

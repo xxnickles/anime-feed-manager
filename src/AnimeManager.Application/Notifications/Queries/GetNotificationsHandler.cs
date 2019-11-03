@@ -43,7 +43,8 @@ namespace AnimeFeedManager.Application.Notifications.Queries
                 .Where(f => Filter(f, subscription.SubscribedAnimes))
                 .Select(
                     x => new SubscribedFeed(OptionUtils.UnpackOption(x.AnimeTitle.Value, string.Empty),
-                        x.Link));
+                        x.Link,
+                        x.PublicationDate));
 
             return new Notification(subscription.SubscriptionId, matchingFeeds);
         }

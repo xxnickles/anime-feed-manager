@@ -10,7 +10,7 @@ namespace AnimeFeedManager.Functions
         [StorageAccount("AzureWebJobsStorage")]
         [return: Table("AnimeLibrary")]
         public static AnimeInfoStorage Run(
-            [QueueTrigger("anime-library")]AnimeInfoStorage animeInfo,
+            [QueueTrigger("anime-library")] AnimeInfoStorage animeInfo,
             ILogger log)
         {
             log.LogInformation($"storing {animeInfo.Title}");
