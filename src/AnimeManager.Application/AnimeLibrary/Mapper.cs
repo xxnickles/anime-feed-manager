@@ -13,7 +13,6 @@ namespace AnimeFeedManager.Application.AnimeLibrary
                 animeInfos.Select(a =>
                     new SimpleAnime(
                         a.RowKey, 
-                        a.ImageUrl, 
                         a.Title ?? "Not Available", 
                         a.Synopsis,
                         !string.IsNullOrEmpty(a.FeedTitle),

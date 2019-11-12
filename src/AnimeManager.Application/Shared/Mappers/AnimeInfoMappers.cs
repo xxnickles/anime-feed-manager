@@ -20,7 +20,6 @@ namespace AnimeFeedManager.Application.Shared.Mappers
                 Season = season,
                 Year = year,
                 Synopsis = OptionUtils.UnpackOption(source.Synopsis.Value, string.Empty),
-                ImageUrl = OptionUtils.UnpackOption(source.ImageUrl.Value, string.Empty),
                 FeedTitle = OptionUtils.UnpackOption(source.FeedTitle.Value, string.Empty),
                 Date = OptionUtils.UnpackOption<DateTime?>((DateTime?)source.Date, null),
                 Title = OptionUtils.UnpackOption(source.Title.Value, string.Empty),

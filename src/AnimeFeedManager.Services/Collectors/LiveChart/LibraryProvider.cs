@@ -48,12 +48,11 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
                     .Select(async x => await MapFromCard(x))
                     .Select(x => new AnimeInfo(
                         NonEmptyString.FromString(GenerateId(season.Value, yearStr, x.Item1)),
-                        NonEmptyString.FromString(x.Item2),
                         NonEmptyString.FromString(x.Item1),
-                        NonEmptyString.FromString(x.Item3),
+                        NonEmptyString.FromString(x.Item2),
                         NonEmptyString.FromString(TryGetFeedTitle(feeTitles, x.Item1)),
                         season,
-                        x.Item4,
+                        x.Item3,
                         year)));
 
 
@@ -89,44 +88,26 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
 
         }
 
-        private static async Task<(string title, string imgUrl, string synopsys, Option<DateTime> date)> MapFromCard(HtmlNode card)
+        private static async Task<(string title, string synopsys, Option<DateTime> date)> MapFromCard(HtmlNode card)
         {
 
             var title = card.SelectSingleNode("h3[@class='main-title']").InnerText;
             var animeInfo = card.SelectSingleNode("div[@class='anime-info']");
-
-            var taskExtractImage = ExtractImage(card);
+            
             var taskExtractSynopsis = ExtractSynopsis(animeInfo);
             var taskExtractDate = ExtractDate(animeInfo);
             var tasks = new Task[]
             {
-                taskExtractImage,
                 taskExtractSynopsis,
                 taskExtractDate
             };
 
             await Task.WhenAll(tasks);
-
-            var imageUrl = await taskExtractImage;
+         
             var synopsis = await taskExtractSynopsis;
             var date = await taskExtractDate;
 
-            return (title, imageUrl, synopsis, date);
-        }
-
-        private static Task<string> ExtractImage(HtmlNode card)
-        {
-            return Task.Run(() =>
-            {
-                // Sometimes the scrapper takes a lazy loaded image
-                var imageLazy = card.SelectSingleNode("div[@class='poster-container']/noscript/img");
-                if (!(imageLazy is null)) return imageLazy.GetAttributeValue("src", string.Empty);
-
-                // Sometimes doesn't
-                var img = card.SelectSingleNode("div[@class='poster-container']/img");
-                return img is null ? string.Empty : img.GetAttributeValue("src", string.Empty);
-            });
-
+            return (title, synopsis, date);
         }
 
         private static Task<string> ExtractSynopsis(HtmlNode animeInfo)

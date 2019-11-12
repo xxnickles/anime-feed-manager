@@ -18,15 +18,13 @@ namespace AnimeFeedManager.Application.AnimeLibrary
     public sealed class SimpleAnime : Record<SimpleAnime>
     {
         public string Id { get; }
-        public string? ImageUrl { get;  }
         public string Title { get; }
         public string? Synopsis { get; }
         public FeedInfo FeedInformation { get; }
 
-        public SimpleAnime(string id, string? imageUrl, string title, string? synopsis, bool hasAvailableFeed, string? feedTitle)
+        public SimpleAnime(string id, string title, string? synopsis, bool hasAvailableFeed, string? feedTitle)
         {
             Id = id;
-            ImageUrl = imageUrl;
             Title = title;
             Synopsis = synopsis ?? "Not Available";
             FeedInformation = new FeedInfo(hasAvailableFeed, feedTitle);

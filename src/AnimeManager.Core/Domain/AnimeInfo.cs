@@ -7,7 +7,6 @@ namespace AnimeFeedManager.Core.Domain
     public class AnimeInfo : Record<AnimeInfo>
     {
         public readonly NonEmptyString Id;
-        public readonly NonEmptyString ImageUrl;
         public readonly NonEmptyString Title;
         public readonly NonEmptyString Synopsis;
         public readonly NonEmptyString FeedTitle;
@@ -17,7 +16,6 @@ namespace AnimeFeedManager.Core.Domain
 
         public AnimeInfo(
             NonEmptyString id,
-            NonEmptyString imageUrl,
             NonEmptyString title,
             NonEmptyString synopsis,
             NonEmptyString feedTitle,
@@ -26,7 +24,6 @@ namespace AnimeFeedManager.Core.Domain
             Year year)
         {
             Id = id;
-            ImageUrl = imageUrl;
             Title = title;
             Synopsis = synopsis;
             Season = season;

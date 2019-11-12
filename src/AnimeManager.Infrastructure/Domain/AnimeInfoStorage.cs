@@ -5,7 +5,6 @@ namespace AnimeFeedManager.Storage.Domain
 {
     public class AnimeInfoStorage : TableEntity
     {
-        public string? ImageUrl { get; set; }
         public string? Title { get; set; }
         public string? Synopsis { get; set; }
         public string? FeedTitle { get; set; }
