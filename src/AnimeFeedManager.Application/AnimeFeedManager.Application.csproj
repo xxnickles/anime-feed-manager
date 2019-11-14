@@ -6,14 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LanguageExt.Core" Version="3.3.29" />
+    <PackageReference Include="LanguageExt.Core" Version="3.3.39" />
     <PackageReference Include="MediatR" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Services\AnimeFeedManager.Services.csproj" />
-    <ProjectReference Include="..\AnimeManager.Core\AnimeFeedManager.Core.csproj" />
-    <ProjectReference Include="..\AnimeManager.Infrastructure\AnimeFeedManager.Storage.csproj" />
+    <ProjectReference Include="..\AnimeFeedManager.Storage\AnimeFeedManager.Storage.csproj" />
   </ItemGroup>
 
 </Project>

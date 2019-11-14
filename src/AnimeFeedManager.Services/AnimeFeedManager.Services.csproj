@@ -8,11 +8,11 @@
   <ItemGroup>
     <PackageReference Include="FuzzySharp" Version="1.0.4" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.16" />
-    <PackageReference Include="LanguageExt.Core" Version="3.3.29" />
+    <PackageReference Include="LanguageExt.Core" Version="3.3.39" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AnimeManager.Core\AnimeFeedManager.Core.csproj" />
+    <ProjectReference Include="..\AnimeFeedManager.Core\AnimeFeedManager.Core.csproj" />
   </ItemGroup>
 
 </Project>

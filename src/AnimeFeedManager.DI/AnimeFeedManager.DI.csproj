@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AnimeFeedManager.Application\AnimeFeedManager.Application.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.Services\AnimeFeedManager.Services.csproj" />
-    <ProjectReference Include="..\AnimeManager.Application\AnimeFeedManager.Application.csproj" />
-    <ProjectReference Include="..\AnimeManager.Infrastructure\AnimeFeedManager.Storage.csproj" />
+    <ProjectReference Include="..\AnimeFeedManager.Storage\AnimeFeedManager.Storage.csproj" />
   </ItemGroup>
 
 </Project>
