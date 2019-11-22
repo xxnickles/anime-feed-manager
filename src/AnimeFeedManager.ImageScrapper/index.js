@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const azureBlobStore = require('./store');
+const azureBlobStore = require('./azureBlobStore');
 
 // Helper funtion in case you want to create a local json file
 const writeFile = (seasonInfo, jsonContent) => {
