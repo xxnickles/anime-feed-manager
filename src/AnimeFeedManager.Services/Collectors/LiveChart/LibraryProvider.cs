@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Core.ConstrainedTypes;
+﻿using AnimeFeedManager.Common.Extensions;
+using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
@@ -10,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using static LanguageExt.Prelude;
@@ -148,11 +148,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
 
         private static string GenerateId(string season, string year, string title)
         {
-            var noSpecialCharactersString = Regex.Replace(title, "[^a-zA-Z0-9_.\\s]+", "", RegexOptions.Compiled);
-            var cleanedString = noSpecialCharactersString
-                .Replace(" ", "_")
-                .Replace("__", "_");
-            return $"{season}_{year}_{cleanedString}".ToLowerInvariant();
+            return $"{season}_{year}_{title.ToApplicationId()}".ToLowerInvariant();
         }
 
         private static string TryGetFeedTitle(IEnumerable<string> titleList, string animeTitle)

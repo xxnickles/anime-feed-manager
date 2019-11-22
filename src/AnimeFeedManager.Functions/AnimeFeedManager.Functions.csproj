@@ -9,11 +9,11 @@
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.0.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.SendGrid" Version="3.0.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.10" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.30-beta2" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.0-preview2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.DI\AnimeFeedManager.DI.csproj" />
-    <ProjectReference Include="..\AnimeFeedManager.Services\AnimeFeedManager.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
