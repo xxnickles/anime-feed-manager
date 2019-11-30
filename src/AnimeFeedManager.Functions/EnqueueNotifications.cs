@@ -17,7 +17,7 @@ namespace AnimeFeedManager.Functions
         [FunctionName("EnqueueNotifications")]
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
-            [TimerTrigger("0 0 18 * * *")] TimerInfo myTimer,
+            [TimerTrigger("0 0 18 * * *")] TimerInfo timer,
             [Queue("notifications")] IAsyncCollector<Notification> queueCollector,
             ILogger log)
         {

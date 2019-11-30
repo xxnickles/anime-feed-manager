@@ -1,4 +1,7 @@
+using AnimeFeedManager.Application.AnimeLibrary.Commands;
 using AnimeFeedManager.Functions.Models;
+using AnimeFeedManager.Storage.Domain;
+using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -8,10 +11,17 @@ using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Functions
 {
-    public static class UploadImage
+    public class UploadImage
     {
-        [FunctionName("UploadImage")]        
-        public async static Task Run(
+        private readonly IMediator _mediator;
+
+        public UploadImage(IMediator mediator) =>
+            _mediator = mediator;
+        
+
+        [FunctionName("UploadImage")]
+        [StorageAccount("AzureWebJobsStorage")]
+        public async Task Run(
             [QueueTrigger("image-process", Connection = "AzureWebJobsStorage")]
             BlobImageInfo imageInfo,
             [Blob("anime-library", FileAccess.Write)]
@@ -29,6 +39,7 @@ namespace AnimeFeedManager.Functions
             webClient.Headers.Add("Accept-Encoding", "gzip,deflate,sdch");
             webClient.Headers.Add("Referer", "https://google.com");
             webClient.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+
             using MemoryStream stream = new MemoryStream(webClient.DownloadData(imageInfo.RemoteUrl));
             // Sets basic blob metadata
             var blob = imagesContainer.GetBlockBlobReference($"{imageInfo.Directory}/{imageInfo.BlobName}.jpg");
@@ -38,6 +49,25 @@ namespace AnimeFeedManager.Functions
             await blob.UploadFromStreamAsync(stream);
             log.LogInformation($"{imageInfo.BlobName} has been uploaded");
 
+            // Update AnimeInfo
+            var imageStorage = new ImageStorage
+            {
+                ImageUrl = blob.Uri.AbsoluteUri,
+                PartitionKey = imageInfo.Partition,
+                RowKey = imageInfo.Id
+            }.AddEtag();
+
+            await UpdateAnimeInfo(imageStorage, log);
+
+        }
+
+        private async Task UpdateAnimeInfo(ImageStorage imageStorage, ILogger log)
+        {
+            var result =  await _mediator.Send(new AddImageUrl(imageStorage));
+            result.Match(
+                v => log.LogInformation($"{imageStorage.RowKey} has been updated"),
+                e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
+            );
         }
 
         private static async Task SetContainerAccess(CloudBlobContainer container)

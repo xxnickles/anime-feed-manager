@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Extensions;
-using AnimeFeedManager.Core.ConstrainedTypes;
+﻿using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
@@ -13,6 +12,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using AnimeFeedManager.Common.Helpers;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.LiveChart
@@ -47,7 +47,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
                     .Where(FilterLeftover)
                     .Select(async x => await MapFromCard(x))
                     .Select(x => new AnimeInfo(
-                        NonEmptyString.FromString(GenerateId(season.Value, yearStr, x.Item1)),
+                        NonEmptyString.FromString(IdHelpers.GenerateAnimeId(season.Value, yearStr, x.Item1)),
                         NonEmptyString.FromString(x.Item1),
                         NonEmptyString.FromString(x.Item2),
                         NonEmptyString.FromString(TryGetFeedTitle(feeTitles, x.Item1)),
@@ -145,11 +145,6 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
         #endregion
 
         #region Other Helpers
-
-        private static string GenerateId(string season, string year, string title)
-        {
-            return $"{season}_{year}_{title.ToApplicationId()}".ToLowerInvariant();
-        }
 
         private static string TryGetFeedTitle(IEnumerable<string> titleList, string animeTitle)
         {

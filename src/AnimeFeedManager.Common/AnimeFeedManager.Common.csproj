@@ -5,4 +5,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AnimeFeedManager.Core\AnimeFeedManager.Core.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -22,15 +22,25 @@ namespace AnimeFeedManager.Functions.Models
 
     public class BlobImageInfo
     {
+        public string Partition { get; }
+        public string Id { get; }
         public string Directory { get; }
         public string BlobName { get; }
         public string RemoteUrl { get; }
 
-        public BlobImageInfo(string directory, string blobName, string remoteUrl)
+        public BlobImageInfo(
+            string partition, 
+            string id, 
+            string directory, 
+            string blobName, 
+            string remoteUrl)
         {
+
             Directory = directory;
             BlobName = blobName;
             RemoteUrl = remoteUrl;
+            Partition = partition;
+            Id = id;
         }
     }
 }

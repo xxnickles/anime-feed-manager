@@ -17,10 +17,10 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
             return Value;
         }
 
-        public static Season Spring = new Season("Spring");
-        public static Season Summer = new Season("Summer");
-        public static Season Fall = new Season("Fall");
-        public static Season Winter = new Season("Winter");
+        public static Season Spring = new Season("spring");
+        public static Season Summer = new Season("summer");
+        public static Season Fall = new Season("fall");
+        public static Season Winter = new Season("winter");
 
         public static Season FromString(string? val) => val != null ? val.ToLowerInvariant() switch
         {
