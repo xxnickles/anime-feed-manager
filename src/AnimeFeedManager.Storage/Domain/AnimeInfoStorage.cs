@@ -12,4 +12,9 @@ namespace AnimeFeedManager.Storage.Domain
         public string? Season { get; set; }
         public DateTime? Date { get; set; }
     }
+
+    public class AnimeInfoWithImageStorage : AnimeInfoStorage
+    {
+        public string? ImageUrl { get; set; }
+    }
 }

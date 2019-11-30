@@ -19,13 +19,15 @@ namespace AnimeFeedManager.Application.AnimeLibrary
     {
         public string Id { get; }
         public string Title { get; }
+        public string? Url { get; }
         public string? Synopsis { get; }
         public FeedInfo FeedInformation { get; }
 
-        public SimpleAnime(string id, string title, string? synopsis, bool hasAvailableFeed, string? feedTitle)
+        public SimpleAnime(string id, string title, string? synopsis, string? url, bool hasAvailableFeed, string? feedTitle)
         {
             Id = id;
             Title = title;
+            Url = url;
             Synopsis = synopsis ?? "Not Available";
             FeedInformation = new FeedInfo(hasAvailableFeed, feedTitle);
         }

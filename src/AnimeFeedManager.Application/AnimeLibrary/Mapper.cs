@@ -7,14 +7,15 @@ namespace AnimeFeedManager.Application.AnimeLibrary
 {
     internal class Mapper
     {
-        internal static SeasonCollection ProjectSeasonCollection(ushort year, string season, IEnumerable<AnimeInfoStorage> animeInfos)
+        internal static SeasonCollection ProjectSeasonCollection(ushort year, string season, IEnumerable<AnimeInfoWithImageStorage> animeInfos)
         {
             return new SeasonCollection(year, season,
                 animeInfos.Select(a =>
                     new SimpleAnime(
                         a.RowKey, 
-                        a.Title ?? "Not Available", 
+                        a.Title ?? "Not Available",                     
                         a.Synopsis,
+                        a.ImageUrl,
                         !string.IsNullOrEmpty(a.FeedTitle),
                         a.FeedTitle))
                     .ToImmutableList());

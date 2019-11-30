@@ -9,7 +9,7 @@ namespace AnimeFeedManager.Storage.Interface
 {
     public interface IAnimeInfoRepository
     {
-        Task<Either<DomainError, IEnumerable<AnimeInfoStorage>>> GetBySeason(Season season, int year);
+        Task<Either<DomainError, IEnumerable<AnimeInfoWithImageStorage>>> GetBySeason(Season season, int year);
         Task<Either<DomainError, Unit>> Merge(AnimeInfoStorage animeInfo);
         Task<Either<DomainError, Unit>> AddImageUrl(ImageStorage image);
     }

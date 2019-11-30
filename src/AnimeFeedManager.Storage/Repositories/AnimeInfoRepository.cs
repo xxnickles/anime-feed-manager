@@ -7,6 +7,7 @@ using LanguageExt;
 using Microsoft.Azure.Cosmos.Table;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AnimeFeedManager.Common.Helpers;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Storage.Repositories
@@ -20,10 +21,10 @@ namespace AnimeFeedManager.Storage.Repositories
             _tableClient = tableClientFactory.GetCloudTable();
         }
 
-        public Task<Either<DomainError, IEnumerable<AnimeInfoStorage>>> GetBySeason(Season season, int year)
+        public Task<Either<DomainError, IEnumerable<AnimeInfoWithImageStorage>>> GetBySeason(Season season, int year)
         {
-            var partitionKey = $"{season.Value}-{year.ToString()}";
-            var tableQuery = new TableQuery<AnimeInfoStorage>().
+            var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, (ushort)year);
+            var tableQuery = new TableQuery<AnimeInfoWithImageStorage>().
                 Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
             return TableUtils.TryExecuteSimpleQuery(() => _tableClient.ExecuteQuerySegmentedAsync(tableQuery, null));
         }

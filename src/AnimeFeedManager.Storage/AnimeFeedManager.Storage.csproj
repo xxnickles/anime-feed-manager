@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.Core\AnimeFeedManager.Core.csproj" />
   </ItemGroup>
 
