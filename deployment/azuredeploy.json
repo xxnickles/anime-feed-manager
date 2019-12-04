@@ -61,24 +61,26 @@
             "properties": {
                 "name": "[parameters('name')]",
                 "siteConfig": {
-                  "appSettings": [
-                    {
-                      "name": "FUNCTIONS_WORKER_RUNTIME",
-                      "value": "dotnet"
-                    },
-                    {
-                      "name": "FUNCTIONS_EXTENSION_VERSION",
-                      "value": "~3"
-                    },
-                    {
-                      "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                      "value": "[reference('microsoft.insights/components/anime-feed-manager', '2015-05-01').InstrumentationKey]"
-                    },
-                    {
-                      "name": "AzureWebJobsStorage",
-                      "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
-                    }
-                  ]
+                    "http20Enabled": true,
+                    "use32BitWorkerProcess": false,
+                    "appSettings": [
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "dotnet"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~3"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference('microsoft.insights/components/anime-feed-manager', '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        }
+                    ]
                 },
                 "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
                 "hostingEnvironment": "[parameters('hostingEnvironment')]",
@@ -97,7 +99,7 @@
                 "name": "[parameters('hostingPlanName')]",
                 "workerSize": "[parameters('workerSize')]",
                 "workerSizeId": "[parameters('workerSizeId')]",
-                "numberOfWorkers": "[parameters('numberOfWorkers')]",                
+                "numberOfWorkers": "[parameters('numberOfWorkers')]",
                 "hostingEnvironment": "[parameters('hostingEnvironment')]"
             },
             "sku": {
@@ -131,7 +133,7 @@
     ],
     "variables": {
         "storageResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
-        "storageApiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]"               
+        "storageApiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]"
     },
     "outputs": {
         "storageAccountKey": {
