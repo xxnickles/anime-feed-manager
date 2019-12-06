@@ -21,7 +21,7 @@ jobs:
     - task: UseDotNet@2
       displayName: "SDK Install"
       inputs:
-        version: '3.1.x'
+        version: '3.0.x'
         performMultiLevelLookup: true
     - script: |
         dotnet restore
