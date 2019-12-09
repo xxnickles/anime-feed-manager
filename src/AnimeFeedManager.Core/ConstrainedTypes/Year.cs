@@ -10,7 +10,7 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
 
         public Year(int value)
         {
-            if (value >= 2000 && value <= DateTime.Now.Year)
+            if (value >= 2000 && value <= DateTime.Now.Year + 1)
             {
                 Value = Some((ushort)value);
             }

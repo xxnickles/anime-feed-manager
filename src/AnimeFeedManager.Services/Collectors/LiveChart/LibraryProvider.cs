@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using AnimeFeedManager.Common.Helpers;
@@ -91,7 +92,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
         private static async Task<(string title, string synopsys, Option<DateTime> date)> MapFromCard(HtmlNode card)
         {
 
-            var title = card.SelectSingleNode("h3[@class='main-title']").InnerText;
+            var title = WebUtility.HtmlDecode(card.SelectSingleNode("h3[@class='main-title']").InnerText);
             var animeInfo = card.SelectSingleNode("div[@class='anime-info']");
             
             var taskExtractSynopsis = ExtractSynopsis(animeInfo);
