@@ -1,7 +1,7 @@
-﻿using System.Web.Http;
-using AnimeFeedManager.Core.Error;
+﻿using AnimeFeedManager.Core.Error;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Web.Http;
 
 namespace AnimeFeedManager.Functions.Extensions
 {
@@ -19,14 +19,19 @@ namespace AnimeFeedManager.Functions.Extensions
 
         public static IActionResult ToActionResult(this ValidationErrors error, ILogger log)
         {
+            if (error == null) return new UnprocessableEntityResult();
             log.LogError($"[{error.CorrelationId}] {error.Message}");
             foreach (var validationError in error.Errors)
-                log.LogError($"Field: {validationError.Field}, Message: {validationError.Description}");
+                log.LogError($"Field: {validationError.Key}, Messages: {string.Join(". ", validationError.Value)}");
 
+            // var problemDetails = new ProblemDetails(error.Errors); TODO: Works on MVC Core 3.0
+           
             return new UnprocessableEntityObjectResult(new
             {
-                error.Message, error.Errors
+                Title = error.Message,
+                error.Errors
             });
+
         }
 
         public static IActionResult ToActionResult(this ExceptionError error, ILogger log)

@@ -1,30 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace AnimeFeedManager.Core.Error
 {
     public class ValidationError
     {
-        public string Field { get; }
-        public string Description { get; }
+        public KeyValuePair<string, string[]> Error { get; }
 
-        public ValidationError(string field, string description)
+        public ValidationError(string field, string[] errors)
         {
-            Field = field;
-            Description = description;
+            Error = new KeyValuePair<string, string[]>(field, errors);
         }
 
-        public static ValidationError Create(string source, string error) => new ValidationError(source,error);
+        public static ValidationError Create(string field, string[] errors) => new ValidationError(field, errors);
     }
 
     public class ValidationErrors : DomainError
     {
-        public ImmutableList<ValidationError> Errors { get; }
+        public ImmutableDictionary<string, string[]> Errors { get; }
 
         public ValidationErrors(string correlationId, IEnumerable<ValidationError> errors)
             : base(correlationId, "One or more validations have failed")
         {
-            Errors = errors.ToImmutableList();
+            Errors = new Dictionary<string, string[]>(errors.Select(x => x.Error))
+                .ToImmutableDictionary();
         }
 
         public static ValidationErrors Create(string correlationId, IEnumerable<ValidationError> errors) => new ValidationErrors(correlationId, errors);

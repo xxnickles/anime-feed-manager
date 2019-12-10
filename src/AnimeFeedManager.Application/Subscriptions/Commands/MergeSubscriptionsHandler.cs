@@ -35,12 +35,12 @@ namespace AnimeFeedManager.Application.Subscriptions.Commands
 
         private Validation<ValidationError, Email> SubscriberMustBeValid(string subscriber) =>
             Email.FromString(subscriber)
-                .ToValidation(ValidationError.Create("Subscriber", "Subscriber must be a valid email address"));
+                .ToValidation(ValidationError.Create("Subscriber", new[] { "Subscriber must be a valid email address" }));
 
         private Validation<ValidationError, ImmutableList<NonEmptyString>> IdListMustHaveElements(string[] animeIds) =>
            animeIds != null && animeIds.Any()
                 ? Success<ValidationError, ImmutableList<NonEmptyString>>(animeIds.Select(NonEmptyString.FromString).ToImmutableList())
-                : Fail<ValidationError, ImmutableList<NonEmptyString>>(ValidationError.Create("AnimeIds", "The given list is empty"));
+                : Fail<ValidationError, ImmutableList<NonEmptyString>>(ValidationError.Create("AnimeIds", new[] { "The given list is empty"} ));
 
         private Task<Either<DomainError, SubscriptionCollection>> Persist(Subscription subscription)
         {

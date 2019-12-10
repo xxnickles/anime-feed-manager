@@ -13,7 +13,7 @@ namespace AnimeFeedManager.Application.AnimeLibrary.Queries
     public class GetSeasonCollectionHandler : IRequestHandler<GetSeasonCollection, Either<DomainError, SeasonCollection>>
     {
         private readonly IAnimeInfoRepository _animeInfoRepository;
-        
+
         public GetSeasonCollectionHandler(IAnimeInfoRepository animeInfoRepository) =>
             _animeInfoRepository = animeInfoRepository;
 
@@ -26,7 +26,7 @@ namespace AnimeFeedManager.Application.AnimeLibrary.Queries
 
         private Validation<ValidationError, Season> Validate(GetSeasonCollection param) =>
             Season.TryCreateFromString(param.Season).ToValidation(
-                ValidationError.Create(nameof(param.Season), "Parameter provided doesn't represent a valid season"));
+                ValidationError.Create(nameof(param.Season), new[] { "Parameter provided doesn't represent a valid season" }));
 
         private Task<Either<DomainError, SeasonCollection>> Fetch(Season season)
         {
