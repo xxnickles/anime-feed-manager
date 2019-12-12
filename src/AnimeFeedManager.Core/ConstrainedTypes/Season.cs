@@ -6,6 +6,10 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
     public struct Season
     {
         public readonly string Value;
+        private const string SpringValue = "spring";
+        private const string SummerValue = "summer";
+        private const string FallValue = "fall";
+        private const string WinterValue = "winter";
 
         private Season(string value)
         {
@@ -17,17 +21,17 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
             return Value;
         }
 
-        public static Season Spring = new Season("spring");
-        public static Season Summer = new Season("summer");
-        public static Season Fall = new Season("fall");
-        public static Season Winter = new Season("winter");
+        public static Season Spring = new Season(SpringValue);
+        public static Season Summer = new Season(SummerValue);
+        public static Season Fall = new Season(FallValue);
+        public static Season Winter = new Season(WinterValue);
 
         public static Season FromString(string? val) => val != null ? val.ToLowerInvariant() switch
         {
-            "spring" => Spring,
-            "summer" => Summer,
-            "fall" => Fall,
-            "winter" => Winter,
+            SpringValue => Spring,
+            SummerValue => Summer,
+            FallValue => Fall,
+            WinterValue => Winter,
             _ => Spring
         } : Spring;
 
@@ -36,13 +40,26 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
 
             return val switch
             {
-                "spring" => Some(Spring),
-                "summer" => Some(Summer),
-                "fall" => Some(Fall),
-                "winter" => Some(Winter),
+                SpringValue => Some(Spring),
+                SummerValue => Some(Summer),
+                FallValue => Some(Fall),
+                WinterValue => Some(Winter),
                 _ => None
             };
         }
+
+        // Operators
+        public static bool operator >(Season a, Season b) => GetSeasonWeight(a) > GetSeasonWeight(b);
+        public static bool operator <(Season a, Season b) => GetSeasonWeight(a) < GetSeasonWeight(b);
+
+        private static byte GetSeasonWeight(Season season) => season.Value switch
+        {
+            WinterValue => (byte)0,
+            SpringValue => (byte)1,
+            SummerValue => (byte)2,
+            FallValue => (byte)3,
+            _ => (byte)0
+        };
 
     }
 }

@@ -2,12 +2,6 @@
 
 namespace AnimeFeedManager.Functions.Models
 {
-    public class SeasonInfo
-    {
-        public string? Season { get; set; }
-        public ushort Year { get; set; }
-    }
-
     public class ImageInfo
     {
         public string? Title { get; set; }
