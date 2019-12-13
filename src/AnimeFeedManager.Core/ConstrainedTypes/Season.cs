@@ -1,9 +1,11 @@
-﻿using LanguageExt;
+﻿using System;
+using System.Runtime.CompilerServices;
+using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes
 {
-    public struct Season
+    public struct Season : IComparable<Season>, IEquatable<Season>
     {
         public readonly string Value;
         private const string SpringValue = "spring";
@@ -16,9 +18,26 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
             Value = value;
         }
 
+        public int CompareTo(Season other)
+        {
+            return this > other ? 1 : -1;
+        }
+
         public override string ToString()
         {
             return Value;
+        }
+
+        public bool Equals(Season other)
+        {
+            return other.Value == this.Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            var item = (Season)obj;
+            return ReferenceEquals(item.Value, this.Value);
         }
 
         public static Season Spring = new Season(SpringValue);

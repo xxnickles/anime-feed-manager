@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Functions
 {
-
     public class GetLibrary
     {
         private readonly IMediator _mediator;
