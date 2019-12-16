@@ -10,20 +10,21 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions
 {
-    public class Library
+    public class GetSeasonLibrary
     {
         private readonly IMediator _mediator;
 
-        public Library(IMediator mediator) => _mediator = mediator;
+        public GetSeasonLibrary(IMediator mediator) => _mediator = mediator;
 
         [FunctionName("GetSeasonLibrary")]
         public Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "library/{season}")]
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "library/{year}/{season}")]
             HttpRequest req,
             string season,
+            ushort year,
             ILogger log)
         {
-            return _mediator.Send(new GetSeasonCollection(season))
+            return _mediator.Send(new GetSeasonCollection(season, year))
                 .ToActionResult(log);
         }
     }
