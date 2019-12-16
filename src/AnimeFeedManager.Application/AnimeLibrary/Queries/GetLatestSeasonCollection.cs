@@ -4,7 +4,7 @@ using MediatR;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries
 {
-    public class GetCurrentSeasonCollection: Record<GetCurrentSeasonCollection>, IRequest<Either<DomainError, SeasonCollection>>
+    public class GetLatestSeasonCollection: Record<GetLatestSeasonCollection>, IRequest<Either<DomainError, SeasonCollection>>
     {
        
     }

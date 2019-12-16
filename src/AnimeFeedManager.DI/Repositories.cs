@@ -12,6 +12,7 @@ namespace AnimeFeedManager.DI
             services.AddScoped(typeof(ITableClientFactory<>), typeof(TableClientFactory<>));
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<IAnimeInfoRepository, AnimeInfoRepository>();
+            services.AddScoped<ISeasonRepository, SeasonRepository>();
 
             return services;
         }

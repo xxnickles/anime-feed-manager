@@ -10,18 +10,18 @@ using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries
 {
-    public class GetCurrentSeasonCollectionHandler : IRequestHandler<GetCurrentSeasonCollection, Either<DomainError, SeasonCollection>>
+    public class GetLatestSeasonSeasonCollectionHandler : IRequestHandler<GetLatestSeasonCollection, Either<DomainError, SeasonCollection>>
     {
         private readonly IAnimeInfoRepository _animeInfoRepository;
         private readonly IMediator _mediator;
 
-        public GetCurrentSeasonCollectionHandler(IAnimeInfoRepository animeInfoRepository, IMediator mediator)
+        public GetLatestSeasonSeasonCollectionHandler(IAnimeInfoRepository animeInfoRepository, IMediator mediator)
         {
             _animeInfoRepository = animeInfoRepository;
             _mediator = mediator;
         }
 
-        public Task<Either<DomainError, SeasonCollection>> Handle(GetCurrentSeasonCollection request, CancellationToken cancellationToken)
+        public Task<Either<DomainError, SeasonCollection>> Handle(GetLatestSeasonCollection request, CancellationToken cancellationToken)
         {
           return _mediator.Send(new GetLatestSeason(), CancellationToken.None).BindAsync(Fetch);
         }

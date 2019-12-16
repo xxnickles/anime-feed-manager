@@ -32,10 +32,10 @@ namespace AnimeFeedManager.Functions
             QueueStorage.StoreInQueue(data, queueCollector, log, blobInfo => $"New image '{blobInfo.BlobName}' has been enqueue for upload. Source {blobInfo.RemoteUrl}");
         }
 
-        private static BlobImageInfo CreateDomainInformation(ImageInfo imageInfo, Season season, ushort year)
+        private static BlobImageInfo CreateDomainInformation(ImageInfo imageInfo, Season season, int year)
         {
             var title = imageInfo.Title ?? string.Empty;
-            var partition = IdHelpers.GenerateAnimePartitionKey(season, year);
+            var partition = IdHelpers.GenerateAnimePartitionKey(season, (ushort)year);
             var id = IdHelpers.GenerateAnimeId(season.ToString(), year.ToString(), title);
             var directory = $"{year.ToString()}/{season.Value}";
          
