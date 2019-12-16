@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using AnimeFeedManager.Core.Domain;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using AnimeFeedManager.Core.Domain;
 
 namespace AnimeFeedManager.Core.Utils
 {

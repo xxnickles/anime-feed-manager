@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace AnimeFeedManager.Application.AnimeLibrary
 {
-    internal class Mapper
+    internal static class Mapper
     {
         internal static SeasonCollection ProjectSeasonCollection(ushort year, string season, IEnumerable<AnimeInfoWithImageStorage> animeInfos)
         {
