@@ -4,8 +4,9 @@
     {
         internal struct TableMap
         {
-            public static string AnimeLibrary = "AnimeLibrary";
-            public static string Subscriptions = "Subscriptions";
+            internal static string AnimeLibrary = "AnimeLibrary";
+            internal static string Subscriptions = "Subscriptions";
+            internal static string AvailableSeasons = "AvailableSeasons";
         }
     }
 }

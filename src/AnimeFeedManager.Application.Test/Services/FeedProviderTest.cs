@@ -5,6 +5,7 @@ using Xunit;
 
 namespace AnimeFeedManager.Application.Test.Services
 {
+    [Trait("Category", "Services")]
     public class FeedProviderTest
     {
         [Fact]

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using LanguageExt;
+﻿using LanguageExt;
+using System;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes
@@ -35,9 +34,12 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
 
         public override bool Equals(object obj)
         {
-            if (obj == null) return false;
-            var item = (Season)obj;
-            return ReferenceEquals(item.Value, this.Value);
+            return obj is Season item && ReferenceEquals(item.Value, this.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         public static Season Spring = new Season(SpringValue);

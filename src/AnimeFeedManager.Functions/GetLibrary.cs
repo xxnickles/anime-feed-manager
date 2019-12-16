@@ -21,7 +21,6 @@ namespace AnimeFeedManager.Functions
         public async Task Run(
             [TimerTrigger("0 0 2 * * SAT")] TimerInfo timer,
             [Queue("anime-library")] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
-            [Queue("recent-season")] IAsyncCollector<SeasonInfo> recentSeasonCollector,
             [Queue("available-seasons")] IAsyncCollector<SeasonInfo> availableSeasonCollector,
             ILogger log)
         {
@@ -29,11 +28,8 @@ namespace AnimeFeedManager.Functions
             result.Match(
                 v =>
                 {
-                    // Could be done using service bus or another messaging option...but we are cheap in this camp
                     var seasonInfo = ExtractSeasonInformation(v.First());
-                    recentSeasonCollector.AddAsync(seasonInfo);
                     availableSeasonCollector.AddAsync(seasonInfo);
-
                     QueueStorage.StoreInQueue(v, animeQueueCollector, log, x => $"Queueing {x.Title}");
                 },
                 e => log.LogError($"[{e.CorrelationId}]: {e.Message}")

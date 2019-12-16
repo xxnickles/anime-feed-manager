@@ -52,9 +52,8 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
                         NonEmptyString.FromString(x.Item1),
                         NonEmptyString.FromString(x.Item2),
                         NonEmptyString.FromString(TryGetFeedTitle(feeTitles, x.Item1)),
-                        season,
-                        x.Item3,
-                        year)));
+                        new SeasonInformation(season, year),
+                        x.Item3)));
 
 
                 return results.ToImmutableList();

@@ -5,6 +5,7 @@ using Xunit;
 
 namespace AnimeFeedManager.Application.Test
 {
+    [Trait("Category", "Playground")]
     public class Playground
     {
         [Fact]

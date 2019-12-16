@@ -3,6 +3,7 @@ using Xunit;
 
 namespace AnimeFeedManager.Application.Test.Notifications
 {
+    [Trait("Category", "Helpers")]
     public class NotificationHelpersTest
     {
         [Fact]

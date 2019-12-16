@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Core.ConstrainedTypes;
+﻿using AnimeFeedManager.Common.Helpers;
+using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Infrastructure;
@@ -7,7 +8,6 @@ using LanguageExt;
 using Microsoft.Azure.Cosmos.Table;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AnimeFeedManager.Common.Helpers;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Storage.Repositories

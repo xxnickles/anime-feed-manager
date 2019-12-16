@@ -11,12 +11,12 @@ namespace AnimeFeedManager.Application.Shared.Mappers
     {
         internal static AnimeInfoStorage ProjectToStorageModel(AnimeInfo source)
         {
-            var year = OptionUtils.UnpackOption<ushort>(source.Year.Value, 0);
+            var year = OptionUtils.UnpackOption<ushort>(source.SeasonInformation.Year.Value, 0);
             return new AnimeInfoStorage
             {
                 RowKey = OptionUtils.UnpackOption(source.Id.Value, string.Empty),
-                PartitionKey = IdHelpers.GenerateAnimePartitionKey(source.Season, year),
-                Season = source.Season.Value,
+                PartitionKey = IdHelpers.GenerateAnimePartitionKey(source.SeasonInformation.Season, year),
+                Season = source.SeasonInformation.Season.Value,
                 Year = year,
                 Synopsis = OptionUtils.UnpackOption(source.Synopsis.Value, string.Empty),
                 FeedTitle = OptionUtils.UnpackOption(source.FeedTitle.Value, string.Empty),
