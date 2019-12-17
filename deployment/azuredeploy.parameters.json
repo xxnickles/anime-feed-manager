@@ -15,7 +15,7 @@
             "value": ""
         },
         "hostingPlanName": {
-            "value": "ASP-anime-feed-manager-hosting"
+            "value": "anime-feed-manager-hosting"
         },
         "serverFarmResourceGroup": {
             "value": "anime-feed-manager-resouce-group"

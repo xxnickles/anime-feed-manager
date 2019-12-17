@@ -32,11 +32,6 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
             return other.Value == this.Value;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is Season item && ReferenceEquals(item.Value, this.Value);
-        }
-
         public override int GetHashCode()
         {
             return base.GetHashCode();
