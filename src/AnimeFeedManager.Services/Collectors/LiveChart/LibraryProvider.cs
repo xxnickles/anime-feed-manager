@@ -36,7 +36,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
                 var web = new HtmlWeb();
                 var doc = web.Load(LiveChartLibrary);
                 var seasonInfoString =
-                    HttpUtility.HtmlDecode(doc.DocumentNode.SelectSingleNode("//h1[@class='chart-title']").InnerText);
+                    HttpUtility.HtmlDecode(doc.DocumentNode.SelectSingleNode("//h1").InnerText);
 
                 var (season, year) = GetSeasonInformation(seasonInfoString);
                 var yearStr = OptionUtils.UnpackOption(year.Value, (ushort)DateTime.Today.Year).ToString();
