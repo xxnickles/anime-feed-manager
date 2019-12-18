@@ -6,7 +6,7 @@
             "value": "51a440e1-d847-4090-aa95-759756be5f96"
         },
         "name": {
-            "value": "anime-feed-manager"
+            "value": "AnimeFeedManager"
         },
         "location": {
             "value": "East US"
@@ -15,16 +15,16 @@
             "value": ""
         },
         "hostingPlanName": {
-            "value": "anime-feed-manager-hosting"
+            "value": "AFMhosting"
         },
         "serverFarmResourceGroup": {
-            "value": "anime-feed-manager-resouce-group"
+            "value": "AFMResourceGroup"
         },
         "alwaysOn": {
             "value": false
         },
         "storageAccountName": {
-            "value": "animefeedmanagerstorage"
+            "value": "afmstorageaccount"
         },
         "linuxFxVersion": {
             "value": "2.2"
