@@ -15,7 +15,7 @@
             "value": ""
         },
         "hostingPlanName": {
-            "value": "AFMhosting"
+            "value": "AFMHosting"
         },
         "serverFarmResourceGroup": {
             "value": "AFMResourceGroup"
@@ -24,7 +24,7 @@
             "value": false
         },
         "storageAccountName": {
-            "value": "afmstorageaccount"
+            "value": "animefeedstorageacc"
         },
         "linuxFxVersion": {
             "value": "2.2"

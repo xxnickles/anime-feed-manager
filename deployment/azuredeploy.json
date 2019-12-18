@@ -54,7 +54,7 @@
             "location": "[parameters('location')]",
             "tags": {},
             "dependsOn": [
-                "microsoft.insights/components/anime-feed-manager",
+                "microsoft.insights/components/AnimeFeedManager",
                 "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
                 "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
             ],
@@ -74,7 +74,7 @@
                         },
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference('microsoft.insights/components/anime-feed-manager', '2015-05-01').InstrumentationKey]"
+                            "value": "[reference('microsoft.insights/components/AnimeFeedManager', '2015-05-01').InstrumentationKey]"
                         },
                         {
                             "name": "AzureWebJobsStorage",
@@ -109,7 +109,7 @@
         },
         {
             "apiVersion": "2015-05-01",
-            "name": "anime-feed-manager",
+            "name": "AnimeFeedManager",
             "type": "microsoft.insights/components",
             "location": "eastus",
             "tags": {},
