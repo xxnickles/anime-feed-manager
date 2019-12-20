@@ -1,19 +1,18 @@
-﻿using System.Collections.Generic;
-using AnimeFeedManager.Core.Error;
+﻿using AnimeFeedManager.Core.Error;
 using LanguageExt;
 using MediatR;
 
 namespace AnimeFeedManager.Application.Subscriptions.Commands
 {
-    public sealed class MergeSubscription : Record<MergeSubscription>, IRequest<Either<DomainError, SubscriptionCollection>>
+    public sealed class MergeSubscription : Record<MergeSubscription>, IRequest<Either<DomainError, LanguageExt.Unit>>
     {
         public string Subscriber { get; }
-        public string[] AnimeIds { get; }
+        public string AnimeId { get; }
 
-        public MergeSubscription(string subscriber, string[] animeIds)
+        public MergeSubscription(string subscriber, string animeId)
         {
             Subscriber = subscriber;
-            AnimeIds = animeIds;
+            AnimeId = animeId;
         }
     }
 }

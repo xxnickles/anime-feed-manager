@@ -5,7 +5,6 @@ namespace AnimeFeedManager.Storage.Domain
 {
     public class SubscriptionStorage : TableEntity
     {
-        public string? AnimeIds { get; set; }
      
     }
 }

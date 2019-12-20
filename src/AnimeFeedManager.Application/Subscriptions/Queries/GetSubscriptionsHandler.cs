@@ -33,7 +33,10 @@ namespace AnimeFeedManager.Application.Subscriptions.Queries
         private ImmutableList<SubscriptionCollection> Project(IEnumerable<SubscriptionStorage> collection)
         {
             return collection
-                .Select(Mapper.ProjectToSubscriptionCollection)
+                .GroupBy(
+                    x => x.PartitionKey,
+                    x => x.RowKey,
+                    (key, list) => new SubscriptionCollection(key, list))
                 .ToImmutableList();
         }
 

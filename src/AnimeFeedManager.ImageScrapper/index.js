@@ -20,7 +20,7 @@ const run = async (storeFileFn) => {
 
         const seasonInfomation = () => {
 
-            const titleParts = document.querySelector('h1.chart-title').innerText.split(' ');
+            const titleParts = document.querySelector('h1').innerText.split(' ');
             return {
                 season: titleParts[0].toLowerCase(),
                 year: parseInt(titleParts[1])

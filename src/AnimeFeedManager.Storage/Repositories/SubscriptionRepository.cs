@@ -27,7 +27,5 @@ namespace AnimeFeedManager.Storage.Repositories
             var result = await TableUtils.TryExecute(() => _tableClient.ExecuteAsync(insertOrMergeOperation));
             return result.Map(r => (SubscriptionStorage)r.Result);
         }
-
-
     }
 }

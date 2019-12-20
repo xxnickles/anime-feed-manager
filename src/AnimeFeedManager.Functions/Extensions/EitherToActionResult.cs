@@ -14,7 +14,8 @@ namespace AnimeFeedManager.Functions.Extensions
         public static IActionResult ToActionResult<R>(this Either<DomainError, R> either, ILogger log) =>
             either.Match(
                 Left: error => error.ToActionResult(log),
-                Right: r => new OkObjectResult(r)
-            );
+                Right: r => r is Unit ? (IActionResult) new OkResult() : new OkObjectResult(r));
+
+
     }
 }
