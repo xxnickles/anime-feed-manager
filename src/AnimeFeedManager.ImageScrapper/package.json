@@ -9,9 +9,9 @@
   "author": "Nickle",
   "license": "ISC",
   "dependencies": {
-    "@azure/storage-blob": "^12.1.0",
-    "@types/dotenv": "^4.0.3",
-    "dotenv": "^6.2.0",
+    "@azure/storage-blob": "^12.1.1",
+    "@types/dotenv": "^8.2.0",
+    "dotenv": "^8.2.0",
     "puppeteer": "^2.1.1"
   }
 }
