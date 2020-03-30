@@ -1,7 +1,6 @@
-import { Component, h, Prop } from '@stencil/core';
+import { Event, Component, h, Prop, EventEmitter } from '@stencil/core';
 import { alertController } from '@ionic/core';
 import { SubscribedFeed, SubscriptionStatus } from '../../models';
-
 
 @Component({
   tag: 'afm-card',
@@ -11,6 +10,8 @@ import { SubscribedFeed, SubscriptionStatus } from '../../models';
 export class AfmCard {
   @Prop() feedInfo: SubscribedFeed;
   @Prop() subscriptionStatus: SubscriptionStatus = SubscriptionStatus.none;
+  @Event() subscriptionSelected: EventEmitter<string>;
+
   imageUrl(url: string) {
     return !!url ? url : '/assets/img/no_available.jpg';
   }
@@ -25,7 +26,7 @@ export class AfmCard {
           text: 'Yes',
           cssClass: 'secondary',
           handler: () => {
-            console.log(this.feedInfo.feedInformation.title);
+            this.subscriptionSelected.emit(this.feedInfo.feedInformation.title);
           }
         }]
     });
@@ -52,10 +53,12 @@ export class AfmCard {
       default:
         return null;
     }
-
-
   }
 
+  parseSynopsis() {
+
+  return (this.feedInfo.synopsis.split("\n").map(s => <p>{s}</p>));
+  }
 
   render() {
     return [
@@ -92,7 +95,7 @@ export class AfmCard {
           </ion-card-header>
 
           <ion-card-content>
-            {this.feedInfo.synopsis}
+            {this.parseSynopsis()}
           </ion-card-content>
         </div>
       </ion-card>

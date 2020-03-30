@@ -6,7 +6,7 @@ interface UserState {
   currentUser: string;
 }
 
-function initailState() : UserState {
+function emptyUserState() : UserState {
   return {
     currentUser: '',
     isLogged: false,
@@ -18,7 +18,7 @@ function initailState() : UserState {
 class UserStore extends Store<UserState> {
 
   constructor() {
-    super(initailState());
+    super(emptyUserState());
   }
 }
 
@@ -27,5 +27,6 @@ const userStore = new UserStore();
 export {
   UserState,
   UserStore,
-  userStore
+  userStore,
+  emptyUserState
 }

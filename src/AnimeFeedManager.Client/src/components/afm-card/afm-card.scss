@@ -28,6 +28,10 @@
   }
 
   ion-card {
+    p {
+      margin-bottom: 10px;
+    }
+
     ion-chip {
       cursor: default;
     }
@@ -46,7 +50,8 @@
       }
 
       img {
-        object-fit: cover;
+        width: 100%;
+        object-fit: scale-down;
         object-position: top;
       }
 
@@ -69,7 +74,8 @@
         width: 100%;
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: space-around;
+        margin-bottom: 0.5rem;
 
         .button-inner {
           background-color: rgb(0, 0, 0);

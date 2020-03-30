@@ -5,22 +5,21 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { SubscribedFeed, SubscriptionStatus, } from "./models";
+import { Season, SubscribedFeed, SubscriptionStatus, } from "./models";
 export namespace Components {
     interface AfmCard {
         "feedInfo": SubscribedFeed;
         "subscriptionStatus": SubscriptionStatus;
     }
     interface AfmHome {
+        "season": Season;
+        "year": string;
     }
     interface AfmMailSelector {
     }
     interface AfmNav {
     }
     interface AfmRoot {
-    }
-    interface AppProfile {
-        "name": string;
     }
 }
 declare global {
@@ -54,27 +53,23 @@ declare global {
         prototype: HTMLAfmRootElement;
         new (): HTMLAfmRootElement;
     };
-    interface HTMLAppProfileElement extends Components.AppProfile, HTMLStencilElement {
-    }
-    var HTMLAppProfileElement: {
-        prototype: HTMLAppProfileElement;
-        new (): HTMLAppProfileElement;
-    };
     interface HTMLElementTagNameMap {
         "afm-card": HTMLAfmCardElement;
         "afm-home": HTMLAfmHomeElement;
         "afm-mail-selector": HTMLAfmMailSelectorElement;
         "afm-nav": HTMLAfmNavElement;
         "afm-root": HTMLAfmRootElement;
-        "app-profile": HTMLAppProfileElement;
     }
 }
 declare namespace LocalJSX {
     interface AfmCard {
         "feedInfo"?: SubscribedFeed;
+        "onSubscriptionSelected"?: (event: CustomEvent<string>) => void;
         "subscriptionStatus"?: SubscriptionStatus;
     }
     interface AfmHome {
+        "season"?: Season;
+        "year"?: string;
     }
     interface AfmMailSelector {
         "onEmailSelected"?: (event: CustomEvent<string>) => void;
@@ -83,16 +78,12 @@ declare namespace LocalJSX {
     }
     interface AfmRoot {
     }
-    interface AppProfile {
-        "name"?: string;
-    }
     interface IntrinsicElements {
         "afm-card": AfmCard;
         "afm-home": AfmHome;
         "afm-mail-selector": AfmMailSelector;
         "afm-nav": AfmNav;
         "afm-root": AfmRoot;
-        "app-profile": AppProfile;
     }
 }
 export { LocalJSX as JSX };
@@ -104,7 +95,6 @@ declare module "@stencil/core" {
             "afm-mail-selector": LocalJSX.AfmMailSelector & JSXBase.HTMLAttributes<HTMLAfmMailSelectorElement>;
             "afm-nav": LocalJSX.AfmNav & JSXBase.HTMLAttributes<HTMLAfmNavElement>;
             "afm-root": LocalJSX.AfmRoot & JSXBase.HTMLAttributes<HTMLAfmRootElement>;
-            "app-profile": LocalJSX.AppProfile & JSXBase.HTMLAttributes<HTMLAppProfileElement>;
         }
     }
 }

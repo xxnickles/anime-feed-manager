@@ -1,17 +1,20 @@
 import { Store, StoreConfig } from '@datorama/akita';
-import { Season, SubscribedFeed } from '../../models';
+import { SubscribedFeed, SeasonInformation } from '../../models';
+
+type SeasonInfo = SeasonInformation | 'latest';
 
 interface SeasonCollectionState {
-  season: Season;
-  year: number;
-  animes: SubscribedFeed[]
+  seasonInfo: SeasonInfo;
+  animes: SubscribedFeed[],
+  availableSeasons: SeasonInformation[]
+
 }
 
 function createInitialState(): SeasonCollectionState {
   return {
-    season: Season.spring,
-    year: new Date().getFullYear(),
-    animes: []
+    seasonInfo: 'latest',
+    animes: [],
+    availableSeasons: []
   };
 }
 
@@ -28,7 +31,8 @@ const animeListStore = new AnimeListStore();
 export {
   AnimeListStore,
   SeasonCollectionState,
-  animeListStore
+  animeListStore,
+  SeasonInfo
 }
 
 

@@ -7,7 +7,11 @@ const baseApi = ky.extend({
       addAuthorizationHeaders
     ]
   },
-  timeout: 15000
+  retry: {
+    limit: 5,
+    methods: ['get'],
+    statusCodes: [413]
+  }
 })
 
 function addAuthorizationHeaders(request: Request) {

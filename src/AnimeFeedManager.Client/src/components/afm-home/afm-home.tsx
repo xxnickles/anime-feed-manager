@@ -1,7 +1,13 @@
-import { Component, h, State } from '@stencil/core';
-import { menuController } from '@ionic/core';
-import { fetchLatestSeason, animeListQuery, UserInfo, userInfoQuery } from '../../stores';
-import { SubscribedFeed, SubscriptionStatus } from '../../models';
+import { Component, h, State, Listen, Prop } from '@stencil/core';
+import {
+  fetchLatestSeason,
+  animeListQuery,
+  UserInfo,
+  userInfoQuery,
+  addSubscription,
+  fetchSeasonCollection
+} from '../../stores';
+import { SubscribedFeed, SubscriptionStatus, Season } from '../../models';
 import { untilDestroyed } from '../../utils';
 @Component({
   tag: 'afm-home',
@@ -9,7 +15,8 @@ import { untilDestroyed } from '../../utils';
   shadow: true
 })
 export class AfmHome {
-
+  @Prop() year: string;
+  @Prop() season: Season;
   @State() state = {
     animes: [] as SubscribedFeed[],
     userInfo: {
@@ -23,7 +30,9 @@ export class AfmHome {
   componentWillLoad() {
     animeListQuery.animes$
       .pipe(untilDestroyed(this))
-      .subscribe(animes => this.state = { ...this.state, ...{ animes } });
+      .subscribe(animes => {
+        this.state = { ...this.state, ...{ animes } }
+      });
 
     userInfoQuery.userInfo$
       .pipe(untilDestroyed(this))
@@ -31,11 +40,11 @@ export class AfmHome {
         this.state = { ...this.state, ...{ userInfo } };
       });
 
-    fetchLatestSeason();
-  }
-
-  onCLick() {
-    menuController.toggle();
+    if (!!this.year && !!this.season) {
+      fetchSeasonCollection(Season[this.season.toLocaleLowerCase()], parseInt(this.year));
+    } else {
+      fetchLatestSeason();
+    }
   }
 
   getSubscriptionStatus(anime: SubscribedFeed) {
@@ -47,16 +56,20 @@ export class AfmHome {
 
   }
 
+  @Listen('subscriptionSelected')
+  subscriptionSelectedHandler(event: CustomEvent<string>) {
+    addSubscription({ animeId: event.detail, subscriber: this.state.userInfo.userName });
+  }
+
 
   render() {
     return [
-      <stencil-route-title pageTitle="Home" />,
       <ion-content class="ion-padding grid">
         {
           this.state.animes.map((anime) =>
-            <afm-card
+            (<afm-card
               feedInfo={anime}
-              subscriptionStatus={this.getSubscriptionStatus(anime)} ></afm-card>
+              subscriptionStatus={this.getSubscriptionStatus(anime)} ></afm-card>)
           )}
 
 

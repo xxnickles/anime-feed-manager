@@ -15,14 +15,13 @@
     "generate": "stencil generate"
   },
   "dependencies": {
-    "@datorama/akita": "^4.21.0",
-    "@ionic/core": "^5.0.4",
-    "@stencil/router": "^1.0.1",
+    "@datorama/akita": "^4.22.0",
+    "@ionic/core": "^5.0.7",
     "@types/jest": "^25.1.4",
     "ky": "^0.19.0"
   },
   "devDependencies": {
-    "@stencil/core": "^1.9.1",
+    "@stencil/core": "^1.11.2",
     "@stencil/sass": "^1.1.1"
   }
 }

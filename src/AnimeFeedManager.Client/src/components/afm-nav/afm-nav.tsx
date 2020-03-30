@@ -1,7 +1,6 @@
 import { Component, h, Listen, State } from '@stencil/core';
-import { updateUser, userInfoQuery } from '../../stores';
+import { updateUser, userInfoQuery, tryGetUserFromStorage, logOut } from '../../stores';
 import { untilDestroyed } from '../../utils';
-
 
 @Component({
   tag: 'afm-nav',
@@ -24,37 +23,53 @@ export class AfmNav {
       .pipe(untilDestroyed(this))
       .subscribe(userInfo => {
         this.userInfo = { ...this.userInfo, ...userInfo };
-        console.log('nave user info', this.userInfo);
       });
+    tryGetUserFromStorage();
+  }
+
+  handleEmailSent() {
+    logOut();
+  }
+
+  renderUserInfo() {
+    return [
+      <ion-item >
+        <ion-icon name="person" slot="start"></ion-icon>
+        <ion-label>{this.userInfo.userName}</ion-label>
+      </ion-item >,
+      <ion-item >
+        <ion-button
+          size="small"
+          onClick={() => this.handleEmailSent()}
+        >Change User</ion-button>
+      </ion-item >
+    ]
   }
 
   render() {
     return [
-      <ion-menu side="start" contentId="navigation">
+      <ion-menu side="start" contentId="menu-content">
         <ion-header>
           <ion-toolbar color="primary">
             <ion-title>Menu</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content>
+        <ion-content >
           <ion-list>
             {
               !this.userInfo.logged ?
                 <afm-mail-selector ></afm-mail-selector> :
-                <ion-item >
-                  <ion-icon name="person" slot="start"></ion-icon>
-                  <ion-label>{this.userInfo.userName}</ion-label>
-                </ion-item >
+                this.renderUserInfo()
             }
 
-            <ion-menu-toggle>
-              <stencil-route-link url='/' activeClass='active' exact={true}>
+            {/* <ion-menu-toggle>
+              <ion-router-link href='/'>
                 <ion-item button >
                   <ion-icon name="home" slot="start"></ion-icon>
                   <ion-label>Home</ion-label>
                 </ion-item>
-              </stencil-route-link>
-            </ion-menu-toggle>
+              </ion-router-link>
+            </ion-menu-toggle> */}
           </ion-list>
         </ion-content>
       </ion-menu>
