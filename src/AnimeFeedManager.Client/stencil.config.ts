@@ -6,7 +6,10 @@ import { sass } from '@stencil/sass';
 export const config: Config = {
   outputTargets: [{
     type: 'www',
-    serviceWorker: null
+    serviceWorker: {
+
+      swSrc: 'src/sw.js'
+    }
   }],
   globalScript: 'src/global/app.ts',
   globalStyle: 'src/global/app.scss',

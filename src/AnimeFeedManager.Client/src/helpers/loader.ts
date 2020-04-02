@@ -25,7 +25,6 @@ class LoaderService {
         }
 
         if (val.values.length === 0 && val.running) {
-          console.log('dismissing');
           this.loader.dismiss();
           this.loader = null;
           this.updateLoaderRunningState(false);
