@@ -79,7 +79,7 @@
                         {
                             "name": "AzureWebJobsStorage",
                             "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
-                        }                       
+                        }
                     ]
                 },
                 "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
@@ -130,8 +130,7 @@
             "kind": "StorageV2",
             "properties": {
                 "supportsHttpsTrafficOnly": true
-            },
-            "accessTier": "Hot"
+            }
         }
     ],
     "variables": {
