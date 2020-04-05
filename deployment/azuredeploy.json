@@ -124,11 +124,14 @@
             "name": "[parameters('storageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
-                "name": "Standard_LRS"
+                "name": "Standard_LRS",
+                "tier": "Standard"
             },
+            "kind": "StorageV2",
             "properties": {
                 "supportsHttpsTrafficOnly": true
-            }
+            },
+            "accessTier": "Hot"
         }
     ],
     "variables": {
