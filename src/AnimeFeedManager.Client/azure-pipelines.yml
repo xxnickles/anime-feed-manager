@@ -1,0 +1,49 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - src/AnimeFeedManager.Client
+
+variables:
+  clientDirectory: "$(System.DefaultWorkingDirectory)/src/AnimeFeedManager.Client"
+  # Agent VM image name
+  vmImageName: "ubuntu-latest"
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "12.x"
+    displayName: "Setup Environment"
+
+  - script: npm install
+    workingDirectory: "$(clientDirectory)"
+    displayName: "Install Dependencies"
+
+  - script: npm run build:ci
+    workingDirectory: "$(clientDirectory)"
+    displayName: "Build"
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(clientDirectory)/www"
+      TargetFolder: "$(Build.ArtifactStagingDirectory)"
+
+  - task: ArchiveFiles@2
+    displayName: "Archive files"
+    inputs:
+      rootFolderOrFile: "$(Build.ArtifactStagingDirectory)"
+      includeRootFolder: false
+      archiveFile: "$(Build.ArtifactStagingDirectory)/build$(Build.BuildId)-client.zip"
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: "$(Build.ArtifactStagingDirectory)/build$(Build.BuildId)-client.zip"
+      artifactName: "drop"
+
