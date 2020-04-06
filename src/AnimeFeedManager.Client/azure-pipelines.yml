@@ -10,6 +10,7 @@ trigger:
   paths:
     include:
       - src/AnimeFeedManager.Client
+      - deployment/azure-client-deploy.json
 
 variables:
   clientDirectory: "$(System.DefaultWorkingDirectory)/src/AnimeFeedManager.Client"
@@ -33,17 +34,16 @@ steps:
   - task: CopyFiles@2
     inputs:
       SourceFolder: "$(clientDirectory)/www"
-      TargetFolder: "$(Build.ArtifactStagingDirectory)"
+      TargetFolder: "$(Build.ArtifactStagingDirectory)/www"
 
-  - task: ArchiveFiles@2
-    displayName: "Archive files"
+  - task: CopyFiles@2
     inputs:
-      rootFolderOrFile: "$(Build.ArtifactStagingDirectory)"
-      includeRootFolder: false
-      archiveFile: "$(Build.ArtifactStagingDirectory)/build$(Build.BuildId)-client.zip"
+      SourceFolder: "$(System.DefaultWorkingDirectory)/deployment"
+      TargetFolder: "$(Build.ArtifactStagingDirectory)/deployment"
+
 
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: "$(Build.ArtifactStagingDirectory)/build$(Build.BuildId)-client.zip"
+      pathtoPublish: "$(Build.ArtifactStagingDirectory)"
       artifactName: "drop"
 
