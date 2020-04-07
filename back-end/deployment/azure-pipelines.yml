@@ -65,7 +65,7 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.DefaultWorkingDirectory)/deployment"
+          SourceFolder: "$(projectDirectory)/deployment"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/deployment"
 
       - task: PublishBuildArtifacts@1

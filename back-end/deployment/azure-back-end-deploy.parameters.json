@@ -19,15 +19,9 @@
         },
         "serverFarmResourceGroup": {
             "value": "afm-resource-group"
-        },
-        "alwaysOn": {
-            "value": false
-        },
+        },        
         "storageAccountName": {
             "value": "animefeedmanagerstorage"
-        },
-        "linuxFxVersion": {
-            "value": "2.2"
         },
         "sku": {
             "value": "Dynamic"
