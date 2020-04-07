@@ -71,17 +71,6 @@ export class AfmHome {
               feedInfo={anime}
               subscriptionStatus={this.getSubscriptionStatus(anime)} ></afm-card>)
           )}
-
-
-        {/* <ion-button href="/profile/ionic" expand="block">Profile page</ion-button> */}
-        {/* <stencil-route-link url='/profile/stencil'>
-          <button>
-            Profile page
-          </button>
-        </stencil-route-link>
-        <ion-content class="ion-padding">
-          <ion-button expand="block" onClick={this.onCLick}>Open Menu</ion-button>
-        </ion-content> */}
       </ion-content>
 
     ];

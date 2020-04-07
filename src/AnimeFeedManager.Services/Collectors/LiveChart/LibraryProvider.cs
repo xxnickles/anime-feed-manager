@@ -151,7 +151,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
             var result = Process.ExtractOne(animeTitle, titleList);
             return result.Score switch
             {
-                var s when s > 85 => result.Value,
+                var s when s > 70 => result.Value,
                 _ => string.Empty,
             };
         }
