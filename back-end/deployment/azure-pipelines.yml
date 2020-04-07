@@ -8,12 +8,11 @@ trigger:
     include:
       - master
   paths:
-    exclude:
-      - src/AnimeFeedManager.ImageScrapper
-      - src/AnimeFeedManager.Client
-      - deployment/azure-client-deploy.json
+    include:
+      - back-end/  
 
 variables:
+  projectDirectory: "$(System.DefaultWorkingDirectory)/back-end"
   # Azure Resource Manager connection created during pipeline creation
   azureSubscription: "a5dfc76c-c47a-4b8b-81d7-82e241224502"
   # Agent VM image name
@@ -30,32 +29,46 @@ jobs:
         inputs:
           version: "3.1.x"
           performMultiLevelLookup: true
+
       - script: |
           dotnet restore
-          dotnet build --configuration Release
-      - task: DotNetCoreCLI@2
+          dotnet build --configuration Release        
+        workingDirectory: "$(projectDirectory)"
+        displayName: "Restore"
+
+      - task: DotNetCoreCLI@2        
         displayName: "Tests"
         inputs:
           command: "test"
           arguments: "--configuration Release"
           projects: "**/*.Test.csproj"
           testRunTitle: "Unit Test"
+          workingDirectory: "$(projectDirectory)"
+
       - task: DotNetCoreCLI@2
-        displayName: "Publish"
+        displayName: "Publish"        
         inputs:
           command: publish
-          arguments: "--configuration Release --output $(System.DefaultWorkingDirectory)/publish_output"
+          arguments: "--configuration Release --output $(projectDirectory)/publish_output"
           projects: "**/*.Functions.csproj"
           publishWebProjects: false
           modifyOutputPath: false
           zipAfterPublish: false
+          workingDirectory: "$(projectDirectory)"
+
       - task: ArchiveFiles@2
         displayName: "Archive files"
         inputs:
-          rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
+          rootFolderOrFile: "$(projectDirectory)/publish_output"
           includeRootFolder: false
-          archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId)-functions.zip"
+          archiveFile: "$(Build.ArtifactStagingDirectory)/build$(Build.BuildId)-functions.zip"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(System.DefaultWorkingDirectory)/deployment"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/deployment"
+
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId)-functions.zip"
-          name: "drop"
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+          artifactName: "drop"      

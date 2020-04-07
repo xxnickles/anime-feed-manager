@@ -1,5 +1,5 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "subscriptionId": {
@@ -20,13 +20,7 @@
         "serverFarmResourceGroup": {
             "type": "string"
         },
-        "alwaysOn": {
-            "type": "bool"
-        },
         "storageAccountName": {
-            "type": "string"
-        },
-        "linuxFxVersion": {
             "type": "string"
         },
         "sku": {
@@ -52,7 +46,8 @@
             "type": "Microsoft.Web/sites",
             "kind": "functionapp",
             "location": "[parameters('location')]",
-            "tags": {},
+            "tags": {
+            },
             "dependsOn": [
                 "microsoft.insights/components/AnimeFeedManager",
                 "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
@@ -93,8 +88,10 @@
             "type": "Microsoft.Web/serverfarms",
             "location": "[parameters('location')]",
             "kind": "",
-            "tags": {},
-            "dependsOn": [],
+            "tags": {
+            },
+            "dependsOn": [
+            ],
             "properties": {
                 "name": "[parameters('hostingPlanName')]",
                 "workerSize": "[parameters('workerSize')]",
@@ -112,7 +109,8 @@
             "name": "AnimeFeedManager",
             "type": "microsoft.insights/components",
             "location": "eastus",
-            "tags": {},
+            "tags": {
+            },
             "properties": {
                 "ApplicationId": "[parameters('name')]",
                 "Request_Source": "IbizaWebAppExtensionCreate"

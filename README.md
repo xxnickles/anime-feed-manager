@@ -1,6 +1,7 @@
-|Branch|Status|
-|---|---|
-|master|[![Build Status](https://dev.azure.com/afonseca0311/Anime%20Feed%20Manager/_apis/build/status/xxnickles.anime-feed-manager?branchName=master)](https://dev.azure.com/afonseca0311/Anime%20Feed%20Manager/_build/latest?definitionId=4&branchName=master)|
+|Project|Branch|Status|
+|---|---|---|
+|back-end|master|[![Build Status](https://dev.azure.com/afonseca0311/Anime%20Feed%20Manager/_apis/build/status/xxnickles.anime-feed-manager?branchName=master)](https://dev.azure.com/afonseca0311/Anime%20Feed%20Manager/_build/latest?definitionId=4&branchName=master)|
+|client|master|[![Build Status](https://dev.azure.com/afonseca0311/Anime%20Feed%20Manager/_apis/build/status/anime-feed-manager%20client?branchName=master)](https://dev.azure.com/afonseca0311/Anime%20Feed%20Manager/_build/latest?definitionId=5&branchName=master)
 
 Anime Feed Manager
 =================

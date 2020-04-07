@@ -9,11 +9,10 @@ trigger:
       - master
   paths:
     include:
-      - src/AnimeFeedManager.Client
-      - deployment/azure-client-deploy.json
+      - client/
 
 variables:
-  clientDirectory: "$(System.DefaultWorkingDirectory)/src/AnimeFeedManager.Client"
+  projectDirectory: "$(System.DefaultWorkingDirectory)/client"
   # Agent VM image name
   vmImageName: "ubuntu-latest"
 
@@ -24,21 +23,21 @@ steps:
     displayName: "Setup Environment"
 
   - script: npm install
-    workingDirectory: "$(clientDirectory)"
+    workingDirectory: "$(projectDirectory)"
     displayName: "Install Dependencies"
 
   - script: npm run build:ci
-    workingDirectory: "$(clientDirectory)"
+    workingDirectory: "$(projectDirectory)"
     displayName: "Build"
 
   - task: CopyFiles@2
     inputs:
-      SourceFolder: "$(clientDirectory)/www"
+      SourceFolder: "$(projectDirectory)/www"
       TargetFolder: "$(Build.ArtifactStagingDirectory)/www"
 
   - task: CopyFiles@2
     inputs:
-      SourceFolder: "$(System.DefaultWorkingDirectory)/deployment"
+      SourceFolder: "$(projectDirectory)/deployment"
       TargetFolder: "$(Build.ArtifactStagingDirectory)/deployment"
 
 
