@@ -34,7 +34,9 @@ namespace AnimeFeedManager.Storage
             }
             catch (Exception e)
             {
-                return Left<DomainError, T>(ExceptionError.FromException(e, "TableOperation"));
+                return e.Message == "Not Found" ?
+                    Left<DomainError, T>(NotFoundError.Create("TableOperation", "The entity was not found")) :
+                    Left<DomainError, T>(ExceptionError.FromException(e, "TableOperation"));
             }
         }
     }

@@ -12,5 +12,6 @@ namespace AnimeFeedManager.Storage.Interface
         Task<Either<DomainError, IEnumerable<SubscriptionStorage>>> Get(Email userEmail);
         Task<Either<DomainError, IEnumerable<SubscriptionStorage>>> GetAll();
         Task<Either<DomainError, SubscriptionStorage>> Merge(SubscriptionStorage subscription);
+        Task<Either<DomainError, Unit>> Delete(SubscriptionStorage subscription);
     }
 }

@@ -8,6 +8,7 @@ using LanguageExt;
 using Microsoft.Azure.Cosmos.Table;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Storage.Repositories
 {
@@ -35,6 +36,13 @@ namespace AnimeFeedManager.Storage.Repositories
             TableOperation insertOrMergeOperation = TableOperation.InsertOrMerge(subscription);
             var result = await TableUtils.TryExecute(() => _tableClient.ExecuteAsync(insertOrMergeOperation));
             return result.Map(r => (SubscriptionStorage)r.Result);
+        }
+
+        public async Task<Either<DomainError, Unit>> Delete(SubscriptionStorage subscription)
+        {
+            TableOperation deleteOperation = TableOperation.Delete(subscription.AddEtag());
+            var result = await TableUtils.TryExecute(() => _tableClient.ExecuteAsync(deleteOperation));
+            return result.Map(x => unit);
         }
     }
 }

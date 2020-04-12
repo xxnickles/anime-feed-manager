@@ -13,6 +13,7 @@ namespace AnimeFeedManager.Functions.Extensions
             {
                 ExceptionError eError => eError.ToActionResult(log),
                 ValidationErrors vError => vError.ToActionResult(log),
+                NotFoundError nError => nError.ToActionResult(log),
                 _ => new InternalServerErrorResult()
             };
         }
@@ -25,7 +26,7 @@ namespace AnimeFeedManager.Functions.Extensions
                 log.LogError($"Field: {validationError.Key}, Messages: {string.Join(". ", validationError.Value)}");
 
             // var problemDetails = new ProblemDetails(error.Errors); TODO: Works on MVC Core 3.0
-           
+
             return new UnprocessableEntityObjectResult(new
             {
                 Title = error.Message,
@@ -38,6 +39,12 @@ namespace AnimeFeedManager.Functions.Extensions
         {
             log.LogError(error.ToString());
             return new InternalServerErrorResult();
+        }
+
+        public static IActionResult ToActionResult(this NotFoundError error, ILogger log)
+        {
+            log.LogError(error.ToString());
+            return new NotFoundObjectResult(new { Message = error.Message });
         }
     }
 }
