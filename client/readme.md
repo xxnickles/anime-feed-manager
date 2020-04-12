@@ -1,4 +1,8 @@
-# Ionic PWA Toolkit
+# Anime Feed Manager client
+
+Simple web client developed using stencil, ionic, and akita (state management)
+
+## Ionic PWA Toolkit
 
 The PWA Toolkit is a starting point for building Progressive Web Apps using Ionic and Stencil.
 This combination of tools gives you the ability to build a fast, efficient PWA out of the box.
@@ -26,7 +30,6 @@ To start building, clone this repo to a new directory:
 npm init stencil ionic-pwa
 ```
 
-
 ## Production
 
 To build for production, run:
@@ -40,24 +43,6 @@ A production build includes:
 * Minified code bundles
 * Generated Service workers
 * App manifest
-
-## Hosting
-
-Apps should be hosted on through HTTPS, and if possible, through a provider that supports HTTP2.
-One provider that does support this is [Firebase Hosting](https://firebase.google.com/docs/hosting/).
-
-## H2 Push
-
-We recommend setting up HTTP2 Push on Firebase. H2 Push may sound complicated, but it's actually a simple concept. To learn about it, take a look at this [article](https://en.wikipedia.org/wiki/HTTP/2_Server_Push).
-
-To set this up for `my-app`:
-
-* Do a production build of the app: `npm run build`
-* Serve your WWW folder locally using a local http server and open in your browser.
-  * https://www.npmjs.com/package/http-server works pretty well for this. You can serve your www folder by running `http-server www`.
-* Open the DevTools and look at the network tab.
-  * Reload the page and you should see all of your files show up in the network tab. Excluding the `sw.js` file, these are the files you want to H2 push.
-* List these files in the link headers of your firebase.json file. For a syntax reference, review this [article](https://w3c.github.io/preload/#server-push-http-2)
 
 ## Service Workers
 

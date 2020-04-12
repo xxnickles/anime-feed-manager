@@ -9,7 +9,9 @@ trigger:
       - master
   paths:
     include:
-      - back-end/  
+      - back-end
+    exclude:
+      - back-end/README.md
 
 variables:
   projectDirectory: "$(System.DefaultWorkingDirectory)/back-end"

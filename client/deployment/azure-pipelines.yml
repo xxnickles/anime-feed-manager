@@ -9,7 +9,9 @@ trigger:
       - master
   paths:
     include:
-      - client/
+      - client
+    exclude:
+      - client/README.md
 
 variables:
   projectDirectory: "$(System.DefaultWorkingDirectory)/client"
