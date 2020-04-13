@@ -38,6 +38,7 @@ export class AfmMailSelector {
         <ion-button
           size="small"
           disabled={!this.valid}
+          mode="ios"
           onClick={() => this.handleEmailSent()}
         >Send</ion-button>
       </ion-item >

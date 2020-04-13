@@ -5,7 +5,8 @@ import {
   UserInfo,
   userInfoQuery,
   addSubscription,
-  fetchSeasonCollection
+  fetchSeasonCollection,
+  unsubscribe
 } from '../../stores';
 import { SubscribedFeed, SubscriptionStatus, Season } from '../../models';
 import { untilDestroyed } from '../../utils';
@@ -61,6 +62,10 @@ export class AfmHome {
     addSubscription({ animeId: event.detail, subscriber: this.state.userInfo.userName });
   }
 
+  @Listen('unsubscriptionSelected')
+  unsubscriptionSelectedHandler(event: CustomEvent<string>) {
+    unsubscribe({ animeId: event.detail, subscriber: this.state.userInfo.userName });
+  }
 
   render() {
     return [

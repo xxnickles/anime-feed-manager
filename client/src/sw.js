@@ -1,6 +1,6 @@
 importScripts('workbox-v5.1.2/workbox-sw.js');
 workbox.routing.registerRoute(new RegExp('^https://animefeedmanager.azure-api.net/api/.*'),
-  new workbox.strategies.CacheFirst({
+  new workbox.strategies.NetworkFirst({
     cacheName: 'api-calls',
     plugins: [
       new workbox.expiration.ExpirationPlugin({

@@ -65,6 +65,7 @@ declare namespace LocalJSX {
     interface AfmCard {
         "feedInfo"?: SubscribedFeed;
         "onSubscriptionSelected"?: (event: CustomEvent<string>) => void;
+        "onUnsubscriptionSelected"?: (event: CustomEvent<string>) => void;
         "subscriptionStatus"?: SubscriptionStatus;
     }
     interface AfmHome {

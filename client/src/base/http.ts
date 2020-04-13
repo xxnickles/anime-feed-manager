@@ -1,7 +1,7 @@
 import ky from 'ky';
-
+import { Build } from "@stencil/core";
 const baseApi = ky.extend({
-  prefixUrl: 'https://animefeedmanager.azure-api.net/api',
+  prefixUrl: Build.isDev || Build.isTesting ? 'http://localhost:7071/api' : 'https://animefeedmanager.azure-api.net/api',
   hooks: {
     beforeRequest: [
       addAuthorizationHeaders

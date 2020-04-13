@@ -1,3 +1,7 @@
+:host(.button-solid) {
+  text-transform: none !important;
+}
+
 :host {
   --ion-color-shade: #353535;
   --ion-color-primary-rgb: 67, 235, 198;
@@ -8,7 +12,7 @@
   --ion-color-primary: #353535;
 
   .ion-color {
-    background: rgba(var(--ion-color-base-rgb), 0.85);
+    background: rgba(var(--ion-color-base-rgb), 1);
   }
 
   .ion-color-primary {

@@ -1,5 +1,5 @@
 
-import { Season, SeasonInformation, NewSubscription, SeasonCollection } from '../../models';
+import { Season, SeasonInformation, Subscription, SeasonCollection } from '../../models';
 import { baseApi } from '../../base';
 import { animeListStore } from './anime-list.store';
 import { userStore } from '..';
@@ -47,7 +47,7 @@ function fetchAvailableSeasons() {
   })
 }
 
-function addSubscription(subscription: NewSubscription) {
+function addSubscription(subscription: Subscription) {
   safeRequestExecute(async () => {
     await baseApi.post(`subscriptions`, { json: subscription });
     userStore.update(state => {
@@ -56,7 +56,21 @@ function addSubscription(subscription: NewSubscription) {
     presentToast({
       color: 'success',
       duration: 3000,
-      message: `${subscription.animeId} has been added to your subscriptions`,
+      message: `${subscription.animeId} has been added to your subscriptions`
+    });
+  })
+}
+
+function unsubscribe(subscription: Subscription) {
+  safeRequestExecute(async () => {
+    await baseApi.post(`unsubscribe`, { json: subscription });
+    userStore.update(state => {
+      return { ...state, subscriptions: state.subscriptions.filter(subs => subs !== subscription.animeId) }
+    })
+    presentToast({
+      color: 'success',
+      duration: 3000,
+      message: `${subscription.animeId} has been removed of your subscriptions`
     });
   })
 }
@@ -66,7 +80,8 @@ export {
   fetchSeasonCollection,
   fetchLatestSeason,
   fetchAvailableSeasons,
-  addSubscription
+  addSubscription,
+  unsubscribe
 }
 
 // export const animeListService = new AnimeListService(animeListStore);

@@ -1,8 +1,8 @@
-interface NewSubscription {
+interface Subscription {
   subscriber: string;
   animeId: string;
 }
 
 export {
-  NewSubscription
+  Subscription
 }

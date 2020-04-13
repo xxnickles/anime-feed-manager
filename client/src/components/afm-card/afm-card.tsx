@@ -11,6 +11,7 @@ export class AfmCard {
   @Prop() feedInfo: SubscribedFeed;
   @Prop() subscriptionStatus: SubscriptionStatus = SubscriptionStatus.none;
   @Event() subscriptionSelected: EventEmitter<string>;
+  @Event() unsubscriptionSelected: EventEmitter<string>;
 
   imageUrl(url: string) {
     return !!url ? url : '/assets/img/no_available.jpg';
@@ -34,22 +35,52 @@ export class AfmCard {
     await alert.present();
   }
 
+  async handleUnsubscription() {
+    const alert = await alertController.create({
+      header: 'Unsubscription Confirmation',
+      message: `Do you want to unsubscribe to ${this.feedInfo.title}?`,
+      buttons: [
+        'No',
+        {
+          text: 'Yes',
+          cssClass: 'secondary',
+          handler: () => {
+            this.unsubscriptionSelected.emit(this.feedInfo.feedInformation.title);
+          }
+        }]
+    });
+
+    await alert.present();
+  }
+
   subcribeOption() {
     switch (this.subscriptionStatus) {
       case SubscriptionStatus.showSusbcription:
         return <ion-button
           size="small"
           class="ion-activatable ripple-parent"
+          mode="ios"
           onClick={() => this.handleSubscription()}
         >
           Subscribe
         <ion-ripple-effect></ion-ripple-effect>
         </ion-button>
       case SubscriptionStatus.subscribed:
-        return <ion-chip color="secondary">
-          <ion-icon name="checkmark-circle-outline"></ion-icon>
-          <ion-label>Subscribed</ion-label>
-        </ion-chip>
+        return [
+          <ion-chip color="secondary">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <ion-label>Subscribed</ion-label>
+          </ion-chip>,
+          <ion-button
+            size="small"
+            class="ion-activatable ripple-parent"
+            mode="ios"
+            onClick={() => this.handleUnsubscription()}
+          >
+            Unsubscribe
+        <ion-ripple-effect></ion-ripple-effect>
+          </ion-button>
+        ]
       default:
         return null;
     }
@@ -57,7 +88,7 @@ export class AfmCard {
 
   parseSynopsis() {
 
-  return (this.feedInfo.synopsis.split("\n").map(s => <p>{s}</p>));
+    return (this.feedInfo.synopsis.split("\n").map(s => <p>{s}</p>));
   }
 
   render() {
