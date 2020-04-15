@@ -71,6 +71,7 @@ export class AfmRoot {
           </ion-toolbar>
         </ion-header>
         <ion-router-outlet id="menu-content"></ion-router-outlet>
+        <pwa-update swpath="sw.js"></pwa-update>
       </ion-app>
 
     );
