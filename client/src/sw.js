@@ -5,7 +5,7 @@ workbox.routing.registerRoute(new RegExp('^https://animefeedmanager.azure-api.ne
     plugins: [
       new workbox.expiration.ExpirationPlugin({
         maxEntries: 30,
-        maxAgeSeconds: 60 * 60 * 24 * 2
+        maxAgeSeconds: 60 * 60 * 24 * 5
       }),
     ]
 
