@@ -10,6 +10,8 @@ import {
 } from '../../stores';
 import { SubscribedFeed, SubscriptionStatus, Season } from '../../models';
 import { untilDestroyed } from '../../utils';
+import { AvailableFilters } from '../afm-filters/filters';
+import { filterCollection } from './helpers';
 @Component({
   tag: 'afm-home',
   styleUrl: 'afm-home.scss',
@@ -25,14 +27,23 @@ export class AfmHome {
       userName: '',
       subscriptions: []
     } as UserInfo,
-
+    selectedFilters: [] as AvailableFilters[]
   };
+
+  animeCollection = [] as SubscribedFeed[];
 
   componentWillLoad() {
     animeListQuery.animes$
       .pipe(untilDestroyed(this))
       .subscribe(animes => {
-        this.state = { ...this.state, ...{ animes } }
+        this.state = {
+          ...this.state,
+          animes: filterCollection(
+            animes,
+            this.state.userInfo.subscriptions,
+            this.state.selectedFilters)
+        }
+        this.animeCollection = animes;
       });
 
     userInfoQuery.userInfo$
@@ -67,8 +78,21 @@ export class AfmHome {
     unsubscribe({ animeId: event.detail, subscriber: this.state.userInfo.userName });
   }
 
+  @Listen('filterChanged')
+  filtersHandler(event: CustomEvent<AvailableFilters[]>) {
+    // Solves re-rendering issue when user change and filter by susbscriptions is active
+    setTimeout(() => {
+      this.state = {
+        ...this.state,
+        animes: filterCollection(this.animeCollection, this.state.userInfo.subscriptions, event.detail),
+        selectedFilters: event.detail
+      }
+    }, 0);
+  }
+
   render() {
     return [
+      <afm-filters authenticated={this.state.userInfo.logged}></afm-filters>,
       <ion-content class="ion-padding grid">
         {
           this.state.animes.map((anime) =>
@@ -76,6 +100,7 @@ export class AfmHome {
               feedInfo={anime}
               subscriptionStatus={this.getSubscriptionStatus(anime)} ></afm-card>)
           )}
+
       </ion-content>
 
     ];

@@ -3,8 +3,7 @@ export interface SubscribedFeed {
   title: string,
   url: string,
   synopsis: string,
-  feedInformation: FeedInfo,
-  subscribed: boolean
+  feedInformation: FeedInfo
 }
 
 export interface FeedInfo {

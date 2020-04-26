@@ -6,10 +6,14 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { Season, SubscribedFeed, SubscriptionStatus, } from "./models";
+import { AvailableFilters, } from "./components/afm-filters/filters";
 export namespace Components {
     interface AfmCard {
         "feedInfo": SubscribedFeed;
         "subscriptionStatus": SubscriptionStatus;
+    }
+    interface AfmFilters {
+        "authenticated": boolean;
     }
     interface AfmHome {
         "season": Season;
@@ -28,6 +32,12 @@ declare global {
     var HTMLAfmCardElement: {
         prototype: HTMLAfmCardElement;
         new (): HTMLAfmCardElement;
+    };
+    interface HTMLAfmFiltersElement extends Components.AfmFilters, HTMLStencilElement {
+    }
+    var HTMLAfmFiltersElement: {
+        prototype: HTMLAfmFiltersElement;
+        new (): HTMLAfmFiltersElement;
     };
     interface HTMLAfmHomeElement extends Components.AfmHome, HTMLStencilElement {
     }
@@ -55,6 +65,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "afm-card": HTMLAfmCardElement;
+        "afm-filters": HTMLAfmFiltersElement;
         "afm-home": HTMLAfmHomeElement;
         "afm-mail-selector": HTMLAfmMailSelectorElement;
         "afm-nav": HTMLAfmNavElement;
@@ -67,6 +78,10 @@ declare namespace LocalJSX {
         "onSubscriptionSelected"?: (event: CustomEvent<string>) => void;
         "onUnsubscriptionSelected"?: (event: CustomEvent<string>) => void;
         "subscriptionStatus"?: SubscriptionStatus;
+    }
+    interface AfmFilters {
+        "authenticated"?: boolean;
+        "onFilterChanged"?: (event: CustomEvent<AvailableFilters[]>) => void;
     }
     interface AfmHome {
         "season"?: Season;
@@ -81,6 +96,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "afm-card": AfmCard;
+        "afm-filters": AfmFilters;
         "afm-home": AfmHome;
         "afm-mail-selector": AfmMailSelector;
         "afm-nav": AfmNav;
@@ -92,6 +108,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "afm-card": LocalJSX.AfmCard & JSXBase.HTMLAttributes<HTMLAfmCardElement>;
+            "afm-filters": LocalJSX.AfmFilters & JSXBase.HTMLAttributes<HTMLAfmFiltersElement>;
             "afm-home": LocalJSX.AfmHome & JSXBase.HTMLAttributes<HTMLAfmHomeElement>;
             "afm-mail-selector": LocalJSX.AfmMailSelector & JSXBase.HTMLAttributes<HTMLAfmMailSelectorElement>;
             "afm-nav": LocalJSX.AfmNav & JSXBase.HTMLAttributes<HTMLAfmNavElement>;

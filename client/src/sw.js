@@ -1,4 +1,4 @@
-importScripts('workbox-v5.1.2/workbox-sw.js');
+importScripts('workbox-v5.1.3/workbox-sw.js');
 workbox.routing.registerRoute(new RegExp('^https://animefeedmanager.azure-api.net/api/(library|seasons).*'),
   new workbox.strategies.CacheFirst({
     cacheName: 'api-calls',
