@@ -14,7 +14,7 @@ workbox.routing.registerRoute(new RegExp('^https://animefeedmanager.azure-api.ne
 
 workbox.routing.registerRoute(new RegExp('^https://animefeedmanager.azure-api.net/api/subscriptions/.*'),
   new workbox.strategies.NetworkFirst({
-    cacheName: 'api-calls',
+    cacheName: 'api-subscriptions',
     plugins: [
       new workbox.expiration.ExpirationPlugin({
         maxEntries: 30,

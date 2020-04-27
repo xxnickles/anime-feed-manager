@@ -40,6 +40,7 @@ export class AfmNav {
       <ion-item >
         <ion-button
           size="small"
+          mode="ios"
           onClick={() => this.handleEmailSent()}
         >Change User</ion-button>
       </ion-item >

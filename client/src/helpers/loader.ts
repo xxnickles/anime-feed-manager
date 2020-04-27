@@ -17,14 +17,14 @@ class LoaderService {
       .pipe(skip(1))
       .subscribe(async val => {
         if (val.values.length === 1 && !val.running) {
-          if (!this.loader) {
+          if (!this.hasLoaderInstance()) {
             await this.createLoader();
+            this.loader.present();
           }
-          this.loader.present();
           this.updateLoaderRunningState(true);
         }
 
-        if (val.values.length === 0 && val.running) {
+        if (val.values.length === 0 && this.hasLoaderInstance()) {
           this.loader.dismiss();
           this.loader = null;
           this.updateLoaderRunningState(false);
@@ -55,6 +55,8 @@ class LoaderService {
       message: `LOADING`
     });
   }
+
+  private hasLoaderInstance = () => this.loader !== null && this.loader !== undefined;
 }
 
 const loaderService = new LoaderService();
