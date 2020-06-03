@@ -4,10 +4,11 @@ using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Storage.Domain;
+using LanguageExt;
 
 namespace AnimeFeedManager.Application.Shared.Mappers
 {
-    internal class AnimeInfoMappers
+    internal static class AnimeInfoMappers
     {
         internal static AnimeInfoStorage ProjectToStorageModel(AnimeInfo source)
         {
@@ -20,7 +21,7 @@ namespace AnimeFeedManager.Application.Shared.Mappers
                 Year = year,
                 Synopsis = OptionUtils.UnpackOption(source.Synopsis.Value, string.Empty),
                 FeedTitle = OptionUtils.UnpackOption(source.FeedTitle.Value, string.Empty),
-                Date = OptionUtils.UnpackOption<DateTime?>((DateTime?)source.Date, null),
+                Date = MapDate(source.Date),
                 Title = OptionUtils.UnpackOption(source.Title.Value, string.Empty),
             };
         }
@@ -32,5 +33,14 @@ namespace AnimeFeedManager.Application.Shared.Mappers
 
         internal static ImmutableList<AnimeInfoStorage> ProjectToStorageModelWithEtag(ImmutableList<AnimeInfo> source) =>
             source.ConvertAll(ProjectToStorageModelWithEtag);
+
+        private static DateTime? MapDate(Option<DateTime> date)
+        {
+            var unpacked = date.Match(
+                a => a,
+                () => DateTime.MinValue
+            );
+            return unpacked != DateTime.MinValue ? (DateTime?)unpacked : null;
+        }
     }
 }

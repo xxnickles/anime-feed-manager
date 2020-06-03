@@ -5,8 +5,8 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { Season, SubscribedFeed, SubscriptionStatus, } from "./models";
-import { AvailableFilters, } from "./components/afm-filters/filters";
+import { Season, SubscribedFeed, SubscriptionStatus } from "./models";
+import { AvailableFilters } from "./components/afm-filters/filters";
 export namespace Components {
     interface AfmCard {
         "feedInfo": SubscribedFeed;
