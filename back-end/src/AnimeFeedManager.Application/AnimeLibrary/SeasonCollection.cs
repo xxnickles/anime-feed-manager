@@ -7,10 +7,12 @@ namespace AnimeFeedManager.Application.AnimeLibrary
     {
         public bool Available { get; }
         public string? Title { get; }
+        public bool Completed { get; }
 
-        public FeedInfo(bool available, string? title)
+        public FeedInfo(bool available, bool completed, string? title)
         {
             Available = available;
+            Completed = completed;
             Title = title;
         }
     }
@@ -23,13 +25,13 @@ namespace AnimeFeedManager.Application.AnimeLibrary
         public string? Synopsis { get; }
         public FeedInfo FeedInformation { get; }
 
-        public SimpleAnime(string id, string title, string? synopsis, string? url, bool hasAvailableFeed, string? feedTitle)
+        public SimpleAnime(string id, string title, string? synopsis, string? url, bool hasAvailableFeed, string? feedTitle, bool isCompleted)
         {
             Id = id;
             Title = title;
             Url = url;
             Synopsis = synopsis ?? "Not Available";
-            FeedInformation = new FeedInfo(hasAvailableFeed, feedTitle);
+            FeedInformation = new FeedInfo(hasAvailableFeed, isCompleted, feedTitle);
         }
     }
 

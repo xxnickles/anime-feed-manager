@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AnimeFeedManager.Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --port 35489 --pause-on-error"
+    }
+  }
+}

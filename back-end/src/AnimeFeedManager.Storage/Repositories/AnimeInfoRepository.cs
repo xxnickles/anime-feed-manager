@@ -7,6 +7,7 @@ using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
 using Microsoft.Azure.Cosmos.Table;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
@@ -26,6 +27,27 @@ namespace AnimeFeedManager.Storage.Repositories
             var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, (ushort)year);
             var tableQuery = new TableQuery<AnimeInfoWithImageStorage>().
                 Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
+            return TableUtils.TryExecuteSimpleQuery(() => _tableClient.ExecuteQuerySegmentedAsync(tableQuery, null));
+        }
+
+        public Task<Either<DomainError, IEnumerable<AnimeInfoWithImageStorage>>> GetIncomplete()
+        {
+            var isIncomplete = TableQuery.GenerateFilterConditionForBool("Completed", QueryComparisons.Equal, false);
+            var hasFeed = TableQuery.GenerateFilterCondition("FeedTitle", QueryComparisons.NotEqual, string.Empty);
+            var filter =
+                TableQuery.CombineFilters(
+                    isIncomplete,
+                    TableOperators.And,
+                    hasFeed);
+
+            var tableQuery = new TableQuery<AnimeInfoWithImageStorage>()
+               .Where(filter);
+            return TableUtils.TryExecuteSimpleQuery(() => _tableClient.ExecuteQuerySegmentedAsync(tableQuery, null));
+        }
+
+        public Task<Either<DomainError, IEnumerable<AnimeInfoStorage>>> GetAll()
+        {
+            var tableQuery = new TableQuery<AnimeInfoStorage>();
             return TableUtils.TryExecuteSimpleQuery(() => _tableClient.ExecuteQuerySegmentedAsync(tableQuery, null));
         }
 

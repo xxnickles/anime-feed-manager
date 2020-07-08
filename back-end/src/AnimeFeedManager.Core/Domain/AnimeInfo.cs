@@ -12,6 +12,7 @@ namespace AnimeFeedManager.Core.Domain
         public readonly NonEmptyString FeedTitle;
         public readonly SeasonInformation SeasonInformation;
         public readonly Option<DateTime> Date;
+        public readonly bool Completed;
 
         public AnimeInfo(
             NonEmptyString id,
@@ -19,13 +20,15 @@ namespace AnimeFeedManager.Core.Domain
             NonEmptyString synopsis,
             NonEmptyString feedTitle,
             SeasonInformation seasonInformation,
-            Option<DateTime> date)
+            Option<DateTime> date, 
+            bool completed)
         {
             Id = id;
             Title = title;
             Synopsis = synopsis;
             SeasonInformation = seasonInformation;
             Date = date;
+            Completed = completed;
             FeedTitle = feedTitle;
         }
 

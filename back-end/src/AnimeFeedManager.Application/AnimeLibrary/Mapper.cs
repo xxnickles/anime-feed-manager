@@ -17,7 +17,8 @@ namespace AnimeFeedManager.Application.AnimeLibrary
                         a.Synopsis,
                         a.ImageUrl,
                         !string.IsNullOrEmpty(a.FeedTitle),
-                        a.FeedTitle))
+                        a.FeedTitle,
+                        a.Completed))
                     .ToImmutableList());
         }
     }

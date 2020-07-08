@@ -23,6 +23,7 @@ namespace AnimeFeedManager.Application.Shared.Mappers
                 FeedTitle = OptionUtils.UnpackOption(source.FeedTitle.Value, string.Empty),
                 Date = MapDate(source.Date),
                 Title = OptionUtils.UnpackOption(source.Title.Value, string.Empty),
+                Completed = source.Completed
             };
         }
 

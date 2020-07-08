@@ -17,7 +17,8 @@ namespace AnimeFeedManager.Application.Test.Shared
                 NonEmptyString.FromString(null),
                 NonEmptyString.FromString("test"),
                 new SeasonInformation(Season.Spring, new Year(2015)),
-                None);
+                None,
+                false);
 
 
             var sut = AnimeInfoMappers.ProjectToStorageModel(animeInfo);

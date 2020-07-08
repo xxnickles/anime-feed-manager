@@ -11,6 +11,7 @@ namespace AnimeFeedManager.Storage.Domain
         public int Year { get; set; } // Azure tables only works with Int and Int64
         public string? Season { get; set; }
         public DateTime? Date { get; set; }
+        public bool Completed { get; set; }
     }
 
     public class AnimeInfoWithImageStorage : AnimeInfoStorage
