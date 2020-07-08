@@ -8,5 +8,6 @@ export interface SubscribedFeed {
 
 export interface FeedInfo {
   available: boolean,
+  completed:boolean,
   title: string
 }

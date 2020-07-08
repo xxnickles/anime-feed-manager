@@ -86,8 +86,22 @@ export class AfmCard {
     }
   }
 
-  parseSynopsis() {
+  renderFeedInfo() {
+    return !this.feedInfo.feedInformation.completed ?
+      [<ion-chip color="primary">
+        <ion-label>Feed Available</ion-label>
+      </ion-chip>,
+      this.subcribeOption()
+      ] :
+      [
+        <ion-chip color="secondary">
+          <ion-icon name="trophy-outline"></ion-icon>
+          <ion-label>Show Ended</ion-label>
+        </ion-chip>
+      ]
+  }
 
+  parseSynopsis() {
     return (this.feedInfo.synopsis.split("\n").map(s => <p>{s}</p>));
   }
 
@@ -100,11 +114,7 @@ export class AfmCard {
             {
               this.feedInfo.feedInformation.available
                 ?
-                [<ion-chip color="primary">
-                  <ion-label>Feed Available</ion-label>
-                </ion-chip>,
-                this.subcribeOption()
-                ]
+                this.renderFeedInfo()
                 :
                 <ion-chip color="warning">
                   <ion-label>Feed Not Available</ion-label>
