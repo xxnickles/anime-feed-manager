@@ -12,6 +12,6 @@
     "@azure/storage-blob": "^12.1.2",
     "@types/dotenv": "^8.2.0",
     "dotenv": "^8.2.0",
-    "puppeteer": "^3.3.0"
+    "puppeteer": "^5.2.1"
   }
 }
