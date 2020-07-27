@@ -1,6 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import { loadingController } from '@ionic/core';
-import { skip } from 'rxjs/operators';
+import { skip, delay } from 'rxjs/operators';
 
 type LoaderEvent = {
   values: string[],
@@ -14,8 +14,10 @@ class LoaderService {
 
   constructor() {
     this.loaderstate$
-      .pipe(skip(1))
+      .pipe(skip(1), delay(100))
       .subscribe(async val => {
+        console.log('the value', val);
+        console.log('current values', val.values.length);
         if (val.values.length === 1 && !val.running) {
           if (!this.hasLoaderInstance()) {
             await this.createLoader();
