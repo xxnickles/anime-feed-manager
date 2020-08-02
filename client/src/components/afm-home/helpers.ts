@@ -8,12 +8,15 @@ const subscritionFilter = (anime: SubscribedFeed) =>
     anime.feedInformation.available
     && subscriptions.includes(anime.feedInformation.title);
 
+const completedFilter = (anime: SubscribedFeed) => anime.feedInformation.completed;
+
 type SimpleFilter = (anime: SubscribedFeed) => boolean;
 type ComposedFilter = (anime: SubscribedFeed) => (subs: string[]) => boolean;
 let filtersMap = new Map<AvailableFilters, SimpleFilter | ComposedFilter>();
 filtersMap.set(AvailableFilters.available, availableFilter);
 filtersMap.set(AvailableFilters.subscribed, subscritionFilter);
 filtersMap.set(AvailableFilters.noAvailable, notAvailableFilter);
+filtersMap.set(AvailableFilters.completed, completedFilter);
 
 
 function generateFilterFunction(filters: AvailableFilters[], subscriptions: string[]) {

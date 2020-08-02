@@ -60,6 +60,12 @@ export class AfmFilters {
         <ion-icon name="close-circle-outline" color={this.calculateColor(AvailableFilters.noAvailable)}></ion-icon>
         <ion-label color={this.calculateColor(AvailableFilters.noAvailable)}>No Feed Available</ion-label>
       </ion-chip>,
+      <ion-chip
+        color={this.calculateColor(AvailableFilters.completed)}
+        onClick={() => this.processFilter(AvailableFilters.completed)}>
+        <ion-icon name="trophy-outline" color={this.calculateColor(AvailableFilters.completed)}></ion-icon>
+        <ion-label color={this.calculateColor(AvailableFilters.completed)}>Show Ended</ion-label>
+      </ion-chip>,
       this.renderOptionalFilters()
     ];
   }

@@ -16,8 +16,6 @@ class LoaderService {
     this.loaderstate$
       .pipe(skip(1), delay(100))
       .subscribe(async val => {
-        console.log('the value', val);
-        console.log('current values', val.values.length);
         if (val.values.length === 1 && !val.running) {
           if (!this.hasLoaderInstance()) {
             await this.createLoader();

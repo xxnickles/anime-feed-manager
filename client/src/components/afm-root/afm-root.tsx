@@ -66,6 +66,7 @@ export class AfmRoot {
                     {`${seasonInfo.year} ${seasonInfo.season}`}</ion-select-option>
                 ))
               })
+
             </ion-select>
 
           </ion-toolbar>
