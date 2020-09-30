@@ -3,6 +3,7 @@ using LanguageExt;
 using Microsoft.Azure.Cosmos.Table;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
@@ -11,12 +12,37 @@ namespace AnimeFeedManager.Storage
 {
     internal class TableUtils
     {
+        internal static async Task<Either<DomainError, IImmutableList<T>>> TryGetAllTableElements<T>(CloudTable client) where T : TableEntity, new()
+        {
+            try
+            {
+                var tableQuery = new TableQuery<T>();
+                TableContinuationToken? token;
+                var resultList = ImmutableList<T>.Empty;
+                do
+                {
+                    var result = await client.ExecuteQuerySegmentedAsync(tableQuery, null);
+                    resultList = resultList.AddRange(result.Results.AsEnumerable());
+                    token = result.ContinuationToken;
+                } while (token != null);
+
+
+                return Right<DomainError, IImmutableList<T>>(resultList);
+
+            }
+            catch (Exception e)
+            {
+                return Left<DomainError, IImmutableList<T>>(ExceptionError.FromException(e, "TableQuery"));
+            }
+        }
+
         internal static async Task<Either<DomainError, IEnumerable<T>>> TryExecuteSimpleQuery<T>(
             Func<Task<TableQuerySegment<T>>> query) where T : TableEntity
         {
             try
             {
                 var result = await query();
+
                 return Right<DomainError, IEnumerable<T>>(result.Results.AsEnumerable());
 
             }

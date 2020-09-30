@@ -18,6 +18,7 @@ namespace AnimeFeedManager.DI
                 nameof(AnimeInfoStorage) => AzureTable.TableMap.AnimeLibrary,
                 nameof(SubscriptionStorage) => AzureTable.TableMap.Subscriptions,
                 nameof(SeasonStorage) => AzureTable.TableMap.AvailableSeasons,
+                nameof(InterestedStorage) => AzureTable.TableMap.InterestedSeries,
                 _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}"),
             };
         };

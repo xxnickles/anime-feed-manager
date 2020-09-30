@@ -1,9 +1,9 @@
-﻿using AnimeFeedManager.Core.ConstrainedTypes;
+﻿using AnimeFeedManager.Common.Helpers;
+using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Services.Collectors.HorribleSubs;
-using FuzzySharp;
 using HtmlAgilityPack;
 using LanguageExt;
 using System;
@@ -13,7 +13,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
-using AnimeFeedManager.Common.Helpers;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.LiveChart
@@ -51,7 +50,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
                         NonEmptyString.FromString(IdHelpers.GenerateAnimeId(season.Value, yearStr, x.Item1)),
                         NonEmptyString.FromString(x.Item1),
                         NonEmptyString.FromString(x.Item2),
-                        NonEmptyString.FromString(TryGetFeedTitle(feeTitles, x.Item1)),
+                        NonEmptyString.FromString(Helpers.TryGetFeedTitle(feeTitles, x.Item1)),
                         new SeasonInformation(season, year),
                         x.Item3,
                         false)));
@@ -145,18 +144,5 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
 
         #endregion
 
-        #region Other Helpers
-
-        private static string TryGetFeedTitle(IEnumerable<string> titleList, string animeTitle)
-        {
-            var result = Process.ExtractOne(animeTitle, titleList);
-            return result.Score switch
-            {
-                var s when s > 70 => result.Value,
-                _ => string.Empty,
-            };
-        }
-
-        #endregion
     }
 }

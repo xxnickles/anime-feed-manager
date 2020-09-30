@@ -27,5 +27,14 @@ namespace AnimeFeedManager.Application.Subscriptions.Commands
                 RowKey = OptionUtils.UnpackOption(subscription.AnimeId.Value, string.Empty)
             };
         }
+
+        internal static InterestedStorage MapToStorage(InterestedSeries interested)
+        {
+            return new InterestedStorage
+            {
+                PartitionKey = OptionUtils.UnpackOption(interested.Subscriber.Value, string.Empty),
+                RowKey = OptionUtils.UnpackOption(interested.AnimeId.Value, string.Empty)
+            };
+        }
     }
 }
