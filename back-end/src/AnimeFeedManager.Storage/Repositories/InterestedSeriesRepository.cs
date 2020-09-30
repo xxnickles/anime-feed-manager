@@ -16,7 +16,7 @@ namespace AnimeFeedManager.Storage.Repositories
     public class InterestedSeriesRepository : IInterestedSeriesRepository
     {
         private readonly CloudTable _tableClient;
-        public InterestedSeriesRepository(ITableClientFactory<SubscriptionStorage> tableClientFactory)
+        public InterestedSeriesRepository(ITableClientFactory<InterestedStorage> tableClientFactory)
         {
             _tableClient = tableClientFactory.GetCloudTable();
         }

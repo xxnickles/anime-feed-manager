@@ -19,7 +19,7 @@ namespace AnimeFeedManager.Application.Subscriptions.Queries
 
         public Task<Either<DomainError, IImmutableList<InterestedSeriesItem>>> Handle(GetAllInterestedSeries request, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            return Fetch();
         }
 
 

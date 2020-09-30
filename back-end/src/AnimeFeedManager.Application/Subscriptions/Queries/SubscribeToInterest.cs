@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using AnimeFeedManager.Core.Error;
 using LanguageExt;
-using System.Collections.Immutable;
 
-namespace AnimeFeedManager.Application.Subscriptions.Commands
+namespace AnimeFeedManager.Application.Subscriptions.Queries
 {
     public sealed class SubscribeToInterest : Record<SubscribeToInterest>, MediatR.IRequest<Either<DomainError, IEnumerable<InterestedToSubscription>>>
     {

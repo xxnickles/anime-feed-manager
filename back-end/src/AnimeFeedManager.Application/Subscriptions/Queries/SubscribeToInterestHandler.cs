@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AnimeFeedManager.Application.Subscriptions.Commands;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Services.Collectors.HorribleSubs;
 using LanguageExt;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace AnimeFeedManager.Application.Subscriptions.Commands
+namespace AnimeFeedManager.Application.Subscriptions.Queries
 {
     public class SubscribeToInterestHandler : IRequestHandler<SubscribeToInterest, Either<DomainError, IEnumerable<InterestedToSubscription>>>
     {
