@@ -19,7 +19,7 @@ namespace AnimeFeedManager.Functions
         [FunctionName("GetLibrary")]
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
-            [TimerTrigger("1 * * * * *")] TimerInfo timer,
+            [TimerTrigger("0 0 2 * * SAT")] TimerInfo timer,
             [Queue("anime-library")] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
             [Queue("available-seasons")] IAsyncCollector<SeasonInfo> availableSeasonCollector,
             ILogger log)

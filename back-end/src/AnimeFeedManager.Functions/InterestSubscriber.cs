@@ -19,7 +19,7 @@ namespace AnimeFeedManager.Functions
         [FunctionName("InterestSubscriber")]
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
-            [TimerTrigger("1 * * * * *")] TimerInfo timer,
+            [TimerTrigger("0 0 0 * * *")] TimerInfo timer,
             [Queue("to-subscribe")] IAsyncCollector<SubscriptionDto> toSubscribeQueueCollector,
             [Queue("interest-remove")] IAsyncCollector<SubscriptionDto> interestToRemoveSeasonCollector,
             ILogger log)

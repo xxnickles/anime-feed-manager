@@ -80,7 +80,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
 
         private static bool FilterLeftover(HtmlNode card)
         {
-
+            // TODO: change for ongoing
             var extraInfo = card.SelectSingleNode("div[@class='poster-container']/div[@class='anime-extras']/div[@class='anime-extra']");
             if (extraInfo is null) return true;
 
