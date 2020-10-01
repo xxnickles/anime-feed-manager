@@ -4,7 +4,8 @@ import { UserState, UserStore, userStore } from './user.store';
 type UserInfo = {
   logged: boolean,
   userName: string
-  subscriptions: string[]
+  subscriptions: string[],
+  interested: string[]
 }
 
 class UserInfoQuery extends Query<UserState> {
@@ -12,7 +13,8 @@ class UserInfoQuery extends Query<UserState> {
     {
       logged: state.isLogged,
       userName: state.currentUser,
-      subscriptions: state.subscriptions
+      subscriptions: state.subscriptions,
+      interested: state.interested
     }));
 
   userLogginInfo$ = this.select(state => ({

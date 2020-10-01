@@ -4,13 +4,15 @@ interface UserState {
   subscriptions: string[];
   isLogged: boolean;
   currentUser: string;
+  interested: string[];
 }
 
 function emptyUserState() : UserState {
   return {
     currentUser: '',
     isLogged: false,
-    subscriptions: []
+    subscriptions: [],
+    interested: []
   }
 }
 

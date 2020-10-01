@@ -19,7 +19,7 @@ namespace AnimeFeedManager.Functions
 
         [FunctionName("RemoveInterested")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "RemoveInterested")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "removeInterested")] HttpRequest req,
             ILogger log)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();

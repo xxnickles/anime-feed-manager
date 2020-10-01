@@ -5,11 +5,12 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { Season, SubscribedFeed, SubscriptionStatus } from "./models";
+import { InterestedStatus, Season, SubscribedFeed, SubscriptionStatus } from "./models";
 import { AvailableFilters } from "./components/afm-filters/filters";
 export namespace Components {
     interface AfmCard {
         "feedInfo": SubscribedFeed;
+        "interestedStatus": InterestedStatus;
         "subscriptionStatus": SubscriptionStatus;
     }
     interface AfmFilters {
@@ -75,6 +76,9 @@ declare global {
 declare namespace LocalJSX {
     interface AfmCard {
         "feedInfo"?: SubscribedFeed;
+        "interestedStatus"?: InterestedStatus;
+        "onInterestedSelected"?: (event: CustomEvent<string>) => void;
+        "onRemoveInterestedSelected"?: (event: CustomEvent<string>) => void;
         "onSubscriptionSelected"?: (event: CustomEvent<string>) => void;
         "onUnsubscriptionSelected"?: (event: CustomEvent<string>) => void;
         "subscriptionStatus"?: SubscriptionStatus;

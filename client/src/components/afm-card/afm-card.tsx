@@ -1,6 +1,6 @@
 import { Event, Component, h, Prop, EventEmitter } from '@stencil/core';
 import { alertController } from '@ionic/core';
-import { SubscribedFeed, SubscriptionStatus } from '../../models';
+import { InterestedStatus, SubscribedFeed, SubscriptionStatus } from '../../models';
 
 @Component({
   tag: 'afm-card',
@@ -10,8 +10,11 @@ import { SubscribedFeed, SubscriptionStatus } from '../../models';
 export class AfmCard {
   @Prop() feedInfo: SubscribedFeed;
   @Prop() subscriptionStatus: SubscriptionStatus = SubscriptionStatus.none;
+  @Prop() interestedStatus: InterestedStatus = InterestedStatus.none;
   @Event() subscriptionSelected: EventEmitter<string>;
   @Event() unsubscriptionSelected: EventEmitter<string>;
+  @Event() interestedSelected: EventEmitter<string>;
+  @Event() removeInterestedSelected: EventEmitter<string>;
 
   imageUrl(url: string) {
     return !!url ? url : '/assets/img/no_available.jpg';
@@ -53,6 +56,43 @@ export class AfmCard {
     await alert.present();
   }
 
+
+  async handleAddInterest() {
+    const alert = await alertController.create({
+      header: 'Add Interest Confirmation',
+      message: `Do you want to add ${this.feedInfo.title} to your interested list?`,
+      buttons: [
+        'No',
+        {
+          text: 'Yes',
+          cssClass: 'secondary',
+          handler: () => {
+            this.interestedSelected.emit(this.feedInfo.title);
+          }
+        }]
+    });
+
+    await alert.present();
+  }
+
+  async handleRemoveInterest() {
+    const alert = await alertController.create({
+      header: 'Remove Interested Confirmation',
+      message: `Do you want to remove  ${this.feedInfo.title} form your interested list?`,
+      buttons: [
+        'No',
+        {
+          text: 'Yes',
+          cssClass: 'secondary',
+          handler: () => {
+            this.removeInterestedSelected.emit(this.feedInfo.title);
+          }
+        }]
+    });
+
+    await alert.present();
+  }
+
   subcribeOption() {
     switch (this.subscriptionStatus) {
       case SubscriptionStatus.showSusbcription:
@@ -86,6 +126,40 @@ export class AfmCard {
     }
   }
 
+  interestedOption() {
+    console.log(this.interestedStatus);
+    switch (this.interestedStatus) {
+      case InterestedStatus.showInterested:
+        return <ion-button
+          size="small"
+          class="ion-activatable ripple-parent"
+          mode="ios"
+          onClick={() => this.handleAddInterest()}
+        >
+          Add to Interested
+        <ion-ripple-effect></ion-ripple-effect>
+        </ion-button>
+      case InterestedStatus.interested:
+        return [
+          <ion-chip color="secondary">
+            <ion-icon name="albums-outline"></ion-icon>
+            <ion-label>Interested</ion-label>
+          </ion-chip>,
+          <ion-button
+            size="small"
+            class="ion-activatable ripple-parent"
+            mode="ios"
+            onClick={() => this.handleRemoveInterest()}
+          >
+            Remove from interested
+        <ion-ripple-effect></ion-ripple-effect>
+          </ion-button>
+        ]
+      default:
+        return null;
+    }
+  }
+
   renderFeedInfo() {
     return !this.feedInfo.feedInformation.completed ?
       [<ion-chip color="primary">
@@ -99,6 +173,15 @@ export class AfmCard {
           <ion-label>Show Ended</ion-label>
         </ion-chip>
       ]
+  }
+
+  renderNotAvailable() {
+    return [
+      <ion-chip color="warning">
+        <ion-label>Feed Not Available</ion-label>
+      </ion-chip>,
+      this.interestedOption()
+    ]
   }
 
   parseSynopsis() {
@@ -115,10 +198,8 @@ export class AfmCard {
               this.feedInfo.feedInformation.available
                 ?
                 this.renderFeedInfo()
-                :
-                <ion-chip color="warning">
-                  <ion-label>Feed Not Available</ion-label>
-                </ion-chip>
+                : this.renderNotAvailable()
+
             }
           </div>
           {

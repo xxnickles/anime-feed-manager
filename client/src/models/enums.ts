@@ -5,6 +5,14 @@ enum SubscriptionStatus {
   subscribed
 }
 
+enum InterestedStatus {
+  invalid,
+  none,
+  showInterested,
+  interested
+}
+
 export {
-  SubscriptionStatus
+  SubscriptionStatus,
+  InterestedStatus
 }

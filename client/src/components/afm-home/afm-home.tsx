@@ -6,9 +6,11 @@ import {
   userInfoQuery,
   addSubscription,
   fetchSeasonCollection,
-  unsubscribe
+  unsubscribe,
+  addInterested,
+  removeInterested
 } from '../../stores';
-import { SubscribedFeed, SubscriptionStatus, Season } from '../../models';
+import { SubscribedFeed, SubscriptionStatus, Season, InterestedStatus } from '../../models';
 import { untilDestroyed } from '../../utils';
 import { AvailableFilters } from '../afm-filters/filters';
 import { filterCollection } from './helpers';
@@ -25,7 +27,8 @@ export class AfmHome {
     userInfo: {
       logged: false,
       userName: '',
-      subscriptions: []
+      subscriptions: [],
+      interested: []
     } as UserInfo,
     selectedFilters: [] as AvailableFilters[]
   };
@@ -68,6 +71,13 @@ export class AfmHome {
 
   }
 
+  getInterestedStatus(anime: SubscribedFeed) {
+    if (!this.state.userInfo.logged) return InterestedStatus.none;
+    return this.state.userInfo.interested.includes(anime.title) ?
+      InterestedStatus.interested :
+      InterestedStatus.showInterested;
+  }
+
   @Listen('subscriptionSelected')
   subscriptionSelectedHandler(event: CustomEvent<string>) {
     addSubscription({ animeId: event.detail, subscriber: this.state.userInfo.userName });
@@ -76,6 +86,16 @@ export class AfmHome {
   @Listen('unsubscriptionSelected')
   unsubscriptionSelectedHandler(event: CustomEvent<string>) {
     unsubscribe({ animeId: event.detail, subscriber: this.state.userInfo.userName });
+  }
+
+  @Listen('interestedSelected')
+  interestedSelectedHandler(event: CustomEvent<string>) {
+    addInterested({ animeId: event.detail, subscriber: this.state.userInfo.userName });
+  }
+
+  @Listen('removeInterestedSelected')
+  removeInterestedSelectedSelectedHandler(event: CustomEvent<string>) {
+    removeInterested({ animeId: event.detail, subscriber: this.state.userInfo.userName });
   }
 
   @Listen('filterChanged')
@@ -98,7 +118,9 @@ export class AfmHome {
           this.state.animes.map((anime) =>
             (<afm-card
               feedInfo={anime}
-              subscriptionStatus={this.getSubscriptionStatus(anime)} ></afm-card>)
+              subscriptionStatus={this.getSubscriptionStatus(anime)}
+              interestedStatus={this.getInterestedStatus(anime)}
+            ></afm-card>)
           )}
 
       </ion-content>

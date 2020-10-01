@@ -1,14 +1,12 @@
-﻿using System.Collections.Immutable;
-using AnimeFeedManager.Application.Subscriptions.Queries;
+﻿using AnimeFeedManager.Application.Subscriptions.Queries;
+using AnimeFeedManager.Core.Dto;
 using AnimeFeedManager.Functions.Helpers;
-using AnimeFeedManager.Functions.Models;
-using AnimeFeedManager.Storage.Domain;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using AnimeFeedManager.Core.Dto;
 
 namespace AnimeFeedManager.Functions
 {
@@ -21,7 +19,7 @@ namespace AnimeFeedManager.Functions
         [FunctionName("InterestSubscriber")]
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
-            [TimerTrigger("0 0 0 * * *")] TimerInfo timer,
+            [TimerTrigger("1 * * * * *")] TimerInfo timer,
             [Queue("to-subscribe")] IAsyncCollector<SubscriptionDto> toSubscribeQueueCollector,
             [Queue("interest-remove")] IAsyncCollector<SubscriptionDto> interestToRemoveSeasonCollector,
             ILogger log)
@@ -55,11 +53,5 @@ namespace AnimeFeedManager.Functions
                 e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
             );
         }
-
-        private SeasonInfo ExtractSeasonInformation(AnimeInfoStorage sample) => new SeasonInfo
-        {
-            Season = sample.Season,
-            Year = sample.Year
-        };
     }
 }
