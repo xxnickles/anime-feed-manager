@@ -127,7 +127,6 @@ export class AfmCard {
   }
 
   interestedOption() {
-    console.log(this.interestedStatus);
     switch (this.interestedStatus) {
       case InterestedStatus.showInterested:
         return <ion-button

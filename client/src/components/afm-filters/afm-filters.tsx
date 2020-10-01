@@ -41,6 +41,12 @@ export class AfmFilters {
           onClick={() => this.processFilter(AvailableFilters.subscribed)}>
           <ion-icon name="bookmarks-outline" color={this.calculateColor(AvailableFilters.subscribed)}></ion-icon>
           <ion-label color={this.calculateColor(AvailableFilters.subscribed)}>Subscribed</ion-label>
+        </ion-chip>,
+        <ion-chip
+          color={this.calculateColor(AvailableFilters.interested)}
+          onClick={() => this.processFilter(AvailableFilters.interested)}>
+          <ion-icon name="bookmarks-outline" color={this.calculateColor(AvailableFilters.interested)}></ion-icon>
+          <ion-label color={this.calculateColor(AvailableFilters.interested)}>Interested</ion-label>
         </ion-chip>
       ]
     }

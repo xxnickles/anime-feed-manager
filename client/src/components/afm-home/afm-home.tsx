@@ -44,6 +44,7 @@ export class AfmHome {
           animes: filterCollection(
             animes,
             this.state.userInfo.subscriptions,
+            this.state.userInfo.interested,
             this.state.selectedFilters)
         }
         this.animeCollection = animes;
@@ -104,7 +105,7 @@ export class AfmHome {
     setTimeout(() => {
       this.state = {
         ...this.state,
-        animes: filterCollection(this.animeCollection, this.state.userInfo.subscriptions, event.detail),
+        animes: filterCollection(this.animeCollection, this.state.userInfo.subscriptions, this.state.userInfo.interested, event.detail),
         selectedFilters: event.detail
       }
     }, 0);

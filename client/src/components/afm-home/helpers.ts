@@ -8,28 +8,36 @@ const subscritionFilter = (anime: SubscribedFeed) =>
     anime.feedInformation.available
     && subscriptions.includes(anime.feedInformation.title);
 
+
+
 const completedFilter = (anime: SubscribedFeed) => anime.feedInformation.completed;
+
+const interestedFilter = (anime: SubscribedFeed) => (interested: string[]) => interested.includes(anime.title);
+
 
 type SimpleFilter = (anime: SubscribedFeed) => boolean;
 type ComposedFilter = (anime: SubscribedFeed) => (subs: string[]) => boolean;
+
 let filtersMap = new Map<AvailableFilters, SimpleFilter | ComposedFilter>();
 filtersMap.set(AvailableFilters.available, availableFilter);
 filtersMap.set(AvailableFilters.subscribed, subscritionFilter);
 filtersMap.set(AvailableFilters.noAvailable, notAvailableFilter);
 filtersMap.set(AvailableFilters.completed, completedFilter);
+filtersMap.set(AvailableFilters.interested, interestedFilter)
 
 
-function generateFilterFunction(filters: AvailableFilters[], subscriptions: string[]) {
+function generateFilterFunction(filters: AvailableFilters[], subscriptions: string[], interestedList: string[]) {
 
   return (anime: SubscribedFeed) => filters.reduce((acc, curr) => {
     const filter = filtersMap.get(curr)
     if (filter !== undefined) {
       const initialFilter = filter(anime);
       const finalFilter = initialFilter instanceof Function ?
-        initialFilter(subscriptions) : initialFilter;
+        initialFilter.valueOf().toString().startsWith('(subscriptions)') ?
+          initialFilter(subscriptions) : initialFilter(interestedList)
+        : initialFilter;
       return acc && finalFilter;
     }
-
     return acc;
 
   }, true)
@@ -39,8 +47,10 @@ function generateFilterFunction(filters: AvailableFilters[], subscriptions: stri
 function filterCollection(
   animes: SubscribedFeed[],
   subscriptions: string[],
-  filters: AvailableFilters[]) {
-  return animes.filter(generateFilterFunction(filters, subscriptions))
+  interestedList: string[],
+  filters: AvailableFilters[],
+) {
+  return animes.filter(generateFilterFunction(filters, subscriptions, interestedList))
 }
 
 export {
