@@ -30,9 +30,9 @@ const run = async (storeFileFn) => {
         const imgObjList = [].slice.call(document.querySelectorAll('div.anime-card'))
             .map(card => {
                 const checkIfLeftover = () => {
-                    const extras = [].slice.call(card.querySelectorAll('div.anime-extra'));
+                    const extras = [].slice.call(card.querySelectorAll('div.anime-date'));
                     if (!extras) return false;
-                    return extras.reduce((acc, curr) => acc || curr.innerText === 'Leftover', false);
+                    return extras.reduce((acc, curr) => acc || curr.innerText === 'Ongoing', false);
                 };
 
                 const getImage = () => {

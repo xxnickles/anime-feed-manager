@@ -81,10 +81,10 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
         private static bool FilterLeftover(HtmlNode card)
         {
             // TODO: change for ongoing
-            var extraInfo = card.SelectSingleNode("div[@class='poster-container']/div[@class='anime-extras']/div[@class='anime-extra']");
+            var extraInfo = card.SelectSingleNode("div[@class='anime-info']/div[@class='anime-date']");
             if (extraInfo is null) return true;
 
-            return extraInfo.InnerText != "Leftover";
+            return extraInfo.InnerText != "Ongoing";
 
         }
 
@@ -114,7 +114,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
         {
             return Task.Run(() =>
             {
-                var synopsisParagraphs = animeInfo.SelectNodes("div[@class='anime-synopsis']/p");
+                var synopsisParagraphs = animeInfo.SelectNodes("div[(@class='anime-synopsis') or (@class='anime-synopsis is-spoiler-masked')]/p");
                 if (synopsisParagraphs is null || !synopsisParagraphs.Any()) return string.Empty;
 
                 var paragraphsText = synopsisParagraphs.Select(x => x.InnerText);
