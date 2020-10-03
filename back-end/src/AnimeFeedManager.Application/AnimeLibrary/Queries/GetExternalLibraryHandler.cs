@@ -7,6 +7,7 @@ using MediatR;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using AnimeFeedManager.Services.Collectors.Interface;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries
 {

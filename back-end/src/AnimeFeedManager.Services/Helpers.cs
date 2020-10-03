@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FuzzySharp;
 
 namespace AnimeFeedManager.Services
@@ -7,6 +8,7 @@ namespace AnimeFeedManager.Services
     {
         public static string TryGetFeedTitle(IEnumerable<string> titleList, string animeTitle)
         {
+            if (!titleList.Any()) return string.Empty;
             var result = Process.ExtractOne(animeTitle, titleList);
             return result.Score switch
             {

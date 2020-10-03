@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AnimeFeedManager.Application.Subscriptions.Commands;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Services.Collectors.HorribleSubs;
+using AnimeFeedManager.Services.Collectors.Interface;
 using LanguageExt;
 using MediatR;
 

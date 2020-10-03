@@ -7,10 +7,12 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Domain;
+using AnimeFeedManager.Services.Collectors.Interface;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.HorribleSubs
 {
+    [Obsolete("Horrible subs has been closed", false)]
     public class FeedProvider : IFeedProvider
     {
         private const string HorribleSubsRss = "http://horriblesubs.info/rss.php";

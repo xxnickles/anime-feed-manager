@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using AnimeFeedManager.Services.Collectors.Interface;
 
 namespace AnimeFeedManager.DI
 {

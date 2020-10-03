@@ -2,7 +2,7 @@
 using AnimeFeedManager.Core.Error;
 using LanguageExt;
 
-namespace AnimeFeedManager.Services.Collectors.HorribleSubs
+namespace AnimeFeedManager.Services.Collectors.Interface
 {
     public interface IFeedTitlesProvider
     {

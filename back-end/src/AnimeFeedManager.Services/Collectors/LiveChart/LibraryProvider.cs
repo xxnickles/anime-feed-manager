@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
+using AnimeFeedManager.Services.Collectors.Interface;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.LiveChart
@@ -117,7 +118,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
                 var synopsisParagraphs = animeInfo.SelectNodes("div[(@class='anime-synopsis') or (@class='anime-synopsis is-spoiler-masked')]/p");
                 if (synopsisParagraphs is null || !synopsisParagraphs.Any()) return string.Empty;
 
-                var paragraphsText = synopsisParagraphs.Select(x => x.InnerText);
+                var paragraphsText = synopsisParagraphs.Select(x => HttpUtility.HtmlDecode(x.InnerText));
                 return string.Join(Environment.NewLine, paragraphsText);
             });
 
