@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Services.Collectors.HorribleSubs;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
@@ -14,10 +13,10 @@ namespace AnimeFeedManager.Application.AnimeLibrary.Commands
 {
     public class UpdateStatusHandler : IRequestHandler<UpdateStatus, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
     {
-        private readonly IFeedTitlesProvider _feedTitlesProvider;
+        private readonly IAsyncFeedTitlesProvider _feedTitlesProvider;
         private readonly IAnimeInfoRepository _animeInfoRepository;
 
-        public UpdateStatusHandler(IFeedTitlesProvider feedTitlesProvider, IAnimeInfoRepository animeInfoRepository)
+        public UpdateStatusHandler(IAsyncFeedTitlesProvider feedTitlesProvider, IAnimeInfoRepository animeInfoRepository)
         {
             _feedTitlesProvider = feedTitlesProvider;
             _animeInfoRepository = animeInfoRepository;

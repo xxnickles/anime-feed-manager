@@ -1,5 +1,5 @@
 ﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
-using AnimeFeedManager.Services.Collectors.HorribleSubs;
+using AnimeFeedManager.Services.Collectors.Erai;
 using AnimeFeedManager.Services.Collectors.LiveChart;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
@@ -44,7 +44,7 @@ namespace AnimeFeedManager.DI
 
         public static IServiceCollection RegisterAppServices(this IServiceCollection services)
         {
-            services.AddScoped<IFeedTitlesProvider, FeedTitles>();
+            services.AddScoped<IAsyncFeedTitlesProvider, FeedTitles>();
             services.AddScoped<IExternalLibraryProvider, LibraryProvider>();
             services.AddScoped<IFeedProvider, FeedProvider>();
             return services;

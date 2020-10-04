@@ -1,29 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Services.Collectors.Interface;
+using LanguageExt;
+using MediatR;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AnimeFeedManager.Application.Subscriptions.Commands;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Services.Collectors.HorribleSubs;
-using AnimeFeedManager.Services.Collectors.Interface;
-using LanguageExt;
-using MediatR;
 
 namespace AnimeFeedManager.Application.Subscriptions.Queries
 {
     public class SubscribeToInterestHandler : IRequestHandler<SubscribeToInterest, Either<DomainError, IEnumerable<InterestedToSubscription>>>
     {
-        private readonly IFeedTitlesProvider _feedTitles;
+        private readonly IAsyncFeedTitlesProvider _feedTitles;
 
-        public SubscribeToInterestHandler(IFeedTitlesProvider feedTitles)
+        public SubscribeToInterestHandler(IAsyncFeedTitlesProvider feedTitles)
         {
             _feedTitles = feedTitles;
         }
 
-        private IEnumerable<string> GetFeedTitles()
+        private async Task<IEnumerable<string>> GetFeedTitles()
         {
-            return _feedTitles.GetTitles().Match(
+            var titles = await _feedTitles.GetTitles();
+            return titles.Match(
                 x => x,
                 _ => ImmutableList<string>.Empty
             );
@@ -31,10 +30,10 @@ namespace AnimeFeedManager.Application.Subscriptions.Queries
 
         public Task<Either<DomainError, IEnumerable<InterestedToSubscription>>> Handle(SubscribeToInterest request, CancellationToken cancellationToken)
         {
-            var result = _feedTitles.GetTitles()
-                .Map(titles => GetItemsToSubscribe(titles, request.InterestedSeriesSubscription));
+            return _feedTitles.GetTitles()
+                .MapAsync(titles => GetItemsToSubscribe(titles, request.InterestedSeriesSubscription));
 
-            return Task.FromResult(result);
+            
         }
 
         private IEnumerable<InterestedToSubscription> GetItemsToSubscribe(IEnumerable<string> feedTitles, IImmutableList<InterestedSeriesItem> interestedSeriesSubscription)

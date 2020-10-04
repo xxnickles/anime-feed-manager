@@ -1,11 +1,12 @@
 ﻿using System.Collections.Immutable;
+using System.Threading.Tasks;
 using AnimeFeedManager.Core.Error;
 using LanguageExt;
 
 namespace AnimeFeedManager.Services.Collectors.Interface
 {
-    public interface IFeedTitlesProvider
+    public interface IAsyncFeedTitlesProvider
     {
-        Either<DomainError, ImmutableList<string>> GetTitles();
+        Task<Either<DomainError, ImmutableList<string>>> GetTitles();
     }
 }

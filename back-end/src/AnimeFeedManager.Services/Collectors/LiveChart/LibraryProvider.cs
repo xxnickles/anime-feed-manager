@@ -3,7 +3,7 @@ using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Services.Collectors.HorribleSubs;
+using AnimeFeedManager.Services.Collectors.Interface;
 using HtmlAgilityPack;
 using LanguageExt;
 using System;
@@ -13,7 +13,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web;
-using AnimeFeedManager.Services.Collectors.Interface;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.LiveChart
@@ -22,9 +21,9 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
     {
         private const string LiveChartLibrary = "https://www.livechart.me";
 
-        private readonly IFeedTitlesProvider _titlesProvider;
+        private readonly IAsyncFeedTitlesProvider _titlesProvider;
 
-        public LibraryProvider(IFeedTitlesProvider titlesProvider)
+        public LibraryProvider(IAsyncFeedTitlesProvider titlesProvider)
         {
             _titlesProvider = titlesProvider;
         }
@@ -40,7 +39,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
 
                 var (season, year) = GetSeasonInformation(seasonInfoString);
                 var yearStr = OptionUtils.UnpackOption(year.Value, (ushort)DateTime.Today.Year).ToString();
-                var feeTitles = GetFeedTitles();
+                var feeTitles = await GetFeedTitles();
 
                 var results = await Task.WhenAll(doc.DocumentNode
                     .SelectNodes("//main[@class='chart']/article[@class='anime']/div[@class='anime-card']")
@@ -135,9 +134,10 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
             });
         }
 
-        private IEnumerable<string> GetFeedTitles()
+        private async Task<IEnumerable<string>> GetFeedTitles()
         {
-            return _titlesProvider.GetTitles().Match(
+            var titles = await _titlesProvider.GetTitles();
+            return titles.Match(
                 x => x,
                 _ => ImmutableList<string>.Empty
             );

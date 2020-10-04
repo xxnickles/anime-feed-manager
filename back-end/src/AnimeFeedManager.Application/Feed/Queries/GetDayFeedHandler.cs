@@ -1,12 +1,11 @@
 ﻿using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Services.Collectors.HorribleSubs;
+using AnimeFeedManager.Services.Collectors.Interface;
 using LanguageExt;
 using MediatR;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using AnimeFeedManager.Services.Collectors.Interface;
 
 namespace AnimeFeedManager.Application.Feed.Queries
 {
