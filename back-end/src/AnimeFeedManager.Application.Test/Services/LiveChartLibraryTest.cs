@@ -1,7 +1,9 @@
-﻿using AnimeFeedManager.Services.Collectors.Erai;
+﻿using System.Collections.Immutable;
+using System.Security;
 using AnimeFeedManager.Services.Collectors.LiveChart;
+using AnimeFeedManager.Storage.Interface;
+using Moq;
 using System.Threading.Tasks;
-using AnimeFeedManager.Services.Collectors;
 using Xunit;
 
 namespace AnimeFeedManager.Application.Test.Services
@@ -13,8 +15,10 @@ namespace AnimeFeedManager.Application.Test.Services
         [Fact]
         public async Task LibraryWorks()
         {
-            var feedTitlesService = new FeedTitles(new BrowserProvider());
-            var sut = await new LibraryProvider(feedTitlesService).GetLibrary();
+            var mock = new Mock<IFeedTitlesRepository>();
+
+            mock.Setup(x => x.GetTitles()).ReturnsAsync((new[] {"a", "b", "c"}).ToImmutableList());
+            var sut = await new LibraryProvider(mock.Object).GetLibrary();
             Assert.True(sut.IsRight);
             sut.Match(
                 Assert.NotEmpty,

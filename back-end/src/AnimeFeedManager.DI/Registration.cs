@@ -1,12 +1,12 @@
 ﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Services.Collectors.Erai;
+using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Services.Collectors.LiveChart;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using AnimeFeedManager.Services.Collectors.Interface;
 
 namespace AnimeFeedManager.DI
 {
@@ -20,6 +20,7 @@ namespace AnimeFeedManager.DI
                 nameof(SubscriptionStorage) => AzureTable.TableMap.Subscriptions,
                 nameof(SeasonStorage) => AzureTable.TableMap.AvailableSeasons,
                 nameof(InterestedStorage) => AzureTable.TableMap.InterestedSeries,
+                nameof(TitlesStorage) => AzureTable.TableMap.FeedTitles,
                 _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}"),
             };
         };
@@ -44,7 +45,6 @@ namespace AnimeFeedManager.DI
 
         public static IServiceCollection RegisterAppServices(this IServiceCollection services)
         {
-            services.AddScoped<IAsyncFeedTitlesProvider, FeedTitles>();
             services.AddScoped<IExternalLibraryProvider, LibraryProvider>();
             services.AddScoped<IFeedProvider, FeedProvider>();
             return services;

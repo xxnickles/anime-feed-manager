@@ -14,6 +14,7 @@ namespace AnimeFeedManager.Functions.Extensions
                 ExceptionError eError => eError.ToActionResult(log),
                 ValidationErrors vError => vError.ToActionResult(log),
                 NotFoundError nError => nError.ToActionResult(log),
+                BasicError bError => bError.ToActionResult(log),
                 _ => new InternalServerErrorResult()
             };
         }
@@ -37,7 +38,7 @@ namespace AnimeFeedManager.Functions.Extensions
 
         public static IActionResult ToActionResult(this ExceptionError error, ILogger log)
         {
-            log.LogError(error.ToString());
+            log.LogError(error.Exception,error.ToString());
             return new InternalServerErrorResult();
         }
 
@@ -45,6 +46,12 @@ namespace AnimeFeedManager.Functions.Extensions
         {
             log.LogError(error.ToString());
             return new NotFoundObjectResult(new { Message = error.Message });
+        }
+
+        public static IActionResult ToActionResult(this BasicError error, ILogger log)
+        {
+            log.LogError(error.ToString());
+            return new InternalServerErrorResult();
         }
     }
 }

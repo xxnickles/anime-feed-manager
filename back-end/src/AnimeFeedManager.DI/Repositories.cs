@@ -10,6 +10,7 @@ namespace AnimeFeedManager.DI
         internal static IServiceCollection RegisterRepositories(this IServiceCollection services)
         {
             services.AddScoped(typeof(ITableClientFactory<>), typeof(TableClientFactory<>));
+            services.AddScoped<IFeedTitlesRepository, FeedTitlesRepository>();
             services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
             services.AddScoped<IAnimeInfoRepository, AnimeInfoRepository>();
             services.AddScoped<ISeasonRepository, SeasonRepository>();

@@ -4,6 +4,7 @@ using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Services.Collectors.Interface;
+using AnimeFeedManager.Storage.Interface;
 using HtmlAgilityPack;
 using LanguageExt;
 using System;
@@ -21,11 +22,11 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
     {
         private const string LiveChartLibrary = "https://www.livechart.me";
 
-        private readonly IAsyncFeedTitlesProvider _titlesProvider;
+        private readonly IFeedTitlesRepository _titlesRepository;
 
-        public LibraryProvider(IAsyncFeedTitlesProvider titlesProvider)
+        public LibraryProvider(IFeedTitlesRepository titlesRepository)
         {
-            _titlesProvider = titlesProvider;
+            _titlesRepository = titlesRepository;
         }
 
         public async Task<Either<DomainError, ImmutableList<AnimeInfo>>> GetLibrary()
@@ -136,7 +137,7 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
 
         private async Task<IEnumerable<string>> GetFeedTitles()
         {
-            var titles = await _titlesProvider.GetTitles();
+            var titles = await _titlesRepository.GetTitles();
             return titles.Match(
                 x => x,
                 _ => ImmutableList<string>.Empty

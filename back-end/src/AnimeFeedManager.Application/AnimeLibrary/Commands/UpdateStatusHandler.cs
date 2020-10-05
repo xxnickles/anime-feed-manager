@@ -7,27 +7,28 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AnimeFeedManager.Services.Collectors.Interface;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Commands
 {
     public class UpdateStatusHandler : IRequestHandler<UpdateStatus, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
     {
-        private readonly IAsyncFeedTitlesProvider _feedTitlesProvider;
+        private readonly IFeedTitlesRepository _titlesRepository;
         private readonly IAnimeInfoRepository _animeInfoRepository;
 
-        public UpdateStatusHandler(IAsyncFeedTitlesProvider feedTitlesProvider, IAnimeInfoRepository animeInfoRepository)
+        public UpdateStatusHandler(IFeedTitlesRepository titlesRepository, IAnimeInfoRepository animeInfoRepository)
         {
-            _feedTitlesProvider = feedTitlesProvider;
+            _titlesRepository = titlesRepository;
             _animeInfoRepository = animeInfoRepository;
         }
 
         public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(UpdateStatus request, CancellationToken cancellationToken)
         {
-           return _feedTitlesProvider.GetTitles().BindAsync(UpdateStatus);
+           return _titlesRepository
+               .GetTitles()
+               .BindAsync(UpdateStatus);
         }
 
-        private async Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> UpdateStatus(ImmutableList<string> animes)
+        private async Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> UpdateStatus(IImmutableList<string> animes)
         {
             return await _animeInfoRepository.GetIncomplete()
                  .MapAsync(al => al.Where(x => !string.IsNullOrEmpty(x.FeedTitle) && !animes.Contains(x.FeedTitle)))
