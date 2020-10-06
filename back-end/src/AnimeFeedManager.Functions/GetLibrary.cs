@@ -20,8 +20,8 @@ namespace AnimeFeedManager.Functions
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
             [TimerTrigger("0 0 2 * * SAT")] TimerInfo timer,
-            [Queue("anime-library")] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
-            [Queue("available-seasons")] IAsyncCollector<SeasonInfo> availableSeasonCollector,
+            [Queue(QueueNames.AnimeLibrary)] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
+            [Queue(QueueNames.AvailableSeasons)] IAsyncCollector<SeasonInfo> availableSeasonCollector,
             ILogger log)
         {
             var result = await _mediator.Send(new GetExternalLibrary());

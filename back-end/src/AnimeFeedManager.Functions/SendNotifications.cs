@@ -1,6 +1,7 @@
 using AnimeFeedManager.Application.Notifications;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Infrastructure;
+using AnimeFeedManager.Functions.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using SendGrid.Helpers.Mail;
@@ -18,7 +19,7 @@ namespace AnimeFeedManager.Functions
 
         [FunctionName("SendNotifications")]
         public void Run(
-            [QueueTrigger("notifications", Connection = "AzureWebJobsStorage")]
+            [QueueTrigger(QueueNames.Notifications, Connection = "AzureWebJobsStorage")]
             Notification notification,
             [SendGrid(ApiKey = "SendGridKey")] out SendGridMessage message,
             ILogger log)

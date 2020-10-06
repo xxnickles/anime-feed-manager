@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.Subscriptions.Commands;
 using AnimeFeedManager.Core.Dto;
+using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ namespace AnimeFeedManager.Functions
 
         [FunctionName("ProcessAutomaticSubscription")]
         [StorageAccount("AzureWebJobsStorage")]
-        public async Task Run([QueueTrigger("to-subscribe")] SubscriptionDto newSubscription, ILogger log)
+        public async Task Run([QueueTrigger(QueueNames.ToSubscribe)] SubscriptionDto newSubscription, ILogger log)
         {
             log.LogInformation($"Automated subscription to {newSubscription.Series} for user {newSubscription.UserId}");
             var command = new MergeSubscription(newSubscription.UserId,newSubscription.Series);

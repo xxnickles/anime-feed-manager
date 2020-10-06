@@ -22,7 +22,7 @@ namespace AnimeFeedManager.Functions
         [FunctionName("UploadImage")]
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
-            [QueueTrigger("image-process", Connection = "AzureWebJobsStorage")]
+            [QueueTrigger(QueueNames.ImageProcess, Connection = "AzureWebJobsStorage")]
             BlobImageInfo imageInfo,
             [Blob("anime-library", FileAccess.Write)]
             CloudBlobContainer imagesContainer,

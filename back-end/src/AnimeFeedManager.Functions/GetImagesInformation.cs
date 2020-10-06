@@ -16,7 +16,7 @@ namespace AnimeFeedManager.Functions
         public static void Run(
             [BlobTrigger("images-process/{name}", Connection = "AzureWebJobsStorage")]string contents, 
             string name,
-            [Queue("image-process")] IAsyncCollector<BlobImageInfo> queueCollector,
+            [Queue(QueueNames.ImageProcess)] IAsyncCollector<BlobImageInfo> queueCollector,
             ILogger log)
         {
             var deserializeImageProcess = JsonConvert.DeserializeObject<ImageProcessInfo>(contents);

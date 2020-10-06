@@ -10,7 +10,7 @@ namespace AnimeFeedManager.Functions
         [FunctionName("UpdateAvailableSeasons")]
         [return: Table("AvailableSeasons")]
         public static SeasonStorage Run(
-            [QueueTrigger("available-seasons", Connection = "AzureWebJobsStorage")]
+            [QueueTrigger(QueueNames.AvailableSeasons, Connection = "AzureWebJobsStorage")]
             SeasonInfo seasonInfo, 
             ILogger log)
         {

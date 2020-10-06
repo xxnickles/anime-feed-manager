@@ -1,5 +1,6 @@
 using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Functions.Helpers;
+using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +23,7 @@ namespace AnimeFeedManager.Functions
         [FunctionName("SetDefaultStatusToAll")]
         public async Task Run(
             [HttpTrigger(AuthorizationLevel.Admin, "post", Route = null)] HttpRequest req,
-            [Queue("anime-library")] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
+            [Queue(QueueNames.AnimeLibrary)] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
             ILogger log)
         {
             var result = await _mediator.Send(new GetAll());

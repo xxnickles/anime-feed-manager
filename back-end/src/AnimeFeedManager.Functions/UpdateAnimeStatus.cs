@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Application.AnimeLibrary.Commands;
 using AnimeFeedManager.Functions.Helpers;
+using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
 using Microsoft.Azure.WebJobs;
@@ -18,7 +19,7 @@ namespace AnimeFeedManager.Functions
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
             [TimerTrigger("0 0 2 * * SUN")] TimerInfo timer,
-            [Queue("anime-library")] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
+            [Queue(QueueNames.AnimeLibrary)] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
            
             ILogger log)
         {

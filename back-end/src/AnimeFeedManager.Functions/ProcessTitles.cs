@@ -4,6 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using AnimeFeedManager.Functions.Models;
 
 namespace AnimeFeedManager.Functions
 {
@@ -17,7 +18,8 @@ namespace AnimeFeedManager.Functions
         }
 
         [FunctionName("ProcessTitles")]
-        public async Task Run(
+        [return: Queue(QueueNames.TitleProcess, Connection = "AzureWebJobsStorage")]
+        public async Task<string> Run(
             [BlobTrigger("feed-titles-process/{name}", Connection = "AzureWebJobsStorage")] string contents,
             string name,
             ILogger log)
@@ -25,9 +27,17 @@ namespace AnimeFeedManager.Functions
             var command = JsonConvert.DeserializeObject<AddTitles>(contents);
 
             var result = await _mediator.Send(command);
-            result.Match(
-                r => log.LogInformation("Titles have been updated"),
-                e => log.LogError($"An error occurred while storing feed titles {e.ToString()}"));
+            return result.Match(
+                r =>
+                {
+                    log.LogInformation("Titles have been updated");
+                    return TitleProcessResult.Ok;
+                },
+                e =>
+                {
+                    log.LogError($"An error occurred while storing feed titles {e.ToString()}");
+                    return TitleProcessResult.Failure;
+                });
         }
     }
 }

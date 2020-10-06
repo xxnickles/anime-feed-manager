@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Core.ConstrainedTypes
 {
-    public struct Resolution
+    public readonly struct Resolution
     {
         public readonly string Value;
 

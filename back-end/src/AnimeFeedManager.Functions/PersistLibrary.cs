@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
-using AnimeFeedManager.Application.AnimeLibrary.Commands;
+﻿using AnimeFeedManager.Application.AnimeLibrary.Commands;
+using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Functions
 {
@@ -16,7 +17,7 @@ namespace AnimeFeedManager.Functions
         [FunctionName("PersistLibrary")]
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
-            [QueueTrigger("anime-library")] AnimeInfoStorage animeInfo,
+            [QueueTrigger(QueueNames.AnimeLibrary)] AnimeInfoStorage animeInfo,
             ILogger log)
         {
             log.LogInformation($"storing {animeInfo.Title}");
