@@ -33,7 +33,7 @@ function generateFilterFunction(filters: AvailableFilters[], subscriptions: stri
     if (filter !== undefined) {
       const initialFilter = filter(anime);
       const finalFilter = initialFilter instanceof Function ?
-        initialFilter.valueOf().toString().startsWith('(subscriptions)') ?
+        curr === AvailableFilters.subscribed ?
           initialFilter(subscriptions) : initialFilter(interestedList)
         : initialFilter;
       return acc && finalFilter;
