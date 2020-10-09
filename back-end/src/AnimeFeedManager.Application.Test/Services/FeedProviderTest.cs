@@ -31,7 +31,12 @@ namespace AnimeFeedManager.Application.Test.Services
             sut.Match(
                 val =>
                 {
+                    
                     Assert.DoesNotContain(val, x => x.PublicationDate < DateTime.Today);
+                    foreach (var feed in val)
+                    {
+                        Assert.True(feed.AnimeTitle.Value.IsSome, $"{feed.FeedTitle} has no title");
+                    }
                 },
                 _ => { });
 

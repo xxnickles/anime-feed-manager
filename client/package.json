@@ -17,8 +17,8 @@
     "generate": "stencil generate"
   },
   "dependencies": {
-    "@datorama/akita": "^5.2.4",
-    "@ionic/core": "^5.3.4",
+    "@datorama/akita": "^5.2.5",
+    "@ionic/core": "^5.3.5",
     "@pwabuilder/pwaupdate": "^0.2.0",
     "@types/jest": "^26.0.14",
     "eslint": "^7.10.0",

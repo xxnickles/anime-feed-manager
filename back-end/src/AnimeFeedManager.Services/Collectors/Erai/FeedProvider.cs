@@ -15,18 +15,18 @@ namespace AnimeFeedManager.Services.Collectors.Erai
     public class FeedProvider : IFeedProvider
     {
         private const string EraiRss = "https://www.erai-rss.info";
-        private const string EraiPattern = @"(?<=\[720p\]\s)(.*?)(?=\s–\s\d+)";
+        private const string EraiPattern = @"(?<=\[720p\]\s)(.*?)(?=\s-\s\d+)";
         public Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution)
         {
             try
             {
                 var rssFeed = XDocument.Load(GetRssUrl(resolution));
                 var feed = from item in rssFeed.Descendants("item")
-                    select new FeedInfo(
-                        NonEmptyString.FromString(GetParsedTitle(item.Element("title")?.Value.ReplaceKnownProblematicCharacters() ?? string.Empty)),
-                        NonEmptyString.FromString(item.Element("title")?.Value ?? string.Empty),
-                        DateTime.Parse(item.Element("pubDate")?.Value ?? string.Empty),
-                        item.Element("link")?.Value ?? string.Empty);
+                           select new FeedInfo(
+                               NonEmptyString.FromString(GetParsedTitle(item.Element("title")?.Value.ReplaceKnownProblematicCharacters() ?? string.Empty)),
+                               NonEmptyString.FromString(item.Element("title")?.Value ?? string.Empty),
+                               DateTime.Parse(item.Element("pubDate")?.Value ?? string.Empty),
+                               item.Element("link")?.Value ?? string.Empty);
 
                 return Right<DomainError, ImmutableList<FeedInfo>>(
                     feed.Where(f => f.PublicationDate >= DateTime.Today)
@@ -40,7 +40,7 @@ namespace AnimeFeedManager.Services.Collectors.Erai
 
         private static string GetParsedTitle(string title)
         {
-            return Regex.Match(title, EraiPattern).Value;
+            return Regex.Match(title, EraiPattern, RegexOptions.IgnoreCase).Value;
         }
 
 
