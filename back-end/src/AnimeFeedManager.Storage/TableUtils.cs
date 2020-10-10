@@ -12,11 +12,10 @@ namespace AnimeFeedManager.Storage
 {
     internal class TableUtils
     {
-        internal static async Task<Either<DomainError, IImmutableList<T>>> TryGetAllTableElements<T>(CloudTable client) where T : TableEntity, new()
+        internal static async Task<Either<DomainError, IImmutableList<T>>> TryGetAllTableElements<T>(CloudTable client, TableQuery<T> tableQuery) where T : TableEntity, new()
         {
             try
             {
-                var tableQuery = new TableQuery<T>();
                 TableContinuationToken? token;
                 var resultList = ImmutableList<T>.Empty;
                 do
@@ -34,6 +33,11 @@ namespace AnimeFeedManager.Storage
             {
                 return Left<DomainError, IImmutableList<T>>(ExceptionError.FromException(e, "TableQuery"));
             }
+        }
+
+        internal static async Task<Either<DomainError, IImmutableList<T>>> TryGetAllTableElements<T>(CloudTable client) where T : TableEntity, new()
+        {
+            return await TryGetAllTableElements(client, new TableQuery<T>());
         }
 
         internal static async Task<Either<DomainError, IEnumerable<T>>> TryExecuteSimpleQuery<T>(

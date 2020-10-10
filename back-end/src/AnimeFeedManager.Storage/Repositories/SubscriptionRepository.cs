@@ -7,6 +7,7 @@ using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
 using Microsoft.Azure.Cosmos.Table;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
@@ -18,17 +19,17 @@ namespace AnimeFeedManager.Storage.Repositories
 
         public SubscriptionRepository(ITableClientFactory<SubscriptionStorage> tableClientFactory) => _tableClient = tableClientFactory.GetCloudTable();
 
-        public async Task<Either<DomainError, IEnumerable<SubscriptionStorage>>> Get(Email userEmail)
+        public async Task<Either<DomainError, IImmutableList<SubscriptionStorage>>> Get(Email userEmail)
         {
             var user = OptionUtils.UnpackOption(userEmail.Value, string.Empty);
             var tableQuery = new TableQuery<SubscriptionStorage>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, user));
-            return await TableUtils.TryExecuteSimpleQuery(() => _tableClient.ExecuteQuerySegmentedAsync(tableQuery, null));
+           
+            return await TableUtils.TryGetAllTableElements(_tableClient, tableQuery); ;
         }
 
-        public async Task<Either<DomainError, IEnumerable<SubscriptionStorage>>> GetAll()
+        public async Task<Either<DomainError, IImmutableList<SubscriptionStorage>>> GetAll()
         {
-            var tableQuery = new TableQuery<SubscriptionStorage>();
-            return await TableUtils.TryExecuteSimpleQuery(() => _tableClient.ExecuteQuerySegmentedAsync(tableQuery, null));
+            return await TableUtils.TryGetAllTableElements<SubscriptionStorage>(_tableClient);
         }
 
         public async Task<Either<DomainError, SubscriptionStorage>> Merge(SubscriptionStorage subscription)

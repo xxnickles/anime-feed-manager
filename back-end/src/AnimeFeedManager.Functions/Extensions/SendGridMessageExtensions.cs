@@ -37,7 +37,7 @@ namespace AnimeFeedManager.Functions.Extensions
                 stringBuilder.AppendLine($"<td {rowStyle}>");
                 stringBuilder.AppendLine($"<p {dateStyle}>{subscribedFeed.PublicationDate:f}</p>");
                 stringBuilder.AppendLine($"<p {contentStyle}><strong>{subscribedFeed.Title}</strong></p>");
-                stringBuilder.AppendLine($"<p {linkStyle}>{LinkFromFeed(subscribedFeed)}</p>");
+                stringBuilder.AppendLine($"<p {linkStyle}><a href='{ LinkFromFeed(subscribedFeed)}'>Torrent</a></p>");
                 stringBuilder.AppendLine("</td>");
                 stringBuilder.AppendLine("</tr>");
             }
