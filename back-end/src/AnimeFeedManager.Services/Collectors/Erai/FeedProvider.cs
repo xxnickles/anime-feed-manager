@@ -43,7 +43,6 @@ namespace AnimeFeedManager.Services.Collectors.Erai
             return Regex.Match(title, EraiPattern, RegexOptions.IgnoreCase).Value;
         }
 
-
         private static string GetRssUrl(Resolution resolution)
         {
             return $"{EraiRss}/rss-{resolution.ToString()}/";

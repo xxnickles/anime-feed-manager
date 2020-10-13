@@ -1,4 +1,3 @@
-open System.Diagnostics
 open System.IO
 open Microsoft.Extensions.Configuration
 open Scrappers.Common.Types
@@ -87,7 +86,7 @@ let getConfig (configurationRoot: IConfigurationRoot) =
       imagesSourceUrl = imagesSourceUrl
       action = action }
 
-let private getActionToExecute action (commands: Command<'a> list) =
+let private getActionToExecute (commands: Command<'a> list) action  =
     let command =
         commands |> List.find (fun i -> i.action = action)
 
@@ -100,9 +99,10 @@ let private runCommand command =
 
 
 let run action (commands: Command<'a> list) =
+    let getCommand = getActionToExecute commands
     match action with
-    | Images -> getActionToExecute Images commands |> runCommand
-    | Titles -> getActionToExecute Titles commands |> runCommand
+    | Images -> getCommand Images |> runCommand
+    | Titles -> getCommand Titles |> runCommand
     | All -> commands |> List.iter runCommand
 
 [<EntryPoint>]
