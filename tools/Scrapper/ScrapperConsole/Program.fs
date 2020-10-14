@@ -37,15 +37,15 @@ type Configuration =
       imagesSourceUrl: string
       action: Actions }
 
-let processFeedTitles url (diskStore: TitlesStore<FeedTitles, 'b>) =
+let processFeedTitles url (store: TitlesStore<FeedTitles, 'b>) =
     async {
         let! browser = defaultBrowser ()
         let! r = EraiTitleScrapper browser url
-        return! r |> diskStore
+        return! r |> store
     }
 
 
-let processImageInfo url (diskStore: ImageStore<ImageProcessInfo, 'b>) =
+let processImageInfo url (store: ImageStore<ImageProcessInfo, 'b>) =
     async {
         let! browser = defaultBrowser ()
         let! r = ImageScrapper browser url
@@ -54,7 +54,7 @@ let processImageInfo url (diskStore: ImageStore<ImageProcessInfo, 'b>) =
             sprintf "./images-%s-%i.json" r.seasonInfo.season r.seasonInfo.year
             |> BlobName
 
-        return! r |> diskStore blobName
+        return! r |> store blobName
     }
 
 let getConfig (configurationRoot: IConfigurationRoot) =

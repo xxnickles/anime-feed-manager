@@ -21,7 +21,7 @@
     "@ionic/core": "^5.3.5",
     "@pwabuilder/pwaupdate": "^0.2.0",
     "@types/jest": "^26.0.14",
-    "eslint": "^7.10.0",
+    "eslint": "^7.11.0",
     "ky": "^0.24.0",
     "workbox-build": "^5.1.4"
   },
