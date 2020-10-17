@@ -6,7 +6,6 @@ using AnimeFeedManager.Storage.Infrastructure;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
 using Microsoft.Azure.Cosmos.Table;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;

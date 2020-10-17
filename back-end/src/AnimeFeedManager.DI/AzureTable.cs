@@ -9,6 +9,7 @@
             internal static string AvailableSeasons = "AvailableSeasons";
             internal static string InterestedSeries = "InterestedSeries";
             internal static string FeedTitles = "FeedTitles";
+            internal static string ProcessedTitles = "ProcessedTitles";
         }
     }
 }

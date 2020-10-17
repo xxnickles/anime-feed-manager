@@ -1,7 +1,5 @@
-﻿using AnimeFeedManager.Application.Feed.Queries;
-using AnimeFeedManager.Application.Subscriptions;
+﻿using AnimeFeedManager.Application.Subscriptions;
 using AnimeFeedManager.Application.Subscriptions.Queries;
-using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
@@ -26,8 +24,7 @@ namespace AnimeFeedManager.Application.Notifications.Queries
 
         public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetNotifications request, CancellationToken cancellationToken)
         {
-          return _mediator.Send(new GetDayFeed(Resolution.Hd), cancellationToken)
-                .BindAsync(ProcessFeed);
+          return ProcessFeed(request.Feed);
         }
 
         public Task<Either<DomainError, ImmutableList<Notification>>> ProcessFeed(ImmutableList<FeedInfo> feed)

@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@datorama/akita": "^5.2.5",
-    "@ionic/core": "^5.3.5",
+    "@ionic/core": "^5.4.0",
     "@pwabuilder/pwaupdate": "^0.2.0",
     "@types/jest": "^26.0.14",
     "eslint": "^7.11.0",

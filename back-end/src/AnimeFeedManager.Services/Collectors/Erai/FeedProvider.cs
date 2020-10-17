@@ -14,7 +14,7 @@ namespace AnimeFeedManager.Services.Collectors.Erai
 {
     public class FeedProvider : IFeedProvider
     {
-        private const string EraiRss = "https://www.erai-rss.info";
+        private const string EraiRss = "https://spa.erai-raws.info/";
         private const string EraiPattern = @"(?<=\[720p\]\s)(.*?)(?=\s-\s\d+)";
         public Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution)
         {
@@ -45,7 +45,7 @@ namespace AnimeFeedManager.Services.Collectors.Erai
 
         private static string GetRssUrl(Resolution resolution)
         {
-            return $"{EraiRss}/rss-{resolution.ToString()}/";
+            return $"{EraiRss}/rss-{resolution}/";
         }
     }
 }

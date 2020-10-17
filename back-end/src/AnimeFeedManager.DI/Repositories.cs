@@ -15,6 +15,7 @@ namespace AnimeFeedManager.DI
             services.AddScoped<IAnimeInfoRepository, AnimeInfoRepository>();
             services.AddScoped<ISeasonRepository, SeasonRepository>();
             services.AddScoped<IInterestedSeriesRepository, InterestedSeriesRepository>();
+            services.AddScoped<IProcessedTitlesRepository, ProcessedTitlesRepository>();
 
             return services;
         }
