@@ -15,19 +15,14 @@ namespace AnimeFeedManager.Services.Collectors.Erai
     public class FeedProvider : IFeedProvider
     {
         private const string EraiRss = "https://spa.erai-raws.info/";
-        private const string EraiPattern = @"(?<=\[720p\]\s)(.*?)(?=\s-\s\d+)";
+        private const string TitlePattern = @"(?<=\[720p\]\s)(.*?)(?=\s-\s\d+)";
+        private const string EpisodeInfoPattern = @"(?<=\s-\s)\d+(\s\(V\d{1}\))?";
         public Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution)
         {
             try
             {
                 var rssFeed = XDocument.Load(GetRssUrl(resolution));
-                var feed = from item in rssFeed.Descendants("item")
-                           select new FeedInfo(
-                               NonEmptyString.FromString(GetParsedTitle(item.Element("title")?.Value.ReplaceKnownProblematicCharacters() ?? string.Empty)),
-                               NonEmptyString.FromString(item.Element("title")?.Value ?? string.Empty),
-                               DateTime.Parse(item.Element("pubDate")?.Value ?? string.Empty),
-                               item.Element("link")?.Value ?? string.Empty);
-
+                var feed = rssFeed.Descendants("item").Select(Mapper);
                 return Right<DomainError, ImmutableList<FeedInfo>>(
                     feed.Where(f => f.PublicationDate >= DateTime.Today)
                         .ToImmutableList());
@@ -38,9 +33,20 @@ namespace AnimeFeedManager.Services.Collectors.Erai
             }
         }
 
-        private static string GetParsedTitle(string title)
+        private FeedInfo Mapper(XElement item)
         {
-            return Regex.Match(title, EraiPattern, RegexOptions.IgnoreCase).Value;
+            var cleanedTitle = item.Element("title")?.Value.ReplaceKnownProblematicCharacters();
+            return new FeedInfo(
+                NonEmptyString.FromString(MatchPattern(TitlePattern, cleanedTitle ?? string.Empty)),
+                NonEmptyString.FromString(item.Element("title")?.Value ?? string.Empty),
+                DateTime.Parse(item.Element("pubDate")?.Value ?? string.Empty),
+                item.Element("link")?.Value ?? string.Empty,
+                MatchPattern(EpisodeInfoPattern, cleanedTitle ?? string.Empty));
+        }
+
+        private static string MatchPattern(string pattern, string str)
+        {
+            return Regex.Match(str, pattern, RegexOptions.IgnoreCase).Value;
         }
 
         private static string GetRssUrl(Resolution resolution)

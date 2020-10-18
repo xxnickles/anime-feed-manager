@@ -41,6 +41,7 @@ namespace AnimeFeedManager.Application.Notifications.Queries
                 .Select(
                     x => new SubscribedFeed(OptionUtils.UnpackOption(x.AnimeTitle.Value, string.Empty),
                         x.Link,
+                        x.EpisodeInfo,
                         x.PublicationDate));
 
             return new Notification(subscription.SubscriptionId, matchingFeeds);

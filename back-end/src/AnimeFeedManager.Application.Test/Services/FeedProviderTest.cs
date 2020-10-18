@@ -36,6 +36,7 @@ namespace AnimeFeedManager.Application.Test.Services
                     foreach (var feed in val)
                     {
                         Assert.True(feed.AnimeTitle.Value.IsSome, $"{feed.FeedTitle} has no title");
+                        Assert.False(string.IsNullOrWhiteSpace(feed.EpisodeInfo), $"{feed.FeedTitle} has no episode info");
                     }
                 },
                 _ => { });

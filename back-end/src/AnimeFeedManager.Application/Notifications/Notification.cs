@@ -8,12 +8,14 @@ namespace AnimeFeedManager.Application.Notifications
     {
         public string Title { get; }
         public string Link { get; }
+        public string EpisodeInfo { get; }
         public DateTime PublicationDate { get; }
 
-        public SubscribedFeed(string title, string link, DateTime publicationDate)
+        public SubscribedFeed(string title, string link, string episodeInfo, DateTime publicationDate)
         {
             Title = title;
             Link = link;
+            EpisodeInfo = episodeInfo;
             PublicationDate = publicationDate;
         }
     }

@@ -36,7 +36,7 @@ namespace AnimeFeedManager.Functions.Extensions
                 stringBuilder.AppendLine("<tr>");
                 stringBuilder.AppendLine($"<td {rowStyle}>");
                 stringBuilder.AppendLine($"<p {dateStyle}>{subscribedFeed.PublicationDate:f}</p>");
-                stringBuilder.AppendLine($"<p {contentStyle}><strong>{subscribedFeed.Title}</strong></p>");
+                stringBuilder.AppendLine($"<p {contentStyle}><strong>{TitleFromFeed(subscribedFeed)}</strong></p>");
                 stringBuilder.AppendLine($"<p {linkStyle}>{LinkFromFeed(subscribedFeed)}</p>");
                 stringBuilder.AppendLine("</td>");
                 stringBuilder.AppendLine("</tr>");
@@ -47,6 +47,12 @@ namespace AnimeFeedManager.Functions.Extensions
             stringBuilder.AppendLine("</div>");
 
             return stringBuilder.ToString();
+        }
+
+        private static string TitleFromFeed(SubscribedFeed feed)
+        {
+            var suffix = string.IsNullOrEmpty(feed.EpisodeInfo) ? string.Empty : $" - {feed.EpisodeInfo}";
+            return $"{feed.Title}{suffix}";
         }
 
         private static string LinkFromFeed(SubscribedFeed feed)

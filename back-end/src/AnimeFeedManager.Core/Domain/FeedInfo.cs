@@ -10,13 +10,20 @@ namespace AnimeFeedManager.Core.Domain
         public NonEmptyString FeedTitle { get; }
         public DateTime PublicationDate { get; }
         public string Link { get; }
+        public string EpisodeInfo { get; }
 
-        public FeedInfo(NonEmptyString animeTitle, NonEmptyString feedTitle, DateTime publicationDate, string link)
+        public FeedInfo(
+            NonEmptyString animeTitle, 
+            NonEmptyString feedTitle,
+            DateTime publicationDate, 
+            string link,
+            string episodeInfo)
         {
             AnimeTitle = animeTitle;
             FeedTitle = feedTitle;
             PublicationDate = publicationDate;
             Link = link;
+            EpisodeInfo = episodeInfo;
         }
     }
 }
