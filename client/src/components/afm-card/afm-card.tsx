@@ -96,15 +96,20 @@ export class AfmCard {
   subcribeOption() {
     switch (this.subscriptionStatus) {
       case SubscriptionStatus.showSusbcription:
-        return <ion-button
-          size="small"
-          class="ion-activatable ripple-parent"
-          mode="ios"
-          onClick={() => this.handleSubscription()}
-        >
-          Subscribe
+        return [
+          <ion-chip color="primary">
+            <ion-label>Feed Available</ion-label>
+          </ion-chip>,
+          <ion-button
+            size="small"
+            class="ion-activatable ripple-parent"
+            mode="ios"
+            onClick={() => this.handleSubscription()}
+          >
+            Subscribe
         <ion-ripple-effect></ion-ripple-effect>
-        </ion-button>
+          </ion-button>
+        ]
       case SubscriptionStatus.subscribed:
         return [
           <ion-chip color="secondary">
@@ -161,11 +166,7 @@ export class AfmCard {
 
   renderFeedInfo() {
     return !this.feedInfo.feedInformation.completed ?
-      [<ion-chip color="primary">
-        <ion-label>Feed Available</ion-label>
-      </ion-chip>,
-      this.subcribeOption()
-      ] :
+      [this.subcribeOption()] :
       [
         <ion-chip color="secondary">
           <ion-icon name="trophy-outline"></ion-icon>
