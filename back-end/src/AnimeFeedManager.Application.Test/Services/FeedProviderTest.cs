@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Services.Collectors.Erai;
 using Xunit;
@@ -31,12 +32,12 @@ namespace AnimeFeedManager.Application.Test.Services
             sut.Match(
                 val =>
                 {
-                    
                     Assert.DoesNotContain(val, x => x.PublicationDate < DateTime.Today);
                     foreach (var feed in val)
                     {
                         Assert.True(feed.AnimeTitle.Value.IsSome, $"{feed.FeedTitle} has no title");
-                        Assert.False(string.IsNullOrWhiteSpace(feed.EpisodeInfo), $"{feed.FeedTitle} has no episode info");
+                        Assert.True(feed.Links.Any());
+                        Assert.True(!string.IsNullOrWhiteSpace(feed.EpisodeInfo), $"{feed.FeedTitle} has no episode info");
                     }
                 },
                 _ => { });

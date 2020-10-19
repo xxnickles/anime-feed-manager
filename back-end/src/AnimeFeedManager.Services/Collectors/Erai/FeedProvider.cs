@@ -4,6 +4,7 @@ using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Services.Collectors.Interface;
 using LanguageExt;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -12,6 +13,32 @@ using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.Erai
 {
+    internal class Accumulator
+    {
+        internal string AnimeTitle { get; }
+        internal string FeedTitle { get; }
+        internal string EpisodeInfo { get; }
+        internal DateTime PublicationDate { get; }
+        internal string Link { get; }
+        internal LinkType Type { get; }
+
+        public Accumulator(
+            string animeTitle,
+            string feedTitle,
+            string episodeInfo,
+            DateTime publicationDate,
+            string link,
+            LinkType type)
+        {
+            AnimeTitle = animeTitle;
+            FeedTitle = feedTitle;
+            EpisodeInfo = episodeInfo;
+            PublicationDate = publicationDate;
+            Link = link;
+            Type = type;
+        }
+    }
+
     public class FeedProvider : IFeedProvider
     {
         private const string EraiRss = "https://spa.erai-raws.info/";
@@ -21,27 +48,47 @@ namespace AnimeFeedManager.Services.Collectors.Erai
         {
             try
             {
-                var rssFeed = XDocument.Load(GetRssUrl(resolution));
-                var feed = rssFeed.Descendants("item").Select(Mapper);
-                return Right<DomainError, ImmutableList<FeedInfo>>(
-                    feed.Where(f => f.PublicationDate >= DateTime.Today)
-                        .ToImmutableList());
+                var sources = new List<LinkType> { LinkType.TorrentFile, LinkType.Magnet }
+                    .SelectMany(type => GetFeedInformation(Resolution.Hd, type))
+                    .Where(f => f.PublicationDate >= DateTime.Today)
+                    .GroupBy(i => i.AnimeTitle);
+
+                var resultList =
+                    from source in sources
+                    let links = source.Select(x => new TorrentLink(x.Type, x.Link)).ToImmutableList()
+                    let baseElement = source.First()
+                    select new FeedInfo(
+                        NonEmptyString.FromString(baseElement.AnimeTitle),
+                        NonEmptyString.FromString(baseElement.FeedTitle),
+                        baseElement.PublicationDate,
+                        links,
+                        baseElement.EpisodeInfo);
+                return resultList.ToImmutableList();
             }
             catch (Exception e)
             {
-                return Left<DomainError, ImmutableList<FeedInfo>>(ExceptionError.FromException(e, "Erai_Feed_Exception"));
+                return Left<DomainError, ImmutableList<FeedInfo>>(
+                    ExceptionError.FromException(e, $"Erai_Feed_Exception"));
             }
         }
 
-        private FeedInfo Mapper(XElement item)
+
+        private IEnumerable<Accumulator> GetFeedInformation(Resolution resolution, LinkType type)
+        {
+            var rssFeed = XDocument.Load(GetRssUrl(resolution, type));
+            return rssFeed.Descendants("item").Select(item => AccumulatorMapper(item, type));
+        }
+
+        private Accumulator AccumulatorMapper(XElement item, LinkType type)
         {
             var cleanedTitle = item.Element("title")?.Value.ReplaceKnownProblematicCharacters();
-            return new FeedInfo(
-                NonEmptyString.FromString(MatchPattern(TitlePattern, cleanedTitle ?? string.Empty)),
-                NonEmptyString.FromString(item.Element("title")?.Value ?? string.Empty),
+            return new Accumulator(
+                MatchPattern(TitlePattern, cleanedTitle ?? string.Empty),
+                item.Element("title")?.Value ?? string.Empty,
+                MatchPattern(EpisodeInfoPattern, cleanedTitle ?? string.Empty),
                 DateTime.Parse(item.Element("pubDate")?.Value ?? string.Empty),
                 item.Element("link")?.Value ?? string.Empty,
-                MatchPattern(EpisodeInfoPattern, cleanedTitle ?? string.Empty));
+                type);
         }
 
         private static string MatchPattern(string pattern, string str)
@@ -49,9 +96,15 @@ namespace AnimeFeedManager.Services.Collectors.Erai
             return Regex.Match(str, pattern, RegexOptions.IgnoreCase).Value;
         }
 
-        private static string GetRssUrl(Resolution resolution)
+        private static string GetRssUrl(Resolution resolution, LinkType type)
         {
-            return $"{EraiRss}/rss-{resolution}/";
+            var baseUrl = $"{EraiRss}/rss-{resolution}";
+
+            return type switch
+            {
+                LinkType.Magnet => $"{baseUrl}-magnet",
+                _ => baseUrl
+            };
         }
     }
 }

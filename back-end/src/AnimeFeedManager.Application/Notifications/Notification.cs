@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using AnimeFeedManager.Core.Domain;
 using LanguageExt;
 
 namespace AnimeFeedManager.Application.Notifications
@@ -7,14 +9,14 @@ namespace AnimeFeedManager.Application.Notifications
     public sealed class SubscribedFeed
     {
         public string Title { get; }
-        public string Link { get; }
+        public IImmutableList<TorrentLink> Links { get; }
         public string EpisodeInfo { get; }
         public DateTime PublicationDate { get; }
 
-        public SubscribedFeed(string title, string link, string episodeInfo, DateTime publicationDate)
+        public SubscribedFeed(string title, IImmutableList<TorrentLink> links, string episodeInfo, DateTime publicationDate)
         {
             Title = title;
-            Link = link;
+            Links = links;
             EpisodeInfo = episodeInfo;
             PublicationDate = publicationDate;
         }
