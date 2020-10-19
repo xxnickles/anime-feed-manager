@@ -30,7 +30,8 @@ export class AfmHome {
       subscriptions: [],
       interested: []
     } as UserInfo,
-    selectedFilters: [] as AvailableFilters[]
+    selectedFilters: [] as AvailableFilters[],
+    isLatestSeason: false
   };
 
   animeCollection = [] as SubscribedFeed[];
@@ -45,7 +46,8 @@ export class AfmHome {
             animes,
             this.state.userInfo.subscriptions,
             this.state.userInfo.interested,
-            this.state.selectedFilters)
+            this.state.selectedFilters),
+            isLatestSeason: animeListQuery.isLatestSeason
         }
         this.animeCollection = animes;
       });
@@ -73,7 +75,7 @@ export class AfmHome {
   }
 
   getInterestedStatus(anime: SubscribedFeed) {
-    if (!this.state.userInfo.logged) return InterestedStatus.none;
+    if (!this.state.userInfo.logged || !this.state.isLatestSeason) return InterestedStatus.none;
     return this.state.userInfo.interested.includes(anime.title) ?
       InterestedStatus.interested :
       InterestedStatus.showInterested;

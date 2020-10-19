@@ -9,7 +9,6 @@ const subscritionFilter = (anime: SubscribedFeed) =>
     && subscriptions.includes(anime.feedInformation.title);
 
 
-
 const completedFilter = (anime: SubscribedFeed) => anime.feedInformation.completed;
 
 const interestedFilter = (anime: SubscribedFeed) => (interested: string[]) => interested.includes(anime.title);
