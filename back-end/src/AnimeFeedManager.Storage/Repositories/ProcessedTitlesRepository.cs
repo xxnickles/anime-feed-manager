@@ -8,7 +8,6 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Storage.Repositories
 {
@@ -44,32 +43,9 @@ namespace AnimeFeedManager.Storage.Repositories
             return titles.Select(storageTitle => storageTitle.Title ?? string.Empty).ToImmutableList();
         }
 
-        private async Task<Either<DomainError, Unit>> BatchDelete(IImmutableList<ProcessedTitlesStorage> titles)
+        private Task<Either<DomainError, Unit>> BatchDelete(IImmutableList<ProcessedTitlesStorage> titles)
         {
-            try
-            {
-                var offset = 0;
-                while (offset < titles.Count)
-                {
-                    var batch = new TableBatchOperation();
-                    var rows = titles.Skip(offset).Take(100).ToList();
-                    foreach (var row in rows)
-                    {
-                        batch.Delete(row);
-                    }
-
-                    await _tableClient.ExecuteBatchAsync(batch);
-                    offset += rows.Count;
-                }
-
-                return Right(unit);
-            }
-            catch (Exception e)
-            {
-                return Left<DomainError, Unit>(ExceptionError.FromException(e, "BatchDelete"));
-            }
-           
+            return TableUtils.BatchDelete(_tableClient, titles);
         }
-
     }
 }

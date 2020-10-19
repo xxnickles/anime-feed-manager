@@ -69,5 +69,31 @@ namespace AnimeFeedManager.Storage
                     Left<DomainError, T>(ExceptionError.FromException(e, "TableOperation"));
             }
         }
+
+        internal static async Task<Either<DomainError, Unit>> BatchDelete<T>(CloudTable tableClient ,IImmutableList<T> entities) where T: TableEntity
+        {
+            try
+            {
+                var offset = 0;
+                while (offset < entities.Count)
+                {
+                    var batch = new TableBatchOperation();
+                    var rows = entities.Skip(offset).Take(100).ToList();
+                    foreach (var row in rows)
+                    {
+                        batch.Delete(row);
+                    }
+
+                    await tableClient.ExecuteBatchAsync(batch);
+                    offset += rows.Count;
+                }
+
+                return Right(unit);
+            }
+            catch (Exception e)
+            {
+                return Left<DomainError, Unit>(ExceptionError.FromException(e, "BatchDelete"));
+            }
+        }
     }
 }

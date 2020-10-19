@@ -134,15 +134,19 @@ export class AfmCard {
   interestedOption() {
     switch (this.interestedStatus) {
       case InterestedStatus.showInterested:
-        return <ion-button
-          size="small"
-          class="ion-activatable ripple-parent"
-          mode="ios"
-          onClick={() => this.handleAddInterest()}
-        >
-          Add to Interested
+        return [
+          <ion-chip color="warning">
+            <ion-label>Feed Not Available</ion-label>
+          </ion-chip>,
+          <ion-button
+            size="small"
+            class="ion-activatable ripple-parent"
+            mode="ios"
+            onClick={() => this.handleAddInterest()}
+          >
+            Add to Interested
         <ion-ripple-effect></ion-ripple-effect>
-        </ion-button>
+          </ion-button>]
       case InterestedStatus.interested:
         return [
           <ion-chip color="secondary">
@@ -176,12 +180,8 @@ export class AfmCard {
   }
 
   renderNotAvailable() {
-    return [
-      <ion-chip color="warning">
-        <ion-label>Feed Not Available</ion-label>
-      </ion-chip>,
-      this.interestedOption()
-    ]
+    return this.interestedOption()
+
   }
 
   parseSynopsis() {
