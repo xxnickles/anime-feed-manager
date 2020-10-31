@@ -40,7 +40,7 @@ type Configuration =
 let processFeedTitles url (store: TitlesStore<FeedTitles, 'b>) =
     async {
         let! browser = defaultBrowser ()
-        let! r = EraiTitleScrapper browser url
+        let! r = SubsPleaseTitleScrapper browser url
         return! r |> store
     }
 

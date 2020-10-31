@@ -6,7 +6,9 @@
 Anime Feed Manager
 =================
 
-Simple Personal Feed Manager / Anime Season Library that uses [LiveChart](https://www.livechart.me/) and [HorribleSubs](https://horriblesubs.info/) as data sources. Simple API using azure functions, Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The client app uses [Stencil](https://stenciljs.com/), [Ionic Components](https://ionicframework.com/docs/components) and [Akita](https://netbasal.gitbook.io/akita/)
+Simple Personal Feed Manager / Anime Season Library that uses [LiveChart](https://www.livechart.me/) and [SubsPleae](https://subsplease.org/schedule/)*  as data sources. Simple API using azure functions, Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The client app uses [Stencil](https://stenciljs.com/), [Ionic Components](https://ionicframework.com/docs/components) and [Akita](https://netbasal.gitbook.io/akita/)
+
+_(*) This project used to use [HorribleSubs](https://horriblesubs.info/), but it was closed. Then [Erai-Raws](https://spa.erai-raws.info/) was used, but their site has had multiple stability problem recently_
 
 ## Projects
 

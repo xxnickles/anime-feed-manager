@@ -3,6 +3,28 @@
 open PuppeteerSharp
 open Scrappers.Common.Types
 
+let SubsPleaseTitleScrapper (browser: Browser) subsPlease =
+    async {
+        use! page = browser.NewPageAsync() |> Async.AwaitTask
+        let! _ = page.GoToAsync(subsPlease) |> Async.AwaitTask
+
+        let! _ =
+            page.WaitForSelectorAsync("table#full-schedule-table")
+            |> Async.AwaitTask
+
+        let jsSelection = @"() => {
+                        return Array.from(document.querySelectorAll('td.all-schedule-show a')).map(x => x.innerText);
+                         }"
+
+        let! titles =
+            page.EvaluateFunctionAsync<string []>(jsSelection)
+            |> Async.AwaitTask
+
+        let! _ = browser.CloseAsync() |> Async.AwaitTask
+
+        return { titles = titles }
+    }
+    
 let EraiTitleScrapper (browser: Browser) eraiUrl =
     async {
         use! page = browser.NewPageAsync() |> Async.AwaitTask

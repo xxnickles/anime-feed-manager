@@ -1,23 +1,24 @@
-﻿using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Services.Collectors.Interface;
-using LanguageExt;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using AnimeFeedManager.Core.ConstrainedTypes;
+using AnimeFeedManager.Core.Domain;
+using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Services.Collectors.Interface;
+using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace AnimeFeedManager.Services.Collectors.Erai
+namespace AnimeFeedManager.Services.Collectors.SubsPlease
 {
     public class FeedProvider : IFeedProvider
     {
-        private const string EraiRss = "https://spa.erai-raws.info/";
-        private const string TitlePattern = @"(?<=\[720p\]\s)(.*?)(?=\s-\s\d+)";
+        private const string SubsPleaseRss = "https://subsplease.org/rss/";
+        private const string TitlePattern = @"(?<=\[SubsPlease\]\s)(.*?)(?=\s-\s\d+)";
         private const string EpisodeInfoPattern = @"(?<=\s-\s)\d+(\s\(V\d{1}\))?";
+
         public Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution)
         {
             try
@@ -46,7 +47,6 @@ namespace AnimeFeedManager.Services.Collectors.Erai
             }
         }
 
-
         private IEnumerable<Accumulator> GetFeedInformation(Resolution resolution, LinkType type)
         {
             var rssFeed = XDocument.Load(GetRssUrl(resolution, type));
@@ -72,12 +72,12 @@ namespace AnimeFeedManager.Services.Collectors.Erai
 
         private static string GetRssUrl(Resolution resolution, LinkType type)
         {
-            var baseUrl = $"{EraiRss}/rss-{resolution}";
+            var baseUrl = $"{SubsPleaseRss}";
 
             return type switch
             {
-                LinkType.Magnet => $"{baseUrl}-magnet",
-                _ => baseUrl
+                LinkType.Magnet => $"{baseUrl}?r={resolution}",
+                _ => $"{baseUrl}?t&r={resolution}"
             };
         }
     }

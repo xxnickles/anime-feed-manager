@@ -3,7 +3,7 @@ Anime Feed Manager back-end
 
 ## Requirements
 
-**Important!** This project is using Azure SDK Preview. Please refer to [this post](https://dev.to/azure/develop-azure-functions-using-net-core-3-0-gcm) for information about the specific local setup required
+Please refer to [this post](https://dev.to/azure/develop-azure-functions-using-net-core-3-0-gcm) for information about the specific local setup required
 
 * [Dotnet Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 * [Azure SDK](https://azure.microsoft.com/en-us/downloads/)
