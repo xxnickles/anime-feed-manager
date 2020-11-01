@@ -9,7 +9,7 @@ let SubsPleaseTitleScrapper (browser: Browser) subsPlease =
         let! _ = page.GoToAsync(subsPlease) |> Async.AwaitTask
 
         let! _ =
-            page.WaitForSelectorAsync("table#full-schedule-table")
+            page.WaitForSelectorAsync("table#full-schedule-table td.all-schedule-show")
             |> Async.AwaitTask
 
         let jsSelection = @"() => {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AnimeFeedManager.Common.Helpers;
 
 namespace AnimeFeedManager.Functions.Extensions
 {
@@ -68,7 +69,7 @@ namespace AnimeFeedManager.Functions.Extensions
         private static string LinksFromFeed(SubscribedFeed feed)
         {
             var listOfLinks = feed.Links.Select(link =>
-                $"<a href=\"{link.Link}\" title=\"{feed.Title}-{link.Type}\" target=\"_blank\">{link.Type}</a>");
+                $"<a href=\"{link.Link}\" title=\"{feed.Title}-{link.Type}\" target=\"_blank\">{StringHelpers.SplitWordsByCase(link.Type.ToString())}</a>");
             return string.Join(" | ", listOfLinks);
         }
 

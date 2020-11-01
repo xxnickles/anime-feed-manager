@@ -1,5 +1,5 @@
 ﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
-using AnimeFeedManager.Services.Collectors.Erai;
+using AnimeFeedManager.Services.Collectors.SubsPlease;
 using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Services.Collectors.LiveChart;
 using AnimeFeedManager.Storage.Domain;
