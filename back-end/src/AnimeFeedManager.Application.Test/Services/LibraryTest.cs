@@ -1,15 +1,14 @@
-﻿using System.Collections.Immutable;
-using System.Security;
-using AnimeFeedManager.Services.Collectors.LiveChart;
+﻿using AnimeFeedManager.Services.Collectors.AniDb;
 using AnimeFeedManager.Storage.Interface;
 using Moq;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace AnimeFeedManager.Application.Test.Services
 {
     [Trait("Category", "Services")]
-    public class LiveChartLibraryTest
+    public class LibraryTest
     {
 
         [Fact]

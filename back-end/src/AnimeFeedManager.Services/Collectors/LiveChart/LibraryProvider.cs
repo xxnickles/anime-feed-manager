@@ -18,6 +18,7 @@ using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.LiveChart
 {
+    [Obsolete("Live chart moved to Cloudfare. Must use a real browser / puppeter to scrap it", true)]
     public class LibraryProvider : IExternalLibraryProvider
     {
         private const string LiveChartLibrary = "https://www.livechart.me";
@@ -35,7 +36,8 @@ namespace AnimeFeedManager.Services.Collectors.LiveChart
             {
                 var web = new HtmlWeb();
                 var doc = web.Load(LiveChartLibrary);
-                var seasonInfoString =
+                var 
+                    seasonInfoString =
                     HttpUtility.HtmlDecode(doc.DocumentNode.SelectSingleNode("//h1").InnerText);
 
                 var (season, year) = GetSeasonInformation(seasonInfoString);

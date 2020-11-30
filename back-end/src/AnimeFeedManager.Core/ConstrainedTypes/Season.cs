@@ -10,6 +10,7 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
         private const string SpringValue = "spring";
         private const string SummerValue = "summer";
         private const string FallValue = "fall";
+        private const string FallAlternativeValue = "autumn"; // Only for parsing due to AniDb
         private const string WinterValue = "winter";
 
         private Season(string value)
@@ -47,18 +48,19 @@ namespace AnimeFeedManager.Core.ConstrainedTypes
             SpringValue => Spring,
             SummerValue => Summer,
             FallValue => Fall,
+            FallAlternativeValue => Fall,
             WinterValue => Winter,
             _ => Spring
         } : Spring;
 
         public static Option<Season> TryCreateFromString(string val)
         {
-
             return val switch
             {
                 SpringValue => Some(Spring),
                 SummerValue => Some(Summer),
                 FallValue => Some(Fall),
+                FallAlternativeValue => Some(Fall),
                 WinterValue => Some(Winter),
                 _ => None
             };
