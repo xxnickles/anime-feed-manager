@@ -24,7 +24,7 @@ let SubsPleaseTitleScrapper (browser: Browser) subsPlease =
 
         return { titles = titles }
     }
-    
+
 let EraiTitleScrapper (browser: Browser) eraiUrl =
     async {
         use! page = browser.NewPageAsync() |> Async.AwaitTask
@@ -47,7 +47,58 @@ let EraiTitleScrapper (browser: Browser) eraiUrl =
         return { titles = titles }
     }
 
-let ImageScrapper (browser: Browser) url =
+let AniDbImageScrapper (browser: Browser) url =
+    async {
+        use! page = browser.NewPageAsync() |> Async.AwaitTask
+        let! _ = page.GoToAsync(url) |> Async.AwaitTask
+
+        let! _ =
+            page.WaitForSelectorAsync("div.g_bubblewrap.g_bubble.container")
+            |> Async.AwaitTask
+
+        let jsSelection = @"() => {
+
+            const seasonInformation = () => {
+            const getDate = (str) => str.includes('/') ? str.split('/')[1] : str;
+            const formatSeason = (str) => str === 'autumn' ? 'fall' : str;
+            const titleParts = document.querySelector('div.g_section.content > h2 span').innerText.split(' ');
+            return {
+                season: formatSeason(titleParts[0].toLowerCase()),
+                year: parseInt(getDate(titleParts[1]))
+            }
+        }
+
+        const imgObjList = [].slice.call(document.querySelectorAll('div.g_bubble.box'))
+            .map(card => {
+
+                const getImage = () => {
+                    const cleanSrc = (src) => src.replace('.jpg-thumb','')
+                    const image = card.querySelector('div.thumb.image img');
+                    return cleanSrc(image.src);
+                }
+
+                return {
+                    title: card.querySelector('div.wrap.name a').innerText,
+                    url: getImage()
+                }
+            }
+            );
+
+        return {
+            seasonInfo: seasonInformation(),
+            imagesInfo: imgObjList
+        }
+    }"
+
+        let! result =
+            page.EvaluateFunctionAsync<ImageProcessInfo>(jsSelection)
+            |> Async.AwaitTask
+
+        let! _ = browser.CloseAsync() |> Async.AwaitTask
+        return result
+    }
+
+let LiveChartImageScrapper (browser: Browser) url =
     async {
         use! page = browser.NewPageAsync() |> Async.AwaitTask
         let! _ = page.GoToAsync(url) |> Async.AwaitTask

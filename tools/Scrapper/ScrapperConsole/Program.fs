@@ -48,7 +48,7 @@ let processFeedTitles url (store: TitlesStore<FeedTitles, 'b>) =
 let processImageInfo url (store: ImageStore<ImageProcessInfo, 'b>) =
     async {
         let! browser = defaultBrowser ()
-        let! r = ImageScrapper browser url
+        let! r = AniDbImageScrapper browser url
 
         let blobName =
             sprintf "./images-%s-%i.json" r.seasonInfo.season r.seasonInfo.year
