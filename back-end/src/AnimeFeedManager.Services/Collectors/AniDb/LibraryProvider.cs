@@ -131,8 +131,7 @@ namespace AnimeFeedManager.Services.Collectors.AniDb
         private static string FormatSynopsis(string original)
         {
             var cleaned = original.Replace("...", ".");
-            return Regex.Replace(cleaned, @"(?<=[\w\d])\.(?=[\w\d])", ". ");
-            
+            return Regex.Replace(cleaned, @"(?<=[\w\d])[\.!?](?=[\w\d])", ". ");
         }
     }
 }
