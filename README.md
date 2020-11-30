@@ -6,9 +6,9 @@
 Anime Feed Manager
 =================
 
-Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPleae](https://subsplease.org/schedule/)*  as data sources. Simple API using azure functions, Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The client app uses [Stencil](https://stenciljs.com/), [Ionic Components](https://ionicframework.com/docs/components) and [Akita](https://netbasal.gitbook.io/akita/)
+Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/)*  as data sources. Simple API using azure functions, Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The client app uses [Stencil](https://stenciljs.com/), [Ionic Components](https://ionicframework.com/docs/components) and [Akita](https://netbasal.gitbook.io/akita/)
 
-_(*) This project used to use [HorribleSubs](https://horriblesubs.info/), but it was closed. Then [Erai-Raws](https://spa.erai-raws.info/) was used, but their site has had multiple stability problem recently. [LiveChart](https://www.livechart.me/) has been replaced becouse of they moved behind to cloudflare, which is not scrapping friendly_
+_(*) This project used to use [HorribleSubs](https://horriblesubs.info/), but it closed. Then [Erai-Raws](https://spa.erai-raws.info/) was used, but their site has had multiple stability problems recently. [LiveChart](https://www.livechart.me/) has been replaced because of they moved behind to Cloudflare, which is not scrapping friendly_
 
 ## Projects
 
