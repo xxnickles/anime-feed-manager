@@ -31,12 +31,12 @@ namespace AnimeFeedManager.Functions
                 r =>
                 {
                     log.LogInformation("Titles have been updated");
-                    return TitleProcessResult.Ok;
+                    return ProcessResult.Ok;
                 },
                 e =>
                 {
                     log.LogError($"An error occurred while storing feed titles {e.ToString()}");
-                    return TitleProcessResult.Failure;
+                    return ProcessResult.Failure;
                 });
         }
     }

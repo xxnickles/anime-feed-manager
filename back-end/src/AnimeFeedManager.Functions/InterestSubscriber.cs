@@ -20,14 +20,14 @@ namespace AnimeFeedManager.Functions
         [FunctionName("InterestSubscriber")]
         [StorageAccount("AzureWebJobsStorage")]
         public async Task Run(
-            [QueueTrigger(QueueNames.TitleProcess)] string processResult,
+            [QueueTrigger(QueueNames.ProcessAutoSubscriber)] string processResult,
             [Queue(QueueNames.ToSubscribe)] IAsyncCollector<SubscriptionDto> toSubscribeQueueCollector,
             [Queue(QueueNames.InterestRemove)] IAsyncCollector<SubscriptionDto> interestToRemoveSeasonCollector,
             ILogger log)
         {
-            if (processResult == TitleProcessResult.Ok)
+            if (processResult == ProcessResult.Ok)
             {
-                log.LogInformation("Titles were updated, checking if there are interested series that mach new titles");
+                log.LogInformation("Titles were updated and checking of status process was completed, checking if there are interested series that match new titles");
                 var interestedSeries = await _mediator.Send(new GetAllInterestedSeries());
 
                 interestedSeries.Match(async series =>

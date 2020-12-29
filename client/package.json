@@ -18,15 +18,15 @@
   },
   "dependencies": {
     "@datorama/akita": "^5.3.0",
-    "@ionic/core": "^5.5.1",
+    "@ionic/core": "^5.5.2",
     "@pwabuilder/pwaupdate": "^0.2.0",
-    "@types/jest": "^26.0.15",
-    "eslint": "^7.14.0",
-    "ky": "^0.25.0",
+    "@types/jest": "^26.0.19",
+    "eslint": "^7.16.0",
+    "ky": "^0.25.1",
     "workbox-build": "^5.1.4"
   },
   "devDependencies": {
     "@stencil/core": "^2.3.0",
-    "@stencil/sass": "^1.4.0"
+    "@stencil/sass": "^1.4.1"
   }
 }
