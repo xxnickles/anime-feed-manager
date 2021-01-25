@@ -8,6 +8,7 @@ open Scrappers.Common
 type TitlesStore<'a, 'b> = 'a -> Async<'b>
 type ImageStore<'a, 'b> = BlobName -> 'a -> Async<'b>
 
+
 type Actions =
     | Images
     | Titles

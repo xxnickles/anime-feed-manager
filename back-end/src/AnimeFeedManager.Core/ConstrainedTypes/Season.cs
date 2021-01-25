@@ -4,7 +4,7 @@ using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes
 {
-    public struct Season : IComparable<Season>, IEquatable<Season>
+    public readonly struct Season : IComparable<Season>, IEquatable<Season>
     {
         public readonly string Value;
         private const string SpringValue = "spring";

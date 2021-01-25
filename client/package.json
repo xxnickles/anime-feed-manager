@@ -17,12 +17,12 @@
     "generate": "stencil generate"
   },
   "dependencies": {
-    "@datorama/akita": "^5.3.0",
+    "@datorama/akita": "^6.0.0",
     "@ionic/core": "^5.5.2",
     "@pwabuilder/pwaupdate": "^0.2.0",
-    "@types/jest": "^26.0.19",
-    "eslint": "^7.16.0",
-    "ky": "^0.25.1",
+    "@types/jest": "^26.0.20",
+    "eslint": "^7.18.0",
+    "ky": "^0.26.0",
     "workbox-build": "^5.1.4"
   },
   "devDependencies": {
