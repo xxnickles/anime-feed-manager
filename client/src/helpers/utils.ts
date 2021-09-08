@@ -1,4 +1,4 @@
-import ky from 'ky';
+import * as ky from 'ky';
 import { toastController, ToastOptions } from '@ionic/core';
 import { loaderService } from './loader';
 
