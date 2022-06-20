@@ -17,16 +17,16 @@
     "generate": "stencil generate"
   },
   "dependencies": {
-    "@datorama/akita": "^6.2.3",
-    "@ionic/core": "^5.7.0",
-    "@pwabuilder/pwaupdate": "^0.2.0",
-    "@types/jest": "^27.0.1",
-    "eslint": "^7.32.0",
-    "ky": "^0.28.5",
-    "workbox-build": "^5.1.4"
+    "@datorama/akita": "^7.1.1",
+    "@ionic/core": "^6.1.10",
+    "@pwabuilder/pwaupdate": "^0.2.1",
+    "@types/jest": "^28.1.2",
+    "eslint": "^8.18.0",
+    "ky": "^0.30.0",
+    "workbox-build": "^6.5.3"
   },
   "devDependencies": {
-    "@stencil/core": "^2.8.0",
-    "@stencil/sass": "^1.4.1"
+    "@stencil/core": "^2.16.1",
+    "@stencil/sass": "^1.5.2"
   }
 }
