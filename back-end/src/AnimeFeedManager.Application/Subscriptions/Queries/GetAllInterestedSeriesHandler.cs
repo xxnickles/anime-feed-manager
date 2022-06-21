@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Core.Error;
+﻿using System;
+using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
@@ -30,9 +31,9 @@ public class GetAllInterestedSeriesHandler : IRequestHandler<GetAllInterestedSer
             .MapAsync(Project);
     }
 
-    private IImmutableList<InterestedSeriesItem> Project(IImmutableList<InterestedStorage> collection)
+    private static IImmutableList<InterestedSeriesItem> Project(IImmutableList<InterestedStorage> collection)
     {
-        var result = collection.Select(x => new InterestedSeriesItem(x.PartitionKey, x.RowKey));
+        var result = collection.Select(x => new InterestedSeriesItem(x.PartitionKey ?? string.Empty, x.RowKey ?? string.Empty));
         return result.ToImmutableList();
     }
 

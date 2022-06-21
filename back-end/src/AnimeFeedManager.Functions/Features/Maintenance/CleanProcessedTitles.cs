@@ -19,7 +19,7 @@ public class CleanProcessedTitles
     {
         var result = await _mediator.Send(new Application.Feed.Commands.CleanProcessedTitles());
         result.Match(
-            v =>
+            _ =>
             {
                 log.LogInformation("Processed titles store has been cleaned");
             },

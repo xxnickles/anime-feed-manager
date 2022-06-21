@@ -12,7 +12,7 @@ internal static class Mapper
         return new SeasonCollection(year, season,
             animeInfos.Select(a =>
                     new SimpleAnime(
-                        a.RowKey, 
+                        a.RowKey ?? string.Empty, 
                         a.Title ?? "Not Available",                     
                         a.Synopsis,
                         a.ImageUrl,

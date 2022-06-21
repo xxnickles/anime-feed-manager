@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Core.Error;
+﻿using System;
+using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
@@ -36,7 +37,7 @@ public class GetSubscriptionsHandler : IRequestHandler<GetSubscriptions, Either<
             .GroupBy(
                 x => x.PartitionKey,
                 x => x.RowKey,
-                (key, list) => new SubscriptionCollection(key, list))
+                (key, list) => new SubscriptionCollection(key ?? string.Empty, list!))
             .ToImmutableList();
     }
 

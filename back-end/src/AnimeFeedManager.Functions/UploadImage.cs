@@ -4,7 +4,6 @@ using AnimeFeedManager.Storage.Domain;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage.Blob;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -65,7 +64,7 @@ public class UploadImage
     {
         var result =  await _mediator.Send(new AddImageUrl(imageStorage));
         result.Match(
-            v => log.LogInformation($"{imageStorage.RowKey} has been updated"),
+            _ => log.LogInformation($"{imageStorage.RowKey} has been updated"),
             e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
         );
     }

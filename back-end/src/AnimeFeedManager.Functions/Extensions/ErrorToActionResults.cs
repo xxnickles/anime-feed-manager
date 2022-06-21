@@ -1,7 +1,5 @@
 ﻿using AnimeFeedManager.Core.Error;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Web.Http;
 
 namespace AnimeFeedManager.Functions.Extensions;
 

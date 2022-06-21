@@ -32,6 +32,6 @@ public class MergeInterestedSeriesHandler : IRequestHandler<MergeInterestedSerie
     private Task<Either<DomainError, LanguageExt.Unit>> Persist(InterestedSeries interested)
     {
         return _interestedSeriesRepository.Merge(Helpers.MapToStorage(interested))
-            .MapAsync(x => unit);
+            .MapAsync(_ => unit);
     }
 }

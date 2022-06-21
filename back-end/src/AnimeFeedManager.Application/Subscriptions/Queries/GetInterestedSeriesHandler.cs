@@ -39,8 +39,8 @@ public class GetInterestedSeriesHandler : IRequestHandler<GetInterestedSeries, E
             .MapAsync(Project);
     }
 
-    private ImmutableList<string> Project(IEnumerable<InterestedStorage> collection)
+    private static ImmutableList<string> Project(IEnumerable<InterestedStorage> collection)
     {
-        return collection.Select(x => x.RowKey).ToImmutableList();
+        return collection.Select(x => x.RowKey ?? string.Empty).ToImmutableList();
     }
 }

@@ -1,8 +1,9 @@
-﻿using Microsoft.Azure.Cosmos.Table;
+﻿using Azure.Data.Tables;
+
 
 namespace AnimeFeedManager.Storage.Infrastructure;
 
-public interface ITableClientFactory<T> where T : TableEntity
+public interface ITableClientFactory<T> where T : ITableEntity
 {
-    CloudTable GetCloudTable();
+    TableClient GetClient();
 }

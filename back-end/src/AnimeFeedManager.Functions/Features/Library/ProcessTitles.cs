@@ -28,7 +28,7 @@ public class ProcessTitles
 
         var result = await _mediator.Send(command);
         return result.Match(
-            r =>
+            _ =>
             {
                 log.LogInformation("Titles have been updated");
                 return ProcessResult.Ok;

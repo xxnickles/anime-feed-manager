@@ -1,6 +1,4 @@
-using System;
 using System.Linq;
-using Microsoft.Azure.Cosmos.Table;
 using Xunit;
 
 namespace AnimeFeedManager.Application.Test;

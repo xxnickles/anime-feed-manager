@@ -6,7 +6,6 @@ using LanguageExt;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
-using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Application.Subscriptions.Commands;
 
@@ -31,7 +30,6 @@ public class MergeSubscriptionsHandler : IRequestHandler<MergeSubscription, Eith
 
     private Task<Either<DomainError, LanguageExt.Unit>> Persist(Subscription subscription)
     {
-        return _subscriptionRepository.Merge(Helpers.MapToStorage(subscription))
-            .MapAsync(x => unit);
+        return _subscriptionRepository.Merge(Helpers.MapToStorage(subscription));
     }
 }

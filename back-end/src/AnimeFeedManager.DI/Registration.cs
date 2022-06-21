@@ -3,16 +3,16 @@ using AnimeFeedManager.Services.Collectors.SubsPlease;
 using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
-using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using AnimeFeedManager.Services.Collectors.AniDb;
+using Azure.Data.Tables;
 
 namespace AnimeFeedManager.DI;
 
 public static class Registration
 {
-    public static Func<IServiceProvider, Func<Type, string>> TableNameFactory => provider => type =>
+    public static Func<IServiceProvider, Func<Type, string>> TableNameFactory => _ => type =>
     {
         return type.Name switch
         {
@@ -28,9 +28,7 @@ public static class Registration
 
     public static IServiceCollection RegisterStorage(this IServiceCollection services, string connectionString)
     {
-        var storageAccount = CloudStorageAccount.Parse(connectionString);
-        var tableClient = storageAccount.CreateCloudTableClient();
-            
+        var tableClient = new TableServiceClient(connectionString);
         services.AddSingleton(TableNameFactory);
         services.AddSingleton(tableClient);
         services.RegisterRepositories();

@@ -1,9 +1,10 @@
-﻿using Microsoft.Azure.Cosmos.Table;
+﻿using Azure.Data.Tables;
 using System;
+using Azure;
 
 namespace AnimeFeedManager.Storage.Domain;
 
-public class AnimeInfoStorage : TableEntity
+public class AnimeInfoStorage : ITableEntity
 {
     public string? Title { get; set; }
     public string? Synopsis { get; set; }
@@ -12,6 +13,10 @@ public class AnimeInfoStorage : TableEntity
     public string? Season { get; set; }
     public DateTime? Date { get; set; }
     public bool Completed { get; set; }
+    public string? PartitionKey { get; set; }
+    public string? RowKey { get; set; }
+    public DateTimeOffset? Timestamp { get; set; }
+    public ETag ETag { get; set; }
 }
 
 public class AnimeInfoWithImageStorage : AnimeInfoStorage

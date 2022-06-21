@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Application.Shared.Mappers;
 using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Services.Collectors.LiveChart;
 using AnimeFeedManager.Storage.Domain;
 using LanguageExt;
 using MediatR;

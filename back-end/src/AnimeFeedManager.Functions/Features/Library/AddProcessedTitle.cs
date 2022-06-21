@@ -1,5 +1,6 @@
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 

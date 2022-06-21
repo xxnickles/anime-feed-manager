@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AnimeFeedManager.Core.ConstrainedTypes;
+﻿using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Error;
 using LanguageExt;
 using static LanguageExt.Prelude;

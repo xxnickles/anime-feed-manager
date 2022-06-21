@@ -5,43 +5,41 @@ using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Infrastructure;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
-using Microsoft.Azure.Cosmos.Table;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using Azure;
+using Azure.Data.Tables;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Storage.Repositories;
 
 public class SubscriptionRepository : ISubscriptionRepository
 {
-    private readonly CloudTable _tableClient;
+    private readonly TableClient _tableClient;
 
-    public SubscriptionRepository(ITableClientFactory<SubscriptionStorage> tableClientFactory) => _tableClient = tableClientFactory.GetCloudTable();
+    public SubscriptionRepository(ITableClientFactory<SubscriptionStorage> tableClientFactory) => _tableClient = tableClientFactory.GetClient();
 
-    public async Task<Either<DomainError, IImmutableList<SubscriptionStorage>>> Get(Email userEmail)
+    public Task<Either<DomainError, ImmutableList<SubscriptionStorage>>> Get(Email userEmail)
     {
         var user = OptionUtils.UnpackOption(userEmail.Value, string.Empty);
-        var tableQuery = new TableQuery<SubscriptionStorage>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, user));
-           
-        return await TableUtils.TryGetAllTableElements(_tableClient, tableQuery); ;
+        return TableUtils.ExecuteQuery(() =>
+            _tableClient.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == user));
     }
 
-    public async Task<Either<DomainError, IImmutableList<SubscriptionStorage>>> GetAll()
-    {
-        return await TableUtils.TryGetAllTableElements<SubscriptionStorage>(_tableClient);
-    }
+    public Task<Either<DomainError, ImmutableList<SubscriptionStorage>>> GetAll() =>
+        TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<SubscriptionStorage>());
 
-    public async Task<Either<DomainError, SubscriptionStorage>> Merge(SubscriptionStorage subscription)
+
+    public async Task<Either<DomainError, Unit>> Merge(SubscriptionStorage subscription)
     {
-        TableOperation insertOrMergeOperation = TableOperation.InsertOrMerge(subscription);
-        var result = await TableUtils.TryExecute(() => _tableClient.ExecuteAsync(insertOrMergeOperation));
-        return result.Map(r => (SubscriptionStorage)r.Result);
+        var result = await TableUtils.TryExecute(() => _tableClient.UpdateEntityAsync(subscription, ETag.All));
+        return result.Map(_ => unit);
     }
 
     public async Task<Either<DomainError, Unit>> Delete(SubscriptionStorage subscription)
     {
-        TableOperation deleteOperation = TableOperation.Delete(subscription.AddEtag());
-        var result = await TableUtils.TryExecute(() => _tableClient.ExecuteAsync(deleteOperation));
-        return result.Map(x => unit);
+        var result = await TableUtils.TryExecute(() =>
+            _tableClient.DeleteEntityAsync(subscription.PartitionKey, subscription.RowKey));
+        return result.Map(_ => unit);
     }
 }

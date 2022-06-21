@@ -41,6 +41,6 @@ public class GetSubscribedSeriesHandler : IRequestHandler<GetSubscribedSeries, E
 
     private ImmutableList<string> Project(IEnumerable<SubscriptionStorage> collection)
     {
-        return collection.Select(x => x.RowKey).ToImmutableList();
+        return collection.Select(x => x.RowKey ?? string.Empty).ToImmutableList();
     }
 }

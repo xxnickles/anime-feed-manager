@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AnimeFeedManager.Core.Error;
 using LanguageExt;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Extensions;

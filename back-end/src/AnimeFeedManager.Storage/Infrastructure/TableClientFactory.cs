@@ -1,23 +1,23 @@
-﻿using Microsoft.Azure.Cosmos.Table;
+﻿using Azure.Data.Tables;
 using System;
 
 namespace AnimeFeedManager.Storage.Infrastructure;
 
-public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : TableEntity
+public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITableEntity
 {
-    private readonly CloudTableClient _tableClient;
+    private readonly TableServiceClient _serviceClient;
     private readonly Func<Type, string> _tableNameFactory;
 
     public TableClientFactory(
-        CloudTableClient tableClient,
-        Func<Type, string> tableNameFactory)
+            TableServiceClient serviceClient,
+            Func<Type, string> tableNameFactory)
     {
-        _tableClient = tableClient;
+        _serviceClient = serviceClient;
         _tableNameFactory = tableNameFactory;
     }
 
-    public CloudTable GetCloudTable()
+    public TableClient GetClient()
     {
-        return _tableClient.GetTableReference(_tableNameFactory(typeof(T)));
+        return _serviceClient.GetTableClient(_tableNameFactory(typeof(T)));
     }
 }

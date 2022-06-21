@@ -7,6 +7,6 @@ namespace AnimeFeedManager.Storage.Interface;
 
 public interface IProcessedTitlesRepository
 {
-    Task<Either<DomainError, IImmutableList<string>>> GetProcessedTitles();
+    Task<Either<DomainError, ImmutableList<string>>> GetProcessedTitles();
     Task<Either<DomainError, Unit>> RemoveExpired();
 }

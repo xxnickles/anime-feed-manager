@@ -1,12 +1,13 @@
-﻿using Microsoft.Azure.Cosmos.Table;
+﻿using Azure;
+using Azure.Data.Tables;
 
 namespace AnimeFeedManager.Storage.Domain;
 
 public static class TableEntityExtensions
 {
-    public static T AddEtag<T>(this T tableEntity) where T : TableEntity
+    public static T AddEtag<T>(this T tableEntity) where T : ITableEntity
     {
-        tableEntity.ETag = "*";
+        tableEntity.ETag = new ETag("*");
         return tableEntity;
     }
 }

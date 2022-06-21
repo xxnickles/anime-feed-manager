@@ -2,11 +2,11 @@
 using AnimeFeedManager.Storage.Domain;
 using LanguageExt;
 using MediatR;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
 
-public class GetAll : Record<GetExternalLibrary>, IRequest<Either<DomainError, IEnumerable<AnimeInfoStorage>>>
+public class GetAll : Record<GetExternalLibrary>, IRequest<Either<DomainError, ImmutableList<AnimeInfoStorage>>>
 {
         
 }
