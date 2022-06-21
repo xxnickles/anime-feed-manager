@@ -4,11 +4,10 @@ using System.Threading.Tasks;
 using AnimeFeedManager.Core.Error;
 using LanguageExt;
 
-namespace AnimeFeedManager.Storage.Interface
+namespace AnimeFeedManager.Storage.Interface;
+
+public interface IFeedTitlesRepository
 {
-    public interface IFeedTitlesRepository
-    {
-        Task<Either<DomainError, IImmutableList<string>>> GetTitles();
-        Task<Either<DomainError, Unit>> MergeTitles(IEnumerable<string> titles);
-    }
+    Task<Either<DomainError, IImmutableList<string>>> GetTitles();
+    Task<Either<DomainError, Unit>> MergeTitles(IEnumerable<string> titles);
 }

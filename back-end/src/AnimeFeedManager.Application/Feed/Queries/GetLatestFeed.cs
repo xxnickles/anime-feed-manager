@@ -6,11 +6,10 @@ using LanguageExt;
 using MediatR;
 using System.Collections.Immutable;
 
-namespace AnimeFeedManager.Application.Feed.Queries
+namespace AnimeFeedManager.Application.Feed.Queries;
+
+public sealed class GetLatestFeed : Record<GetExternalLibrary>, IRequest<Either<DomainError, ImmutableList<FeedInfo>>>
 {
-    public sealed class GetLatestFeed : Record<GetExternalLibrary>, IRequest<Either<DomainError, ImmutableList<FeedInfo>>>
-    {
-        public Resolution Resolution { get; }
-        public GetLatestFeed(Resolution resolution) => Resolution = resolution;
-    }
+    public Resolution Resolution { get; }
+    public GetLatestFeed(Resolution resolution) => Resolution = resolution;
 }

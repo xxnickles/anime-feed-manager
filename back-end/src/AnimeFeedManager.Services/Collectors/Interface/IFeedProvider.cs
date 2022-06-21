@@ -4,10 +4,9 @@ using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using LanguageExt;
 
-namespace AnimeFeedManager.Services.Collectors.Interface
+namespace AnimeFeedManager.Services.Collectors.Interface;
+
+public interface IFeedProvider
 {
-    public interface IFeedProvider
-    {
-        Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution);
-    }
+    Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution);
 }

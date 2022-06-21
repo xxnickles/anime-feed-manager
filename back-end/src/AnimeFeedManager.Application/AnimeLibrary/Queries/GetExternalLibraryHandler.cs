@@ -9,15 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using AnimeFeedManager.Services.Collectors.Interface;
 
-namespace AnimeFeedManager.Application.AnimeLibrary.Queries
-{
-    public class GetExternalLibraryHandler : IRequestHandler<GetExternalLibrary, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
-    {
-        private readonly IExternalLibraryProvider _externalLibraryProvider;
+namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
 
-        public GetExternalLibraryHandler(IExternalLibraryProvider externalLibraryProvider) => _externalLibraryProvider = externalLibraryProvider;
+public class GetExternalLibraryHandler : IRequestHandler<GetExternalLibrary, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
+{
+    private readonly IExternalLibraryProvider _externalLibraryProvider;
+
+    public GetExternalLibraryHandler(IExternalLibraryProvider externalLibraryProvider) => _externalLibraryProvider = externalLibraryProvider;
         
-        public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(GetExternalLibrary request, CancellationToken cancellationToken) => 
-            _externalLibraryProvider.GetLibrary().MapAsync(AnimeInfoMappers.ProjectToStorageModelWithEtag);
-    }
+    public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(GetExternalLibrary request, CancellationToken cancellationToken) => 
+        _externalLibraryProvider.GetLibrary().MapAsync(AnimeInfoMappers.ProjectToStorageModelWithEtag);
 }

@@ -2,23 +2,22 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace AnimeFeedManager.Core.ConstrainedTypes
+namespace AnimeFeedManager.Core.ConstrainedTypes;
+
+public class Year : Record<Year>
 {
-    public class Year : Record<Year>
+    public readonly Option<ushort> Value;
+
+    public Year(int value)
     {
-        public readonly Option<ushort> Value;
-
-        public Year(int value)
+        if (value >= 2000 && value <= DateTime.Now.Year + 1)
         {
-            if (value >= 2000 && value <= DateTime.Now.Year + 1)
-            {
-                Value = Some((ushort)value);
-            }
-            else
-            {
-                Value = None;
-            }
+            Value = Some((ushort)value);
         }
-
+        else
+        {
+            Value = None;
+        }
     }
+
 }

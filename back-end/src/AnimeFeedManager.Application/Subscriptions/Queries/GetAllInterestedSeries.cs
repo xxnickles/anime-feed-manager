@@ -4,10 +4,9 @@ using AnimeFeedManager.Core.Error;
 using LanguageExt;
 using MediatR;
 
-namespace AnimeFeedManager.Application.Subscriptions.Queries
+namespace AnimeFeedManager.Application.Subscriptions.Queries;
+
+public class GetAllInterestedSeries : Record<GetAllInterestedSeries>, IRequest<Either<DomainError, IImmutableList<InterestedSeriesItem>>>
 {
-    public class GetAllInterestedSeries : Record<GetAllInterestedSeries>, IRequest<Either<DomainError, IImmutableList<InterestedSeriesItem>>>
-    {
         
-    }
 }

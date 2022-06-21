@@ -11,37 +11,36 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AnimeFeedManager.Application.Subscriptions.Queries
+namespace AnimeFeedManager.Application.Subscriptions.Queries;
+
+public class GetInterestedSeriesHandler : IRequestHandler<GetInterestedSeries, Either<DomainError, ImmutableList<string>>>
 {
-    public class GetInterestedSeriesHandler : IRequestHandler<GetInterestedSeries, Either<DomainError, ImmutableList<string>>>
+    private readonly IInterestedSeriesRepository _interestedSeriesRepository;
+
+    public GetInterestedSeriesHandler(IInterestedSeriesRepository interestedSeriesRepository) =>
+        _interestedSeriesRepository = interestedSeriesRepository;
+
+    public Task<Either<DomainError, ImmutableList<string>>> Handle(GetInterestedSeries request, CancellationToken cancellationToken)
     {
-        private readonly IInterestedSeriesRepository _interestedSeriesRepository;
-
-        public GetInterestedSeriesHandler(IInterestedSeriesRepository interestedSeriesRepository) =>
-            _interestedSeriesRepository = interestedSeriesRepository;
-
-        public Task<Either<DomainError, ImmutableList<string>>> Handle(GetInterestedSeries request, CancellationToken cancellationToken)
-        {
-          return Validate(request)
-                .ToEither(nameof(GetInterestedSeries))
-                .BindAsync(Fetch);
-        }
+        return Validate(request)
+            .ToEither(nameof(GetInterestedSeries))
+            .BindAsync(Fetch);
+    }
 
 
-        private Validation<ValidationError, Email> Validate(GetInterestedSeries query) =>
-            Email.FromString(query.Subscriber)
-                .ToValidation(ValidationError.Create("Subscriber", new[] { "Subscriber must be a valid email address" }));
+    private Validation<ValidationError, Email> Validate(GetInterestedSeries query) =>
+        Email.FromString(query.Subscriber)
+            .ToValidation(ValidationError.Create("Subscriber", new[] { "Subscriber must be a valid email address" }));
 
-        private Task<Either<DomainError, ImmutableList<string>>> Fetch(Email subscriber)
-        {
-            return _interestedSeriesRepository
-                .Get(subscriber)
-                .MapAsync(Project);
-        }
+    private Task<Either<DomainError, ImmutableList<string>>> Fetch(Email subscriber)
+    {
+        return _interestedSeriesRepository
+            .Get(subscriber)
+            .MapAsync(Project);
+    }
 
-        private ImmutableList<string> Project(IEnumerable<InterestedStorage> collection)
-        {
-            return collection.Select(x => x.RowKey).ToImmutableList();
-        }
+    private ImmutableList<string> Project(IEnumerable<InterestedStorage> collection)
+    {
+        return collection.Select(x => x.RowKey).ToImmutableList();
     }
 }

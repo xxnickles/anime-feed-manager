@@ -1,15 +1,14 @@
-﻿namespace AnimeFeedManager.DI
+﻿namespace AnimeFeedManager.DI;
+
+internal class AzureTable
 {
-    internal class AzureTable
+    internal struct TableMap
     {
-        internal struct TableMap
-        {
-            internal static string AnimeLibrary = "AnimeLibrary";
-            internal static string Subscriptions = "Subscriptions";
-            internal static string AvailableSeasons = "AvailableSeasons";
-            internal static string InterestedSeries = "InterestedSeries";
-            internal static string FeedTitles = "FeedTitles";
-            internal static string ProcessedTitles = "ProcessedTitles";
-        }
+        internal static string AnimeLibrary = "AnimeLibrary";
+        internal static string Subscriptions = "Subscriptions";
+        internal static string AvailableSeasons = "AvailableSeasons";
+        internal static string InterestedSeries = "InterestedSeries";
+        internal static string FeedTitles = "FeedTitles";
+        internal static string ProcessedTitles = "ProcessedTitles";
     }
 }

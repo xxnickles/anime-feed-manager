@@ -4,10 +4,9 @@ using LanguageExt;
 using MediatR;
 using System.Collections.Generic;
 
-namespace AnimeFeedManager.Application.AnimeLibrary.Queries
+namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
+
+public class GetAll : Record<GetExternalLibrary>, IRequest<Either<DomainError, IEnumerable<AnimeInfoStorage>>>
 {
-    public class GetAll : Record<GetExternalLibrary>, IRequest<Either<DomainError, IEnumerable<AnimeInfoStorage>>>
-    {
         
-    }
 }

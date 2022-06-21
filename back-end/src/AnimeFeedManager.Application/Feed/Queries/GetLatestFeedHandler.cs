@@ -11,33 +11,32 @@ using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Storage.Interface;
 
-namespace AnimeFeedManager.Application.Feed.Queries
+namespace AnimeFeedManager.Application.Feed.Queries;
+
+public class GetLatestFeedHandler : IRequestHandler<GetLatestFeed, Either<DomainError, ImmutableList<FeedInfo>>>
 {
-    public class GetLatestFeedHandler : IRequestHandler<GetLatestFeed, Either<DomainError, ImmutableList<FeedInfo>>>
+    private readonly IFeedProvider _feedProvider;
+    private readonly IProcessedTitlesRepository _processedTitles;
+
+    public GetLatestFeedHandler(IFeedProvider feedProvider, IProcessedTitlesRepository processedTitles)
     {
-        private readonly IFeedProvider _feedProvider;
-        private readonly IProcessedTitlesRepository _processedTitles;
+        _feedProvider = feedProvider;
+        _processedTitles = processedTitles;
+    }
 
-        public GetLatestFeedHandler(IFeedProvider feedProvider, IProcessedTitlesRepository processedTitles)
-        {
-            _feedProvider = feedProvider;
-            _processedTitles = processedTitles;
-        }
-
-        public Task<Either<DomainError, ImmutableList<FeedInfo>>> Handle(GetLatestFeed request,
-            CancellationToken cancellationToken)
-        {
-           return _processedTitles.GetProcessedTitles().BindAsync(titles => GetFilteredFeed(titles, Resolution.Hd));
-        }
+    public Task<Either<DomainError, ImmutableList<FeedInfo>>> Handle(GetLatestFeed request,
+        CancellationToken cancellationToken)
+    {
+        return _processedTitles.GetProcessedTitles().BindAsync(titles => GetFilteredFeed(titles, Resolution.Hd));
+    }
 
 
-        private Either<DomainError, ImmutableList<FeedInfo>> GetFilteredFeed(IImmutableList<string> processedTitles, Resolution resolution)
-        {
-           return _feedProvider.GetFeed(resolution)
-                .Map(titles =>
-                    titles.Where(title => 
+    private Either<DomainError, ImmutableList<FeedInfo>> GetFilteredFeed(IImmutableList<string> processedTitles, Resolution resolution)
+    {
+        return _feedProvider.GetFeed(resolution)
+            .Map(titles =>
+                titles.Where(title => 
                         !processedTitles.Exists(x => x == OptionUtils.UnpackOption(title.FeedTitle.Value, string.Empty)))
-                        .ToImmutableList());
-        }
+                    .ToImmutableList());
     }
 }

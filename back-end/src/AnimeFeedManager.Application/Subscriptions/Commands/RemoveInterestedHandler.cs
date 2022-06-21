@@ -8,31 +8,30 @@ using MediatR;
 using AnimeFeedManager.Core.Utils;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Application.Subscriptions.Commands
+namespace AnimeFeedManager.Application.Subscriptions.Commands;
+
+public class RemoveInterestedHandler : IRequestHandler<RemoveInterested, Either<DomainError, LanguageExt.Unit>>, IRequest<Either<DomainError, Unit>>
 {
-    public class RemoveInterestedHandler : IRequestHandler<RemoveInterested, Either<DomainError, LanguageExt.Unit>>, IRequest<Either<DomainError, Unit>>
+    private readonly IInterestedSeriesRepository _subscriptionRepository;
+
+    public RemoveInterestedHandler(IInterestedSeriesRepository subscriptionRepository)
     {
-        private readonly IInterestedSeriesRepository _subscriptionRepository;
+        _subscriptionRepository = subscriptionRepository;
+    }
 
-        public RemoveInterestedHandler(IInterestedSeriesRepository subscriptionRepository)
-        {
-            _subscriptionRepository = subscriptionRepository;
-        }
+    public Task<Either<DomainError, Unit>> Handle(RemoveInterested request, CancellationToken cancellationToken)
+    {
+        return Validate(request)
+            .ToEither(nameof(Commands.RemoveInterested))
+            .BindAsync(RemoveInterested);
+    }
 
-        public Task<Either<DomainError, Unit>> Handle(RemoveInterested request, CancellationToken cancellationToken)
-        {
-            return Validate(request)
-                .ToEither(nameof(Commands.RemoveInterested))
-                .BindAsync(RemoveInterested);
-        }
+    private Validation<ValidationError, InterestedSeries> Validate(RemoveInterested request) =>
+        (Helpers.SubscriberMustBeValid(request.Subscriber), Helpers.IdListMustHaveElements(request.AnimeId))
+        .Apply((subscriber, id) => new InterestedSeries(subscriber, id));
 
-        private Validation<ValidationError, InterestedSeries> Validate(RemoveInterested request) =>
-            (Helpers.SubscriberMustBeValid(request.Subscriber), Helpers.IdListMustHaveElements(request.AnimeId))
-            .Apply((subscriber, id) => new InterestedSeries(subscriber, id));
-
-        private Task<Either<DomainError, Unit>> RemoveInterested(InterestedSeries subscription)
-        {
-            return _subscriptionRepository.Delete(Helpers.MapToStorage(subscription));
-        }
+    private Task<Either<DomainError, Unit>> RemoveInterested(InterestedSeries subscription)
+    {
+        return _subscriptionRepository.Delete(Helpers.MapToStorage(subscription));
     }
 }

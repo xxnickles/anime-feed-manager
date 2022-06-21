@@ -10,24 +10,23 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace AnimeFeedManager.Functions
+namespace AnimeFeedManager.Functions;
+
+public class Subscriptions
 {
-    public class Subscriptions
-    {
-        private readonly IMediator _mediator;
+    private readonly IMediator _mediator;
 
-        public Subscriptions(IMediator mediator) => _mediator = mediator;
+    public Subscriptions(IMediator mediator) => _mediator = mediator;
         
-        [FunctionName("MergeSubscription")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "subscriptions")]
-            HttpRequest req,
-            ILogger log)
-        {
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var command = JsonConvert.DeserializeObject<MergeSubscription>(requestBody);
+    [FunctionName("MergeSubscription")]
+    public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "subscriptions")]
+        HttpRequest req,
+        ILogger log)
+    {
+        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        var command = JsonConvert.DeserializeObject<MergeSubscription>(requestBody);
 
-            return await _mediator.Send(command).ToActionResult(log);
-        }
+        return await _mediator.Send(command).ToActionResult(log);
     }
 }

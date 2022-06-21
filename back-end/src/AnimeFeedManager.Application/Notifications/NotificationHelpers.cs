@@ -1,10 +1,9 @@
-﻿namespace AnimeFeedManager.Application.Notifications
+﻿namespace AnimeFeedManager.Application.Notifications;
+
+internal class NotificationHelpers
 {
-    internal class NotificationHelpers
+    internal static string FormatMagnetLink(string link)
     {
-        internal static string FormatMagnetLink(string link)
-        {
-            return link.Replace("&", "&amp;");
-        }
+        return link.Replace("&", "&amp;");
     }
 }

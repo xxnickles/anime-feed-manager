@@ -3,10 +3,9 @@ using LanguageExt;
 using MediatR;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Application.Feed.Commands
+namespace AnimeFeedManager.Application.Feed.Commands;
+
+public class CleanProcessedTitles :  Record<CleanProcessedTitles>, IRequest<Either<DomainError, Unit>>
 {
-    public class CleanProcessedTitles :  Record<CleanProcessedTitles>, IRequest<Either<DomainError, Unit>>
-    {
         
-    }
 }

@@ -8,47 +8,46 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using AnimeFeedManager.Services.Collectors.AniDb;
 
-namespace AnimeFeedManager.DI
+namespace AnimeFeedManager.DI;
+
+public static class Registration
 {
-    public static class Registration
+    public static Func<IServiceProvider, Func<Type, string>> TableNameFactory => provider => type =>
     {
-        public static Func<IServiceProvider, Func<Type, string>> TableNameFactory => provider => type =>
+        return type.Name switch
         {
-            return type.Name switch
-            {
-                nameof(AnimeInfoStorage) => AzureTable.TableMap.AnimeLibrary,
-                nameof(SubscriptionStorage) => AzureTable.TableMap.Subscriptions,
-                nameof(SeasonStorage) => AzureTable.TableMap.AvailableSeasons,
-                nameof(InterestedStorage) => AzureTable.TableMap.InterestedSeries,
-                nameof(TitlesStorage) => AzureTable.TableMap.FeedTitles,
-                nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,        
-                _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}"),
-            };
+            nameof(AnimeInfoStorage) => AzureTable.TableMap.AnimeLibrary,
+            nameof(SubscriptionStorage) => AzureTable.TableMap.Subscriptions,
+            nameof(SeasonStorage) => AzureTable.TableMap.AvailableSeasons,
+            nameof(InterestedStorage) => AzureTable.TableMap.InterestedSeries,
+            nameof(TitlesStorage) => AzureTable.TableMap.FeedTitles,
+            nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,        
+            _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}"),
         };
+    };
 
-        public static IServiceCollection RegisterStorage(this IServiceCollection services, string connectionString)
-        {
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
-            var tableClient = storageAccount.CreateCloudTableClient();
+    public static IServiceCollection RegisterStorage(this IServiceCollection services, string connectionString)
+    {
+        var storageAccount = CloudStorageAccount.Parse(connectionString);
+        var tableClient = storageAccount.CreateCloudTableClient();
             
-            services.AddSingleton(TableNameFactory);
-            services.AddSingleton(tableClient);
-            services.RegisterRepositories();
+        services.AddSingleton(TableNameFactory);
+        services.AddSingleton(tableClient);
+        services.RegisterRepositories();
 
-            return services;
-        }
+        return services;
+    }
 
-        public static IServiceCollection RegisterApplicationServices(this IServiceCollection services)
-        {
-            services.AddMediatR(typeof(GetSeasonCollection).Assembly);
-            return services;
-        }
+    public static IServiceCollection RegisterApplicationServices(this IServiceCollection services)
+    {
+        services.AddMediatR(typeof(GetSeasonCollection).Assembly);
+        return services;
+    }
 
-        public static IServiceCollection RegisterAppServices(this IServiceCollection services)
-        {
-            services.AddScoped<IExternalLibraryProvider, LibraryProvider>();
-            services.AddScoped<IFeedProvider, FeedProvider>();
-            return services;
-        }
+    public static IServiceCollection RegisterAppServices(this IServiceCollection services)
+    {
+        services.AddScoped<IExternalLibraryProvider, LibraryProvider>();
+        services.AddScoped<IFeedProvider, FeedProvider>();
+        return services;
     }
 }

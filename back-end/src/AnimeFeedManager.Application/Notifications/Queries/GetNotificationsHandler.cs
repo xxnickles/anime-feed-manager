@@ -11,46 +11,45 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AnimeFeedManager.Application.Notifications.Queries
+namespace AnimeFeedManager.Application.Notifications.Queries;
+
+public class GetNotificationsHandler : IRequestHandler<GetNotifications, Either<DomainError, ImmutableList<Notification>>>
 {
-    public class GetNotificationsHandler : IRequestHandler<GetNotifications, Either<DomainError, ImmutableList<Notification>>>
+    private readonly IMediator _mediator;
+
+    public GetNotificationsHandler(IMediator mediator)
     {
-        private readonly IMediator _mediator;
+        _mediator = mediator;
+    }
 
-        public GetNotificationsHandler(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+    public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetNotifications request, CancellationToken cancellationToken)
+    {
+        return ProcessFeed(request.Feed);
+    }
 
-        public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetNotifications request, CancellationToken cancellationToken)
-        {
-          return ProcessFeed(request.Feed);
-        }
+    public Task<Either<DomainError, ImmutableList<Notification>>> ProcessFeed(ImmutableList<FeedInfo> feed)
+    {
+        return _mediator.Send(new GetSubscriptions())
+            .MapAsync(s => s.ConvertAll(i => CreateNotification(i, feed)))
+            .MapAsync(n => n.RemoveAll(i => !i.Feeds.Any()));
+    }
 
-        public Task<Either<DomainError, ImmutableList<Notification>>> ProcessFeed(ImmutableList<FeedInfo> feed)
-        {
-           return _mediator.Send(new GetSubscriptions())
-                .MapAsync(s => s.ConvertAll(i => CreateNotification(i, feed)))
-                .MapAsync(n => n.RemoveAll(i => !i.Feeds.Any()));
-        }
+    private static Notification CreateNotification(SubscriptionCollection subscription, IEnumerable<FeedInfo> feed)
+    {
+        var matchingFeeds = feed
+            .Where(f => Filter(f, subscription.SubscribedAnimes))
+            .Select(
+                x => new SubscribedFeed(OptionUtils.UnpackOption(x.AnimeTitle.Value, string.Empty),
+                    x.Links,
+                    x.EpisodeInfo,
+                    x.PublicationDate));
 
-        private static Notification CreateNotification(SubscriptionCollection subscription, IEnumerable<FeedInfo> feed)
-        {
-            var matchingFeeds = feed
-                .Where(f => Filter(f, subscription.SubscribedAnimes))
-                .Select(
-                    x => new SubscribedFeed(OptionUtils.UnpackOption(x.AnimeTitle.Value, string.Empty),
-                        x.Links,
-                        x.EpisodeInfo,
-                        x.PublicationDate));
+        return new Notification(subscription.SubscriptionId, matchingFeeds);
+    }
 
-            return new Notification(subscription.SubscriptionId, matchingFeeds);
-        }
-
-        private static bool Filter(FeedInfo f, IEnumerable<string> subscribedAnimes)
-        {
-            var unpackedTitle = OptionUtils.UnpackOption(f.AnimeTitle.Value, string.Empty);
-            return subscribedAnimes.Contains(unpackedTitle);
-        }
+    private static bool Filter(FeedInfo f, IEnumerable<string> subscribedAnimes)
+    {
+        var unpackedTitle = OptionUtils.UnpackOption(f.AnimeTitle.Value, string.Empty);
+        return subscribedAnimes.Contains(unpackedTitle);
     }
 }

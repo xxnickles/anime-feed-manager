@@ -3,29 +3,28 @@ using AnimeFeedManager.Storage.Domain;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions
+namespace AnimeFeedManager.Functions;
+
+public static class UpdateAvailableSeasons
 {
-    public static class UpdateAvailableSeasons
+    [FunctionName("UpdateAvailableSeasons")]
+    [return: Table("AvailableSeasons")]
+    public static SeasonStorage Run(
+        [QueueTrigger(QueueNames.AvailableSeasons, Connection = "AzureWebJobsStorage")]
+        SeasonInfo seasonInfo, 
+        ILogger log)
     {
-        [FunctionName("UpdateAvailableSeasons")]
-        [return: Table("AvailableSeasons")]
-        public static SeasonStorage Run(
-            [QueueTrigger(QueueNames.AvailableSeasons, Connection = "AzureWebJobsStorage")]
-            SeasonInfo seasonInfo, 
-            ILogger log)
+        var result = new SeasonStorage
         {
-            var result = new SeasonStorage
-            {
-                PartitionKey = "Season",
-                RowKey = $"{seasonInfo.Year.ToString()}-{seasonInfo.Season}",
-                Season = seasonInfo.Season,
-                Year = seasonInfo.Year
+            PartitionKey = "Season",
+            RowKey = $"{seasonInfo.Year.ToString()}-{seasonInfo.Season}",
+            Season = seasonInfo.Season,
+            Year = seasonInfo.Year
 
-            }.AddEtag();
+        }.AddEtag();
 
-            log.LogInformation($"Updating available seasons with {seasonInfo.Season} on {seasonInfo.Year}");
+        log.LogInformation($"Updating available seasons with {seasonInfo.Season} on {seasonInfo.Year}");
 
-            return result;
-        }
+        return result;
     }
 }

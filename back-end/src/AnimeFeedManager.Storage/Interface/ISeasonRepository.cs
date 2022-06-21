@@ -4,10 +4,9 @@ using LanguageExt;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AnimeFeedManager.Storage.Interface
+namespace AnimeFeedManager.Storage.Interface;
+
+public interface ISeasonRepository
 {
-    public interface ISeasonRepository
-    {
-        Task<Either<DomainError, IEnumerable<SeasonStorage>>> GetAvailableSeasons();
-    }
+    Task<Either<DomainError, IEnumerable<SeasonStorage>>> GetAvailableSeasons();
 }

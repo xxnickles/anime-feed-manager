@@ -7,20 +7,19 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AnimeFeedManager.Application.AnimeLibrary.Queries
+namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
+
+public class GetAllHandler: IRequestHandler<GetAll, Either<DomainError, IEnumerable<AnimeInfoStorage>>>
 {
-    public class GetAllHandler: IRequestHandler<GetAll, Either<DomainError, IEnumerable<AnimeInfoStorage>>>
+    private readonly IAnimeInfoRepository _animeInfoRepository;
+
+    public GetAllHandler(IAnimeInfoRepository animeInfoRepository)
     {
-        private readonly IAnimeInfoRepository _animeInfoRepository;
+        _animeInfoRepository = animeInfoRepository;
+    }
 
-        public GetAllHandler(IAnimeInfoRepository animeInfoRepository)
-        {
-            _animeInfoRepository = animeInfoRepository;
-        }
-
-        public Task<Either<DomainError, IEnumerable<AnimeInfoStorage>>> Handle(GetAll request, CancellationToken cancellationToken)
-        {
-            return  _animeInfoRepository.GetAll();
-        }
+    public Task<Either<DomainError, IEnumerable<AnimeInfoStorage>>> Handle(GetAll request, CancellationToken cancellationToken)
+    {
+        return  _animeInfoRepository.GetAll();
     }
 }

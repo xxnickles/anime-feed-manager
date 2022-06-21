@@ -1,9 +1,8 @@
-﻿namespace AnimeFeedManager.Functions.Infrastructure
+﻿namespace AnimeFeedManager.Functions.Infrastructure;
+
+public interface ISendGridConfiguration
 {
-    public interface ISendGridConfiguration
-    {
-        string FromEmail { get; }
-        string FromName { get; }
-        bool Sandbox { get; }
-    }
+    string FromEmail { get; }
+    string FromName { get; }
+    bool Sandbox { get; }
 }

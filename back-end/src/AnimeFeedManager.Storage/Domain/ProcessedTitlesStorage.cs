@@ -1,9 +1,8 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 
-namespace AnimeFeedManager.Storage.Domain
+namespace AnimeFeedManager.Storage.Domain;
+
+public class ProcessedTitlesStorage : TableEntity
 {
-    public class ProcessedTitlesStorage : TableEntity
-    {
-        public string? Title { get; set; }
-    }
+    public string? Title { get; set; }
 }
