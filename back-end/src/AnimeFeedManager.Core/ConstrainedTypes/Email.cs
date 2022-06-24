@@ -25,5 +25,5 @@ public class Email : Record<Email>
          
     }
 
-    public static Email FromString(string value) => new Email(value);
+    public static Email FromString(string value) => new(value);
 }

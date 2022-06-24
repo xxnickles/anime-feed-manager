@@ -38,10 +38,10 @@ public readonly struct Season : IComparable<Season>, IEquatable<Season>
         return base.GetHashCode();
     }
 
-    public static Season Spring = new Season(SpringValue);
-    public static Season Summer = new Season(SummerValue);
-    public static Season Fall = new Season(FallValue);
-    public static Season Winter = new Season(WinterValue);
+    public static Season Spring = new(SpringValue);
+    public static Season Summer = new(SummerValue);
+    public static Season Fall = new(FallValue);
+    public static Season Winter = new(WinterValue);
 
     public static Season FromString(string? val) => val != null ? val.ToLowerInvariant() switch
     {

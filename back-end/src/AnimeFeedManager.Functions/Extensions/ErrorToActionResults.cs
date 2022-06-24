@@ -1,54 +1,49 @@
-﻿using AnimeFeedManager.Core.Error;
+﻿using System.Threading.Tasks;
+using AnimeFeedManager.Core.Error;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Extensions;
 
 public static class ErrorToActionResults
 {
-    public static IActionResult ToActionResult(this DomainError error, ILogger log)
+    public static Task<HttpResponseData> ToResponse(this DomainError error, HttpRequestData request, ILogger log)
     {
         return error switch
         {
-            ExceptionError eError => eError.ToActionResult(log),
-            ValidationErrors vError => vError.ToActionResult(log),
-            NotFoundError nError => nError.ToActionResult(log),
-            BasicError bError => bError.ToActionResult(log),
-            _ => new InternalServerErrorResult()
+            ExceptionError eError => eError.ToResponse(request,log),
+            ValidationErrors vError => vError.ToResponse(request,log),
+            NotFoundError nError => nError.ToResponse(request,log),
+            BasicError bError => bError.ToResponse(request,log),
+            _ => request.InternalServerError("An unhandled error has ocurred")
         };
     }
 
-    public static IActionResult ToActionResult(this ValidationErrors error, ILogger log)
+    public static Task<HttpResponseData> ToResponse(this ValidationErrors error, HttpRequestData request, ILogger log)
     {
-        if (error == null) return new UnprocessableEntityResult();
-        log.LogError($"[{error.CorrelationId}] {error.Message}");
+        if (error == null) return request.UnprocessableEntity();
+        log.LogError("[{CorrelationId}] {Error}",error.CorrelationId, error.Message);
         foreach (var validationError in error.Errors)
-            log.LogError($"Field: {validationError.Key}, Messages: {string.Join(". ", validationError.Value)}");
+            log.LogError("Field: {Field} Messages: {Messages}", validationError.Key, string.Join(". ", validationError.Value));
 
-        // var problemDetails = new ProblemDetails(error.Errors); TODO: Works on MVC Core 3.0
-
-        return new UnprocessableEntityObjectResult(new
-        {
-            Title = error.Message,
-            error.Errors
-        });
-
+        return request.UnprocessableEntity(error.Errors);
     }
 
-    public static IActionResult ToActionResult(this ExceptionError error, ILogger log)
+    public static Task<HttpResponseData> ToResponse(this ExceptionError error, HttpRequestData request, ILogger log)
     {
-        log.LogError(error.Exception,error.ToString());
-        return new InternalServerErrorResult();
+        log.LogError(error.Exception,"{Error}",error.ToString());
+        return request.InternalServerError("An internal error occurred");
     }
 
-    public static IActionResult ToActionResult(this NotFoundError error, ILogger log)
+    public static  Task<HttpResponseData> ToResponse(this NotFoundError error, HttpRequestData request, ILogger log)
     {
-        log.LogError(error.ToString());
-        return new NotFoundObjectResult(new { Message = error.Message });
+        log.LogError("{Error}", error.ToString());
+        return request.NotFound(error.Message);
     }
 
-    public static IActionResult ToActionResult(this BasicError error, ILogger log)
+    public static  Task<HttpResponseData> ToResponse(this BasicError error, HttpRequestData request, ILogger log)
     {
-        log.LogError(error.ToString());
-        return new InternalServerErrorResult();
+        log.LogError("{Error}", error.ToString());
+        return request.InternalServerError(error.ToString());
     }
 }

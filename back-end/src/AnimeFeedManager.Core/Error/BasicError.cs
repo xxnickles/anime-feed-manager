@@ -6,6 +6,5 @@ public class BasicError : DomainError
     {
     }
 
-    public static BasicError Create(string correlationId, string message) => 
-        new BasicError(correlationId, message);
+    public static BasicError Create(string correlationId, string message) => new(correlationId, message);
 }

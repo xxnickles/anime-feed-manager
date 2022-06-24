@@ -36,7 +36,7 @@ public class GetLibrary
         );
     }
 
-    private SeasonInfo ExtractSeasonInformation(AnimeInfoStorage sample) => new SeasonInfo
+    private SeasonInfo ExtractSeasonInformation(AnimeInfoStorage sample) => new()
     {
         Season = sample.Season,
         Year = sample.Year

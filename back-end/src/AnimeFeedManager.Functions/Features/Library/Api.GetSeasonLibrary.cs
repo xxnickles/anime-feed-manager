@@ -2,7 +2,8 @@ using System.Threading.Tasks;
 using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
@@ -15,14 +16,14 @@ public class GetSeasonLibrary
     public GetSeasonLibrary(IMediator mediator) => _mediator = mediator;
 
     [FunctionName("GetSeasonLibrary")]
-    public Task<IActionResult> Run(
+    public Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "library/{year}/{season}")]
-        HttpRequest req,
+        HttpRequestData req,
         string season,
         ushort year,
         ILogger log)
     {
         return _mediator.Send(new GetSeasonCollection(season, year))
-            .ToActionResult(log);
+            .ToResponse(req,log);
     }
 }

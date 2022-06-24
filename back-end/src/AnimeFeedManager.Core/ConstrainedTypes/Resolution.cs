@@ -14,7 +14,7 @@ public readonly struct Resolution
         return Value;
     }
 
-    public static Resolution Sd = new Resolution("sd");
-    public static Resolution Hd = new Resolution("720");
-    public static Resolution FullHd = new Resolution("1080");
+    public static Resolution Sd = new("sd");
+    public static Resolution Hd = new("720");
+    public static Resolution FullHd = new("1080");
 }

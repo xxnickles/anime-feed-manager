@@ -14,7 +14,7 @@ public class ValidationError
         Error = new KeyValuePair<string, string[]>(field, errors);
     }
 
-    public static ValidationError Create(string field, string[] errors) => new ValidationError(field, errors);
+    public static ValidationError Create(string field, string[] errors) => new(field, errors);
 }
 
 public class ValidationErrors : DomainError
@@ -28,7 +28,7 @@ public class ValidationErrors : DomainError
             .ToImmutableDictionary();
     }
 
-    public static ValidationErrors Create(string correlationId, IEnumerable<ValidationError> errors) => new ValidationErrors(correlationId, errors);
+    public static ValidationErrors Create(string correlationId, IEnumerable<ValidationError> errors) => new(correlationId, errors);
 
     public override string ToString()
     {

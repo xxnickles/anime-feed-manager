@@ -1,13 +1,13 @@
-﻿using AnimeFeedManager.Application.AnimeLibrary.Commands;
+﻿using System.Threading.Tasks;
+using AnimeFeedManager.Application.AnimeLibrary.Commands;
 using AnimeFeedManager.Functions.Helpers;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
-namespace AnimeFeedManager.Functions;
+namespace AnimeFeedManager.Functions.Features.Library;
 
 public class UpdateAnimeStatus
 {

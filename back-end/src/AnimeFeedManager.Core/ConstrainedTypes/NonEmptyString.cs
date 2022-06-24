@@ -12,5 +12,5 @@ public class NonEmptyString : Record<NonEmptyString>
         Value = !string.IsNullOrWhiteSpace(value) ? Some(value) : None;
     }
 
-    public static NonEmptyString FromString(string? s) => new NonEmptyString(s);
+    public static NonEmptyString FromString(string? s) => new(s);
 }

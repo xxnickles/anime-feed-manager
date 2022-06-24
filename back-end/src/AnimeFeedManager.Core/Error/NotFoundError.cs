@@ -6,5 +6,5 @@ public class NotFoundError : DomainError
     {
     }
 
-    public static NotFoundError Create(string correlationId, string message) => new NotFoundError(correlationId, message);
+    public static NotFoundError Create(string correlationId, string message) => new(correlationId, message);
 }

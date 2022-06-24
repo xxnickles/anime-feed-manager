@@ -1,5 +1,4 @@
-﻿using System;
-using AnimeFeedManager.Core.Error;
+﻿using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;

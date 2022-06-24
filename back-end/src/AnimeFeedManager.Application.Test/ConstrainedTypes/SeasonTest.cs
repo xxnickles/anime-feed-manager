@@ -76,7 +76,7 @@ public class SeasonTest
 
 
     public static TheoryData<Season[]> EnumerableData =>
-        new TheoryData<Season[]>
+        new()
         {
             new []{ Season.Fall, Season.Summer, Season.Spring, Season.Winter},
             new []{ Season.Spring, Season.Winter, Season.Summer, Season.Fall},
@@ -84,7 +84,7 @@ public class SeasonTest
         };
 
     public static TheoryData<Season, Season> GreaterTestData =>
-        new TheoryData<Season, Season>
+        new()
         {
             { Season.Spring, Season.Winter },
             { Season.Summer, Season.Winter },
@@ -97,7 +97,7 @@ public class SeasonTest
         };
 
     public static TheoryData<Season, Season> GreaterWrongTestData =>
-        new TheoryData<Season, Season>
+        new()
         {
             { Season.Spring, Season.Spring },
             { Season.Summer, Season.Fall },
@@ -107,7 +107,7 @@ public class SeasonTest
 
 
     public static TheoryData<Season, Season> LowerTestData =>
-        new TheoryData<Season, Season>
+        new()
         {
             {  Season.Winter, Season.Spring },
             {  Season.Winter, Season.Fall },
@@ -120,7 +120,7 @@ public class SeasonTest
         };
 
     public static TheoryData<Season, Season> LowerWrongTestData =>
-        new TheoryData<Season, Season>
+        new()
         {
             { Season.Spring, Season.Spring },
             { Season.Fall, Season.Summer },

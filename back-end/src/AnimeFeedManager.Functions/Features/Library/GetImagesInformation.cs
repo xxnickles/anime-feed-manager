@@ -4,6 +4,7 @@ using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Functions.Helpers;
 using AnimeFeedManager.Functions.Models;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -16,7 +17,7 @@ public static class GetImagesInformation
     public static void Run(
         [BlobTrigger("images-process/{name}", Connection = "AzureWebJobsStorage")] string contents,
         string name,
-        [Queue(QueueNames.ImageProcess)] IAsyncCollector<BlobImageInfo> queueCollector,
+        [QueueTrigger(QueueNames.ImageProcess)] IAsyncCollector<BlobImageInfo> queueCollector,
         ILogger log)
     {
         var deserializeImageProcess = JsonConvert.DeserializeObject<ImageProcessInfo>(contents);
@@ -37,7 +38,7 @@ public static class GetImagesInformation
         var title = imageInfo.Title ?? string.Empty;
         var partition = IdHelpers.GenerateAnimePartitionKey(season, (ushort)year);
         var id = IdHelpers.GenerateAnimeId(season.ToString(), year.ToString(), title);
-        var directory = $"{year.ToString()}/{season.Value}";
+        var directory = $"{year}/{season.Value}";
 
         var blobName = IdHelpers.CleanAndFormatAnimeTitle(title);
         return new BlobImageInfo(partition, id, directory, blobName, imageInfo.Url ?? string.Empty);

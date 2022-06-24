@@ -40,6 +40,6 @@ public sealed class ExceptionError : DomainError
         return lst;
     }
 
-    public static ExceptionError FromException(Exception exn, string correlationId) => new ExceptionError(exn, correlationId);
-    public static ExceptionError FromException(Exception exn) => new ExceptionError(exn, "Generic_Exception");
+    public static ExceptionError FromException(Exception exn, string correlationId) => new(exn, correlationId);
+    public static ExceptionError FromException(Exception exn) => new(exn, "Generic_Exception");
 }

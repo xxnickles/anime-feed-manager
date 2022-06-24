@@ -10,6 +10,9 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using AnimeFeedManager.Functions.Extensions;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 
 namespace AnimeFeedManager.Functions.Features.Maintenance;
 
@@ -20,9 +23,9 @@ public class SetDefaultStatusToAll
     public SetDefaultStatusToAll(IMediator mediator) => _mediator = mediator;
 
     [FunctionName("SetDefaultStatusToAll")]
-    public async Task Run(
-        [HttpTrigger(AuthorizationLevel.Admin, "post", Route = null)] HttpRequest req,
-        [Queue(QueueNames.AnimeLibrary)] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
+    public async Task<HttpResponseData> Run(
+        [HttpTrigger(AuthorizationLevel.Admin, "post", Route = null)] HttpRequestData req,
+        [QueueTrigger(QueueNames.AnimeLibrary)] IAsyncCollector<AnimeInfoStorage> animeQueueCollector,
         ILogger log)
     {
         var result = await _mediator.Send(new GetAll());
@@ -32,8 +35,10 @@ public class SetDefaultStatusToAll
                 var mapped = v.Select(SetDefaultStatus).ToImmutableList();
                 QueueStorage.StoreInQueue(mapped, animeQueueCollector, log, x => $"Queueing for update {x.Title}");
             },
-            e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
+            e => log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
+
+        return await req.Ok();
     }
 
     private static AnimeInfoStorage SetDefaultStatus(AnimeInfoStorage storage)

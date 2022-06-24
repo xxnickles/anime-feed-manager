@@ -1,13 +1,14 @@
+using System.IO;
+using System.Threading.Tasks;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.IO;
-using System.Threading.Tasks;
 
-namespace AnimeFeedManager.Functions;
+namespace AnimeFeedManager.Functions.Features.Subscription;
 
 public class Unsubscribe
 {
@@ -16,13 +17,13 @@ public class Unsubscribe
     public Unsubscribe(IMediator mediator) => _mediator = mediator;
 
     [FunctionName("Unsubscribe")]
-    public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "unsubscribe")] HttpRequest req,
+    public async Task<HttpResponseData> Run(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "unsubscribe")] HttpRequestData req,
         ILogger log)
     {
         string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         var command = JsonConvert.DeserializeObject<Application.Subscriptions.Commands.Unsubscribe>(requestBody);
 
-        return await _mediator.Send(command).ToActionResult(log);
+        return await _mediator.Send(command).ToResponse(req,log);
     }
 }

@@ -3,12 +3,12 @@ using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
@@ -19,13 +19,13 @@ public class GetAvailableSeasons
     public GetAvailableSeasons(IMediator mediator) => _mediator = mediator;
 
     [FunctionName("GetAvailableSeasons")]
-    public Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "seasons")] HttpRequest req,
+    public Task<HttpResponseData> Run(
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "seasons")] HttpRequestData req,
         ILogger log)
     {
         return _mediator.Send(new Application.Seasons.Queries.GetAvailableSeasons())
             .MapAsync(Map)
-            .ToActionResult(log);
+            .ToResponse(req,log);
     }
 
     private static ImmutableList<SeasonInfo> Map(ImmutableList<SeasonInformation> source)
