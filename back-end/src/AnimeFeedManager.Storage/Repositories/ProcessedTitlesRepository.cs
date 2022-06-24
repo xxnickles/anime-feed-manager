@@ -15,7 +15,6 @@ namespace AnimeFeedManager.Storage.Repositories;
 
 public class ProcessedTitlesRepository : IProcessedTitlesRepository
 {
-
     private readonly TableClient _tableClient;
     public ProcessedTitlesRepository(ITableClientFactory<ProcessedTitlesStorage> tableClientFactory)
     {
