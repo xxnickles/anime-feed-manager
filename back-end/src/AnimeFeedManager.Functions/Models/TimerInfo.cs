@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Functions.Models;
 
 public class TimerInfo
 {
-    public MyScheduleStatus ScheduleStatus { get; set; }
+    public MyScheduleStatus? ScheduleStatus { get; set; }
 
     public bool IsPastDue { get; set; }
 }

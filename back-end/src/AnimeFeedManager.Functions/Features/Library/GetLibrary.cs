@@ -22,8 +22,6 @@ public class GetLibraryMessages
 
 public class GetLibrary
 {
-
-    
     private readonly IMediator _mediator;
 
     public GetLibrary(IMediator mediator) => _mediator = mediator;

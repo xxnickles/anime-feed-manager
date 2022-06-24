@@ -6,7 +6,9 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using AnimeFeedManager.Services.Collectors.AniDb;
+using AnimeFeedManager.Storage.Infrastructure;
 using Azure.Data.Tables;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AnimeFeedManager.DI;
 
@@ -28,6 +30,14 @@ public static class Registration
 
     public static IServiceCollection RegisterStorage(this IServiceCollection services, string connectionString)
     {
+        
+        services.Configure<AzureBlobStorageOptions>(options =>
+        {
+            options.StorageConnectionString = connectionString;
+        });
+
+        services.TryAddSingleton<IImagesStore, AzureStorageBlobStore>();
+        
         var tableClient = new TableServiceClient(connectionString);
         services.AddSingleton(TableNameFactory);
         services.AddSingleton(tableClient);

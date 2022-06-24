@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AnimeFeedManager.Common.Helpers;
@@ -15,10 +14,10 @@ namespace AnimeFeedManager.Functions.Features.Library;
 public static class GetImagesInformation
 {
     [FunctionName("GetImagesInformation")]
+    [QueueOutput(QueueNames.ImageProcess)]
     public static IEnumerable<string> Run(
         [BlobTrigger("images-process/{name}", Connection = "AzureWebJobsStorage")] string contents,
         string name,
-        [QueueTrigger(QueueNames.ImageProcess)] IAsyncCollector<BlobImageInfo> queueCollector,
         ILogger log)
     {
         var deserializeImageProcess = JsonConvert.DeserializeObject<ImageProcessInfo>(contents);
@@ -35,7 +34,7 @@ public static class GetImagesInformation
         return Enumerable.Empty<string>();
     }
 
-    private static BlobImageInfo CreateDomainInformation(ImageInfo imageInfo, Season season, int year)
+    private static BlobImageInfoEvent CreateDomainInformation(ImageInfo imageInfo, Season season, int year)
     {
         var title = imageInfo.Title ?? string.Empty;
         var partition = IdHelpers.GenerateAnimePartitionKey(season, (ushort)year);
@@ -43,6 +42,6 @@ public static class GetImagesInformation
         var directory = $"{year}/{season.Value}";
 
         var blobName = IdHelpers.CleanAndFormatAnimeTitle(title);
-        return new BlobImageInfo(partition, id, directory, blobName, imageInfo.Url ?? string.Empty);
+        return new BlobImageInfoEvent(partition, id, directory, blobName, imageInfo.Url ?? string.Empty);
     }
 }

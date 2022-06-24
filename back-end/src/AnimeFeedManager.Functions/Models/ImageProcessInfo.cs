@@ -14,7 +14,7 @@ public class ImageProcessInfo
     public IEnumerable<ImageInfo>? ImagesInfo { get; set; }
 }
 
-public class BlobImageInfo
+public class BlobImageInfoEvent
 {
     public string Partition { get; }
     public string Id { get; }
@@ -22,7 +22,7 @@ public class BlobImageInfo
     public string BlobName { get; }
     public string RemoteUrl { get; }
 
-    public BlobImageInfo(
+    public BlobImageInfoEvent(
         string partition, 
         string id, 
         string directory, 
