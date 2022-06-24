@@ -12,21 +12,27 @@ namespace AnimeFeedManager.Functions.Features.Library;
 public class PersistLibrary
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<PersistLibrary> _logger;
 
-    public PersistLibrary(IMediator mediator) => _mediator = mediator;
+    public PersistLibrary(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<PersistLibrary>();
+    }
 
-    [FunctionName("PersistLibrary")]
+
+    [Function("PersistLibrary")]
     [StorageAccount("AzureWebJobsStorage")]
     public async Task Run(
-        [QueueTrigger(QueueNames.AnimeLibrary)] AnimeInfoStorage animeInfo,
-        ILogger log)
+        [QueueTrigger(QueueNames.AnimeLibrary)] AnimeInfoStorage animeInfo
+        )
     {
-        log.LogInformation("storing {AnimeInfoTitle}", animeInfo.Title);
+        _logger.LogInformation("storing {AnimeInfoTitle}", animeInfo.Title);
         var command = new MergeAnimeInfo(animeInfo);
         var result = await _mediator.Send(command);
         result.Match(
-            _ => log.LogInformation("{AnimeInfoTitle} has been stored", animeInfo.Title),
-            e => log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
+            _ => _logger.LogInformation("{AnimeInfoTitle} has been stored", animeInfo.Title),
+            e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }
 }

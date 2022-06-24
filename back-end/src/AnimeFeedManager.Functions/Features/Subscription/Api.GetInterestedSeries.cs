@@ -1,6 +1,5 @@
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
@@ -11,17 +10,22 @@ namespace AnimeFeedManager.Functions.Features.Subscription;
 public class GetInterestedSeries
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<GetInterestedSeries> _logger;
 
-    public GetInterestedSeries(IMediator mediator) => _mediator = mediator;
+    public GetInterestedSeries(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<GetInterestedSeries>();
+    }
 
-    [FunctionName("GetInterestedSeries")]
+    [Function("GetInterestedSeries")]
     public Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "interested/{subscriber}")]
         HttpRequestData req,
-        string subscriber,
-        ILogger log)
+        string subscriber
+        )
     {
         return _mediator.Send(new Application.Subscriptions.Queries.GetInterestedSeries(subscriber))
-            .ToResponse(req,log);
+            .ToResponse(req,_logger);
     }
 }

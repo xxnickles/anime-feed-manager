@@ -20,21 +20,25 @@ public class UpdateAnimeStatusMessages
 
 public class UpdateAnimeStatus
 {
-
     private readonly IMediator _mediator;
+    private readonly ILogger<UpdateAnimeStatus> _logger;
 
-    public UpdateAnimeStatus(IMediator mediator) => _mediator = mediator;
+    public UpdateAnimeStatus(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<UpdateAnimeStatus>();
+    }
 
-    [FunctionName("UpdateAnimeStatus")]
+    [Function("UpdateAnimeStatus")]
     [StorageAccount("AzureWebJobsStorage")]
    
     public async Task<UpdateAnimeStatusMessages> Run(
-        [QueueTrigger(QueueNames.TitleProcess)] string processResult,
-        ILogger log)
+        [QueueTrigger(QueueNames.TitleProcess)] string processResult
+        )
     {
         if (processResult == ProcessResult.Ok)
         {
-            log.LogInformation("Titles source has been updated. Verifying whether series need to be marked as completed");
+            _logger.LogInformation("Titles source has been updated. Verifying whether series need to be marked as completed");
 
             var result = await _mediator.Send(new UpdateStatus());
             return result.Match(
@@ -48,7 +52,7 @@ public class UpdateAnimeStatus
                 },
                 e =>
                 {
-                    log.LogError("[{ArgCorrelationId}]: {ArgMessage}", e.CorrelationId, e.Message);
+                    _logger.LogError("[{ArgCorrelationId}]: {ArgMessage}", e.CorrelationId, e.Message);
                     return new UpdateAnimeStatusMessages
                     {
                         AutoSubscribeMessages =  ProcessResult.Failure
@@ -56,7 +60,7 @@ public class UpdateAnimeStatus
                 });
         }
 
-        log.LogInformation("Title process failed, series status is not going to be updated");
+        _logger.LogInformation("Title process failed, series status is not going to be updated");
         return  new UpdateAnimeStatusMessages
         {
             AutoSubscribeMessages =  ProcessResult.NoChanges

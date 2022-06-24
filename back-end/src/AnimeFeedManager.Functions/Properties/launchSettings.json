@@ -3,6 +3,12 @@
     "AnimeFeedManager.Functions": {
       "commandName": "Project",
       "commandLineArgs": "host start --port 35489 --pause-on-error"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 30598,
+      "useSSL": false
     }
   }
 }

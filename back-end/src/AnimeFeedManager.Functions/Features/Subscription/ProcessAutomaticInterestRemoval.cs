@@ -11,19 +11,24 @@ namespace AnimeFeedManager.Functions.Features.Subscription;
 public class ProcessAutomaticInterestRemoval
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<ProcessAutomaticInterestRemoval> _logger;
 
-    public ProcessAutomaticInterestRemoval(IMediator mediator) => _mediator = mediator;
-
-    [FunctionName("ProcessAutomaticInterestRemoval")]
-    [StorageAccount("AzureWebJobsStorage")]
-    public async Task Run([QueueTrigger(QueueNames.InterestRemove)] SubscriptionDto newSubscription, ILogger log)
+    public ProcessAutomaticInterestRemoval(IMediator mediator, ILoggerFactory loggerFactory)
     {
-        log.LogInformation("Automated removed interest for {Series} for user {UserId}", newSubscription.Series, newSubscription.UserId);
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<ProcessAutomaticInterestRemoval>();
+    }
+
+    [Function("ProcessAutomaticInterestRemoval")]
+    [StorageAccount("AzureWebJobsStorage")]
+    public async Task Run([QueueTrigger(QueueNames.InterestRemove)] SubscriptionDto newSubscription)
+    {
+        _logger.LogInformation("Automated removed interest for {Series} for user {UserId}", newSubscription.Series, newSubscription.UserId);
         var command = new Application.Subscriptions.Commands.RemoveInterested(newSubscription.UserId, newSubscription.Series);
         var result = await _mediator.Send(command);
         result.Match(
-            _ => log.LogInformation("{Series} has been removed as interest for user {UserId} automatically", newSubscription.Series, newSubscription.UserId),
-            e => log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
+            _ => _logger.LogInformation("{Series} has been removed as interest for user {UserId} automatically", newSubscription.Series, newSubscription.UserId),
+            e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }
 }

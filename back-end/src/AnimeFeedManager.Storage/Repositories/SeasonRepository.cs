@@ -17,10 +17,9 @@ public class SeasonRepository: ISeasonRepository
     {
         _tableClient = tableClientFactory.GetClient();
     }
+
     public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons()
     {
-        //var tableQuery = new TableQuery<SeasonStorage>();
-        //return TableUtils.ExecuteQuery(() => _tableClient.ExecuteQuerySegmentedAsync(tableQuery, null));
 
         return TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<SeasonStorage>());
     }

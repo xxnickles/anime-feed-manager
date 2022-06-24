@@ -27,6 +27,18 @@ export namespace Components {
     interface AfmRoot {
     }
 }
+export interface AfmCardCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLAfmCardElement;
+}
+export interface AfmFiltersCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLAfmFiltersElement;
+}
+export interface AfmMailSelectorCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLAfmMailSelectorElement;
+}
 declare global {
     interface HTMLAfmCardElement extends Components.AfmCard, HTMLStencilElement {
     }
@@ -77,22 +89,22 @@ declare namespace LocalJSX {
     interface AfmCard {
         "feedInfo"?: SubscribedFeed;
         "interestedStatus"?: InterestedStatus;
-        "onInterestedSelected"?: (event: CustomEvent<string>) => void;
-        "onRemoveInterestedSelected"?: (event: CustomEvent<string>) => void;
-        "onSubscriptionSelected"?: (event: CustomEvent<string>) => void;
-        "onUnsubscriptionSelected"?: (event: CustomEvent<string>) => void;
+        "onInterestedSelected"?: (event: AfmCardCustomEvent<string>) => void;
+        "onRemoveInterestedSelected"?: (event: AfmCardCustomEvent<string>) => void;
+        "onSubscriptionSelected"?: (event: AfmCardCustomEvent<string>) => void;
+        "onUnsubscriptionSelected"?: (event: AfmCardCustomEvent<string>) => void;
         "subscriptionStatus"?: SubscriptionStatus;
     }
     interface AfmFilters {
         "authenticated"?: boolean;
-        "onFilterChanged"?: (event: CustomEvent<AvailableFilters[]>) => void;
+        "onFilterChanged"?: (event: AfmFiltersCustomEvent<AvailableFilters[]>) => void;
     }
     interface AfmHome {
         "season"?: Season;
         "year"?: string;
     }
     interface AfmMailSelector {
-        "onEmailSelected"?: (event: CustomEvent<string>) => void;
+        "onEmailSelected"?: (event: AfmMailSelectorCustomEvent<string>) => void;
     }
     interface AfmNav {
     }

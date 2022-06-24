@@ -30,13 +30,19 @@ public class NotificationsMessages
 public class EnqueueNotifications
 {
     private readonly IMediator _mediator;
-    public EnqueueNotifications(IMediator mediator) => _mediator = mediator;
+    private readonly ILogger<EnqueueNotifications> _logger;
 
-    [FunctionName("EnqueueNotifications")]
+    public EnqueueNotifications(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<EnqueueNotifications>();
+    }
+
+    [Function("EnqueueNotifications")]
     [StorageAccount("AzureWebJobsStorage")]
     public async Task<NotificationsMessages> Run(
-        [TimerTrigger("0 0 * * * *")] TimerInfo timer,
-        ILogger log)
+        [TimerTrigger("0 0 * * * *")] TimerInfo timer
+        )
     {
         var notifications = await _mediator.Send(new GetLatestFeed(Resolution.Hd))
             .BindAsync(ProcessFeed);
@@ -53,7 +59,7 @@ public class EnqueueNotifications
             },
             e =>
             {
-                log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
+                _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
                 return new NotificationsMessages();
             });
     }

@@ -16,11 +16,13 @@ public class UploadImage
     private readonly IMediator _mediator;
     private readonly IImagesStore _imagesStore;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<UploadImage> _logger;
 
-    public UploadImage(IMediator mediator, IImagesStore imagesStore, HttpClient httpClient)
+    public UploadImage(IMediator mediator, IImagesStore imagesStore, HttpClient httpClient, ILoggerFactory loggerFactory)
     {
         _mediator = mediator;
         _imagesStore = imagesStore;
+        _logger = loggerFactory.CreateLogger<UploadImage>();
         _httpClient = httpClient;
 
         _httpClient.DefaultRequestHeaders.Add("user-agent",
@@ -31,21 +33,21 @@ public class UploadImage
     }
 
 
-    [FunctionName("UploadImage")]
+    [Function("UploadImage")]
     [StorageAccount("AzureWebJobsStorage")]
     public async Task Run(
         [QueueTrigger(QueueNames.ImageProcess, Connection = "AzureWebJobsStorage")]
-        BlobImageInfoEvent imageInfoEvent,
-        ILogger log)
+        BlobImageInfoEvent imageInfoEvent
+        )
     {
-        log.LogInformation("Getting image for {Name} from {RemoteUrl}", imageInfoEvent.BlobName,
+        _logger.LogInformation("Getting image for {Name} from {RemoteUrl}", imageInfoEvent.BlobName,
             imageInfoEvent.RemoteUrl);
         var response = await _httpClient.GetAsync(imageInfoEvent.RemoteUrl);
         response.EnsureSuccessStatusCode();
         await using var ms = await response.Content.ReadAsStreamAsync(default);
 
         var fileLocation = await _imagesStore.Upload($"{imageInfoEvent.BlobName}.jpg", imageInfoEvent.Directory, ms);
-        log.LogInformation("{BlobName} has been uploaded", imageInfoEvent.BlobName);
+        _logger.LogInformation("{BlobName} has been uploaded", imageInfoEvent.BlobName);
 
         // Update AnimeInfo
         var imageStorage = new ImageStorage
@@ -55,15 +57,15 @@ public class UploadImage
             RowKey = imageInfoEvent.Id
         }.AddEtag();
 
-        await UpdateAnimeInfo(imageStorage, log);
+        await UpdateAnimeInfo(imageStorage);
     }
 
-    private async Task UpdateAnimeInfo(ImageStorage imageStorage, ILogger log)
+    private async Task UpdateAnimeInfo(ImageStorage imageStorage)
     {
         var result = await _mediator.Send(new AddImageUrl(imageStorage));
         result.Match(
-            _ => log.LogInformation("{ImageStorageRowKey} has been updated", imageStorage.RowKey),
-            e => log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
+            _ => _logger.LogInformation("{ImageStorageRowKey} has been updated", imageStorage.RowKey),
+            e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }
 }

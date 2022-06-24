@@ -1,6 +1,5 @@
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.IO;
@@ -13,17 +12,21 @@ namespace AnimeFeedManager.Functions.Features.Maintenance;
 public class RemoveInterested
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<RemoveInterested> _logger;
 
-    public RemoveInterested(IMediator mediator) => _mediator = mediator;
+    public RemoveInterested(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<RemoveInterested>();
+    }
 
-    [FunctionName("RemoveInterested")]
+    [Function("RemoveInterested")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "removeInterested")] HttpRequestData req,
-        ILogger log)
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "removeInterested")] HttpRequestData req)
     {
         string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         var command = JsonConvert.DeserializeObject<Application.Subscriptions.Commands.RemoveInterested>(requestBody);
 
-        return await _mediator.Send(command).ToResponse(req,log);
+        return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }

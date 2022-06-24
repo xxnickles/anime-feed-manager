@@ -3,7 +3,6 @@ using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Text.Json;
@@ -24,14 +23,18 @@ public class SetDefaultStatusResponse
 public class SetDefaultStatusToAll
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<SetDefaultStatusToAll> _logger;
 
-    public SetDefaultStatusToAll(IMediator mediator) => _mediator = mediator;
+    public SetDefaultStatusToAll(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<SetDefaultStatusToAll>();
+    }
 
-    [FunctionName("SetDefaultStatusToAll")]
+    [Function("SetDefaultStatusToAll")]
     public async Task<SetDefaultStatusResponse> Run(
         [HttpTrigger(AuthorizationLevel.Admin, "post", Route = null)]
-        HttpRequestData req,
-        ILogger log)
+        HttpRequestData req)
     {
         var result = await _mediator.Send(new GetAll());
 
@@ -42,7 +45,7 @@ public class SetDefaultStatusToAll
                 v => { return v.Select(SetDefaultStatus).Select(x => JsonSerializer.Serialize(x)); },
                 e =>
                 {
-                    log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
+                    _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
                     return null!;
                 }),
             HttpResponse = await req.Ok()

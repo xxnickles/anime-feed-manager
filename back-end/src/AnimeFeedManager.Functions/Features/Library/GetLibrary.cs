@@ -23,14 +23,19 @@ public class GetLibraryMessages
 public class GetLibrary
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<GetLibraryMessages> _logger;
 
-    public GetLibrary(IMediator mediator) => _mediator = mediator;
+    public GetLibrary(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<GetLibraryMessages>();
+    }
 
-    [FunctionName("GetLibrary")]
+    [Function("GetLibrary")]
     [StorageAccount("AzureWebJobsStorage")]
     public async Task<GetLibraryMessages> Run(
-        [TimerTrigger("0 0 2 * * SAT")] TimerInfo  timer,
-        ILogger log)
+        [TimerTrigger("0 0 2 * * SAT")] TimerInfo  timer
+        )
     {
         var result = await _mediator.Send(new GetExternalLibrary());
         return result.Match(
@@ -45,7 +50,7 @@ public class GetLibrary
             },
             e =>
             {
-                log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
+                _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
                 return new GetLibraryMessages();
             });
     }

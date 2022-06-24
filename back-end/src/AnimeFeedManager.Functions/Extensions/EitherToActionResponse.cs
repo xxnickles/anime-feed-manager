@@ -15,8 +15,7 @@ public static class EitherToActionResponse
     }
        
 
-    public static Task<HttpResponseData> ToResponse<TResult>(this Either<DomainError, TResult> either, HttpRequestData request,
-        ILogger log)
+    public static Task<HttpResponseData> ToResponse<TResult>(this Either<DomainError, TResult> either, HttpRequestData request, ILogger log)
     {
         return either.Match(
             Left: error => error.ToResponse(request, log),

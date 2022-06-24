@@ -4,26 +4,31 @@ using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Functions.Models;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
-public static class GetImagesInformation
+public class GetImagesInformation
 {
-    [FunctionName("GetImagesInformation")]
-    [QueueOutput(QueueNames.ImageProcess)]
-    public static IEnumerable<string> Run(
-        [BlobTrigger("images-process/{name}", Connection = "AzureWebJobsStorage")] string contents,
-        string name,
-        ILogger log)
+    private readonly ILogger<GetImagesInformation> _logger;
+
+    public GetImagesInformation(ILoggerFactory loggerFactory)
     {
+        _logger = loggerFactory.CreateLogger<GetImagesInformation>();
+    }
+
+    [Function("GetImagesInformation")]
+    [QueueOutput(QueueNames.ImageProcess)]
+    public IEnumerable<string> Run(
+        [BlobTrigger("images-process/{name}", Connection = "AzureWebJobsStorage")] string contents)
+    {
+        
         var deserializeImageProcess = JsonConvert.DeserializeObject<ImageProcessInfo>(contents);
         if (deserializeImageProcess?.SeasonInfo == null
             || string.IsNullOrEmpty(deserializeImageProcess.SeasonInfo.Season)) return Enumerable.Empty<string>();
-
+        _logger.LogInformation("Running update of the Image Information");
         var season = Season.FromString(deserializeImageProcess.SeasonInfo.Season);
         if (deserializeImageProcess.ImagesInfo != null)
             return deserializeImageProcess.ImagesInfo

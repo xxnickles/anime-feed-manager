@@ -23,19 +23,24 @@ public class GetLibraryMessages
 public class InterestSubscriber
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<InterestSubscriber> _logger;
 
-    public InterestSubscriber(IMediator mediator) => _mediator = mediator;
+    public InterestSubscriber(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<InterestSubscriber>();
+    }
 
-    [FunctionName("InterestSubscriber")]
+    [Function("InterestSubscriber")]
     [StorageAccount("AzureWebJobsStorage")]
     public async Task<GetLibraryMessages> Run(
         [QueueTrigger(QueueNames.ProcessAutoSubscriber)]
-        string processResult,
-        ILogger log)
+        string processResult
+        )
     {
         if (processResult == ProcessResult.Ok)
         {
-            log.LogInformation(
+            _logger.LogInformation(
                 "Titles were updated and checking of status process was completed, checking if there are interested series that match new titles");
             var interestedSeries = await _mediator.Send(new GetAllInterestedSeries());
 
@@ -60,12 +65,12 @@ public class InterestSubscriber
                                 };
                             }
 
-                            log.LogInformation($"Nothing to process");
+                            _logger.LogInformation($"Nothing to process");
                             return new GetLibraryMessages();
                         },
                         e =>
                         {
-                            log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
+                            _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
                             return new GetLibraryMessages();
                         });
                 });
@@ -74,13 +79,13 @@ public class InterestSubscriber
                 o => o,
                 e =>
                 {
-                    log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
+                    _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
                     return new GetLibraryMessages();
                 }
             );
         }
 
-        log.LogInformation("Title process failed, nothing to update");
+        _logger.LogInformation("Title process failed, nothing to update");
         return new GetLibraryMessages();
     }
 }

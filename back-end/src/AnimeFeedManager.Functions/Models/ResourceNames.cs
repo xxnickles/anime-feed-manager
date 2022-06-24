@@ -16,4 +16,5 @@ internal static class QueueNames
 internal static class Tables
 {
     internal const string ProcessedTitles = "ProcessedTitles";
+    internal const string AvailableSeasons = "AvailableSeasons";
 }

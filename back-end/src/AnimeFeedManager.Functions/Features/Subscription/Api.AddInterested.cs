@@ -5,7 +5,6 @@ using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -14,18 +13,22 @@ namespace AnimeFeedManager.Functions.Features.Subscription;
 public class AddInterested
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<AddInterested> _logger;
 
-    public AddInterested(IMediator mediator) => _mediator = mediator;
+    public AddInterested(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<AddInterested>();
+    }
 
-    [FunctionName("MergeInterested")]
+    [Function("MergeInterested")]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "interested")]
-        HttpRequestData req,
-        ILogger log)
+        HttpRequestData req)
     {
         string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
         var command = JsonConvert.DeserializeObject<MergeInterestedSeries>(requestBody);
 
-        return await _mediator.Send(command).ToResponse(req,log);
+        return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }

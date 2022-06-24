@@ -4,7 +4,6 @@ using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;
@@ -12,18 +11,22 @@ namespace AnimeFeedManager.Functions.Features.Library;
 public class GetSeasonLibrary
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<GetSeasonLibrary> _logger;
 
-    public GetSeasonLibrary(IMediator mediator) => _mediator = mediator;
+    public GetSeasonLibrary(IMediator mediator, ILoggerFactory loggerFactory)
+    {
+        _mediator = mediator;
+        _logger = loggerFactory.CreateLogger<GetSeasonLibrary>();
+    } 
 
-    [FunctionName("GetSeasonLibrary")]
+    [Function("GetSeasonLibrary")]
     public Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "library/{year}/{season}")]
         HttpRequestData req,
         string season,
-        ushort year,
-        ILogger log)
+        ushort year)
     {
         return _mediator.Send(new GetSeasonCollection(season, year))
-            .ToResponse(req,log);
+            .ToResponse(req,_logger);
     }
 }
