@@ -3,6 +3,7 @@ using AnimeFeedManager.Functions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using SendGrid.Extensions.DependencyInjection;
 
 namespace AnimeFeedManager.Functions;
 
@@ -18,16 +19,14 @@ public static class Program
                 s.RegisterStorage(storageConnection);
                 s.RegisterAppServices();
                 s.RegisterApplicationServices();
+                s.AddSendGrid(options => options.ApiKey = Environment.GetEnvironmentVariable("SendGridKey"));
                 s.AddSingleton<ISendGridConfiguration>(GetSendGridConfiguration());
             })
             .Build();
 
         host.Run();
     }
-
-
     
-
     private static SendGridConfiguration GetSendGridConfiguration()
     {
         var defaultFromEmail = Environment.GetEnvironmentVariable("FromEmail") ?? "test@test.com";

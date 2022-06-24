@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using AnimeFeedManager.Application.Feed.Commands;
 using MediatR;
@@ -26,7 +27,7 @@ public class ProcessTitles
         string name)
     {
         var command = JsonSerializer.Deserialize<AddTitles>(contents);
-
+        ArgumentNullException.ThrowIfNull(command);
         var result = await _mediator.Send(command);
         return result.Match(
             _ =>

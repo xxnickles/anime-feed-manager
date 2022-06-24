@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.Subscriptions.Commands;
@@ -26,6 +27,7 @@ public class Subscriptions
         HttpRequestData req)
     {
         var command = await JsonSerializer.DeserializeAsync<MergeSubscription>(req.Body);
+        ArgumentNullException.ThrowIfNull(command);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }
