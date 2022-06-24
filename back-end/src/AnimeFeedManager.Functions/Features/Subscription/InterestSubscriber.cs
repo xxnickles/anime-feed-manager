@@ -3,7 +3,6 @@ using AnimeFeedManager.Application.Subscriptions.Queries;
 using AnimeFeedManager.Core.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Text.Json;
@@ -14,9 +13,9 @@ namespace AnimeFeedManager.Functions.Features.Subscription;
 
 public class GetLibraryMessages
 {
-    [QueueOutput(QueueNames.ToSubscribe)] public IEnumerable<string>? ToSubscribeMessages { get; set; }
+    [QueueOutput(QueueNames.ToSubscribe, Connection = "AzureWebJobsStorage")] public IEnumerable<string>? ToSubscribeMessages { get; set; }
 
-    [QueueOutput(QueueNames.InterestRemove)]
+    [QueueOutput(QueueNames.InterestRemove, Connection = "AzureWebJobsStorage")]
     public IEnumerable<string>? InterestRemoveMessages { get; set; }
 }
 
@@ -32,9 +31,8 @@ public class InterestSubscriber
     }
 
     [Function("InterestSubscriber")]
-    [StorageAccount("AzureWebJobsStorage")]
     public async Task<GetLibraryMessages> Run(
-        [QueueTrigger(QueueNames.ProcessAutoSubscriber)]
+        [QueueTrigger(QueueNames.ProcessAutoSubscriber, Connection = "AzureWebJobsStorage")]
         string processResult
         )
     {

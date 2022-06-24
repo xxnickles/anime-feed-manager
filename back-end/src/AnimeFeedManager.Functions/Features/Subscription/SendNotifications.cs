@@ -1,11 +1,8 @@
 using AnimeFeedManager.Application.Notifications;
-using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Infrastructure;
 using AnimeFeedManager.Functions.Models;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using SendGrid.Helpers.Mail;
 
 namespace AnimeFeedManager.Functions.Features.Subscription;
 

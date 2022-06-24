@@ -5,7 +5,6 @@ using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Functions.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AnimeFeedManager.Functions.Features.Library;
@@ -25,7 +24,7 @@ public class GetImagesInformation
         [BlobTrigger("images-process/{name}", Connection = "AzureWebJobsStorage")] string contents)
     {
         
-        var deserializeImageProcess = JsonConvert.DeserializeObject<ImageProcessInfo>(contents);
+        var deserializeImageProcess = JsonSerializer.Deserialize<ImageProcessInfo>(contents);
         if (deserializeImageProcess?.SeasonInfo == null
             || string.IsNullOrEmpty(deserializeImageProcess.SeasonInfo.Season)) return Enumerable.Empty<string>();
         _logger.LogInformation("Running update of the Image Information");

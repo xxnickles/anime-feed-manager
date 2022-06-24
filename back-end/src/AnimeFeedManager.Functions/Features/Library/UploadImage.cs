@@ -6,7 +6,6 @@ using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Infrastructure;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;
@@ -34,7 +33,6 @@ public class UploadImage
 
 
     [Function("UploadImage")]
-    [StorageAccount("AzureWebJobsStorage")]
     public async Task Run(
         [QueueTrigger(QueueNames.ImageProcess, Connection = "AzureWebJobsStorage")]
         BlobImageInfoEvent imageInfoEvent

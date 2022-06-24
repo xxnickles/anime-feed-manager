@@ -8,7 +8,6 @@ using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Functions.Models;
 using LanguageExt;
 using MediatR;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Linq;
@@ -20,9 +19,9 @@ namespace AnimeFeedManager.Functions.Features.Subscription;
 
 public class NotificationsMessages
 {
-    [QueueOutput(QueueNames.ProcessedTitles)]
+    [QueueOutput(QueueNames.ProcessedTitles, Connection = "AzureWebJobsStorage")]
     public IEnumerable<string>? ProcessedTitles { get; set; }
-    [QueueOutput(QueueNames.Notifications)]
+    [QueueOutput(QueueNames.Notifications, Connection = "AzureWebJobsStorage")]
     public IEnumerable<string>? Notifications { get; set; }
 }
 
@@ -39,7 +38,6 @@ public class EnqueueNotifications
     }
 
     [Function("EnqueueNotifications")]
-    [StorageAccount("AzureWebJobsStorage")]
     public async Task<NotificationsMessages> Run(
         [TimerTrigger("0 0 * * * *")] TimerInfo timer
         )

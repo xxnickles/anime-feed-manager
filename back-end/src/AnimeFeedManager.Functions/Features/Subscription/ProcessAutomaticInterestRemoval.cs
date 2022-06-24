@@ -1,6 +1,5 @@
 using AnimeFeedManager.Core.Dto;
 using MediatR;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using AnimeFeedManager.Functions.Models;
@@ -20,8 +19,7 @@ public class ProcessAutomaticInterestRemoval
     }
 
     [Function("ProcessAutomaticInterestRemoval")]
-    [StorageAccount("AzureWebJobsStorage")]
-    public async Task Run([QueueTrigger(QueueNames.InterestRemove)] SubscriptionDto newSubscription)
+    public async Task Run([QueueTrigger(QueueNames.InterestRemove, Connection = "AzureWebJobsStorage")] SubscriptionDto newSubscription)
     {
         _logger.LogInformation("Automated removed interest for {Series} for user {UserId}", newSubscription.Series, newSubscription.UserId);
         var command = new Application.Subscriptions.Commands.RemoveInterested(newSubscription.UserId, newSubscription.Series);

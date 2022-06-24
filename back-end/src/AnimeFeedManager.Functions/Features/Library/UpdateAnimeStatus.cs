@@ -6,7 +6,6 @@ using AnimeFeedManager.Application.AnimeLibrary.Commands;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;

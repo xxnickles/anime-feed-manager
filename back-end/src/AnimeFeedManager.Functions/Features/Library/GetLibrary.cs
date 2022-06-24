@@ -3,7 +3,6 @@ using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Text.Json;
@@ -16,7 +15,7 @@ public class GetLibraryMessages
 {
     [QueueOutput(QueueNames.AnimeLibrary)]
     public IEnumerable<string>? AnimeMessages { get; set; }
-    [QueueOutput(QueueNames.AvailableSeasons)]
+    [QueueOutput(QueueNames.AvailableSeasons, Connection = "AzureWebJobsStorage")]
     public string? SeasonMessage { get; set; }
 }
 
@@ -32,7 +31,6 @@ public class GetLibrary
     }
 
     [Function("GetLibrary")]
-    [StorageAccount("AzureWebJobsStorage")]
     public async Task<GetLibraryMessages> Run(
         [TimerTrigger("0 0 2 * * SAT")] TimerInfo  timer
         )

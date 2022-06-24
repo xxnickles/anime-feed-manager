@@ -1,4 +1,4 @@
-using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.Subscriptions.Commands;
 using AnimeFeedManager.Functions.Extensions;
@@ -6,7 +6,6 @@ using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace AnimeFeedManager.Functions.Features.Subscription;
 
@@ -26,9 +25,7 @@ public class AddInterested
         [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "interested")]
         HttpRequestData req)
     {
-        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        var command = JsonConvert.DeserializeObject<MergeInterestedSeries>(requestBody);
-
+        var command = await JsonSerializer.DeserializeAsync<MergeInterestedSeries>(req.Body);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }
