@@ -2,6 +2,8 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using AnimeFeedManager.Functions.Models;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AnimeFeedManager.Functions.Features.Maintenance;
 
@@ -23,7 +25,7 @@ public class CleanProcessedTitles
             {
                 log.LogInformation("Processed titles store has been cleaned");
             },
-            e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
+            e => log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }
 }

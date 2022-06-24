@@ -1,10 +1,10 @@
+using System.Collections.Generic;
 using AnimeFeedManager.Application.Feed.Queries;
 using AnimeFeedManager.Application.Notifications;
 using AnimeFeedManager.Application.Notifications.Queries;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Functions.Helpers;
 using AnimeFeedManager.Functions.Models;
 using LanguageExt;
 using MediatR;
@@ -12,9 +12,20 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AnimeFeedManager.Functions.Features.Subscription;
+
+public class NotificationsMessages
+{
+    [QueueOutput(QueueNames.ProcessedTitles)]
+    public IEnumerable<string>? ProcessedTitles { get; set; }
+    [QueueOutput(QueueNames.Notifications)]
+    public IEnumerable<string>? Notifications { get; set; }
+}
+
 
 public class EnqueueNotifications
 {
@@ -23,27 +34,28 @@ public class EnqueueNotifications
 
     [FunctionName("EnqueueNotifications")]
     [StorageAccount("AzureWebJobsStorage")]
-    public async Task Run(
+    public async Task<NotificationsMessages> Run(
         [TimerTrigger("0 0 * * * *")] TimerInfo timer,
-        [Queue(QueueNames.ProcessedTitles)] IAsyncCollector<string> processedTitlesQueueCollector,
-        [Queue(QueueNames.Notifications)] IAsyncCollector<Notification> notificationsQueueCollector,
         ILogger log)
     {
         var notifications = await _mediator.Send(new GetLatestFeed(Resolution.Hd))
             .BindAsync(ProcessFeed);
 
-        notifications.Match(
+        return notifications.Match(
             (process) =>
             {
                 var (notificationList, titles) = process;
-                QueueStorage.StoreInQueue(notificationList, notificationsQueueCollector, log,
-                    x => $"Queueing subscriptions for {x.Subscriber}");
-
-                QueueStorage.StoreInQueue(titles, processedTitlesQueueCollector, log,
-                    x => $"Queueing processed title {x}");
+                return new NotificationsMessages
+                {
+                    Notifications = notificationList.Select(n => JsonSerializer.Serialize(n)),
+                    ProcessedTitles = titles
+                };
             },
-            e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
-        );
+            e =>
+            {
+                log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
+                return new NotificationsMessages();
+            });
     }
 
     private Task<Either<DomainError, (ImmutableList<Notification> notifications, ImmutableList<string> titles)>>

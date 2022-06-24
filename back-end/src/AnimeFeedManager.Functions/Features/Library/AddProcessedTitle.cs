@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
+using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -10,13 +12,13 @@ public class AddProcessedTitle
 {
     [FunctionName("AddProcessedTitle")]
     [StorageAccount("AzureWebJobsStorage")]
-    [return: Table(Tables.ProcessedTitles)]
-    public ProcessedTitlesStorage Run(
+    public async Task Run(
         [QueueTrigger(QueueNames.ProcessedTitles)]
         string title,
+        [Table(Tables.ProcessedTitles)] TableClient client,
         ILogger log)
     {
-        log.LogInformation($"Saving {title}");
+        log.LogInformation("Saving {Title}", title);
         var storeTitle = new ProcessedTitlesStorage
         {
             RowKey = System.Guid.NewGuid().ToString("N"),
@@ -24,6 +26,7 @@ public class AddProcessedTitle
             Title = title
         }.AddEtag();
 
-        return storeTitle;
+        await client.AddEntityAsync(storeTitle);
+        
     }
 }

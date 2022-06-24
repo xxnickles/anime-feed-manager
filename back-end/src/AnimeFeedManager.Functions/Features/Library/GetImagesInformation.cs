@@ -1,20 +1,21 @@
-using System.Collections.Immutable;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Functions.Helpers;
 using AnimeFeedManager.Functions.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
 public static class GetImagesInformation
 {
     [FunctionName("GetImagesInformation")]
-    public static void Run(
+    public static IEnumerable<string> Run(
         [BlobTrigger("images-process/{name}", Connection = "AzureWebJobsStorage")] string contents,
         string name,
         [QueueTrigger(QueueNames.ImageProcess)] IAsyncCollector<BlobImageInfo> queueCollector,
@@ -22,15 +23,16 @@ public static class GetImagesInformation
     {
         var deserializeImageProcess = JsonConvert.DeserializeObject<ImageProcessInfo>(contents);
         if (deserializeImageProcess?.SeasonInfo == null
-            || string.IsNullOrEmpty(deserializeImageProcess.SeasonInfo.Season)) return;
+            || string.IsNullOrEmpty(deserializeImageProcess.SeasonInfo.Season)) return Enumerable.Empty<string>();
 
         var season = Season.FromString(deserializeImageProcess.SeasonInfo.Season);
-        var data = deserializeImageProcess.ImagesInfo
-            .Where(x => !string.IsNullOrEmpty(x.Title) && !string.IsNullOrEmpty(x.Url))
-            .Select(x => CreateDomainInformation(x, season, deserializeImageProcess.SeasonInfo.Year))
-            .ToImmutableList();
-
-        QueueStorage.StoreInQueue(data, queueCollector, log, blobInfo => $"New image '{blobInfo.BlobName}' has been enqueue for upload. Source {blobInfo.RemoteUrl}");
+        if (deserializeImageProcess.ImagesInfo != null)
+            return deserializeImageProcess.ImagesInfo
+                .Where(x => !string.IsNullOrEmpty(x.Title) && !string.IsNullOrEmpty(x.Url))
+                .Select(x => CreateDomainInformation(x, season, deserializeImageProcess.SeasonInfo.Year))
+                .Select(x => JsonSerializer.Serialize(x));
+        
+        return Enumerable.Empty<string>();
     }
 
     private static BlobImageInfo CreateDomainInformation(ImageInfo imageInfo, Season season, int year)

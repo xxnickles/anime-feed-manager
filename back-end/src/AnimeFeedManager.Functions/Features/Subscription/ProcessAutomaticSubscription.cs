@@ -3,6 +3,7 @@ using AnimeFeedManager.Application.Subscriptions.Commands;
 using AnimeFeedManager.Core.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
@@ -18,12 +19,12 @@ public class ProcessAutomaticSubscription
     [StorageAccount("AzureWebJobsStorage")]
     public async Task Run([QueueTrigger(QueueNames.ToSubscribe)] SubscriptionDto newSubscription, ILogger log)
     {
-        log.LogInformation($"Automated subscription to {newSubscription.Series} for user {newSubscription.UserId}");
+        log.LogInformation("Automated subscription to {SubscriptionSeries} for user {UserId}", newSubscription.Series, newSubscription.UserId);
         var command = new MergeSubscription(newSubscription.UserId, newSubscription.Series);
         var result = await _mediator.Send(command);
         result.Match(
-            _ => log.LogInformation($"{newSubscription.UserId} has subscribed to {newSubscription.Series} automatically"),
-            e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
+            _ => log.LogInformation("{UserId} has subscribed to {Series} automatically", newSubscription.UserId, newSubscription.Series),
+            e => log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }
 }

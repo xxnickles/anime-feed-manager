@@ -1,5 +1,7 @@
+using System.Text.Json;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
@@ -9,7 +11,7 @@ public static class UpdateAvailableSeasons
 {
     [FunctionName("UpdateAvailableSeasons")]
     [return: Table("AvailableSeasons")]
-    public static SeasonStorage Run(
+    public static string Run(
         [QueueTrigger(QueueNames.AvailableSeasons, Connection = "AzureWebJobsStorage")]
         SeasonInfo seasonInfo, 
         ILogger log)
@@ -23,8 +25,8 @@ public static class UpdateAvailableSeasons
 
         }.AddEtag();
 
-        log.LogInformation($"Updating available seasons with {seasonInfo.Season} on {seasonInfo.Year}");
+        log.LogInformation("Updating available seasons with {SeasonInfoSeason} on {SeasonInfoYear}", seasonInfo.Season, seasonInfo.Year);
 
-        return result;
+        return JsonSerializer.Serialize(result);
     }
 }

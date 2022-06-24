@@ -5,6 +5,7 @@ using AnimeFeedManager.Storage.Interface;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using AnimeFeedManager.Core.Error;
@@ -61,7 +62,7 @@ public class GetSeasonCollectionHandlerTest
     {
         var mock = new Mock<IAnimeInfoRepository>();
         mock.Setup(r => r.GetBySeason(It.IsAny<Season>(), It.IsAny<int>()))
-            .ReturnsAsync((Season season, int year) => Right(GetData(season.Value, (ushort)year)));
+            .ReturnsAsync((Season season, int year) => Right(GetData(season.Value, (ushort)year).ToImmutableList()));
         return mock.Object;
     }
 

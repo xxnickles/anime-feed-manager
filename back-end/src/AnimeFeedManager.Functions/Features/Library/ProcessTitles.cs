@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Functions.Models;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
@@ -18,7 +19,7 @@ public class ProcessTitles
     }
 
     [FunctionName("ProcessTitles")]
-    [return: Queue(QueueNames.TitleProcess, Connection = "AzureWebJobsStorage")]
+    [QueueOutput(QueueNames.TitleProcess, Connection = "AzureWebJobsStorage")]
     public async Task<string> Run(
         [BlobTrigger("feed-titles-process/{name}", Connection = "AzureWebJobsStorage")] string contents,
         string name,
@@ -35,7 +36,7 @@ public class ProcessTitles
             },
             e =>
             {
-                log.LogError($"An error occurred while storing feed titles {e.ToString()}");
+                log.LogError("An error occurred while storing feed titles {S}", e.ToString());
                 return ProcessResult.Failure;
             });
     }

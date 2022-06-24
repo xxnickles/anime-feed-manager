@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using Microsoft.Azure.Functions.Worker;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
@@ -20,12 +21,12 @@ public class PersistLibrary
         [QueueTrigger(QueueNames.AnimeLibrary)] AnimeInfoStorage animeInfo,
         ILogger log)
     {
-        log.LogInformation($"storing {animeInfo.Title}");
+        log.LogInformation("storing {AnimeInfoTitle}", animeInfo.Title);
         var command = new MergeAnimeInfo(animeInfo);
         var result = await _mediator.Send(command);
         result.Match(
-            _ => log.LogInformation($"{animeInfo.Title} has been stored"),
-            e => log.LogError($"[{e.CorrelationId}]: {e.Message}")
+            _ => log.LogInformation("{AnimeInfoTitle} has been stored", animeInfo.Title),
+            e => log.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }
 }

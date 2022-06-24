@@ -2,6 +2,7 @@ using AnimeFeedManager.Application.Notifications;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Infrastructure;
 using AnimeFeedManager.Functions.Models;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using SendGrid.Helpers.Mail;
@@ -28,6 +29,6 @@ public class SendNotifications
         message.SetFrom(new EmailAddress(_sendGridConfiguration.FromEmail, _sendGridConfiguration.FromName));
         message.SetSandBoxMode(_sendGridConfiguration.Sandbox);
         message.AddInfoFromNotification(notification);
-        log.LogInformation($"Sending notification to {notification.Subscriber}");
+        log.LogInformation("Sending notification to {NotificationSubscriber}", notification.Subscriber);
     }
 }
