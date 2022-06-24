@@ -1,16 +1,18 @@
-﻿using AnimeFeedManager.Core.Error;
+﻿using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
 using MediatR;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Commands;
 
-public class UpdateStatusHandler : IRequestHandler<UpdateStatus, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
+public record UpdateStatusCmd : IRequest<Either<DomainError, ImmutableList<AnimeInfoStorage>>>;
+
+public class UpdateStatusHandler : IRequestHandler<UpdateStatusCmd, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
 {
     private readonly IFeedTitlesRepository _titlesRepository;
     private readonly IAnimeInfoRepository _animeInfoRepository;
@@ -21,7 +23,7 @@ public class UpdateStatusHandler : IRequestHandler<UpdateStatus, Either<DomainEr
         _animeInfoRepository = animeInfoRepository;
     }
 
-    public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(UpdateStatus request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(UpdateStatusCmd request, CancellationToken cancellationToken)
     {
         return _titlesRepository
             .GetTitles()

@@ -26,7 +26,7 @@ public class AddInterested
         [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "interested")]
         HttpRequestData req)
     {
-        var command = await JsonSerializer.DeserializeAsync<MergeInterestedSeries>(req.Body);
+        var command = await JsonSerializer.DeserializeAsync<MergeInterestedSeriesCmd>(req.Body);
         ArgumentNullException.ThrowIfNull(command);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }

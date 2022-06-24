@@ -1,21 +1,23 @@
-﻿using AnimeFeedManager.Application.Shared.Mappers;
+﻿using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
+using AnimeFeedManager.Application.Shared.Mappers;
 using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Storage.Domain;
 using LanguageExt;
 using MediatR;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Services.Collectors.Interface;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
 
-public class GetExternalLibraryHandler : IRequestHandler<GetExternalLibrary, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
+public sealed record GetExternalLibraryQry: IRequest<Either<DomainError, ImmutableList<AnimeInfoStorage>>>;
+
+public class GetExternalLibraryHandler : IRequestHandler<GetExternalLibraryQry, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
 {
     private readonly IExternalLibraryProvider _externalLibraryProvider;
 
     public GetExternalLibraryHandler(IExternalLibraryProvider externalLibraryProvider) => _externalLibraryProvider = externalLibraryProvider;
         
-    public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(GetExternalLibrary request, CancellationToken cancellationToken) => 
+    public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(GetExternalLibraryQry request, CancellationToken cancellationToken) => 
         _externalLibraryProvider.GetLibrary().MapAsync(AnimeInfoMappers.ProjectToStorageModelWithEtag);
 }

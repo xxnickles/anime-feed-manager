@@ -1,15 +1,17 @@
-﻿using AnimeFeedManager.Core.Error;
+﻿using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
+using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
 using MediatR;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
 
-public class GetAllHandler: IRequestHandler<GetAll, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
+public record GetAllQry :  IRequest<Either<DomainError, ImmutableList<AnimeInfoStorage>>>;
+
+public class GetAllHandler: IRequestHandler<GetAllQry, Either<DomainError, ImmutableList<AnimeInfoStorage>>>
 {
     private readonly IAnimeInfoRepository _animeInfoRepository;
 
@@ -18,7 +20,7 @@ public class GetAllHandler: IRequestHandler<GetAll, Either<DomainError, Immutabl
         _animeInfoRepository = animeInfoRepository;
     }
 
-    public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(GetAll request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(GetAllQry request, CancellationToken cancellationToken)
     {
         return  _animeInfoRepository.GetAll();
     }

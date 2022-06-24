@@ -1,16 +1,18 @@
-﻿using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
-using LanguageExt;
-using MediatR;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AnimeFeedManager.Core.Domain;
+using AnimeFeedManager.Core.Error;
+using LanguageExt;
+using MediatR;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Application.Seasons.Queries;
 
-public class GetLatestSeasonHandler : IRequestHandler<GetLatestSeason, Either<DomainError, SeasonInformation>>
+public record GetLatestSeasonQry : IRequest<Either<DomainError, SeasonInformation>>;
+
+public class GetLatestSeasonHandler : IRequestHandler<GetLatestSeasonQry, Either<DomainError, SeasonInformation>>
 {
     private readonly IMediator _mediator;
 
@@ -19,9 +21,9 @@ public class GetLatestSeasonHandler : IRequestHandler<GetLatestSeason, Either<Do
         _mediator = mediator;
     }
 
-    public Task<Either<DomainError, SeasonInformation>> Handle(GetLatestSeason request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, SeasonInformation>> Handle(GetLatestSeasonQry request, CancellationToken cancellationToken)
     {
-        return _mediator.Send(new GetAvailableSeasons(), CancellationToken.None).BindAsync(TryGet);
+        return _mediator.Send(new GetAvailableSeasonsQry(), CancellationToken.None).BindAsync(TryGet);
     }
 
     private Either<DomainError, SeasonInformation> TryGet(ImmutableList<SeasonInformation> list)

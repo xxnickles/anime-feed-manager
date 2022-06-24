@@ -1,14 +1,14 @@
-﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Storage.Domain;
-using AnimeFeedManager.Storage.Interface;
-using Moq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using AnimeFeedManager.Application.AnimeLibrary.Queries;
+using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Storage.Domain;
+using AnimeFeedManager.Storage.Interface;
+using Moq;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -21,7 +21,7 @@ public class GetSeasonCollectionHandlerTest
     public async Task ShouldGetLibraryForSeason()
     {
         var handler = new GetSeasonCollectionHandler(GetMockedRepoWithResults());
-        var parameters = new GetSeasonCollection("fall", 2018);
+        var parameters = new GetSeasonCollectionQry("fall", 2018);
         var sut = await handler.Handle(parameters, CancellationToken.None);
 
         Assert.True(sut.IsRight);
@@ -39,7 +39,7 @@ public class GetSeasonCollectionHandlerTest
     public async Task ShouldReturnValidationErrors()
     {
         var handler = new GetSeasonCollectionHandler(GetMockedRepoWithResults());
-        var parameters = new GetSeasonCollection("test", 1999);
+        var parameters = new GetSeasonCollectionQry("test", 1999);
         var sut = await handler.Handle(parameters, CancellationToken.None);
 
         Assert.True(sut.IsLeft);

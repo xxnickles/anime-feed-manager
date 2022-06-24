@@ -1,13 +1,13 @@
-﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
-using AnimeFeedManager.Services.Collectors.SubsPlease;
-using AnimeFeedManager.Services.Collectors.Interface;
-using AnimeFeedManager.Storage.Domain;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
+using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Services.Collectors.AniDb;
+using AnimeFeedManager.Services.Collectors.Interface;
+using AnimeFeedManager.Services.Collectors.SubsPlease;
+using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Infrastructure;
 using Azure.Data.Tables;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AnimeFeedManager.DI;
@@ -48,7 +48,7 @@ public static class Registration
 
     public static IServiceCollection RegisterApplicationServices(this IServiceCollection services)
     {
-        services.AddMediatR(typeof(GetSeasonCollection).Assembly);
+        services.AddMediatR(typeof(GetSeasonCollectionQry).Assembly);
         return services;
     }
 

@@ -2,15 +2,16 @@
 using System.Threading.Tasks;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
-using MediatR;
-using AnimeFeedManager.Core.Utils;
-using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Application.Subscriptions.Commands;
 
-public class RemoveInterestedHandler : IRequestHandler<RemoveInterested, Either<DomainError, LanguageExt.Unit>>, IRequest<Either<DomainError, Unit>>
+public record RemoveInterestedCmd(string Subscriber, string AnimeId) : MediatR.IRequest<Either<DomainError, Unit>>;
+
+public class RemoveInterestedHandler : MediatR.IRequestHandler<RemoveInterestedCmd, Either<DomainError, Unit>>,
+    MediatR.IRequest<Either<DomainError, Unit>>
 {
     private readonly IInterestedSeriesRepository _subscriptionRepository;
 
@@ -19,14 +20,14 @@ public class RemoveInterestedHandler : IRequestHandler<RemoveInterested, Either<
         _subscriptionRepository = subscriptionRepository;
     }
 
-    public Task<Either<DomainError, Unit>> Handle(RemoveInterested request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Unit>> Handle(RemoveInterestedCmd request, CancellationToken cancellationToken)
     {
         return Validate(request)
-            .ToEither(nameof(Commands.RemoveInterested))
+            .ToEither(nameof(Commands.RemoveInterestedCmd))
             .BindAsync(RemoveInterested);
     }
 
-    private Validation<ValidationError, InterestedSeries> Validate(RemoveInterested request) =>
+    private Validation<ValidationError, InterestedSeries> Validate(RemoveInterestedCmd request) =>
         (Helpers.SubscriberMustBeValid(request.Subscriber), Helpers.IdListMustHaveElements(request.AnimeId))
         .Apply((subscriber, id) => new InterestedSeries(subscriber, id));
 

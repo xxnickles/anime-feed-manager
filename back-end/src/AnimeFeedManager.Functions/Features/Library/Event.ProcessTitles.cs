@@ -1,11 +1,11 @@
 using System;
 using System.Text.Json;
-using AnimeFeedManager.Application.Feed.Commands;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using AnimeFeedManager.Application.Feed.Commands;
 using AnimeFeedManager.Functions.Models;
+using MediatR;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
@@ -26,7 +26,7 @@ public class ProcessTitles
         [BlobTrigger("feed-titles-process/{name}", Connection = "AzureWebJobsStorage")] string contents,
         string name)
     {
-        var command = JsonSerializer.Deserialize<AddTitles>(contents);
+        var command = JsonSerializer.Deserialize<AddTitlesCmd>(contents);
         ArgumentNullException.ThrowIfNull(command);
         var result = await _mediator.Send(command);
         return result.Match(

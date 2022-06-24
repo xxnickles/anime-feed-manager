@@ -60,7 +60,7 @@ public class UploadImage
 
     private async Task UpdateAnimeInfo(ImageStorage imageStorage)
     {
-        var result = await _mediator.Send(new AddImageUrl(imageStorage));
+        var result = await _mediator.Send(new AddImageUrlCmd(imageStorage));
         result.Match(
             _ => _logger.LogInformation("{ImageStorageRowKey} has been updated", imageStorage.RowKey),
             e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)

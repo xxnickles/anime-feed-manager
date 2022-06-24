@@ -1,14 +1,15 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
-using MediatR;
-using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Commands;
 
-public class AddImageUrlHandler : IRequestHandler<AddImageUrl, Either<DomainError, LanguageExt.Unit>>
+public record AddImageUrlCmd(ImageStorage Entity) : MediatR.IRequest<Either<DomainError, Unit>>;
+
+public class AddImageUrlHandler : MediatR.IRequestHandler<AddImageUrlCmd, Either<DomainError, Unit>>
 {
     private readonly IAnimeInfoRepository _animeInfoRepository;
 
@@ -16,7 +17,7 @@ public class AddImageUrlHandler : IRequestHandler<AddImageUrl, Either<DomainErro
         _animeInfoRepository = animeInfoRepository;
 
 
-    public Task<Either<DomainError, Unit>> Handle(AddImageUrl request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Unit>> Handle(AddImageUrlCmd request, CancellationToken cancellationToken)
     {
         return _animeInfoRepository.AddImageUrl(request.Entity);
     }

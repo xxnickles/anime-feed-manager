@@ -1,19 +1,21 @@
-﻿using AnimeFeedManager.Application.Subscriptions;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AnimeFeedManager.Application.Subscriptions;
 using AnimeFeedManager.Application.Subscriptions.Queries;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
 using LanguageExt;
 using MediatR;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Application.Notifications.Queries;
 
-public class GetNotificationsHandler : IRequestHandler<GetNotifications, Either<DomainError, ImmutableList<Notification>>>
+public  sealed record GetNotificationsQry(ImmutableList<FeedInfo> Feed) : IRequest<Either<DomainError, ImmutableList<Notification>>>;
+
+public class GetNotificationsHandler : IRequestHandler<GetNotificationsQry, Either<DomainError, ImmutableList<Notification>>>
 {
     private readonly IMediator _mediator;
 
@@ -22,14 +24,14 @@ public class GetNotificationsHandler : IRequestHandler<GetNotifications, Either<
         _mediator = mediator;
     }
 
-    public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetNotifications request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetNotificationsQry request, CancellationToken cancellationToken)
     {
         return ProcessFeed(request.Feed);
     }
 
     public Task<Either<DomainError, ImmutableList<Notification>>> ProcessFeed(ImmutableList<FeedInfo> feed)
     {
-        return _mediator.Send(new GetSubscriptions())
+        return _mediator.Send(new GetSubscriptionsQry())
             .MapAsync(s => s.ConvertAll(i => CreateNotification(i, feed)))
             .MapAsync(n => n.RemoveAll(i => !i.Feeds.Any()));
     }

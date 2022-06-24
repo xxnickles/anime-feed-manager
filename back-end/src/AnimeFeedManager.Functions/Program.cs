@@ -1,8 +1,8 @@
-﻿using AnimeFeedManager.DI;
+﻿using System;
+using AnimeFeedManager.DI;
 using AnimeFeedManager.Functions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using SendGrid.Extensions.DependencyInjection;
 
 namespace AnimeFeedManager.Functions;

@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 using AnimeFeedManager.Application.Subscriptions.Queries;
 using AnimeFeedManager.Core.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Subscription;
 
@@ -40,12 +40,12 @@ public class InterestSubscriber
         {
             _logger.LogInformation(
                 "Titles were updated and checking of status process was completed, checking if there are interested series that match new titles");
-            var interestedSeries = await _mediator.Send(new GetAllInterestedSeries());
+            var interestedSeries = await _mediator.Send(new GetAllInterestedSeriesQry());
 
             var resultSet = await interestedSeries
                 .MapAsync(async series =>
                 {
-                    var response = await _mediator.Send(new SubscribeToInterest(series));
+                    var response = await _mediator.Send(new SubscribeToInterestQry(series));
                     return response.Match(
                         r =>
                         {
@@ -63,7 +63,7 @@ public class InterestSubscriber
                                 };
                             }
 
-                            _logger.LogInformation($"Nothing to process");
+                            _logger.LogInformation("Nothing to process");
                             return new GetLibraryMessages();
                         },
                         e =>

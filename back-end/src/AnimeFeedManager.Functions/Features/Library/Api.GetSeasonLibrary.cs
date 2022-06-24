@@ -26,7 +26,7 @@ public class GetSeasonLibrary
         string season,
         ushort year)
     {
-        return _mediator.Send(new GetSeasonCollection(season, year))
+        return _mediator.Send(new GetSeasonCollectionQry(season, year))
             .ToResponse(req,_logger);
     }
 }

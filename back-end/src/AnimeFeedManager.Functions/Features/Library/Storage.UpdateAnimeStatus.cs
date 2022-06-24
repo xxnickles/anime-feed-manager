@@ -29,17 +29,16 @@ public class UpdateAnimeStatus
     }
 
     [Function("UpdateAnimeStatus")]
-    [StorageAccount("AzureWebJobsStorage")]
    
     public async Task<UpdateAnimeStatusMessages> Run(
-        [QueueTrigger(QueueNames.TitleProcess)] string processResult
+        [QueueTrigger(QueueNames.TitleProcess, Connection = "AzureWebJobsStorage")] string processResult
         )
     {
         if (processResult == ProcessResult.Ok)
         {
             _logger.LogInformation("Titles source has been updated. Verifying whether series need to be marked as completed");
 
-            var result = await _mediator.Send(new UpdateStatus());
+            var result = await _mediator.Send(new UpdateStatusCmd());
             return result.Match(
                 v =>
                 {

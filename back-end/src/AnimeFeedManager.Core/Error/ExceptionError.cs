@@ -21,7 +21,7 @@ public sealed class ExceptionError : DomainError
         var innerErrors = ExtractErrors(Exception);
         builder.AppendLine($"[{CorrelationId}] - {Message}");
         if (!innerErrors.Any()) return builder.ToString();
-        builder.AppendLine($"Inner Errors: ");
+        builder.AppendLine("Inner Errors: ");
         foreach (var error in innerErrors)
         {
             builder.AppendLine($"{error}");

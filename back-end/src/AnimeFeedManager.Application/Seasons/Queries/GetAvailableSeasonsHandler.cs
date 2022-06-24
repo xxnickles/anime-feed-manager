@@ -9,14 +9,16 @@ using MediatR;
 
 namespace AnimeFeedManager.Application.Seasons.Queries;
 
-public class GetAvailableSeasonsHandler : IRequestHandler<GetAvailableSeasons, Either<DomainError, ImmutableList<SeasonInformation>>>
+public record GetAvailableSeasonsQry : IRequest<Either<DomainError, ImmutableList<SeasonInformation>>>;
+
+public class GetAvailableSeasonsHandler : IRequestHandler<GetAvailableSeasonsQry, Either<DomainError, ImmutableList<SeasonInformation>>>
 {
     private readonly ISeasonRepository _seasonRepository;
 
     public GetAvailableSeasonsHandler(ISeasonRepository seasonRepository) => _seasonRepository = seasonRepository;
 
 
-    public Task<Either<DomainError, ImmutableList<SeasonInformation>>> Handle(GetAvailableSeasons request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, ImmutableList<SeasonInformation>>> Handle(GetAvailableSeasonsQry request, CancellationToken cancellationToken)
     {
         return Fetch();
     }

@@ -1,7 +1,7 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Maintenance;
 
@@ -21,7 +21,7 @@ public class CleanProcessedTitles
         [TimerTrigger("0 30 1 * * *")] TimerInfo timer
         )
     {
-        var result = await _mediator.Send(new Application.Feed.Commands.CleanProcessedTitles());
+        var result = await _mediator.Send(new Application.Feed.Commands.CleanProcessedTitlesCmd());
         result.Match(
             _ =>
             {

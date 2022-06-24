@@ -1,5 +1,5 @@
-﻿using LanguageExt;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes;

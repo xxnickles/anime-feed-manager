@@ -1,6 +1,6 @@
-﻿using Azure.Data.Tables;
-using System;
+﻿using System;
 using Azure;
+using Azure.Data.Tables;
 
 namespace AnimeFeedManager.Storage.Domain;
 

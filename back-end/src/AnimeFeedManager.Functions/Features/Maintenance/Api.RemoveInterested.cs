@@ -1,10 +1,10 @@
-using AnimeFeedManager.Functions.Extensions;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AnimeFeedManager.Functions.Extensions;
+using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Maintenance;
 
@@ -23,7 +23,7 @@ public class RemoveInterested
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "removeInterested")] HttpRequestData req)
     {
-        var command = await JsonSerializer.DeserializeAsync<Application.Subscriptions.Commands.RemoveInterested>(req.Body);
+        var command = await JsonSerializer.DeserializeAsync<Application.Subscriptions.Commands.RemoveInterestedCmd>(req.Body);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }

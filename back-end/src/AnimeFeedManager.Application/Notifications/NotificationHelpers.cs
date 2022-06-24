@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Application.Notifications;
 
-internal class NotificationHelpers
+internal static class NotificationHelpers
 {
     internal static string FormatMagnetLink(string link)
     {

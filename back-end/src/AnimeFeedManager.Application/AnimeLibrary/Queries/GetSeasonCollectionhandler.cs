@@ -1,37 +1,39 @@
-﻿using AnimeFeedManager.Core.ConstrainedTypes;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
 
-public class GetSeasonCollectionHandler : IRequestHandler<GetSeasonCollection, Either<DomainError, SeasonCollection>>
+public sealed record GetSeasonCollectionQry(string Season, ushort Year) : IRequest<Either<DomainError, SeasonCollection>>;
+
+public class GetSeasonCollectionHandler : IRequestHandler<GetSeasonCollectionQry, Either<DomainError, SeasonCollection>>
 {
     private readonly IAnimeInfoRepository _animeInfoRepository;
 
     public GetSeasonCollectionHandler(IAnimeInfoRepository animeInfoRepository) =>
         _animeInfoRepository = animeInfoRepository;
 
-    public Task<Either<DomainError, SeasonCollection>> Handle(GetSeasonCollection request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, SeasonCollection>> Handle(GetSeasonCollectionQry request, CancellationToken cancellationToken)
     {
         return Validate(request)
             .ToEither(nameof(request.Season))
             .BindAsync(Fetch);
     }
 
-    private Validation<ValidationError, (Season season, ushort year)> Validate(GetSeasonCollection param) =>
+    private Validation<ValidationError, (Season season, ushort year)> Validate(GetSeasonCollectionQry param) =>
         (ValidateSeason(param), ValidateYear(param))
         .Apply((season, year) => (season, year));
 
-    private Validation<ValidationError, Season> ValidateSeason(GetSeasonCollection param) =>
+    private Validation<ValidationError, Season> ValidateSeason(GetSeasonCollectionQry param) =>
         Season.TryCreateFromString(param.Season).ToValidation(
             ValidationError.Create(nameof(param.Season), new[] { "Parameter provided doesn't represent a valid season" }));
 
-    private Validation<ValidationError, ushort> ValidateYear(GetSeasonCollection param)
+    private Validation<ValidationError, ushort> ValidateYear(GetSeasonCollectionQry param)
     {
         var yearValue = new Year(param.Year).Value;
 

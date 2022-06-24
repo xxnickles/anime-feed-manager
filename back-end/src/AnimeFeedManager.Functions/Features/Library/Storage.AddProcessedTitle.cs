@@ -1,6 +1,9 @@
+using System;
 using System.Threading.Tasks;
+using AnimeFeedManager.Application.Feed.Commands;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
+using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -8,10 +11,12 @@ namespace AnimeFeedManager.Functions.Features.Library;
 
 public class AddProcessedTitle
 {
+    private readonly IMediator _mediator;
     private readonly ILogger<AddProcessedTitle> _logger;
 
-    public AddProcessedTitle(ILoggerFactory loggerFactory)
+    public AddProcessedTitle(IMediator mediator, ILoggerFactory loggerFactory)
     {
+        _mediator = mediator;
         _logger = loggerFactory.CreateLogger<AddProcessedTitle>();
     }
 
@@ -23,12 +28,15 @@ public class AddProcessedTitle
         _logger.LogInformation("Saving {Title}", title);
         var storeTitle = new ProcessedTitlesStorage
         {
-            RowKey = System.Guid.NewGuid().ToString("N"),
+            RowKey = Guid.NewGuid().ToString("N"),
             PartitionKey = "feed-processed",
             Title = title
         }.AddEtag();
 
-        await client.AddEntityAsync(storeTitle);
-        
+        var result = await _mediator.Send(new AddProcessedTitleCmd(storeTitle));
+        result.Match(
+            _ => _logger.LogInformation("{Title} has been added to processed titles", title),
+            e => _logger.LogError("An error occurred while storing '{Title}': {Error}", title, e.ToString())
+        );
     }
 }

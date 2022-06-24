@@ -1,18 +1,18 @@
-﻿using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
-using MediatR;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Core.Utils;
+using AnimeFeedManager.Storage.Interface;
+using LanguageExt;
 using static LanguageExt.Prelude;
-using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Application.Feed.Commands;
 
-public class AddTitlesHandler : IRequestHandler<AddTitles, Either<DomainError, LanguageExt.Unit>>
+public record AddTitlesCmd(IEnumerable<string> Titles) : MediatR.IRequest<Either<DomainError, Unit>>;
+
+public class AddTitlesHandler : MediatR.IRequestHandler<AddTitlesCmd, Either<DomainError, Unit>>
 {
     private readonly IFeedTitlesRepository _titlesRepository;
 
@@ -21,18 +21,18 @@ public class AddTitlesHandler : IRequestHandler<AddTitles, Either<DomainError, L
         _titlesRepository = titlesRepository;
     }
 
-    public Task<Either<DomainError, Unit>> Handle(AddTitles request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Unit>> Handle(AddTitlesCmd request, CancellationToken cancellationToken)
     {
         return Validate(request)
-            .ToEither(nameof(AddTitles))
+            .ToEither(nameof(AddTitlesCmd))
             .BindAsync(Save);
     }
 
-    private Validation<ValidationError, IEnumerable<string>> Validate(AddTitles param)
+    private Validation<ValidationError, IEnumerable<string>> Validate(AddTitlesCmd param)
     {
         if (param.Titles.Any()) return Success<ValidationError, IEnumerable<string>>(param.Titles);
 
-        var error = ValidationError.Create(nameof(AddTitles.Titles), new[] { "Titles collection is empty" });
+        var error = ValidationError.Create(nameof(AddTitlesCmd.Titles), new[] { "Titles collection is empty" });
         return Fail<ValidationError, IEnumerable<string>>(error);
     }
 

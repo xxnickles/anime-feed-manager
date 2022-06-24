@@ -1,9 +1,9 @@
+using System.Threading.Tasks;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Subscription;
 
@@ -25,7 +25,7 @@ public class GetInterestedSeries
         string subscriber
         )
     {
-        return _mediator.Send(new Application.Subscriptions.Queries.GetInterestedSeries(subscriber))
+        return _mediator.Send(new Application.Subscriptions.Queries.GetInterestedSeriesQry(subscriber))
             .ToResponse(req,_logger);
     }
 }

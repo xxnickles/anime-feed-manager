@@ -1,13 +1,15 @@
-﻿using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Storage.Domain;
-using AnimeFeedManager.Storage.Infrastructure;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Storage.Domain;
+using AnimeFeedManager.Storage.Infrastructure;
+using AnimeFeedManager.Storage.Interface;
+using Azure;
 using Azure.Data.Tables;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Storage.Repositories;
 
@@ -33,6 +35,12 @@ public class ProcessedTitlesRepository : IProcessedTitlesRepository
                 t.Timestamp <= DateTimeOffset.Now));
 
         return result.BindAsync(BatchDelete);
+    }
+
+    public async Task<Either<DomainError, Unit>> Merge(ProcessedTitlesStorage processedTitles)
+    {
+        var result = await TableUtils.TryExecute(() => _tableClient.UpdateEntityAsync(processedTitles, ETag.All));
+        return result.Map(_ => unit);
     }
 
     private Task<Either<DomainError, Unit>> BatchDelete(ImmutableList<ProcessedTitlesStorage> titles)

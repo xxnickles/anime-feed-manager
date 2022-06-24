@@ -23,7 +23,7 @@ public class ProcessAutomaticSubscription
     public async Task Run([QueueTrigger(QueueNames.ToSubscribe, Connection = "AzureWebJobsStorage")] SubscriptionDto newSubscription)
     {
         _logger.LogInformation("Automated subscription to {SubscriptionSeries} for user {UserId}", newSubscription.Series, newSubscription.UserId);
-        var command = new MergeSubscription(newSubscription.UserId, newSubscription.Series);
+        var command = new MergeSubscriptionCmd(newSubscription.UserId, newSubscription.Series);
         var result = await _mediator.Send(command);
         result.Match(
             _ => _logger.LogInformation("{UserId} has subscribed to {Series} automatically", newSubscription.UserId, newSubscription.Series),

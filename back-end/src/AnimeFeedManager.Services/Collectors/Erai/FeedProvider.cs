@@ -1,14 +1,14 @@
-﻿using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Services.Collectors.Interface;
-using LanguageExt;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using AnimeFeedManager.Core.ConstrainedTypes;
+using AnimeFeedManager.Core.Domain;
+using AnimeFeedManager.Core.Error;
+using AnimeFeedManager.Services.Collectors.Interface;
+using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.Erai;
@@ -42,7 +42,7 @@ public class FeedProvider : IFeedProvider
         catch (Exception e)
         {
             return Left<DomainError, ImmutableList<FeedInfo>>(
-                ExceptionError.FromException(e, $"Erai_Feed_Exception"));
+                ExceptionError.FromException(e, "Erai_Feed_Exception"));
         }
     }
 

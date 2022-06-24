@@ -1,16 +1,18 @@
-﻿using AnimeFeedManager.Application.Seasons.Queries;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using AnimeFeedManager.Application.Seasons.Queries;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
 
-public class GetLatestSeasonSeasonCollectionHandler : IRequestHandler<GetLatestSeasonCollection, Either<DomainError, SeasonCollection>>
+public record GetLatestSeasonCollectionQry:  IRequest<Either<DomainError, SeasonCollection>>;
+
+public class GetLatestSeasonSeasonCollectionHandler : IRequestHandler<GetLatestSeasonCollectionQry, Either<DomainError, SeasonCollection>>
 {
     private readonly IAnimeInfoRepository _animeInfoRepository;
     private readonly IMediator _mediator;
@@ -21,9 +23,9 @@ public class GetLatestSeasonSeasonCollectionHandler : IRequestHandler<GetLatestS
         _mediator = mediator;
     }
 
-    public Task<Either<DomainError, SeasonCollection>> Handle(GetLatestSeasonCollection request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, SeasonCollection>> Handle(GetLatestSeasonCollectionQry request, CancellationToken cancellationToken)
     {
-        return _mediator.Send(new GetLatestSeason(), CancellationToken.None).BindAsync(Fetch);
+        return _mediator.Send(new GetLatestSeasonQry(), CancellationToken.None).BindAsync(Fetch);
     }
      
 

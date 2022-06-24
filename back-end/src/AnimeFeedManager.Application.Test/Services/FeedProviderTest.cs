@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AnimeFeedManager.Core.ConstrainedTypes;
+using AnimeFeedManager.Services.Collectors.SubsPlease;
 using Xunit;
 
 namespace AnimeFeedManager.Application.Test.Services;
@@ -46,7 +47,7 @@ public class FeedProviderTest
     [Fact]
     public void SubsPleaseFeedWorks()
     {
-        var sut = new AnimeFeedManager.Services.Collectors.SubsPlease.FeedProvider().GetFeed(Resolution.Hd);
+        var sut = new FeedProvider().GetFeed(Resolution.Hd);
         Assert.True(sut.IsRight);
         sut.Match(
             val =>

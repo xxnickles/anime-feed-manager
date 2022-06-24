@@ -1,19 +1,21 @@
-﻿using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Services.Collectors.Interface;
-using LanguageExt;
-using MediatR;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AnimeFeedManager.Core.ConstrainedTypes;
+using AnimeFeedManager.Core.Domain;
+using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
+using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Storage.Interface;
+using LanguageExt;
+using MediatR;
 
 namespace AnimeFeedManager.Application.Feed.Queries;
 
-public class GetLatestFeedHandler : IRequestHandler<GetLatestFeed, Either<DomainError, ImmutableList<FeedInfo>>>
+public sealed record GetLatestFeedQry(Resolution Resolution) : IRequest<Either<DomainError, ImmutableList<FeedInfo>>>;
+
+public class GetLatestFeedHandler : IRequestHandler<GetLatestFeedQry, Either<DomainError, ImmutableList<FeedInfo>>>
 {
     private readonly IFeedProvider _feedProvider;
     private readonly IProcessedTitlesRepository _processedTitles;
@@ -24,7 +26,7 @@ public class GetLatestFeedHandler : IRequestHandler<GetLatestFeed, Either<Domain
         _processedTitles = processedTitles;
     }
 
-    public Task<Either<DomainError, ImmutableList<FeedInfo>>> Handle(GetLatestFeed request,
+    public Task<Either<DomainError, ImmutableList<FeedInfo>>> Handle(GetLatestFeedQry request,
         CancellationToken cancellationToken)
     {
         return _processedTitles.GetProcessedTitles().BindAsync(titles => GetFilteredFeed(titles, Resolution.Hd));

@@ -1,15 +1,15 @@
 using System.Collections.Generic;
-using AnimeFeedManager.Application.AnimeLibrary.Queries;
-using AnimeFeedManager.Functions.Models;
-using AnimeFeedManager.Storage.Domain;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Functions.Extensions;
+using AnimeFeedManager.Functions.Models;
+using AnimeFeedManager.Storage.Domain;
+using MediatR;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Maintenance;
 
@@ -36,7 +36,7 @@ public class SetDefaultStatusToAll
         [HttpTrigger(AuthorizationLevel.Admin, "post", Route = null)]
         HttpRequestData req)
     {
-        var result = await _mediator.Send(new GetAll());
+        var result = await _mediator.Send(new GetAllQry());
 
 
         return new SetDefaultStatusResponse

@@ -3,21 +3,9 @@ using LanguageExt;
 
 namespace AnimeFeedManager.Application.AnimeLibrary;
 
-public sealed class FeedInfo : Record<FeedInfo>
-{
-    public bool Available { get; }
-    public string? Title { get; }
-    public bool Completed { get; }
+public sealed record FeedInfo(bool Available, bool Completed, string? Title);
 
-    public FeedInfo(bool available, bool completed, string? title)
-    {
-        Available = available;
-        Completed = completed;
-        Title = title;
-    }
-}
-
-public sealed class SimpleAnime : Record<SimpleAnime>
+public sealed record SimpleAnime 
 {
     public string Id { get; }
     public string Title { get; }
@@ -35,16 +23,4 @@ public sealed class SimpleAnime : Record<SimpleAnime>
     }
 }
 
-public sealed class SeasonCollection : Record<SeasonCollection>
-{
-    public string Season { get; }
-    public ushort Year { get; }
-    public ImmutableList<SimpleAnime> Animes { get; }
-
-    public SeasonCollection(ushort year, string season, ImmutableList<SimpleAnime> animes)
-    {
-        Year = year;
-        Animes = animes;
-        Season = season;
-    }
-}
+public sealed record SeasonCollection(ushort Year, string Season, ImmutableList<SimpleAnime> Animes);

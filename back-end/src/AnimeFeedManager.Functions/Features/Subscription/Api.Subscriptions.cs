@@ -26,7 +26,7 @@ public class Subscriptions
         [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "subscriptions")]
         HttpRequestData req)
     {
-        var command = await JsonSerializer.DeserializeAsync<MergeSubscription>(req.Body);
+        var command = await JsonSerializer.DeserializeAsync<MergeSubscriptionCmd>(req.Body);
         ArgumentNullException.ThrowIfNull(command);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }

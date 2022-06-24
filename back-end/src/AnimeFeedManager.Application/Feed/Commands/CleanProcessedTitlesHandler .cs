@@ -1,14 +1,14 @@
-﻿using AnimeFeedManager.Core.Error;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Storage.Interface;
 using LanguageExt;
-using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
-using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Application.Feed.Commands;
 
-public class CleanProcessedTitlesHandler : IRequestHandler<CleanProcessedTitles, Either<DomainError, LanguageExt.Unit>>
+public record CleanProcessedTitlesCmd : MediatR.IRequest<Either<DomainError, Unit>>;
+
+public class CleanProcessedTitlesHandler : MediatR.IRequestHandler<CleanProcessedTitlesCmd, Either<DomainError, Unit>>
 {
     private readonly IProcessedTitlesRepository _processedTitles;
 
@@ -17,7 +17,7 @@ public class CleanProcessedTitlesHandler : IRequestHandler<CleanProcessedTitles,
         _processedTitles = processedTitles;
     }
 
-    public Task<Either<DomainError, Unit>> Handle(CleanProcessedTitles request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Unit>> Handle(CleanProcessedTitlesCmd request, CancellationToken cancellationToken)
     {
         return _processedTitles.RemoveExpired();
     }

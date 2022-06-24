@@ -1,5 +1,5 @@
-﻿using LanguageExt;
-using System;
+﻿using System;
+using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes;
@@ -30,7 +30,7 @@ public readonly struct Season : IComparable<Season>, IEquatable<Season>
 
     public bool Equals(Season other)
     {
-        return other.Value == this.Value;
+        return other.Value == Value;
     }
 
     public override int GetHashCode()
@@ -72,11 +72,11 @@ public readonly struct Season : IComparable<Season>, IEquatable<Season>
 
     private static byte GetSeasonWeight(Season season) => season.Value switch
     {
-        WinterValue => (byte)0,
-        SpringValue => (byte)1,
-        SummerValue => (byte)2,
-        FallValue => (byte)3,
-        _ => (byte)0
+        WinterValue => 0,
+        SpringValue => 1,
+        SummerValue => 2,
+        FallValue => 3,
+        _ => 0
     };
 
 }

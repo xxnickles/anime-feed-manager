@@ -1,10 +1,10 @@
-﻿using AnimeFeedManager.Application.AnimeLibrary.Commands;
+﻿using System.Threading.Tasks;
+using AnimeFeedManager.Application.AnimeLibrary.Commands;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Domain;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
@@ -26,7 +26,7 @@ public class PersistLibrary
         )
     {
         _logger.LogInformation("storing {AnimeInfoTitle}", animeInfo.Title);
-        var command = new MergeAnimeInfo(animeInfo);
+        var command = new MergeAnimeInfoCmd(animeInfo);
         var result = await _mediator.Send(command);
         result.Match(
             _ => _logger.LogInformation("{AnimeInfoTitle} has been stored", animeInfo.Title),

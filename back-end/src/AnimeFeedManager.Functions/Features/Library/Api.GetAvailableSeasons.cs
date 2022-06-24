@@ -1,13 +1,13 @@
+using System.Collections.Immutable;
+using System.Threading.Tasks;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
@@ -26,7 +26,7 @@ public class GetAvailableSeasons
     public Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "seasons")] HttpRequestData req)
     {
-        return _mediator.Send(new Application.Seasons.Queries.GetAvailableSeasons())
+        return _mediator.Send(new Application.Seasons.Queries.GetAvailableSeasonsQry())
             .MapAsync(Map)
             .ToResponse(req, _logger);
     }
