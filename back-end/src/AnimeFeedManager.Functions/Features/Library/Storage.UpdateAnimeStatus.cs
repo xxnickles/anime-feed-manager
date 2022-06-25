@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.AnimeLibrary.Commands;
 using AnimeFeedManager.Functions.Models;
@@ -44,7 +43,7 @@ public class UpdateAnimeStatus
                 {
                     return new UpdateAnimeStatusMessages
                     {
-                        AnimeMessages = v.Select(a => JsonSerializer.Serialize(a)),
+                        AnimeMessages = v.Select(Serializer.ToJson),
                         AutoSubscribeMessages = ProcessResult.Ok
                     };
                 },

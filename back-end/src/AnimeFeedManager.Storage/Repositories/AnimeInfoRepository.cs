@@ -20,6 +20,7 @@ public class AnimeInfoRepository : IAnimeInfoRepository
     public AnimeInfoRepository(ITableClientFactory<AnimeInfoStorage> tableClientFactory)
     {
         _tableClient = tableClientFactory.GetClient();
+        _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
     public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetBySeason(Season season, int year)

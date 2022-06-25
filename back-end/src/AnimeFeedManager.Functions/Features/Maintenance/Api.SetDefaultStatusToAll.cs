@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Functions.Extensions;
@@ -42,7 +41,7 @@ public class SetDefaultStatusToAll
         return new SetDefaultStatusResponse
         {
             AnimeMessages = result.Match(
-                v => { return v.Select(SetDefaultStatus).Select(x => JsonSerializer.Serialize(x)); },
+                v => { return v.Select(SetDefaultStatus).Select(Serializer.ToJson); },
                 e =>
                 {
                     _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.Subscriptions.Queries;
 using AnimeFeedManager.Core.Dto;
@@ -58,8 +57,8 @@ public class InterestSubscriber
                                 return new GetLibraryMessages
                                 {
                                     InterestRemoveMessages =
-                                        toRemoveFromInterest.Select(r => JsonSerializer.Serialize(r)),
-                                    ToSubscribeMessages = toSubscribe.Select(s => JsonSerializer.Serialize(s))
+                                        toRemoveFromInterest.Select(Serializer.ToJson),
+                                    ToSubscribeMessages = toSubscribe.Select(Serializer.ToJson)
                                 };
                             }
 

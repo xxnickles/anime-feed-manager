@@ -16,6 +16,7 @@ public static class Program
             .ConfigureFunctionsWorkerDefaults()
             .ConfigureServices(s =>
             {
+                s.AddHttpClient();
                 s.RegisterStorage(storageConnection);
                 s.RegisterAppServices();
                 s.RegisterApplicationServices();

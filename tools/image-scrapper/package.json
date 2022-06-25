@@ -1,0 +1,17 @@
+{
+  "name": "lc-image-scrapper",
+  "version": "1.0.0",
+  "description": "Live Chart Image Scrapper",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r dotenv/config index.js"
+  },
+  "author": "Nickle",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/storage-blob": "^12.10.0",
+    "@types/dotenv": "^8.2.0",
+    "dotenv": "^16.0.1",
+    "puppeteer": "^15.1.0"
+  }
+}

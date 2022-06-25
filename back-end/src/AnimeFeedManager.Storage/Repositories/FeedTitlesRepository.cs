@@ -21,6 +21,7 @@ public class FeedTitlesRepository : IFeedTitlesRepository
     public FeedTitlesRepository(ITableClientFactory<TitlesStorage> tableClientFactory)
     {
         _tableClient = tableClientFactory.GetClient();
+        _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
     public Task<Either<DomainError, ImmutableList<string>>> GetTitles() =>

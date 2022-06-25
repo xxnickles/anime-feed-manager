@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using AnimeFeedManager.Core.Domain;
-using LanguageExt;
 
 namespace AnimeFeedManager.Application.Notifications;
 

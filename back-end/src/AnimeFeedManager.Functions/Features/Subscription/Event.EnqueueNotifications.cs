@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.Feed.Queries;
 using AnimeFeedManager.Application.Notifications;
@@ -52,7 +51,7 @@ public class EnqueueNotifications
                 var (notificationList, titles) = process;
                 return new NotificationsMessages
                 {
-                    Notifications = notificationList.Select(n => JsonSerializer.Serialize(n)),
+                    Notifications = notificationList.Select(Serializer.ToJson),
                     ProcessedTitles = titles
                 };
             },

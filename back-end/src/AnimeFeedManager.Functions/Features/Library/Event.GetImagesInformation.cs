@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Functions.Models;
@@ -19,21 +18,25 @@ public class GetImagesInformation
     }
 
     [Function("GetImagesInformation")]
-    [QueueOutput(QueueNames.ImageProcess)]
+    [QueueOutput(QueueNames.ImageProcess, Connection = "AzureWebJobsStorage")]
     public IEnumerable<string> Run(
         [BlobTrigger("images-process/{name}", Connection = "AzureWebJobsStorage")] string contents)
     {
         
-        var deserializeImageProcess = JsonSerializer.Deserialize<ImageProcessInfo>(contents);
+        var deserializeImageProcess = Serializer.FromJson<ImageProcessInfo>(contents);
         if (deserializeImageProcess?.SeasonInfo == null
-            || string.IsNullOrEmpty(deserializeImageProcess.SeasonInfo.Season)) return Enumerable.Empty<string>();
+            || string.IsNullOrEmpty(deserializeImageProcess.SeasonInfo.Season))
+        {
+            _logger.LogWarning("Images update blob content couldn't be deserialized");
+            return Enumerable.Empty<string>();
+        }
         _logger.LogInformation("Running update of the Image Information");
         var season = Season.FromString(deserializeImageProcess.SeasonInfo.Season);
         if (deserializeImageProcess.ImagesInfo != null)
             return deserializeImageProcess.ImagesInfo
                 .Where(x => !string.IsNullOrEmpty(x.Title) && !string.IsNullOrEmpty(x.Url))
                 .Select(x => CreateDomainInformation(x, season, deserializeImageProcess.SeasonInfo.Year))
-                .Select(x => JsonSerializer.Serialize(x));
+                .Select(Serializer.ToJson);
         
         return Enumerable.Empty<string>();
     }

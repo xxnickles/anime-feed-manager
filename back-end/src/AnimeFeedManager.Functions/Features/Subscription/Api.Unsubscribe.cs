@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
@@ -23,7 +22,7 @@ public class Unsubscribe
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "unsubscribe")] HttpRequestData req)
     {
-        var command = await JsonSerializer.DeserializeAsync<Application.Subscriptions.Commands.UnsubscribeCmd>(req.Body);
+        var command = await Serializer.FromJson<Application.Subscriptions.Commands.UnsubscribeCmd>(req.Body);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }

@@ -19,6 +19,7 @@ public class InterestedSeriesRepository : IInterestedSeriesRepository
     public InterestedSeriesRepository(ITableClientFactory<InterestedStorage> tableClientFactory)
     {
         _tableClient = tableClientFactory.GetClient();
+        _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
     public Task<Either<DomainError, ImmutableList<InterestedStorage>>> GetAll()

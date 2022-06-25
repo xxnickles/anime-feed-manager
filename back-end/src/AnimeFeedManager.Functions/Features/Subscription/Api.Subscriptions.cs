@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.Subscriptions.Commands;
 using AnimeFeedManager.Functions.Extensions;
@@ -26,7 +25,7 @@ public class Subscriptions
         [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "subscriptions")]
         HttpRequestData req)
     {
-        var command = await JsonSerializer.DeserializeAsync<MergeSubscriptionCmd>(req.Body);
+        var command = await Serializer.FromJson<MergeSubscriptionCmd>(req.Body);
         ArgumentNullException.ThrowIfNull(command);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }

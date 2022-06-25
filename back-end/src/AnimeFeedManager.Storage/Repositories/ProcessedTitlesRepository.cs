@@ -19,6 +19,7 @@ public class ProcessedTitlesRepository : IProcessedTitlesRepository
     public ProcessedTitlesRepository(ITableClientFactory<ProcessedTitlesStorage> tableClientFactory)
     {
         _tableClient = tableClientFactory.GetClient();
+        _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
     public async Task<Either<DomainError, ImmutableList<string>>> GetProcessedTitles()

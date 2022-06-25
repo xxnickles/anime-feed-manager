@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Functions.Models;
@@ -31,7 +30,7 @@ public class GetLibrary
     }
 
     [Function("GetLibrary")]
-    public async Task<GetLibraryMessages> Run(
+    public async Task<GetLibraryMessages> Run(        
         [TimerTrigger("0 0 2 * * SAT")] TimerInfo  timer
         )
     {
@@ -42,8 +41,8 @@ public class GetLibrary
                 var seasonInfo = ExtractSeasonInformation(v.First());
                 return new GetLibraryMessages
                 {
-                    AnimeMessages = v.Select( a => JsonSerializer.Serialize(a)),
-                    SeasonMessage =  JsonSerializer.Serialize(seasonInfo)
+                    AnimeMessages = v.Select(Serializer.ToJson),
+                    SeasonMessage = Serializer.ToJson(seasonInfo)
                 };
             },
             e =>

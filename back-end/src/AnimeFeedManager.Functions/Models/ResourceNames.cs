@@ -12,9 +12,3 @@ internal static class QueueNames
     internal const string InterestRemove = "interest-remove";
     internal const string ProcessedTitles = "processed-Titles";
 }
-
-internal static class Tables
-{
-    internal const string ProcessedTitles = "ProcessedTitles";
-    internal const string AvailableSeasons = "AvailableSeasons";
-}

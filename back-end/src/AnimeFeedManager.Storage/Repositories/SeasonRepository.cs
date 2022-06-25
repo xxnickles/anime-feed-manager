@@ -18,6 +18,7 @@ public class SeasonRepository: ISeasonRepository
     public SeasonRepository(ITableClientFactory<SeasonStorage> tableClientFactory)
     {
         _tableClient = tableClientFactory.GetClient();
+        _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
     public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons()

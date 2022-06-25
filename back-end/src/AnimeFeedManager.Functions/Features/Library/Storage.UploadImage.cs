@@ -17,12 +17,12 @@ public class UploadImage
     private readonly HttpClient _httpClient;
     private readonly ILogger<UploadImage> _logger;
 
-    public UploadImage(IMediator mediator, IImagesStore imagesStore, HttpClient httpClient, ILoggerFactory loggerFactory)
+    public UploadImage(IMediator mediator, IImagesStore imagesStore, IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory)
     {
         _mediator = mediator;
         _imagesStore = imagesStore;
         _logger = loggerFactory.CreateLogger<UploadImage>();
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient();
 
         _httpClient.DefaultRequestHeaders.Add("user-agent",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36");

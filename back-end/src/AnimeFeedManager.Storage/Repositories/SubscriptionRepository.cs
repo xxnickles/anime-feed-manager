@@ -17,7 +17,12 @@ public class SubscriptionRepository : ISubscriptionRepository
 {
     private readonly TableClient _tableClient;
 
-    public SubscriptionRepository(ITableClientFactory<SubscriptionStorage> tableClientFactory) => _tableClient = tableClientFactory.GetClient();
+    public SubscriptionRepository(ITableClientFactory<SubscriptionStorage> tableClientFactory)
+    {
+        _tableClient = tableClientFactory.GetClient();
+        _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
+    }
+    
 
     public Task<Either<DomainError, ImmutableList<SubscriptionStorage>>> Get(Email userEmail)
     {
