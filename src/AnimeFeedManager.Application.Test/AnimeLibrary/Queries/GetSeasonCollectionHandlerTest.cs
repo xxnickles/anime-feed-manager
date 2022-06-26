@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using AnimeFeedManager.Application.AnimeLibrary.Queries;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Storage.Domain;
-using AnimeFeedManager.Storage.Interface;
-using Moq;
-using Xunit;
-using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Application.Test.AnimeLibrary.Queries;
 

@@ -1,7 +1,4 @@
-﻿using System;
-using AnimeFeedManager.Core.Domain;
-
-namespace AnimeFeedManager.Services.Collectors;
+﻿namespace AnimeFeedManager.Services.Collectors;
 
 internal class Accumulator
 {

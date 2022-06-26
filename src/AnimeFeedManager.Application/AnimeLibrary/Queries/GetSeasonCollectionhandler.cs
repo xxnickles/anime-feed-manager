@@ -1,10 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
+﻿using AnimeFeedManager.Core.Utils;
 using MediatR;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;

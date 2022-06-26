@@ -1,14 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 using AnimeFeedManager.Application.Subscriptions;
 using AnimeFeedManager.Application.Subscriptions.Queries;
-using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
-using LanguageExt;
 using MediatR;
 
 namespace AnimeFeedManager.Application.Notifications.Queries;

@@ -1,10 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Storage.Domain;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
 using MediatR;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;

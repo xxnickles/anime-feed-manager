@@ -1,5 +1,4 @@
-﻿using System;
-using AnimeFeedManager.DI;
+﻿using AnimeFeedManager.DI;
 using AnimeFeedManager.Functions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -1,9 +1,7 @@
-using System.Threading.Tasks;
 using AnimeFeedManager.Application.Notifications;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Infrastructure;
 using AnimeFeedManager.Functions.Models;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;

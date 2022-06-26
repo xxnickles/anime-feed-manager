@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Common", "
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{18C3647A-3B1D-490D-8A46-F8B29A408558}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.WebApp", "AnimeFeedManager.WebApp\AnimeFeedManager.WebApp.csproj", "{2DB0E578-C9E8-4845-98E3-DFAD1362944D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{18C3647A-3B1D-490D-8A46-F8B29A408558}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18C3647A-3B1D-490D-8A46-F8B29A408558}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18C3647A-3B1D-490D-8A46-F8B29A408558}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DB0E578-C9E8-4845-98E3-DFAD1362944D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DB0E578-C9E8-4845-98E3-DFAD1362944D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DB0E578-C9E8-4845-98E3-DFAD1362944D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DB0E578-C9E8-4845-98E3-DFAD1362944D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

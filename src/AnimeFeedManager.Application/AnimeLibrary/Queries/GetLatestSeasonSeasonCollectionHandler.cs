@@ -1,11 +1,5 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Application.Seasons.Queries;
-using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
+﻿using AnimeFeedManager.Application.Seasons.Queries;
 using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
 using MediatR;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;

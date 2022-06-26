@@ -1,10 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Domain;
+﻿using System.Collections.Immutable;
 using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Storage.Domain;
 
 namespace AnimeFeedManager.Application.Seasons;
 

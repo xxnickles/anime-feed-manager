@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Azure.Functions.Worker;
+﻿using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Maintenance;

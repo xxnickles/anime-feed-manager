@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.Error;
-using LanguageExt;
+﻿using System.Collections.Immutable;
 
 namespace AnimeFeedManager.Storage.Interface;
 

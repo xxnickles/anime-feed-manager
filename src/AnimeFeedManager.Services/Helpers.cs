@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using FuzzySharp;
+﻿using FuzzySharp;
 
 namespace AnimeFeedManager.Services;
 

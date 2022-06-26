@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace AnimeFeedManager.Application.Subscriptions;
+﻿namespace AnimeFeedManager.Application.Subscriptions;
 
 public record InterestedSeriesItem(string UserId, string InterestedAnime);
 

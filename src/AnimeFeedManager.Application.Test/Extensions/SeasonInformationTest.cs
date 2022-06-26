@@ -1,8 +1,5 @@
-﻿using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Domain;
+﻿using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Utils;
-using Xunit;
-using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Application.Test.Extensions;
 

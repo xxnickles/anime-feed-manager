@@ -1,14 +1,6 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Services.Collectors.Interface;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
 using MediatR;
 
 namespace AnimeFeedManager.Application.Feed.Queries;

@@ -1,7 +1,4 @@
-﻿using System;
-using Azure.Data.Tables;
-
-namespace AnimeFeedManager.Storage.Infrastructure;
+﻿namespace AnimeFeedManager.Storage.Infrastructure;
 
 public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITableEntity
 {

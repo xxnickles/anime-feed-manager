@@ -1,12 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
-using static LanguageExt.Prelude;
+﻿using AnimeFeedManager.Core.Utils;
 
 namespace AnimeFeedManager.Application.Feed.Commands;
 

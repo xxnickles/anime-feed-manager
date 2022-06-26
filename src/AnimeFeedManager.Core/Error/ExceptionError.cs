@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Text;
 
 namespace AnimeFeedManager.Core.Error;

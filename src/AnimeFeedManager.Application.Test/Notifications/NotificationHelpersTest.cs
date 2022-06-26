@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Application.Notifications;
-using Xunit;
 
 namespace AnimeFeedManager.Application.Test.Notifications;
 

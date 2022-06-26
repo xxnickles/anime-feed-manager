@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.Error;
-using Azure;
-using Azure.Data.Tables;
-using LanguageExt;
-using static LanguageExt.Prelude;
+﻿using System.Collections.Immutable;
 
 namespace AnimeFeedManager.Storage;
 

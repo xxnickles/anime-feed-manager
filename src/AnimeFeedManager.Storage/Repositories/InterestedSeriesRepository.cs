@@ -1,15 +1,8 @@
 ﻿using System.Collections.Immutable;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Infrastructure;
 using AnimeFeedManager.Storage.Interface;
-using Azure;
-using Azure.Data.Tables;
-using LanguageExt;
-using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Storage.Repositories;
 

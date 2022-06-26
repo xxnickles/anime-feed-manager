@@ -1,10 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
+﻿using AnimeFeedManager.Core.Utils;
 
 namespace AnimeFeedManager.Application.Subscriptions.Commands;
 

@@ -1,8 +1,5 @@
 ﻿using AnimeFeedManager.Application.Shared.Mappers;
-using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.Core.Domain;
-using Xunit;
-using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Application.Test.Shared;
 

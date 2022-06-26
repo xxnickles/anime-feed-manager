@@ -1,10 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.Error;
-using AnimeFeedManager.Storage.Interface;
-using LanguageExt;
-
-namespace AnimeFeedManager.Application.Feed.Commands;
+﻿namespace AnimeFeedManager.Application.Feed.Commands;
 
 public record CleanProcessedTitlesCmd : MediatR.IRequest<Either<DomainError, Unit>>;
 

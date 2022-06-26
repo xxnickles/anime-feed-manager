@@ -1,7 +1,4 @@
-﻿using Azure;
-using Azure.Data.Tables;
-
-namespace AnimeFeedManager.Storage.Domain;
+﻿namespace AnimeFeedManager.Storage.Domain;
 
 public static class TableEntityExtensions
 {

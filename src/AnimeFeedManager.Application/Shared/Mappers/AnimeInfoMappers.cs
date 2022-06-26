@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using AnimeFeedManager.Common.Helpers;
-using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Utils;
-using AnimeFeedManager.Storage.Domain;
-using LanguageExt;
 
 namespace AnimeFeedManager.Application.Shared.Mappers;
 

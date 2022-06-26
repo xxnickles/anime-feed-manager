@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using Xunit;
-
-namespace AnimeFeedManager.Application.Test.ConstrainedTypes;
+﻿namespace AnimeFeedManager.Application.Test.ConstrainedTypes;
 
 [Trait("Category", "Constrained Types")]
 public class SeasonTest

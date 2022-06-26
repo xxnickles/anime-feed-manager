@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Services.Collectors.SubsPlease;
-using Xunit;
+﻿using AnimeFeedManager.Services.Collectors.SubsPlease;
 
 namespace AnimeFeedManager.Application.Test.Services;
 

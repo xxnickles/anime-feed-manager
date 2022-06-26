@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Storage.Infrastructure;
-using AnimeFeedManager.Storage.Interface;
 using AnimeFeedManager.Storage.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 

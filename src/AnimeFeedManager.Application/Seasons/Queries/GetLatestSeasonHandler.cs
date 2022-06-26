@@ -1,12 +1,5 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
-using LanguageExt;
 using MediatR;
-using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Application.Seasons.Queries;
 

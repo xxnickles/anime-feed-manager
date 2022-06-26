@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using AnimeFeedManager.Storage.Domain;
+﻿using System.Collections.Immutable;
 
 namespace AnimeFeedManager.Application.AnimeLibrary;
 

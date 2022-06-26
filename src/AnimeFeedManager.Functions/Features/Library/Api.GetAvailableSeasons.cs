@@ -1,12 +1,8 @@
 using System.Collections.Immutable;
-using System.Threading.Tasks;
-using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;

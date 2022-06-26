@@ -1,10 +1,6 @@
-using System;
-using System.Threading.Tasks;
 using AnimeFeedManager.Application.Subscriptions.Commands;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Subscription;

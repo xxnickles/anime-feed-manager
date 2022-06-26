@@ -1,9 +1,6 @@
-using System.Threading.Tasks;
 using AnimeFeedManager.Application.Seasons.Commands;
 using AnimeFeedManager.Functions.Models;
-using AnimeFeedManager.Storage.Domain;
 using MediatR;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;

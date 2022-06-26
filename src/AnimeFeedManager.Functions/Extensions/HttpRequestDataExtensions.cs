@@ -1,8 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Http;
 
 namespace AnimeFeedManager.Functions.Extensions;
 

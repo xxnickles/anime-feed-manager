@@ -1,9 +1,5 @@
 ﻿using System.Collections.Immutable;
-using System.Threading.Tasks;
 using AnimeFeedManager.Services.Collectors.AniDb;
-using AnimeFeedManager.Storage.Interface;
-using Moq;
-using Xunit;
 
 namespace AnimeFeedManager.Application.Test.Services;
 

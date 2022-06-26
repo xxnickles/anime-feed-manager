@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using AnimeFeedManager.Core.Error;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Extensions;
 

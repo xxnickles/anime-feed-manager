@@ -1,5 +1,4 @@
-﻿using System;
-using LanguageExt;
+﻿using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes;

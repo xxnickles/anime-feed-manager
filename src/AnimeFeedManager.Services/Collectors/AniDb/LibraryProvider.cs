@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using System.Collections.Immutable;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Web;
 using AnimeFeedManager.Common.Helpers;
-using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Core.Error;
 using AnimeFeedManager.Services.Collectors.Interface;
-using AnimeFeedManager.Storage.Interface;
 using HtmlAgilityPack;
-using LanguageExt;
-using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Services.Collectors.AniDb;
 
