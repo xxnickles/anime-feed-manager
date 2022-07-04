@@ -7,27 +7,27 @@ namespace AnimeFeedManager.Functions.Features.Library;
 
 public class GetLibraryMessages
 {
-    [QueueOutput(QueueNames.AnimeLibrary)]
-    public IEnumerable<string>? AnimeMessages { get; set; }
+    [QueueOutput(QueueNames.AnimeLibrary)] public IEnumerable<string>? AnimeMessages { get; set; }
+
     [QueueOutput(QueueNames.AvailableSeasons, Connection = "AzureWebJobsStorage")]
     public string? SeasonMessage { get; set; }
 }
 
-public class GetLibrary
+public class UpdateLibrary
 {
     private readonly IMediator _mediator;
     private readonly ILogger<GetLibraryMessages> _logger;
 
-    public GetLibrary(IMediator mediator, ILoggerFactory loggerFactory)
+    public UpdateLibrary(IMediator mediator, ILoggerFactory loggerFactory)
     {
         _mediator = mediator;
         _logger = loggerFactory.CreateLogger<GetLibraryMessages>();
     }
 
     [Function("GetLibrary")]
-    public async Task<GetLibraryMessages> Run(        
-        [TimerTrigger("0 0 2 * * SAT")] TimerInfo  timer
-        )
+    public async Task<GetLibraryMessages> Run(
+        [TimerTrigger("0 0 2 * * SAT")] TimerInfo timer
+    )
     {
         var result = await _mediator.Send(new GetExternalLibraryQry());
         return result.Match(

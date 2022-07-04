@@ -1,6 +1,6 @@
 {
   "name": "lc-image-scrapper",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Live Chart Image Scrapper",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,6 @@
     "@azure/storage-blob": "^12.10.0",
     "@types/dotenv": "^8.2.0",
     "dotenv": "^16.0.1",
-    "puppeteer": "^15.1.0"
+    "puppeteer": "^15.3.0"
   }
 }

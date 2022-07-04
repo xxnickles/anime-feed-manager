@@ -5,19 +5,19 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Library;
 
-public class PersistLibrary
+public class PersistSeries
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<PersistLibrary> _logger;
+    private readonly ILogger<PersistSeries> _logger;
 
-    public PersistLibrary(IMediator mediator, ILoggerFactory loggerFactory)
+    public PersistSeries(IMediator mediator, ILoggerFactory loggerFactory)
     {
         _mediator = mediator;
-        _logger = loggerFactory.CreateLogger<PersistLibrary>();
+        _logger = loggerFactory.CreateLogger<PersistSeries>();
     }
 
 
-    [Function("PersistLibrary")]
+    [Function("PersistSeries")]
     public async Task Run(
         [QueueTrigger(QueueNames.AnimeLibrary, Connection = "AzureWebJobsStorage")] AnimeInfoStorage animeInfo
         )
