@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using AnimeFeedManager.Common.Dto;
+using FeedInfo = AnimeFeedManager.Common.Dto.FeedInfo;
 
 namespace AnimeFeedManager.Application.AnimeLibrary;
 
@@ -10,12 +11,11 @@ internal static class Mapper
             animeInfos.Select(a =>
                     new SimpleAnime(
                         a.RowKey ?? string.Empty, 
-                        a.Title ?? "Not Available",                     
-                        a.Synopsis,
+                        a?.Title ?? "Not Available",                     
+                        a?.Synopsis ?? "Not Available",
                         a.ImageUrl,
-                        !string.IsNullOrEmpty(a.FeedTitle),
-                        a.FeedTitle,
-                        a.Completed))
-                .ToImmutableList());
+                        new FeedInfo( !string.IsNullOrEmpty(a.FeedTitle), a.Completed, a.FeedTitle)
+                    ))
+                .ToArray());
     }
 }

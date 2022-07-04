@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Application.Seasons.Queries;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.Utils;
 using MediatR;
 

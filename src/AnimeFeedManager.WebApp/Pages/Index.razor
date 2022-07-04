@@ -1,9 +1,72 @@
 ﻿@page "/"
+@using AnimeFeedManager.WebApp.Services
+@using System.Collections.ObjectModel
+@using AnimeFeedManager.WebApp.State
+@implements IDisposable
+@inject ISeasonFetcherService SeasonFetcherService
+@inject ISeasonCollectionFetcher SeasonCollectionFetcher
+@inject ApplicationState State
 
-<PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<PageTitle>AFM - @GetTitle(State.Value.Season)</PageTitle>
+<SeasonSelector AvailableSeasons="@_seasons" SelectedSeason="@State.Value.Season" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
+<SeriesGrid Collection="@_collection"></SeriesGrid>
 
-Welcome to your new app.
+@code {
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    private ReadOnlyCollection<SeasonInfoDto> _seasons = new List<SeasonInfoDto> { new NullSeasonInfo() }.AsReadOnly();
+    private SeasonCollection _collection = new EmptySeasonCollection();
+
+    [CascadingParameter]
+    public Error? Error { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        State.OnStateChange += StateHasChanged;
+        try
+        {
+            _seasons = await SeasonFetcherService.GetAvailableSeasons();
+            var latest = _seasons[0];
+            if (latest is not NullSeasonInfo)
+            {
+                State.SetSeason(latest);
+                await UpdateSeasonCollection(latest);
+            }
+                
+        }
+
+        catch (Exception e)
+        {
+            Error?.ProcessError("Season Fetching", e);
+        }
+    }
+
+    private static string GetTitle(SeasonInfoDto season) =>
+        season is not NullSeasonInfo ? $"{season.Year} - {season.Season}" : "No Data Available";
+
+
+    public void Dispose()
+    {
+        State.OnStateChange -= StateHasChanged;
+    }
+
+    private async Task OnSeasonChanged(SeasonInfoDto season)
+    {
+        State.SetSeason(season);
+        await UpdateSeasonCollection(season);
+    }
+
+    private async Task UpdateSeasonCollection(SeasonInfoDto season)
+    {
+        try
+        {
+            _collection = await SeasonCollectionFetcher.GetSeasonLibrary(season);
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError("Season Collection Fetching", e);
+        }
+
+    }
+
+}

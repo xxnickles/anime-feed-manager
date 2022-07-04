@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Core.Utils;
+﻿using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Core.Utils;
 using MediatR;
 
 namespace AnimeFeedManager.Application.AnimeLibrary.Queries;
@@ -29,7 +30,7 @@ public class GetSeasonCollectionHandler : IRequestHandler<GetSeasonCollectionQry
 
     private Validation<ValidationError, ushort> ValidateYear(GetSeasonCollectionQry param)
     {
-        var yearValue = new Year(param.Year).Value;
+        var yearValue = Year.FromNumber(param.Year).Value;
 
         return yearValue.ToValidation(
             ValidationError.Create(nameof(param.Year), new[] { "Parameter provided doesn't represent a valid year" }));

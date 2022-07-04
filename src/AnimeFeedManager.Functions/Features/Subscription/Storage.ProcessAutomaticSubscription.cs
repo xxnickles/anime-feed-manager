@@ -1,5 +1,5 @@
 using AnimeFeedManager.Application.Subscriptions.Commands;
-using AnimeFeedManager.Core.Dto;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;

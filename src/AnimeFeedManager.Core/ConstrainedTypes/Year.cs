@@ -7,7 +7,7 @@ public class Year : Record<Year>
 {
     public readonly Option<ushort> Value;
 
-    public Year(int value)
+    private Year(int value)
     {
         if (value >= 2000 && value <= DateTime.Now.Year + 1)
         {
@@ -18,5 +18,7 @@ public class Year : Record<Year>
             Value = None;
         }
     }
+
+    public static Year FromNumber(int value) => new (value);
 
 }

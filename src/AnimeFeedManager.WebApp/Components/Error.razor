@@ -1,0 +1,41 @@
+﻿@using System.Text.Json
+@using System.Net
+@inject ISnackbar Snackbar
+@inject ILogger<Error> Logger
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public void ProcessError(string context, Exception ex)
+    {
+        switch (ex)
+        {
+            case HttpRequestException he:
+                Snackbar.Add($"{context}: {MessageFromCode(he.StatusCode)}", Severity.Error);
+                return;
+            case JsonException:
+                Snackbar.Add($"{context}: Couldn't connect to remote server", Severity.Error);
+                return;
+            default:
+                Snackbar.Add($"{context}: An error has occurred {ex.Message}", Severity.Error);
+                break;
+        }
+
+        Logger.LogError(ex, "An error has ocurred");
+    }
+
+    private string MessageFromCode(HttpStatusCode? statusCode) => statusCode switch
+    {
+        HttpStatusCode.NotFound => "Resource has not been found",
+        HttpStatusCode.InternalServerError => "An error occurred in the server while trying to process the request",
+        HttpStatusCode.Unauthorized => "You Need to be authenticated to access",
+        HttpStatusCode.Forbidden => "You don't have access here",
+        _ => "Couldn't connect to remote server"
+        };
+
+}

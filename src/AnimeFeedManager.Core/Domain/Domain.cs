@@ -30,6 +30,7 @@ public record FeedInfo(NonEmptyString AnimeTitle,
     string EpisodeInfo);
 
 public record SeasonInformation(Season Season, Year Year);
+public record DefaultSeasonInformation(): SeasonInformation(Season.Winter, Year.FromNumber(2000));
 
 public record InterestedSeries(Email Subscriber, NonEmptyString AnimeId);
 

@@ -37,6 +37,6 @@ internal static class AnimeInfoMappers
             a => a,
             () => DateTime.MinValue
         );
-        return unpacked != DateTime.MinValue.ToUniversalTime() ? unpacked.ToUniversalTime(): null;
+        return unpacked != DateTime.MinValue ? unpacked.ToUniversalTime() : null;
     }
 }

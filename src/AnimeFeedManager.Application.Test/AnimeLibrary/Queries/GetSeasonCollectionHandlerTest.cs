@@ -19,7 +19,7 @@ public class GetSeasonCollectionHandlerTest
             {
                 Assert.Equal("fall", value.Season);
                 Assert.Equal(2018, value.Year);
-                Assert.Equal(10, value.Animes.Count);
+                Assert.Equal(10, value.Animes.Length);
             },
             _ => { });
     }

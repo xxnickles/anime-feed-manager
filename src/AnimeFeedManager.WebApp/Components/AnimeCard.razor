@@ -1,0 +1,39 @@
+﻿<MudCard>
+    <MudCardMedia Image="@Anime.Url" Height="250" Title="@Anime.Title" />
+    <div>
+        <MudCardContent>
+            <MudText Typo="Typo.h2">@Anime.Title</MudText>
+            @if (!string.IsNullOrEmpty(@Anime.Synopsis))
+            {
+                <MudText Typo="Typo.body2">@Anime.Synopsis</MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.body2" Color="Color.Warning">Synopsis Not Available</MudText>
+            }
+            
+        </MudCardContent>
+    </div>
+    <MudCardActions>
+      @if (Anime.FeedInformation.Completed)
+      {
+          <MudChip Label="true" Color="Color.Info">Series has ended</MudChip>
+      }
+      
+      @if (Anime.FeedInformation.Available)
+      {
+          <MudChip Label="true" Color="Color.Success">Available</MudChip>
+      }
+      else
+      {
+          <MudChip Label="true" Color="Color.Warning">Not Available Yet</MudChip>
+      }
+    </MudCardActions>
+</MudCard>
+
+@code {
+
+    [Parameter]
+    public SimpleAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new FeedInfo(false, false, string.Empty));
+
+}

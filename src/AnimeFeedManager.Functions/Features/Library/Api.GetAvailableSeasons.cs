@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Functions.Extensions;
-using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -27,12 +27,9 @@ public class GetAvailableSeasons
             .ToResponse(req, _logger);
     }
 
-    private static ImmutableList<SeasonInfo> Map(ImmutableList<SeasonInformation> source)
+    private static ImmutableList<SeasonInfoDto> Map(ImmutableList<SeasonInformation> source)
     {
-        return source.ConvertAll(x => new SeasonInfo
-        {
-            Season = x.Season.Value,
-            Year = OptionUtils.UnpackOption<ushort>(x.Year.Value, 0)
-        });
+        return source.ConvertAll(x =>
+            new SeasonInfoDto(x.Season.Value, OptionUtils.UnpackOption<ushort>(x.Year.Value, 0)));
     }
 }

@@ -81,7 +81,7 @@ public class LibraryProvider : IExternalLibraryProvider
 
         if (!result) throw new ArgumentException("Year couldn't be extracted");
 
-        return (season, new Year(year), yearStr);
+        return (season, Year.FromNumber(year), yearStr);
     }
 
     private static AnimeInfoContainer MapFromCard(HtmlNode card, string yearStr)

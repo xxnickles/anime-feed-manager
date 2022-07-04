@@ -13,7 +13,7 @@ public class AnimeInfoMapperTest
             NonEmptyString.FromString("title"),
             NonEmptyString.FromString(null),
             NonEmptyString.FromString("test"),
-            new SeasonInformation(Season.Spring, new Year(2015)),
+            new SeasonInformation(Season.Spring, Year.FromNumber(2015)),
             None,
             false);
 
