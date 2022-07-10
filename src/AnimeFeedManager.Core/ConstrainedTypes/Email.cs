@@ -8,6 +8,7 @@ public class Email : Record<Email>
 {
     private const string EmailPattern =
         @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
+
     public readonly Option<string> Value;
 
 
@@ -22,7 +23,6 @@ public class Email : Record<Email>
         {
             Value = None;
         }
-         
     }
 
     public static Email FromString(string value) => new(value);

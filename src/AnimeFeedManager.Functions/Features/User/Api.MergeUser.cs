@@ -1,0 +1,28 @@
+using AnimeFeedManager.Application.User.Commands;
+using AnimeFeedManager.Functions;
+using AnimeFeedManager.Functions.Extensions;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace User
+{
+    public class MergeUser
+    {
+        private readonly IMediator _mediator;
+        private readonly ILogger _logger;
+
+        public MergeUser(IMediator mediator,ILoggerFactory loggerFactory)
+        {
+            _mediator = mediator;
+            _logger = loggerFactory.CreateLogger<MergeUser>();
+        }
+
+        [Function("MergeUser")]
+        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", "put")] HttpRequestData req)
+        {
+            var command = await Serializer.FromJson<MergeUserCmd>(req.Body);
+            ArgumentNullException.ThrowIfNull(command);
+            return  await _mediator.Send(command).ToResponse(req, _logger);
+        }
+    }
+}

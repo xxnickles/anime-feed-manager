@@ -1,0 +1,5 @@
+﻿@inject NavigationManager NavigationManager
+<MudFab Color="Color.Secondary" StartIcon="@Icons.Filled.Logout" Size="Size.Small" Label="Logout" OnClick="() => NavigationManager.NavigateTo(_logOutPath, true)"/>
+@code {
+    private string _logOutPath = "/.auth/logout?post_logout_redirect_uri=/";
+}

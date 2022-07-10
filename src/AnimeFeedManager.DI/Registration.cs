@@ -11,7 +11,7 @@ namespace AnimeFeedManager.DI;
 
 public static class Registration
 {
-    public static Func<IServiceProvider, Func<Type, string>> TableNameFactory => _ => type =>
+    private static Func<IServiceProvider, Func<Type, string>> TableNameFactory => _ => type =>
     {
         return type.Name switch
         {
@@ -20,7 +20,8 @@ public static class Registration
             nameof(SeasonStorage) => AzureTable.TableMap.AvailableSeasons,
             nameof(InterestedStorage) => AzureTable.TableMap.InterestedSeries,
             nameof(TitlesStorage) => AzureTable.TableMap.FeedTitles,
-            nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,        
+            nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,   
+            nameof(UserStorage) => AzureTable.TableMap.Users,
             _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}"),
         };
     };

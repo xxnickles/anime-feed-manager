@@ -7,10 +7,19 @@
     <MudAppBar Elevation="1">
         <MudText Typo="Typo.h5" Class="ml-3">Anime Feed Manager</MudText>
         <MudSpacer/>
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End"/>
+        <AuthorizeView>
+            <Authorized>
+                <AuthorizedUserPanel></AuthorizedUserPanel>
+            </Authorized>
+            <NotAuthorized>
+                <LoginProviders></LoginProviders>
+            </NotAuthorized>
+        </AuthorizeView>
+       
+        @* <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End"/> *@
     </MudAppBar>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
             @Body
         </MudContainer>
     </MudMainContent>

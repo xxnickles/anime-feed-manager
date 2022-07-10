@@ -34,3 +34,5 @@ public record DefaultSeasonInformation(): SeasonInformation(Season.Winter, Year.
 
 public record InterestedSeries(Email Subscriber, NonEmptyString AnimeId);
 
+public record User(string Id, Email Email);
+

@@ -7,21 +7,27 @@
 @inject ISeasonCollectionFetcher SeasonCollectionFetcher
 @inject ApplicationState State
 
-
 <PageTitle>AFM - @GetTitle(State.Value.Season)</PageTitle>
 <SeasonSelector AvailableSeasons="@_seasons" SelectedSeason="@State.Value.Season" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
 <SeriesGrid Collection="@_collection"></SeriesGrid>
 
 @code {
 
-    private ReadOnlyCollection<SeasonInfoDto> _seasons = new List<SeasonInfoDto> { new NullSeasonInfo() }.AsReadOnly();
+    private ReadOnlyCollection<SeasonInfoDto> _seasons = new List<SeasonInfoDto> {new NullSeasonInfo()}.AsReadOnly();
     private SeasonCollection _collection = new EmptySeasonCollection();
 
     [CascadingParameter]
-    public Error? Error { get; set; }
+    private Task<AuthenticationState> AuthenticationState { get; set; }
+
+    [CascadingParameter]
+    private Error? Error { get; set; }
+
+    private AuthenticationState? _state = null;
 
     protected override async Task OnInitializedAsync()
     {
+        _state = await AuthenticationState;
+
         State.OnStateChange += StateHasChanged;
         try
         {
@@ -32,9 +38,7 @@
                 State.SetSeason(latest);
                 await UpdateSeasonCollection(latest);
             }
-                
         }
-
         catch (Exception e)
         {
             Error?.ProcessError("Season Fetching", e);
@@ -66,7 +70,6 @@
         {
             Error?.ProcessError("Season Collection Fetching", e);
         }
-
     }
 
 }

@@ -15,7 +15,9 @@ internal static class TableUtils
             {
                 resultList = resultList.Add(qEntity);
             }
-            return Right<DomainError, ImmutableList<T>>(resultList);
+            return !resultList.IsEmpty 
+                ? Right<DomainError, ImmutableList<T>>(resultList) 
+                : Left<DomainError, ImmutableList<T>>(NotFoundError.Create($"{nameof(ExecuteQuery)}-{typeof(T).Name}", "Query returned no results"));
 
         }
         catch (Exception e)

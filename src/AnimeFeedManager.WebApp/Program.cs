@@ -3,6 +3,7 @@ using AnimeFeedManager.WebApp.Services;
 using AnimeFeedManager.WebApp.State;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Azure.Functions.Authentication.WebAssembly;
 using MudBlazor;
 using MudBlazor.Services;
 
@@ -23,5 +24,6 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
 });
 
+builder.Services.AddStaticWebAppsAuthentication();
 
 await builder.Build().RunAsync();

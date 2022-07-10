@@ -1,0 +1,24 @@
+﻿@inject NavigationManager NavigationManager
+
+<MudMenu FullWidth="true" Dense="true" Variant="Variant.Text">
+    <ActivatorContent>
+        <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Primary">Login</MudChip>
+    </ActivatorContent>
+    <ChildContent>
+        @foreach (var provider in providers)
+        {
+            <MudMenuItem OnClick="() => NavigationManager.NavigateTo(provider.Value.Link, true)">
+                @provider.Value.Label
+            </MudMenuItem>
+        }
+       
+    </ChildContent>
+</MudMenu>
+
+@code {
+    private readonly Dictionary<string, (string Icon, string Link, string Label) > providers = new()
+    {
+        { "github",  (@Icons.Custom.Brands.GitHub, "/.auth/login/github", "GitHub") },
+        { "twitter", ( @Icons.Custom.Brands.Twitter, "/.auth/login/twitter", "Twitter") }
+    };
+}

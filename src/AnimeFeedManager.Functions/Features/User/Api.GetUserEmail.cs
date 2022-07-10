@@ -1,0 +1,30 @@
+using AnimeFeedManager.Application.User.Commands;
+using AnimeFeedManager.Application.User.Queries;
+using AnimeFeedManager.Functions;
+using AnimeFeedManager.Functions.Extensions;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace User
+{
+    public class GetUserEmail
+    {
+        private readonly IMediator _mediator;
+        private readonly ILogger _logger;
+
+        public GetUserEmail(IMediator mediator, ILoggerFactory loggerFactory)
+        {
+            _mediator = mediator;
+            _logger = loggerFactory.CreateLogger<GetUserEmail>();
+        }
+
+        [Function("GetUSerEmail")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "user/{id}")]
+            HttpRequestData req,
+            string id)
+        {
+            return await _mediator.Send(new GetUserEmailQry(id)).ToResponse(req, _logger);
+        }
+    }
+}
