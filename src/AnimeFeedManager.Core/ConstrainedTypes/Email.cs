@@ -4,7 +4,7 @@ using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes;
 
-public class Email : Record<Email>
+public record Email 
 {
     private const string EmailPattern =
         @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
@@ -16,14 +16,16 @@ public class Email : Record<Email>
     {
         if (!string.IsNullOrEmpty(value))
         {
-            var validation = Regex.Match(value, EmailPattern);
-            Value = validation.Success ? Some(value) : None;
+            Value = IsEmail(value) ? Some(value) : None;
         }
         else
         {
             Value = None;
         }
     }
+
+    public static bool IsEmail(string value) =>  Regex.Match(value, EmailPattern).Success;
+    
 
     public static Email FromString(string value) => new(value);
 }

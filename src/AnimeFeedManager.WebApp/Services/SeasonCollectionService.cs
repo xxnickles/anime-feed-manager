@@ -8,11 +8,11 @@ public interface ISeasonCollectionFetcher
     public Task<SeasonCollection> GetSeasonLibrary(SeasonInfoDto season);
 }
 
-public class SeasonCollectionFetcher : ISeasonCollectionFetcher
+public class SeasonCollectionService : ISeasonCollectionFetcher
 {
     private readonly HttpClient _httpClient;
 
-    public SeasonCollectionFetcher(HttpClient httpClient)
+    public SeasonCollectionService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }

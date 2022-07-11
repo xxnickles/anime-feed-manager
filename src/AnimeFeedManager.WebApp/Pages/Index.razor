@@ -22,12 +22,9 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private AuthenticationState? _state = null;
 
     protected override async Task OnInitializedAsync()
     {
-        _state = await AuthenticationState;
-
         State.OnStateChange += StateHasChanged;
         try
         {

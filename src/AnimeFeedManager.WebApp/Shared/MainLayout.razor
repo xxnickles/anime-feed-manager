@@ -1,4 +1,12 @@
-﻿@inherits LayoutComponentBase
+﻿@using AnimeFeedManager.WebApp.State
+@using AnimeFeedManager.WebApp.Services
+@using System.Net
+@using AnimeFeedManager.Core.ConstrainedTypes
+@inherits LayoutComponentBase
+@inject ApplicationState State
+@inject IUserService UserService
+@inject IDialogService DialogService
+
 <MudThemeProvider IsDarkMode="true"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
@@ -15,12 +23,95 @@
                 <LoginProviders></LoginProviders>
             </NotAuthorized>
         </AuthorizeView>
-       
+
         @* <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End"/> *@
     </MudAppBar>
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
             @Body
+            @if (state is not null)
+            {
+                foreach (var claim in state.User.Claims)
+                {
+                    <p>@claim.Type - @claim.Value</p>
+                }
+            }
+
         </MudContainer>
     </MudMainContent>
 </MudLayout>
+
+@code{
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; }
+
+    [CascadingParameter]
+    private Error? Error { get; set; }
+
+    AuthenticationState? state = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        state = await AuthenticationState;
+
+        if (state is null || (!state.User?.Identity?.IsAuthenticated ?? false))
+        {
+            State.SetUser(new AnonymousUser());
+        }
+        else
+        {
+            var userId = state.User.Claims.First(c => c.Type.Contains("nameidentifier")).Value;
+            var name = state.User.Identity.Name;
+            var email =  await GetUserEmail(userId,name);
+            var user = email.Value.Match(
+                email => State.SetUser(new AuthenticatedUser(email, string.Empty)),
+                () => State.SetUser(new AnonymousUser()));
+            
+          
+        }
+    }
+
+    private async Task<Email> GetUserEmail(string userId, string username)
+    {
+        try
+        {
+            var userEmail = await UserService.GetEmail(userId);
+            return string.IsNullOrEmpty(userEmail) ? Email.FromString(userEmail) : await CompleteUserProfile(userId);
+        }
+        catch (HttpRequestException httpEx) when (httpEx.StatusCode == HttpStatusCode.NotFound)
+        {
+            return await CompleteUserProfile(userId);
+        }
+        catch (Exception ex)
+        {
+            Error?.ProcessError("User Fetching", ex);
+            return Email.FromString(string.Empty);
+        }
+    }
+
+    private async Task<Email> CompleteUserProfile(string userId)
+    {
+        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
+        var result = await dialog.Result;
+
+        if (result.Cancelled) return Email.FromString(string.Empty);
+        var email = result.Data.ToString();
+        await SaveUser(userId, email);
+        return Email.FromString(email);
+    }
+
+    private async Task SaveUser(string userId, string email)
+    {
+        try
+        {
+            await UserService.MergeUser(new UserDto(userId, email));
+        }
+        catch (Exception ex)
+        {
+            Error?.ProcessError("User Fetching", ex);
+        }
+    }
+
+}

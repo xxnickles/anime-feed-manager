@@ -2,9 +2,15 @@
 
 namespace AnimeFeedManager.WebApp.State;
 
+
+public abstract record User();
+
+public record AnonymousUser() : User;
+public record AuthenticatedUser(string Email, string Token) :User;
+
 public record State(
     SeasonInfoDto Season,
-    string Email
+    User User
 );
 
 public class ApplicationState
@@ -14,7 +20,7 @@ public class ApplicationState
     /// </summary>
     public State Value { get; set; } = new(
         new NullSeasonInfo(),
-        string.Empty
+        new AnonymousUser()
     );
 
     /// <summary>
@@ -29,6 +35,12 @@ public class ApplicationState
     public void SetSeason(SeasonInfoDto season)
     {
         Value = Value with {Season = season };
+        NotifyStateChanged();
+    }
+
+    public void SetUser(User user)
+    {
+        Value = Value with {User = user};
         NotifyStateChanged();
     }
 

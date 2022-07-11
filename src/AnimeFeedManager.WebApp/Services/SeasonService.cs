@@ -9,11 +9,11 @@ public interface ISeasonFetcherService
     Task<ReadOnlyCollection<SeasonInfoDto>> GetAvailableSeasons();
 }
 
-public class SeasonFetcherService : ISeasonFetcherService
+public class SeasonService : ISeasonFetcherService
 {
     private readonly HttpClient _httpClient;
 
-    public SeasonFetcherService(HttpClient httpClient)
+    public SeasonService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }

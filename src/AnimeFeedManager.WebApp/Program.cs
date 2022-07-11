@@ -13,10 +13,13 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddSingleton<ApplicationState>();
 var baseApiUri = builder.Configuration.GetValue<string>("ApiUrl") ?? builder.HostEnvironment.BaseAddress;
 
-builder.Services.AddHttpClient<ISeasonFetcherService, SeasonFetcherService>(client =>
+builder.Services.AddHttpClient<ISeasonFetcherService, SeasonService>(client =>
     client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp,_) => HttpClientPolicies.GetRetryPolicy(sp));
 
-builder.Services.AddHttpClient<ISeasonCollectionFetcher, SeasonCollectionFetcher>(client =>
+builder.Services.AddHttpClient<ISeasonCollectionFetcher, SeasonCollectionService>(client =>
+    client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
+
+builder.Services.AddHttpClient<IUserService, UserService>(client =>
     client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
 
 builder.Services.AddMudServices(config =>
