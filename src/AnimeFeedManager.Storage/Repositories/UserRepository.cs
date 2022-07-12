@@ -16,7 +16,7 @@ public class UserRepository : IUserRepository
 
     public async Task<Either<DomainError, Unit>> MergeUser(UserStorage user)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpdateEntityAsync(user, ETag.All));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(user));
         return result.Map(_ => unit);
     }
 
@@ -26,6 +26,6 @@ public class UserRepository : IUserRepository
             _tableClient.QueryAsync<UserStorage>(u =>
                 u.RowKey == id));
 
-        return result.Map(u => u.First().Email);
+        return result.Map(u => u.First().Email ?? string.Empty);
     }
 }

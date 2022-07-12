@@ -29,14 +29,6 @@
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
             @Body
-            @if (state is not null)
-            {
-                foreach (var claim in state.User.Claims)
-                {
-                    <p>@claim.Type - @claim.Value</p>
-                }
-            }
-
         </MudContainer>
     </MudMainContent>
 </MudLayout>
@@ -49,13 +41,10 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    AuthenticationState? state = null;
-
     protected override async Task OnInitializedAsync()
     {
-        state = await AuthenticationState;
-
-        if (state is null || (!state.User?.Identity?.IsAuthenticated ?? false))
+        var state = await AuthenticationState;
+        if (state is null || (!state.User?.Identity?.IsAuthenticated ?? true))
         {
             State.SetUser(new AnonymousUser());
         }
@@ -63,12 +52,10 @@
         {
             var userId = state.User.Claims.First(c => c.Type.Contains("nameidentifier")).Value;
             var name = state.User.Identity.Name;
-            var email =  await GetUserEmail(userId,name);
-            var user = email.Value.Match(
-                email => State.SetUser(new AuthenticatedUser(email, string.Empty)),
-                () => State.SetUser(new AnonymousUser()));
-            
-          
+            var email = await GetUserEmail(userId, name);
+            var _ = email.Value.Match(
+                email => State.SetUser(new ApplicationUser(email, string.Empty)),
+                () => State.SetUser(new AuthenticatedUser()));
         }
     }
 
@@ -76,6 +63,11 @@
     {
         try
         {
+            if (Email.IsEmail(username))
+            {
+                SaveUser(userId, username);
+                return new Email(username);
+            }
             var userEmail = await UserService.GetEmail(userId);
             return string.IsNullOrEmpty(userEmail) ? Email.FromString(userEmail) : await CompleteUserProfile(userId);
         }

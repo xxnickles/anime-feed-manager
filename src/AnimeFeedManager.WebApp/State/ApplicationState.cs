@@ -2,12 +2,6 @@
 
 namespace AnimeFeedManager.WebApp.State;
 
-
-public abstract record User();
-
-public record AnonymousUser() : User;
-public record AuthenticatedUser(string Email, string Token) :User;
-
 public record State(
     SeasonInfoDto Season,
     User User

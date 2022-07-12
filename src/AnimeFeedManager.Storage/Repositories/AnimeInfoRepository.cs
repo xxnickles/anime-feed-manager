@@ -37,13 +37,13 @@ public class AnimeInfoRepository : IAnimeInfoRepository
 
     public async Task<Either<DomainError, Unit>> Merge(AnimeInfoStorage animeInfo)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpdateEntityAsync(animeInfo, ETag.All));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(animeInfo));
         return result.Map(_ => unit);
     }
 
     public async Task<Either<DomainError, Unit>> AddImageUrl(ImageStorage image)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpdateEntityAsync(image, ETag.All));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(image));
         return result.Map(_ => unit);
     }
 }

@@ -49,7 +49,7 @@ public class UploadImage
             ImageUrl = fileLocation.AbsoluteUri,
             PartitionKey = imageInfoEvent.Partition,
             RowKey = imageInfoEvent.Id
-        }.AddEtag();
+        };
 
         await UpdateAnimeInfo(imageStorage);
     }

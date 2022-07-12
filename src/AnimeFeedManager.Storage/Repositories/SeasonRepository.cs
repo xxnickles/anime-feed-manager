@@ -22,7 +22,7 @@ public class SeasonRepository: ISeasonRepository
 
     public async Task<Either<DomainError, Unit>> Merge(SeasonStorage seasonStorage)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpdateEntityAsync(seasonStorage, ETag.All));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(seasonStorage));
         return result.Map(_ => unit);
     }
 }

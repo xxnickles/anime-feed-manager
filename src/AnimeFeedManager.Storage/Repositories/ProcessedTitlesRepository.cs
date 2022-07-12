@@ -31,7 +31,7 @@ public class ProcessedTitlesRepository : IProcessedTitlesRepository
 
     public async Task<Either<DomainError, Unit>> Merge(ProcessedTitlesStorage processedTitles)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpdateEntityAsync(processedTitles, ETag.All));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(processedTitles));
         return result.Map(_ => unit);
     }
 

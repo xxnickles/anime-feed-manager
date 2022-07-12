@@ -26,7 +26,7 @@ internal static class AnimeInfoMappers
     internal static ImmutableList<AnimeInfoStorage> ProjectToStorageModel(ImmutableList<AnimeInfo> source) =>
         source.ConvertAll(ProjectToStorageModel);
 
-    internal static AnimeInfoStorage ProjectToStorageModelWithEtag(AnimeInfo source) => ProjectToStorageModel(source).AddEtag();
+    internal static AnimeInfoStorage ProjectToStorageModelWithEtag(AnimeInfo source) => ProjectToStorageModel(source);
 
     internal static ImmutableList<AnimeInfoStorage> ProjectToStorageModelWithEtag(ImmutableList<AnimeInfo> source) =>
         source.ConvertAll(ProjectToStorageModelWithEtag);

@@ -27,7 +27,7 @@ public class AddProcessedTitle
             RowKey = Guid.NewGuid().ToString("N"),
             PartitionKey = "feed-processed",
             Title = title
-        }.AddEtag();
+        };
 
         var result = await _mediator.Send(new AddProcessedTitleCmd(storeTitle));
         result.Match(

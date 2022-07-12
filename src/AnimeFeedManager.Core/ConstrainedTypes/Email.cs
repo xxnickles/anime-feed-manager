@@ -11,7 +11,6 @@ public record Email
 
     public readonly Option<string> Value;
 
-
     public Email(string value)
     {
         if (!string.IsNullOrEmpty(value))

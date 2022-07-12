@@ -11,14 +11,15 @@
                 @provider.Value.Label
             </MudMenuItem>
         }
-       
     </ChildContent>
 </MudMenu>
 
 @code {
-    private readonly Dictionary<string, (string Icon, string Link, string Label) > providers = new()
+
+    private readonly Dictionary<string, (string Icon, string Link, string Label)> providers = new()
     {
-        { "github",  (@Icons.Custom.Brands.GitHub, "/.auth/login/github", "GitHub") },
-        { "twitter", ( @Icons.Custom.Brands.Twitter, "/.auth/login/twitter", "Twitter") }
+        {"github", (@Icons.Custom.Brands.GitHub, "/.auth/login/github", "GitHub")},
+        {"twitter", (@Icons.Custom.Brands.Twitter, "/.auth/login/twitter", "Twitter")}
     };
+
 }

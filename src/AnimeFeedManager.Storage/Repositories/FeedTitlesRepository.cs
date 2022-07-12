@@ -22,7 +22,7 @@ public class FeedTitlesRepository : IFeedTitlesRepository
     public async Task<Either<DomainError, Unit>> MergeTitles(IEnumerable<string> titles)
     {
         var titleStorage = new TitlesStorage { Titles = string.Join(',', titles), PartitionKey = "feed_titles", RowKey = "standard" };
-        var result = await TableUtils.TryExecute(() => Task.FromResult(_tableClient.UpdateEntityAsync(titleStorage.AddEtag(), ETag.All)));
+        var result = await TableUtils.TryExecute(() => Task.FromResult(_tableClient.UpsertEntityAsync(titleStorage)));
 
         return result.Map(_ => unit);
     }

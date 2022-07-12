@@ -2,7 +2,6 @@
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Email" Class="mr-3 mb-n1"/>
             Email is required to access to complete set of functionality, would you like to provide your email address?
         </MudText>
     </TitleContent>
@@ -15,6 +14,7 @@
                 Required="true"
                 RequiredError="A valid email must be provided"
                 Validation="@(new EmailAddressAttribute {ErrorMessage = "The email address is invalid"})"/>
+            @* <p>@Email</p> *@
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -24,11 +24,13 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    
+
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
     private string Email { get; set; } = string.Empty;
     private bool Valid;
-    
+
     private void Cancel()
     {
         MudDialog.Cancel();
@@ -38,4 +40,5 @@
     {
         MudDialog.Close(DialogResult.Ok(Email));
     }
+
 }

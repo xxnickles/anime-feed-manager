@@ -29,7 +29,7 @@ public class InterestedSeriesRepository : IInterestedSeriesRepository
 
     public async Task<Either<DomainError, Unit>> Merge(InterestedStorage subscription)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpdateEntityAsync(subscription, ETag.All));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(subscription));
         return result.Map(_ => unit);
     }
 
