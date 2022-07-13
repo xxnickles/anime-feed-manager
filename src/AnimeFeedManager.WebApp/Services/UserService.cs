@@ -21,11 +21,11 @@ public class UserService : IUserService
 
     public Task MergeUser(UserDto user)
     {
-        return _httpClient.PostAsJsonAsync("user", user);
+        return _httpClient.PostAsJsonAsync("api/user", user);
     }
 
     public Task<string> GetEmail(string id)
     {
-        return _httpClient.GetStringAsync($"user/{id}");
+        return _httpClient.GetStringAsync($"api/user/{id}");
     }
 }

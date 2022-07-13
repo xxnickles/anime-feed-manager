@@ -21,23 +21,23 @@ public class SubscriptionRepository : ISubscriptionRepository
     {
         var user = OptionUtils.UnpackOption(userEmail.Value, string.Empty);
         return TableUtils.ExecuteQuery(() =>
-            _tableClient.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == user));
+            _tableClient.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == user), nameof(SubscriptionStorage));
     }
 
     public Task<Either<DomainError, ImmutableList<SubscriptionStorage>>> GetAll() =>
-        TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<SubscriptionStorage>());
+        TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<SubscriptionStorage>(), nameof(SubscriptionStorage));
 
 
     public async Task<Either<DomainError, Unit>> Merge(SubscriptionStorage subscription)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(subscription));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(subscription), nameof(SubscriptionStorage));
         return result.Map(_ => unit);
     }
 
     public async Task<Either<DomainError, Unit>> Delete(SubscriptionStorage subscription)
     {
         var result = await TableUtils.TryExecute(() =>
-            _tableClient.DeleteEntityAsync(subscription.PartitionKey, subscription.RowKey));
+            _tableClient.DeleteEntityAsync(subscription.PartitionKey, subscription.RowKey), nameof(SubscriptionStorage));
         return result.Map(_ => unit);
     }
 }

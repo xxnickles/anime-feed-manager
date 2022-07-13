@@ -2,10 +2,10 @@ version: '3.9'
 
 services:
    azurite:
-    image: mcr.microsoft.com/azure-storage/azurite
+    image: mcr.microsoft.com/azure-storage/azurite:latest
     ports:
       - "10001:10000"
       - "10002:10001"
       - "10003:10002"
     volumes:
-      - e:/azurite:/workspace mcr.microsoft.com/azure-storage/azurite
+      - c:/azurite:/workspace mcr.microsoft.com/azure-storage/azurite

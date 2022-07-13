@@ -18,32 +18,34 @@ public class AnimeInfoRepository : IAnimeInfoRepository
 
     public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetBySeason(Season season, int year)
     {
-        var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, (ushort)year);
+        var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, (ushort) year);
         return TableUtils.ExecuteQuery(() =>
-            _tableClient.QueryAsync<AnimeInfoWithImageStorage>(a => a.PartitionKey == partitionKey));
-
+                _tableClient.QueryAsync<AnimeInfoWithImageStorage>(a => a.PartitionKey == partitionKey),
+            nameof(AnimeInfoWithImageStorage));
     }
 
     public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncomplete()
     {
         return TableUtils.ExecuteQuery(() =>
-            _tableClient.QueryAsync<AnimeInfoWithImageStorage>(a =>
-                a.Completed == false && a.FeedTitle != string.Empty));
+                _tableClient.QueryAsync<AnimeInfoWithImageStorage>(a =>
+                    a.Completed == false && a.FeedTitle != string.Empty),
+            nameof(AnimeInfoWithImageStorage));
     }
 
     public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> GetAll() =>
-        TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<AnimeInfoStorage>());
+        TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<AnimeInfoStorage>(), nameof(AnimeInfoWithImageStorage));
 
 
     public async Task<Either<DomainError, Unit>> Merge(AnimeInfoStorage animeInfo)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(animeInfo));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(animeInfo),
+            nameof(AnimeInfoStorage));
         return result.Map(_ => unit);
     }
 
     public async Task<Either<DomainError, Unit>> AddImageUrl(ImageStorage image)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(image));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(image), nameof(ImageStorage));
         return result.Map(_ => unit);
     }
 }

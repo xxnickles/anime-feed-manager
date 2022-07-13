@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.WebApp", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{30A1FBA3-75BF-4B00-9614-90A975B6AF2E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BackEnd", "BackEnd", "{B4E29E23-9A32-4C0C-B717-976EE38FECC3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{B4E29E23-9A32-4C0C-B717-976EE38FECC3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.WebApp.Tests", "AnimeFeedManager.WebApp.Tests\AnimeFeedManager.WebApp.Tests.csproj", "{7F53CF70-0A21-44AC-92B8-1B39817612C5}"
 EndProject

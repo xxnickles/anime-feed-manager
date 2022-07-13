@@ -17,12 +17,12 @@ public class SeasonRepository: ISeasonRepository
 
     public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons()
     {
-        return TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<SeasonStorage>());
+        return TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<SeasonStorage>(), nameof(SeasonStorage));
     }
 
     public async Task<Either<DomainError, Unit>> Merge(SeasonStorage seasonStorage)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(seasonStorage));
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(seasonStorage), nameof(SeasonStorage));
         return result.Map(_ => unit);
     }
 }

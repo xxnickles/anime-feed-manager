@@ -8,18 +8,18 @@
     <DialogContent>
         <MudForm @bind-IsValid="@Valid">
             <MudTextField
-                @bind-Value="Email"
+                @bind-Value="@Email"
+                T="string"
                 Label="Email"
                 InputType="InputType.Email"
                 Required="true"
                 RequiredError="A valid email must be provided"
                 Validation="@(new EmailAddressAttribute {ErrorMessage = "The email address is invalid"})"/>
-            @* <p>@Email</p> *@
         </MudForm>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Success" OnClick="ConfirmEmail" Disabled="@Valid">Save</MudButton>
+        <MudButton Color="Color.Success" OnClick="ConfirmEmail" Disabled="@(!Valid)">Save</MudButton>
     </DialogActions>
 </MudDialog>
 

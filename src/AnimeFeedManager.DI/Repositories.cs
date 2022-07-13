@@ -15,7 +15,7 @@ internal static class Repositories
         services.AddScoped<ISeasonRepository, SeasonRepository>();
         services.AddScoped<IInterestedSeriesRepository, InterestedSeriesRepository>();
         services.AddScoped<IProcessedTitlesRepository, ProcessedTitlesRepository>();
-
+        services.AddScoped<IUserRepository, UserRepository>();
         return services;
     }
 }

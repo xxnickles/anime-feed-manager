@@ -16,14 +16,16 @@ public class FeedTitlesRepository : IFeedTitlesRepository
     }
 
     public Task<Either<DomainError, ImmutableList<string>>> GetTitles() =>
-        TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<TitlesStorage>()).BindAsync(Mapper);
+        TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<TitlesStorage>(), nameof(TitlesStorage))
+            .BindAsync(Mapper);
 
 
     public async Task<Either<DomainError, Unit>> MergeTitles(IEnumerable<string> titles)
     {
-        var titleStorage = new TitlesStorage { Titles = string.Join(',', titles), PartitionKey = "feed_titles", RowKey = "standard" };
-        var result = await TableUtils.TryExecute(() => Task.FromResult(_tableClient.UpsertEntityAsync(titleStorage)));
-
+        var titleStorage = new TitlesStorage
+            {Titles = string.Join(',', titles), PartitionKey = "feed_titles", RowKey = "standard"};
+        var result =
+            await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(titleStorage), nameof(TitlesStorage));
         return result.Map(_ => unit);
     }
 
@@ -43,7 +45,6 @@ public class FeedTitlesRepository : IFeedTitlesRepository
                 .Split(',')
                 .Select(x => x.Trim())
                 .ToImmutableList();
-
         }
         catch (Exception e)
         {

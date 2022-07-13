@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Storage;
 internal static class TableUtils
 {
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQuery<T>(
-        Func<AsyncPageable<T>> query) where T : ITableEntity
+        Func<AsyncPageable<T>> query, string typeName) where T : ITableEntity
     {
         try
         {
@@ -17,16 +17,16 @@ internal static class TableUtils
             }
             return !resultList.IsEmpty 
                 ? Right<DomainError, ImmutableList<T>>(resultList) 
-                : Left<DomainError, ImmutableList<T>>(NotFoundError.Create($"{nameof(ExecuteQuery)}-{typeof(T).Name}", "Query returned no results"));
+                : Left<DomainError, ImmutableList<T>>(NotFoundError.Create($"TableQuery-{typeName}", "Query returned no results"));
 
         }
         catch (Exception e)
         {
-            return Left<DomainError, ImmutableList<T>>(ExceptionError.FromException(e, "TableQuery"));
+            return Left<DomainError, ImmutableList<T>>(ExceptionError.FromException(e, $"TableQuery-{typeName}"));
         }
     }
 
-    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action)
+    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action, string typeName)
     {
         try
         {
@@ -35,12 +35,12 @@ internal static class TableUtils
         catch (Exception e)
         {
             return e.Message == "Not Found" ?
-                Left<DomainError, T>(NotFoundError.Create("TableOperation", "The entity was not found")) :
-                Left<DomainError, T>(ExceptionError.FromException(e, "TableOperation"));
+                Left<DomainError, T>(NotFoundError.Create($"TableOperation-{typeName}", "The entity was not found")) :
+                Left<DomainError, T>(ExceptionError.FromException(e, $"TableOperation-{typeName}"));
         }
     }
 
-    internal static async Task<Either<DomainError, Unit>> BatchDelete<T>(TableClient tableClient, ImmutableList<T> entities) where T : ITableEntity
+    internal static async Task<Either<DomainError, Unit>> BatchDelete<T>(TableClient tableClient, ImmutableList<T> entities, string typeName) where T : ITableEntity
     {
         try
         {
@@ -53,7 +53,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return Left<DomainError, Unit>(ExceptionError.FromException(e, "BatchDelete"));
+            return Left<DomainError, Unit>(ExceptionError.FromException(e, $"BatchDelete-{typeName}"));
         }
     }
 }

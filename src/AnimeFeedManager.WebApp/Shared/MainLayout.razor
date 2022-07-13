@@ -63,13 +63,15 @@
     {
         try
         {
-            if (Email.IsEmail(username))
-            {
-                SaveUser(userId, username);
-                return new Email(username);
-            }
             var userEmail = await UserService.GetEmail(userId);
-            return string.IsNullOrEmpty(userEmail) ? Email.FromString(userEmail) : await CompleteUserProfile(userId);
+           
+            if (!string.IsNullOrEmpty(userEmail))
+            {
+                return Email.FromString(userEmail);
+            }
+            if (!Email.IsEmail(username)) return await CompleteUserProfile(userId);
+            SaveUser(userId, username);
+            return new Email(username);
         }
         catch (HttpRequestException httpEx) when (httpEx.StatusCode == HttpStatusCode.NotFound)
         {
