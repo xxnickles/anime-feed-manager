@@ -6,6 +6,7 @@
 @inject ApplicationState State
 @inject IUserService UserService
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <MudThemeProvider IsDarkMode="true"/>
 <MudDialogProvider/>
@@ -17,7 +18,7 @@
         <MudSpacer/>
         <AuthorizeView>
             <Authorized>
-                <AuthorizedUserPanel></AuthorizedUserPanel>
+                <AuthorizedUserPanel User="@State.Value.User"></AuthorizedUserPanel>
             </Authorized>
             <NotAuthorized>
                 <LoginProviders></LoginProviders>
@@ -64,7 +65,7 @@
         try
         {
             var userEmail = await UserService.GetEmail(userId);
-           
+
             if (!string.IsNullOrEmpty(userEmail))
             {
                 return Email.FromString(userEmail);
@@ -101,6 +102,7 @@
         try
         {
             await UserService.MergeUser(new UserDto(userId, email));
+            Snackbar.Add("Email has been stored", Severity.Info);
         }
         catch (Exception ex)
         {

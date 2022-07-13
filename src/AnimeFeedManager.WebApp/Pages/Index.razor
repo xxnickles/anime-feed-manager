@@ -17,9 +17,6 @@
     private SeasonCollection _collection = new EmptySeasonCollection();
 
     [CascadingParameter]
-    private Task<AuthenticationState> AuthenticationState { get; set; }
-
-    [CascadingParameter]
     private Error? Error { get; set; }
 
 

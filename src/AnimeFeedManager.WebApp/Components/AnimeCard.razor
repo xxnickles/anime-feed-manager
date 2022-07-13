@@ -1,5 +1,6 @@
-﻿<MudCard>
-    <MudCardMedia Image="@Anime.Url" Height="250" Title="@Anime.Title" />
+﻿@using AnimeFeedManager.WebApp.State
+<MudCard>
+    <MudCardMedia Image="@Anime.Url" Height="250" Title="@Anime.Title"/>
     <div>
         <MudCardContent>
             <MudText Typo="Typo.h2">@Anime.Title</MudText>
@@ -11,23 +12,27 @@
             {
                 <MudText Typo="Typo.body2" Color="Color.Warning">Synopsis Not Available</MudText>
             }
-            
+
         </MudCardContent>
     </div>
     <MudCardActions>
-      @if (Anime.FeedInformation.Completed)
-      {
-          <MudChip Label="true" Color="Color.Info">Series has ended</MudChip>
-      }
-      
-      @if (Anime.FeedInformation.Available)
-      {
-          <MudChip Label="true" Color="Color.Success">Available</MudChip>
-      }
-      else
-      {
-          <MudChip Label="true" Color="Color.Warning">Not Available Yet</MudChip>
-      }
+        @if (Anime.FeedInformation.Completed)
+        {
+            <MudChip Label="true" Color="Color.Info">Series has ended</MudChip>
+        }
+
+        @if (Anime.FeedInformation.Available)
+        {
+            <MudChip Label="true" Color="Color.Success">Available</MudChip>
+            if (User is ApplicationUser)
+            {
+                <MudChip Label="true" Color="Color.Success">Subscribe</MudChip>
+            }
+        }
+        else
+        {
+            <MudChip Label="true" Color="Color.Warning">Not Available Yet</MudChip>
+        }
     </MudCardActions>
 </MudCard>
 
@@ -35,5 +40,8 @@
 
     [Parameter]
     public SimpleAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new FeedInfo(false, false, string.Empty));
+
+    [Parameter]
+    public User User { get; set; } = new AnonymousUser();
 
 }

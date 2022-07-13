@@ -27,7 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Types" />
     <Folder Include="wwwroot\css" />
   </ItemGroup>
 

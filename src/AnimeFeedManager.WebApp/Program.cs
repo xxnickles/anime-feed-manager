@@ -24,7 +24,7 @@ builder.Services.AddHttpClient<IUserService, UserService>(client =>
 
 builder.Services.AddMudServices(config =>
 {
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
 });
 
 builder.Services.AddStaticWebAppsAuthentication();

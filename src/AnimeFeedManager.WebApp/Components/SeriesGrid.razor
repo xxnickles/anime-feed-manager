@@ -1,11 +1,15 @@
-﻿@if (Collection is not EmptySeasonCollection)
+﻿@using AnimeFeedManager.WebApp.State
+@inject ApplicationState State
+@implements IDisposable
+
+@if (Collection is not EmptySeasonCollection)
 {
     <MudGrid>
 
         @foreach (var series in Collection.Animes)
         {
             <MudItem xs="12" md="4" lg="3">
-                <AnimeCard Anime="series"></AnimeCard>
+                <AnimeCard Anime="series" User="@State.Value.User"></AnimeCard>
             </MudItem>
         }
 
@@ -17,5 +21,16 @@
 
     [Parameter]
     public SeasonCollection Collection { get; set; } = new EmptySeasonCollection();
+
+
+    protected override void OnInitialized()
+    {
+        State.OnStateChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        State.OnStateChange -= StateHasChanged;
+    }
 
 }
