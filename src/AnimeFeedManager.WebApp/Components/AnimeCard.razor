@@ -1,4 +1,11 @@
 ﻿@using AnimeFeedManager.WebApp.State
+@using AnimeFeedManager.WebApp.Services
+@inject ApplicationState State
+@inject IDialogService DialogService
+@inject ISubscriberService SubscriberService
+@inject ISnackbar Snackbar
+
+@implements IDisposable
 <MudCard>
     <MudCardMedia Image="@Anime.Url" Height="250" Title="@Anime.Title"/>
     <div>
@@ -15,7 +22,8 @@
 
         </MudCardContent>
     </div>
-    <MudCardActions>
+    <MudCardActions Class="d-flex">
+
         @if (Anime.FeedInformation.Completed)
         {
             <MudChip Label="true" Color="Color.Info">Series has ended</MudChip>
@@ -24,24 +32,150 @@
         @if (Anime.FeedInformation.Available)
         {
             <MudChip Label="true" Color="Color.Success">Available</MudChip>
-            if (User is ApplicationUser)
+            <MudSpacer></MudSpacer>
+            if (State.Value.User is ApplicationUser user)
             {
-                <MudChip Label="true" Color="Color.Success">Subscribe</MudChip>
+                if (!State.Value.Subscriptions.Contains(Anime.FeedInformation.Title))
+                {
+                    <MudTooltip Text="Subscribe">
+                        <MudIconButton
+                            Icon="@Icons.Filled.PlaylistAddCheck"
+                            Color="Color.Primary"
+                            OnClick="() => Subscribe(user.Email)"/>
+                    </MudTooltip>
+                }
+                else
+                {
+                    <MudTooltip Text="Unsubscribe">
+                        <MudIconButton
+                            Icon="@Icons.Filled.PlaylistRemove"
+                            Color="Color.Error"
+                            OnClick="() => Unsubscribe(user.Email)"/>
+                    </MudTooltip>
+                }
             }
         }
         else
         {
             <MudChip Label="true" Color="Color.Warning">Not Available Yet</MudChip>
+            <MudSpacer></MudSpacer>
+            if (State.Value.User is ApplicationUser user)
+            {
+                if (!State.Value.Interested.Contains(Anime.Title))
+                {
+                    <MudTooltip Text="Add to Interested">
+                        <MudIconButton
+                            Icon="@Icons.Filled.AddBox"
+                            Color="Color.Primary"
+                            OnClick="() => AddToInterested(user.Email)"/>
+                    </MudTooltip>
+                }
+                else
+                {
+                    <MudTooltip Text="Remove from Interested">
+                        <MudIconButton
+                            Icon="@Icons.Filled.RemoveCircleOutline"
+                            Color="Color.Error"
+                            OnClick="() => RemoveFromInterested(user.Email)"/>
+                    </MudTooltip>
+                }
+            }
         }
+
     </MudCardActions>
 </MudCard>
 
 @code {
 
+    [CascadingParameter]
+    private Error? Error { get; set; }
+
     [Parameter]
     public SimpleAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new FeedInfo(false, false, string.Empty));
 
-    [Parameter]
-    public User User { get; set; } = new AnonymousUser();
+    protected override void OnInitialized()
+    {
+        State.OnStateChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        State.OnStateChange -= StateHasChanged;
+    }
+
+    private async Task Subscribe(string userEmail)
+    {
+        if (await GetConfirmation("Subscription", $"Would you like to add {Anime.Title} to your subscriptions list?"))
+        {
+            try
+            {
+                await SubscriberService.Subscribe(userEmail, Anime.FeedInformation.Title);
+                State.AddSubscription(Anime.FeedInformation.Title);
+                Snackbar.Add($"Subscription to {Anime.Title} has been completed", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError("Subscribing to Series", ex);
+            }
+        }
+    }
+
+    private async Task Unsubscribe(string userEmail)
+    {
+        if (await GetConfirmation("Unsubscription", $"Would you like to remove {Anime.Title} to your subscriptions list?"))
+        {
+            try
+            {
+                await SubscriberService.Unsubscribe(userEmail, Anime.FeedInformation.Title);
+                State.RemoveSubscription(Anime.FeedInformation.Title);
+                Snackbar.Add($"{Anime.Title} has removed from your subscription list", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError("Subscribing to Series", ex);
+            }
+        }
+    }
+
+
+    private async Task AddToInterested(string userEmail)
+    {
+        if (await GetConfirmation("Add to Interested", $"Would you like to add {Anime.Title} to your interested list?"))
+        {
+            try
+            {
+                await SubscriberService.AddToInterest(userEmail, Anime.Title);
+                State.AddInterested(Anime.Title);
+                Snackbar.Add($"{Anime.Title} has been added to you interested list", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError("Adding to Interest", ex);
+            }
+        }
+    }
+
+    private async Task RemoveFromInterested(string userEmail)
+    {
+        if (await GetConfirmation("Remove from Interested", $"Would you like to remove {Anime.Title} from your interested list?"))
+        {
+            try
+            {
+                await SubscriberService.RemoveFromInterest(userEmail, Anime.Title);
+                State.RemoveInterested(Anime.Title);
+                Snackbar.Add($"{Anime.Title} has been removed from you interested list", Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError("Removing from Interest", ex);
+            }
+        }
+    }
+
+
+    private async Task<bool> GetConfirmation(string title, string message) => await DialogService.ShowMessageBox(
+        title,
+        message,
+        yesText: "Continue", cancelText: "Cancel") ?? false;
 
 }

@@ -1,3 +1,5 @@
+using AnimeFeedManager.Application.Subscriptions.Commands;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -17,9 +19,11 @@ public class Unsubscribe
 
     [Function("Unsubscribe")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "unsubscribe")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "unsubscribe")] HttpRequestData req)
     {
-        var command = await Serializer.FromJson<Application.Subscriptions.Commands.UnsubscribeCmd>(req.Body);
+        var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
+        ArgumentNullException.ThrowIfNull(dto);
+        var command = new UnsubscribeCmd(dto.UserId, dto.Series);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }

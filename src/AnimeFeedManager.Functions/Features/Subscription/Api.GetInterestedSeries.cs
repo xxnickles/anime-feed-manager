@@ -17,7 +17,7 @@ public class GetInterestedSeries
 
     [Function("GetInterestedSeries")]
     public Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "interested/{subscriber}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "interested/{subscriber}")]
         HttpRequestData req,
         string subscriber
         )

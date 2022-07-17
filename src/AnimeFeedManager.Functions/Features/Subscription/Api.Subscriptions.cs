@@ -1,4 +1,5 @@
 using AnimeFeedManager.Application.Subscriptions.Commands;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -18,11 +19,12 @@ public class Subscriptions
 
     [Function("MergeSubscription")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "subscriptions")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "subscriptions")]
         HttpRequestData req)
     {
-        var command = await Serializer.FromJson<MergeSubscriptionCmd>(req.Body);
-        ArgumentNullException.ThrowIfNull(command);
+        var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
+        ArgumentNullException.ThrowIfNull(dto);
+        var command = new MergeSubscriptionCmd(dto.UserId, dto.Series);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }

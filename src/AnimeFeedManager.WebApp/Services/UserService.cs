@@ -26,6 +26,6 @@ public class UserService : IUserService
 
     public Task<string> GetEmail(string id)
     {
-        return _httpClient.GetStringAsync($"api/user/{id}");
+        return _httpClient.GetFromJsonAsync<string>($"api/user/{id}");
     }
 }

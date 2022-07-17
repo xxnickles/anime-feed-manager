@@ -20,7 +20,7 @@ public class GetAvailableSeasons
 
     [Function("GetAvailableSeasons")]
     public Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "seasons")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "seasons")] HttpRequestData req)
     {
         return _mediator.Send(new Application.Seasons.Queries.GetAvailableSeasonsQry())
             .MapAsync(Map)

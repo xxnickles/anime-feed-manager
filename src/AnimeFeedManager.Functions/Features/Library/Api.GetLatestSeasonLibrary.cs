@@ -18,7 +18,7 @@ public class GetLatestSeasonLibrary
 
     [Function("GetLatestSeasonLibrary")]
     public Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "library/latest")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "library/latest")] HttpRequestData req)
     {
         return _mediator.Send(new GetLatestSeasonCollectionQry())
             .ToResponse(req, _logger);

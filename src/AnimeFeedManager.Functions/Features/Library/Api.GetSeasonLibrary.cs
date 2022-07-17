@@ -18,7 +18,7 @@ public class GetSeasonLibrary
 
     [Function("GetSeasonLibrary")]
     public Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "library/{year}/{season}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "library/{year}/{season}")]
         HttpRequestData req,
         string season,
         ushort year)

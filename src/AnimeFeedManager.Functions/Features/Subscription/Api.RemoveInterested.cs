@@ -17,7 +17,7 @@ public class RemoveInterested
 
     [Function("RemoveInterested")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "removeInterested")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "removeInterested")] HttpRequestData req)
     {
         var command = await Serializer.FromJson<Application.Subscriptions.Commands.RemoveInterestedCmd>(req.Body);
         return await _mediator.Send(command).ToResponse(req, _logger);

@@ -20,7 +20,7 @@ namespace User
 
         [Function("MergeUser")]
         public async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", "put", Route = "user")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "user")] HttpRequestData req)
         {
             var dto = await Serializer.FromJson<UserDto>(req.Body);
             ArgumentNullException.ThrowIfNull(dto);

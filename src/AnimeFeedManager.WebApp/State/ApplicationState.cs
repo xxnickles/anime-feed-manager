@@ -1,11 +1,13 @@
-﻿using AnimeFeedManager.Common.Dto;
+﻿using System.Collections.Immutable;
+using AnimeFeedManager.Common.Dto;
 
 namespace AnimeFeedManager.WebApp.State;
 
 public record State(
     SeasonInfoDto Season,
-    User User
-);
+    User User,
+    ImmutableList<string> Subscriptions,
+    ImmutableList<string> Interested);
 
 public class ApplicationState
 {
@@ -14,7 +16,9 @@ public class ApplicationState
     /// </summary>
     public State Value { get; set; } = new(
         new NullSeasonInfo(),
-        new AnonymousUser()
+        new AnonymousUser(),
+        ImmutableList<string>.Empty,
+        ImmutableList<string>.Empty
     );
 
     /// <summary>
@@ -22,10 +26,6 @@ public class ApplicationState
     /// </summary>
     public event Action? OnStateChange;
 
-    /// <summary>
-    /// The method that will be accessed by the sender component 
-    /// to update the state
-    /// </summary>
     public void SetSeason(SeasonInfoDto season)
     {
         Value = Value with {Season = season };
@@ -35,6 +35,43 @@ public class ApplicationState
     public void SetUser(User user)
     {
         Value = Value with {User = user};
+        NotifyStateChanged();
+    }
+
+    public void SetSubscriptions(ImmutableList<string> subscriptions)
+    {
+        Value = Value with {Subscriptions = subscriptions};
+        NotifyStateChanged();
+    }
+    
+    public void SetInterested(ImmutableList<string> interested)
+    {
+        Value = Value with {Interested = interested};
+        NotifyStateChanged();
+    }
+
+    public void AddInterested(string interested)
+    {
+        Value = Value with {Interested = Value.Interested.Add(interested)};
+        NotifyStateChanged();
+    }
+    
+    public void RemoveInterested(string interested)
+    {
+        Value = Value with {Interested = Value.Interested.Remove(interested)};
+        NotifyStateChanged();
+    }
+    
+    
+    public void AddSubscription(string subscription)
+    {
+        Value = Value with {Subscriptions = Value.Subscriptions.Add(subscription)};
+        NotifyStateChanged();
+    }
+    
+    public void RemoveSubscription(string subscription)
+    {
+        Value = Value with {Subscriptions = Value.Subscriptions.Remove(subscription)};
         NotifyStateChanged();
     }
 

@@ -1,0 +1,34 @@
+﻿{
+  "routes": [
+    {
+      "route": "/api/user*",
+      "allowedRoles": [
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/interested*",
+      "allowedRoles": [
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/subscriptions*",
+      "allowedRoles": [
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/removeInterested",
+      "allowedRoles": [
+        "authenticated"
+      ]
+    },
+    {
+      "route": "/api/unsubscribe",
+      "allowedRoles": [
+        "authenticated"
+      ]
+    }
+  ]
+}

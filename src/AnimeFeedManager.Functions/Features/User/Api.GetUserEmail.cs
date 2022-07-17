@@ -1,6 +1,4 @@
-using AnimeFeedManager.Application.User.Commands;
 using AnimeFeedManager.Application.User.Queries;
-using AnimeFeedManager.Functions;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -20,7 +18,7 @@ namespace User
 
         [Function("GetUSerEmail")]
         public async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "user/{id}")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/{id}")]
             HttpRequestData req,
             string id)
         {

@@ -2,9 +2,12 @@
 @using AnimeFeedManager.WebApp.Services
 @using System.Net
 @using AnimeFeedManager.Core.ConstrainedTypes
+@using System.Collections.Immutable
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject ApplicationState State
 @inject IUserService UserService
+@inject ISubscriberService SubscriberService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
@@ -24,8 +27,6 @@
                 <LoginProviders></LoginProviders>
             </NotAuthorized>
         </AuthorizeView>
-
-        @* <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End"/> *@
     </MudAppBar>
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
@@ -44,19 +45,20 @@
 
     protected override async Task OnInitializedAsync()
     {
+        State.OnStateChange += StateHasChanged;
         var state = await AuthenticationState;
         if (state is null || (!state.User?.Identity?.IsAuthenticated ?? true))
         {
-            State.SetUser(new AnonymousUser());
+            CompleteDefaultProfile(new AnonymousUser());
         }
         else
         {
             var userId = state.User.Claims.First(c => c.Type.Contains("nameidentifier")).Value;
             var name = state.User.Identity.Name;
             var email = await GetUserEmail(userId, name);
-            var _ = email.Value.Match(
-                email => State.SetUser(new ApplicationUser(email, string.Empty)),
-                () => State.SetUser(new AuthenticatedUser()));
+            await email.Value.MatchAsync(
+                CompleteProfile,
+                () => Task.FromResult(CompleteDefaultProfile(new AuthenticatedUser())));
         }
     }
 
@@ -66,11 +68,14 @@
         {
             var userEmail = await UserService.GetEmail(userId);
 
+            // Email is in the systems
             if (!string.IsNullOrEmpty(userEmail))
-            {
                 return Email.FromString(userEmail);
-            }
+            
+            // UserName is email
             if (!Email.IsEmail(username)) return await CompleteUserProfile(userId);
+            
+            // Save a new email
             SaveUser(userId, username);
             return new Email(username);
         }
@@ -108,6 +113,52 @@
         {
             Error?.ProcessError("User Fetching", ex);
         }
+    }
+
+    private async Task CompleteDefaultProfile(User user)
+    {
+        State.SetUser(user);
+        State.SetSubscriptions(ImmutableList<string>.Empty);
+        State.SetInterested(ImmutableList<string>.Empty);
+    }
+
+    private async Task CompleteProfile(string email)
+    {
+        try
+        {
+            var subscriptions = await SubscriberService.GetSubscriptions(email);
+            State.SetSubscriptions(subscriptions);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            State.SetSubscriptions(ImmutableList<string>.Empty);
+        }
+        catch (Exception ex)
+        {
+            Error?.ProcessError("Getting Subscriptions", ex);
+        }
+
+        try
+        {
+            var interested = await SubscriberService.GetInterested(email);
+            State.SetInterested(interested);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            State.SetSubscriptions(ImmutableList<string>.Empty);
+        }
+        catch (Exception ex)
+        {
+            Error?.ProcessError("Getting Interested Series", ex);
+        }
+
+        State.SetUser(new ApplicationUser(email, string.Empty));
+        Snackbar.Add("Profile has been completed", Severity.Info);
+    }
+
+    public void Dispose()
+    {
+        State.OnStateChange -= StateHasChanged;
     }
 
 }
