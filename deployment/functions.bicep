@@ -1,5 +1,5 @@
 @description('The name of the function app that you wish to create.')
-param appName string = 'AnimeFeedManager'
+param appName string = 'anime-manager'
 
 @description('SendGrid Key')
 param sendgridKey string
@@ -9,8 +9,8 @@ param location string = resourceGroup().location
 
 var storageAccountType = 'Standard_LRS'
 var functionAppName = appName
-var hostingPlanName = 'afm-hosting'
-var applicationInsightsName = 'AnimeFeedManager'
+var hostingPlanName = 'afm-hosting-plan'
+var applicationInsightsName = appName
 var storageAccountName = 'animefeedmanagerstorage'
 var functionWorkerRuntime = 'dotnet-isolated'
 
@@ -33,7 +33,6 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
     name: 'Y1'
     tier: 'Dynamic'
   }
-  properties: {}
 }
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
@@ -97,12 +96,18 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
           name: 'FromName'
           value: 'Anime Feed Manager'
         }
-        
+        {
+          name: 'WEBSITE_TIME_ZONE'
+          value: 'America/New_York'
+        }
       ]
+      windowsFxVersion: 'DOTNET-ISOLATED|6.0'
+      netFrameworkVersion: 'v6.0'
+      use32BitWorkerProcess: false
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'
     }
-
+    clientAffinityEnabled: false
     httpsOnly: true
   }
 }

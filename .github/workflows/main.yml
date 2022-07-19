@@ -27,13 +27,14 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: "Checkout GitHub Action"
+      - name: Checkout GitHub Action
         uses: actions/checkout@v3
 
-      - name: "Azure Login"
+      - name: Azure Login
         uses: azure/login@v1.4.5
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
 
       # Deploys infrastructure
       - name: Deploy Azure Resource Manager (ARM) Template
@@ -66,4 +67,3 @@ jobs:
         with:
           app-name: ${{ steps.infrastructure.outputs.appname }}
           package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
