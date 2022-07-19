@@ -26,13 +26,13 @@ public class SubscriberService : ISubscriberService
     public async Task<ImmutableList<string>> GetSubscriptions(string subscriber)
     {
         var result = await _httpClient.GetFromJsonAsync<IEnumerable<string>>($"api/subscriptions/{subscriber}");
-        return result.ToImmutableList();
+        return result?.ToImmutableList() ?? ImmutableList<string>.Empty;
     }
 
     public async Task<ImmutableList<string>> GetInterested(string subscriber)
     {
         var result = await _httpClient.GetFromJsonAsync<IEnumerable<string>>($"api/interested/{subscriber}");
-        return result.ToImmutableList();
+        return result?.ToImmutableList() ?? ImmutableList<string>.Empty;
     }
 
     public Task Subscribe(string subscriber, string series)

@@ -33,12 +33,12 @@
 
     private void Cancel()
     {
-        MudDialog.Cancel();
+        MudDialog?.Cancel();
     }
 
     private void ConfirmEmail()
     {
-        MudDialog.Close(DialogResult.Ok(Email));
+        MudDialog?.Close(DialogResult.Ok(Email));
     }
 
 }

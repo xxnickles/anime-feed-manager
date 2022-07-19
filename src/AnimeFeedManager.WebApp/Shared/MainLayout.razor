@@ -38,7 +38,7 @@
 @code{
 
     [CascadingParameter]
-    private Task<AuthenticationState> AuthenticationState { get; set; }
+    private Task<AuthenticationState?>? AuthenticationState { get; set; }
 
     [CascadingParameter]
     private Error? Error { get; set; }
@@ -46,19 +46,21 @@
     protected override async Task OnInitializedAsync()
     {
         State.OnStateChange += StateHasChanged;
+        ArgumentNullException.ThrowIfNull(AuthenticationState);
         var state = await AuthenticationState;
+        ArgumentNullException.ThrowIfNull(state);
         if (state is null || (!state.User?.Identity?.IsAuthenticated ?? true))
         {
-            CompleteDefaultProfile(new AnonymousUser());
+            await CompleteDefaultProfile(new AnonymousUser());
         }
         else
         {
-            var userId = state.User.Claims.First(c => c.Type.Contains("nameidentifier")).Value;
-            var name = state.User.Identity.Name;
+            var userId = state?.User?.Claims.First(c => c.Type.Contains("nameidentifier")).Value ?? string.Empty;
+            var name = state?.User?.Identity?.Name ?? string.Empty;
             var email = await GetUserEmail(userId, name);
-            await email.Value.MatchAsync(
+            await email.Value.Match(
                 CompleteProfile,
-                () => Task.FromResult(CompleteDefaultProfile(new AuthenticatedUser())));
+                () => CompleteDefaultProfile(new AuthenticatedUser()));
         }
     }
 
@@ -76,7 +78,7 @@
             if (!Email.IsEmail(username)) return await CompleteUserProfile(userId);
             
             // Save a new email
-            SaveUser(userId, username);
+            await SaveUser(userId, username);
             return new Email(username);
         }
         catch (HttpRequestException httpEx) when (httpEx.StatusCode == HttpStatusCode.NotFound)
@@ -96,8 +98,8 @@
         var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
         var result = await dialog.Result;
 
-        if (result.Cancelled) return Email.FromString(string.Empty);
-        var email = result.Data.ToString();
+        if (result.Cancelled || result.Data == null) return Email.FromString(string.Empty);
+        var email = result.Data.ToString() ?? string.Empty;
         await SaveUser(userId, email);
         return Email.FromString(email);
     }
@@ -115,11 +117,13 @@
         }
     }
 
-    private async Task CompleteDefaultProfile(User user)
+    private Task CompleteDefaultProfile(User user)
     {
         State.SetUser(user);
         State.SetSubscriptions(ImmutableList<string>.Empty);
         State.SetInterested(ImmutableList<string>.Empty);
+
+        return Task.CompletedTask;
     }
 
     private async Task CompleteProfile(string email)

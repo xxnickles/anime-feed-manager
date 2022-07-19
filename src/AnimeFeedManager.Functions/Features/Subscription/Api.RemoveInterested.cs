@@ -1,3 +1,5 @@
+using AnimeFeedManager.Application.Subscriptions.Commands;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,7 +21,9 @@ public class RemoveInterested
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "removeInterested")] HttpRequestData req)
     {
-        var command = await Serializer.FromJson<Application.Subscriptions.Commands.RemoveInterestedCmd>(req.Body);
+        var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
+        ArgumentNullException.ThrowIfNull(dto);
+        var command = new RemoveInterestedCmd(dto.UserId, dto.Series);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }

@@ -13,7 +13,7 @@ internal static class Mapper
                         a.RowKey ?? string.Empty, 
                         a?.Title ?? "Not Available",                     
                         a?.Synopsis ?? "Not Available",
-                        a.ImageUrl,
+                        a?.ImageUrl,
                         new FeedInfo( !string.IsNullOrEmpty(a.FeedTitle), a.Completed, a.FeedTitle)
                     ))
                 .ToArray());

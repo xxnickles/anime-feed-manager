@@ -35,7 +35,7 @@
             <MudSpacer></MudSpacer>
             if (State.Value.User is ApplicationUser user)
             {
-                if (!State.Value.Subscriptions.Contains(Anime.FeedInformation.Title))
+                if (!State.Value.Subscriptions.Contains(Anime.FeedInformation?.Title ?? string.Empty))
                 {
                     <MudTooltip Text="Subscribe">
                         <MudIconButton
@@ -109,13 +109,14 @@
         {
             try
             {
-                await SubscriberService.Subscribe(userEmail, Anime.FeedInformation.Title);
-                State.AddSubscription(Anime.FeedInformation.Title);
+                ArgumentNullException.ThrowIfNull(Anime.FeedInformation);
+                await SubscriberService.Subscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
+                State.AddSubscription(Anime.FeedInformation.Title ?? string.Empty);
                 Snackbar.Add($"Subscription to {Anime.Title} has been completed", Severity.Success);
             }
             catch (Exception ex)
             {
-                Error.ProcessError("Subscribing to Series", ex);
+                Error?.ProcessError("Subscribing to Series", ex);
             }
         }
     }
@@ -126,13 +127,14 @@
         {
             try
             {
-                await SubscriberService.Unsubscribe(userEmail, Anime.FeedInformation.Title);
-                State.RemoveSubscription(Anime.FeedInformation.Title);
+                ArgumentNullException.ThrowIfNull(Anime.FeedInformation);
+                await SubscriberService.Unsubscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
+                State.RemoveSubscription(Anime.FeedInformation.Title ?? string.Empty);
                 Snackbar.Add($"{Anime.Title} has removed from your subscription list", Severity.Success);
             }
             catch (Exception ex)
             {
-                Error.ProcessError("Subscribing to Series", ex);
+                Error?.ProcessError("Subscribing to Series", ex);
             }
         }
     }
@@ -150,7 +152,7 @@
             }
             catch (Exception ex)
             {
-                Error.ProcessError("Adding to Interest", ex);
+                Error?.ProcessError("Adding to Interest", ex);
             }
         }
     }
@@ -167,7 +169,7 @@
             }
             catch (Exception ex)
             {
-                Error.ProcessError("Removing from Interest", ex);
+                Error?.ProcessError("Removing from Interest", ex);
             }
         }
     }

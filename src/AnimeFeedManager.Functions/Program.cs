@@ -10,7 +10,7 @@ public static class Program
 {
     public static void Main()
     {
-        var storageConnection = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+        var storageConnection = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? string.Empty;
         var host = new HostBuilder()
             .ConfigureFunctionsWorkerDefaults()
             .ConfigureServices(s =>
