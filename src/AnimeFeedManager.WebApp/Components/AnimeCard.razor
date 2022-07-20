@@ -28,60 +28,61 @@
         {
             <MudChip Label="true" Color="Color.Info">Series has ended</MudChip>
         }
-
-        @if (Anime.FeedInformation.Available)
-        {
-            <MudChip Label="true" Color="Color.Success">Available</MudChip>
-            <MudSpacer></MudSpacer>
-            if (State.Value.User is ApplicationUser user)
-            {
-                if (!State.Value.Subscriptions.Contains(Anime.FeedInformation?.Title ?? string.Empty))
-                {
-                    <MudTooltip Text="Subscribe">
-                        <MudIconButton
-                            Icon="@Icons.Filled.PlaylistAddCheck"
-                            Color="Color.Primary"
-                            OnClick="() => Subscribe(user.Email)"/>
-                    </MudTooltip>
-                }
-                else
-                {
-                    <MudTooltip Text="Unsubscribe">
-                        <MudIconButton
-                            Icon="@Icons.Filled.PlaylistRemove"
-                            Color="Color.Error"
-                            OnClick="() => Unsubscribe(user.Email)"/>
-                    </MudTooltip>
-                }
-            }
-        }
         else
         {
-            <MudChip Label="true" Color="Color.Warning">Not Available Yet</MudChip>
-            <MudSpacer></MudSpacer>
-            if (State.Value.User is ApplicationUser user)
+            if (Anime.FeedInformation.Available)
             {
-                if (!State.Value.Interested.Contains(Anime.Title))
+                <MudChip Label="true" Color="Color.Success">Available</MudChip>
+                <MudSpacer></MudSpacer>
+                if (State.Value.User is ApplicationUser user)
                 {
-                    <MudTooltip Text="Add to Interested">
-                        <MudIconButton
-                            Icon="@Icons.Filled.AddBox"
-                            Color="Color.Primary"
-                            OnClick="() => AddToInterested(user.Email)"/>
-                    </MudTooltip>
+                    if (!State.Value.Subscriptions.Contains(Anime.FeedInformation?.Title ?? string.Empty))
+                    {
+                        <MudTooltip Text="Subscribe">
+                            <MudIconButton
+                                Icon="@Icons.Filled.PlaylistAddCheck"
+                                Color="Color.Primary"
+                                OnClick="() => Subscribe(user.Email)"/>
+                        </MudTooltip>
+                    }
+                    else
+                    {
+                        <MudTooltip Text="Unsubscribe">
+                            <MudIconButton
+                                Icon="@Icons.Filled.PlaylistRemove"
+                                Color="Color.Error"
+                                OnClick="() => Unsubscribe(user.Email)"/>
+                        </MudTooltip>
+                    }
                 }
-                else
+            }
+            else
+            {
+                <MudChip Label="true" Color="Color.Warning">Not Available Yet</MudChip>
+                <MudSpacer></MudSpacer>
+                if (State.Value.User is ApplicationUser user)
                 {
-                    <MudTooltip Text="Remove from Interested">
-                        <MudIconButton
-                            Icon="@Icons.Filled.RemoveCircleOutline"
-                            Color="Color.Error"
-                            OnClick="() => RemoveFromInterested(user.Email)"/>
-                    </MudTooltip>
+                    if (!State.Value.Interested.Contains(Anime.Title))
+                    {
+                        <MudTooltip Text="Add to Interested">
+                            <MudIconButton
+                                Icon="@Icons.Filled.AddBox"
+                                Color="Color.Primary"
+                                OnClick="() => AddToInterested(user.Email)"/>
+                        </MudTooltip>
+                    }
+                    else
+                    {
+                        <MudTooltip Text="Remove from Interested">
+                            <MudIconButton
+                                Icon="@Icons.Filled.RemoveCircleOutline"
+                                Color="Color.Error"
+                                OnClick="() => RemoveFromInterested(user.Email)"/>
+                        </MudTooltip>
+                    }
                 }
             }
         }
-
     </MudCardActions>
 </MudCard>
 
