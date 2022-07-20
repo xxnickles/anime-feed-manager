@@ -4,23 +4,32 @@ name: Functions Deployment
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
+  # Triggers the workflow on push or pull request events but only for the 'main' branch
   push:
-    branches: ["main"]
+    paths:
+      - "!src/AnimeFeedManager.WebApp**"
+      - "!tools/**"
+      - "!**/*.md"
+    branches: [main]
   pull_request:
-    branches: ["main"]
+    paths:
+      - "!src/AnimeFeedManager.WebApp**"
+      - "!tools/**"
+      - "!**/*.md"
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "./src/AnimeFeedManager.Functions" # set this to the path to your web app project, defaults to the repository root
+  TEST_PROJECT_PATH: "./src/AnimeFeedManager.Application.Test"
   DOTNET_VERSION: "6.0.x" # set this to the dotnet version to use
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # Updates Azure Infraestructure
-  build-and-deploy-infrastructure:
+  build-and-deploy-functions:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -37,7 +46,7 @@ jobs:
           enable-AzPSSession: true
 
       # Deploys infrastructure
-      - name: Deploy Azure Resource Manager (ARM) Template
+      - name: Deploy Azure Infrastructure
         uses: Azure/arm-deploy@v1.0.8
         id: infrastructure
         with:
@@ -54,17 +63,33 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: "Resolve Project Dependencies Using Dotnet"
+      - name: Resolve Project Dependencies Using Dotnet
         shell: bash
         run: |
           pushd '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           dotnet publish --configuration Release --output ./output
           popd
 
-      - name: "Run Azure Functions Action"
+      - name: Test Using Dotnet
+        shell: bash
+        run: dotnet test '${{ env.TEST_PROJECT_PATH }}'
+
+      - name: Run Azure Functions Action
         uses: Azure/functions-action@v1.4.6
         id: fa
         with:
-          slot-name: 'Production'
+          slot-name: "Production"
           app-name: ${{ steps.infrastructure.outputs.appname }}
           package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_OCEAN_098A2440F }}
+          action: "close"

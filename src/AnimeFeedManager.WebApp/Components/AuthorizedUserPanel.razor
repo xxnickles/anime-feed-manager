@@ -16,7 +16,7 @@
     [Parameter]
     public User User { get; set; } = new AnonymousUser();
 
-    private string _logOutPath = "/.auth/logout?post_logout_redirect_uri=/";
+    private string _logOutPath = "/logout?post_logout_redirect_uri=/";
 
     private void Logout()
     {

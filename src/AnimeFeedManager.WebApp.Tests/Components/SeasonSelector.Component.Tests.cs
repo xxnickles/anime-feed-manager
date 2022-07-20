@@ -10,10 +10,8 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
     public void Should_Render_Defaults_When_No_Data()
     {
         var cut = RenderComponent<SeasonSelector>();
-
-        cut.FindAll("*").Count.Should().Be(1, "No provided data should show a message only");
-        var input = cut.Find("h4");
-        input.TextContent.Should().Be("No Data Available", "No provided data should show default message");
+        var input =  cut.Find("span.mud-chip-content");
+        input.TextContent.Should().Be("No Season Data Available", "No provided data should show default message");
     }
 
 

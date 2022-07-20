@@ -20,8 +20,7 @@
     <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AnimeFeedManager.Application\AnimeFeedManager.Application.csproj" />
+  <ItemGroup>    
     <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.Core\AnimeFeedManager.Core.csproj" />
   </ItemGroup>

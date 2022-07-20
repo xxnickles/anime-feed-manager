@@ -29,9 +29,13 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   name: hostingPlanName
   location: location
+  kind: 'functionapp,linux'
   sku: {
     name: 'Y1'
     tier: 'Dynamic'
+  }
+  properties: {
+    reserved: true
   }
 }
 
@@ -101,8 +105,7 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
           value: 'America/New_York'
         }
       ]
-      windowsFxVersion: 'DOTNET-ISOLATED|6.0'
-      netFrameworkVersion: 'v6.0'
+      linuxFxVersion: 'DOTNET-ISOLATED|6.0'
       use32BitWorkerProcess: false
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'

@@ -1,6 +1,18 @@
 ﻿{
   "routes": [
     {
+      "route": "/login/github",
+      "redirect": "/.auth/login/github"
+    },
+    {
+      "route": "/login/twitter",
+      "redirect": "/.auth/login/twitter"
+    },
+    {
+      "route": "/logout",
+      "redirect": "/.auth/logout"
+    },
+    {
       "route": "/api/user*",
       "allowedRoles": [
         "authenticated"
