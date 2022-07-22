@@ -4,7 +4,7 @@
 {
     <MudBadge Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Overlap="true" Bordered="true" Class="mx-6 my-4" Origin="Origin.TopLeft">
         <MudTooltip Text="Email has not been provided.">
-            <MudButton Color="Color.Warning" Variant="Variant.Filled" DisableElevation="true">Limited Access</MudButton>
+            <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small">Limited Access</MudButton>
         </MudTooltip>
     </MudBadge>
 }
@@ -20,7 +20,7 @@
 
     private void Logout()
     {
-        NavigationManager.NavigateTo(_logOutPath, true);
+        NavigationManager.NavigateTo(_logOutPath, true, false);
     }
 
 }

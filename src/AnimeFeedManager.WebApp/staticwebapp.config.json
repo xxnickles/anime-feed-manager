@@ -1,4 +1,4 @@
-﻿{
+{
   "routes": [
     {
       "route": "/login/github",
@@ -42,5 +42,9 @@
         "authenticated"
       ]
     }
-  ]
+  ],
+  "navigationFallback": {
+    "rewrite": "index.html",
+    "exclude": [ "/images/*.{png,jpg,gif}", "/css/*", "/.auth/*", "/login/*", "/logout" ]
+  }
 }

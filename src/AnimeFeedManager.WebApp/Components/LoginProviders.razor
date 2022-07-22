@@ -7,7 +7,7 @@
     <ChildContent>
         @foreach (var provider in _providers)
         {
-            <MudMenuItem OnClick="() => NavigationManager.NavigateTo(provider.Value.Link)">
+            <MudMenuItem OnClick="() => NavigationManager.NavigateTo(provider.Value.Link, true)">
                 @provider.Value.Label
             </MudMenuItem>
         }
