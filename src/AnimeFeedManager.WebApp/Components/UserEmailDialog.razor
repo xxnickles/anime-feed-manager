@@ -2,11 +2,12 @@
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
-            Email is required to access to complete set of functionality, would you like to provide your email address?
+            Email required
         </MudText>
     </TitleContent>
     <DialogContent>
         <MudForm @bind-IsValid="@Valid">
+            <MudText Typo="Typo.body1">Email is required to access to the complete set of functionality, would you like to provide your email address?</MudText>
             <MudTextField
                 @bind-Value="@Email"
                 T="string"

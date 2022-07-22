@@ -156,7 +156,7 @@
             Error?.ProcessError("Getting Interested Series", ex);
         }
 
-        State.SetUser(new ApplicationUser(email, string.Empty));
+        State.SetUser(new ApplicationUser(email));
         Snackbar.Add("Profile has been completed", Severity.Info);
     }
 

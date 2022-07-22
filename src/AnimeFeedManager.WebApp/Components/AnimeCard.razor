@@ -176,10 +176,14 @@
     }
 
 
-    private async Task<bool> GetConfirmation(string title, string message) => await DialogService.ShowMessageBox(
-        title,
-        message,
-        "Continue", 
-        "Cancel") ?? false;
+    private async Task<bool> GetConfirmation(string title, string message)
+    {
+        var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
+        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var dialog = DialogService.Show<ConfirmationDialog>(title, parameters, options);
+        var result = await dialog.Result;
+        if (result.Cancelled || result.Data == null) return false;
+        return (bool) result.Data;
+    }
 
 }
