@@ -22,9 +22,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        const string key = "lo_seasons";
         State.OnStateChange += StateHasChanged;
         try
         {
+            State.AddLoadingItem(key, "Loading Season");
             _seasons = await SeasonFetcherService.GetAvailableSeasons();
             var latest = _seasons[0];
             if (latest is not NullSeasonInfo)
@@ -32,10 +34,12 @@
                 State.SetSeason(latest);
                 await UpdateSeasonCollection(latest);
             }
+            State.RemoveLoadingItem(key);
         }
         catch (Exception e)
         {
             Error?.ProcessError("Season Fetching", e);
+            State.RemoveLoadingItem(key);
         }
     }
 
@@ -56,13 +60,17 @@
 
     private async Task UpdateSeasonCollection(SeasonInfoDto season)
     {
+        const string key = "lo_series";
         try
         {
+            State.AddLoadingItem(key, "Loading Series");
             _collection = await SeasonCollectionFetcher.GetSeasonLibrary(season);
+            State.RemoveLoadingItem(key);
         }
         catch (Exception e)
         {
             Error?.ProcessError("Season Collection Fetching", e);
+            State.RemoveLoadingItem(key);
         }
     }
 

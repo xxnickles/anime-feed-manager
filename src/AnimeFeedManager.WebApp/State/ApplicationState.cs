@@ -7,7 +7,8 @@ public record State(
     SeasonInfoDto Season,
     User User,
     ImmutableList<string> Subscriptions,
-    ImmutableList<string> Interested);
+    ImmutableList<string> Interested,
+    ImmutableDictionary<string,string> LoadingItems);
 
 public class ApplicationState
 {
@@ -18,7 +19,8 @@ public class ApplicationState
         new NullSeasonInfo(),
         new AnonymousUser(),
         ImmutableList<string>.Empty,
-        ImmutableList<string>.Empty
+        ImmutableList<string>.Empty,
+        ImmutableDictionary<string, string>.Empty
     );
 
     /// <summary>
@@ -72,6 +74,18 @@ public class ApplicationState
     public void RemoveSubscription(string subscription)
     {
         Value = Value with {Subscriptions = Value.Subscriptions.Remove(subscription)};
+        NotifyStateChanged();
+    }
+
+    public void AddLoadingItem(string key, string description)
+    {
+        Value = Value with {LoadingItems = Value.LoadingItems.Add(key, description)};
+        NotifyStateChanged();
+    }
+    
+    public void RemoveLoadingItem(string key)
+    {
+        Value = Value with {LoadingItems = Value.LoadingItems.Remove(key)};
         NotifyStateChanged();
     }
 

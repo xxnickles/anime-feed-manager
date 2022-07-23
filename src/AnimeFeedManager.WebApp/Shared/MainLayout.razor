@@ -23,19 +23,26 @@
             <Authorized>
                 <AuthorizedUserPanel User="@State.Value.User"></AuthorizedUserPanel>
             </Authorized>
+            <Authorizing></Authorizing>
             <NotAuthorized>
                 <LoginProviders></LoginProviders>
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
     <MudMainContent>
+        <AuthorizeView>
+            <Authorizing>
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+            </Authorizing>
+        </AuthorizeView>
+        <Loader Items="State.Value.LoadingItems"></Loader>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
             @Body
         </MudContainer>
     </MudMainContent>
 </MudLayout>
 
-@code{
+@code {
 
     [CascadingParameter]
     private Task<AuthenticationState?>? AuthenticationState { get; set; }
@@ -43,11 +50,14 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
+    private AuthenticationState? state;
+
     protected override async Task OnInitializedAsync()
     {
         State.OnStateChange += StateHasChanged;
         ArgumentNullException.ThrowIfNull(AuthenticationState);
-        var state = await AuthenticationState;
+    //var state = await AuthenticationState;
+        state = await AuthenticationState;
         ArgumentNullException.ThrowIfNull(state);
         if (state is null || (!state.User?.Identity?.IsAuthenticated ?? true))
         {
@@ -68,26 +78,33 @@
     {
         try
         {
+            State.AddLoadingItem(userId, "Loading user profile");
             var userEmail = await UserService.GetEmail(userId);
 
-            // Email is in the systems
+    // Email is in the systems
             if (!string.IsNullOrEmpty(userEmail))
                 return Email.FromString(userEmail);
-            
-            // UserName is email
+
+    // UserName is email
             if (!Email.IsEmail(username)) return await CompleteUserProfile(userId);
-            
-            // Save a new email
+
+    // Save a new email
             await SaveUser(userId, username);
+            State.RemoveInterested(userId);
+            State.RemoveLoadingItem(userId);
             return new Email(username);
         }
         catch (HttpRequestException httpEx) when (httpEx.StatusCode == HttpStatusCode.NotFound)
         {
+            State.RemoveInterested(userId);
+            State.RemoveLoadingItem(userId);
             return await CompleteUserProfile(userId);
         }
         catch (Exception ex)
         {
             Error?.ProcessError("User Fetching", ex);
+            State.RemoveInterested(userId);
+            State.RemoveLoadingItem(userId);
             return Email.FromString(string.Empty);
         }
     }

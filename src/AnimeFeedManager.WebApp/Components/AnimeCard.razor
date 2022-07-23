@@ -108,16 +108,20 @@
     {
         if (await GetConfirmation("Subscription", $"Would you like to add {Anime.Title} to your subscriptions list?"))
         {
+            const string key = "lo_subscribe";
             try
             {
                 ArgumentNullException.ThrowIfNull(Anime.FeedInformation);
+                State.AddLoadingItem(key, $"Adding {Anime.Title} to subscriptions");
                 await SubscriberService.Subscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
                 State.AddSubscription(Anime.FeedInformation.Title ?? string.Empty);
                 Snackbar.Add($"Subscription to {Anime.Title} has been completed", Severity.Success);
+                State.RemoveLoadingItem(key);
             }
             catch (Exception ex)
             {
                 Error?.ProcessError("Subscribing to Series", ex);
+                State.RemoveLoadingItem(key);
             }
         }
     }
@@ -126,34 +130,41 @@
     {
         if (await GetConfirmation("Unsubscription", $"Would you like to remove {Anime.Title} to your subscriptions list?"))
         {
+            const string key = "lo_unsubscribe";
             try
             {
                 ArgumentNullException.ThrowIfNull(Anime.FeedInformation);
+                State.AddLoadingItem(key, $"Removing {Anime.Title} from subscriptions");
                 await SubscriberService.Unsubscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
                 State.RemoveSubscription(Anime.FeedInformation.Title ?? string.Empty);
                 Snackbar.Add($"{Anime.Title} has removed from your subscription list", Severity.Success);
+                State.RemoveLoadingItem(key);
             }
             catch (Exception ex)
             {
                 Error?.ProcessError("Subscribing to Series", ex);
+                State.RemoveLoadingItem(key);
             }
         }
     }
-
 
     private async Task AddToInterested(string userEmail)
     {
         if (await GetConfirmation("Add to Interested", $"Would you like to add {Anime.Title} to your interested list?"))
         {
+            const string key = "lo_interest";
             try
             {
+                State.AddLoadingItem(key, $"Adding {Anime.Title} to interest");
                 await SubscriberService.AddToInterest(userEmail, Anime.Title);
                 State.AddInterested(Anime.Title);
                 Snackbar.Add($"{Anime.Title} has been added to you interested list", Severity.Success);
+                State.RemoveLoadingItem(key);
             }
             catch (Exception ex)
             {
                 Error?.ProcessError("Adding to Interest", ex);
+                State.RemoveLoadingItem(key);
             }
         }
     }
@@ -162,15 +173,19 @@
     {
         if (await GetConfirmation("Remove from Interested", $"Would you like to remove {Anime.Title} from your interested list?"))
         {
+            const string key = "lo_rinterest";
             try
             {
+                State.AddLoadingItem(key, $"Removing {Anime.Title} from interested");
                 await SubscriberService.RemoveFromInterest(userEmail, Anime.Title);
                 State.RemoveInterested(Anime.Title);
                 Snackbar.Add($"{Anime.Title} has been removed from you interested list", Severity.Success);
+                State.RemoveLoadingItem(key);
             }
             catch (Exception ex)
             {
                 Error?.ProcessError("Removing from Interest", ex);
+                State.RemoveLoadingItem(key);
             }
         }
     }

@@ -31,7 +31,9 @@
 }
 else
 {
-    <MudChip Icon="@Icons.Filled.Warning" Label="true" Color="Color.Warning">No Season Data Available</MudChip>
+    <div class="d-flex justify-center">
+        <MudChip Icon="@Icons.Filled.Warning" Label="true" Color="Color.Warning">No Season Data Available</MudChip>
+    </div>
 }
 
 
@@ -51,7 +53,7 @@ else
             SelectedSeason = value[0];
         }
     }
-   
+
     [Parameter]
     public SeasonInfoDto SelectedSeason { get; set; } = new NullSeasonInfo();
 
