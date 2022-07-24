@@ -36,22 +36,31 @@ public class UploadImage
     {
         _logger.LogInformation("Getting image for {Name} from {RemoteUrl}", imageInfoEvent.BlobName,
             imageInfoEvent.RemoteUrl);
-        var response = await _httpClient.GetAsync(imageInfoEvent.RemoteUrl);
-        response.EnsureSuccessStatusCode();
-        await using var ms = await response.Content.ReadAsStreamAsync(default);
 
-        var fileLocation = await _imagesStore.Upload($"{imageInfoEvent.BlobName}.jpg", imageInfoEvent.Directory, ms);
-        _logger.LogInformation("{BlobName} has been uploaded", imageInfoEvent.BlobName);
-
-        // Update AnimeInfo
-        var imageStorage = new ImageStorage
+        try
         {
-            ImageUrl = fileLocation.AbsoluteUri,
-            PartitionKey = imageInfoEvent.Partition,
-            RowKey = imageInfoEvent.Id
-        };
+            var response = await _httpClient.GetAsync(imageInfoEvent.RemoteUrl);
+            response.EnsureSuccessStatusCode();
+            await using var ms = await response.Content.ReadAsStreamAsync(default);
 
-        await UpdateAnimeInfo(imageStorage);
+            var fileLocation = await _imagesStore.Upload($"{imageInfoEvent.BlobName}.jpg", imageInfoEvent.Directory, ms);
+            _logger.LogInformation("{BlobName} has been uploaded", imageInfoEvent.BlobName);
+
+            // Update AnimeInfo
+            var imageStorage = new ImageStorage
+            {
+                ImageUrl = fileLocation.AbsoluteUri,
+                PartitionKey = imageInfoEvent.Partition,
+                RowKey = imageInfoEvent.Id
+            };
+
+            await UpdateAnimeInfo(imageStorage);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An error has ocurred");
+        }
+      
     }
 
     private async Task UpdateAnimeInfo(ImageStorage imageStorage)

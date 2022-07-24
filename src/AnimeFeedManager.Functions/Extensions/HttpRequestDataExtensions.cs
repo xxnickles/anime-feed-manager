@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Net;
+using MediatR;
+using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Functions.Extensions;
 
@@ -50,5 +52,18 @@ public static class  HttpRequestDataExtensions
         var response = request.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(result);
         return response;
+    }
+
+    public static Task<HttpResponseData> Unauthorized(this HttpRequestData request)
+    {
+        var response = request.CreateResponse(HttpStatusCode.Unauthorized);
+        return Task.FromResult(response);
+    }
+
+    public static async Task<Either<DomainError,IRequest<T>>> WithAuthenticationCheck<T>(this HttpRequestData request,
+        IRequest<T> command)
+    {
+        var principal = await ClientPrincipal.ParseFromRequest(request);
+        return principal.Identity.IsAuthenticated ? Right<DomainError,IRequest<T>>(command) : Left<DomainError,IRequest<T>>(UnauthorizedError.Create(request.Url.AbsoluteUri));
     }
 }

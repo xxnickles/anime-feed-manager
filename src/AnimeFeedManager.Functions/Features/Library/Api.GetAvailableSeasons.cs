@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Security.Claims;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Functions.Extensions;
@@ -16,11 +17,12 @@ public class GetAvailableSeasons
     {
         _mediator = mediator;
         _logger = loggerFactory.CreateLogger<GetAvailableSeasons>();
-    } 
+    }
 
     [Function("GetAvailableSeasons")]
     public Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "seasons")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "seasons")]
+        HttpRequestData req)
     {
         return _mediator.Send(new Application.Seasons.Queries.GetAvailableSeasonsQry())
             .MapAsync(Map)

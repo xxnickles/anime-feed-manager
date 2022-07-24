@@ -3,22 +3,28 @@
 @if (!Items.IsEmpty)
 {
     <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
-    <MudCarousel ShowArrows="false" ShowBullets="false" AutoCycleTime="TimeSpan.FromSeconds(3)" TData="string" Style="height:1.3rem;" Class="mt-2">
-        @foreach (var item in Items.Values)
-        {
-            <MudCarouselItem Transition="Transition.Slide" Color="@Color.Transparent">
-                <div class="d-flex" style="height:100%">
-                    <MudText Class="mx-auto my-auto" Align="Align.Center" Typo="Typo.body1" Color="Color.Primary">@item</MudText>
-                </div>
-            </MudCarouselItem>
-        }
+    @if (ShowItems)
+    {
+        <MudCarousel ShowArrows="false" ShowBullets="false" AutoCycleTime="TimeSpan.FromSeconds(3)" TData="string" Style="height:1.3rem;" Class="mt-2">
+            @foreach (var item in Items.Values)
+            {
+                <MudCarouselItem Transition="Transition.Slide" Color="@Color.Transparent">
+                    <div class="d-flex" style="height:100%">
+                        <MudText Class="mx-auto my-auto" Align="Align.Center" Typo="Typo.body1" Color="Color.Primary">@item</MudText>
+                    </div>
+                </MudCarouselItem>
+            }
 
-    </MudCarousel>
+        </MudCarousel>
+    }
 }
 
 @code {
 
     [Parameter]
     public ImmutableDictionary<string, string> Items { get; set; } = ImmutableDictionary<string, string>.Empty;
+
+    [Parameter]
+    public bool ShowItems { get; set; } = false;
 
 }

@@ -58,7 +58,6 @@ public class EnqueueNotifications
         ProcessFeed(ImmutableList<FeedInfo> feedInfo)
     {
         var titles = feedInfo.Select(t => OptionUtils.UnpackOption(t.FeedTitle.Value, string.Empty)).ToImmutableList();
-
         return _mediator.Send(new GetNotificationsQry(feedInfo)).MapAsync(notifications => (notifications, titles));
     }
 

@@ -83,10 +83,18 @@
 
     // Email is in the systems
             if (!string.IsNullOrEmpty(userEmail))
+            {
+                State.RemoveLoadingItem(userId);
                 return Email.FromString(userEmail);
+            }
+
 
     // UserName is email
-            if (!Email.IsEmail(username)) return await CompleteUserProfile(userId);
+            if (!Email.IsEmail(username))
+            {
+                State.RemoveLoadingItem(userId);
+                return await CompleteUserProfile(userId);
+            }
 
     // Save a new email
             await SaveUser(userId, username);

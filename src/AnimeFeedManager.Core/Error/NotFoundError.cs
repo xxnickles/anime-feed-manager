@@ -2,7 +2,7 @@
 
 public class NotFoundError : DomainError
 {
-    public NotFoundError(string correlationId, string message) : base(correlationId, message)
+    private NotFoundError(string correlationId, string message) : base(correlationId, message)
     {
     }
 

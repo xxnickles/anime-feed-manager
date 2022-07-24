@@ -6,7 +6,7 @@ namespace AnimeFeedManager.WebApp.Services;
 public interface IUserService
 {
     public Task MergeUser(UserDto user);
-    public Task<string> GetEmail(string id);
+    public Task<string?> GetEmail(string id);
 }
 
 public class UserService : IUserService
@@ -24,8 +24,8 @@ public class UserService : IUserService
         return _httpClient.PostAsJsonAsync("api/user", user);
     }
 
-    public Task<string> GetEmail(string id)
+    public Task<string?> GetEmail(string id)
     {
-        return _httpClient.GetFromJsonAsync<string>($"api/user/{id}");
+        return _httpClient.GetFromJsonAsync<string?>($"api/user/{id}");
     }
 }

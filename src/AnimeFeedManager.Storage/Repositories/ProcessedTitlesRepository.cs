@@ -18,13 +18,13 @@ public class ProcessedTitlesRepository : IProcessedTitlesRepository
     public async Task<Either<DomainError, ImmutableList<string>>> GetProcessedTitles()
     {
         return await TableUtils
-            .ExecuteQuery(() => _tableClient.QueryAsync<ProcessedTitlesStorage>(), nameof(ProcessedTitlesStorage))
+            .ExecuteQueryWithEmpty(() => _tableClient.QueryAsync<ProcessedTitlesStorage>(), nameof(ProcessedTitlesStorage))
             .MapAsync(Map);
     }
 
     public Task<Either<DomainError, Unit>> RemoveExpired()
     {
-        var result = TableUtils.ExecuteQuery(() =>
+        var result = TableUtils.ExecuteQueryWithEmpty(() =>
             _tableClient.QueryAsync<ProcessedTitlesStorage>(t =>
                 t.PartitionKey == "feed-processed" &&
                 t.Timestamp <= DateTimeOffset.Now), nameof(ProcessedTitlesStorage));

@@ -20,9 +20,10 @@ public class GetInterestedSeries
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "interested/{subscriber}")]
         HttpRequestData req,
         string subscriber
-        )
+    )
     {
-        return _mediator.Send(new Application.Subscriptions.Queries.GetInterestedSeriesQry(subscriber))
-            .ToResponse(req,_logger);
+        return req
+            .WithAuthenticationCheck(new Application.Subscriptions.Queries.GetInterestedSeriesQry(subscriber))
+            .BindAsync(r => _mediator.Send(r)).ToResponse(req, _logger);
     }
 }

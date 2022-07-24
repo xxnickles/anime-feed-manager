@@ -21,7 +21,8 @@ public class GetSubscribedSeries
         HttpRequestData req,
         string subscriber)
     {
-        return _mediator.Send(new Application.Subscriptions.Queries.GetSubscribedSeriesQry(subscriber))
-            .ToResponse(req,_logger);
+        return req
+            .WithAuthenticationCheck(new Application.Subscriptions.Queries.GetSubscribedSeriesQry(subscriber))
+            .BindAsync(r => _mediator.Send(r)).ToResponse(req, _logger);
     }
 }

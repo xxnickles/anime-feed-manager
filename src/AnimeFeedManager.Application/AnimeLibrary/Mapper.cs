@@ -14,7 +14,7 @@ internal static class Mapper
                         a?.Title ?? "Not Available",                     
                         a?.Synopsis ?? "Not Available",
                         a?.ImageUrl,
-                        new FeedInfo( !string.IsNullOrEmpty(a.FeedTitle), a.Completed, a.FeedTitle)
+                        new FeedInfo( !string.IsNullOrEmpty(a?.FeedTitle), a?.Completed ?? false, a?.FeedTitle ?? string.Empty)
                     ))
                 .ToArray());
     }

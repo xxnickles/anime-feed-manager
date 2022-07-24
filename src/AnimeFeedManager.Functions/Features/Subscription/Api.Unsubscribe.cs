@@ -19,11 +19,13 @@ public class Unsubscribe
 
     [Function("Unsubscribe")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "unsubscribe")] HttpRequestData req)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "unsubscribe")]
+        HttpRequestData req)
     {
         var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
         ArgumentNullException.ThrowIfNull(dto);
-        var command = new UnsubscribeCmd(dto.UserId, dto.Series);
-        return await _mediator.Send(command).ToResponse(req, _logger);
+        return await req
+            .WithAuthenticationCheck(new UnsubscribeCmd(dto.UserId, dto.Series))
+            .BindAsync(r => _mediator.Send(r)).ToResponse(req, _logger);
     }
 }

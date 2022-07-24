@@ -24,7 +24,8 @@ public class AddInterested
     {
         var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
         ArgumentNullException.ThrowIfNull(dto);
-        var command = new MergeInterestedSeriesCmd(dto.UserId, dto.Series);
-        return await _mediator.Send(command).ToResponse(req, _logger);
+
+        return await req.WithAuthenticationCheck(new MergeInterestedSeriesCmd(dto.UserId, dto.Series))
+            .BindAsync(r => _mediator.Send(r)).ToResponse(req, _logger);
     }
 }

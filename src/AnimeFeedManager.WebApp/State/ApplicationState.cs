@@ -8,7 +8,7 @@ public record State(
     User User,
     ImmutableList<string> Subscriptions,
     ImmutableList<string> Interested,
-    ImmutableDictionary<string,string> LoadingItems);
+    ImmutableDictionary<string, string> LoadingItems);
 
 public class ApplicationState
 {
@@ -30,7 +30,7 @@ public class ApplicationState
 
     public void SetSeason(SeasonInfoDto season)
     {
-        Value = Value with {Season = season };
+        Value = Value with {Season = season};
         NotifyStateChanged();
     }
 
@@ -45,7 +45,7 @@ public class ApplicationState
         Value = Value with {Subscriptions = subscriptions};
         NotifyStateChanged();
     }
-    
+
     public void SetInterested(ImmutableList<string> interested)
     {
         Value = Value with {Interested = interested};
@@ -57,20 +57,20 @@ public class ApplicationState
         Value = Value with {Interested = Value.Interested.Add(interested)};
         NotifyStateChanged();
     }
-    
+
     public void RemoveInterested(string interested)
     {
         Value = Value with {Interested = Value.Interested.Remove(interested)};
         NotifyStateChanged();
     }
-    
-    
+
+
     public void AddSubscription(string subscription)
     {
         Value = Value with {Subscriptions = Value.Subscriptions.Add(subscription)};
         NotifyStateChanged();
     }
-    
+
     public void RemoveSubscription(string subscription)
     {
         Value = Value with {Subscriptions = Value.Subscriptions.Remove(subscription)};
@@ -79,12 +79,14 @@ public class ApplicationState
 
     public void AddLoadingItem(string key, string description)
     {
+        if (Value.LoadingItems.ContainsKey(key)) return;
         Value = Value with {LoadingItems = Value.LoadingItems.Add(key, description)};
         NotifyStateChanged();
     }
-    
+
     public void RemoveLoadingItem(string key)
     {
+        if (!Value.LoadingItems.ContainsKey(key)) return;
         Value = Value with {LoadingItems = Value.LoadingItems.Remove(key)};
         NotifyStateChanged();
     }
