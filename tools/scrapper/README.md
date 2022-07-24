@@ -8,10 +8,8 @@ STORAGE_CONNECTION = "<storage-connection>"
 DEFAULT_CONTAINER = "<container>"
 ```
 
-In case there are no environmental variables, the script will default to the local emulator and point to the container "images-process"
+In case there are no environmental variables, the script will default to the local emulator, point to the images' container "images-process", and the titles' container "feed-titles-process" 
 
-## TODO
-Move this script to a JS azure function. Not urgent due to the idea of this script is being run on-demand
 
 
 
