@@ -4,18 +4,21 @@ namespace AnimeFeedManager.WebApp;
 
 public static class ServiceRegistrationExtensions
 {
-    public static void RegisterHttpServices(this IServiceCollection Services, string baseApiUri)
+    public static void RegisterHttpServices(this IServiceCollection services, string baseApiUri)
     {
-        Services.AddHttpClient<ISeasonFetcherService, SeasonService>(client =>
+        services.AddHttpClient<ISeasonFetcherService, SeasonService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp,_) => HttpClientPolicies.GetRetryPolicy(sp));
 
-        Services.AddHttpClient<ISeasonCollectionFetcher, SeasonCollectionService>(client =>
+        services.AddHttpClient<ISeasonCollectionFetcher, SeasonCollectionService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
 
-        Services.AddHttpClient<ISubscriberService, SubscriberService>(client =>
+        services.AddHttpClient<ISubscriberService, SubscriberService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
         
-        Services.AddHttpClient<IUserService, UserService>(client =>
+        services.AddHttpClient<IUserService, UserService>(client =>
+            client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
+
+        services.AddHttpClient<IAdminService, AdminService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
     }
 }

@@ -2,15 +2,13 @@
   "routes": [
     {
       "route": "/login/github",
-      "redirect": "/.auth/login/github"
+      "redirect": "/.auth/login/github",
+      "statusCode": 301
     },
     {
       "route": "/login/twitter",
-      "redirect": "/.auth/login/twitter"
-    },
-    {
-      "route": "/logout*",
-      "redirect": "/.auth/logout*"
+      "redirect": "/.auth/login/twitter",
+      "statusCode": 301
     },
     {
       "route": "/api/user*",

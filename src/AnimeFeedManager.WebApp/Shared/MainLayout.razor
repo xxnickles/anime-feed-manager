@@ -3,6 +3,7 @@
 @using System.Net
 @using AnimeFeedManager.Core.ConstrainedTypes
 @using System.Collections.Immutable
+@using AnimeFeedManager.Common
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject ApplicationState State
@@ -11,30 +12,25 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudThemeProvider IsDarkMode="true"/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
+<MudThemeProvider IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudText Typo="Typo.h5" Class="ml-3">Anime Feed Manager</MudText>
-        <MudSpacer/>
+        <MudLink Color="Color.Default" Underline="Underline.Hover" Typo="Typo.h5" Class="ml-3" Href="/">Anime Feed Manager</MudLink>
+        <MudSpacer />
         <AuthorizeView>
             <Authorized>
+                <MudDivider Vertical="true" Light="true" DividerType="DividerType.Middle" Class="my-3" FlexItem="true" />
                 <AuthorizedUserPanel User="@State.Value.User"></AuthorizedUserPanel>
             </Authorized>
-            <Authorizing></Authorizing>
             <NotAuthorized>
-                <LoginProviders></LoginProviders>
+                <MudButton StartIcon="@Icons.Material.Filled.Person" Variant="Variant.Filled" Color="Color.Primary" OnClick="Login">Login</MudButton>
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
     <MudMainContent>
-        <AuthorizeView>
-            <Authorizing>
-                <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
-            </Authorizing>
-        </AuthorizeView>
         <Loader Items="State.Value.LoadingItems"></Loader>
         <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
             @Body
@@ -50,26 +46,24 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private AuthenticationState? state;
-
     protected override async Task OnInitializedAsync()
     {
         State.OnStateChange += StateHasChanged;
         ArgumentNullException.ThrowIfNull(AuthenticationState);
-    //var state = await AuthenticationState;
-        state = await AuthenticationState;
-        ArgumentNullException.ThrowIfNull(state);
-        if (state is null || (!state.User?.Identity?.IsAuthenticated ?? true))
+        var state = await AuthenticationState;
+        if (state?.User.Identity == null || state.User.Identity?.IsAuthenticated is false)
         {
             await CompleteDefaultProfile(new AnonymousUser());
         }
         else
         {
             var userId = state?.User?.Claims.First(c => c.Type.Contains("nameidentifier")).Value ?? string.Empty;
+            var isAdmin = state?.User?.IsInRole(UserRoles.Admin) ?? false;
             var name = state?.User?.Identity?.Name ?? string.Empty;
             var email = await GetUserEmail(userId, name);
+
             await email.Value.Match(
-                CompleteProfile,
+                em => CompleteProfile(em, isAdmin),
                 () => CompleteDefaultProfile(new AuthenticatedUser()));
         }
     }
@@ -81,7 +75,7 @@
             State.AddLoadingItem(userId, "Loading user profile");
             var userEmail = await UserService.GetEmail(userId);
 
-    // Email is in the systems
+            // Email is in the systems
             if (!string.IsNullOrEmpty(userEmail))
             {
                 State.RemoveLoadingItem(userId);
@@ -89,14 +83,14 @@
             }
 
 
-    // UserName is email
+            // UserName is email
             if (!Email.IsEmail(username))
             {
                 State.RemoveLoadingItem(userId);
                 return await CompleteUserProfile(userId);
             }
 
-    // Save a new email
+            // Save a new email
             await SaveUser(userId, username);
             State.RemoveInterested(userId);
             State.RemoveLoadingItem(userId);
@@ -119,7 +113,7 @@
 
     private async Task<Email> CompleteUserProfile(string userId)
     {
-        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var options = new DialogOptions { CloseOnEscapeKey = true };
         var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
         var result = await dialog.Result;
 
@@ -151,7 +145,7 @@
         return Task.CompletedTask;
     }
 
-    private async Task CompleteProfile(string email)
+    private async Task CompleteProfile(string email, bool isAdmin)
     {
         try
         {
@@ -181,13 +175,20 @@
             Error?.ProcessError("Getting Interested Series", ex);
         }
 
-        State.SetUser(new ApplicationUser(email));
+        State.SetUser(isAdmin ? new AdminUser(email) : new ApplicationUser(email));
         Snackbar.Add("Profile has been completed", Severity.Info);
     }
 
     public void Dispose()
     {
         State.OnStateChange -= StateHasChanged;
+    }
+
+    private async Task Login()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<LoginProviderDialog>("Login", options);
+        await dialog.Result;
     }
 
 }

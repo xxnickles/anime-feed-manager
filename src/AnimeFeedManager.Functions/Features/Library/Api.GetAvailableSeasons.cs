@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Security.Claims;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Functions.Extensions;

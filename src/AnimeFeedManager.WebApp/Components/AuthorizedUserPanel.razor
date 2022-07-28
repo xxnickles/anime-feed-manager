@@ -1,22 +1,32 @@
 ﻿@using AnimeFeedManager.WebApp.State
 @inject NavigationManager NavigationManager
+
 @if (User is not ApplicationUser)
 {
-    <MudBadge Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Overlap="true" Bordered="true" Class="mx-6 my-4" Origin="Origin.TopLeft">
-        <MudTooltip Text="Email has not been provided.">
+    <MudTooltip Text="Email has not been provided.">
+        <MudBadge Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Overlap="true" Bordered="true" Class="mx-6 my-4" Origin="Origin.TopLeft">
             <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small">Limited Access</MudButton>
-        </MudTooltip>
-    </MudBadge>
+        </MudBadge>
+    </MudTooltip>
 }
 
-<MudFab Color="Color.Secondary" StartIcon="@Icons.Filled.Logout" Size="Size.Small" Label="Logout" OnClick="Logout"/>
+@if (User is AdminUser)
+{
+    <MudTooltip Text="Administration">
+        <MudIconButton Icon="@Icons.Filled.AdminPanelSettings" aria-label="Administration" Href="/admin" Size="Size.Medium"></MudIconButton>
+    </MudTooltip>
+}
+<MudTooltip Text="Logout">
+    <MudIconButton Icon="@Icons.Filled.Logout" aria-label="Logout" OnClick="Logout" Size="Size.Medium"></MudIconButton>
+</MudTooltip>
+
 
 @code {
 
     [Parameter]
     public User User { get; set; } = new AnonymousUser();
 
-    private string _logOutPath = "/logout?post_logout_redirect_uri=/";
+    private string _logOutPath = "/.auth/logout?post_logout_redirect_uri=/";
 
     private void Logout()
     {

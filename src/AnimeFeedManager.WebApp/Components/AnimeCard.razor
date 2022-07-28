@@ -7,7 +7,7 @@
 
 @implements IDisposable
 <MudCard>
-    <MudCardMedia Image="@Anime.Url" Height="250" Title="@Anime.Title"/>
+    <MudCardMedia Image="@Anime.Url" Height="250" Title="@Anime.Title" />
     <div>
         <MudCardContent>
             <MudText Typo="Typo.h2">@Anime.Title</MudText>
@@ -39,19 +39,17 @@
                     if (!State.Value.Subscriptions.Contains(Anime.FeedInformation?.Title ?? string.Empty))
                     {
                         <MudTooltip Text="Subscribe">
-                            <MudIconButton
-                                Icon="@Icons.Filled.PlaylistAddCheck"
-                                Color="Color.Primary"
-                                OnClick="() => Subscribe(user.Email)"/>
+                            <MudIconButton Icon="@Icons.Filled.PlaylistAddCheck"
+                           Color="Color.Primary"
+                           OnClick="() => Subscribe(user.Email)" />
                         </MudTooltip>
                     }
                     else
                     {
                         <MudTooltip Text="Unsubscribe">
-                            <MudIconButton
-                                Icon="@Icons.Filled.PlaylistRemove"
-                                Color="Color.Error"
-                                OnClick="() => Unsubscribe(user.Email)"/>
+                            <MudIconButton Icon="@Icons.Filled.PlaylistRemove"
+                           Color="Color.Error"
+                           OnClick="() => Unsubscribe(user.Email)" />
                         </MudTooltip>
                     }
                 }
@@ -65,19 +63,17 @@
                     if (!State.Value.Interested.Contains(Anime.Title))
                     {
                         <MudTooltip Text="Add to Interested">
-                            <MudIconButton
-                                Icon="@Icons.Filled.AddBox"
-                                Color="Color.Primary"
-                                OnClick="() => AddToInterested(user.Email)"/>
+                            <MudIconButton Icon="@Icons.Filled.AddBox"
+                           Color="Color.Primary"
+                           OnClick="() => AddToInterested(user.Email)" />
                         </MudTooltip>
                     }
                     else
                     {
                         <MudTooltip Text="Remove from Interested">
-                            <MudIconButton
-                                Icon="@Icons.Filled.RemoveCircleOutline"
-                                Color="Color.Error"
-                                OnClick="() => RemoveFromInterested(user.Email)"/>
+                            <MudIconButton Icon="@Icons.Filled.RemoveCircleOutline"
+                           Color="Color.Error"
+                           OnClick="() => RemoveFromInterested(user.Email)" />
                         </MudTooltip>
                     }
                 }
@@ -193,12 +189,12 @@
 
     private async Task<bool> GetConfirmation(string title, string message)
     {
-        var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
-        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var parameters = new DialogParameters { { nameof(ConfirmationDialog.Message), message } };
+        var options = new DialogOptions { CloseOnEscapeKey = true };
         var dialog = DialogService.Show<ConfirmationDialog>(title, parameters, options);
         var result = await dialog.Result;
         if (result.Cancelled || result.Data == null) return false;
-        return (bool) result.Data;
+        return (bool)result.Data;
     }
 
 }

@@ -12,6 +12,7 @@ public static class ErrorToActionResults
             ValidationErrors vError => vError.ToResponse(request,log),
             NotFoundError nError => nError.ToResponse(request,log),
             UnauthorizedError uError => uError.ToResponse(request,log),
+            ForbiddenError fError => fError.ToResponse(request, log),
             BasicError bError => bError.ToResponse(request,log),
             _ => request.InternalServerError("An unhandled error has occurred")
         };
@@ -43,6 +44,12 @@ public static class ErrorToActionResults
     {
         log.LogError("{Error}", error.ToString());
         return request.Unauthorized();
+    }
+
+    private static Task<HttpResponseData> ToResponse(this ForbiddenError error, HttpRequestData request, ILogger log)
+    {
+        log.LogError("{Error}", error.ToString());
+        return request.Forbidden();
     }
 
     private static  Task<HttpResponseData> ToResponse(this BasicError error, HttpRequestData request, ILogger log)

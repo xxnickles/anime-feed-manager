@@ -26,23 +26,26 @@ public class SetDefaultStatusToAll
 
     [Function("SetDefaultStatusToAll")]
     public async Task<SetDefaultStatusResponse> Run(
-        [HttpTrigger(AuthorizationLevel.Admin, "post", Route = null)]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "management/set-status")]
         HttpRequestData req)
     {
-        var result = await _mediator.Send(new GetAllQry());
+
+        var result = await req.AllowAdminOnly(new GetAllQry())
+            .BindAsync(r => _mediator.Send(r));
 
 
-        return new SetDefaultStatusResponse
-        {
-            AnimeMessages = result.Match(
-                v => { return v.Select(SetDefaultStatus).Select(Serializer.ToJson); },
-                e =>
-                {
-                    _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message);
-                    return null!;
-                }),
-            HttpResponse = await req.Ok()
-        };
+        return await result.MatchAsync(
+            async r => new SetDefaultStatusResponse
+            {
+                AnimeMessages = r.Select(SetDefaultStatus).Select(Serializer.ToJson),
+                HttpResponse = await req.Ok()
+            },
+            async e => new SetDefaultStatusResponse
+            {
+                AnimeMessages = Enumerable.Empty<string>(),
+                HttpResponse = await e.ToResponse(req, _logger)
+            }
+        );
     }
 
     private static AnimeInfoStorage SetDefaultStatus(AnimeInfoStorage storage)

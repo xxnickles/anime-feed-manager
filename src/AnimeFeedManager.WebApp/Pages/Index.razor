@@ -44,7 +44,7 @@
     }
 
     private static string GetTitle(SeasonInfoDto season) =>
-        season is not NullSeasonInfo ? $"{season.Year} - {season.Season}" : "No Data Available";
+        season is not NullSeasonInfo ? $"{season.Year} - {season.Season.ToUpper()}" : "No Data Available";
 
 
     public void Dispose()
