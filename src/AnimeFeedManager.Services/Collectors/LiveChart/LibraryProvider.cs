@@ -1,151 +1,172 @@
-﻿//using AnimeFeedManager.Common.Helpers;
-//using AnimeFeedManager.Core.ConstrainedTypes;
-//using AnimeFeedManager.Core.Domain;
-//using AnimeFeedManager.Core.Error;
-//using AnimeFeedManager.Core.Utils;
-//using AnimeFeedManager.Services.Collectors.Interface;
-//using AnimeFeedManager.Storage.Interface;
-//using HtmlAgilityPack;
-//using LanguageExt;
-//using System;
-//using System.Collections.Generic;
-//using System.Collections.Immutable;
-//using System.Linq;
-//using System.Net;
-//using System.Threading.Tasks;
-//using System.Web;
-//using static LanguageExt.Prelude;
+﻿using System.Collections.Immutable;
+using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Common.Helpers;
+using AnimeFeedManager.Services.Collectors.Interface;
+using PuppeteerSharp;
 
-//namespace AnimeFeedManager.Services.Collectors.LiveChart;
+namespace AnimeFeedManager.Services.Collectors.LiveChart;
+[Obsolete("Cloudflare locked")]
+public class LibraryProvider : ILibraryProvider
+{
+    private readonly IFeedTitlesRepository _titlesRepository;
 
-//[Obsolete("Live chart moved to Cloudfare. Must use a real browser / puppeter to scrap it", true)]
-//public class LibraryProvider : IExternalLibraryProvider
-//{
-//    private const string LiveChartLibrary = "https://www.livechart.me";
+    private record JsonSeasonInfo(string Season, int Year);
 
-//    private readonly IFeedTitlesRepository _titlesRepository;
+    private record JsonAnimeInfo(string Title, string? ImageUrl, string Synopsys, string Date,
+        JsonSeasonInfo SeasonInfo);
 
-//    public LibraryProvider(IFeedTitlesRepository titlesRepository)
-//    {
-//        _titlesRepository = titlesRepository;
-//    }
+    private record JsonLibrary(JsonAnimeInfo[] AnimeInfo);
 
-//    public async Task<Either<DomainError, ImmutableList<AnimeInfo>>> GetLibrary()
-//    {
-//        try
-//        {
-//            var web = new HtmlWeb();
-//            var doc = web.Load(LiveChartLibrary);
-//            var 
-//                seasonInfoString =
-//                    HttpUtility.HtmlDecode(doc.DocumentNode.SelectSingleNode("//h1").InnerText);
-
-//            var (season, year) = GetSeasonInformation(seasonInfoString);
-//            var yearStr = OptionUtils.UnpackOption(year.Value, (ushort)DateTime.Today.Year).ToString();
-//            var feeTitles = await GetFeedTitles();
-
-//            var results = await Task.WhenAll(doc.DocumentNode
-//                .SelectNodes("//main[@class='chart']/article[@class='anime']/div[@class='anime-card']")
-//                .AsParallel()
-//                .Where(FilterLeftover)
-//                .Select(async x => await MapFromCard(x))
-//                .Select(x => new AnimeInfo(
-//                    NonEmptyString.FromString(IdHelpers.GenerateAnimeId(season.Value, yearStr, x.Item1)),
-//                    NonEmptyString.FromString(x.Item1),
-//                    NonEmptyString.FromString(x.Item2),
-//                    NonEmptyString.FromString(Helpers.TryGetFeedTitle(feeTitles, x.Item1)),
-//                    new SeasonInformation(season, year),
-//                    x.Item3,
-//                    false)));
+    private record SeriesContainer(string Id, string Title, string? ImageUrl, string Synopsys, string Date,
+        JsonSeasonInfo SeasonInfo);
 
 
-//            return results.ToImmutableList();
+    private const string ScrappingScript = @"
+        () => {
+            // Set time zone to Universal Time
+            const createCookie = (name, value) => {
+                var cookie = [name, '=', encodeURIComponent(JSON.stringify(value)), '; domain=.', window.location.host.toString(), '; path=/;'].join('');
+                document.cookie = cookie;
+            }           
+ 
+            createCookie('preferences', { 'time_zone': 'Etc/UTC' })
 
-//        }
-//        catch (Exception e)
-//        {
-//            return ExceptionError.FromException(e, "Library");
-//        }
-//    }
+            const seasonInfomation = () => {
+                const titleParts = document.querySelector('h1').innerText.split(' ');
+                return {
+                    season: titleParts[0].toLowerCase(),
+                    year: parseInt(titleParts[1])
+                }
+            }
 
-//    #region Extract Helpers
+            const animeInfo = [].slice.call(document.querySelectorAll('div.anime-card'))
+                .map(card => {
+                    const checkIfLeftover = () => {
+                        const extras = [].slice.call(card.querySelectorAll('div.anime-date'));
+                        if (!extras) return false;
+                        return extras.reduce((acc, curr) => acc || curr.innerText === 'Ongoing', false);
+                    };
 
-//    private static (Season season, Year year) GetSeasonInformation(string nodeValue)
-//    {
-//        var parts = nodeValue.Split(' ');
-//        var season = Season.FromString(parts[0]);
-//        var result = int.TryParse(parts[1], out int year);
+                    const getImage = () => {
+                        const image = card.querySelector('div.poster-container > img');
+                        const imgSrc = image.classList.contains('lazyload') ? image.getAttribute('data-src') : image.src;
+                        return imgSrc.replace('small', 'large')
+                    }
 
-//        if (!result) throw new ArgumentException("Year couldn't be extracted");
+                    const animeInfo = card.querySelector('div.anime-info');
+                    const synopsys = animeInfo.querySelector('div.anime-synopsis').innerText;
+                    const date = animeInfo.querySelector('div.anime-date').innerText;
 
-//        return (season, new Year(year));
-//    }
+                    return {
+                        title: card.querySelector('h3 > a').innerText,
+                        image: getImage(),
+                        leftover: checkIfLeftover(),
+                        synopsys,
+                        date
 
-//    private static bool FilterLeftover(HtmlNode card)
-//    {
-//        // TODO: change for ongoing
-//        var extraInfo = card.SelectSingleNode("div[@class='anime-info']/div[@class='anime-date']");
-//        if (extraInfo is null) return true;
+                    }
+                }
+                )
+                .filter(info => !info.leftover)
+                .map(x => ({
+                    title: x.title,
+                    imageUrl: x.image,
+                    synopsys: x.synopsys,
+                    date: x.date
+                }));
 
-//        return extraInfo.InnerText != "Ongoing";
+            return {
+                seasonInfo: seasonInfomation(),
+                animeInfo
+            }
 
-//    }
+        }
+    ";
 
-//    private static async Task<(string title, string synopsys, Option<DateTime> date)> MapFromCard(HtmlNode card)
-//    {
 
-//        var title = WebUtility.HtmlDecode(card.SelectSingleNode("h3[@class='main-title']").InnerText);
-//        var animeInfo = card.SelectSingleNode("div[@class='anime-info']");
-            
-//        var taskExtractSynopsis = ExtractSynopsis(animeInfo);
-//        var taskExtractDate = ExtractDate(animeInfo);
-//        var tasks = new Task[]
-//        {
-//            taskExtractSynopsis,
-//            taskExtractDate
-//        };
+    public LibraryProvider(IFeedTitlesRepository titlesRepository)
+    {
+        _titlesRepository = titlesRepository;
+    }
 
-//        await Task.WhenAll(tasks);
-         
-//        var synopsis = await taskExtractSynopsis;
-//        var date = await taskExtractDate;
+    public async Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Titles)>>
+        GetLibrary()
+    {
+        try
+        {
+            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Args = new[] {"--no-sandbox", "--disable-setuid-sandbox"},
+                Headless = false,
+                DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920},
+                Timeout = 0,
+                Devtools = true
+            });
+            await using var page = await browser.NewPageAsync();
+            await page.GoToAsync("https://www.livechart.me");
+            await page.WaitForSelectorAsync("header.site-header");
+            var data = await page.EvaluateFunctionAsync<JsonLibrary>(ScrappingScript);
+            var package = data.AnimeInfo.Select(Map);
+            var feedTitles = await GetFeedTitles();
 
-//        return (title, synopsis, date);
-//    }
+            return (
+                package.Select(i => Map(i, feedTitles))
+                    .ToImmutableList(),
+                package.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
+                    .Select(Map)
+                    .ToImmutableList()
+            );
+        }
+        catch (Exception ex)
+        {
+            return ExceptionError.FromException(ex, "LiveChartLibrary");
+        }
+    }
 
-//    private static Task<string> ExtractSynopsis(HtmlNode animeInfo)
-//    {
-//        return Task.Run(() =>
-//        {
-//            var synopsisParagraphs = animeInfo.SelectNodes("div[(@class='anime-synopsis') or (@class='anime-synopsis is-spoiler-masked')]/p");
-//            if (synopsisParagraphs is null || !synopsisParagraphs.Any()) return string.Empty;
+    private async Task<IEnumerable<string>> GetFeedTitles()
+    {
+        var titles = await _titlesRepository.GetTitles();
+        return titles.Match(
+            x => x,
+            _ => ImmutableList<string>.Empty
+        );
+    }
 
-//            var paragraphsText = synopsisParagraphs.Select(x => HttpUtility.HtmlDecode(x.InnerText));
-//            return string.Join(Environment.NewLine, paragraphsText);
-//        });
 
-//    }
+    private static SeriesContainer Map(JsonAnimeInfo info)
+    {
+        return new SeriesContainer(
+            IdHelpers.GenerateAnimeId(info.SeasonInfo.Season, info.SeasonInfo.Year.ToString(), info.Title),
+            info.Title,
+            info.ImageUrl,
+            info.Synopsys,
+            info.Date,
+            info.SeasonInfo);
+    }
 
-//    private static Task<Option<DateTime>> ExtractDate(HtmlNode animeInfo)
-//    {
-//        return Task.Run(() =>
-//        {
-//            var dateString = animeInfo.SelectSingleNode("div[@class='anime-date']").InnerText;
-//            var cleanDateString = dateString.Replace("at", string.Empty).Replace("JST", "GMT");
-//            var result = DateTime.TryParse(cleanDateString, out DateTime date);
-//            return result ? Some(date) : None;
-//        });
-//    }
 
-//    private async Task<IEnumerable<string>> GetFeedTitles()
-//    {
-//        var titles = await _titlesRepository.GetTitles();
-//        return titles.Match(
-//            x => x,
-//            _ => ImmutableList<string>.Empty
-//        );
-//    }
+    private static AnimeInfo Map(SeriesContainer container, IEnumerable<string> feeTitles)
+    {
+        var sample = container.Date.Replace(" at", string.Empty).Replace("UTC", "GMT");
+        var result = DateTime.TryParse(sample, out var date);
+        return new AnimeInfo(
+            NonEmptyString.FromString(container.Id),
+            NonEmptyString.FromString(container.Title),
+            NonEmptyString.FromString(container.Synopsys),
+            NonEmptyString.FromString(Helpers.TryGetFeedTitle(feeTitles, container.Title)),
+            Map(container.SeasonInfo),
+            result ? Some(date) : None,
+            false
+        );
+    }
 
-//    #endregion
+    private static ImageInformation Map(SeriesContainer container)
+    {
+        return new ImageInformation(container.Id, container.ImageUrl);
+    }
 
-//}
+    private static SeasonInformation Map(JsonSeasonInfo jsonSeasonInfo)
+    {
+        return new SeasonInformation(Season.FromString(jsonSeasonInfo.Season), Year.FromNumber(jsonSeasonInfo.Year));
+    }
+}

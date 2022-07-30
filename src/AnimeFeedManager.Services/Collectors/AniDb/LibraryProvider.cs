@@ -1,106 +1,99 @@
 ﻿using System.Collections.Immutable;
-using System.Net;
 using System.Text.RegularExpressions;
-using System.Web;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Services.Collectors.Interface;
-using HtmlAgilityPack;
+using PuppeteerSharp;
 
 namespace AnimeFeedManager.Services.Collectors.AniDb;
 
-public class LibraryProvider : IExternalLibraryProvider
+public class LibraryProvider : ILibraryProvider
 {
-    internal class AnimeInfoContainer
-    {
-        internal string Title { get; }
-        internal string Synopsis { get; }
-        internal Option<DateTime> Date { get; }
+    private record JsonSeasonInfo(string Season, int Year);
 
-        public AnimeInfoContainer(
-            string title,
-            string synopsis,
-            Option<DateTime> date
-        )
-        {
-            Title = title;
-            Synopsis = synopsis;
-            Date = date;
-        }
-    }
+    private record JsonAnimeInfo(string Title, string? ImageUrl, string Synopsys, string Date,
+        JsonSeasonInfo SeasonInfo);
 
-    private const string AniChartLibrary = "https://anidb.net/anime/season/?type.tvseries=1";
+    private record SeriesContainer(string Id, string Title, string? ImageUrl, string Synopsys, string Date,
+        JsonSeasonInfo SeasonInfo);
 
     private readonly IFeedTitlesRepository _titlesRepository;
+
+
+    private const string ScrappingScript = @"
+        () => {
+            const seasonInfomationGetter = () => {
+                const getDate = (str) => str.includes('/') ? str.split('/')[1] : str;
+                const formatSeason = (str) => str === 'autumn' ? 'fall' : str;
+                const titleParts = document.querySelector('div.g_section.content > h2 span').innerText.split(' ');
+                return {
+                    season: formatSeason(titleParts[0].toLowerCase()),
+                    year: parseInt(getDate(titleParts[1]))
+                }
+            }
+
+            const seasonInfomation = seasonInfomationGetter();
+
+            return [].slice.call(document.querySelectorAll('div.g_bubble.box'))
+                .map(card => {
+
+                    const getImage = () => {
+                        const cleanSrc = (src) => src.replace('.jpg-thumb', '')
+                        const image = card.querySelector('div.thumb.image img');
+                        return cleanSrc(image.src);
+                    }
+
+                    const data = card.querySelector('div.data');
+                    const title = data.querySelector('div.wrap.name a').innerText;
+                    const synopsys = data.querySelector('div.desc')?.innerText ?? '';
+                    const date = data.querySelector('div.date').innerText;
+
+                    return {
+                        title,
+                        imageUrl: getImage(),
+                        synopsys,
+                        date,
+                        seasonInfo: seasonInfomation
+                    }
+                }
+                );
+         }
+    ";
 
     public LibraryProvider(IFeedTitlesRepository titlesRepository)
     {
         _titlesRepository = titlesRepository;
     }
 
-    public async Task<Either<DomainError, ImmutableList<AnimeInfo>>> GetLibrary()
+    public async Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Titles)>>
+        GetLibrary()
     {
         try
         {
-            var web = new HtmlWeb();
-            var doc = await web.LoadFromWebAsync(AniChartLibrary);
-            var
-                seasonInfoString =
-                    HttpUtility.HtmlDecode(GetInnerTextOrEmpty(doc.DocumentNode, "//h1[@class='calendar']"));
+            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Headless = false,
+                DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920}
+            });
+            await using var page = await browser.NewPageAsync();
+            await page.GoToAsync("https://anidb.net/anime/season/?type.tvseries=1");
+            await page.WaitForSelectorAsync("div.g_bubblewrap.g_bubble.container");
+            var data = await page.EvaluateFunctionAsync<JsonAnimeInfo[]>(ScrappingScript);
+            var feedTitles = await GetFeedTitles();
+            var package = data.Select(Map);
 
-            var (season, year, yearStr) = GetSeasonInformation(seasonInfoString);
-            var feeTitles = await GetFeedTitles();
-            return doc.DocumentNode
-                .SelectNodes("//div[contains(@class,'g_bubblewrap') and contains(@class,'container')]/div[contains(@class,'g_bubble') and contains(@class,'box')]")
-                .Select(n => MapFromCard(n, yearStr))
-                .Select(aic => new AnimeInfo(
-                    NonEmptyString.FromString(IdHelpers.GenerateAnimeId(season.Value, yearStr, aic.Title)),
-                    NonEmptyString.FromString(aic.Title),
-                    NonEmptyString.FromString(aic.Synopsis),
-                    NonEmptyString.FromString(Helpers.TryGetFeedTitle(feeTitles, aic.Title)),
-                    new SeasonInformation(season, year),
-                    aic.Date,
-                    false))
-                .ToImmutableList();
+            return (
+                package.Select(i => Map(i, feedTitles))
+                    .ToImmutableList(),
+                package.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
+                    .Select(Map)
+                    .ToImmutableList()
+            );
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return ExceptionError.FromException(e, "AnichartLibrary");
+            return ExceptionError.FromException(ex, "LiveChartLibrary");
         }
-    }
-
-    private static (Season season, Year year, string yearStr) GetSeasonInformation(string nodeValue)
-    {
-        static string GetDateString(string baseStr) =>
-            baseStr.Contains('/') ? baseStr.Split('/')[1] : baseStr;
-
-        var cleaned = nodeValue.Replace("Anime starting in ", string.Empty);
-        var parts = cleaned.Split(' ');
-        var season = Season.FromString(parts[0]);
-        var yearStr = GetDateString(parts[1]);
-        var result = int.TryParse(yearStr, out var year);
-
-        if (!result) throw new ArgumentException("Year couldn't be extracted");
-
-        return (season, Year.FromNumber(year), yearStr);
-    }
-
-    private static AnimeInfoContainer MapFromCard(HtmlNode card, string yearStr)
-    {
-        var dataContainerNode = card.SelectSingleNode("div[@class='data']");
-        var title = WebUtility.HtmlDecode(GetInnerTextOrEmpty(dataContainerNode, "div[@class='wrap name']/a"));
-        var synopsis = WebUtility.HtmlDecode(GetInnerTextOrEmpty(dataContainerNode, "div[@class='desc']"));
-        var date = ExtractDate(GetInnerTextOrEmpty(dataContainerNode, "div[@class='date']"), yearStr);
-
-        return new AnimeInfoContainer(title, FormatSynopsis(synopsis), date);
-    }
-
-    private static Option<DateTime> ExtractDate(string dateStr, string yearStr)
-    {
-        const string pattern = @"(\d{1,2})(\w{2})(\s\w+)";
-        const string replacement = "$1$3";
-        string dateCleaned = Regex.Replace(dateStr, pattern, replacement);
-        var result = DateTime.TryParse($"{dateCleaned} {yearStr}", out var date);
-        return result ? Some(date) : None;
     }
 
     private async Task<IEnumerable<string>> GetFeedTitles()
@@ -112,15 +105,48 @@ public class LibraryProvider : IExternalLibraryProvider
         );
     }
 
-    private static string GetInnerTextOrEmpty(HtmlNode baseNode, string selector)
+    private static SeriesContainer Map(JsonAnimeInfo info)
     {
-        var node = baseNode.SelectSingleNode(selector);
-        return node != null ? node.InnerText : string.Empty;
+        return new SeriesContainer(
+            IdHelpers.GenerateAnimeId(info.SeasonInfo.Season, info.SeasonInfo.Year.ToString(), info.Title),
+            info.Title,
+            info.ImageUrl,
+            info.Synopsys,
+            info.Date,
+            info.SeasonInfo);
     }
 
-    private static string FormatSynopsis(string original)
+    private static AnimeInfo Map(SeriesContainer container, IEnumerable<string> feeTitles)
     {
-        var cleaned = original.Replace("...", ".");
-        return Regex.Replace(cleaned, @"(?<=[\w\d])[\.!?](?=[\w\d])", ". ");
+        var sample = container.Date.Replace(" at", string.Empty).Replace("UTC", "GMT");
+        var result = DateTime.TryParse(sample, out var date);
+        return new AnimeInfo(
+            NonEmptyString.FromString(container.Id),
+            NonEmptyString.FromString(container.Title),
+            NonEmptyString.FromString(container.Synopsys),
+            NonEmptyString.FromString(Helpers.TryGetFeedTitle(feeTitles, container.Title)),
+            Map(container.SeasonInfo),
+            ParseDate(container.Date, container.SeasonInfo.Year),
+            false
+        );
+    }
+
+    private static Option<DateTime> ParseDate(string dateStr, int year)
+    {
+        const string pattern = @"(\d{1,2})(\w{2})(\s\w+)";
+        const string replacement = "$1$3";
+        string dateCleaned = Regex.Replace(dateStr, pattern, replacement);
+        var result = DateTime.TryParse($"{dateCleaned} {year}", out var date);
+        return result ? Some(date) : None;
+    }
+
+    private static SeasonInformation Map(JsonSeasonInfo jsonSeasonInfo)
+    {
+        return new SeasonInformation(Season.FromString(jsonSeasonInfo.Season), Year.FromNumber(jsonSeasonInfo.Year));
+    }
+
+    private static ImageInformation Map(SeriesContainer container)
+    {
+        return new ImageInformation(container.Id, container.ImageUrl);
     }
 }
