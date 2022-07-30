@@ -13,7 +13,7 @@ internal static class ServiceRegistration
             bfOptions.Path = Path.GetTempPath();
         }
         var bf = new BrowserFetcher(bfOptions);
-        await bf.DownloadAsync(BrowserFetcher.DefaultRevision);
+        await bf.DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
 
     }
 }

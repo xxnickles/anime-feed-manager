@@ -16,7 +16,7 @@ public class LibraryTest
             bfOptions.Path = Path.GetTempPath();
         }
         using var bf = new BrowserFetcher(bfOptions);
-        bf.DownloadAsync(BrowserFetcher.DefaultRevision).GetAwaiter().GetResult();
+        bf.DownloadAsync(BrowserFetcher.DefaultChromiumRevision).GetAwaiter().GetResult();
     }
     
     [Fact]

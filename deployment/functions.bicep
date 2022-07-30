@@ -4,6 +4,9 @@ param appName string = 'anime-manager'
 @description('SendGrid Key')
 param sendgridKey string
 
+@description('Deafult Email Sender')
+param email string
+
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
@@ -94,7 +97,7 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
         }
         {
           name: 'FromEmail'
-          value: 'xxnickles@gmail.com'
+          value: email
         }
         {
           name: 'FromName'

@@ -56,7 +56,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./deployment/main.bicep
-          parameters: sendgridKey=${{ secrets.SENDGRID_KEY }}
+          parameters: sendgridKey=${{ secrets.SENDGRID_KEY }} email=${{ secrets.SENDER_EMAIL }}
           failOnStdErr: false
 
       # Builds and Deploys functions
