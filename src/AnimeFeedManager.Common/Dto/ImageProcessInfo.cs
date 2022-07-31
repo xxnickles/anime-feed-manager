@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Functions.Models;
+﻿using AnimeFeedManager.Common.Dto;
+
+namespace AnimeFeedManager.Functions.Models;
 
 public class ImageInfo
 {
@@ -8,7 +10,7 @@ public class ImageInfo
 
 public class ImageProcessInfo
 {
-    public SeasonInfo? SeasonInfo { get; set; }
+    public SeasonInfoDto? SeasonInfo { get; set; }
     public IEnumerable<ImageInfo>? ImagesInfo { get; set; }
 }
 

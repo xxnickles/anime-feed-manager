@@ -14,5 +14,5 @@ public class GetExternalLibraryHandler : IRequestHandler<GetExternalLibraryQry, 
     public GetExternalLibraryHandler(IExternalLibraryProvider externalLibraryProvider) => _externalLibraryProvider = externalLibraryProvider;
         
     public Task<Either<DomainError, ImmutableList<AnimeInfoStorage>>> Handle(GetExternalLibraryQry request, CancellationToken cancellationToken) => 
-        _externalLibraryProvider.GetLibrary().MapAsync(AnimeInfoMappers.ProjectToStorageModelWithEtag);
+        _externalLibraryProvider.GetLibrary().MapAsync(AnimeInfoMappers.ProjectToStorageModel);
 }

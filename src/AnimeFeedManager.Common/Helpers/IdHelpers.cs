@@ -6,6 +6,8 @@ namespace AnimeFeedManager.Common.Helpers;
 public static class IdHelpers
 {
     public static string GenerateAnimePartitionKey(Season season, ushort year) => $"{year.ToString()}-{season}";
+    
+    public static string GenerateAnimePartitionKey(string season, ushort year) => $"{year.ToString()}-{season}";
 
     public static string GenerateAnimeId(string season, string year, string title)
     {

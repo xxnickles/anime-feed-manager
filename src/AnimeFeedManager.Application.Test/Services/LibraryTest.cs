@@ -1,24 +1,14 @@
 ﻿using System.Collections.Immutable;
-using System.Runtime.InteropServices;
+using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Services.Collectors.AniDb;
-using PuppeteerSharp;
+using LanguageExt;
 
 namespace AnimeFeedManager.Application.Test.Services;
 
 [Trait("Category", "Services")]
-public class LibraryTest
+public class LibraryTest : WithScrapper
 {
-    public LibraryTest()
-    {
-        var bfOptions = new BrowserFetcherOptions();
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            bfOptions.Path = Path.GetTempPath();
-        }
-        using var bf = new BrowserFetcher(bfOptions);
-        bf.DownloadAsync(BrowserFetcher.DefaultChromiumRevision).GetAwaiter().GetResult();
-    }
-    
     [Fact]
     public async Task Default_Library_Works()
     {
@@ -33,22 +23,18 @@ public class LibraryTest
         );
     }
 
-
-    // [Fact]
-    // public async Task Library_Works()
-    // {
-    //     var mock = new Mock<IFeedTitlesRepository>();
-    //
-    //     mock.Setup(x => x.GetTitles()).ReturnsAsync((new[] {"a", "b", "c"}).ToImmutableList());
-    //     var sut = await new LibraryProvider(mock.Object).GetLibrary();
-    //     Assert.True(sut.IsRight);
-    //     sut.Match(
-    //         r =>
-    //         {
-    //             Assert.NotEmpty(r.Series);
-    //             Assert.NotEmpty(r.Titles);
-    //         },
-    //     _ => { }
-    //         );
-    // }
+    [Fact]
+    public async Task Library_Works()
+    {
+        var sut = await new LibraryProvider().GetLibrary(new[] {"a", "b", "c"}.ToImmutableList());
+        Assert.True(sut.IsRight);
+        sut.Match(
+            r =>
+            {
+                Assert.NotEmpty(r.Series);
+                Assert.NotEmpty(r.Images);
+            },
+            _ => { }
+        );
+    }
 }

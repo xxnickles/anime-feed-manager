@@ -1,4 +1,5 @@
 using AnimeFeedManager.Application.Seasons.Commands;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -20,7 +21,7 @@ public class UpdateAvailableSeasons
    
     public async Task Run(
         [QueueTrigger(QueueNames.AvailableSeasons, Connection = "AzureWebJobsStorage")]
-        SeasonInfo seasonInfo)
+        SeasonInfoDto seasonInfo)
     {
 
         _logger.LogInformation("Updating available seasons with {SeasonInfoSeason} on {SeasonInfoYear}", seasonInfo.Season, seasonInfo.Year);

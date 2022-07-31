@@ -17,9 +17,6 @@ public class LibraryProvider : ILibraryProvider
     private record SeriesContainer(string Id, string Title, string? ImageUrl, string Synopsys, string Date,
         JsonSeasonInfo SeasonInfo);
 
-    private readonly IFeedTitlesRepository _titlesRepository;
-
-
     private const string ScrappingScript = @"
         () => {
             const seasonInfomationGetter = () => {
@@ -60,26 +57,21 @@ public class LibraryProvider : ILibraryProvider
          }
     ";
 
-    public LibraryProvider(IFeedTitlesRepository titlesRepository)
-    {
-        _titlesRepository = titlesRepository;
-    }
-
-    public async Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Titles)>>
-        GetLibrary()
+    public async Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images)>> GetLibrary(ImmutableList<string> feedTitles)
     {
         try
         {
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                Headless = false,
+                Headless = true,
                 DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920}
             });
             await using var page = await browser.NewPageAsync();
             await page.GoToAsync("https://anidb.net/anime/season/?type.tvseries=1");
             await page.WaitForSelectorAsync("div.g_bubblewrap.g_bubble.container");
             var data = await page.EvaluateFunctionAsync<JsonAnimeInfo[]>(ScrappingScript);
-            var feedTitles = await GetFeedTitles();
+            await browser.CloseAsync();
+
             var package = data.Select(Map);
 
             return (
@@ -94,15 +86,6 @@ public class LibraryProvider : ILibraryProvider
         {
             return ExceptionError.FromException(ex, "LiveChartLibrary");
         }
-    }
-
-    private async Task<IEnumerable<string>> GetFeedTitles()
-    {
-        var titles = await _titlesRepository.GetTitles();
-        return titles.Match(
-            x => x,
-            _ => ImmutableList<string>.Empty
-        );
     }
 
     private static SeriesContainer Map(JsonAnimeInfo info)
@@ -147,6 +130,10 @@ public class LibraryProvider : ILibraryProvider
 
     private static ImageInformation Map(SeriesContainer container)
     {
-        return new ImageInformation(container.Id, container.ImageUrl);
+        return new ImageInformation(
+            container.Id, 
+            IdHelpers.CleanAndFormatAnimeTitle(container.Title),
+            container.ImageUrl,
+            new SeasonInfoDto(container.SeasonInfo.Season, container.SeasonInfo.Year));
     }
 }

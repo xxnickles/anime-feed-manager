@@ -35,13 +35,10 @@ public class UpdateAnimeStatus
 
             var result = await _mediator.Send(new UpdateStatusCmd());
             return result.Match(
-                v =>
+                v => new UpdateAnimeStatusMessages
                 {
-                    return new UpdateAnimeStatusMessages
-                    {
-                        AnimeMessages = v.Select(Serializer.ToJson),
-                        AutoSubscribeMessages = ProcessResult.Ok
-                    };
+                    AnimeMessages = v.Select(Serializer.ToJson),
+                    AutoSubscribeMessages = ProcessResult.Ok
                 },
                 e =>
                 {

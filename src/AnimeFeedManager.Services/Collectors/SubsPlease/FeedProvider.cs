@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using AnimeFeedManager.Services.Collectors.Interface;
+using PuppeteerSharp;
 
 namespace AnimeFeedManager.Services.Collectors.SubsPlease;
 
@@ -11,11 +12,17 @@ public class FeedProvider : IFeedProvider
     private const string TitlePattern = @"(?<=\[SubsPlease\]\s)(.*?)(?=\s-\s\d+)";
     private const string EpisodeInfoPattern = @"(?<=\s-\s)\d+(\s\(V\d{1}\))?";
 
+    private const string ScrappingScript = @"
+        () => {
+            return Array.from(document.querySelectorAll('td.all-schedule-show a')).map(x => x.innerText);
+        }
+    ";
+
     public Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution)
     {
         try
         {
-            var sources = new List<LinkType> { LinkType.TorrentFile, LinkType.Magnet }
+            var sources = new List<LinkType> {LinkType.TorrentFile, LinkType.Magnet}
                 .SelectMany(type => GetFeedInformation(Resolution.Hd, type))
                 .Where(f => f.PublicationDate >= DateTime.Today)
                 .GroupBy(i => i.AnimeTitle);
@@ -36,6 +43,30 @@ public class FeedProvider : IFeedProvider
         {
             return Left<DomainError, ImmutableList<FeedInfo>>(
                 ExceptionError.FromException(e, "SubsPlease_Feed_Exception"));
+        }
+    }
+
+    public async Task<Either<DomainError, ImmutableList<string>>> GetTitles()
+    {
+        try
+        {
+            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Headless = true,
+                DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920}
+            });
+
+            await using var page = await browser.NewPageAsync();
+            await page.GoToAsync("https://subsplease.org/schedule/");
+            await page.WaitForSelectorAsync("table#full-schedule-table td.all-schedule-show");
+            var data = await page.EvaluateFunctionAsync<IEnumerable<string>>(ScrappingScript);
+            await browser.CloseAsync();
+            return data.ToImmutableList();
+        }
+        catch (Exception e)
+        {
+            return Left<DomainError, ImmutableList<string>>(
+                ExceptionError.FromException(e, "SubsPlease_Feed_Titles_Exception"));
         }
     }
 

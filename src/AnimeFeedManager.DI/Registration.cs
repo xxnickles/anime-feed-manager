@@ -53,6 +53,7 @@ public static class Registration
     public static IServiceCollection RegisterAppServices(this IServiceCollection services)
     {
         services.AddScoped<IExternalLibraryProvider, ExternalLibraryProvider>();
+        services.AddScoped<ILibraryProvider, LibraryProvider>();
         services.AddScoped<IFeedProvider, FeedProvider>();
         return services;
     }

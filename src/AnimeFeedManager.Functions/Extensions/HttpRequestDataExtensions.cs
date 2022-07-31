@@ -114,5 +114,4 @@ public static class HttpRequestDataExtensions
         return principal.Identity?.IsAuthenticated is true ? Right<DomainError, (ClaimsPrincipal, HttpRequestData)>((principal, request)) : Left<DomainError, (ClaimsPrincipal, HttpRequestData)>(UnauthorizedError.Create(request.Url.AbsoluteUri));
     }
 
-   
 }

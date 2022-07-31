@@ -10,5 +10,5 @@ public interface IExternalLibraryProvider
 
 public interface ILibraryProvider
 {
-    Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Titles)>> GetLibrary();
+    Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images)>> GetLibrary(ImmutableList<string> feedTitles);
 }

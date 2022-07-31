@@ -10,7 +10,8 @@ public class ProcessTitles
     private readonly IMediator _mediator;
     private readonly ILogger<ProcessTitles> _logger;
 
-    public ProcessTitles(IMediator mediator, ILoggerFactory loggerFactory)
+    public ProcessTitles(
+        IMediator mediator, ILoggerFactory loggerFactory)
     {
         _mediator = mediator;
         _logger = loggerFactory.CreateLogger<ProcessTitles>();

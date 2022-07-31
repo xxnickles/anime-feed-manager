@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -47,9 +48,5 @@ public class UpdateLibrary
             });
     }
 
-    private SeasonInfo ExtractSeasonInformation(AnimeInfoStorage sample) => new()
-    {
-        Season = sample.Season,
-        Year = sample.Year
-    };
+    private static SeasonInfoDto ExtractSeasonInformation(AnimeInfoStorage sample) => new(sample?.Season ?? string.Empty, sample?.Year ?? 0);
 }
