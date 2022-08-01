@@ -2,6 +2,7 @@
 {
     public interface IAdminService
     {
+        Task UpdateLibrary();
         Task UpdateLatestSeason();
         Task SetAllSeriesAsNoCompleted();
     }
@@ -13,6 +14,11 @@
         public AdminService(HttpClient httpClient)
         {
             _httpClient = httpClient;
+        }
+
+        public Task UpdateLibrary()
+        {
+            return _httpClient.PostAsync("/api/scrapping/library", null);
         }
 
         public Task UpdateLatestSeason()

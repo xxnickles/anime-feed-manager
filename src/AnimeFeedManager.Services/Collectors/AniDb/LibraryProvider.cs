@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Services.Collectors.Interface;
@@ -9,6 +10,8 @@ namespace AnimeFeedManager.Services.Collectors.AniDb;
 
 public class LibraryProvider : ILibraryProvider
 {
+    private readonly PuppeteerOptions _puppeteerOptions;
+
     private record JsonSeasonInfo(string Season, int Year);
 
     private record JsonAnimeInfo(string Title, string? ImageUrl, string Synopsys, string Date,
@@ -57,6 +60,11 @@ public class LibraryProvider : ILibraryProvider
          }
     ";
 
+    public LibraryProvider(PuppeteerOptions puppeteerOptions)
+    {
+        _puppeteerOptions = puppeteerOptions;
+    }
+
     public async Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images)>> GetLibrary(ImmutableList<string> feedTitles)
     {
         try
@@ -64,7 +72,8 @@ public class LibraryProvider : ILibraryProvider
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
                 Headless = true,
-                DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920}
+                DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920},
+                ExecutablePath = _puppeteerOptions.Path
             });
             await using var page = await browser.NewPageAsync();
             await page.GoToAsync("https://anidb.net/anime/season/?type.tvseries=1");

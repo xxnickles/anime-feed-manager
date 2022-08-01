@@ -19,6 +19,7 @@ var host = new HostBuilder()
     {
         s.AddHttpClient();
         s.RegisterStorage(storageConnection);
+        s.RegisterPuppeteer();
         s.RegisterAppServices();
         s.RegisterApplicationServices();
         s.AddSendGrid(options => options.ApiKey = Environment.GetEnvironmentVariable("SendGridKey"));

@@ -35,11 +35,12 @@ public class GetLibraryHandler : IRequestHandler<GetLibraryQry, Either<DomainErr
     private static LibraryForStorage Map(
         (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images) source)
     {
-        return new LibraryForStorage(
+        var t = new LibraryForStorage(
             AnimeInfoMappers.ProjectToStorageModel(source.Series),
             Map(source.Images),
             source.Images.First().SeasonInfo
         );
+        return t;
     }
 
     private static ImmutableList<BlobImageInfoEvent> Map(ImmutableList<ImageInformation> source)

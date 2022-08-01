@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using AnimeFeedManager.Common;
 using AnimeFeedManager.Services.Collectors.Interface;
 using PuppeteerSharp;
 
@@ -8,6 +9,7 @@ namespace AnimeFeedManager.Services.Collectors.SubsPlease;
 
 public class FeedProvider : IFeedProvider
 {
+    private readonly PuppeteerOptions _puppeteerOptions;
     private const string SubsPleaseRss = "https://subsplease.org/rss/";
     private const string TitlePattern = @"(?<=\[SubsPlease\]\s)(.*?)(?=\s-\s\d+)";
     private const string EpisodeInfoPattern = @"(?<=\s-\s)\d+(\s\(V\d{1}\))?";
@@ -17,6 +19,11 @@ public class FeedProvider : IFeedProvider
             return Array.from(document.querySelectorAll('td.all-schedule-show a')).map(x => x.innerText);
         }
     ";
+
+    public FeedProvider(PuppeteerOptions puppeteerOptions)
+    {
+        _puppeteerOptions = puppeteerOptions;
+    }
 
     public Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution)
     {
@@ -52,8 +59,10 @@ public class FeedProvider : IFeedProvider
         {
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
+                Product = Product.Chrome,
                 Headless = true,
-                DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920}
+                DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920},
+                ExecutablePath = _puppeteerOptions.Path
             });
 
             await using var page = await browser.NewPageAsync();

@@ -58,7 +58,7 @@ public class UploadImage
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error has ocurred");
+            _logger.LogError(e, "An error has occurred");
         }
       
     }

@@ -39,7 +39,7 @@ public class ProcessLibrary
     [Function("ProcessLibrary")]
     public async Task<ProcessLibraryOutput> Run(
         [QueueTrigger(QueueNames.LibraryUpdate, Connection = "AzureWebJobsStorage")]
-        bool startProcess)
+        string startProcess)
     {
         var result = await _feedProvider.GetTitles()
             .BindAsync(CollectLibrary);
@@ -62,8 +62,8 @@ public class ProcessLibrary
                 _logger.LogError("An error occurred while processing library update {S}", e.ToString());
                 return new ProcessLibraryOutput
                 {
-                    AnimeMessages = ImmutableList<string>.Empty,
-                    ImagesMessages = ImmutableList<string>.Empty,
+                    AnimeMessages = null,
+                    ImagesMessages = null,
                     ProcessResult = ProcessResult.Failure,
                     SeasonMessage = null
                 };
