@@ -3,7 +3,6 @@
     public interface IAdminService
     {
         Task UpdateLibrary();
-        Task UpdateLatestSeason();
         Task SetAllSeriesAsNoCompleted();
     }
 
@@ -19,11 +18,6 @@
         public Task UpdateLibrary()
         {
             return _httpClient.PostAsync("/api/scrapping/library", null);
-        }
-
-        public Task UpdateLatestSeason()
-        {
-            return _httpClient.PostAsync("/api/library", null);
         }
 
         public Task SetAllSeriesAsNoCompleted()

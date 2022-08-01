@@ -11,20 +11,6 @@
             <tbody>
             <tr>
                 <td>
-                    <MudText Typo="Typo.body1">Manual Update Latest library</MudText>
-                    <MudText Typo="Typo.subtitle2">This process will be done in the background</MudText>
-                </td>
-                <td style="text-align: right">
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Secondary"
-                               OnClick="UpdateLibrary">
-                        Update
-                    </MudButton>
-                </td>
-            </tr>
-
-            <tr>
-                <td>
                     <MudText Typo="Typo.body1">Automated Update Latest library</MudText>
                     <MudText Typo="Typo.subtitle2">Process in the background feed titles, series, animes</MudText>
                 </td>
@@ -60,21 +46,6 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private async Task UpdateLibrary()
-    {
-        try
-        {
-            if (await GetConfirmation("Update Library", "Do you want to update latest season? This task will run in the background"))
-            {
-                await AdminService.UpdateLatestSeason();
-                Snackbar.Add("Latest season would be updated in the background", Severity.Info);
-            }
-        }
-        catch (Exception ex)
-        {
-            Error?.ProcessError("Updating Library", ex);
-        }
-    }
 
     private async Task ProcessLibrary()
     {

@@ -3,11 +3,20 @@
 
 @if (User is not ApplicationUser)
 {
-    <MudTooltip Text="Email has not been provided.">
-        <MudBadge Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Overlap="true" Bordered="true" Class="mx-6 my-4" Origin="Origin.TopLeft">
-            <MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small">Limited Access</MudButton>
-        </MudBadge>
-    </MudTooltip>
+    <MudBreakpointProvider>
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <MudTooltip Text="Email has not been provided.">
+                <MudBadge Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Overlap="true" Bordered="true" Class="mx-6 my-4" Origin="Origin.TopLeft">
+                    <MudButton Color="Color.Warning" Size="Size.Small" Variant="Variant.Filled">Limited Access</MudButton>
+                </MudBadge>
+            </MudTooltip>
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+            <MudTooltip Text="Email has not been provided.">
+                <MudIconButton Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Size="Size.Medium" Title="Limited Access"/>
+            </MudTooltip>
+        </MudHidden>
+    </MudBreakpointProvider>
 }
 
 @if (User is AdminUser)

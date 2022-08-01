@@ -12,21 +12,39 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudThemeProvider IsDarkMode="true" />
-<MudDialogProvider />
-<MudSnackbarProvider />
+<MudThemeProvider IsDarkMode="true"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
 
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudLink Color="Color.Default" Underline="Underline.Hover" Typo="Typo.h5" Class="ml-3" Href="/">Anime Feed Manager</MudLink>
-        <MudSpacer />
+        <MudBreakpointProvider>
+            <MudHidden Breakpoint="Breakpoint.Xs">
+                <MudLink Color="Color.Default" Underline="Underline.Hover" Typo="Typo.h5" Class="ml-3" Href="/">Anime Feed Manager</MudLink>
+            </MudHidden>
+            <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                <MudLink Href="/" Underline="Underline.None">
+                    <MudAvatar Size="Size.Medium" Alt="Anime Feed Manager" Style="font-size: 0.75rem">AMF</MudAvatar>
+                </MudLink>
+            </MudHidden>
+        </MudBreakpointProvider>
+        <MudSpacer/>
         <AuthorizeView>
             <Authorized>
-                <MudDivider Vertical="true" Light="true" DividerType="DividerType.Middle" Class="my-3" FlexItem="true" />
+                <MudDivider Vertical="true" Light="true" DividerType="DividerType.Middle" Class="my-3" FlexItem="true"/>
                 <AuthorizedUserPanel User="@State.Value.User"></AuthorizedUserPanel>
             </Authorized>
             <NotAuthorized>
-                <MudButton StartIcon="@Icons.Material.Filled.Person" Variant="Variant.Filled" Color="Color.Primary" OnClick="Login">Login</MudButton>
+                <MudBreakpointProvider>
+                    <MudHidden Breakpoint="Breakpoint.Xs">
+                        <MudButton StartIcon="@Icons.Material.Filled.Person" Variant="Variant.Filled" Color="Color.Primary" OnClick="Login">Login</MudButton>
+                    </MudHidden>
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                        <MudTooltip Text="Login">
+                            <MudIconButton Icon="@Icons.Material.Filled.Person" Color="Color.Primary" Size="Size.Medium" OnClick="Login"></MudIconButton>
+                        </MudTooltip>
+                    </MudHidden>
+                </MudBreakpointProvider>
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
@@ -75,7 +93,7 @@
             State.AddLoadingItem(userId, "Loading user profile");
             var userEmail = await UserService.GetEmail(userId);
 
-            // Email is in the systems
+    // Email is in the systems
             if (!string.IsNullOrEmpty(userEmail))
             {
                 State.RemoveLoadingItem(userId);
@@ -83,14 +101,14 @@
             }
 
 
-            // UserName is email
+    // UserName is email
             if (!Email.IsEmail(username))
             {
                 State.RemoveLoadingItem(userId);
                 return await CompleteUserProfile(userId);
             }
 
-            // Save a new email
+    // Save a new email
             await SaveUser(userId, username);
             State.RemoveInterested(userId);
             State.RemoveLoadingItem(userId);
@@ -113,7 +131,7 @@
 
     private async Task<Email> CompleteUserProfile(string userId)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var options = new DialogOptions {CloseOnEscapeKey = true};
         var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
         var result = await dialog.Result;
 
@@ -186,7 +204,7 @@
 
     private async Task Login()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var options = new DialogOptions {CloseOnEscapeKey = true};
         var dialog = DialogService.Show<LoginProviderDialog>("Login", options);
         await dialog.Result;
     }
