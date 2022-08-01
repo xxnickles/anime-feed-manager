@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using AnimeFeedManager.Common;
+﻿using AnimeFeedManager.Common;
 using Microsoft.Extensions.DependencyInjection;
 using PuppeteerSharp;
 
@@ -16,7 +15,6 @@ public static class PuppeteerServiceRegistration
 
         var browserFetcher = new BrowserFetcher(fetcherOptions);
         browserFetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision).GetAwaiter().GetResult();
-        var t = browserFetcher.GetExecutablePath(BrowserFetcher.DefaultChromiumRevision);
         serviceCollection.AddSingleton(
             new PuppeteerOptions(browserFetcher.GetExecutablePath(BrowserFetcher.DefaultChromiumRevision)));
         return serviceCollection;

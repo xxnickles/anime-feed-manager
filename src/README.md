@@ -5,9 +5,11 @@ Anime Feed Manager back-end
 
 Please refer to [this post](https://dev.to/azure/develop-azure-functions-using-net-core-3-0-gcm) for information about the specific local setup required
 
-* [Dotnet Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+* [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 * [Azure SDK](https://azure.microsoft.com/en-us/downloads/)
 * [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
+* [docker](https://www.docker.com/)
+* [swa cli](https://azure.github.io/static-web-apps-cli/docs/cli/swa/)
 
 ## Required Configuration Variables (Functions)
 
@@ -19,7 +21,7 @@ The following are required configuration variables that need to be present when 
 * **FromEmail** and **FromName**: email values configuration. This information is used for SendGrid
 * **Sandbox**: boolean value used by SendGrid [Documentation](https://sendgrid.com/docs/for-developers/sending-email/sandbox-mode/)
 
-The easiet way to configure those variables in development is creating a "local.settings.json" file in the project "AnimeFeedManager.Functions" 
+The easiest way to configure those variables in development is creating a "local.settings.json" file in the project "AnimeFeedManager.Functions" 
 
 ```json
 {

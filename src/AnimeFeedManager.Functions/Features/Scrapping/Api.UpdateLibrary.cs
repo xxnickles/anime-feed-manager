@@ -24,7 +24,7 @@ namespace AnimeFeedManager.Functions.Features.Scrapping
         [Function("UpdateLatestLibrary")]
         public async Task<UpdateLatestLibraryOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "scrapping/library")] HttpRequestData req)
         {
-            _logger.LogInformation("Automated Update of Library");
+            _logger.LogInformation("Automated Update of Library (Manual trigger)");
 
             var result = await req.AllowAdminOnly();
 

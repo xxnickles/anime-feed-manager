@@ -10,7 +10,7 @@ namespace AnimeFeedManager.Functions.Features.Scrapping;
 
 public class ProcessLibraryOutput
 {
-    [QueueOutput(QueueNames.TitleProcess)] public string? ProcessResult { get; set; }
+    [QueueOutput(QueueNames.TitleProcess)] public string? TitleMessage { get; set; }
 
     [QueueOutput(QueueNames.AnimeLibrary)] public IEnumerable<string>? AnimeMessages { get; set; }
 
@@ -54,7 +54,7 @@ public class ProcessLibrary
                     AnimeMessages = v.Animes.Select(Serializer.ToJson),
                     ImagesMessages = v.Images.Select(Serializer.ToJson),
                     SeasonMessage = Serializer.ToJson(v.Season),
-                    ProcessResult = ProcessResult.Ok
+                    TitleMessage = ProcessResult.Ok
                 };
             },
             e =>
@@ -64,7 +64,7 @@ public class ProcessLibrary
                 {
                     AnimeMessages = null,
                     ImagesMessages = null,
-                    ProcessResult = ProcessResult.Failure,
+                    TitleMessage = ProcessResult.Failure,
                     SeasonMessage = null
                 };
             });

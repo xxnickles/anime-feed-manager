@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using AnimeFeedManager.Common;
+﻿using AnimeFeedManager.Common;
 using PuppeteerSharp;
 
 namespace AnimeFeedManager.Application.Test.Services;

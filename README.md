@@ -13,7 +13,6 @@ _(*) This project used to use [HorribleSubs](https://horriblesubs.info/), but it
 ## Projects
 
 - src: Azure Functions base back-end and Blazor client
-- tools: simple scrapper based on puppeteer for LiveChart anime thumbnails and SubsPlease feed tiles
 
 ## Dev Requirements
 

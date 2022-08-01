@@ -26,7 +26,7 @@ public class PersistSeries
         var command = new MergeAnimeInfoCmd(animeInfo);
         var result = await _mediator.Send(command);
         result.Match(
-            _ => _logger.LogInformation("{AnimeInfoTitle} has been stored", animeInfo.Title),
+            _ => _logger.LogInformation("Series '{AnimeInfoTitle}' has been stored", animeInfo.Title),
             e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }
