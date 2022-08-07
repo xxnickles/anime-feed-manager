@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using AnimeFeedManager.Application.Notifications;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
 using SendGrid;
 using SendGrid.Helpers.Mail;

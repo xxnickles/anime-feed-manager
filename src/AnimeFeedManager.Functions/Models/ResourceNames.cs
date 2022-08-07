@@ -9,6 +9,7 @@ internal static class QueueNames
     internal const string LibraryUpdate = "trigger-library-update";
     internal const string TitleProcess = "title-process";
     internal const string ProcessedTitles = "processed-Titles";
+    internal const string SubscribersToProcess = "subscribers-to-process";
     internal const string ProcessAutoSubscriber = "process-auto-subscriber";
     internal const string ToSubscribe = "to-subscribe";
     internal const string InterestRemove = "interest-remove";

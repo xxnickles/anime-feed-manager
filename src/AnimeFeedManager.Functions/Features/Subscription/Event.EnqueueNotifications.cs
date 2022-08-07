@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
-using AnimeFeedManager.Application.Feed.Queries;
-using AnimeFeedManager.Application.Notifications;
 using AnimeFeedManager.Application.Notifications.Queries;
-using AnimeFeedManager.Core.Utils;
+using AnimeFeedManager.Application.Subscriptions;
+using AnimeFeedManager.Application.Subscriptions.Queries;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -13,10 +13,10 @@ public class NotificationsMessages
 {
     [QueueOutput(QueueNames.ProcessedTitles, Connection = "AzureWebJobsStorage")]
     public IEnumerable<string>? ProcessedTitles { get; set; }
+
     [QueueOutput(QueueNames.Notifications, Connection = "AzureWebJobsStorage")]
     public IEnumerable<string>? Notifications { get; set; }
 }
-
 
 public class EnqueueNotifications
 {
@@ -31,11 +31,12 @@ public class EnqueueNotifications
 
     [Function("EnqueueNotifications")]
     public async Task<NotificationsMessages> Run(
-        [TimerTrigger("0 0 * * * *")] TimerInfo timer
-        )
+        [QueueTrigger(QueueNames.SubscribersToProcess, Connection = "AzureWebJobsStorage")]
+        string subscriber
+    )
     {
-        var notifications = await _mediator.Send(new GetLatestFeedQry(Resolution.Hd))
-            .BindAsync(ProcessFeed);
+        var notifications = await _mediator.Send(new GetSubscriptionsQry(subscriber))
+            .BindAsync(ProcessSubscriptions);
 
         return notifications.Match(
             process =>
@@ -44,7 +45,7 @@ public class EnqueueNotifications
                 return new NotificationsMessages
                 {
                     Notifications = notificationList.Select(Serializer.ToJson),
-                    ProcessedTitles = titles
+                    ProcessedTitles = titles.Select(Serializer.ToJson),
                 };
             },
             e =>
@@ -54,11 +55,18 @@ public class EnqueueNotifications
             });
     }
 
-    private Task<Either<DomainError, (ImmutableList<Notification> notifications, ImmutableList<string> titles)>>
-        ProcessFeed(ImmutableList<FeedInfo> feedInfo)
+    private Task<Either<DomainError, (ImmutableList<Notification> notifications, ImmutableList<NotifiedTitle> titles)>>
+        ProcessSubscriptions(ImmutableList<SubscriptionCollection> subscriptionsToProcess)
     {
-        var titles = feedInfo.Select(t => OptionUtils.UnpackOption(t.FeedTitle.Value, string.Empty)).ToImmutableList();
-        return _mediator.Send(new GetNotificationsQry(feedInfo)).MapAsync(notifications => (notifications, titles));
+        return _mediator.Send(new GetNotificationsQry(subscriptionsToProcess))
+            .MapAsync(notifications => (notifications, Map(notifications)));
     }
 
+    private static ImmutableList<NotifiedTitle> Map(ImmutableList<Notification> source)
+    {
+        return source
+            .SelectMany(
+                n => n.Feeds.Select(f => new NotifiedTitle(n.Subscriber, f.Title)))
+            .ToImmutableList();
+    }
 }

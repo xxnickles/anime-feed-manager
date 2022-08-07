@@ -10,12 +10,20 @@ public class SubscriptionRepository : ISubscriptionRepository
 {
     private readonly TableClient _tableClient;
 
+    private class SubscriptionContainer : ITableEntity
+    {
+        public string PartitionKey { get; set; } = string.Empty;
+        public string RowKey { get; set; } = string.Empty;
+        public DateTimeOffset? Timestamp { get; set; }
+        public ETag ETag { get; set; }
+    }
+
     public SubscriptionRepository(ITableClientFactory<SubscriptionStorage> tableClientFactory)
     {
         _tableClient = tableClientFactory.GetClient();
         _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
-    
+
 
     public Task<Either<DomainError, ImmutableList<SubscriptionStorage>>> Get(Email userEmail)
     {
@@ -24,20 +32,30 @@ public class SubscriptionRepository : ISubscriptionRepository
             _tableClient.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == user), nameof(SubscriptionStorage));
     }
 
-    public Task<Either<DomainError, ImmutableList<SubscriptionStorage>>> GetAll() =>
-        TableUtils.ExecuteQuery(() => _tableClient.QueryAsync<SubscriptionStorage>(), nameof(SubscriptionStorage));
-
-
-    public async Task<Either<DomainError, Unit>> Merge(SubscriptionStorage subscription)
+    public Task<Either<DomainError, ImmutableList<string>>> GetAllSubscribers()
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(subscription), nameof(SubscriptionStorage));
-        return result.Map(_ => unit);
+        return TableUtils.ExecuteQuery(
+                () => _tableClient.QueryAsync<SubscriptionContainer>(select: new[]
+                    {nameof(SubscriptionContainer.PartitionKey)}),
+                nameof(SubscriptionStorage))
+            .MapAsync(list => 
+                list.Select(subs => subs.PartitionKey)
+                    .Distinct()
+                    .ToImmutableList());
     }
 
-    public async Task<Either<DomainError, Unit>> Delete(SubscriptionStorage subscription)
+
+    public Task<Either<DomainError, Unit>> Merge(SubscriptionStorage subscription)
     {
-        var result = await TableUtils.TryExecute(() =>
-            _tableClient.DeleteEntityAsync(subscription.PartitionKey, subscription.RowKey), nameof(SubscriptionStorage));
-        return result.Map(_ => unit);
+        return TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(subscription), nameof(SubscriptionStorage))
+            .MapAsync(_ => unit);
+    }
+
+    public Task<Either<DomainError, Unit>> Delete(SubscriptionStorage subscription)
+    {
+        return TableUtils.TryExecute(() =>
+                    _tableClient.DeleteEntityAsync(subscription.PartitionKey, subscription.RowKey),
+                nameof(SubscriptionStorage))
+            .MapAsync(_ => unit);
     }
 }

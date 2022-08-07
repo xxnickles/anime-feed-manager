@@ -8,3 +8,6 @@ public record SubscriptionDto(string UserId, string Series);
 public record UserDto(string UserId, string Email);
 
 public record ImageInformation(string Id, string Name, string? Link, SeasonInfoDto SeasonInfo);
+
+
+

@@ -1,4 +1,5 @@
 using AnimeFeedManager.Application.Feed.Commands;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,14 +20,13 @@ public class AddProcessedTitle
     [Function("AddProcessedTitle")]
     public async Task Run(
         [QueueTrigger(QueueNames.ProcessedTitles, Connection = "AzureWebJobsStorage")]
-        string title)
+        NotifiedTitle title)
     {
-        _logger.LogInformation("Saving {Title}", title);
+        _logger.LogInformation("Saving processed titles {Title} for {Subscriber}", title.Title, title.Subscriber);
         var storeTitle = new ProcessedTitlesStorage
         {
-            RowKey = Guid.NewGuid().ToString("N"),
-            PartitionKey = "feed-processed",
-            Title = title
+            RowKey = title.Title,
+            PartitionKey = title.Subscriber
         };
 
         var result = await _mediator.Send(new AddProcessedTitleCmd(storeTitle));

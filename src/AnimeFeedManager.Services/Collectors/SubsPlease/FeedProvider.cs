@@ -30,7 +30,7 @@ public class FeedProvider : IFeedProvider
         try
         {
             var sources = new List<LinkType> {LinkType.TorrentFile, LinkType.Magnet}
-                .SelectMany(type => GetFeedInformation(Resolution.Hd, type))
+                .SelectMany(type => GetFeedInformation(resolution, type))
                 .Where(f => f.PublicationDate >= DateTime.Today)
                 .GroupBy(i => i.AnimeTitle);
 

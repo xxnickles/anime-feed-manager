@@ -15,10 +15,11 @@ public class ProcessedTitlesRepository : IProcessedTitlesRepository
         _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
-    public async Task<Either<DomainError, ImmutableList<string>>> GetProcessedTitles()
+    public async Task<Either<DomainError, ImmutableList<string>>> GetProcessedTitlesForSubscriber(string subscriber)
     {
         return await TableUtils
-            .ExecuteQueryWithEmpty(() => _tableClient.QueryAsync<ProcessedTitlesStorage>(), nameof(ProcessedTitlesStorage))
+            .ExecuteQueryWithEmpty(() => _tableClient.QueryAsync<ProcessedTitlesStorage>(p => p.PartitionKey == subscriber),
+                nameof(ProcessedTitlesStorage))
             .MapAsync(Map);
     }
 
@@ -26,7 +27,6 @@ public class ProcessedTitlesRepository : IProcessedTitlesRepository
     {
         var result = TableUtils.ExecuteQueryWithEmpty(() =>
             _tableClient.QueryAsync<ProcessedTitlesStorage>(t =>
-                t.PartitionKey == "feed-processed" &&
                 t.Timestamp <= DateTimeOffset.Now), nameof(ProcessedTitlesStorage));
 
         return result.BindAsync(BatchDelete);
@@ -46,6 +46,7 @@ public class ProcessedTitlesRepository : IProcessedTitlesRepository
 
     private static ImmutableList<string> Map(ImmutableList<ProcessedTitlesStorage> titles)
     {
-        return titles.Select(storageTitle => storageTitle.Title ?? string.Empty).ToImmutableList();
+        return titles.Select(storageTitle => storageTitle.RowKey ?? string.Empty)
+            .ToImmutableList();
     }
 }

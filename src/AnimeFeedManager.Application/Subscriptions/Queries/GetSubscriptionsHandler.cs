@@ -3,28 +3,54 @@ using MediatR;
 
 namespace AnimeFeedManager.Application.Subscriptions.Queries;
 
-public sealed record GetSubscriptionsQry :IRequest<Either<DomainError, ImmutableList<SubscriptionCollection>>>;
+public sealed record GetSubscriptionsQry
+    (string Subscriber) : IRequest<Either<DomainError, ImmutableList<SubscriptionCollection>>>;
 
-public class GetSubscriptionsHandler : IRequestHandler<GetSubscriptionsQry, Either<DomainError, ImmutableList<SubscriptionCollection>>>
+public class GetSubscriptionsHandler : IRequestHandler<GetSubscriptionsQry,
+    Either<DomainError, ImmutableList<SubscriptionCollection>>>
 {
     private readonly ISubscriptionRepository _subscriptionRepository;
+    private readonly IProcessedTitlesRepository _processedTitlesRepository;
 
-    public GetSubscriptionsHandler(ISubscriptionRepository subscriptionRepository) =>
-        _subscriptionRepository = subscriptionRepository;
-
-    public Task<Either<DomainError, ImmutableList<SubscriptionCollection>>> Handle(GetSubscriptionsQry request, CancellationToken cancellationToken)
+    public GetSubscriptionsHandler(
+        ISubscriptionRepository subscriptionRepository,
+        IProcessedTitlesRepository processedTitlesRepository)
     {
-        return Fetch();
+        _subscriptionRepository = subscriptionRepository;
+        _processedTitlesRepository = processedTitlesRepository;
     }
 
-    private Task<Either<DomainError, ImmutableList<SubscriptionCollection>>> Fetch()
+
+    public Task<Either<DomainError, ImmutableList<SubscriptionCollection>>> Handle(GetSubscriptionsQry request,
+        CancellationToken cancellationToken)
     {
-        return _subscriptionRepository
-            .GetAll()
+        return Fetch(request.Subscriber);
+    }
+
+    private Task<Either<DomainError, ImmutableList<SubscriptionCollection>>> Fetch(string subscriber)
+    {
+        return _processedTitlesRepository
+            .GetProcessedTitlesForSubscriber(subscriber)
+            .BindAsync(n => RemoveProcessed(n, subscriber));
+    }
+
+    private Task<Either<DomainError, ImmutableList<SubscriptionCollection>>> RemoveProcessed(
+        ImmutableList<string> notified, string subscriber)
+    {
+        bool Filter(SubscriptionStorage item)
+        {
+            return notified.All(n => n != item.RowKey);
+        }
+
+        return _subscriptionRepository.Get(new Email(subscriber))
+            .MapAsync(subs =>
+                subs
+                    .Where(Filter)
+                    .ToImmutableList())
             .MapAsync(Project);
     }
 
-    private ImmutableList<SubscriptionCollection> Project(IEnumerable<SubscriptionStorage> collection)
+    private static ImmutableList<SubscriptionCollection> Project(IEnumerable<SubscriptionStorage> collection)
     {
         return collection
             .GroupBy(
@@ -33,6 +59,4 @@ public class GetSubscriptionsHandler : IRequestHandler<GetSubscriptionsQry, Eith
                 (key, list) => new SubscriptionCollection(key ?? string.Empty, list!))
             .ToImmutableList();
     }
-
-
 }

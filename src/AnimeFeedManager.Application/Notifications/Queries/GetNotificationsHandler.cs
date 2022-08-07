@@ -1,32 +1,41 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Application.Subscriptions;
-using AnimeFeedManager.Application.Subscriptions.Queries;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.Utils;
+using AnimeFeedManager.Services.Collectors.Interface;
 using MediatR;
+using FeedInfo = AnimeFeedManager.Core.Domain.FeedInfo;
 
 namespace AnimeFeedManager.Application.Notifications.Queries;
 
-public  sealed record GetNotificationsQry(ImmutableList<FeedInfo> Feed) : IRequest<Either<DomainError, ImmutableList<Notification>>>;
+public sealed record GetNotificationsQry
+    (ImmutableList<SubscriptionCollection> SubscriptionsToProcess) : IRequest<
+        Either<DomainError, ImmutableList<Notification>>>;
 
-public class GetNotificationsHandler : IRequestHandler<GetNotificationsQry, Either<DomainError, ImmutableList<Notification>>>
+public class GetNotificationsHandler
+    : IRequestHandler<GetNotificationsQry, Either<DomainError, ImmutableList<Notification>>>
 {
-    private readonly IMediator _mediator;
+    private readonly IFeedProvider _feedProvider;
 
-    public GetNotificationsHandler(IMediator mediator)
+    public GetNotificationsHandler(IFeedProvider feedProvider)
     {
-        _mediator = mediator;
+        _feedProvider = feedProvider;
     }
 
-    public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetNotificationsQry request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetNotificationsQry request,
+        CancellationToken cancellationToken)
     {
-        return ProcessFeed(request.Feed);
+        var process = _feedProvider.GetFeed(Resolution.Hd)
+            .Map(feed => ProcessFeed(request.SubscriptionsToProcess, feed));
+        return Task.FromResult(process);
     }
 
-    public Task<Either<DomainError, ImmutableList<Notification>>> ProcessFeed(ImmutableList<FeedInfo> feed)
+    private ImmutableList<Notification> ProcessFeed(ImmutableList<SubscriptionCollection> SubscriptionsToProcess,
+        ImmutableList<FeedInfo> feed)
     {
-        return _mediator.Send(new GetSubscriptionsQry())
-            .MapAsync(s => s.ConvertAll(i => CreateNotification(i, feed)))
-            .MapAsync(n => n.RemoveAll(i => !i.Feeds.Any()));
+        return SubscriptionsToProcess
+            .ConvertAll(i => CreateNotification(i, feed))
+            .RemoveAll(i => !i.Feeds.Any());
     }
 
     private static Notification CreateNotification(SubscriptionCollection subscription, IEnumerable<FeedInfo> feed)
@@ -34,7 +43,8 @@ public class GetNotificationsHandler : IRequestHandler<GetNotificationsQry, Eith
         var matchingFeeds = feed
             .Where(f => Filter(f, subscription.SubscribedAnimes))
             .Select(
-                x => new SubscribedFeed(OptionUtils.UnpackOption(x.AnimeTitle.Value, string.Empty),
+                x => new SubscribedFeed(
+                    OptionUtils.UnpackOption(x.AnimeTitle.Value, string.Empty),
                     x.Links,
                     x.EpisodeInfo,
                     x.PublicationDate));

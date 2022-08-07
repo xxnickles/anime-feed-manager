@@ -1,4 +1,4 @@
-using AnimeFeedManager.Application.Notifications;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Infrastructure;
 using AnimeFeedManager.Functions.Models;
