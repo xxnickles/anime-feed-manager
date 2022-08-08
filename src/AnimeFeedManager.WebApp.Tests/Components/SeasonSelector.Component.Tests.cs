@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.WebApp.Components;
@@ -21,7 +22,7 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
         var seasons = new List<SeasonInfoDto>
         {
             new(Season.Fall.ToString(), 2022)
-        }.AsReadOnly();
+        }.ToImmutableList();
         
         var cut = RenderComponent<SeasonSelector>(param =>
             param.Add(p => p.AvailableSeasons, seasons)
@@ -45,7 +46,7 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
             new(Season.Fall.ToString(), 2022),
             new(Season.Summer.ToString(), 2022),
             new(Season.Spring.ToString(), 2022)
-        }.AsReadOnly();
+        }.ToImmutableList();
         
         var cut = RenderComponent<SeasonSelector>(param =>
             param.Add(p => p.AvailableSeasons, seasons)
@@ -76,7 +77,7 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
             new(Season.Fall.ToString(), 2022),
             new(Season.Summer.ToString(), 2022),
             new(Season.Spring.ToString(), 2022)
-        }.AsReadOnly();
+        }.ToImmutableList();
         
         var cut = RenderComponent<SeasonSelector>(param =>
             param.Add(p => p.AvailableSeasons, seasons)

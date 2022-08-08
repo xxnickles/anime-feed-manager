@@ -19,6 +19,7 @@ public class SeasonCollectionService : ISeasonCollectionFetcher
 
     public async Task<SeasonCollection> GetSeasonLibrary(SeasonInfoDto season)
     {
-        return await _httpClient.GetFromJsonAsync<SeasonCollection>($"api/library/{season.Year}/{season.Season}") ?? new EmptySeasonCollection();
+        var response = await _httpClient.GetAsync($"api/library/{season.Year}/{season.Season}");
+        return await response.MapToObject<SeasonCollection>(new EmptySeasonCollection());
     }
 }

@@ -1,6 +1,7 @@
 @using AnimeFeedManager.Core.Domain
 @using AnimeFeedManager.Common.Dto
 @using System.Collections.ObjectModel
+@using System.Collections.Immutable
 
 @if (SelectedSeason is not (null or NullSeasonInfo))
 {
@@ -39,11 +40,11 @@ else
 
 @code {
 
-    private ReadOnlyCollection<SeasonInfoDto> _availableSeasons = new List<SeasonInfoDto>().AsReadOnly();
+    private ImmutableList<SeasonInfoDto> _availableSeasons = ImmutableList<SeasonInfoDto>.Empty;
 
 
     [Parameter]
-    public ReadOnlyCollection<SeasonInfoDto> AvailableSeasons
+    public ImmutableList<SeasonInfoDto> AvailableSeasons
     {
         get => _availableSeasons;
         set

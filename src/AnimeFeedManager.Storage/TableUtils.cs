@@ -18,7 +18,7 @@ internal static class TableUtils
 
             return !resultList.IsEmpty
                 ? Right<DomainError, ImmutableList<T>>(resultList)
-                : Left<DomainError, ImmutableList<T>>(NotFoundError.Create($"TableQuery-{typeName}",
+                : Left<DomainError, ImmutableList<T>>(NoContentError.Create($"TableQuery-{typeName}",
                     "Query returned no results"));
         }
         catch (Exception e)

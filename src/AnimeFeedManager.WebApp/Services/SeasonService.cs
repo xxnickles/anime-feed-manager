@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
 using AnimeFeedManager.Common.Dto;
@@ -6,7 +7,7 @@ namespace AnimeFeedManager.WebApp.Services;
 
 public interface ISeasonFetcherService
 {
-    Task<ReadOnlyCollection<SeasonInfoDto>> GetAvailableSeasons();
+    Task<ImmutableList<SeasonInfoDto>> GetAvailableSeasons();
 }
 
 public class SeasonService : ISeasonFetcherService
@@ -18,9 +19,9 @@ public class SeasonService : ISeasonFetcherService
         _httpClient = httpClient;
     }
 
-    public async Task<ReadOnlyCollection<SeasonInfoDto>> GetAvailableSeasons()
+    public async Task<ImmutableList<SeasonInfoDto>> GetAvailableSeasons()
     {
-        var results = await _httpClient.GetFromJsonAsync<List<SeasonInfoDto>>("api/seasons");
-        return results?.AsReadOnly() ?? new List<SeasonInfoDto>().AsReadOnly();
+        var response = await _httpClient.GetAsync("api/seasons");
+        return await response.MapToList<SeasonInfoDto>();
     }
 }

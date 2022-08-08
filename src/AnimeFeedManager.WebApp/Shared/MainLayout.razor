@@ -182,9 +182,9 @@
         try
         {
             var interested = await SubscriberService.GetInterested(email);
-            State.SetInterested(interested);
+            State.SetInterested(interested ?? ImmutableList<string>.Empty);
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound) 
         {
             State.SetSubscriptions(ImmutableList<string>.Empty);
         }

@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using AnimeFeedManager.WebApp.Services
-@using System.Collections.ObjectModel
 @using AnimeFeedManager.WebApp.State
+@using System.Collections.Immutable
 @implements IDisposable
 @inject ISeasonFetcherService SeasonFetcherService
 @inject ISeasonCollectionFetcher SeasonCollectionFetcher
@@ -13,7 +13,7 @@
 
 @code {
 
-    private ReadOnlyCollection<SeasonInfoDto> _seasons = new List<SeasonInfoDto> {new NullSeasonInfo()}.AsReadOnly();
+    private ImmutableList<SeasonInfoDto> _seasons = new List<SeasonInfoDto> {new NullSeasonInfo()}.ToImmutableList();
     private SeasonCollection _collection = new EmptySeasonCollection();
 
     [CascadingParameter]

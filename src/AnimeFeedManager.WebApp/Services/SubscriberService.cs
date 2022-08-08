@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Net;
 using System.Net.Http.Json;
 using AnimeFeedManager.Common.Dto;
 
@@ -25,14 +26,14 @@ public class SubscriberService : ISubscriberService
 
     public async Task<ImmutableList<string>> GetSubscriptions(string subscriber)
     {
-        var result = await _httpClient.GetFromJsonAsync<IEnumerable<string>>($"api/subscriptions/{subscriber}");
-        return result?.ToImmutableList() ?? ImmutableList<string>.Empty;
+        var response = await _httpClient.GetAsync($"api/subscriptions/{subscriber}");
+        return await response.MapToList<string>();
     }
 
     public async Task<ImmutableList<string>> GetInterested(string subscriber)
     {
-        var result = await _httpClient.GetFromJsonAsync<IEnumerable<string>>($"api/interested/{subscriber}");
-        return result?.ToImmutableList() ?? ImmutableList<string>.Empty;
+        var response = await _httpClient.GetAsync($"api/interested/{subscriber}");
+        return await response.MapToList<string>();
     }
 
     public Task Subscribe(string subscriber, string series)
