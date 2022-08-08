@@ -105,7 +105,7 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
         }
         {
           name: 'WEBSITE_TIME_ZONE'
-          value: 'America/New_York'
+          value: 'Eastern Standard Time'
         }
       ]
       linuxFxVersion: 'DOTNET-ISOLATED|6.0'

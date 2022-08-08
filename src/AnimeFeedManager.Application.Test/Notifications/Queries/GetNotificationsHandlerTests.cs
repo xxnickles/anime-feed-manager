@@ -17,13 +17,12 @@ public class GetNotificationsHandlerTests
 
         var handler = new GetNotificationsHandler(mockRepo.Object);
 
-        var oneUserSubscription = new []
+        var oneUserSubscription = new[]
         {
             new SubscriptionCollection("test@test.com", new[]
             {
                 "title 2",
                 "title 3"
-
             })
         }.ToImmutableList();
 
@@ -33,28 +32,26 @@ public class GetNotificationsHandlerTests
         sut.Match(
             notification =>
             {
-                Assert.Equal(1, notification.Count);
+                Assert.Single( notification);
                 var feeds = notification[0].Feeds;
                 Assert.Equal(2, feeds.Count());
                 Assert.Collection(feeds,
                     item1 =>
                     {
-                        var (title, feedTitle, _, _, _) = item1;
+                        var (title, _, _, _) = item1;
                         Assert.Equal("title 2", title);
-                        Assert.Equal("feed title 2", feedTitle);
                     },
                     item2 =>
                     {
-                        var (title, feedTitle, _, _, _) = item2;
+                        var (title, _, _, _) = item2;
                         Assert.Equal("title 3", title);
-                        Assert.Equal("feed title 3", feedTitle);
                     }
                 );
             },
             _ => Assert.True(false, "shouldn't be here"));
     }
-    
-    
+
+
     [Fact]
     public async Task Should_Return_Organized_Feed_For_Multiple_Users()
     {
@@ -63,7 +60,7 @@ public class GetNotificationsHandlerTests
 
         var handler = new GetNotificationsHandler(mockRepo.Object);
 
-        var oneUserSubscription = new []
+        var oneUserSubscription = new[]
         {
             new SubscriptionCollection("test1@test.com", new[]
             {
@@ -86,7 +83,7 @@ public class GetNotificationsHandlerTests
             notification =>
             {
                 Assert.Equal(2, notification.Count);
-                
+
                 // User 1
                 var feedsUser1 = notification[0].Feeds;
                 Assert.Equal("test1@test.com", notification[0].Subscriber);
@@ -94,19 +91,17 @@ public class GetNotificationsHandlerTests
                 Assert.Collection(feedsUser1,
                     item1 =>
                     {
-                        var (title, feedTitle, _, _, _) = item1;
+                        var (title, _, _, _) = item1;
                         Assert.Equal("title 2", title);
-                        Assert.Equal("feed title 2", feedTitle);
                     },
                     item2 =>
                     {
-                        var (title, feedTitle, _, _, _) = item2;
+                        var (title, _, _, _) = item2;
                         Assert.Equal("title 4", title);
-                        Assert.Equal("feed title 4", feedTitle);
                     }
                 );
-                
-                
+
+
                 // User 2
                 var feedsUser2 = notification[1].Feeds;
                 Assert.Equal("test2@test.com", notification[1].Subscriber);
@@ -114,24 +109,20 @@ public class GetNotificationsHandlerTests
                 Assert.Collection(feedsUser2,
                     item1 =>
                     {
-                        var (title, feedTitle, _, _, _) = item1;
+                        var (title, _, _, _) = item1;
                         Assert.Equal("title 1", title);
-                        Assert.Equal("feed title 1", feedTitle);
                     },
                     item2 =>
                     {
-                        var (title, feedTitle, _, _, _) = item2;
+                        var (title, _, _, _) = item2;
                         Assert.Equal("title 5", title);
-                        Assert.Equal("feed title 5", feedTitle);
                     },
                     item3 =>
                     {
-                        var (title, feedTitle, _, _, _) = item3;
+                        var (title, _, _, _) = item3;
                         Assert.Equal("title 6", title);
-                        Assert.Equal("feed title 6", feedTitle);
                     }
                 );
-                
             },
             _ => Assert.True(false, "shouldn't be here"));
     }
