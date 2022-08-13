@@ -13,7 +13,7 @@
 
 @code {
 
-    private ImmutableList<SeasonInfoDto> _seasons = new List<SeasonInfoDto> {new NullSeasonInfo()}.ToImmutableList();
+    private ImmutableList<SeasonInfoDto> _seasons = new List<SeasonInfoDto> { new NullSeasonInfo() }.ToImmutableList();
     private SeasonCollection _collection = new EmptySeasonCollection();
 
     [CascadingParameter]
@@ -28,11 +28,14 @@
         {
             State.AddLoadingItem(key, "Loading Season");
             _seasons = await SeasonFetcherService.GetAvailableSeasons();
-            var latest = _seasons[0];
-            if (latest is not NullSeasonInfo)
+            if (_seasons.Count > 0)
             {
-                State.SetSeason(latest);
-                await UpdateSeasonCollection(latest);
+                var latest = _seasons[0];
+                if (latest is not NullSeasonInfo)
+                {
+                    State.SetSeason(latest);
+                    await UpdateSeasonCollection(latest);
+                }
             }
             State.RemoveLoadingItem(key);
         }

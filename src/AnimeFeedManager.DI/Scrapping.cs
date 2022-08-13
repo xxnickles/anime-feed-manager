@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Common;
+﻿using System.Runtime.InteropServices;
+using AnimeFeedManager.Common;
 using Microsoft.Extensions.DependencyInjection;
 using PuppeteerSharp;
 
@@ -8,10 +9,12 @@ public static class PuppeteerServiceRegistration
 {
     public static IServiceCollection RegisterPuppeteer(this IServiceCollection serviceCollection)
     {
-        var fetcherOptions = new BrowserFetcherOptions
+        var fetcherOptions = new BrowserFetcherOptions();
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            Path = Path.GetTempPath()
-        };
+            fetcherOptions.Path = Path.GetTempPath();
+        }
 
         var browserFetcher = new BrowserFetcher(fetcherOptions);
         browserFetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision).GetAwaiter().GetResult();

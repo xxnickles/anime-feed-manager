@@ -24,8 +24,9 @@ public class UserService : IUserService
         return _httpClient.PostAsJsonAsync("api/user", user);
     }
 
-    public Task<string?> GetEmail(string id)
+    public async Task<string?> GetEmail(string id)
     {
-        return _httpClient.GetFromJsonAsync<string?>($"api/user/{id}");
+        var response = await _httpClient.GetAsync($"api/user/{id}");
+        return await response.MapToObject<string?>(null);
     }
 }

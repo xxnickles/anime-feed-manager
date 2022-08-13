@@ -16,7 +16,7 @@ namespace User
             _logger = loggerFactory.CreateLogger<GetUserEmail>();
         }
 
-        [Function("GetUSerEmail")]
+        [Function("GetUserEmail")]
         public async Task<HttpResponseData> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/{id}")]
             HttpRequestData req,

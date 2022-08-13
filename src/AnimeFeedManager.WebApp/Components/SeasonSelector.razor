@@ -9,9 +9,9 @@
 
         <MudTooltip Text="@PreviousSeasonLabel">
             <MudIconButton Color="Color.Primary"
-                       Icon="@Icons.Filled.ArrowBackIosNew"
-                       Disabled="@(SelectedIndex == CollectionLength || CollectionLength == 0)"
-                       OnClick="Forward">
+                           Icon="@Icons.Filled.ArrowBackIosNew"
+                           Disabled="@(SelectedIndex == CollectionLength || CollectionLength == 0)"
+                           OnClick="Forward">
             </MudIconButton>
         </MudTooltip>
 
@@ -22,9 +22,9 @@
 
         <MudTooltip Text="@NextSeasonLabel">
             <MudIconButton Color="Color.Primary"
-                       Icon="@Icons.Filled.ArrowForwardIos"
-                       Disabled="@(SelectedIndex == 0 || CollectionLength == 0)"
-                       OnClick="Backwards">
+                           Icon="@Icons.Filled.ArrowForwardIos"
+                           Disabled="@(SelectedIndex == 0 || CollectionLength == 0)"
+                           OnClick="Backwards">
             </MudIconButton>
         </MudTooltip>
 
@@ -49,6 +49,7 @@ else
         get => _availableSeasons;
         set
         {
+            if (value.Count <= 0) return;
             CollectionLength = (ushort)(value.Count - 1);
             _availableSeasons = value;
             SelectedSeason = value[0];
