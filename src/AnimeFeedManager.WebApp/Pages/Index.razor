@@ -9,16 +9,19 @@
 
 <PageTitle>AFM - @GetTitle(State.Value.Season)</PageTitle>
 <SeasonSelector AvailableSeasons="@_seasons" SelectedSeason="@State.Value.Season" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
-<SeriesGrid Collection="@_collection"></SeriesGrid>
+<FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
+<SeriesGrid Collection="@_filteredCollection"></SeriesGrid>
 
 @code {
 
     private ImmutableList<SeasonInfoDto> _seasons = new List<SeasonInfoDto> { new NullSeasonInfo() }.ToImmutableList();
     private SeasonCollection _collection = new EmptySeasonCollection();
+    private SeasonCollection _filteredCollection = new EmptySeasonCollection();
 
     [CascadingParameter]
     private Error? Error { get; set; }
 
+    private IEnumerable<Func<SimpleAnime, bool>> Filters = Enumerable.Empty<Func<SimpleAnime, bool>>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,6 +71,7 @@
         {
             State.AddLoadingItem(key, "Loading Series");
             _collection = await SeasonCollectionFetcher.GetSeasonLibrary(season);
+            _filteredCollection = FilterCollection(_collection, Filters);
             State.RemoveLoadingItem(key);
         }
         catch (Exception e)
@@ -75,6 +79,20 @@
             Error?.ProcessError("Season Collection Fetching", e);
             State.RemoveLoadingItem(key);
         }
+    }
+
+    private void OnFilterSelectionChanges(IEnumerable<Func<SimpleAnime, bool>> filters)
+    {
+        Filters = filters;
+        _filteredCollection = FilterCollection(_collection, filters);
+    }
+
+    private static SeasonCollection FilterCollection(SeasonCollection collectionBase, IEnumerable<Func<SimpleAnime, bool>> filters)
+    {
+        return new SeasonCollection(
+            collectionBase.Year,
+            collectionBase.Season,
+            collectionBase.Animes.Filter(filters).ToArray());
     }
 
 }

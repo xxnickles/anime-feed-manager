@@ -131,7 +131,7 @@
 
     private async Task<Email> CompleteUserProfile(string userId)
     {
-        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var options = new DialogOptions { CloseOnEscapeKey = true };
         var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
         var result = await dialog.Result;
 
@@ -184,7 +184,7 @@
             var interested = await SubscriberService.GetInterested(email);
             State.SetInterested(interested ?? ImmutableList<string>.Empty);
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound) 
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
             State.SetSubscriptions(ImmutableList<string>.Empty);
         }
@@ -204,7 +204,7 @@
 
     private async Task Login()
     {
-        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var options = new DialogOptions { CloseOnEscapeKey = true };
         var dialog = DialogService.Show<LoginProviderDialog>("Login", options);
         await dialog.Result;
     }

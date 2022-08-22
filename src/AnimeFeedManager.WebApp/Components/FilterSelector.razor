@@ -1,0 +1,50 @@
+﻿@using AnimeFeedManager.WebApp.State
+@inject ApplicationState State
+
+<MudChipSet @bind-SelectedChips="SelectedFilters" MultiSelection="true" Filter="true" Class="d-flex justify-center mb-4">
+    <MudChip Color="Color.Info" Text="Available"></MudChip>
+    <MudChip Color="Color.Info" Text="Not Available"></MudChip>
+    <MudChip Color="Color.Info" Text="Completed"></MudChip>
+    @if (State.Value.User is ApplicationUser)
+    {
+        <MudChip Color="Color.Info" Text="Subscribed"></MudChip>
+        <MudChip Color="Color.Info" Text="Interested"></MudChip>
+    }
+</MudChipSet>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback<IEnumerable<Func<SimpleAnime, bool>>> SelectedFiltersChanged { get; set; }
+
+    MudChip[] SelectedFilters
+    {
+        get => _selectedFilters;
+        set
+        {
+            NotifyChanges(value).GetAwaiter().GetResult();
+            _selectedFilters = value;
+        }
+    }
+
+    private MudChip[] _selectedFilters = { };
+
+    private async Task NotifyChanges(MudChip[] selectedChips)
+    {
+        await SelectedFiltersChanged.InvokeAsync(selectedChips.Select(Map));
+    }
+
+    private Func<SimpleAnime, bool> Map(MudChip chip)
+    {
+        return chip.Text switch {
+            "Available" => Filters.Available,
+            "Not Available" => Filters.NoAvailable,
+            "Completed" => Filters.Completed,
+            "Subscribed" => Filters.Subscribed(State.Value.Subscriptions),
+            "Interested" => Filters.Interested(State.Value.Interested),
+            _ => throw new ArgumentException($"'{chip.Text}' is an invalid selection")
+            };
+    }
+
+}
