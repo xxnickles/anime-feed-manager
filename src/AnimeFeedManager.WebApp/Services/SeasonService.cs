@@ -1,6 +1,4 @@
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.Net.Http.Json;
 using AnimeFeedManager.Common.Dto;
 
 namespace AnimeFeedManager.WebApp.Services;

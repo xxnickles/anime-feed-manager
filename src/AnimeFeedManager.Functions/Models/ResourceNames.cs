@@ -13,5 +13,9 @@ internal static class QueueNames
     internal const string ProcessAutoSubscriber = "process-auto-subscriber";
     internal const string ToSubscribe = "to-subscribe";
     internal const string InterestRemove = "interest-remove";
-    
+}
+
+internal static class HubNames
+{
+    internal const string Notifications = "notifications";
 }

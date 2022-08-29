@@ -114,7 +114,7 @@ public static class HttpRequestDataExtensions
         return request.WithRoleCheck(UserRoles.Admin, command);
     }
 
-    private static async Task<Either<DomainError, (ClaimsPrincipal principal, HttpRequestData request)>> CheckAuthorization(this HttpRequestData request)
+    public static async Task<Either<DomainError, (ClaimsPrincipal principal, HttpRequestData request)>> CheckAuthorization(this HttpRequestData request)
     {
         var principal = await ClientPrincipal.ParseFromRequest(request);
         return principal.Identity?.IsAuthenticated is true ? Right<DomainError, (ClaimsPrincipal, HttpRequestData)>((principal, request)) : Left<DomainError, (ClaimsPrincipal, HttpRequestData)>(UnauthorizedError.Create(request.Url.AbsoluteUri));

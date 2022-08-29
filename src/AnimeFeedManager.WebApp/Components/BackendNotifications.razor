@@ -1,0 +1,91 @@
+﻿@using AnimeFeedManager.WebApp.Services
+@using AnimeFeedManager.WebApp.State
+@inject INotificationService NotificationService
+@inject ISnackbar Snackbar
+@inject ApplicationState State
+
+@code {
+
+    [CascadingParameter]
+    private Error? Error { get; set; }
+
+    private User LastUser = new AnonymousUser();
+
+    protected override async Task OnInitializedAsync()
+    {
+        State.OnUserChanges += UserChanges;
+
+        try
+        {
+            await NotificationService.SubscribeToNotifications();
+            NotificationService.NewNotification += (notification) => { Snackbar.Add(notification, Severity.Info); };
+            NotificationService.ConnectionStatus += ProcessStatusChanges;
+        }
+        catch
+            (Exception e)
+        {
+            Error?.ProcessError("Notifications hub", e);
+        }
+    }
+
+    private async Task UserChanges(User arg)
+    {
+        if (arg is not AnonymousUser && LastUser != arg)
+        {
+            LastUser = arg;
+            await AddToGroup(arg);
+            Snackbar.Add("Added user to group", Severity.Info);
+        }
+
+        if (arg is AnonymousUser && LastUser is not AnonymousUser)
+        {
+            LastUser = arg;
+            await AddToGroup(arg);
+            Snackbar.Add("Removed from group", Severity.Info);
+        }
+    }
+
+
+    private async Task AddToGroup(User user)
+    {
+        try
+        {
+            await NotificationService.AddToGroup();
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError("Notifications hub", e);
+        }
+    }
+
+    private async Task RemoveFromGroup(User user)
+    {
+        try
+        {
+            await NotificationService.RemoveFromGroup();
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError("Notifications hub", e);
+        }
+    }
+
+    private void ProcessStatusChanges(HubConnectionStatus status)
+    {
+        switch (status)
+        {
+            case HubConnectionStatus.Connected:
+                Snackbar.Add("Connected to notification hub", Severity.Success);
+                break;
+            case HubConnectionStatus.Disconnected:
+                Snackbar.Add("Notification hub connection is lost", Severity.Warning);
+                break;
+            case HubConnectionStatus.None:
+            default:
+                Snackbar.Add("Notification hub connection is in strange state", Severity.Error);
+
+                break;
+        }
+    }
+
+}

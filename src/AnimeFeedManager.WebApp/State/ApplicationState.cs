@@ -27,6 +27,11 @@ public class ApplicationState
     /// The event that will be raised for state changed
     /// </summary>
     public event Action? OnStateChange;
+    
+    /// <summary>
+    /// The event that will be raised for state changed
+    /// </summary>
+    public event Func<User, Task>? OnUserChanges;
 
     public void SetSeason(SeasonInfoDto season)
     {
@@ -38,6 +43,8 @@ public class ApplicationState
     {
         Value = Value with {User = user};
         NotifyStateChanged();
+        OnUserChanges?.Invoke(user);
+
     }
 
     public void SetSubscriptions(ImmutableList<string> subscriptions)
