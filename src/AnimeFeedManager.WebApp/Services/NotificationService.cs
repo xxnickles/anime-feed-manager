@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Json;
-using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Common.Notifications;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -15,6 +15,7 @@ public enum HubConnectionStatus
 public interface INotificationService
 {
     event Action<string>? NewNotification;
+    event Action<SeasonProcessNotification>? SeasonProcessNotification;
     event Action<HubConnectionStatus>? ConnectionStatus;
     Task AddToGroup();
     Task RemoveFromGroup();
@@ -29,7 +30,9 @@ public class NotificationService : INotificationService
 
     public event Action<string>? NewNotification;
     public event Action<HubConnectionStatus>? ConnectionStatus;
- 
+
+    public event Action<SeasonProcessNotification>? SeasonProcessNotification;
+
     public NotificationService(HttpClient httpClient, ILogger<NotificationService> logger)
     {
         _httpClient = httpClient;
@@ -61,9 +64,10 @@ public class NotificationService : INotificationService
             return _httpClient.PostAsJsonAsync("api/notifications/setup",
                 new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
         }
+
         throw new HubException("Hub connection is not available at this time");
     }
-    
+
     private bool IsConnectedToHub() => _hubConnection?.State is HubConnectionState.Connected &&
                                        !string.IsNullOrEmpty(_hubConnection.ConnectionId);
 
@@ -81,7 +85,10 @@ public class NotificationService : INotificationService
     private void SubscribeToNotifications(HubConnection hubConnection)
     {
         hubConnection.On<string>(ServerNotifications.TestNotification,
-            (notification) => { NewNotification?.Invoke(notification); });
+            notification => { NewNotification?.Invoke(notification); });
+
+        hubConnection.On<SeasonProcessNotification>(ServerNotifications.SeasonProcess,
+            notification => { SeasonProcessNotification?.Invoke(notification); });
     }
 
     private void SubscribeToHubStatus(HubConnection hubConnection)

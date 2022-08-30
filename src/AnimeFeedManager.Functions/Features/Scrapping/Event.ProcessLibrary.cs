@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Application.Feed.Commands;
+using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Services.Collectors.Interface;
 using MediatR;
@@ -18,6 +19,9 @@ public class ProcessLibraryOutput
 
     [QueueOutput(QueueNames.AvailableSeasons)]
     public string? SeasonMessage { get; set; }
+
+    [QueueOutput(QueueNames.SeasonProcessNotifications)]
+    public SeasonProcessNotification? ProcessUpdateDetails { get; set; }
 }
 
 public class ProcessLibrary
@@ -54,7 +58,8 @@ public class ProcessLibrary
                     AnimeMessages = v.Animes.Select(Serializer.ToJson),
                     ImagesMessages = v.Images.Select(Serializer.ToJson),
                     SeasonMessage = Serializer.ToJson(v.Season),
-                    TitleMessage = ProcessResult.Ok
+                    TitleMessage = ProcessResult.Ok,
+                    ProcessUpdateDetails = new SeasonProcessNotification(TargetAudience.Admins, NotificationType.Information, $"{v.Animes.Count} series of {v.Season.Season}-{v.Season.Year} will be stored")
                 };
             },
             e =>
@@ -65,7 +70,8 @@ public class ProcessLibrary
                     AnimeMessages = null,
                     ImagesMessages = null,
                     TitleMessage = ProcessResult.Failure,
-                    SeasonMessage = null
+                    SeasonMessage = null,
+                    ProcessUpdateDetails = new SeasonProcessNotification(TargetAudience.Admins, NotificationType.Error, $"An error occurred before storing series.")
                 };
             });
     }

@@ -1,5 +1,6 @@
 ﻿@using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
+@using AnimeFeedManager.Common.Notifications
 @inject INotificationService NotificationService
 @inject ISnackbar Snackbar
 @inject ApplicationState State
@@ -9,7 +10,7 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private User LastUser = new AnonymousUser();
+    private User _lastUser = new AnonymousUser();
 
     protected override async Task OnInitializedAsync()
     {
@@ -20,6 +21,7 @@
             await NotificationService.SubscribeToNotifications();
             NotificationService.NewNotification += (notification) => { Snackbar.Add(notification, Severity.Info); };
             NotificationService.ConnectionStatus += ProcessStatusChanges;
+            NotificationService.SeasonProcessNotification += OnSeasonProcessNotification;
         }
         catch
             (Exception e)
@@ -28,18 +30,34 @@
         }
     }
 
+    private void OnSeasonProcessNotification(SeasonProcessNotification notification)
+    {
+        switch (notification.Result)
+        {
+            case NotificationType.Information:
+
+                Snackbar.Add(notification.Message, Severity.Info);
+
+                break;
+
+            case NotificationType.Error:
+                Snackbar.Add(notification.Message, Severity.Warning);
+                break;
+        }
+    }
+
     private async Task UserChanges(User arg)
     {
-        if (arg is not AnonymousUser && LastUser != arg)
+        if (arg is not AnonymousUser && _lastUser != arg)
         {
-            LastUser = arg;
+            _lastUser = arg;
             await AddToGroup(arg);
             Snackbar.Add("Added user to group", Severity.Info);
         }
 
-        if (arg is AnonymousUser && LastUser is not AnonymousUser)
+        if (arg is AnonymousUser && _lastUser is not AnonymousUser)
         {
-            LastUser = arg;
+            _lastUser = arg;
             await AddToGroup(arg);
             Snackbar.Add("Removed from group", Severity.Info);
         }

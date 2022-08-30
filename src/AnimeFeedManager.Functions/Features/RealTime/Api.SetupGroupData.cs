@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using AnimeFeedManager.Common;
-using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Models;
 using Microsoft.Extensions.Logging;

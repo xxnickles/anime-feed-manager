@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Dto;
-using AnimeFeedManager.Functions.Extensions;
+﻿using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Models;
 using Microsoft.Extensions.Logging;
 

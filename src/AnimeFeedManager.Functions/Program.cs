@@ -3,13 +3,14 @@ using AnimeFeedManager.Functions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SendGrid.Extensions.DependencyInjection;
+using static System.Boolean;
 
 static SendGridConfiguration GetSendGridConfiguration()
 {
     var defaultFromEmail = Environment.GetEnvironmentVariable("FromEmail") ?? "test@test.com";
     var defaultFromName = Environment.GetEnvironmentVariable("FromName") ?? "Test";
-    bool.TryParse(Environment.GetEnvironmentVariable("Sandbox"), out var sandbox);
-    return new SendGridConfiguration(defaultFromEmail, defaultFromName, sandbox);
+    var parseResult = TryParse(Environment.GetEnvironmentVariable("Sandbox"), out var sandbox);
+    return new SendGridConfiguration(defaultFromEmail, defaultFromName, parseResult && sandbox);
 }
 
 var storageConnection = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? string.Empty;
@@ -28,6 +29,3 @@ var host = new HostBuilder()
     .Build();
 
 await host.RunAsync();
-
-
-
