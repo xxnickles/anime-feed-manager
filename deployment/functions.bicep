@@ -17,6 +17,59 @@ var applicationInsightsName = appName
 var storageAccountName = 'animefeedmanagerstorage'
 var functionWorkerRuntime = 'dotnet-isolated'
 
+
+resource signalR 'Microsoft.SignalRService/signalR@2022-02-01' = {
+  name: 'afm-web-events'
+  location: location
+  sku: {
+    capacity: 1
+    name: 'Free_F1'
+  }
+  kind: 'SignalR'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    tls: {
+      clientCertEnabled: false
+    }
+    features: [
+      {
+        flag: 'ServiceMode'
+        value: 'Serverless'
+      }
+      {
+        flag: 'EnableConnectivityLogs'
+        value: string(true)
+      }
+      {
+        flag: 'EnableMessagingLogs'
+        value: string(true)
+      }
+      {
+        flag: 'EnableLiveTrace'
+        value: string(true)
+      }
+    ]
+    cors: {
+      allowedOrigins: [ 'https://delightful-smoke-0eded0c0f.1.azurestaticapps.net' ]
+    }
+    networkACLs: {
+      defaultAction: 'Deny'
+      publicNetwork: {
+        allow: [
+          'ServerConnection'
+          'ClientConnection'
+        ]
+      }
+      privateEndpoints: []
+    }
+    publicNetworkAccess: 'Enabled'
+    disableAadAuth: false
+    disableLocalAuth: false
+  }
+}
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: storageAccountName
   location: location
@@ -70,6 +123,10 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'SignalRConnectionString'
+          value: listKeys(signalR.id, signalR.apiVersion).primaryConnectionString
         }
         {
           name: 'WEBSITE_CONTENTSHARE'

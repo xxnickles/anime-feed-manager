@@ -7,7 +7,6 @@ param sendgridKey string
 @description('Deafult Email Sender')
 param email string
 
-
 module functions './functions.bicep' = {
   name: 'functionDeploy'
   params: {
