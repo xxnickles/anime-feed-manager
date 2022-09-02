@@ -3,13 +3,16 @@ using System.Text.RegularExpressions;
 using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
+using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Services.Collectors.Interface;
+using AnimeFeedManager.Storage.Infrastructure;
 using PuppeteerSharp;
 
 namespace AnimeFeedManager.Services.Collectors.AniDb;
 
 public class LibraryProvider : ILibraryProvider
 {
+    private readonly IDomainPostman _domainPostman;
     private readonly PuppeteerOptions _puppeteerOptions;
 
     private record JsonSeasonInfo(string Season, int Year);
@@ -60,12 +63,16 @@ public class LibraryProvider : ILibraryProvider
          }
     ";
 
-    public LibraryProvider(PuppeteerOptions puppeteerOptions)
+    public LibraryProvider(
+        IDomainPostman domainPostman,
+        PuppeteerOptions puppeteerOptions)
     {
+        _domainPostman = domainPostman;
         _puppeteerOptions = puppeteerOptions;
     }
 
-    public async Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images)>> GetLibrary(ImmutableList<string> feedTitles)
+    public async Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images)>>
+        GetLibrary(ImmutableList<string> feedTitles)
     {
         try
         {
@@ -83,6 +90,11 @@ public class LibraryProvider : ILibraryProvider
 
             var package = data.Select(Map);
 
+            var season = data.First().SeasonInfo;
+            _domainPostman.SendMessage(new SeasonProcessNotification(TargetAudience.Admins,
+                NotificationType.Information,
+                $"{package.Count()} series have been scrapped for {season.Season}-${season.Year}"));
+
             return (
                 package.Select(i => Map(i, feedTitles))
                     .ToImmutableList(),
@@ -93,6 +105,8 @@ public class LibraryProvider : ILibraryProvider
         }
         catch (Exception ex)
         {
+            _domainPostman.SendMessage(new SeasonProcessNotification(TargetAudience.Admins, NotificationType.Error,
+                "AniDb season scrapping failed"));
             return ExceptionError.FromException(ex, "LiveChartLibrary");
         }
     }
@@ -110,8 +124,6 @@ public class LibraryProvider : ILibraryProvider
 
     private static AnimeInfo Map(SeriesContainer container, IEnumerable<string> feeTitles)
     {
-        var sample = container.Date.Replace(" at", string.Empty).Replace("UTC", "GMT");
-        var result = DateTime.TryParse(sample, out var date);
         return new AnimeInfo(
             NonEmptyString.FromString(container.Id),
             NonEmptyString.FromString(container.Title),
@@ -140,7 +152,7 @@ public class LibraryProvider : ILibraryProvider
     private static ImageInformation Map(SeriesContainer container)
     {
         return new ImageInformation(
-            container.Id, 
+            container.Id,
             IdHelpers.CleanAndFormatAnimeTitle(container.Title),
             container.ImageUrl,
             new SeasonInfoDto(container.SeasonInfo.Season, container.SeasonInfo.Year));

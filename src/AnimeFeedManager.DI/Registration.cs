@@ -37,6 +37,8 @@ public static class Registration
         services.TryAddSingleton<IImagesStore, AzureStorageBlobStore>();
         
         var tableClient = new TableServiceClient(connectionString);
+        services.AddSingleton<IQueueResolver, QueueResolver>();
+        services.AddSingleton<IDomainPostman, AzureQueueMessages>();
         services.AddSingleton(TableNameFactory);
         services.AddSingleton(tableClient);
         services.RegisterRepositories();

@@ -4,12 +4,6 @@ using Microsoft.Extensions.Options;
 
 namespace AnimeFeedManager.Storage.Infrastructure;
 
-
-public sealed class AzureBlobStorageOptions
-{
-    public string? StorageConnectionString { get; set; }
-}
-
 public interface IImagesStore
 {
     public Task<Uri> Upload(string fileName, string path, Stream data);

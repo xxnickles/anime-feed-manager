@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Services.Collectors.AniDb;
 using AnimeFeedManager.Services.Collectors.SubsPlease;
+using AnimeFeedManager.Storage.Infrastructure;
 
 namespace AnimeFeedManager.Application.Test.Services;
 
@@ -40,7 +41,8 @@ public class FeedProviderTest : WithScrapper
     [Fact(Skip = "Takes too long in Git Actions")]
     public async Task Library_Works()
     {
-        var sut = await new LibraryProvider(BrowserOptions).GetLibrary(new[] {"a", "b", "c"}.ToImmutableList());
+        var mock = new Mock<IDomainPostman>();
+        var sut = await new LibraryProvider(mock.Object, BrowserOptions).GetLibrary(new[] {"a", "b", "c"}.ToImmutableList());
         Assert.True(sut.IsRight);
         sut.Match(
             r =>

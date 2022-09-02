@@ -50,7 +50,7 @@ public class UpdateAnimeStatus
                 });
         }
 
-        _logger.LogInformation("Title process failed, series status is not going to be updated");
+        _logger.LogWarning("Title process failed, series status is not going to be updated");
         return  new UpdateAnimeStatusMessages
         {
             AutoSubscribeMessages =  ProcessResult.NoChanges

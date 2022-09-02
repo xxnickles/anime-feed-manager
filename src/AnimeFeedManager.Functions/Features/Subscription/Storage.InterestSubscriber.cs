@@ -78,7 +78,7 @@ public class InterestSubscriber
             );
         }
 
-        _logger.LogInformation("Title process failed, nothing to update");
+        _logger.LogWarning("Title process failed, nothing to update");
         return new GetLibraryMessages();
     }
 }

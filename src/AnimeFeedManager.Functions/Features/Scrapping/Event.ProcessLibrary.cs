@@ -4,6 +4,7 @@ using AnimeFeedManager.Application.Feed.Commands;
 using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Services.Collectors.Interface;
+using AnimeFeedManager.Storage.Infrastructure;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -19,22 +20,22 @@ public class ProcessLibraryOutput
 
     [QueueOutput(QueueNames.AvailableSeasons)]
     public string? SeasonMessage { get; set; }
-
-    [QueueOutput(QueueNames.SeasonProcessNotifications)]
-    public SeasonProcessNotification? ProcessUpdateDetails { get; set; }
 }
 
 public class ProcessLibrary
 {
+    private readonly IDomainPostman _domainPostman;
     private readonly IFeedProvider _feedProvider;
     private readonly IMediator _mediator;
     private readonly ILogger<ProcessLibrary> _logger;
 
     public ProcessLibrary(
+        IDomainPostman domainPostman,
         IFeedProvider feedProvider,
         IMediator mediator,
         ILoggerFactory loggerFactory)
     {
+        _domainPostman = domainPostman;
         _feedProvider = feedProvider;
         _mediator = mediator;
         _logger = loggerFactory.CreateLogger<ProcessLibrary>();
@@ -53,25 +54,37 @@ public class ProcessLibrary
             v =>
             {
                 _logger.LogInformation("Titles have been updated and Series information has been collected");
+
+                _domainPostman.SendMessage(new SeasonProcessNotification(TargetAudience.Admins,
+                    NotificationType.Information,
+                    $"{v.Animes.Count} series of {v.Season.Season}-{v.Season.Year} will be stored"));
+
+
+                _domainPostman.SendDelayedMessage(new SeasonProcessNotification(TargetAudience.All,
+                        NotificationType.Information,
+                        $"Season information for {v.Season.Season}-{v.Season.Year} has been updated recently"),
+                    new MinutesDelay(1));
+
                 return new ProcessLibraryOutput
                 {
                     AnimeMessages = v.Animes.Select(Serializer.ToJson),
                     ImagesMessages = v.Images.Select(Serializer.ToJson),
                     SeasonMessage = Serializer.ToJson(v.Season),
                     TitleMessage = ProcessResult.Ok,
-                    ProcessUpdateDetails = new SeasonProcessNotification(TargetAudience.Admins, NotificationType.Information, $"{v.Animes.Count} series of {v.Season.Season}-{v.Season.Year} will be stored")
                 };
             },
             e =>
             {
                 _logger.LogError("An error occurred while processing library update {S}", e.ToString());
+                _domainPostman.SendMessage(new SeasonProcessNotification(TargetAudience.Admins, NotificationType.Error,
+                    $"An error occurred before storing series."));
+                
                 return new ProcessLibraryOutput
                 {
                     AnimeMessages = null,
                     ImagesMessages = null,
                     TitleMessage = ProcessResult.Failure,
-                    SeasonMessage = null,
-                    ProcessUpdateDetails = new SeasonProcessNotification(TargetAudience.Admins, NotificationType.Error, $"An error occurred before storing series.")
+                    SeasonMessage = null
                 };
             });
     }

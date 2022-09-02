@@ -16,7 +16,7 @@ public class NotificationSender
     
     [Function("NotificationSender")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
-    public SignalRMessageAction Run([QueueTrigger(QueueNames.SeasonProcessNotifications, Connection = "AzureWebJobsStorage")] SeasonProcessNotification notification,
+    public SignalRMessageAction Run([QueueTrigger(Boxes.SeasonProcessNotifications, Connection = "AzureWebJobsStorage")] SeasonProcessNotification notification,
         FunctionContext context)
     {
         _logger.LogInformation("Notification ready to process {Notification}", notification);
