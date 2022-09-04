@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Notifications;
+﻿using AnimeFeedManager.Common.Dto;
+
+namespace AnimeFeedManager.Common.Notifications;
 
 public enum TargetAudience
 {
@@ -9,11 +11,14 @@ public enum TargetAudience
 public enum NotificationType
 {
     Information,
+    Update,
     Error
 }
 
 public record SeasonProcessNotification(
+    string Id,
     TargetAudience TargetAudience,
     NotificationType Result,
+    SeasonInfoDto Season,
     string Message
 );

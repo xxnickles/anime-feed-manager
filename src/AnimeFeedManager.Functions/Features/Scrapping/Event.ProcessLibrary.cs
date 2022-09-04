@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using AnimeFeedManager.Application.AnimeLibrary.Queries;
 using AnimeFeedManager.Application.Feed.Commands;
+using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Services.Collectors.Interface;
@@ -55,13 +57,19 @@ public class ProcessLibrary
             {
                 _logger.LogInformation("Titles have been updated and Series information has been collected");
 
-                _domainPostman.SendMessage(new SeasonProcessNotification(TargetAudience.Admins,
+                _domainPostman.SendMessage(new SeasonProcessNotification(
+                    IdHelpers.GetUniqueId(),
+                    TargetAudience.Admins,
                     NotificationType.Information,
+                    v.Season,
                     $"{v.Animes.Count} series of {v.Season.Season}-{v.Season.Year} will be stored"));
 
 
-                _domainPostman.SendDelayedMessage(new SeasonProcessNotification(TargetAudience.All,
-                        NotificationType.Information,
+                _domainPostman.SendDelayedMessage(new SeasonProcessNotification(
+                        IdHelpers.GetUniqueId(),
+                        TargetAudience.All,
+                        NotificationType.Update,
+                        v.Season,
                         $"Season information for {v.Season.Season}-{v.Season.Year} has been updated recently"),
                     new MinutesDelay(1));
 
@@ -76,7 +84,11 @@ public class ProcessLibrary
             e =>
             {
                 _logger.LogError("An error occurred while processing library update {S}", e.ToString());
-                _domainPostman.SendMessage(new SeasonProcessNotification(TargetAudience.Admins, NotificationType.Error,
+                _domainPostman.SendMessage(new SeasonProcessNotification(
+                    IdHelpers.GetUniqueId(),
+                    TargetAudience.Admins,
+                    NotificationType.Error,
+                    new NullSeasonInfo(),
                     $"An error occurred before storing series."));
                 
                 return new ProcessLibraryOutput

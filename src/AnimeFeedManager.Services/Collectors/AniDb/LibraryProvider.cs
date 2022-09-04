@@ -91,8 +91,11 @@ public class LibraryProvider : ILibraryProvider
             var package = data.Select(Map);
 
             var season = data.First().SeasonInfo;
-            _domainPostman.SendMessage(new SeasonProcessNotification(TargetAudience.Admins,
+            await _domainPostman.SendMessage(new SeasonProcessNotification(
+                IdHelpers.GetUniqueId(),
+                TargetAudience.Admins,
                 NotificationType.Information,
+                new SeasonInfoDto(season.Season, season.Year),
                 $"{package.Count()} series have been scrapped for {season.Season}-${season.Year}"));
 
             return (
@@ -105,7 +108,12 @@ public class LibraryProvider : ILibraryProvider
         }
         catch (Exception ex)
         {
-            _domainPostman.SendMessage(new SeasonProcessNotification(TargetAudience.Admins, NotificationType.Error,
+            await _domainPostman.SendMessage(
+                new SeasonProcessNotification(
+                    IdHelpers.GetUniqueId(),
+                    TargetAudience.Admins,
+                    NotificationType.Error,
+                    new NullSeasonInfo(),
                 "AniDb season scrapping failed"));
             return ExceptionError.FromException(ex, "LiveChartLibrary");
         }
