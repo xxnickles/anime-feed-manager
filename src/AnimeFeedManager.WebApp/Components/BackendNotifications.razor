@@ -1,9 +1,10 @@
 ﻿@using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.Common.Notifications
-@inject INotificationService NotificationService
+@inject IServerNotificationProcessingService ServerNotificationProcessingService
 @inject ISnackbar Snackbar
 @inject ApplicationState State
+@inject INotificationService NotificationService
 
 @code {
 
@@ -14,36 +15,45 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await NotificationService.LoadLocalNotifications();
         State.OnUserChanges += UserChanges;
 
         try
         {
-            await NotificationService.SubscribeToNotifications();
-            NotificationService.NewNotification += (notification) => { Snackbar.Add(notification, Severity.Info); };
-            NotificationService.ConnectionStatus += ProcessStatusChanges;
-            NotificationService.SeasonProcessNotification += OnSeasonProcessNotification;
+            await ServerNotificationProcessingService.SubscribeToNotifications();
+            ServerNotificationProcessingService.NewNotification += (notification) => { Snackbar.Add(notification, Severity.Info); };
+            ServerNotificationProcessingService.ConnectionStatus += ProcessStatusChanges;
+             ServerNotificationProcessingService.SeasonProcessNotification += OnSeasonProcessNotification;
         }
-        catch
-            (Exception e)
+        catch (Exception e)
         {
             Error?.ProcessError("Notifications hub", e);
         }
     }
 
-    private void OnSeasonProcessNotification(SeasonProcessNotification notification)
+    private async Task OnSeasonProcessNotification(SeasonProcessNotification notification)
     {
         switch (notification.Result)
         {
             case NotificationType.Information:
-
                 Snackbar.Add(notification.Message, Severity.Info);
-
                 break;
-
             case NotificationType.Error:
                 Snackbar.Add(notification.Message, Severity.Warning);
                 break;
+            case NotificationType.Update:
+            default:
+                break;
         }
+
+        await NotificationService.AddNotification(new ServeNotification(
+            notification.Id,
+            false,
+            DateTime.Now,
+            notification.Result,
+            NotificationSource.SeasonLibrary,
+            notification.Message
+            ));
     }
 
     private async Task UserChanges(User arg)
@@ -62,13 +72,12 @@
             Snackbar.Add("Removed from group", Severity.Info);
         }
     }
-
-
+    
     private async Task AddToGroup(User user)
     {
         try
         {
-            await NotificationService.AddToGroup();
+            await ServerNotificationProcessingService.AddToGroup();
         }
         catch (Exception e)
         {
@@ -80,7 +89,7 @@
     {
         try
         {
-            await NotificationService.RemoveFromGroup();
+            await ServerNotificationProcessingService.RemoveFromGroup();
         }
         catch (Exception e)
         {
@@ -101,9 +110,7 @@
             case HubConnectionStatus.None:
             default:
                 Snackbar.Add("Notification hub connection is in strange state", Severity.Error);
-
                 break;
         }
     }
-
 }

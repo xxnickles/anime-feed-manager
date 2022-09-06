@@ -1,113 +1,67 @@
-﻿using System.Net.Http.Json;
-using AnimeFeedManager.Common.Notifications;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using System.Collections.Immutable;
+using Blazored.LocalStorage;
 
 namespace AnimeFeedManager.WebApp.Services;
 
-public enum HubConnectionStatus
-{
-    None,
-    Connected,
-    Disconnected,
-}
-
 public interface INotificationService
 {
-    event Action<string>? NewNotification;
-    event Action<SeasonProcessNotification>? SeasonProcessNotification;
-    event Action<HubConnectionStatus>? ConnectionStatus;
-    Task AddToGroup();
-    Task RemoveFromGroup();
-    Task SubscribeToNotifications();
+    event Action? NotificationsUpdated;
+    ImmutableList<ServeNotification> Notifications { get; }
+    Task AddNotification(ServeNotification notification);
+    Task LoadLocalNotifications();
+    Task SetNotificationViewed(string id);
+    Task SetAllNotificationViewed();
 }
 
 public class NotificationService : INotificationService
 {
-    private HubConnection? _hubConnection;
-    private readonly HttpClient _httpClient;
-    private readonly ILogger<NotificationService> _logger;
+    private readonly ILocalStorageService _localStorage;
+    private const string NotificationsKey = "notifications";
 
-    public event Action<string>? NewNotification;
-    public event Action<HubConnectionStatus>? ConnectionStatus;
-
-    public event Action<SeasonProcessNotification>? SeasonProcessNotification;
-
-    public NotificationService(HttpClient httpClient, ILogger<NotificationService> logger)
+    public NotificationService(ILocalStorageService localStorage)
     {
-        _httpClient = httpClient;
-        _logger = logger;
+        _localStorage = localStorage;
     }
 
-    public async Task SubscribeToNotifications()
+    public event Action? NotificationsUpdated;
+
+    public ImmutableList<ServeNotification> Notifications { private set; get; } =
+        ImmutableList<ServeNotification>.Empty;
+
+    public async Task AddNotification(ServeNotification notification)
     {
-        var response = await _httpClient.PostAsync("api/negotiate", new StringContent(string.Empty));
-        var info = await response.Content.ReadFromJsonAsync<ConnectionInfo>();
-
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(info?.Url ?? string.Empty,
-                options => { options.AccessTokenProvider = () => Task.FromResult(info?.AccessToken); })
-            .WithAutomaticReconnect()
-            .Build();
-
-        SubscribeToHubStatus(_hubConnection);
-        SubscribeToNotifications(_hubConnection);
-        await _hubConnection.StartAsync();
-        _logger.LogInformation("Connection to notification hub has been completed successfully");
-        ConnectionStatus?.Invoke(HubConnectionStatus.Connected);
-    }
-
-    public Task AddToGroup()
-    {
-        if (IsConnectedToHub())
+        if (Notifications.Count >= 5)
         {
-            return _httpClient.PostAsJsonAsync("api/notifications/setup",
-                new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
+            Notifications = Notifications.RemoveRange(0, Notifications.Count - 10);
         }
 
-        throw new HubException("Hub connection is not available at this time");
+        Notifications = Notifications.Add(notification);
+        await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+        NotificationsUpdated?.Invoke();
     }
 
-    private bool IsConnectedToHub() => _hubConnection?.State is HubConnectionState.Connected &&
-                                       !string.IsNullOrEmpty(_hubConnection.ConnectionId);
 
-    public Task RemoveFromGroup()
+    public async Task LoadLocalNotifications()
     {
-        if (IsConnectedToHub())
+        var storedNotifications = await _localStorage.GetItemAsync<IEnumerable<ServeNotification>>(NotificationsKey);
+        Notifications = storedNotifications?.ToImmutableList() ?? ImmutableList<ServeNotification>.Empty;
+        NotificationsUpdated?.Invoke();
+    }
+
+    public async Task SetNotificationViewed(string id)
+    {
+        var target = Notifications.FirstOrDefault(n => n.Id == id);
+        if (target is not null)
         {
-            return _httpClient.PostAsJsonAsync("api/notifications/remove",
-                new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
+            Notifications = Notifications.Replace(target, target with { Read = true });
+            await _localStorage.SetItemAsync(NotificationsKey, Notifications);
         }
-
-        throw new HubException("Hub connection is not available at this time");
     }
 
-    private void SubscribeToNotifications(HubConnection hubConnection)
+    public async Task SetAllNotificationViewed()
     {
-        hubConnection.On<string>(ServerNotifications.TestNotification,
-            notification => { NewNotification?.Invoke(notification); });
-
-        hubConnection.On<SeasonProcessNotification>(ServerNotifications.SeasonProcess,
-            notification => { SeasonProcessNotification?.Invoke(notification); });
-    }
-
-    private void SubscribeToHubStatus(HubConnection hubConnection)
-    {
-        hubConnection.Closed += ConnectionLost;
-        hubConnection.Reconnected += ConnectionRecovered;
-    }
-
-    private Task ConnectionRecovered(string? arg)
-    {
-        _logger.LogInformation("Connection to the hub has recovered {Id}", arg);
-        ConnectionStatus?.Invoke(HubConnectionStatus.Connected);
-        return Task.CompletedTask;
-    }
-
-    private Task ConnectionLost(Exception? arg)
-    {
-        _logger.LogError(arg, "Connection to the hub has been lost");
-        ConnectionStatus?.Invoke(HubConnectionStatus.Disconnected);
-        return Task.CompletedTask;
+        Notifications = Notifications.ConvertAll(n => n with { Read = true });
+        await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+        NotificationsUpdated?.Invoke();
     }
 }

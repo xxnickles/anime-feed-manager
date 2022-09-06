@@ -96,7 +96,7 @@ public class LibraryProvider : ILibraryProvider
                 TargetAudience.Admins,
                 NotificationType.Information,
                 new SeasonInfoDto(season.Season, season.Year),
-                $"{package.Count()} series have been scrapped for {season.Season}-${season.Year}"));
+                $"{package.Count()} series have been scrapped for {season.Season}-{season.Year}"));
 
             return (
                 package.Select(i => Map(i, feedTitles))

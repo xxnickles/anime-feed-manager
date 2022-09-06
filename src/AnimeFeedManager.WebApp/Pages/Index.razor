@@ -9,8 +9,11 @@
 
 <PageTitle>AFM - @GetTitle(State.Value.Season)</PageTitle>
 <SeasonSelector AvailableSeasons="@_seasons" SelectedSeason="@State.Value.Season" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
-<FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
-<SeriesGrid Collection="@_filteredCollection"></SeriesGrid>
+@if (_filteredCollection is not  EmptySeasonCollection)
+{
+    <FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
+    <SeriesGrid Collection="@_filteredCollection"></SeriesGrid>
+}
 
 @code {
 
@@ -94,5 +97,4 @@
             collectionBase.Season,
             collectionBase.Animes.Filter(filters).ToArray());
     }
-
 }

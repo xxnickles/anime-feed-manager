@@ -10,6 +10,7 @@
 @inject IUserService UserService
 @inject ISubscriberService SubscriberService
 @inject IDialogService DialogService
+@inject INotificationService NotificationService
 @inject ISnackbar Snackbar
 
 <MudThemeProvider IsDarkMode="true"/>
@@ -30,9 +31,14 @@
             </MudHidden>
         </MudBreakpointProvider>
         <MudSpacer/>
+        <MudDivider Vertical="true" Light="true" DividerType="DividerType.Middle" Class="my-3" FlexItem="true"/>
+        <NotificationsPresenter 
+            Notifications="@NotificationService.Notifications" 
+            OnMarkAllAsRead="NotificationService.SetAllNotificationViewed"
+            OnMarkAsRead="NotificationService.SetNotificationViewed"
+            ></NotificationsPresenter>
         <AuthorizeView>
             <Authorized>
-                <MudDivider Vertical="true" Light="true" DividerType="DividerType.Middle" Class="my-3" FlexItem="true"/>
                 <AuthorizedUserPanel User="@State.Value.User"></AuthorizedUserPanel>
             </Authorized>
             <NotAuthorized>
@@ -68,6 +74,7 @@
     protected override async Task OnInitializedAsync()
     {
         State.OnStateChange += StateHasChanged;
+        NotificationService.NotificationsUpdated += StateHasChanged;
         ArgumentNullException.ThrowIfNull(AuthenticationState);
         var state = await AuthenticationState;
         if (state?.User.Identity == null || state.User.Identity?.IsAuthenticated is false)
@@ -76,9 +83,9 @@
         }
         else
         {
-            var userId = state?.User?.Claims.First(c => c.Type.Contains("nameidentifier")).Value ?? string.Empty;
-            var isAdmin = state?.User?.IsInRole(UserRoles.Admin) ?? false;
-            var name = state?.User?.Identity?.Name ?? string.Empty;
+            var userId = state.User?.Claims.First(c => c.Type.Contains("nameidentifier")).Value ?? string.Empty;
+            var isAdmin = state.User?.IsInRole(UserRoles.Admin) ?? false;
+            var name = state.User?.Identity?.Name ?? string.Empty;
             var email = await GetUserEmail(userId, name);
 
             await email.Value.Match(
@@ -183,7 +190,7 @@
         try
         {
             var interested = await SubscriberService.GetInterested(email);
-            State.SetInterested(interested ?? ImmutableList<string>.Empty);
+            State.SetInterested(interested);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
@@ -201,6 +208,7 @@
     public void Dispose()
     {
         State.OnStateChange -= StateHasChanged;
+        NotificationService.NotificationsUpdated -= StateHasChanged;
     }
 
     private async Task Login()
