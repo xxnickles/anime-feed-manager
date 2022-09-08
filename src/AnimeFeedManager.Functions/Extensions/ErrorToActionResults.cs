@@ -18,7 +18,7 @@ public static class ErrorToActionResults
             _ => request.InternalServerError("An unhandled error has occurred")
         };
     }
-
+    
     private static Task<HttpResponseData> ToResponse(this ValidationErrors error, HttpRequestData request, ILogger log)
     {
         if (error == null) return request.UnprocessableEntity();

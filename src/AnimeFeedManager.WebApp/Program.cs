@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Azure.Functions.Authentication.WebAssembly;
 using MudBlazor;
 using MudBlazor.Services;
+using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -14,6 +15,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton<ApplicationState>();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddPWAUpdater();
 builder.Services.RegisterHttpServices(builder.Configuration.GetValue<string>("ApiUrl") ??
                                       builder.HostEnvironment.BaseAddress);
 builder.Services.AddMudServices(config =>

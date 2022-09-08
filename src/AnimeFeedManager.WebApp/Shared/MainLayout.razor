@@ -17,6 +17,7 @@
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 <BackendNotifications/>
+<PWAUpdater />
 
 <MudLayout>
     <MudAppBar Elevation="1">
@@ -36,6 +37,7 @@
             Notifications="@NotificationService.Notifications" 
             OnMarkAllAsRead="NotificationService.SetAllNotificationViewed"
             OnMarkAsRead="NotificationService.SetNotificationViewed"
+            OnMarkRemoveAll="NotificationService.RemoveAll"
             ></NotificationsPresenter>
         <AuthorizeView>
             <Authorized>
@@ -64,7 +66,8 @@
 </MudLayout>
 
 @code {
-
+    private CancellationTokenSource cts = new CancellationTokenSource();
+    
     [CascadingParameter]
     private Task<AuthenticationState?>? AuthenticationState { get; set; }
 
@@ -79,6 +82,7 @@
         var state = await AuthenticationState;
         if (state?.User.Identity == null || state.User.Identity?.IsAuthenticated is false)
         {
+            await NotificationService.RemoveAdminNotifications();
             await CompleteDefaultProfile(new AnonymousUser());
         }
         else

@@ -22,9 +22,10 @@
                 </MudMenuItem>
                 <MudDivider Class="my-2"/>
             }
-            @if (_unreadNotifications > 0)
+            @if (_totalNotifications > 0)
             {
                 <MudButton Class="pl-3" Size="Size.Small" Variant="Variant.Text" DisableElevation="true" Color="Color.Primary" OnClick="@(() => OnMarkAllAsRead.InvokeAsync())">Mark all as read</MudButton>
+                <MudButton Class="pl-3" Size="Size.Small" Variant="Variant.Text" DisableElevation="true" Color="Color.Error" OnClick="@(() => OnMarkRemoveAll.InvokeAsync())">Remove All</MudButton>
             }
         }
         else
@@ -39,6 +40,7 @@
 @code {
 
     private int _unreadNotifications = 0;
+    private int _totalNotifications = 0;
     private ImmutableList<ServeNotification> _notifications = ImmutableList<ServeNotification>.Empty;
 
     [Parameter]
@@ -49,11 +51,15 @@
         {
             _notifications = value;
             _unreadNotifications = value.Count(x => !x.Read);
+            _totalNotifications = value.Count;
         }
     }
 
     [Parameter]
     public EventCallback OnMarkAllAsRead { get; set; }
+    
+    [Parameter]
+    public EventCallback OnMarkRemoveAll { get; set; }
 
     [Parameter]
     public EventCallback<string> OnMarkAsRead { get; set; }

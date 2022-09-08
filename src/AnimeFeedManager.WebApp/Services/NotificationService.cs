@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using AnimeFeedManager.Common.Notifications;
 using Blazored.LocalStorage;
 
 namespace AnimeFeedManager.WebApp.Services;
@@ -11,12 +12,15 @@ public interface INotificationService
     Task LoadLocalNotifications();
     Task SetNotificationViewed(string id);
     Task SetAllNotificationViewed();
+    Task RemoveAll();
+    Task RemoveAdminNotifications();
 }
 
 public class NotificationService : INotificationService
 {
     private readonly ILocalStorageService _localStorage;
     private const string NotificationsKey = "notifications";
+    private const byte MaxNotifications = 5;
 
     public NotificationService(ILocalStorageService localStorage)
     {
@@ -30,9 +34,9 @@ public class NotificationService : INotificationService
 
     public async Task AddNotification(ServeNotification notification)
     {
-        if (Notifications.Count >= 5)
+        if (Notifications.Count >= MaxNotifications)
         {
-            Notifications = Notifications.RemoveRange(0, Notifications.Count - 10);
+            Notifications = Notifications.RemoveRange(0, Notifications.Count - MaxNotifications);
         }
 
         Notifications = Notifications.Add(notification);
@@ -61,6 +65,20 @@ public class NotificationService : INotificationService
     public async Task SetAllNotificationViewed()
     {
         Notifications = Notifications.ConvertAll(n => n with { Read = true });
+        await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+        NotificationsUpdated?.Invoke();
+    }
+
+    public async Task RemoveAll()
+    {
+        Notifications = ImmutableList<ServeNotification>.Empty;
+        await _localStorage.RemoveItemAsync(NotificationsKey);
+        NotificationsUpdated?.Invoke();
+    }
+
+    public async Task RemoveAdminNotifications()
+    {
+        Notifications = Notifications.Where(n => n.Audience != TargetAudience.Admins).ToImmutableList();
         await _localStorage.SetItemAsync(NotificationsKey, Notifications);
         NotificationsUpdated?.Invoke();
     }

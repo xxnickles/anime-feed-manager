@@ -21,5 +21,6 @@ public record ServeNotification(
     DateTime Time,
     NotificationType Type,
     NotificationSource Source,
+    TargetAudience Audience,
     string Message);
 
