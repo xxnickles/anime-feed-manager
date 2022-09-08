@@ -5,8 +5,8 @@ namespace AnimeFeedManager.WebApp.Services;
 
 public interface IUserService
 {
-    public Task MergeUser(UserDto user);
-    public Task<string?> GetEmail(string id);
+    public Task MergeUser(UserDto user, CancellationToken cancellationToken = default);
+    public Task<string?> GetEmail(string id, CancellationToken cancellationToken = default);
 }
 
 public class UserService : IUserService
@@ -19,14 +19,14 @@ public class UserService : IUserService
     }
 
 
-    public Task MergeUser(UserDto user)
+    public Task MergeUser(UserDto user,CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/user", user);
+        return _httpClient.PostAsJsonAsync("api/user", user, cancellationToken: cancellationToken);
     }
 
-    public async Task<string?> GetEmail(string id)
+    public async Task<string?> GetEmail(string id, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/user/{id}");
+        var response = await _httpClient.GetAsync($"api/user/{id}", cancellationToken);
         return await response.MapToObject<string?>(null);
     }
 }

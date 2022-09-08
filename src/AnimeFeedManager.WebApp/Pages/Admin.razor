@@ -4,7 +4,10 @@
 @inject IAdminService AdminService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@implements IDisposable
+
 @attribute [Authorize(Roles = "admin")]
+
 <MudContainer MaxWidth="MaxWidth.Large">
     <MudPaper>
         <MudSimpleTable>
@@ -42,7 +45,7 @@
 </MudContainer>
 
 @code {
-
+    private readonly CancellationTokenSource _cts = new ();
     [CascadingParameter]
     private Error? Error { get; set; }
 
@@ -53,7 +56,7 @@
         {
             if (await GetConfirmation("Process Latest Season Library", "Do you want to update latest season library? This task will run in the background"))
             {
-                await AdminService.UpdateLibrary();
+                await AdminService.UpdateLibrary(_cts.Token);
                 Snackbar.Add("Latest season library would be updated in the background", Severity.Info);
             }
         }
@@ -69,7 +72,7 @@
         {
             if (await GetConfirmation("Set Completed Status", "Do you want to set completed the library to completed status false?"))
             {
-                await AdminService.SetAllSeriesAsNoCompleted();
+                await AdminService.SetAllSeriesAsNoCompleted(_cts.Token);
                 Snackbar.Add("Series status is being updated in the background", Severity.Info);
             }
         }
@@ -88,6 +91,13 @@
         var result = await dialog.Result;
         if (result.Cancelled || result.Data == null) return false;
         return (bool) result.Data;
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+      
     }
 
 }

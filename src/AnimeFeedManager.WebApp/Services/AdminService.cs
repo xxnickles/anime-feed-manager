@@ -2,8 +2,8 @@
 {
     public interface IAdminService
     {
-        Task UpdateLibrary();
-        Task SetAllSeriesAsNoCompleted();
+        Task UpdateLibrary(CancellationToken cancellationToken = default);
+        Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default);
     }
 
     public class AdminService : IAdminService
@@ -15,14 +15,14 @@
             _httpClient = httpClient;
         }
 
-        public Task UpdateLibrary()
+        public Task UpdateLibrary(CancellationToken cancellationToken = default)
         {
-            return _httpClient.PostAsync("/api/scrapping/library", null);
+            return _httpClient.PostAsync("/api/scrapping/library", null, cancellationToken);
         }
 
-        public Task SetAllSeriesAsNoCompleted()
+        public Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default)
         {
-            return _httpClient.PostAsync("/api/management/set-status", null);
+            return _httpClient.PostAsync("/api/management/set-status", null, cancellationToken);
         }
 
     }

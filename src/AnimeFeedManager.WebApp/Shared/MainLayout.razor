@@ -66,7 +66,7 @@
 </MudLayout>
 
 @code {
-    private CancellationTokenSource cts = new CancellationTokenSource();
+    private readonly CancellationTokenSource _cts = new ();
     
     [CascadingParameter]
     private Task<AuthenticationState?>? AuthenticationState { get; set; }
@@ -103,7 +103,7 @@
         try
         {
             State.AddLoadingItem(userId, "Loading user profile");
-            var userEmail = await UserService.GetEmail(userId);
+            var userEmail = await UserService.GetEmail(userId, _cts.Token);
 
     // Email is in the systems
             if (!string.IsNullOrEmpty(userEmail))
@@ -157,7 +157,7 @@
     {
         try
         {
-            await UserService.MergeUser(new UserDto(userId, email));
+            await UserService.MergeUser(new UserDto(userId, email), _cts.Token);
             Snackbar.Add("Email has been stored", Severity.Info);
         }
         catch (Exception ex)
@@ -179,7 +179,7 @@
     {
         try
         {
-            var subscriptions = await SubscriberService.GetSubscriptions(email);
+            var subscriptions = await SubscriberService.GetSubscriptions(email, _cts.Token);
             State.SetSubscriptions(subscriptions);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -193,7 +193,7 @@
 
         try
         {
-            var interested = await SubscriberService.GetInterested(email);
+            var interested = await SubscriberService.GetInterested(email, _cts.Token);
             State.SetInterested(interested);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -213,6 +213,8 @@
     {
         State.OnStateChange -= StateHasChanged;
         NotificationService.NotificationsUpdated -= StateHasChanged;
+        _cts.Cancel();
+        _cts.Dispose();
     }
 
     private async Task Login()

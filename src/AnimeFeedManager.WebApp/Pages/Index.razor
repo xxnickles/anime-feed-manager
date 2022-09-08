@@ -16,7 +16,7 @@
 }
 
 @code {
-
+    private readonly CancellationTokenSource _cts = new ();
     private ImmutableList<SeasonInfoDto> _seasons = new List<SeasonInfoDto> { new NullSeasonInfo() }.ToImmutableList();
     private SeasonCollection _collection = new EmptySeasonCollection();
     private SeasonCollection _filteredCollection = new EmptySeasonCollection();
@@ -33,7 +33,7 @@
         try
         {
             State.AddLoadingItem(key, "Loading Season");
-            _seasons = await SeasonFetcherService.GetAvailableSeasons();
+            _seasons = await SeasonFetcherService.GetAvailableSeasons(_cts.Token);
             if (_seasons.Count > 0)
             {
                 var latest = _seasons[0];
@@ -59,6 +59,8 @@
     public void Dispose()
     {
         State.OnStateChange -= StateHasChanged;
+        _cts.Cancel();
+        _cts.Dispose();
     }
 
     private async Task OnSeasonChanged(SeasonInfoDto season)
@@ -73,7 +75,7 @@
         try
         {
             State.AddLoadingItem(key, "Loading Series");
-            _collection = await SeasonCollectionFetcher.GetSeasonLibrary(season);
+            _collection = await SeasonCollectionFetcher.GetSeasonLibrary(season, _cts.Token);
             _filteredCollection = FilterCollection(_collection, Filters);
             State.RemoveLoadingItem(key);
         }
