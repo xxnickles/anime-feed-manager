@@ -15,15 +15,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await NotificationService.LoadLocalNotifications();
         State.OnUserChanges += UserChanges;
-
         try
         {
             await ServerNotificationProcessingService.SubscribeToNotifications();
             ServerNotificationProcessingService.NewNotification += (notification) => { Snackbar.Add(notification, Severity.Info); };
             ServerNotificationProcessingService.ConnectionStatus += ProcessStatusChanges;
-             ServerNotificationProcessingService.SeasonProcessNotification += OnSeasonProcessNotification;
+            ServerNotificationProcessingService.SeasonProcessNotification += OnSeasonProcessNotification;
         }
         catch (Exception e)
         {
@@ -73,7 +71,7 @@
             Snackbar.Add("Removed from group", Severity.Info);
         }
     }
-    
+
     private async Task AddToGroup(User user)
     {
         try
@@ -114,4 +112,5 @@
                 break;
         }
     }
+
 }

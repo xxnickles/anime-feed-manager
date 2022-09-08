@@ -47,8 +47,17 @@ public class NotificationService : INotificationService
 
     public async Task LoadLocalNotifications()
     {
-        var storedNotifications = await _localStorage.GetItemAsync<IEnumerable<ServeNotification>>(NotificationsKey);
-        Notifications = storedNotifications?.ToImmutableList() ?? ImmutableList<ServeNotification>.Empty;
+        if (await _localStorage.ContainKeyAsync(NotificationsKey))
+        {
+            var storedNotifications =
+                await _localStorage.GetItemAsync<IEnumerable<ServeNotification>>(NotificationsKey);
+            Notifications = storedNotifications?.ToImmutableList() ?? ImmutableList<ServeNotification>.Empty;
+        }
+        else
+        {
+            Notifications = ImmutableList<ServeNotification>.Empty;
+        }
+
         NotificationsUpdated?.Invoke();
     }
 
@@ -78,8 +87,11 @@ public class NotificationService : INotificationService
 
     public async Task RemoveAdminNotifications()
     {
-        Notifications = Notifications.Where(n => n.Audience != TargetAudience.Admins).ToImmutableList();
-        await _localStorage.SetItemAsync(NotificationsKey, Notifications);
-        NotificationsUpdated?.Invoke();
+        if (Notifications.Any())
+        {
+            Notifications = Notifications.Where(n => n.Audience != TargetAudience.Admins).ToImmutableList();
+            await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+            NotificationsUpdated?.Invoke();
+        }
     }
 }

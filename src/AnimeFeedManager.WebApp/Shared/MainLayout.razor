@@ -76,14 +76,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await NotificationService.LoadLocalNotifications();
         State.OnStateChange += StateHasChanged;
         NotificationService.NotificationsUpdated += StateHasChanged;
         ArgumentNullException.ThrowIfNull(AuthenticationState);
         var state = await AuthenticationState;
         if (state?.User.Identity == null || state.User.Identity?.IsAuthenticated is false)
         {
-            await NotificationService.RemoveAdminNotifications();
             await CompleteDefaultProfile(new AnonymousUser());
+            await NotificationService.RemoveAdminNotifications();
         }
         else
         {
