@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{B4E2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.WebApp.Tests", "AnimeFeedManager.WebApp.Tests\AnimeFeedManager.WebApp.Tests.csproj", "{7F53CF70-0A21-44AC-92B8-1B39817612C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.WebApp.Authentication", "AnimeFeedManager.WebApp.Authentication\AnimeFeedManager.WebApp.Authentication.csproj", "{5813A94D-2F9E-4867-A019-8F0485723904}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 		{7F53CF70-0A21-44AC-92B8-1B39817612C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F53CF70-0A21-44AC-92B8-1B39817612C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F53CF70-0A21-44AC-92B8-1B39817612C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5813A94D-2F9E-4867-A019-8F0485723904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5813A94D-2F9E-4867-A019-8F0485723904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5813A94D-2F9E-4867-A019-8F0485723904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5813A94D-2F9E-4867-A019-8F0485723904}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +98,7 @@ Global
 		{379F782C-D854-4595-8D60-299E197AE715} = {B4E29E23-9A32-4C0C-B717-976EE38FECC3}
 		{2DB0E578-C9E8-4845-98E3-DFAD1362944D} = {30A1FBA3-75BF-4B00-9614-90A975B6AF2E}
 		{7F53CF70-0A21-44AC-92B8-1B39817612C5} = {30A1FBA3-75BF-4B00-9614-90A975B6AF2E}
+		{5813A94D-2F9E-4867-A019-8F0485723904} = {30A1FBA3-75BF-4B00-9614-90A975B6AF2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {628063C2-8D1C-46C8-A506-8760464EB763}

@@ -1,9 +1,10 @@
 using AnimeFeedManager.WebApp;
+using AnimeFeedManager.WebApp.Authentication;
 using AnimeFeedManager.WebApp.State;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Azure.Functions.Authentication.WebAssembly;
 using MudBlazor;
 using MudBlazor.Services;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
