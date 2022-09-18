@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Scrapping
 {
-    public class UpdateLatestLibraryOutput
+    public class UpdateFeedTitlesOutput
     {
         [QueueOutput(QueueNames.LibraryUpdate)] 
         public LibraryUpdate? StartLibraryUpdate { get; set; }
@@ -12,19 +12,19 @@ namespace AnimeFeedManager.Functions.Features.Scrapping
         public HttpResponseData? HttpResponse { get; set; }
     }
 
-    public class UpdateLatestLibrary
+    public class UpdateFeedTitles
     {
         private readonly ILogger _logger;
 
-        public UpdateLatestLibrary(ILoggerFactory loggerFactory)
+        public UpdateFeedTitles(ILoggerFactory loggerFactory)
         {
             _logger = loggerFactory.CreateLogger<UpdateLatestLibrary>();
         }
 
-        [Function("UpdateLatestLibrary")]
-        public async Task<UpdateLatestLibraryOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "scrapping/library")] HttpRequestData req)
+        [Function("UpdateFeedTitles")]
+        public async Task<UpdateLatestLibraryOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "scrapping/titles")] HttpRequestData req)
         {
-            _logger.LogInformation("Automated Update of Library (Manual trigger)");
+            _logger.LogInformation("Automated Update of Titles (Manual trigger)");
 
             var result = await req.AllowAdminOnly();
 
@@ -38,7 +38,7 @@ namespace AnimeFeedManager.Functions.Features.Scrapping
         {
             return new UpdateLatestLibraryOutput
             {
-                StartLibraryUpdate = new LibraryUpdate(LibraryUpdateType.Full),
+                StartLibraryUpdate = new LibraryUpdate(LibraryUpdateType.Titles),
                 HttpResponse = await req.Ok()
             };
         }

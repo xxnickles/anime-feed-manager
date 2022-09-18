@@ -46,8 +46,58 @@ public class ProcessLibrary
     [Function("ProcessLibrary")]
     public async Task<ProcessLibraryOutput> Run(
         [QueueTrigger(QueueNames.LibraryUpdate, Connection = "AzureWebJobsStorage")]
-        string startProcess)
+        LibraryUpdate startProcess)
     {
+
+        return startProcess.Type switch
+        {
+            LibraryUpdateType.Full => await ProcessFullLibrary(),
+            LibraryUpdateType.Titles => await ProcessTitles()
+        };
+    }
+
+
+    private async Task<ProcessLibraryOutput> ProcessTitles()
+    {
+        _logger.LogInformation("Processing update of the feed titles only");
+        var titleStoreResult = await _feedProvider.GetTitles()
+            .BindAsync(feedTitles => _mediator.Send(new AddTitlesCmd(feedTitles)));
+
+        return titleStoreResult.Match(r =>
+        {
+            _domainPostman.SendMessage(new TitlesUpdateNotification(
+                IdHelpers.GetUniqueId(),
+                TargetAudience.Admins,
+                NotificationType.Information,
+                $"Latest feed titles have been updated"));
+
+            return new ProcessLibraryOutput
+            {
+                TitleMessage = ProcessResult.Ok,
+            };
+        }, e =>
+        {
+            _logger.LogError("An error occurred while processing feed titles update {S}", e.ToString());
+            _domainPostman.SendMessage(new TitlesUpdateNotification(
+                IdHelpers.GetUniqueId(),
+                TargetAudience.Admins,
+                NotificationType.Error,
+                $"An error occurred before storing feed titles."));
+
+            return new ProcessLibraryOutput
+            {
+                AnimeMessages = null,
+                ImagesMessages = null,
+                TitleMessage = ProcessResult.Failure,
+                SeasonMessage = null
+            };
+        });
+    }
+
+    private async Task<ProcessLibraryOutput> ProcessFullLibrary()
+    {
+        _logger.LogInformation("Processing update of the full library");
+
         var result = await _feedProvider.GetTitles()
             .BindAsync(CollectLibrary);
 
@@ -90,7 +140,7 @@ public class ProcessLibrary
                     NotificationType.Error,
                     new NullSeasonInfo(),
                     $"An error occurred before storing series."));
-                
+
                 return new ProcessLibraryOutput
                 {
                     AnimeMessages = null,

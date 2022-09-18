@@ -4,6 +4,7 @@
 @using AnimeFeedManager.Core.ConstrainedTypes
 @using System.Collections.Immutable
 @using AnimeFeedManager.Common
+@using Toolbelt.Blazor.PWA.Updater
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject ApplicationState State
@@ -12,6 +13,7 @@
 @inject IDialogService DialogService
 @inject INotificationService NotificationService
 @inject ISnackbar Snackbar
+
 
 <MudThemeProvider IsDarkMode="true"/>
 <MudDialogProvider/>
@@ -88,7 +90,7 @@
         }
         else
         {
-            var userId = state.User?.Claims.First(c => c.Type.Contains("nameidentifier")).Value ?? string.Empty;
+            var userId = state.User?.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier"))?.Value ?? string.Empty;
             var isAdmin = state.User?.IsInRole(UserRoles.Admin) ?? false;
             var name = state.User?.Identity?.Name ?? string.Empty;
             var email = await GetUserEmail(userId, name);

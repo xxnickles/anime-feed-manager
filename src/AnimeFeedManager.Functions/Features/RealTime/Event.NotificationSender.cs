@@ -14,12 +14,26 @@ public class NotificationSender
         _logger = loggerFactory.CreateLogger<NotificationSender>();
     }
     
-    [Function("NotificationSender")]
+    [Function("LibraryNotificationSender")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
-    public SignalRMessageAction Run([QueueTrigger(Boxes.SeasonProcessNotifications, Connection = "AzureWebJobsStorage")] SeasonProcessNotification notification,
+    public SignalRMessageAction SendLibraryNotifications([QueueTrigger(Boxes.SeasonProcessNotifications, Connection = "AzureWebJobsStorage")] SeasonProcessNotification notification,
         FunctionContext context)
     {
-        _logger.LogInformation("Notification ready to process {Notification}", notification);
+        _logger.LogInformation("Library notification ready to process {Notification}", notification);
+
+        return new SignalRMessageAction(ServerNotifications.SeasonProcess)
+        {
+            GroupName = notification.TargetAudience == TargetAudience.Admins ? HubGroups.AdminGroup : null, 
+            Arguments = new[] {notification}
+        };
+    }
+    
+    [Function("TitleNotificationSender")]
+    [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
+    public SignalRMessageAction SendTitleNotifications([QueueTrigger(Boxes.TitleUpdatesNotifications, Connection = "AzureWebJobsStorage")] SeasonProcessNotification notification,
+        FunctionContext context)
+    {
+        _logger.LogInformation("Title notification ready to process {Notification}", notification);
 
         return new SignalRMessageAction(ServerNotifications.SeasonProcess)
         {

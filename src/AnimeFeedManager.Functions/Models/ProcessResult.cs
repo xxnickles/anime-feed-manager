@@ -6,3 +6,11 @@ internal struct ProcessResult
     internal static string Failure = "Failure";
     internal static string NoChanges = "NoChanges";
 }
+
+public enum LibraryUpdateType
+{
+    Full,
+    Titles
+}
+
+public record struct LibraryUpdate(LibraryUpdateType Type);

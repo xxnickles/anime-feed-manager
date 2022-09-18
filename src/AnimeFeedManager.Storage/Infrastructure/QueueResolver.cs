@@ -14,6 +14,7 @@ public sealed class QueueResolver : IQueueResolver
         return type.Name switch
         {
             nameof(SeasonProcessNotification) => Boxes.SeasonProcessNotifications,
+            nameof(TitlesUpdateNotification) => Boxes.TitleUpdatesNotifications,
             _ => throw new ArgumentException($"Type '{type.Name}' has not an associated queue")
         };
     }

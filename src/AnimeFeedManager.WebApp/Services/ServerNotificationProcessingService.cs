@@ -86,9 +86,6 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
 
     private void SubscribeToNotifications(HubConnection hubConnection)
     {
-        hubConnection.On<string>(ServerNotifications.TestNotification,
-            notification => { NewNotification?.Invoke(notification); });
-
         hubConnection.On<SeasonProcessNotification>(ServerNotifications.SeasonProcess,
             notification =>
             {

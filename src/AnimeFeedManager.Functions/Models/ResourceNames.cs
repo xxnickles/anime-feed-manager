@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Functions.Models;
 
-internal static class QueueNames
+internal struct QueueNames
 {
     internal const string AnimeLibrary = "anime-library";
     internal const string AvailableSeasons = "available-seasons";
@@ -15,7 +15,7 @@ internal static class QueueNames
     internal const string InterestRemove = "interest-remove";
 }
 
-internal static class HubNames
+internal struct HubNames
 {
     internal const string Notifications = "notifications";
 }

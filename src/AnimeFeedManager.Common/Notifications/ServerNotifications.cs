@@ -7,5 +7,5 @@ public record HubInfo(string ConnectionId);
 public static class ServerNotifications
 {
     public const string SeasonProcess = "seasonprocess";
-    public const string TestNotification = "test";
+    public const string TitleUpdate = "titleupdate";
 }
