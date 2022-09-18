@@ -12,10 +12,11 @@ public enum HubConnectionStatus
 public enum NotificationSource
 {
     None,
-    SeasonLibrary
+    SeasonLibrary,
+    Titles
 }
 
-public record ServeNotification(
+public record ServerNotification(
     string Id,
     bool Read,
     DateTime Time,

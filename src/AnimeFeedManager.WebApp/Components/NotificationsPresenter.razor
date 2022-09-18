@@ -3,7 +3,7 @@
 @using AnimeFeedManager.Common.Notifications
 
 <MudBadge Dot="true" Overlap="true" Color="Color.Secondary" Visible="_unreadNotifications > 0">
-    <MudMenu Icon="@Icons.Filled.Notifications" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter" >
+    <MudMenu Icon="@Icons.Filled.Notifications" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter">
         @if (Notifications.Any())
         {
             @foreach (var notification in Notifications)
@@ -41,15 +41,15 @@
 
     private int _unreadNotifications = 0;
     private int _totalNotifications = 0;
-    private ImmutableList<ServeNotification> _notifications = ImmutableList<ServeNotification>.Empty;
+    private ImmutableList<ServerNotification> _notifications = ImmutableList<ServerNotification>.Empty;
 
     [Parameter]
-    public ImmutableList<ServeNotification> Notifications
+    public ImmutableList<ServerNotification> Notifications
     {
         get => _notifications;
         set
         {
-            _notifications = value;
+            _notifications = value.OrderByDescending(n => n.Time).ToImmutableList();
             _unreadNotifications = value.Count(x => !x.Read);
             _totalNotifications = value.Count;
         }
@@ -57,7 +57,7 @@
 
     [Parameter]
     public EventCallback OnMarkAllAsRead { get; set; }
-    
+
     [Parameter]
     public EventCallback OnMarkRemoveAll { get; set; }
 
@@ -67,6 +67,7 @@
     private string GetTitle(NotificationSource source) => source switch
     {
         NotificationSource.SeasonLibrary => "Season Library",
+        NotificationSource.Titles => "Feed Titles",
         NotificationSource.None => "Information",
         _ => "Information"
         };
@@ -77,7 +78,6 @@
         NotificationType.Update => Color.Success,
         NotificationType.Error => Color.Error,
         _ => Color.Default
-
         };
 
 

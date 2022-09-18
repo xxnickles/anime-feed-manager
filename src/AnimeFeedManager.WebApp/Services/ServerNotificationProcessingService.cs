@@ -9,8 +9,8 @@ namespace AnimeFeedManager.WebApp.Services;
 
 public interface IServerNotificationProcessingService
 {
-    event Action<string>? NewNotification;
     event Func<SeasonProcessNotification, Task>? SeasonProcessNotification;
+    event Func<TitlesUpdateNotification, Task>? TitlesUpdateNotification;
     event Action<HubConnectionStatus>? ConnectionStatus;
     Task AddToGroup();
     Task RemoveFromGroup();
@@ -24,14 +24,10 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     private readonly HttpClient _httpClient;
     private readonly ILogger<ServerNotificationProcessingService> _logger;
     
-
-    public event Action<string>? NewNotification;
+    public event Func<TitlesUpdateNotification, Task>? TitlesUpdateNotification;
     public event Action<HubConnectionStatus>? ConnectionStatus;
 
     public event Func<SeasonProcessNotification, Task>? SeasonProcessNotification;
-
-    public ImmutableList<ServeNotification> Notifications { private set; get; } =
-        ImmutableList<ServeNotification>.Empty;
 
     public ServerNotificationProcessingService(
         HttpClient httpClient,
@@ -90,6 +86,12 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
             notification =>
             {
                 SeasonProcessNotification?.Invoke(notification);
+            });
+        
+        hubConnection.On<TitlesUpdateNotification>(ServerNotifications.TitleUpdate,
+            notification =>
+            {
+                TitlesUpdateNotification?.Invoke(notification);
             });
     }
 

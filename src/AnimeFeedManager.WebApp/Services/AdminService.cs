@@ -3,6 +3,7 @@
     public interface IAdminService
     {
         Task UpdateLibrary(CancellationToken cancellationToken = default);
+        Task UpdateTitles(CancellationToken cancellationToken = default);
         Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default);
     }
 
@@ -18,6 +19,11 @@
         public Task UpdateLibrary(CancellationToken cancellationToken = default)
         {
             return _httpClient.PostAsync("/api/scrapping/library", null, cancellationToken);
+        }
+
+        public Task UpdateTitles(CancellationToken cancellationToken = default)
+        {
+            return _httpClient.PostAsync("/api/scrapping/titles", null, cancellationToken);
         }
 
         public Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default)

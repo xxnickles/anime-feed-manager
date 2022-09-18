@@ -17,7 +17,8 @@ public enum NotificationType
 
 public abstract record RealtimeNotification(string Id,
     TargetAudience TargetAudience,
-    NotificationType Result);
+    NotificationType Result,
+    string Message);
 
 public record SeasonProcessNotification(
     string Id,
@@ -25,11 +26,11 @@ public record SeasonProcessNotification(
     NotificationType Result,
     SeasonInfoDto Season,
     string Message
-):RealtimeNotification(Id, TargetAudience, Result);
+):RealtimeNotification(Id, TargetAudience, Result, Message);
 
 public record TitlesUpdateNotification(
     string Id,
     TargetAudience TargetAudience,
     NotificationType Result,
     string Message
-):RealtimeNotification(Id, TargetAudience, Result);
+):RealtimeNotification(Id, TargetAudience, Result, Message);

@@ -7,8 +7,8 @@ namespace AnimeFeedManager.WebApp.Services;
 public interface INotificationService
 {
     event Action? NotificationsUpdated;
-    ImmutableList<ServeNotification> Notifications { get; }
-    Task AddNotification(ServeNotification notification);
+    ImmutableList<ServerNotification> Notifications { get; }
+    Task AddNotification(ServerNotification notification);
     Task LoadLocalNotifications();
     Task SetNotificationViewed(string id);
     Task SetAllNotificationViewed();
@@ -29,14 +29,14 @@ public class NotificationService : INotificationService
 
     public event Action? NotificationsUpdated;
 
-    public ImmutableList<ServeNotification> Notifications { private set; get; } =
-        ImmutableList<ServeNotification>.Empty;
+    public ImmutableList<ServerNotification> Notifications { private set; get; } =
+        ImmutableList<ServerNotification>.Empty;
 
-    public async Task AddNotification(ServeNotification notification)
+    public async Task AddNotification(ServerNotification notification)
     {
         if (Notifications.Count >= MaxNotifications)
         {
-            Notifications = Notifications.RemoveRange(0, Notifications.Count - MaxNotifications);
+            Notifications = Notifications.RemoveRange(0, Notifications.Count - MaxNotifications + 1);
         }
 
         Notifications = Notifications.Add(notification);
@@ -50,12 +50,12 @@ public class NotificationService : INotificationService
         if (await _localStorage.ContainKeyAsync(NotificationsKey))
         {
             var storedNotifications =
-                await _localStorage.GetItemAsync<IEnumerable<ServeNotification>>(NotificationsKey);
-            Notifications = storedNotifications?.ToImmutableList() ?? ImmutableList<ServeNotification>.Empty;
+                await _localStorage.GetItemAsync<IEnumerable<ServerNotification>>(NotificationsKey);
+            Notifications = storedNotifications?.ToImmutableList() ?? ImmutableList<ServerNotification>.Empty;
         }
         else
         {
-            Notifications = ImmutableList<ServeNotification>.Empty;
+            Notifications = ImmutableList<ServerNotification>.Empty;
         }
 
         NotificationsUpdated?.Invoke();
@@ -68,6 +68,7 @@ public class NotificationService : INotificationService
         {
             Notifications = Notifications.Replace(target, target with { Read = true });
             await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+            NotificationsUpdated?.Invoke();
         }
     }
 
@@ -80,7 +81,7 @@ public class NotificationService : INotificationService
 
     public async Task RemoveAll()
     {
-        Notifications = ImmutableList<ServeNotification>.Empty;
+        Notifications = ImmutableList<ServerNotification>.Empty;
         await _localStorage.RemoveItemAsync(NotificationsKey);
         NotificationsUpdated?.Invoke();
     }

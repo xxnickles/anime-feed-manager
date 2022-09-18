@@ -19,9 +19,9 @@
         try
         {
             await ServerNotificationProcessingService.SubscribeToNotifications();
-            ServerNotificationProcessingService.NewNotification += (notification) => { Snackbar.Add(notification, Severity.Info); };
             ServerNotificationProcessingService.ConnectionStatus += ProcessStatusChanges;
             ServerNotificationProcessingService.SeasonProcessNotification += OnSeasonProcessNotification;
+            ServerNotificationProcessingService.TitlesUpdateNotification += OnTitlesUpdateNotification;
         }
         catch (Exception e)
         {
@@ -29,7 +29,17 @@
         }
     }
 
-    private async Task OnSeasonProcessNotification(SeasonProcessNotification notification)
+    private Task OnTitlesUpdateNotification(TitlesUpdateNotification notification)
+    {
+        return ProcessNotification(notification, NotificationSource.Titles);
+    }
+    
+    private  Task OnSeasonProcessNotification(SeasonProcessNotification notification)
+    {
+        return ProcessNotification(notification, NotificationSource.SeasonLibrary);
+    }
+
+    private async Task ProcessNotification(RealtimeNotification notification, NotificationSource source)
     {
         switch (notification.Result)
         {
@@ -44,16 +54,17 @@
                 break;
         }
 
-        await NotificationService.AddNotification(new ServeNotification(
+        await NotificationService.AddNotification(new ServerNotification(
             notification.Id,
             false,
             DateTime.Now,
             notification.Result,
-            NotificationSource.SeasonLibrary,
+            source,
             notification.TargetAudience,
             notification.Message
             ));
     }
+   
 
     private async Task UserChanges(User arg)
     {

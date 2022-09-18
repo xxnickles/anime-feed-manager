@@ -28,6 +28,20 @@
 
             <tr>
                 <td>
+                    <MudText Typo="Typo.body1">Automated Update Latest feed titles</MudText>
+                    <MudText Typo="Typo.subtitle2">Process in the background feed titles only</MudText>
+                </td>
+                <td style="text-align: right">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Secondary"
+                               OnClick="ProcessFeedTitles">
+                        Update
+                    </MudButton>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
                     <MudText Typo="Typo.body1">Set default state to all</MudText>
                     <MudText Typo="Typo.subtitle2">Set all series completed status to false</MudText>
                 </td>
@@ -45,10 +59,10 @@
 </MudContainer>
 
 @code {
-    private readonly CancellationTokenSource _cts = new ();
+    private readonly CancellationTokenSource _cts = new();
+
     [CascadingParameter]
     private Error? Error { get; set; }
-
 
     private async Task ProcessLibrary()
     {
@@ -63,6 +77,22 @@
         catch (Exception ex)
         {
             Error?.ProcessError("Updating Library", ex);
+        }
+    }
+    
+    private async Task ProcessFeedTitles()
+    {
+        try
+        {
+            if (await GetConfirmation("Process Latest Feed Titles", "Do you want to update latest feed titles? This task will run in the background"))
+            {
+                await AdminService.UpdateTitles(_cts.Token);
+                Snackbar.Add("Latest feed titles would be updated in the background", Severity.Info);
+            }
+        }
+        catch (Exception ex)
+        {
+            Error?.ProcessError("Updating Feed Titles", ex);
         }
     }
 
@@ -85,19 +115,18 @@
 
     private async Task<bool> GetConfirmation(string title, string message)
     {
-        var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
-        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var parameters = new DialogParameters { { nameof(ConfirmationDialog.Message), message } };
+        var options = new DialogOptions { CloseOnEscapeKey = true };
         var dialog = DialogService.Show<ConfirmationDialog>(title, parameters, options);
         var result = await dialog.Result;
         if (result.Cancelled || result.Data == null) return false;
-        return (bool) result.Data;
+        return (bool)result.Data;
     }
 
     public void Dispose()
     {
         _cts.Cancel();
         _cts.Dispose();
-      
     }
 
 }

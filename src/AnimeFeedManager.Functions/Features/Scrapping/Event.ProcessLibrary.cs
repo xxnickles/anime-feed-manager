@@ -52,7 +52,8 @@ public class ProcessLibrary
         return startProcess.Type switch
         {
             LibraryUpdateType.Full => await ProcessFullLibrary(),
-            LibraryUpdateType.Titles => await ProcessTitles()
+            LibraryUpdateType.Titles => await ProcessTitles(),
+            _ => new ProcessLibraryOutput()
         };
     }
 
@@ -63,7 +64,7 @@ public class ProcessLibrary
         var titleStoreResult = await _feedProvider.GetTitles()
             .BindAsync(feedTitles => _mediator.Send(new AddTitlesCmd(feedTitles)));
 
-        return titleStoreResult.Match(r =>
+        return titleStoreResult.Match(_ =>
         {
             _domainPostman.SendMessage(new TitlesUpdateNotification(
                 IdHelpers.GetUniqueId(),
