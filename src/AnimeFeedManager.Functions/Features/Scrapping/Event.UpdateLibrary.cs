@@ -17,12 +17,12 @@ public class UpdateLibrary
 
     [Function("UpdateLibraryTimer")]
     [QueueOutput(QueueNames.LibraryUpdate, Connection = "AzureWebJobsStorage")]
-    public bool? Run(
+    public LibraryUpdate Run(
         [TimerTrigger("0 0 2 * * SAT")] TimerInfo timer
     )
     {
         _logger.LogInformation("Automated Update of Library (Timer trigger {timer})",
             timer.ScheduleStatus?.LastUpdated ?? DateTime.Now);
-        return true;
+        return new LibraryUpdate(LibraryUpdateType.Full);
     }
 }
