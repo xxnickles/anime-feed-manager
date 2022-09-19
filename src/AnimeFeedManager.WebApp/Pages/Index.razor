@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/{Year:int}/{Season}"
 @using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
 @using System.Collections.Immutable
@@ -6,6 +7,7 @@
 @inject ISeasonFetcherService SeasonFetcherService
 @inject ISeasonCollectionFetcher SeasonCollectionFetcher
 @inject ApplicationState State
+@inject NavigationManager NavigationManager
 
 <PageTitle>AFM - @GetTitle(State.Value.Season)</PageTitle>
 <SeasonSelector AvailableSeasons="@_seasons" SelectedSeason="@State.Value.Season" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
@@ -21,10 +23,16 @@
     private SeasonCollection _collection = new EmptySeasonCollection();
     private SeasonCollection _filteredCollection = new EmptySeasonCollection();
 
+    [Parameter]
+    public int Year { get; set; }
+    
+    [Parameter]
+    public string Season { get; set; } = string.Empty;
+
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private IEnumerable<Func<SimpleAnime, bool>> Filters = Enumerable.Empty<Func<SimpleAnime, bool>>();
+    private IEnumerable<Func<SimpleAnime, bool>> _filters = Enumerable.Empty<Func<SimpleAnime, bool>>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,6 +60,18 @@
         }
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        var result = DtoFactories.TryToParse(Season, Year, out var season);
+        if (result)
+        {
+            State.SetSeason(season);
+            await UpdateSeasonCollection(season);
+        } else {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
     private static string GetTitle(SeasonInfoDto season) =>
         season is not NullSeasonInfo ? $"{season.Year} - {season.Season.ToUpper()}" : "No Data Available";
 
@@ -63,10 +83,9 @@
         _cts.Dispose();
     }
 
-    private async Task OnSeasonChanged(SeasonInfoDto season)
+    private void OnSeasonChanged(SeasonInfoDto season)
     {
-        State.SetSeason(season);
-        await UpdateSeasonCollection(season);
+        NavigationManager.NavigateTo($"/{season.Year}/{season.Season}");
     }
 
     private async Task UpdateSeasonCollection(SeasonInfoDto season)
@@ -76,7 +95,7 @@
         {
             State.AddLoadingItem(key, "Loading Series");
             _collection = await SeasonCollectionFetcher.GetSeasonLibrary(season, _cts.Token);
-            _filteredCollection = FilterCollection(_collection, Filters);
+            _filteredCollection = FilterCollection(_collection, _filters);
             State.RemoveLoadingItem(key);
         }
         catch (Exception e)
@@ -88,7 +107,7 @@
 
     private void OnFilterSelectionChanges(IEnumerable<Func<SimpleAnime, bool>> filters)
     {
-        Filters = filters;
+        _filters = filters;
         _filteredCollection = FilterCollection(_collection, filters);
     }
 

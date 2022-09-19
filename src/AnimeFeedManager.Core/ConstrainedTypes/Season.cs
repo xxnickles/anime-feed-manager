@@ -3,7 +3,7 @@ using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes;
 
-public readonly struct Season : IComparable<Season>, IEquatable<Season>
+public readonly record struct Season : IComparable<Season>
 {
     public readonly string Value;
     private const string SpringValue = "spring";
@@ -51,6 +51,17 @@ public readonly struct Season : IComparable<Season>, IEquatable<Season>
         WinterValue => Winter,
         _ => Spring
     } : Spring;
+    
+    
+    public static bool IsValid(string val) =>  val.ToLowerInvariant() switch
+    {
+        SpringValue => true,
+        SummerValue => true,
+        FallValue => true,
+        FallAlternativeValue => true,
+        WinterValue => true,
+        _ => false
+    } ;
 
     public static Option<Season> TryCreateFromString(string val)
     {
