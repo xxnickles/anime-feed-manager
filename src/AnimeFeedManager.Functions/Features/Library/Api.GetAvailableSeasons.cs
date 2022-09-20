@@ -31,6 +31,6 @@ public class GetAvailableSeasons
     private static ImmutableList<SeasonInfoDto> Map(ImmutableList<SeasonInformation> source)
     {
         return source.ConvertAll(x =>
-            new SeasonInfoDto(x.Season.Value, OptionUtils.UnpackOption<ushort>(x.Year.Value, 0)));
+            new SeasonInfoDto(x.Season.Value, x.Year.Value.UnpackOption<ushort>(0)));
     }
 }

@@ -27,7 +27,7 @@ public class SubscriptionRepository : ISubscriptionRepository
 
     public Task<Either<DomainError, ImmutableList<SubscriptionStorage>>> Get(Email userEmail)
     {
-        var user = OptionUtils.UnpackOption(userEmail.Value, string.Empty);
+        var user = userEmail.Value.UnpackOption(string.Empty);
         return TableUtils.ExecuteQuery(() =>
             _tableClient.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == user), nameof(SubscriptionStorage));
     }

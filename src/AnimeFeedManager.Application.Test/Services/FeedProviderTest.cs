@@ -42,7 +42,7 @@ public class FeedProviderTest : WithScrapper
     public async Task Library_Works()
     {
         var mock = new Mock<IDomainPostman>();
-        var sut = await new LibraryProvider(mock.Object, BrowserOptions).GetLibrary(new[] {"a", "b", "c"}.ToImmutableList());
+        var sut = await new TvSeriesProvider(mock.Object, BrowserOptions).GetLibrary(new[] {"a", "b", "c"}.ToImmutableList());
         Assert.True(sut.IsRight);
         sut.Match(
             r =>

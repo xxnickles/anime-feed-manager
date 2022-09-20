@@ -6,12 +6,10 @@ namespace AnimeFeedManager.Functions.Features.Library;
 
 public class UpdateLibrary
 {
-    private readonly IMediator _mediator;
     private readonly ILogger<UpdateLibrary> _logger;
 
-    public UpdateLibrary(IMediator mediator, ILoggerFactory loggerFactory)
+    public UpdateLibrary(ILoggerFactory loggerFactory)
     {
-        _mediator = mediator;
         _logger = loggerFactory.CreateLogger<UpdateLibrary>();
     }
 

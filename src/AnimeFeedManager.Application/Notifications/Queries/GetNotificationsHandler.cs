@@ -44,7 +44,7 @@ public class GetNotificationsHandler
             .Where(f => Filter(f, subscription.SubscribedAnimes))
             .Select(
                 x => new SubscribedFeed(
-                    OptionUtils.UnpackOption(x.AnimeTitle.Value, string.Empty),
+                    x.AnimeTitle.Value.UnpackOption(string.Empty),
                     x.Links,
                     x.EpisodeInfo,
                     x.PublicationDate));
@@ -54,7 +54,7 @@ public class GetNotificationsHandler
 
     private static bool Filter(FeedInfo f, IEnumerable<string> subscribedAnimes)
     {
-        var unpackedTitle = OptionUtils.UnpackOption(f.AnimeTitle.Value, string.Empty);
+        var unpackedTitle = f.AnimeTitle.Value.UnpackOption(string.Empty);
         return subscribedAnimes.Contains(unpackedTitle);
     }
 }

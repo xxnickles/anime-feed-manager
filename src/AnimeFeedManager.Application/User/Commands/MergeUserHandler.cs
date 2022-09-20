@@ -29,7 +29,7 @@ public class MergeUserHandler : IRequestHandler<MergeUserCmd, Either<DomainError
                 new[] {"A valid email address must be provided"}))
             .Map(e => new UserStorage
             {
-                Email = OptionUtils.UnpackOption(e.Value, string.Empty),
+                Email = e.Value.UnpackOption(string.Empty),
                 RowKey = request.Id,
                 PartitionKey = "user-group",
             });

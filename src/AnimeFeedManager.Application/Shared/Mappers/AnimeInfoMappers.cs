@@ -8,17 +8,17 @@ internal static class AnimeInfoMappers
 {
     internal static AnimeInfoStorage ProjectToStorageModel(AnimeInfo source)
     {
-        var year = OptionUtils.UnpackOption<ushort>(source.SeasonInformation.Year.Value, 0);
+        var year = source.SeasonInformation.Year.Value.UnpackOption<ushort>(0);
         return new AnimeInfoStorage
         {
-            RowKey = OptionUtils.UnpackOption(source.Id.Value, string.Empty),
+            RowKey = source.Id.Value.UnpackOption(string.Empty),
             PartitionKey = IdHelpers.GenerateAnimePartitionKey(source.SeasonInformation.Season, year),
             Season = source.SeasonInformation.Season.Value,
             Year = year,
-            Synopsis = OptionUtils.UnpackOption(source.Synopsis.Value, string.Empty),
-            FeedTitle = OptionUtils.UnpackOption(source.FeedTitle.Value, string.Empty),
+            Synopsis = source.Synopsis.Value.UnpackOption(string.Empty),
+            FeedTitle = source.FeedTitle.Value.UnpackOption(string.Empty),
             Date = MapDate(source.Date),
-            Title = OptionUtils.UnpackOption(source.Title.Value, string.Empty),
+            Title = source.Title.Value.UnpackOption(string.Empty),
             Completed = source.Completed
         };
     }

@@ -1,18 +1,4 @@
-﻿using AnimeFeedManager.Common.Dto;
-
-namespace AnimeFeedManager.Functions.Models;
-
-public class ImageInfo
-{
-    public string? Title { get; set; }
-    public string? Url { get; set; }
-}
-
-public class ImageProcessInfo
-{
-    public SeasonInfoDto? SeasonInfo { get; set; }
-    public IEnumerable<ImageInfo>? ImagesInfo { get; set; }
-}
+﻿namespace AnimeFeedManager.Functions.Models;
 
 public class BlobImageInfoEvent
 {

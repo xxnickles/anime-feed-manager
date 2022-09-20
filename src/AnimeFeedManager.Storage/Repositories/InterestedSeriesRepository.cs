@@ -23,7 +23,7 @@ public class InterestedSeriesRepository : IInterestedSeriesRepository
 
     public Task<Either<DomainError, ImmutableList<InterestedStorage>>> Get(Email userEmail)
     {
-        var user = OptionUtils.UnpackOption(userEmail.Value, string.Empty);
+        var user = userEmail.Value.UnpackOption(string.Empty);
         return TableUtils.ExecuteQuery(() =>
             _tableClient.QueryAsync<InterestedStorage>(i => i.PartitionKey == user), nameof(InterestedStorage));
     }

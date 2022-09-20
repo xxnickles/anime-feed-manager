@@ -27,7 +27,7 @@ public class GetLatestSeasonSeasonCollectionHandler : IRequestHandler<GetLatestS
     private Task<Either<DomainError, SeasonCollection>> Fetch(SeasonInformation seasonInformation)
     {
         // TODO: Validate Year if necessary
-        var year = OptionUtils.UnpackOption(seasonInformation.Year.Value,(ushort)0);
+        var year = seasonInformation.Year.Value.UnpackOption((ushort)0);
         return _animeInfoRepository.GetBySeason(seasonInformation.Season, year)
             .MapAsync(r => Mapper.ProjectSeasonCollection(year, seasonInformation.Season.Value, r));
     }

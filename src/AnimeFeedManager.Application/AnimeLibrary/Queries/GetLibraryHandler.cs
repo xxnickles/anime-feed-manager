@@ -18,29 +18,30 @@ public sealed record GetLibraryQry(ImmutableList<string> feedTitles) : IRequest<
 
 public class GetLibraryHandler : IRequestHandler<GetLibraryQry, Either<DomainError, LibraryForStorage>>
 {
-    private readonly ILibraryProvider _libraryProvider;
+    private readonly ITvSeriesProvider _tvSeriesProvider;
 
-    public GetLibraryHandler(ILibraryProvider libraryProvider)
+    public GetLibraryHandler(ITvSeriesProvider tvSeriesProvider)
     {
-        _libraryProvider = libraryProvider;
+        _tvSeriesProvider = tvSeriesProvider;
     }
 
 
     public Task<Either<DomainError, LibraryForStorage>> Handle(GetLibraryQry request,
         CancellationToken cancellationToken)
     {
-        return _libraryProvider.GetLibrary(request.feedTitles).MapAsync(Map);
+        return _tvSeriesProvider.GetLibrary(request.feedTitles).MapAsync(Map);
     }
 
-    private static LibraryForStorage Map(
-        (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images) source)
+    private static LibraryForStorage Map(TvSeries source)
     {
         return new LibraryForStorage(
             AnimeInfoMappers.ProjectToStorageModel(source.Series),
             Map(source.Images),
-            source.Images.First().SeasonInfo
+            source.Images.First().SeasonInfo.Map()
         );
     }
+    
+    
 
     private static ImmutableList<BlobImageInfoEvent> Map(ImmutableList<ImageInformation> source)
     {
@@ -49,8 +50,9 @@ public class GetLibraryHandler : IRequestHandler<GetLibraryQry, Either<DomainErr
 
     private static BlobImageInfoEvent Map(ImageInformation source)
     {
-        var partition = IdHelpers.GenerateAnimePartitionKey(source.SeasonInfo.Season, (ushort) source.SeasonInfo.Year);
-        var directory = $"{source.SeasonInfo.Year}/{source.SeasonInfo.Season}";
+        var season = source.SeasonInfo.Map();
+        var partition = IdHelpers.GenerateAnimePartitionKey(season.Season, (ushort) season.Year);
+        var directory = $"{season.Year}/{season.Season}";
         return new BlobImageInfoEvent(
             partition,
             source.Id,

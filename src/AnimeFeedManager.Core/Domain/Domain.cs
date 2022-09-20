@@ -4,6 +4,8 @@ using LanguageExt;
 
 namespace AnimeFeedManager.Core.Domain;
 
+public record ImageInformation(string Id, string Name, string? Link, SeasonInformation SeasonInfo);
+
 public record AnimeInfo(NonEmptyString Id,
     NonEmptyString Title,
     NonEmptyString Synopsis,
@@ -23,16 +25,29 @@ public enum LinkType
 
 public record TorrentLink(LinkType Type, string Link);
 
-public record FeedInfo(NonEmptyString AnimeTitle, 
+public record FeedInfo(NonEmptyString AnimeTitle,
     NonEmptyString FeedTitle,
-    DateTime PublicationDate, 
-    IImmutableList<TorrentLink> Links, 
+    DateTime PublicationDate,
+    IImmutableList<TorrentLink> Links,
     string EpisodeInfo);
 
 public record SeasonInformation(Season Season, Year Year);
-public record DefaultSeasonInformation(): SeasonInformation(Season.Winter, Year.FromNumber(2000));
+
+public record DefaultSeasonInformation() : SeasonInformation(Season.Winter, Year.FromNumber(2000));
 
 public record InterestedSeries(Email Subscriber, NonEmptyString AnimeId);
 
 public record User(string Id, Email Email);
 
+public abstract record AnimeList(ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images);
+
+public record TvSeries(ImmutableList<AnimeInfo> SeriesList, ImmutableList<ImageInformation> Images) : AnimeList(
+    SeriesList,
+    Images);
+
+public record Ovas(ImmutableList<AnimeInfo> SeriesList, ImmutableList<ImageInformation> Images) : AnimeList(SeriesList,
+    Images);
+
+public record Movies(ImmutableList<AnimeInfo> SeriesList, ImmutableList<ImageInformation> Images) : AnimeList(
+    SeriesList,
+    Images);

@@ -10,7 +10,7 @@ using PuppeteerSharp;
 
 namespace AnimeFeedManager.Services.Collectors.AniDb;
 
-public class LibraryProvider : ILibraryProvider
+public class TvSeriesProvider : ITvSeriesProvider
 {
     private readonly IDomainPostman _domainPostman;
     private readonly PuppeteerOptions _puppeteerOptions;
@@ -63,7 +63,7 @@ public class LibraryProvider : ILibraryProvider
          }
     ";
 
-    public LibraryProvider(
+    public TvSeriesProvider(
         IDomainPostman domainPostman,
         PuppeteerOptions puppeteerOptions)
     {
@@ -71,15 +71,14 @@ public class LibraryProvider : ILibraryProvider
         _puppeteerOptions = puppeteerOptions;
     }
 
-    public async Task<Either<DomainError, (ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images)>>
-        GetLibrary(ImmutableList<string> feedTitles)
+    public async Task<Either<DomainError, TvSeries>> GetLibrary(ImmutableList<string> feedTitles)
     {
         try
         {
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
                 Headless = true,
-                DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920},
+                DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
                 ExecutablePath = _puppeteerOptions.Path
             });
             await using var page = await browser.NewPageAsync();
@@ -98,13 +97,11 @@ public class LibraryProvider : ILibraryProvider
                 new SeasonInfoDto(season.Season, season.Year),
                 $"{package.Count()} series have been scrapped for {season.Season}-{season.Year}"));
 
-            return (
-                package.Select(i => Map(i, feedTitles))
+            return new TvSeries(package.Select(i => Map(i, feedTitles))
                     .ToImmutableList(),
                 package.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
                     .Select(Map)
-                    .ToImmutableList()
-            );
+                    .ToImmutableList());
         }
         catch (Exception ex)
         {
@@ -114,7 +111,7 @@ public class LibraryProvider : ILibraryProvider
                     TargetAudience.Admins,
                     NotificationType.Error,
                     new NullSeasonInfo(),
-                "AniDb season scrapping failed"));
+                    "AniDb season scrapping failed"));
             return ExceptionError.FromException(ex, "LiveChartLibrary");
         }
     }
@@ -163,6 +160,7 @@ public class LibraryProvider : ILibraryProvider
             container.Id,
             IdHelpers.CleanAndFormatAnimeTitle(container.Title),
             container.ImageUrl,
-            new SeasonInfoDto(container.SeasonInfo.Season, container.SeasonInfo.Year));
+            new SeasonInformation(Season.FromString(container.SeasonInfo.Season),
+                Year.FromNumber(container.SeasonInfo.Year)));
     }
 }

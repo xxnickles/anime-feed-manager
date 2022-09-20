@@ -17,8 +17,8 @@ internal static class Helpers
     {
         return new SubscriptionStorage
         {
-            PartitionKey = OptionUtils.UnpackOption(subscription.Subscriber.Value, string.Empty),
-            RowKey = OptionUtils.UnpackOption(subscription.AnimeId.Value, string.Empty)
+            PartitionKey = subscription.Subscriber.Value.UnpackOption(string.Empty),
+            RowKey = subscription.AnimeId.Value.UnpackOption(string.Empty)
         };
     }
 
@@ -26,8 +26,8 @@ internal static class Helpers
     {
         return new InterestedStorage
         {
-            PartitionKey = OptionUtils.UnpackOption(interested.Subscriber.Value, string.Empty),
-            RowKey = OptionUtils.UnpackOption(interested.AnimeId.Value, string.Empty)
+            PartitionKey = interested.Subscriber.Value.UnpackOption(string.Empty),
+            RowKey = interested.AnimeId.Value.UnpackOption(string.Empty)
         };
     }
 }
