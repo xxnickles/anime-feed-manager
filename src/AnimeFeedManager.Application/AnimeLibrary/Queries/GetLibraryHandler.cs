@@ -35,7 +35,7 @@ public class GetLibraryHandler : IRequestHandler<GetLibraryQry, Either<DomainErr
     private static LibraryForStorage Map(TvSeries source)
     {
         return new LibraryForStorage(
-            AnimeInfoMappers.ProjectToStorageModel(source.Series),
+            AnimeInfoMappers.ProjectToStorageModel(source.SeriesList),
             Map(source.Images),
             source.Images.First().SeasonInfo.Map()
         );

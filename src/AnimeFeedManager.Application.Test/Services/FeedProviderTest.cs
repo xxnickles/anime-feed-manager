@@ -47,7 +47,7 @@ public class FeedProviderTest : WithScrapper
         sut.Match(
             r =>
             {
-                Assert.NotEmpty(r.Series);
+                Assert.NotEmpty(r.SeriesList);
                 Assert.NotEmpty(r.Images);
             },
             _ => { }

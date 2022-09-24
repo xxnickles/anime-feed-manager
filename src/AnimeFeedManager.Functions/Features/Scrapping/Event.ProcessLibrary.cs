@@ -70,6 +70,7 @@ public class ProcessLibrary
                 IdHelpers.GetUniqueId(),
                 TargetAudience.Admins,
                 NotificationType.Information,
+                SeriesType.Tv,
                 $"Latest feed titles have been updated"));
 
             return new ProcessLibraryOutput
@@ -83,6 +84,7 @@ public class ProcessLibrary
                 IdHelpers.GetUniqueId(),
                 TargetAudience.Admins,
                 NotificationType.Error,
+                SeriesType.Tv,
                 $"An error occurred before storing feed titles."));
 
             return new ProcessLibraryOutput
@@ -113,6 +115,7 @@ public class ProcessLibrary
                     TargetAudience.Admins,
                     NotificationType.Information,
                     v.Season,
+                    SeriesType.Tv,
                     $"{v.Animes.Count} series of {v.Season.Season}-{v.Season.Year} will be stored"));
 
 
@@ -121,6 +124,7 @@ public class ProcessLibrary
                         TargetAudience.All,
                         NotificationType.Update,
                         v.Season,
+                        SeriesType.Tv,
                         $"Season information for {v.Season.Season}-{v.Season.Year} has been updated recently"),
                     new MinutesDelay(1));
 
@@ -140,6 +144,7 @@ public class ProcessLibrary
                     TargetAudience.Admins,
                     NotificationType.Error,
                     new NullSeasonInfo(),
+                    SeriesType.Tv,
                     $"An error occurred before storing series."));
 
                 return new ProcessLibraryOutput

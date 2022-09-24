@@ -14,6 +14,13 @@ public record AnimeInfo(NonEmptyString Id,
     Option<DateTime> Date,
     bool Completed);
 
+public record ShortAnimeInfo(NonEmptyString Id,
+    NonEmptyString Title,
+    NonEmptyString Synopsis,
+    SeasonInformation SeasonInformation,
+    Option<DateTime> Date,
+    bool Completed);
+
 public record Subscription(Email Subscriber, NonEmptyString AnimeId);
 
 public enum LinkType
@@ -39,15 +46,9 @@ public record InterestedSeries(Email Subscriber, NonEmptyString AnimeId);
 
 public record User(string Id, Email Email);
 
-public abstract record AnimeList(ImmutableList<AnimeInfo> Series, ImmutableList<ImageInformation> Images);
+public record TvSeries(ImmutableList<AnimeInfo> SeriesList, ImmutableList<ImageInformation> Images);
 
-public record TvSeries(ImmutableList<AnimeInfo> SeriesList, ImmutableList<ImageInformation> Images) : AnimeList(
-    SeriesList,
-    Images);
+public record Ovas(ImmutableList<ShortAnimeInfo> SeriesList, ImmutableList<ImageInformation> Images);
 
-public record Ovas(ImmutableList<AnimeInfo> SeriesList, ImmutableList<ImageInformation> Images) : AnimeList(SeriesList,
-    Images);
-
-public record Movies(ImmutableList<AnimeInfo> SeriesList, ImmutableList<ImageInformation> Images) : AnimeList(
-    SeriesList,
-    Images);
+public record Movies(ImmutableList<ShortAnimeInfo> SeriesList, ImmutableList<ImageInformation> Images);
+    

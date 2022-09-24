@@ -26,6 +26,11 @@ public readonly record struct Season : IComparable<Season>
     {
         return Value;
     }
+    
+    public string ToAlternativeString()
+    {
+        return Value == FallValue ? FallAlternativeValue : Value;
+    }
 
     public bool Equals(Season other)
     {

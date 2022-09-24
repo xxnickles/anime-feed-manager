@@ -3,17 +3,19 @@ using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Common.Notifications;
+using AnimeFeedManager.Services.Collectors.AniDb;
 using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Storage.Infrastructure;
+using Mappers = AnimeFeedManager.Services.Collectors.AniDb.Mappers;
 
-namespace AnimeFeedManager.Services.Collectors.AniDb;
+namespace AnimeFeedManager.Services.Collectors.AniChart;
 
-public class TvSeriesProvider : ITvSeriesProvider
+public class MoviesProvider : IMoviesProvider
 {
     private readonly IDomainPostman _domainPostman;
     private readonly PuppeteerOptions _puppeteerOptions;
 
-    public TvSeriesProvider(
+    public MoviesProvider(
         IDomainPostman domainPostman,
         PuppeteerOptions puppeteerOptions)
     {
@@ -21,22 +23,33 @@ public class TvSeriesProvider : ITvSeriesProvider
         _puppeteerOptions = puppeteerOptions;
     }
 
-    public async Task<Either<DomainError, TvSeries>> GetLibrary(ImmutableList<string> feedTitles)
+    public Task<Either<DomainError, Movies>> GetLibrary()
+    {
+        return Process("https://anidb.net/anime/season/?type.movie=1");
+    }
+
+    public Task<Either<DomainError, Movies>> GetLibrary(SeasonInformation seasonInformation)
+    {
+        var (season,year) = seasonInformation.UnwrapForAniDb();
+        return Process($"https://anidb.net/anime/season/{season}/{year}?type.movie=1");
+    }
+
+    private async Task<Either<DomainError, Movies>> Process(string url)
     {
         try
         {
             var (series, season) =
-                await Scrapper.Scrap("https://anidb.net/anime/season/?type.tvseries=1", _puppeteerOptions);
+                await Scrapper.Scrap(url, _puppeteerOptions);
 
             await _domainPostman.SendMessage(new SeasonProcessNotification(
                 IdHelpers.GetUniqueId(),
                 TargetAudience.Admins,
                 NotificationType.Information,
                 new SeasonInfoDto(season.Season, season.Year),
-                SeriesType.Tv,
+                SeriesType.Ova,
                 $"{series.Count()} series have been scrapped for {season.Season}-{season.Year}"));
 
-            return new TvSeries(series.Select(i => Mappers.Map(i, feedTitles))
+            return new Movies(series.Select(Mappers.Map)
                     .ToImmutableList(),
                 series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
                     .Select(Mappers.MapImages)
@@ -50,7 +63,7 @@ public class TvSeriesProvider : ITvSeriesProvider
                     TargetAudience.Admins,
                     NotificationType.Error,
                     new NullSeasonInfo(),
-                    SeriesType.Tv,
+                    SeriesType.Ova,
                     "AniDb season scrapping failed"));
             return ExceptionError.FromException(ex, "LiveChartLibrary");
         }

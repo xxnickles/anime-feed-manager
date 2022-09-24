@@ -15,6 +15,13 @@ public enum NotificationType
     Error
 }
 
+public enum SeriesType
+{
+    Tv,
+    Ova,
+    Movie
+}
+
 public abstract record RealtimeNotification(string Id,
     TargetAudience TargetAudience,
     NotificationType Result,
@@ -25,6 +32,7 @@ public record SeasonProcessNotification(
     TargetAudience TargetAudience,
     NotificationType Result,
     SeasonInfoDto Season,
+    SeriesType SeriesType,
     string Message
 ):RealtimeNotification(Id, TargetAudience, Result, Message);
 
@@ -32,5 +40,6 @@ public record TitlesUpdateNotification(
     string Id,
     TargetAudience TargetAudience,
     NotificationType Result,
+    SeriesType SeriesType,
     string Message
 ):RealtimeNotification(Id, TargetAudience, Result, Message);

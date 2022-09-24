@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
+using AnimeFeedManager.Services.Collectors.AniChart;
 using AnimeFeedManager.Services.Collectors.AniDb;
 using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Services.Collectors.SubsPlease;
@@ -55,6 +56,8 @@ public static class Registration
     public static IServiceCollection RegisterAppServices(this IServiceCollection services)
     {
         services.AddScoped<ITvSeriesProvider, TvSeriesProvider>();
+        services.AddScoped<IOvasProvider, OvasProvider>();
+        services.AddScoped<IMoviesProvider, MoviesProvider>();
         services.AddScoped<IFeedProvider, FeedProvider>();
         return services;
     }
