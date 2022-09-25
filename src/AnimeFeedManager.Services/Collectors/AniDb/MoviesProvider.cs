@@ -31,7 +31,7 @@ public class MoviesProvider : IMoviesProvider
     public Task<Either<DomainError, Movies>> GetLibrary(SeasonInformation seasonInformation)
     {
         var (season,year) = seasonInformation.UnwrapForAniDb();
-        return Process($"https://anidb.net/anime/season/{season}/{year}?type.movie=1");
+        return Process($"https://anidb.net/anime/season/{year}/{season}/?type.movie=1");
     }
 
     private async Task<Either<DomainError, Movies>> Process(string url)

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Immutable;
+using AnimeFeedManager.Core.Domain;
+using AnimeFeedManager.Services.Collectors.AniChart;
 using AnimeFeedManager.Services.Collectors.AniDb;
 using AnimeFeedManager.Services.Collectors.SubsPlease;
 using AnimeFeedManager.Storage.Infrastructure;
@@ -39,10 +41,74 @@ public class FeedProviderTest : WithScrapper
 
 
     [Fact(Skip = "Takes too long in Git Actions")]
-    public async Task Library_Works()
+    public async Task Tv_Library_Works()
     {
         var mock = new Mock<IDomainPostman>();
         var sut = await new TvSeriesProvider(mock.Object, BrowserOptions).GetLibrary(new[] {"a", "b", "c"}.ToImmutableList());
+        Assert.True(sut.IsRight);
+        sut.Match(
+            r =>
+            {
+                Assert.NotEmpty(r.SeriesList);
+                Assert.NotEmpty(r.Images);
+            },
+            _ => { }
+        );
+    }
+    
+    [Fact(Skip = "Takes too long in Git Actions")]
+    public async Task Ovas_Library_Works()
+    {
+        var mock = new Mock<IDomainPostman>();
+        var sut = await new OvasProvider(mock.Object, BrowserOptions).GetLibrary();
+        Assert.True(sut.IsRight);
+        sut.Match(
+            r =>
+            {
+                Assert.NotEmpty(r.SeriesList);
+                Assert.NotEmpty(r.Images);
+            },
+            _ => { }
+        );
+    }
+    
+    [Fact(Skip = "Takes too long in Git Actions")]
+    public async Task Ovas_Library_By_Season_Works()
+    {
+        var mock = new Mock<IDomainPostman>();
+        var sut = await new OvasProvider(mock.Object, BrowserOptions).GetLibrary(new SeasonInformation(Season.Spring, Year.FromNumber(2022)));
+        Assert.True(sut.IsRight);
+        sut.Match(
+            r =>
+            {
+                Assert.NotEmpty(r.SeriesList);
+                Assert.NotEmpty(r.Images);
+            },
+            _ => { }
+        );
+    }
+    
+    [Fact(Skip = "Takes too long in Git Actions")]
+    public async Task Movies_Library_Works()
+    {
+        var mock = new Mock<IDomainPostman>();
+        var sut = await new MoviesProvider(mock.Object, BrowserOptions).GetLibrary();
+        Assert.True(sut.IsRight);
+        sut.Match(
+            r =>
+            {
+                Assert.NotEmpty(r.SeriesList);
+                Assert.NotEmpty(r.Images);
+            },
+            _ => { }
+        );
+    }
+    
+    [Fact(Skip = "Takes too long in Git Actions")]
+    public async Task Movies_Library_By_Season_Works()
+    {
+        var mock = new Mock<IDomainPostman>();
+        var sut = await new MoviesProvider(mock.Object, BrowserOptions).GetLibrary(new SeasonInformation(Season.Spring, Year.FromNumber(2022)));
         Assert.True(sut.IsRight);
         sut.Match(
             r =>

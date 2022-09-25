@@ -36,8 +36,7 @@ internal static class Mappers
             NonEmptyString.FromString(container.Title),
             NonEmptyString.FromString(container.Synopsys),
             Map(container.SeasonInfo),
-            ParseDate(container.Date, container.SeasonInfo.Year),
-            false
+            ParseDate(container.Date, container.SeasonInfo.Year)
         );
     }
     

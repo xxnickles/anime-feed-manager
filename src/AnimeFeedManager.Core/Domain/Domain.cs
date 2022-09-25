@@ -18,8 +18,7 @@ public record ShortAnimeInfo(NonEmptyString Id,
     NonEmptyString Title,
     NonEmptyString Synopsis,
     SeasonInformation SeasonInformation,
-    Option<DateTime> Date,
-    bool Completed);
+    Option<DateTime> Date);
 
 public record Subscription(Email Subscriber, NonEmptyString AnimeId);
 

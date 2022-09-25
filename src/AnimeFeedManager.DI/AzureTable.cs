@@ -11,5 +11,7 @@ internal static class AzureTable
         internal const string FeedTitles = "FeedTitles";
         internal const string ProcessedTitles = "ProcessedTitles";
         internal const string Users = "Users";
+        internal const string OvaLibrary = "OvaLibrary";
+        internal const string MovieLibrary = "MovieLibrary";
     }
 }

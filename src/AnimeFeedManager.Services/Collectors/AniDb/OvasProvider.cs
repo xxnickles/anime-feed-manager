@@ -31,7 +31,7 @@ public class OvasProvider : IOvasProvider
     public Task<Either<DomainError, Ovas>> GetLibrary(SeasonInformation seasonInformation)
     {
         var (season,year) = seasonInformation.UnwrapForAniDb();
-        return Process($"https://anidb.net/anime/season/{season}/{year}?type.ova=1&type.tvspecial=1&type.web=1");
+        return Process($"https://anidb.net/anime/season/{year}/{season}/?type.ova=1&type.tvspecial=1&type.web=1");
     }
 
     private async Task<Either<DomainError, Ovas>> Process(string url)
