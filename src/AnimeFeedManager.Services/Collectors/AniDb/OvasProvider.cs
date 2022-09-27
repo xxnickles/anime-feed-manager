@@ -3,12 +3,10 @@ using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Common.Notifications;
-using AnimeFeedManager.Services.Collectors.AniDb;
 using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Storage.Infrastructure;
-using Mappers = AnimeFeedManager.Services.Collectors.AniDb.Mappers;
 
-namespace AnimeFeedManager.Services.Collectors.AniChart;
+namespace AnimeFeedManager.Services.Collectors.AniDb;
 
 public class OvasProvider : IOvasProvider
 {

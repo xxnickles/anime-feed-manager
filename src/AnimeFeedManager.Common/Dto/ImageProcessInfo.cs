@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Functions.Models;
+﻿namespace AnimeFeedManager.Common.Dto;
 
 public class BlobImageInfoEvent
 {

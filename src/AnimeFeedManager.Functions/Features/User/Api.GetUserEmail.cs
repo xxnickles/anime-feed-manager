@@ -3,7 +3,7 @@ using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace User
+namespace AnimeFeedManager.Functions.Features.User
 {
     public class GetUserEmail
     {

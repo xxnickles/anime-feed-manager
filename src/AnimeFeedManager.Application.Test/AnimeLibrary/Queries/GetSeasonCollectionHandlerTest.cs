@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using AnimeFeedManager.Application.AnimeLibrary.Queries;
+using AnimeFeedManager.Application.TvAnimeLibrary.Queries;
 
 namespace AnimeFeedManager.Application.Test.AnimeLibrary.Queries;
 

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using AnimeFeedManager.Application.Subscriptions;
+using AnimeFeedManager.Application.TvSubscriptions;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Services.Collectors.Interface;

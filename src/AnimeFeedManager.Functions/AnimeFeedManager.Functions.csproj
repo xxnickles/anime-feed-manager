@@ -36,4 +36,8 @@
 	<ItemGroup>
 		<Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Features\Ovas" />
+	</ItemGroup>
 </Project>

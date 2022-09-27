@@ -1,4 +1,4 @@
-using AnimeFeedManager.Application.AnimeLibrary.Queries;
+using AnimeFeedManager.Application.TvAnimeLibrary.Queries;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Models;
 using MediatR;

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Core.Domain;
-using AnimeFeedManager.Services.Collectors.AniChart;
 using AnimeFeedManager.Services.Collectors.AniDb;
 using AnimeFeedManager.Services.Collectors.SubsPlease;
 using AnimeFeedManager.Storage.Infrastructure;

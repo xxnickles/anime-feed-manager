@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Application.AnimeLibrary.Queries;
-using AnimeFeedManager.Services.Collectors.AniChart;
+﻿using AnimeFeedManager.Application.TvAnimeLibrary.Queries;
 using AnimeFeedManager.Services.Collectors.AniDb;
 using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Services.Collectors.SubsPlease;

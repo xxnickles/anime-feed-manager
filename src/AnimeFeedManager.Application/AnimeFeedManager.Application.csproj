@@ -16,4 +16,8 @@
     <ProjectReference Include="..\AnimeFeedManager.Storage\AnimeFeedManager.Storage.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="OvasLibrary\Queries" />
+  </ItemGroup>
+
 </Project>

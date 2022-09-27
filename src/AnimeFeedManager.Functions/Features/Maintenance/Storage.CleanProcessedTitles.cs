@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using AnimeFeedManager.Application.TvAnimeLibrary.Commands;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Maintenance;
@@ -19,7 +20,7 @@ public class CleanProcessedTitles
         [TimerTrigger("0 30 1 * * *")] TimerInfo timer
         )
     {
-        var result = await _mediator.Send(new Application.Feed.Commands.CleanProcessedTitlesCmd());
+        var result = await _mediator.Send(new CleanProcessedTitlesCmd());
         result.Match(
             _ =>
             {
