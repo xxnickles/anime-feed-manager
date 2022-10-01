@@ -1,7 +1,5 @@
-﻿using System.Collections.Immutable;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using AnimeFeedManager.Common.Notifications;
-using Blazored.LocalStorage;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 

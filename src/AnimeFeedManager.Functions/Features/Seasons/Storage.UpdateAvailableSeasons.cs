@@ -20,7 +20,7 @@ public class UpdateAvailableSeasons
     [Function("UpdateAvailableSeasons")]
    
     public async Task Run(
-        [QueueTrigger(QueueNames.AvailableSeasons, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(QueueNames.AvailableSeasonsUpdates, Connection = "AzureWebJobsStorage")]
         SeasonInfoDto seasonInfo)
     {
 

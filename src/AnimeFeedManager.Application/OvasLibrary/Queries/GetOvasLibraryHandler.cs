@@ -6,36 +6,35 @@ using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Services.Collectors.Interface;
 using MediatR;
 
-namespace AnimeFeedManager.Application.TvAnimeLibrary.Queries;
+namespace AnimeFeedManager.Application.OvasLibrary.Queries;
 
-public sealed record LibraryForStorage(
-    ImmutableList<AnimeInfoStorage> Animes,
+public sealed record OvasLibraryForStorage(
+    ImmutableList<OvaStorage> Ovas,
     ImmutableList<BlobImageInfoEvent> Images,
     SeasonInfoDto Season
 );
 
-public sealed record GetLibraryQry(ImmutableList<string> feedTitles) : IRequest<Either<DomainError, LibraryForStorage>>;
+public sealed record GetOvasLibraryQry() : IRequest<Either<DomainError, OvasLibraryForStorage>>;
 
-public class GetLibraryHandler : IRequestHandler<GetLibraryQry, Either<DomainError, LibraryForStorage>>
+public class GetOvasLibraryHandler : IRequestHandler<GetOvasLibraryQry, Either<DomainError, OvasLibraryForStorage>>
 {
-    private readonly ITvSeriesProvider _tvSeriesProvider;
+    private readonly IOvasProvider _ovasProvider;
 
-    public GetLibraryHandler(ITvSeriesProvider tvSeriesProvider)
+    public GetOvasLibraryHandler(IOvasProvider ovasProvider)
     {
-        _tvSeriesProvider = tvSeriesProvider;
+        _ovasProvider = ovasProvider;
     }
 
-
-    public Task<Either<DomainError, LibraryForStorage>> Handle(GetLibraryQry request,
+    public Task<Either<DomainError, OvasLibraryForStorage>> Handle(GetOvasLibraryQry request,
         CancellationToken cancellationToken)
     {
-        return _tvSeriesProvider.GetLibrary(request.feedTitles).MapAsync(Map);
+        return _ovasProvider.GetLibrary().MapAsync(Map);
     }
 
-    private static LibraryForStorage Map(TvSeries source)
+    private static OvasLibraryForStorage Map(Ovas source)
     {
-        return new LibraryForStorage(
-            AnimeInfoMappers.ProjectToStorageModel(source.SeriesList),
+        return new OvasLibraryForStorage(
+            OvasMappers.ProjectToStorageModel(source.SeriesList),
             Map(source.Images),
             source.Images.First().SeasonInfo.Map()
         );
@@ -57,7 +56,7 @@ public class GetLibraryHandler : IRequestHandler<GetLibraryQry, Either<DomainErr
             directory,
             source.Name,
             source.Link ?? string.Empty,
-            SeriesType.Tv
+            SeriesType.Ova
         );
     }
 }

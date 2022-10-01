@@ -2,7 +2,7 @@ using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Interface;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Features.TvSubscription;
+namespace AnimeFeedManager.Functions.Features.TvAnimeSubscription;
 
 public class EnqueueSubscribersToNotify
 {

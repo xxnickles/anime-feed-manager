@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Application.Shared.Mappers;
+﻿using AnimeFeedManager.Application.Mappers;
 using AnimeFeedManager.Core.Domain;
 
 namespace AnimeFeedManager.Application.Test.Shared;

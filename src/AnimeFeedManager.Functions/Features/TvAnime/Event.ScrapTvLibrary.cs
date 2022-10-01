@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using AnimeFeedManager.Application.TvAnimeLibrary.Commands;
 using AnimeFeedManager.Application.TvAnimeLibrary.Queries;
+using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Common.Notifications;
@@ -16,11 +17,11 @@ public class ScrapTvLibraryOutput
 {
     [QueueOutput(QueueNames.TitleProcess)] public string? TitleMessage { get; set; }
 
-    [QueueOutput(QueueNames.AnimeLibrary)] public IEnumerable<string>? AnimeMessages { get; set; }
+    [QueueOutput(QueueNames.TvAnimeLibraryUpdates)] public IEnumerable<string>? AnimeMessages { get; set; }
 
     [QueueOutput(QueueNames.ImageProcess)] public IEnumerable<string>? ImagesMessages { get; set; }
 
-    [QueueOutput(QueueNames.AvailableSeasons)]
+    [QueueOutput(QueueNames.AvailableSeasonsUpdates)]
     public string? SeasonMessage { get; set; }
 }
 
@@ -45,7 +46,7 @@ public class ScrapTvLibrary
 
     [Function("ScrapTvLibrary")]
     public async Task<ScrapTvLibraryOutput> Run(
-        [QueueTrigger(QueueNames.LibraryUpdate, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(QueueNames.TvAnimeLibraryUpdate, Connection = "AzureWebJobsStorage")]
         LibraryUpdate startProcess)
     {
 

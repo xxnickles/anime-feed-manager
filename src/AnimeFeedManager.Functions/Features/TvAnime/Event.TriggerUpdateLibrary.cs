@@ -13,7 +13,7 @@ public class TriggerUpdateLibrary
     }
 
     [Function("TriggerUpdateLibrary")]
-    [QueueOutput(QueueNames.LibraryUpdate, Connection = "AzureWebJobsStorage")]
+    [QueueOutput(QueueNames.TvAnimeLibraryUpdate, Connection = "AzureWebJobsStorage")]
     public LibraryUpdate Run(
         [TimerTrigger("0 0 2 * * SAT")] TimerInfo timer
     )

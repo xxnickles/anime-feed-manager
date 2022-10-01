@@ -2,12 +2,13 @@
 
 internal struct QueueNames
 {
-    internal const string AnimeLibrary = "anime-library";
-    internal const string AvailableSeasons = "available-seasons";
+    internal const string TvAnimeLibraryUpdates = "tv-anime-library-updates";
+    internal const string OvasLibraryUpdates = "ovas-library-updates";
+    internal const string AvailableSeasonsUpdates = "available-seasons-updates";
     internal const string Notifications = "notifications";
     internal const string ImageProcess = "image-process";
-    internal const string LibraryUpdate = "trigger-library-update";
-   
+    internal const string TvAnimeLibraryUpdate = "trigger-library-update";
+    internal const string OvasLibraryUpdate = "trigger-ovas-library-update";
     internal const string TitleProcess = "title-process";
     internal const string ProcessedTitles = "processed-Titles";
     internal const string SubscribersToProcess = "subscribers-to-process";

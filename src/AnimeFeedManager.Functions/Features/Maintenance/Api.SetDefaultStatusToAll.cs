@@ -8,7 +8,7 @@ namespace AnimeFeedManager.Functions.Features.Maintenance;
 
 public class SetDefaultStatusResponse
 {
-    [QueueOutput(QueueNames.AnimeLibrary)] public IEnumerable<string>? AnimeMessages { get; set; }
+    [QueueOutput(QueueNames.TvAnimeLibraryUpdates)] public IEnumerable<string>? AnimeMessages { get; set; }
 
     public HttpResponseData? HttpResponse { get; set; }
 }

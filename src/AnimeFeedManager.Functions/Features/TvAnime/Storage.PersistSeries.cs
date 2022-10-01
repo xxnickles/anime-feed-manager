@@ -19,7 +19,7 @@ public class PersistSeries
 
     [Function("PersistSeries")]
     public async Task Run(
-        [QueueTrigger(QueueNames.AnimeLibrary, Connection = "AzureWebJobsStorage")] AnimeInfoStorage animeInfo
+        [QueueTrigger(QueueNames.TvAnimeLibraryUpdates, Connection = "AzureWebJobsStorage")] AnimeInfoStorage animeInfo
         )
     {
         _logger.LogInformation("storing {AnimeInfoTitle}", animeInfo.Title);

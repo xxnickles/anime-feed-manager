@@ -8,16 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="LanguageExt.Core" Version="4.2.9" />
-    <PackageReference Include="MediatR" Version="10.0.1" />
+    <PackageReference Include="MediatR" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Services\AnimeFeedManager.Services.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.Storage\AnimeFeedManager.Storage.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="OvasLibrary\Queries" />
   </ItemGroup>
 
 </Project>

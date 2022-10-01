@@ -2,7 +2,7 @@
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Core.Utils;
 
-namespace AnimeFeedManager.Application.Shared.Mappers;
+namespace AnimeFeedManager.Application.Mappers;
 
 internal static class AnimeInfoMappers
 {
@@ -17,21 +17,12 @@ internal static class AnimeInfoMappers
             Year = year,
             Synopsis = source.Synopsis.Value.UnpackOption(string.Empty),
             FeedTitle = source.FeedTitle.Value.UnpackOption(string.Empty),
-            Date = MapDate(source.Date),
+            Date = CommonMappers.MapDate(source.Date),
             Title = source.Title.Value.UnpackOption(string.Empty),
             Completed = source.Completed
         };
     }
-    
+
     internal static ImmutableList<AnimeInfoStorage> ProjectToStorageModel(ImmutableList<AnimeInfo> source) =>
         source.ConvertAll(ProjectToStorageModel);
-
-    private static DateTime? MapDate(Option<DateTime> date)
-    {
-        var unpacked = date.Match(
-            a => a,
-            () => DateTime.MinValue
-        );
-        return unpacked != DateTime.MinValue ? unpacked.ToUniversalTime() : null;
-    }
 }

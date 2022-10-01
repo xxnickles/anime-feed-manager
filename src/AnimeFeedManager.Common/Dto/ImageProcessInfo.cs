@@ -7,18 +7,21 @@ public class BlobImageInfoEvent
     public string Directory { get; }
     public string BlobName { get; }
     public string RemoteUrl { get; }
+    public SeriesType SeriesType { get; }
 
     public BlobImageInfoEvent(
         string partition, 
         string id, 
         string directory, 
         string blobName, 
-        string remoteUrl)
+        string remoteUrl,
+        SeriesType seriesType)
     {
 
         Directory = directory;
         BlobName = blobName;
         RemoteUrl = remoteUrl;
+        SeriesType = seriesType;
         Partition = partition;
         Id = id;
     }

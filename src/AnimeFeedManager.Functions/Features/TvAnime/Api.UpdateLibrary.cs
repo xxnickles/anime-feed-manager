@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
 {
     public class UpdateLatestLibraryOutput
     {
-        [QueueOutput(QueueNames.LibraryUpdate)] 
+        [QueueOutput(QueueNames.TvAnimeLibraryUpdate)] 
         public LibraryUpdate? StartLibraryUpdate { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
@@ -29,7 +29,7 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
             var result = await req.AllowAdminOnly();
 
             return await result.Match(
-                v => OkResponse(req),
+                _ => OkResponse(req),
                 e => ErrorResponse(req, e)
             );
         }

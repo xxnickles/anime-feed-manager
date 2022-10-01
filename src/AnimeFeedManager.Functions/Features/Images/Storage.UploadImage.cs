@@ -1,4 +1,6 @@
+using AnimeFeedManager.Application.OvasLibrary.Commands;
 using AnimeFeedManager.Application.TvAnimeLibrary.Commands;
+using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Infrastructure;
@@ -55,7 +57,7 @@ public class UploadImage
                 RowKey = imageInfoEvent.Id
             };
 
-            await UpdateAnimeInfo(imageStorage);
+            await UpdateAnimeInfo(imageInfoEvent.SeriesType, imageStorage);
         }
         catch (Exception e)
         {
@@ -64,11 +66,17 @@ public class UploadImage
       
     }
 
-    private async Task UpdateAnimeInfo(ImageStorage imageStorage)
+    private async Task UpdateAnimeInfo(SeriesType type, ImageStorage imageStorage)
     {
-        var result = await _mediator.Send(new AddImageUrlCmd(imageStorage));
+        var result = type switch
+        {
+            SeriesType.Tv => await _mediator.Send(new AddTvImageUrlCmd(imageStorage)),
+            SeriesType.Ova => await _mediator.Send(new AddOvaImageUrlCmd(imageStorage)),
+            // SeriesType.Movie => expr,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
         result.Match(
-            _ => _logger.LogInformation("{ImageStorageRowKey} has been updated", imageStorage.RowKey),
+            _ => _logger.LogInformation("{ImageStorageRowKey} ({Type}) has been updated", imageStorage.RowKey, type.ToString()),
             e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }

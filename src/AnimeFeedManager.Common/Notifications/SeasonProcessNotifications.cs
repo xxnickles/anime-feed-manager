@@ -15,12 +15,7 @@ public enum NotificationType
     Error
 }
 
-public enum SeriesType
-{
-    Tv,
-    Ova,
-    Movie
-}
+
 
 public abstract record RealtimeNotification(string Id,
     TargetAudience TargetAudience,

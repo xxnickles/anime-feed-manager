@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace AnimeFeedManager.Functions.Features.TvSubscription;
+namespace AnimeFeedManager.Functions.Features.TvAnimeSubscription;
 
 public class SendNotifications
 {

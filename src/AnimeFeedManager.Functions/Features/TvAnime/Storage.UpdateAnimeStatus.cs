@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace AnimeFeedManager.Functions.Features.TvAnime;
 public class UpdateAnimeStatusMessages
 {
-    [QueueOutput(QueueNames.AnimeLibrary)]
+    [QueueOutput(QueueNames.TvAnimeLibraryUpdates)]
     public IEnumerable<string>? AnimeMessages { get; set; }
     [QueueOutput(QueueNames.ProcessAutoSubscriber, Connection = "AzureWebJobsStorage")]
     public string? AutoSubscribeMessages { get; set; }

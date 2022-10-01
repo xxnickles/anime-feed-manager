@@ -2,9 +2,9 @@
 
 internal struct ProcessResult
 {
-    internal static string Ok = "Ok";
-    internal static string Failure = "Failure";
-    internal static string NoChanges = "NoChanges";
+    internal const string Ok = "Ok";
+    internal const string Failure = "Failure";
+    internal const string NoChanges = "NoChanges";
 }
 
 public enum LibraryUpdateType
@@ -14,3 +14,6 @@ public enum LibraryUpdateType
 }
 
 public record struct LibraryUpdate(LibraryUpdateType Type);
+
+public record struct OvasUpdate(string Type = ProcessResult.Ok);
+

@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
 {
     public class UpdateFeedTitlesOutput
     {
-        [QueueOutput(QueueNames.LibraryUpdate)] 
+        [QueueOutput(QueueNames.TvAnimeLibraryUpdate)] 
         public LibraryUpdate? StartLibraryUpdate { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
