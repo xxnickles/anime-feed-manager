@@ -2,8 +2,8 @@
 {
     public interface IAdminService
     {
-        Task UpdateLibrary(CancellationToken cancellationToken = default);
-        Task UpdateTitles(CancellationToken cancellationToken = default);
+        Task UpdateTvLibrary(CancellationToken cancellationToken = default);
+        Task UpdateTvTitles(CancellationToken cancellationToken = default);
         Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default);
     }
 
@@ -16,14 +16,14 @@
             _httpClient = httpClient;
         }
 
-        public Task UpdateLibrary(CancellationToken cancellationToken = default)
+        public Task UpdateTvLibrary(CancellationToken cancellationToken = default)
         {
-            return _httpClient.PostAsync("/api/scrapping/library", null, cancellationToken);
+            return _httpClient.PostAsync("/api/tv/library", null, cancellationToken);
         }
 
-        public Task UpdateTitles(CancellationToken cancellationToken = default)
+        public Task UpdateTvTitles(CancellationToken cancellationToken = default)
         {
-            return _httpClient.PostAsync("/api/scrapping/titles", null, cancellationToken);
+            return _httpClient.PostAsync("/api/tv/titles", null, cancellationToken);
         }
 
         public Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default)

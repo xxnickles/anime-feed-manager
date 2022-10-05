@@ -5,7 +5,7 @@
 @using System.Collections.Immutable
 @implements IDisposable
 @inject ISeasonFetcherService SeasonFetcherService
-@inject ISeasonCollectionFetcher SeasonCollectionFetcher
+@inject ITvCollectionFetcher TvCollectionFetcher
 @inject ApplicationState State
 @inject NavigationManager NavigationManager
 
@@ -94,7 +94,7 @@
         try
         {
             State.AddLoadingItem(key, "Loading Series");
-            _collection = await SeasonCollectionFetcher.GetSeasonLibrary(season, _cts.Token);
+            _collection = await TvCollectionFetcher.GetSeasonLibrary(season, _cts.Token);
             _filteredCollection = FilterCollection(_collection, _filters);
             State.RemoveLoadingItem(key);
         }

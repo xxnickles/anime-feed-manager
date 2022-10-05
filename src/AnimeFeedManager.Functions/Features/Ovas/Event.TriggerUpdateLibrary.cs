@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Functions.Models;
+﻿using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Functions.Models;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.Ovas;
@@ -20,6 +21,6 @@ public class TriggerUpdateOvasLibrary
     {
         _logger.LogInformation("Automated Update of Library (Timer trigger {timer})",
             timer.ScheduleStatus?.LastUpdated ?? DateTime.Now);
-        return new OvasUpdate();
+        return new OvasUpdate(ShortSeriesUpdateType.Latest, new NullSeasonInfo());
     }
 }

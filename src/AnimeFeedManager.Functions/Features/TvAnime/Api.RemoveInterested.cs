@@ -19,7 +19,7 @@ public class RemoveInterested
 
     [Function("RemoveInterested")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "removeInterested")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/removeInterested")]
         HttpRequestData req)
     {
         var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);

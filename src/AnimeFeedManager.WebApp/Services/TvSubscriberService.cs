@@ -4,7 +4,7 @@ using AnimeFeedManager.Common.Dto;
 
 namespace AnimeFeedManager.WebApp.Services;
 
-public interface ISubscriberService
+public interface ITvSubscriberService
 {
     Task<ImmutableList<string>> GetSubscriptions(string subscriber, CancellationToken cancellationToken = default);
     Task<ImmutableList<string>> GetInterested(string subscriber, CancellationToken cancellationToken = default);
@@ -14,11 +14,11 @@ public interface ISubscriberService
     Task RemoveFromInterest(string subscriber, string series, CancellationToken cancellationToken = default);
 }
 
-public class SubscriberService : ISubscriberService
+public class TvSubscriberService : ITvSubscriberService
 {
     private readonly HttpClient _httpClient;
 
-    public SubscriberService(HttpClient httpClient)
+    public TvSubscriberService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
@@ -31,27 +31,27 @@ public class SubscriberService : ISubscriberService
 
     public async Task<ImmutableList<string>> GetInterested(string subscriber, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/interested/{subscriber}", cancellationToken);
+        var response = await _httpClient.GetAsync($"api/tv/interested/{subscriber}", cancellationToken);
         return await response.MapToList<string>();
     }
 
     public Task Subscribe(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/subscriptions", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        return _httpClient.PostAsJsonAsync("api/tv/subscriptions", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
     }
 
     public Task AddToInterest(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/interested", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        return _httpClient.PostAsJsonAsync("api/tv/interested", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
     }
 
     public Task RemoveFromInterest(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/removeInterested", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        return _httpClient.PostAsJsonAsync("api/tv/removeInterested", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
     }
 
     public Task Unsubscribe(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/unsubscribe", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        return _httpClient.PostAsJsonAsync("api/tv/unsubscribe", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
     }
 }

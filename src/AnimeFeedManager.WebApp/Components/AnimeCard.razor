@@ -2,7 +2,7 @@
 @using AnimeFeedManager.WebApp.Services
 @inject ApplicationState State
 @inject IDialogService DialogService
-@inject ISubscriberService SubscriberService
+@inject ITvSubscriberService TvSubscriberService
 @inject ISnackbar Snackbar
 
 @implements IDisposable
@@ -116,7 +116,7 @@
             {
                 ArgumentNullException.ThrowIfNull(Anime.FeedInformation);
                 State.AddLoadingItem(key, $"Adding {Anime.Title} to subscriptions");
-                await SubscriberService.Subscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
+                await TvSubscriberService.Subscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
                 State.AddSubscription(Anime.FeedInformation.Title ?? string.Empty);
                 Snackbar.Add($"Subscription to {Anime.Title} has been completed", Severity.Success);
                 State.RemoveLoadingItem(key);
@@ -138,7 +138,7 @@
             {
                 ArgumentNullException.ThrowIfNull(Anime.FeedInformation);
                 State.AddLoadingItem(key, $"Removing {Anime.Title} from subscriptions");
-                await SubscriberService.Unsubscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
+                await TvSubscriberService.Unsubscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
                 State.RemoveSubscription(Anime.FeedInformation.Title ?? string.Empty);
                 Snackbar.Add($"{Anime.Title} has removed from your subscription list", Severity.Success);
                 State.RemoveLoadingItem(key);
@@ -159,7 +159,7 @@
             try
             {
                 State.AddLoadingItem(key, $"Adding {Anime.Title} to interest");
-                await SubscriberService.AddToInterest(userEmail, Anime.Title);
+                await TvSubscriberService.AddToInterest(userEmail, Anime.Title);
                 State.AddInterested(Anime.Title);
                 Snackbar.Add($"{Anime.Title} has been added to you interested list", Severity.Success);
                 State.RemoveLoadingItem(key);
@@ -180,7 +180,7 @@
             try
             {
                 State.AddLoadingItem(key, $"Removing {Anime.Title} from interested");
-                await SubscriberService.RemoveFromInterest(userEmail, Anime.Title);
+                await TvSubscriberService.RemoveFromInterest(userEmail, Anime.Title);
                 State.RemoveInterested(Anime.Title);
                 Snackbar.Add($"{Anime.Title} has been removed from you interested list", Severity.Success);
                 State.RemoveLoadingItem(key);

@@ -52,8 +52,8 @@ public class ScrapTvLibrary
 
         return startProcess.Type switch
         {
-            LibraryUpdateType.Full => await ProcessFullLibrary(),
-            LibraryUpdateType.Titles => await ProcessTitles(),
+            TvUpdateType.Full => await ProcessFullLibrary(),
+            TvUpdateType.Titles => await ProcessTitles(),
             _ => new ScrapTvLibraryOutput()
         };
     }

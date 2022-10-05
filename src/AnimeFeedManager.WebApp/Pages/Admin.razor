@@ -70,7 +70,7 @@
         {
             if (await GetConfirmation("Process Latest Season Library", "Do you want to update latest season library? This task will run in the background"))
             {
-                await AdminService.UpdateLibrary(_cts.Token);
+                await AdminService.UpdateTvLibrary(_cts.Token);
                 Snackbar.Add("Latest season library would be updated in the background", Severity.Info);
             }
         }
@@ -86,7 +86,7 @@
         {
             if (await GetConfirmation("Process Latest Feed Titles", "Do you want to update latest feed titles? This task will run in the background"))
             {
-                await AdminService.UpdateTitles(_cts.Token);
+                await AdminService.UpdateTvTitles(_cts.Token);
                 Snackbar.Add("Latest feed titles would be updated in the background", Severity.Info);
             }
         }

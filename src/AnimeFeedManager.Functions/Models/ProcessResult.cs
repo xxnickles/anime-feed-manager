@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Functions.Models;
+﻿using AnimeFeedManager.Common.Dto;
+
+namespace AnimeFeedManager.Functions.Models;
 
 internal struct ProcessResult
 {
@@ -7,13 +9,19 @@ internal struct ProcessResult
     internal const string NoChanges = "NoChanges";
 }
 
-public enum LibraryUpdateType
+public enum TvUpdateType
 {
     Full,
     Titles
 }
 
-public record struct LibraryUpdate(LibraryUpdateType Type);
+public record struct LibraryUpdate(TvUpdateType Type);
 
-public record struct OvasUpdate(string Type = ProcessResult.Ok);
+public enum ShortSeriesUpdateType
+{
+    Latest,
+    Season
+}
+
+public record struct OvasUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
 

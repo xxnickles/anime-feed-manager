@@ -9,7 +9,7 @@
 @implements IDisposable
 @inject ApplicationState State
 @inject IUserService UserService
-@inject ISubscriberService SubscriberService
+@inject ITvSubscriberService TvSubscriberService
 @inject IDialogService DialogService
 @inject INotificationService NotificationService
 @inject ISnackbar Snackbar
@@ -182,7 +182,7 @@
     {
         try
         {
-            var subscriptions = await SubscriberService.GetSubscriptions(email, _cts.Token);
+            var subscriptions = await TvSubscriberService.GetSubscriptions(email, _cts.Token);
             State.SetSubscriptions(subscriptions);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -196,7 +196,7 @@
 
         try
         {
-            var interested = await SubscriberService.GetInterested(email, _cts.Token);
+            var interested = await TvSubscriberService.GetInterested(email, _cts.Token);
             State.SetInterested(interested);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)

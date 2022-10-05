@@ -19,7 +19,7 @@ public class AddInterested
 
     [Function("MergeInterested")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "interested")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "tv/interested")]
         HttpRequestData req)
     {
         var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);

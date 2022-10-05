@@ -19,13 +19,14 @@ public class Subscriptions
 
     [Function("MergeSubscription")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "subscriptions")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "tv/subscriptions")]
         HttpRequestData req)
     {
         var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
         ArgumentNullException.ThrowIfNull(dto);
         return await req
             .WithAuthenticationCheck(new MergeSubscriptionCmd(dto.UserId, dto.Series))
-            .BindAsync(r => _mediator.Send(r)).ToResponse(req, _logger);
+            .BindAsync(command => _mediator.Send(command))
+            .ToResponse(req, _logger);
     }
 }

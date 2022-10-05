@@ -18,11 +18,11 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
 
         public UpdateFeedTitles(ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger<UpdateLatestLibrary>();
+            _logger = loggerFactory.CreateLogger<UpdateLatestTvLibrary>();
         }
 
         [Function("UpdateFeedTitles")]
-        public async Task<UpdateLatestLibraryOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "scrapping/titles")] HttpRequestData req)
+        public async Task<UpdateLatestTvLibraryOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/titles")] HttpRequestData req)
         {
             _logger.LogInformation("Automated Update of Titles (Manual trigger)");
 
@@ -34,19 +34,19 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
             );
         }
 
-        private static async Task<UpdateLatestLibraryOutput> OkResponse(HttpRequestData req)
+        private static async Task<UpdateLatestTvLibraryOutput> OkResponse(HttpRequestData req)
         {
-            return new UpdateLatestLibraryOutput
+            return new UpdateLatestTvLibraryOutput
             {
-                StartLibraryUpdate = new LibraryUpdate(LibraryUpdateType.Titles),
+                StartLibraryUpdate = new LibraryUpdate(TvUpdateType.Titles),
                 HttpResponse = await req.Ok()
             };
         }
 
-        private async Task<UpdateLatestLibraryOutput> ErrorResponse(HttpRequestData req, DomainError error)
+        private async Task<UpdateLatestTvLibraryOutput> ErrorResponse(HttpRequestData req, DomainError error)
         {
 
-            return new UpdateLatestLibraryOutput
+            return new UpdateLatestTvLibraryOutput
             {
                 StartLibraryUpdate = null,
                 HttpResponse = await error.ToResponse(req, _logger)

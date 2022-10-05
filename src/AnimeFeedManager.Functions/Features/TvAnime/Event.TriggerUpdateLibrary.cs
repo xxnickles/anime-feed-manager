@@ -20,6 +20,6 @@ public class TriggerUpdateLibrary
     {
         _logger.LogInformation("Automated Update of Library (Timer trigger {timer})",
             timer.ScheduleStatus?.LastUpdated ?? DateTime.Now);
-        return new LibraryUpdate(LibraryUpdateType.Full);
+        return new LibraryUpdate(TvUpdateType.Full);
     }
 }

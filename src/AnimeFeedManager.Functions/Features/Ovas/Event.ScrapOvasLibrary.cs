@@ -42,11 +42,11 @@ public class ScrapOvasLibrary
     [Function("ScrapOvasLibrary")]
     public async Task<ScrapOvasLibraryOutput> Run(
         [QueueTrigger(QueueNames.OvasLibraryUpdate, Connection = "AzureWebJobsStorage")]
-        OvasUpdate startProcess)
+        OvasUpdate payload)
     {
         _logger.LogInformation("Processing update of the full ovas library");
 
-        var result = await _mediator.Send(new GetOvasLibraryQry());
+        var result = await RunCommand(payload);
 
 
         return result.Match(
@@ -88,6 +88,14 @@ public class ScrapOvasLibrary
             });
     }
 
-
+    private Task<Either<DomainError, OvasLibraryForStorage>> RunCommand(OvasUpdate command)
+    {
+        return command.Type switch
+        {
+            ShortSeriesUpdateType.Latest => _mediator.Send(new GetOvasLibraryQry()),
+            ShortSeriesUpdateType.Season => _mediator.Send(new GetOvasLibraryForSeasonQry(command.SeasonInformation)),
+            _ => throw new ArgumentOutOfRangeException(nameof(command.Type), "Ova update type has is invalid")
+        };
+    }
   
 }

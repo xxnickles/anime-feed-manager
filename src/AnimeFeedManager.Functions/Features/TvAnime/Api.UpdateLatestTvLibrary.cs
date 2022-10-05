@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Features.TvAnime
 {
-    public class UpdateLatestLibraryOutput
+    public class UpdateLatestTvLibraryOutput
     {
         [QueueOutput(QueueNames.TvAnimeLibraryUpdate)] 
         public LibraryUpdate? StartLibraryUpdate { get; set; }
@@ -12,17 +12,17 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
         public HttpResponseData? HttpResponse { get; set; }
     }
 
-    public class UpdateLatestLibrary
+    public class UpdateLatestTvLibrary
     {
         private readonly ILogger _logger;
 
-        public UpdateLatestLibrary(ILoggerFactory loggerFactory)
+        public UpdateLatestTvLibrary(ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger<UpdateLatestLibrary>();
+            _logger = loggerFactory.CreateLogger<UpdateLatestTvLibrary>();
         }
 
-        [Function("UpdateLatestLibrary")]
-        public async Task<UpdateLatestLibraryOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "scrapping/library")] HttpRequestData req)
+        [Function("UpdateLatestTvLibrary")]
+        public async Task<UpdateLatestTvLibraryOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/library")] HttpRequestData req)
         {
             _logger.LogInformation("Automated Update of Library (Manual trigger)");
 
@@ -34,19 +34,19 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
             );
         }
 
-        private static async Task<UpdateLatestLibraryOutput> OkResponse(HttpRequestData req)
+        private static async Task<UpdateLatestTvLibraryOutput> OkResponse(HttpRequestData req)
         {
-            return new UpdateLatestLibraryOutput
+            return new UpdateLatestTvLibraryOutput
             {
-                StartLibraryUpdate = new LibraryUpdate(LibraryUpdateType.Full),
+                StartLibraryUpdate = new LibraryUpdate(TvUpdateType.Full),
                 HttpResponse = await req.Ok()
             };
         }
 
-        private async Task<UpdateLatestLibraryOutput> ErrorResponse(HttpRequestData req, DomainError error)
+        private async Task<UpdateLatestTvLibraryOutput> ErrorResponse(HttpRequestData req, DomainError error)
         {
 
-            return new UpdateLatestLibraryOutput
+            return new UpdateLatestTvLibraryOutput
             {
                 StartLibraryUpdate = null,
                 HttpResponse = await error.ToResponse(req, _logger)

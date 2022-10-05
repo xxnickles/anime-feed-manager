@@ -9,10 +9,10 @@ public static class ServiceRegistrationExtensions
         services.AddHttpClient<ISeasonFetcherService, SeasonService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp,_) => HttpClientPolicies.GetRetryPolicy(sp));
 
-        services.AddHttpClient<ISeasonCollectionFetcher, SeasonCollectionService>(client =>
+        services.AddHttpClient<ITvCollectionFetcher, TvCollectionService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
 
-        services.AddHttpClient<ISubscriberService, SubscriberService>(client =>
+        services.AddHttpClient<ITvSubscriberService, TvSubscriberService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
         
         services.AddHttpClient<IUserService, UserService>(client =>

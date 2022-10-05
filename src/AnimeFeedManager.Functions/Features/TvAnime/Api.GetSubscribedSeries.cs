@@ -17,13 +17,14 @@ public class GetSubscribedSeries
     }
 
     [Function("GetSubscribedSeries")]
-    public Task<HttpResponseData> Run(
+    public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "subscriptions/{subscriber}")]
         HttpRequestData req,
         string subscriber)
     {
-        return req
+        return await req
             .WithAuthenticationCheck(new GetSubscribedSeriesQry(subscriber))
-            .BindAsync(r => _mediator.Send(r)).ToResponse(req, _logger);
+            .BindAsync(request => _mediator.Send(request))
+            .ToResponse(req, _logger);
     }
 }

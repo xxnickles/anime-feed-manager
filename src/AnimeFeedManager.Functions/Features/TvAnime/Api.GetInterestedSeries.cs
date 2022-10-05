@@ -17,13 +17,13 @@ public class GetInterestedSeries
     }
 
     [Function("GetInterestedSeries")]
-    public Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "interested/{subscriber}")]
+    public async Task<HttpResponseData> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tv/interested/{subscriber}")]
         HttpRequestData req,
         string subscriber
     )
     {
-        return req
+        return await req
             .WithAuthenticationCheck(new GetInterestedSeriesQry(subscriber))
             .BindAsync(r => _mediator.Send(r)).ToResponse(req, _logger);
     }

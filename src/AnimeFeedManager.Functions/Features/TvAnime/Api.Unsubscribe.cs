@@ -19,7 +19,7 @@ public class Unsubscribe
 
     [Function("Unsubscribe")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "unsubscribe")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/unsubscribe")]
         HttpRequestData req)
     {
         var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
