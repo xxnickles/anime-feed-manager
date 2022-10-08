@@ -22,7 +22,7 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
         }
 
         [Function("UpdateFeedTitles")]
-        public async Task<UpdateLatestTvLibraryOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/titles")] HttpRequestData req)
+        public async Task<UpdateFeedTitlesOutput> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/titles")] HttpRequestData req)
         {
             _logger.LogInformation("Automated Update of Titles (Manual trigger)");
 
@@ -34,19 +34,19 @@ namespace AnimeFeedManager.Functions.Features.TvAnime
             );
         }
 
-        private static async Task<UpdateLatestTvLibraryOutput> OkResponse(HttpRequestData req)
+        private static async Task<UpdateFeedTitlesOutput> OkResponse(HttpRequestData req)
         {
-            return new UpdateLatestTvLibraryOutput
+            return new UpdateFeedTitlesOutput
             {
                 StartLibraryUpdate = new LibraryUpdate(TvUpdateType.Titles),
                 HttpResponse = await req.Ok()
             };
         }
 
-        private async Task<UpdateLatestTvLibraryOutput> ErrorResponse(HttpRequestData req, DomainError error)
+        private async Task<UpdateFeedTitlesOutput> ErrorResponse(HttpRequestData req, DomainError error)
         {
 
-            return new UpdateLatestTvLibraryOutput
+            return new UpdateFeedTitlesOutput
             {
                 StartLibraryUpdate = null,
                 HttpResponse = await error.ToResponse(req, _logger)

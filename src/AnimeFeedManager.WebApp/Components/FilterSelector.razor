@@ -16,7 +16,7 @@
 @code {
 
     [Parameter]
-    public EventCallback<IEnumerable<Func<SimpleAnime, bool>>> SelectedFiltersChanged { get; set; }
+    public EventCallback<IEnumerable<Func<FeedAnime, bool>>> SelectedFiltersChanged { get; set; }
 
     MudChip[] SelectedFilters
     {
@@ -35,7 +35,7 @@
         await SelectedFiltersChanged.InvokeAsync(selectedChips.Select(Map));
     }
 
-    private Func<SimpleAnime, bool> Map(MudChip chip)
+    private Func<FeedAnime, bool> Map(MudChip chip)
     {
         return chip.Text switch {
             "Available" => Filters.Available,

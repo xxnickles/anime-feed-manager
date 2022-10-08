@@ -14,19 +14,18 @@ public sealed record LibraryForStorage(
     SeasonInfoDto Season
 );
 
-public sealed record GetLibraryQry(ImmutableList<string> feedTitles) : IRequest<Either<DomainError, LibraryForStorage>>;
+public sealed record GetScrappedLibraryQry(ImmutableList<string> feedTitles) : IRequest<Either<DomainError, LibraryForStorage>>;
 
-public class GetLibraryHandler : IRequestHandler<GetLibraryQry, Either<DomainError, LibraryForStorage>>
+public class GetScrappedLibraryHandler : IRequestHandler<GetScrappedLibraryQry, Either<DomainError, LibraryForStorage>>
 {
     private readonly ITvSeriesProvider _tvSeriesProvider;
 
-    public GetLibraryHandler(ITvSeriesProvider tvSeriesProvider)
+    public GetScrappedLibraryHandler(ITvSeriesProvider tvSeriesProvider)
     {
         _tvSeriesProvider = tvSeriesProvider;
     }
 
-
-    public Task<Either<DomainError, LibraryForStorage>> Handle(GetLibraryQry request,
+    public Task<Either<DomainError, LibraryForStorage>> Handle(GetScrappedLibraryQry request,
         CancellationToken cancellationToken)
     {
         return _tvSeriesProvider.GetLibrary(request.feedTitles).MapAsync(Map);

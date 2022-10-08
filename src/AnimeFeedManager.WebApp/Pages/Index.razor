@@ -32,7 +32,7 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private IEnumerable<Func<SimpleAnime, bool>> _filters = Enumerable.Empty<Func<SimpleAnime, bool>>();
+    private IEnumerable<Func<FeedAnime, bool>> _filters = Enumerable.Empty<Func<FeedAnime, bool>>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -105,13 +105,13 @@
         }
     }
 
-    private void OnFilterSelectionChanges(IEnumerable<Func<SimpleAnime, bool>> filters)
+    private void OnFilterSelectionChanges(IEnumerable<Func<FeedAnime, bool>> filters)
     {
         _filters = filters;
         _filteredCollection = FilterCollection(_collection, filters);
     }
 
-    private static SeasonCollection FilterCollection(SeasonCollection collectionBase, IEnumerable<Func<SimpleAnime, bool>> filters)
+    private static SeasonCollection FilterCollection(SeasonCollection collectionBase, IEnumerable<Func<FeedAnime, bool>> filters)
     {
         return new SeasonCollection(
             collectionBase.Year,

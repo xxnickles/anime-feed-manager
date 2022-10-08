@@ -93,7 +93,7 @@ public class ScrapOvasLibrary
         return command.Type switch
         {
             ShortSeriesUpdateType.Latest => _mediator.Send(new GetOvasLibraryQry()),
-            ShortSeriesUpdateType.Season => _mediator.Send(new GetOvasLibraryForSeasonQry(command.SeasonInformation)),
+            ShortSeriesUpdateType.Season => _mediator.Send(new GetScrappedOvasLibraryQry(command.SeasonInformation)),
             _ => throw new ArgumentOutOfRangeException(nameof(command.Type), "Ova update type has is invalid")
         };
     }

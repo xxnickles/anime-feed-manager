@@ -95,7 +95,7 @@
     private Error? Error { get; set; }
 
     [Parameter]
-    public SimpleAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new FeedInfo(false, false, string.Empty));
+    public FeedAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new FeedInfo(false, false, string.Empty));
 
     protected override void OnInitialized()
     {

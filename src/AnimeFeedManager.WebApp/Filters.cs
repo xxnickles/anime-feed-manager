@@ -4,18 +4,18 @@ namespace AnimeFeedManager.WebApp;
 
 public static class Filters
 {
-    public static bool Available(SimpleAnime anime) => anime.FeedInformation.Available;
-    public static bool NoAvailable(SimpleAnime anime) => !anime.FeedInformation.Available;
-    public static bool Completed(SimpleAnime anime) => anime.FeedInformation.Completed;
+    public static bool Available(FeedAnime anime) => anime.FeedInformation.Available;
+    public static bool NoAvailable(FeedAnime anime) => !anime.FeedInformation.Available;
+    public static bool Completed(FeedAnime anime) => anime.FeedInformation.Completed;
 
-    public static Func<SimpleAnime, bool> Subscribed(IEnumerable<string> subscribedTitles) =>
-        (SimpleAnime anime) => subscribedTitles.Contains(anime.FeedInformation.Title);
+    public static Func<FeedAnime, bool> Subscribed(IEnumerable<string> subscribedTitles) =>
+        (FeedAnime anime) => subscribedTitles.Contains(anime.FeedInformation.Title);
 
-    public static Func<SimpleAnime, bool> Interested(IEnumerable<string> interestedTitles) =>
-        (SimpleAnime anime) => interestedTitles.Contains(anime.Title);
+    public static Func<FeedAnime, bool> Interested(IEnumerable<string> interestedTitles) =>
+        (FeedAnime anime) => interestedTitles.Contains(anime.Title);
 
-    public static IEnumerable<SimpleAnime> Filter(this IEnumerable<SimpleAnime> series,
-        IEnumerable<Func<SimpleAnime, bool>> filters)
+    public static IEnumerable<FeedAnime> Filter(this IEnumerable<FeedAnime> series,
+        IEnumerable<Func<FeedAnime, bool>> filters)
     {
         return filters.Any()
             ? filters

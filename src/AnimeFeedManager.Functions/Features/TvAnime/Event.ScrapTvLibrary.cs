@@ -161,6 +161,6 @@ public class ScrapTvLibrary
     private Task<Either<DomainError, LibraryForStorage>> CollectLibrary(ImmutableList<string> feedTitles)
     {
         return _mediator.Send(new AddTitlesCmd(feedTitles))
-            .BindAsync(_ => _mediator.Send(new GetLibraryQry(feedTitles)));
+            .BindAsync(_ => _mediator.Send(new GetScrappedLibraryQry(feedTitles)));
     }
 }

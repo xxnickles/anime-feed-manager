@@ -7,12 +7,12 @@ namespace AnimeFeedManager.Application.TvAnimeLibrary.Queries;
 
 public record GetLatestSeasonCollectionQry:  IRequest<Either<DomainError, SeasonCollection>>;
 
-public class GetLatestSeasonSeasonCollectionHandler : IRequestHandler<GetLatestSeasonCollectionQry, Either<DomainError, SeasonCollection>>
+public class GetLatestSeasonCollectionHandler : IRequestHandler<GetLatestSeasonCollectionQry, Either<DomainError, SeasonCollection>>
 {
     private readonly IAnimeInfoRepository _animeInfoRepository;
     private readonly IMediator _mediator;
 
-    public GetLatestSeasonSeasonCollectionHandler(IAnimeInfoRepository animeInfoRepository, IMediator mediator)
+    public GetLatestSeasonCollectionHandler(IAnimeInfoRepository animeInfoRepository, IMediator mediator)
     {
         _animeInfoRepository = animeInfoRepository;
         _mediator = mediator;
