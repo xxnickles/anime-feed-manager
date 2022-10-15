@@ -8,7 +8,7 @@ public interface ISeasonFetcherService
     Task<ImmutableList<SeasonInfoDto>> GetAvailableSeasons(CancellationToken cancellationToken = default);
 }
 
-public class SeasonService : ISeasonFetcherService
+public sealed class SeasonService : ISeasonFetcherService
 {
     private readonly HttpClient _httpClient;
 

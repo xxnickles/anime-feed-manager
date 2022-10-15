@@ -9,14 +9,14 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.9" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.10" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.10" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.9" />
-    <PackageReference Include="MudBlazor" Version="6.0.16" />
-    <PackageReference Include="Toolbelt.Blazor.PWA.Updater" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.10" />
+    <PackageReference Include="MudBlazor" Version="6.0.17" />
+    <PackageReference Include="Toolbelt.Blazor.PWA.Updater" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,10 +27,6 @@
     <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.Core\AnimeFeedManager.Core.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.WebApp.Authentication\AnimeFeedManager.WebApp.Authentication.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\css" />
   </ItemGroup>
 
 </Project>

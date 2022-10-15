@@ -21,6 +21,9 @@ public static class ServiceRegistrationExtensions
         services.AddHttpClient<IAdminService, AdminService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
         
+        services.AddHttpClient<IOvasCollectionService, OvasCollectionService>(client =>
+            client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
+        
         services.AddHttpClient<IServerNotificationProcessingService, ServerNotificationProcessingService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
 

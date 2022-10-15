@@ -2,15 +2,13 @@
 @page "/{Year:int}/{Season}"
 @using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
-@using System.Collections.Immutable
 @implements IDisposable
-@inject ISeasonFetcherService SeasonFetcherService
 @inject ITvCollectionFetcher TvCollectionFetcher
 @inject ApplicationState State
 @inject NavigationManager NavigationManager
 
-<PageTitle>AFM - @GetTitle(State.Value.Season)</PageTitle>
-<SeasonSelector AvailableSeasons="@_seasons" SelectedSeason="@State.Value.Season" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
+<PageTitle>AFM - @GetTitle(State.Value.SelectedSeason)</PageTitle>
+<SeasonSelector AvailableSeasons="@State.Value.AvailableSeasons" SelectedSeason="@State.Value.SelectedSeason" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
 @if (_filteredCollection is not  EmptySeasonCollection)
 {
     <FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
@@ -18,14 +16,13 @@
 }
 
 @code {
-    private readonly CancellationTokenSource _cts = new ();
-    private ImmutableList<SeasonInfoDto> _seasons = new List<SeasonInfoDto> { new NullSeasonInfo() }.ToImmutableList();
+    private readonly CancellationTokenSource _cts = new();
     private SeasonCollection _collection = new EmptySeasonCollection();
     private SeasonCollection _filteredCollection = new EmptySeasonCollection();
 
     [Parameter]
     public int Year { get; set; }
-    
+
     [Parameter]
     public string Season { get; set; } = string.Empty;
 
@@ -36,60 +33,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        const string key = "lo_seasons";
         State.OnStateChange += StateHasChanged;
-        try
+        State.OnSelectedSeason += OnSelectedSeason;
+        if (State.Value.SelectedSeason is not NullSeasonInfo)
         {
-            State.AddLoadingItem(key, "Loading Season");
-            _seasons = await SeasonFetcherService.GetAvailableSeasons(_cts.Token);
-            if (_seasons.Count > 0)
-            {
-                var latest = _seasons[0];
-                if (latest is not NullSeasonInfo)
-                {
-                    State.SetSeason(latest);
-                    await UpdateSeasonCollection(latest);
-                }
-            }
-            State.RemoveLoadingItem(key);
-        }
-        catch (Exception e)
-        {
-            Error?.ProcessError("Season Fetching", e);
-            State.RemoveLoadingItem(key);
+            await OnSelectedSeason(State.Value.SelectedSeason);
         }
     }
 
-    protected override async Task OnParametersSetAsync()
+    private async ValueTask OnSelectedSeason(SeasonInfoDto season)
     {
-        var result = DtoFactories.TryToParse(Season, Year, out var season);
-        if (result)
-        {
-            State.SetSeason(season);
-            await UpdateSeasonCollection(season);
-        } else {
-            NavigationManager.NavigateTo("/");
-        }
-    }
-
-    private static string GetTitle(SeasonInfoDto season) =>
-        season is not NullSeasonInfo ? $"{season.Year} - {season.Season.ToUpper()}" : "No Data Available";
-
-
-    public void Dispose()
-    {
-        State.OnStateChange -= StateHasChanged;
-        _cts.Cancel();
-        _cts.Dispose();
-    }
-
-    private void OnSeasonChanged(SeasonInfoDto season)
-    {
-        NavigationManager.NavigateTo($"/{season.Year}/{season.Season}");
-    }
-
-    private async Task UpdateSeasonCollection(SeasonInfoDto season)
-    {
+        Console.WriteLine($"OnSelectedSeason is called {season}");
         const string key = "lo_series";
         try
         {
@@ -105,6 +59,36 @@
         }
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        var result = DtoFactories.TryToParse(Season, Year, out var season);
+        if (result)
+        {
+            await State.SetSelectedSeason(season);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private static string GetTitle(SeasonInfoDto season) =>
+        season is not NullSeasonInfo ? $"{season.Year} - {season.Season.ToUpper()}" : "No Data Available";
+
+
+    public void Dispose()
+    {
+        State.OnStateChange -= StateHasChanged;
+        State.OnSelectedSeason -= OnSelectedSeason;
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+
+    private void OnSeasonChanged(SeasonInfoDto season)
+    {
+        NavigationManager.NavigateTo($"/{season.Year}/{season.Season}");
+    }
+
     private void OnFilterSelectionChanges(IEnumerable<Func<FeedAnime, bool>> filters)
     {
         _filters = filters;
@@ -118,4 +102,5 @@
             collectionBase.Season,
             collectionBase.Animes.Filter(filters).ToArray());
     }
+
 }

@@ -1,15 +1,15 @@
 ﻿@using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.WebApp.Services
-@using System.Net
-@using AnimeFeedManager.Core.ConstrainedTypes
-@using System.Collections.Immutable
 @using AnimeFeedManager.Common
+@using AnimeFeedManager.Core.ConstrainedTypes
 @using Toolbelt.Blazor.PWA.Updater
+@using ApplicationException = AnimeFeedManager.WebApp.State.AppException
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject ApplicationState State
-@inject IUserService UserService
-@inject ITvSubscriberService TvSubscriberService
+@inject UserSideEffects UserSideEffects
+@inject SeasonSideEffects SeasonSideEffects
+@inject LocalStorageSideEffects LocalStorageSideEffects
 @inject IDialogService DialogService
 @inject INotificationService NotificationService
 @inject ISnackbar Snackbar
@@ -19,28 +19,28 @@
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 <BackendNotifications/>
-<PWAUpdater />
+<PWAUpdater/>
 
 <MudLayout>
     <MudAppBar Elevation="1">
         <MudBreakpointProvider>
             <MudHidden Breakpoint="Breakpoint.Xs">
-                <MudLink Color="Color.Default" Underline="Underline.Hover" Typo="Typo.h5" Class="ml-3" Href="/">Anime Feed Manager</MudLink>
+                <MudLink Color="Color.Primary" Underline="Underline.Hover" Typo="Typo.h5" Class="ml-3" Href="/">Anime Feed Manager</MudLink>
             </MudHidden>
             <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
                 <MudLink Href="/" Underline="Underline.None">
-                    <MudAvatar Size="Size.Medium" Alt="Anime Feed Manager" Style="font-size: 0.75rem">AMF</MudAvatar>
+                    <MudAvatar Size="Size.Medium" Color="Color.Secondary" Alt="Anime Feed Manager" Style="font-size: 0.75rem">AMF</MudAvatar>
                 </MudLink>
             </MudHidden>
         </MudBreakpointProvider>
         <MudSpacer/>
         <MudDivider Vertical="true" Light="true" DividerType="DividerType.Middle" Class="my-3" FlexItem="true"/>
-        <NotificationsPresenter 
-            Notifications="@NotificationService.Notifications" 
+        <NotificationsPresenter
+            Notifications="@NotificationService.Notifications"
             OnMarkAllAsRead="NotificationService.SetAllNotificationViewed"
             OnMarkAsRead="NotificationService.SetNotificationViewed"
-            OnMarkRemoveAll="NotificationService.RemoveAll"
-            ></NotificationsPresenter>
+            OnMarkRemoveAll="NotificationService.RemoveAll">
+        </NotificationsPresenter>
         <AuthorizeView>
             <Authorized>
                 <AuthorizedUserPanel User="@State.Value.User"></AuthorizedUserPanel>
@@ -68,8 +68,8 @@
 </MudLayout>
 
 @code {
-    private readonly CancellationTokenSource _cts = new ();
-    
+    private readonly CancellationTokenSource _cts = new();
+
     [CascadingParameter]
     private Task<AuthenticationState?>? AuthenticationState { get; set; }
 
@@ -78,146 +78,105 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await NotificationService.LoadLocalNotifications();
         State.OnStateChange += StateHasChanged;
+        State.OnException += OnException;
+        State.OnNotification += OnNotification;
+        State.OnSelectedSeason += OnSelectedSeason;
         NotificationService.NotificationsUpdated += StateHasChanged;
+
+        await LocalStorageSideEffects.TryAssignLocalState(State);
+        await NotificationService.LoadLocalNotifications();
+
         ArgumentNullException.ThrowIfNull(AuthenticationState);
         var state = await AuthenticationState;
         if (state?.User.Identity == null || state.User.Identity?.IsAuthenticated is false)
         {
-            await CompleteDefaultProfile(new AnonymousUser());
+            await UserSideEffects.CompleteDefaultProfile(new AnonymousUser());
             await NotificationService.RemoveAdminNotifications();
         }
         else
         {
-            var userId = state.User?.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier"))?.Value ?? string.Empty;
-            var isAdmin = state.User?.IsInRole(UserRoles.Admin) ?? false;
-            var name = state.User?.Identity?.Name ?? string.Empty;
-            var email = await GetUserEmail(userId, name);
+            var userId = state.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier"))?.Value ?? string.Empty;
+            var isAdmin = state.User.IsInRole(UserRoles.Admin);
+            var name = state.User.Identity?.Name ?? string.Empty;
+            var (successful, email) = await UserSideEffects.TryGetUserEmail(userId, _cts.Token);
 
-            await email.Value.Match(
-                em => CompleteProfile(em, isAdmin),
-                () => CompleteDefaultProfile(new AuthenticatedUser()));
-        }
-    }
-
-    private async Task<Email> GetUserEmail(string userId, string username)
-    {
-        try
-        {
-            State.AddLoadingItem(userId, "Loading user profile");
-            var userEmail = await UserService.GetEmail(userId, _cts.Token);
-
-    // Email is in the systems
-            if (!string.IsNullOrEmpty(userEmail))
+            if (successful)
             {
-                State.RemoveLoadingItem(userId);
-                return Email.FromString(userEmail);
+                await email.Value.Match(
+                    em => UserSideEffects.CompleteProfile(em, isAdmin, _cts.Token),
+                    () => CompleteFromLocalEmail(name, userId, isAdmin));
             }
-
-
-    // UserName is email
-            if (!Email.IsEmail(username))
+            else
             {
-                State.RemoveLoadingItem(userId);
-                return await CompleteUserProfile(userId);
+                await UserSideEffects.CompleteDefaultProfile(new AuthenticatedUser());
             }
-
-    // Save a new email
-            await SaveUser(userId, username);
-            State.RemoveInterested(userId);
-            State.RemoveLoadingItem(userId);
-            return new Email(username);
         }
-        catch (HttpRequestException httpEx) when (httpEx.StatusCode == HttpStatusCode.NotFound)
-        {
-            State.RemoveInterested(userId);
-            State.RemoveLoadingItem(userId);
-            return await CompleteUserProfile(userId);
-        }
-        catch (Exception ex)
-        {
-            Error?.ProcessError("User Fetching", ex);
-            State.RemoveInterested(userId);
-            State.RemoveLoadingItem(userId);
-            return Email.FromString(string.Empty);
-        }
+        await SeasonSideEffects.LoadAvailableSeasons(State, false, _cts.Token);
     }
 
-    private async Task<Email> CompleteUserProfile(string userId)
+    private async ValueTask OnSelectedSeason(SeasonInfoDto season)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
-        var result = await dialog.Result;
-
-        if (result.Cancelled || result.Data == null) return Email.FromString(string.Empty);
-        var email = result.Data.ToString() ?? string.Empty;
-        await SaveUser(userId, email);
-        return Email.FromString(email);
+    // If for whatever reason Selected season goes null have, try to stabilize reloading info from server
+        if (season is NullSeasonInfo)
+        {
+            await SeasonSideEffects.LoadAvailableSeasons(State, true, _cts.Token);
+        }
     }
 
-    private async Task SaveUser(string userId, string email)
+    private void OnNotification(AppNotification obj)
     {
-        try
-        {
-            await UserService.MergeUser(new UserDto(userId, email), _cts.Token);
-            Snackbar.Add("Email has been stored", Severity.Info);
-        }
-        catch (Exception ex)
-        {
-            Error?.ProcessError("User Fetching", ex);
-        }
+        Snackbar.Add(obj.Message, obj.Severity);
     }
 
-    private Task CompleteDefaultProfile(User user)
+    private async Task CompleteFromLocalEmail(string username, string userId, bool isAdmin)
     {
-        State.SetUser(user);
-        State.SetSubscriptions(ImmutableList<string>.Empty);
-        State.SetInterested(ImmutableList<string>.Empty);
+        var emailValue = string.Empty;
+        if (Email.IsEmail(emailValue))
+        {
+            emailValue = username;
+        }
 
-        return Task.CompletedTask;
+        else
+        {
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
+            var result = await dialog.Result;
+
+
+            if (!result.Cancelled && result.Data != null)
+            {
+                emailValue = result.Data.ToString() ?? string.Empty;
+            }
+        }
+
+
+        if (Email.IsEmail(emailValue))
+        {
+            await UserSideEffects.SaveUser(userId, emailValue, _cts.Token);
+            await UserSideEffects.CompleteProfile(emailValue, isAdmin, _cts.Token);
+        }
+        else
+        {
+            await UserSideEffects.CompleteDefaultProfile(new AuthenticatedUser());
+        }
     }
 
-    private async Task CompleteProfile(string email, bool isAdmin)
-    {
-        try
-        {
-            var subscriptions = await TvSubscriberService.GetSubscriptions(email, _cts.Token);
-            State.SetSubscriptions(subscriptions);
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-        {
-            State.SetSubscriptions(ImmutableList<string>.Empty);
-        }
-        catch (Exception ex)
-        {
-            Error?.ProcessError("Getting Subscriptions", ex);
-        }
-
-        try
-        {
-            var interested = await TvSubscriberService.GetInterested(email, _cts.Token);
-            State.SetInterested(interested);
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-        {
-            State.SetSubscriptions(ImmutableList<string>.Empty);
-        }
-        catch (Exception ex)
-        {
-            Error?.ProcessError("Getting Interested Series", ex);
-        }
-
-        State.SetUser(isAdmin ? new AdminUser(email) : new ApplicationUser(email));
-        Snackbar.Add("Profile has been completed", Severity.Info);
-    }
 
     public void Dispose()
     {
         State.OnStateChange -= StateHasChanged;
+        State.OnException -= OnException;
+        State.OnNotification -= OnNotification;
+        State.OnSelectedSeason -= OnSelectedSeason;
         NotificationService.NotificationsUpdated -= StateHasChanged;
         _cts.Cancel();
         _cts.Dispose();
+    }
+
+    private void OnException(ApplicationException ex)
+    {
+        Error?.ProcessError(ex.Identifier, ex.Exception);
     }
 
     private async Task Login()
@@ -226,5 +185,4 @@
         var dialog = DialogService.Show<LoginProviderDialog>("Login", options);
         await dialog.Result;
     }
-
 }

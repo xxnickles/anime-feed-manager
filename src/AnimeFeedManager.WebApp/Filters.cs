@@ -9,10 +9,10 @@ public static class Filters
     public static bool Completed(FeedAnime anime) => anime.FeedInformation.Completed;
 
     public static Func<FeedAnime, bool> Subscribed(IEnumerable<string> subscribedTitles) =>
-        (FeedAnime anime) => subscribedTitles.Contains(anime.FeedInformation.Title);
+        anime => subscribedTitles.Contains(anime.FeedInformation.Title);
 
     public static Func<FeedAnime, bool> Interested(IEnumerable<string> interestedTitles) =>
-        (FeedAnime anime) => interestedTitles.Contains(anime.Title);
+        anime => interestedTitles.Contains(anime.Title);
 
     public static IEnumerable<FeedAnime> Filter(this IEnumerable<FeedAnime> series,
         IEnumerable<Func<FeedAnime, bool>> filters)

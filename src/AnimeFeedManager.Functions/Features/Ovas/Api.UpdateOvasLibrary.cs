@@ -23,21 +23,6 @@ public class UpdateOvasLibrary
     }
 
 
-    [Function("UpdateLatestOvasLibrary")]
-    public async Task<UpdateOvasLibraryOutput> RunLatest(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library")]
-        HttpRequestData req)
-    {
-        _logger.LogInformation("Automated Update of latest ova library (Manual trigger)");
-
-        var result = await req.AllowAdminOnly();
-
-        return await result.Match(
-            _ => OkResponse(req, new OvasUpdate(ShortSeriesUpdateType.Latest, new NullSeasonInfo())),
-            e => ErrorResponse(req, e)
-        );
-    }
-
     [Function("UpdateSeasonOvasLibrary")]
     public async Task<UpdateOvasLibraryOutput> RunSeason(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/{year}/{season}")]

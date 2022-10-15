@@ -11,3 +11,5 @@ public record SeasonCollection(ushort Year, string Season, FeedAnime[] Animes);
 public record ShortSeasonCollection(ushort Year, string Season, SimpleAnime[] Animes);
 
 public record EmptySeasonCollection() : SeasonCollection(0, string.Empty, Array.Empty<FeedAnime>());
+
+public record EmptyShortSeasonCollection() : ShortSeasonCollection(0, string.Empty, Array.Empty<SimpleAnime>());

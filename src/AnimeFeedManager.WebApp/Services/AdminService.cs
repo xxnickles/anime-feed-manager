@@ -4,6 +4,8 @@
     {
         Task UpdateTvLibrary(CancellationToken cancellationToken = default);
         Task UpdateTvTitles(CancellationToken cancellationToken = default);
+
+        Task UpdateOvasLibrary(string season, ushort year, CancellationToken cancellationToken = default);
         Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default);
     }
 
@@ -24,6 +26,11 @@
         public Task UpdateTvTitles(CancellationToken cancellationToken = default)
         {
             return _httpClient.PostAsync("/api/tv/titles", null, cancellationToken);
+        }
+
+        public Task UpdateOvasLibrary(string season, ushort year, CancellationToken cancellationToken = default)
+        {
+            return _httpClient.PostAsync($"/api/ovas/{year}/{season}", null, cancellationToken);
         }
 
         public Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default)

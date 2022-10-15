@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Application.OvasLibrary.Queries;
-using AnimeFeedManager.Common.Dto;
+﻿using AnimeFeedManager.Common.Dto;
 using FeedInfo = AnimeFeedManager.Common.Dto.FeedInfo;
 
 namespace AnimeFeedManager.Application.TvAnimeLibrary;

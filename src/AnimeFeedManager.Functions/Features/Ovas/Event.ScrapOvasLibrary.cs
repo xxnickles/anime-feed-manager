@@ -4,7 +4,6 @@ using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Models;
-using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Storage.Infrastructure;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -25,7 +24,6 @@ public class ScrapOvasLibraryOutput
 public class ScrapOvasLibrary
 {
     private readonly IDomainPostman _domainPostman;
-    private readonly IFeedProvider _feedProvider;
     private readonly IMediator _mediator;
     private readonly ILogger<ScrapOvasLibrary> _logger;
 
@@ -93,7 +91,7 @@ public class ScrapOvasLibrary
         return command.Type switch
         {
             ShortSeriesUpdateType.Latest => _mediator.Send(new GetOvasLibraryQry()),
-            ShortSeriesUpdateType.Season => _mediator.Send(new GetScrappedOvasLibraryQry(command.SeasonInformation)),
+            ShortSeriesUpdateType.Season => _mediator.Send(new GetScrappedOvasLibraryQry(command.SeasonInformation!)),
             _ => throw new ArgumentOutOfRangeException(nameof(command.Type), "Ova update type has is invalid")
         };
     }

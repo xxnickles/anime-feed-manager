@@ -14,6 +14,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 
 builder.Services.AddSingleton<ApplicationState>();
+builder.Services.AddScoped<SeasonSideEffects>();
+builder.Services.AddScoped<UserSideEffects>();
+builder.Services.AddScoped<LocalStorageSideEffects>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddPWAUpdater();
 builder.Services.RegisterHttpServices(builder.Configuration.GetValue<string>("ApiUrl") ??
