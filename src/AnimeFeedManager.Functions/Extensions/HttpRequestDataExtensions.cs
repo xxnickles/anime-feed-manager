@@ -13,7 +13,7 @@ public static class HttpRequestDataExtensions
 
     public static ValueTask WriteAsProblemResponse<T>(this HttpResponseData response, T detail, CancellationToken cancellationToken = default) where T : ProblemDetails
     {
-        return response.WriteAsJsonAsync(detail, "application/problem+json", detail.Status, cancellationToken);
+        return response.WriteAsJsonAsync((object)detail, "application/problem+json", detail.Status, cancellationToken);
     }
 
     private static async Task<HttpResponseData> CreateErrorDetailResponse(this HttpRequestData request,

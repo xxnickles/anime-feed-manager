@@ -28,4 +28,13 @@ public class UserRepository : IUserRepository
 
         return result.Map(u => u.First().Email ?? string.Empty);
     }
+
+    public async Task<Either<DomainError, Option<string>>> GetUserId(string email)
+    {
+        var result = await TableUtils.ExecuteQueryWithEmpty(() =>
+            _tableClient.QueryAsync<UserStorage>(u =>
+                u.Email == email), nameof(UserStorage));
+
+        return result.Map(u => !u.Any() ? None : Some(u.First().Email));
+    }
 }
