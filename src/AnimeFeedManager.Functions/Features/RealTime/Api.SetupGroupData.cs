@@ -29,7 +29,7 @@ public class SetupGroupData
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "notifications/setup")]
         HttpRequestData req)
     {
-        _logger.LogInformation("");
+        _logger.LogInformation("Setting up signalr group data");
         var authResult = await req.CheckAuthorization();
 
         return await authResult.Match(

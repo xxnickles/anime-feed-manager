@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using AnimeFeedManager.Storage.Domain;
+﻿using AnimeFeedManager.Storage.Domain;
 
 namespace AnimeFeedManager.Storage.Interface;
 

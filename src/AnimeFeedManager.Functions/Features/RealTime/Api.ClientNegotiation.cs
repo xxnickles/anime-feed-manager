@@ -20,6 +20,7 @@ public class ClientNegotiation
         [SignalRConnectionInfoInput(HubName =  HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
         SignalRConnectionInfo  connectionInfo)
     {
+        _logger.LogInformation("Creating signalr connection");
         return await req.Ok(connectionInfo);
     }
 }

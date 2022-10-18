@@ -16,7 +16,7 @@
         switch (ex)
         {
             case HttpRequestException he:
-                Snackbar.Add($"{context}: {MessageFromCode(he.StatusCode)}", Severity.Error);
+                Snackbar.Add($"{context}: {ParseMessage(he)}", Severity.Error);
                 return;
             case JsonException:
                 Snackbar.Add($"{context}: Couldn't connect to remote server", Severity.Error);
@@ -29,13 +29,15 @@
         Logger.LogError(ex, "An error has ocurred");
     }
 
-    private string MessageFromCode(HttpStatusCode? statusCode) => statusCode switch
+    private string ParseMessage(HttpRequestException exception) => exception.StatusCode switch
     {
         HttpStatusCode.NotFound => "Resource has not been found",
         HttpStatusCode.InternalServerError => "An error occurred in the server while trying to process the request",
         HttpStatusCode.Unauthorized => "You Need to be authenticated to access",
         HttpStatusCode.Forbidden => "You don't have access here",
+        HttpStatusCode.UnprocessableEntity => "Validation errors ocurred",
         _ => "Couldn't connect to remote server"
         };
+    
 
 }

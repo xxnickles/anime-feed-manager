@@ -1,7 +1,6 @@
 ﻿@using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.Common
-@using AnimeFeedManager.Core.ConstrainedTypes
 @using Toolbelt.Blazor.PWA.Updater
 @using ApplicationException = AnimeFeedManager.WebApp.State.AppException
 @inherits LayoutComponentBase
@@ -91,7 +90,7 @@
         var state = await AuthenticationState;
         if (state?.User.Identity == null || state.User.Identity?.IsAuthenticated is false)
         {
-            await UserSideEffects.CompleteDefaultProfile(new AnonymousUser());
+            UserSideEffects.CompleteDefaultProfile(State, new AnonymousUser());
             await NotificationService.RemoveAdminNotifications();
         }
         else
@@ -99,18 +98,7 @@
             var userId = state.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier"))?.Value ?? string.Empty;
             var isAdmin = state.User.IsInRole(UserRoles.Admin);
             var name = state.User.Identity?.Name ?? string.Empty;
-            var (successful, email) = await UserSideEffects.TryGetUserEmail(userId, _cts.Token);
-
-            if (successful)
-            {
-                await email.Value.Match(
-                    em => UserSideEffects.CompleteProfile(em, isAdmin, _cts.Token),
-                    () => CompleteFromLocalEmail(name, userId, isAdmin));
-            }
-            else
-            {
-                await UserSideEffects.CompleteDefaultProfile(new AuthenticatedUser());
-            }
+            await UserSideEffects.CompleteUserProfile(State, new UserInformation(userId, name, isAdmin), GetEmailFromUser, _cts.Token);
         }
         await SeasonSideEffects.LoadAvailableSeasons(State, false, _cts.Token);
     }
@@ -129,39 +117,19 @@
         Snackbar.Add(obj.Message, obj.Severity);
     }
 
-    private async Task CompleteFromLocalEmail(string username, string userId, bool isAdmin)
+    private async Task<string> GetEmailFromUser()
     {
-        var emailValue = string.Empty;
-        if (Email.IsEmail(emailValue))
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled && result.Data != null)
         {
-            emailValue = username;
+            return result.Data.ToString() ?? string.Empty;
         }
 
-        else
-        {
-            var options = new DialogOptions { CloseOnEscapeKey = true };
-            var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
-            var result = await dialog.Result;
-
-
-            if (!result.Cancelled && result.Data != null)
-            {
-                emailValue = result.Data.ToString() ?? string.Empty;
-            }
-        }
-
-
-        if (Email.IsEmail(emailValue))
-        {
-            await UserSideEffects.SaveUser(userId, emailValue, _cts.Token);
-            await UserSideEffects.CompleteProfile(emailValue, isAdmin, _cts.Token);
-        }
-        else
-        {
-            await UserSideEffects.CompleteDefaultProfile(new AuthenticatedUser());
-        }
+        return string.Empty;
     }
-
 
     public void Dispose()
     {
@@ -185,4 +153,5 @@
         var dialog = DialogService.Show<LoginProviderDialog>("Login", options);
         await dialog.Result;
     }
+
 }

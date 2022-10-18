@@ -19,9 +19,11 @@ public class UserService : IUserService
     }
 
 
-    public Task MergeUser(UserDto user,CancellationToken cancellationToken = default)
+    public async Task MergeUser(UserDto user,CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/user", user, cancellationToken: cancellationToken);
+        var result = await _httpClient.PostAsJsonAsync("api/user", user, cancellationToken: cancellationToken);
+        result.EnsureSuccessStatusCode();
+
     }
 
     public async Task<string?> GetEmail(string id, CancellationToken cancellationToken = default)

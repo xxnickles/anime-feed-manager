@@ -28,9 +28,10 @@
             return _httpClient.PostAsync("/api/tv/titles", null, cancellationToken);
         }
 
-        public Task UpdateOvasLibrary(string season, ushort year, CancellationToken cancellationToken = default)
+        public async Task UpdateOvasLibrary(string season, ushort year, CancellationToken cancellationToken = default)
         {
-            return _httpClient.PostAsync($"/api/ovas/{year}/{season}", null, cancellationToken);
+            var response =await _httpClient.PostAsync($"/api/ovas/{year}/{season}", null, cancellationToken);
+            response.EnsureSuccessStatusCode();
         }
 
         public Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default)

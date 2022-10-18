@@ -19,5 +19,4 @@ public static class HttpHelpers
         var result = await response.Content.ReadFromJsonAsync<T>();
         return result ?? defaultValue;
     }
-    
 }

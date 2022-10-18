@@ -35,23 +35,27 @@ public class TvSubscriberService : ITvSubscriberService
         return await response.MapToList<string>();
     }
 
-    public Task Subscribe(string subscriber, string series, CancellationToken cancellationToken = default)
+    public async Task Subscribe(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/tv/subscriptions", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync("api/tv/subscriptions", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
     }
 
-    public Task AddToInterest(string subscriber, string series, CancellationToken cancellationToken = default)
+    public async Task AddToInterest(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/tv/interested", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        var response= await _httpClient.PostAsJsonAsync("api/tv/interested", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
     }
 
-    public Task RemoveFromInterest(string subscriber, string series, CancellationToken cancellationToken = default)
+    public async Task RemoveFromInterest(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/tv/removeInterested", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync("api/tv/removeInterested", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
     }
 
-    public Task Unsubscribe(string subscriber, string series, CancellationToken cancellationToken = default)
+    public  async Task Unsubscribe(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        return _httpClient.PostAsJsonAsync("api/tv/unsubscribe", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync("api/tv/unsubscribe", new SubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
     }
 }

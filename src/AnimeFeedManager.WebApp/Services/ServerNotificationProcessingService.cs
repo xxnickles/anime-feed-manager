@@ -53,15 +53,13 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         ConnectionStatus?.Invoke(HubConnectionStatus.Connected);
     }
 
-    public Task AddToGroup()
+    public async Task AddToGroup()
     {
-        if (IsConnectedToHub())
-        {
-            return _httpClient.PostAsJsonAsync("api/notifications/setup",
-                new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
-        }
-
-        throw new HubException("Hub connection is not available at this time");
+        if (!IsConnectedToHub()) throw new HubException("Hub connection is not available at this time");
+        
+        var response = await _httpClient.PostAsJsonAsync("api/notifications/setup",
+            new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
+        response.EnsureSuccessStatusCode();
     }
 
     private bool IsConnectedToHub() => _hubConnection?.State is HubConnectionState.Connected &&
