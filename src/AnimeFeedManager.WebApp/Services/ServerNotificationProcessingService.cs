@@ -59,7 +59,7 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         
         var response = await _httpClient.PostAsJsonAsync("api/notifications/setup",
             new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
-        response.EnsureSuccessStatusCode();
+        await response.CheckForProblemDetails();
     }
 
     private bool IsConnectedToHub() => _hubConnection?.State is HubConnectionState.Connected &&

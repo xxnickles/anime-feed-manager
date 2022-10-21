@@ -23,7 +23,8 @@ builder.Services.RegisterHttpServices(builder.Configuration.GetValue<string>("Ap
                                       builder.HostEnvironment.BaseAddress);
 builder.Services.AddMudServices(config =>
 {
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
+    config.SnackbarConfiguration.VisibleStateDuration = 8000;
 });
 
 builder.Services.AddStaticWebAppsAuthentication();

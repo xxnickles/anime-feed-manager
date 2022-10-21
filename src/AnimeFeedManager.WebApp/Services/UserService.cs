@@ -22,7 +22,7 @@ public class UserService : IUserService
     public async Task MergeUser(UserDto user,CancellationToken cancellationToken = default)
     {
         var result = await _httpClient.PostAsJsonAsync("api/user", user, cancellationToken: cancellationToken);
-        result.EnsureSuccessStatusCode();
+        await result.CheckForProblemDetails();
 
     }
 

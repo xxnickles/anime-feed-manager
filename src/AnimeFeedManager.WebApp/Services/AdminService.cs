@@ -31,7 +31,7 @@
         public async Task UpdateOvasLibrary(string season, ushort year, CancellationToken cancellationToken = default)
         {
             var response =await _httpClient.PostAsync($"/api/ovas/{year}/{season}", null, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            await response.CheckForProblemDetails();
         }
 
         public Task SetAllSeriesAsNoCompleted(CancellationToken cancellationToken = default)
