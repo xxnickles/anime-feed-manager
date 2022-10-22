@@ -51,6 +51,4 @@ public class SerializingTest
         sut.Detail.Should().NotBeNullOrEmpty();
         sut.Errors.Should().BeNull();
     }
-    
-   
 }

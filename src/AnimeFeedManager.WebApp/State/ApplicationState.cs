@@ -8,8 +8,7 @@ public record struct AppException(string Identifier, Exception Exception);
 
 public record struct AppNotification(string Message, Severity Severity);
 
-public record LocalStorageState(
-    ImmutableList<SeasonInfoDto> AvailableSeasons)
+public record LocalStorageState(ImmutableList<SeasonInfoDto> AvailableSeasons, long Stamp)
 {
     public static implicit operator State(LocalStorageState localStorageState) =>
         new(
@@ -30,7 +29,7 @@ public record State(
     ImmutableDictionary<string, string> LoadingItems)
 {
     public static implicit operator LocalStorageState(State state) =>
-        new(state.AvailableSeasons);
+        new(state.AvailableSeasons, DateTime.UtcNow.Ticks);
 }
 
 public sealed class ApplicationState

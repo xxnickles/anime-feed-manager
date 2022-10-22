@@ -22,10 +22,20 @@ public sealed class LocalStorageSideEffects
             try
             {
                 var localState = await _localStorage.GetItemAsync<LocalStorageState>(StateKey);
-                state.SetState(localState);
-                await state.SetSelectedSeason(localState.AvailableSeasons.Any()
-                    ? localState.AvailableSeasons[0]
-                    : new NullSeasonInfo());
+                var storedStamp = DateTime.UtcNow - new DateTime(localState.Stamp);
+
+                if (storedStamp.Minutes <= 60)
+                {
+                    state.SetState(localState);
+                    await state.SetSelectedSeason(localState.AvailableSeasons.Any()
+                        ? localState.AvailableSeasons[0]
+                        : new NullSeasonInfo());
+                }
+                else
+                {
+                    await _localStorage.ClearAsync();
+                }
+               
             }
             catch (Exception e)
             {
