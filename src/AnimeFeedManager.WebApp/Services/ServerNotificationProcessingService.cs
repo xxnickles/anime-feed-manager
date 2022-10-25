@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using AnimeFeedManager.Common.Notifications;
+using AnimeFeedManager.WebApp.State;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -19,6 +20,8 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
 {
     private HubConnection? _hubConnection;
 
+    private readonly ApplicationState _state;
+    private readonly SeasonSideEffects _seasonSideEffects;
     private readonly HttpClient _httpClient;
     private readonly ILogger<ServerNotificationProcessingService> _logger;
     
@@ -28,9 +31,13 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     public event Func<SeasonProcessNotification, Task>? SeasonProcessNotification;
 
     public ServerNotificationProcessingService(
+        ApplicationState state,
+        SeasonSideEffects seasonSideEffects,
         HttpClient httpClient,
         ILogger<ServerNotificationProcessingService> logger)
     {
+        _state = state;
+        _seasonSideEffects = seasonSideEffects;
         _httpClient = httpClient;
         _logger = logger;
     }
@@ -82,6 +89,10 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
             notification =>
             {
                 SeasonProcessNotification?.Invoke(notification);
+                if (!_state.Value.AvailableSeasons.Contains(notification.Season))
+                {
+                    _seasonSideEffects.LoadAvailableSeasons(_state, true);
+                }
             });
         
         hubConnection.On<TitlesUpdateNotification>(ServerNotifications.TitleUpdate,
