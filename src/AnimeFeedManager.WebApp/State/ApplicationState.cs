@@ -8,12 +8,15 @@ public record struct AppException(string Identifier, Exception Exception);
 
 public record struct AppNotification(string Message, Severity Severity);
 
-public record LocalStorageState(ImmutableList<SeasonInfoDto> AvailableSeasons, long Stamp)
+// Using array as trimming (for serialization purposes) is not so nice with immutable lists. We have no control of the local storage library serialization
+// It is just simple to use a native primitive just for the sake of it.
+// https://github.com/dotnet/runtime/issues/62242
+public record LocalStorageState(SeasonInfoDto[] AvailableSeasons, long Stamp)
 {
     public static implicit operator State(LocalStorageState localStorageState) =>
         new(
             localStorageState.AvailableSeasons.Any() ? localStorageState.AvailableSeasons[0] : new NullSeasonInfo(),
-            localStorageState.AvailableSeasons,
+            localStorageState.AvailableSeasons.ToImmutableList(),
             new AnonymousUser(),
             ImmutableList<string>.Empty,
             ImmutableList<string>.Empty,
@@ -29,7 +32,7 @@ public record State(
     ImmutableDictionary<string, string> LoadingItems)
 {
     public static implicit operator LocalStorageState(State state) =>
-        new(state.AvailableSeasons, DateTime.UtcNow.Ticks);
+        new(state.AvailableSeasons.ToArray(), DateTime.UtcNow.Ticks);
 }
 
 public sealed class ApplicationState
