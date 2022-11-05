@@ -82,64 +82,63 @@ public sealed class ApplicationState
 
     public async Task SetSelectedSeason(SeasonInfoDto season)
     {
-        SetState(Value with { SelectedSeason = season });
+        SetState(Value with {SelectedSeason = season});
         if (OnSelectedSeason != null) await OnSelectedSeason(season);
     }
 
     public void SetAvailableSeasons(ImmutableList<SeasonInfoDto> seasons)
     {
-        SetState(Value with { AvailableSeasons = seasons });
+        SetState(Value with {AvailableSeasons = seasons});
     }
 
-  
     public void SetUser(User user)
     {
-        SetState(Value with { User = user });
+        SetState(Value with {User = user});
         OnUserChanges?.Invoke(user);
     }
 
     public void SetSubscriptions(ImmutableList<string> subscriptions)
     {
-        SetState(Value with { Subscriptions = subscriptions });
+        SetState(Value with {Subscriptions = subscriptions});
     }
 
     public void SetInterested(ImmutableList<string> interested)
     {
-        SetState(Value with { Interested = interested });
+        SetState(Value with {Interested = interested});
     }
 
     public void AddInterested(string interested)
     {
-        SetState(Value with { Interested = Value.Interested.Add(interested) });
+        SetState(Value with {Interested = Value.Interested.Add(interested)});
     }
 
 
     public void RemoveInterested(string interested)
     {
-        SetState(Value with { Interested = Value.Interested.Remove(interested) });
+        SetState(Value with {Interested = Value.Interested.Remove(interested)});
     }
 
 
     public void AddSubscription(string subscription)
     {
-        SetState(Value with { Subscriptions = Value.Subscriptions.Add(subscription) });
+        SetState(Value with {Subscriptions = Value.Subscriptions.Add(subscription)});
     }
 
     public void RemoveSubscription(string subscription)
     {
-        SetState(Value with { Subscriptions = Value.Subscriptions.Remove(subscription) });
+        SetState(Value with {Subscriptions = Value.Subscriptions.Remove(subscription)});
     }
 
     public void AddLoadingItem(string key, string description)
     {
         if (Value.LoadingItems.ContainsKey(key)) return;
-        SetState(Value with { LoadingItems = Value.LoadingItems.Add(key, description) });
+        SetState(Value with {LoadingItems = Value.LoadingItems.Add(key, description)});
     }
 
     public void RemoveLoadingItem(string key)
     {
         if (!Value.LoadingItems.ContainsKey(key)) return;
-        SetState(Value with { LoadingItems = Value.LoadingItems.Remove(key) });
+        SetState(Value with {LoadingItems = Value.LoadingItems.Remove(key)});
     }
 
     /// <summary>
@@ -159,5 +158,4 @@ public sealed class ApplicationState
     {
         OnNotification?.Invoke(notification);
     }
-
 }

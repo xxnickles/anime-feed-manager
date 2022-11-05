@@ -27,15 +27,23 @@ public class SendNotifications
         [QueueTrigger(QueueNames.Notifications, Connection = "AzureWebJobsStorage")]
         Notification notification)
     {
-        var message = new SendGridMessage();
-        message.SetFrom(new EmailAddress(_sendGridConfiguration.FromEmail, _sendGridConfiguration.FromName));
-        message.SetSandBoxMode(_sendGridConfiguration.Sandbox);
-        message.AddInfoFromNotification(notification);
-        var response = await _client.SendEmailAsync(message);
-        if (response.IsSuccessStatusCode)
-            _logger.LogInformation("Sending notification to {NotificationSubscriber}", notification.Subscriber);
-        else
-            _logger.LogError("Error sending email notification (Status Code {Code}) {Reason}", response.StatusCode,
-                await response.Body.ReadAsStringAsync());
+        try
+        {
+            var message = new SendGridMessage();
+            message.SetFrom(new EmailAddress(_sendGridConfiguration.FromEmail, _sendGridConfiguration.FromName));
+            message.SetSandBoxMode(_sendGridConfiguration.Sandbox);
+            message.AddInfoFromNotification(notification);
+            var response = await _client.SendEmailAsync(message);
+            if (response.IsSuccessStatusCode)
+                _logger.LogInformation("Sending notification to {NotificationSubscriber}", notification.Subscriber);
+            else
+                _logger.LogError("Error sending email notification (Status Code {Code}) {Reason}", response.StatusCode,
+                    await response.Body.ReadAsStringAsync());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Message email sent has failed for {User}", notification.Subscriber);
+        }
+       
     }
 }

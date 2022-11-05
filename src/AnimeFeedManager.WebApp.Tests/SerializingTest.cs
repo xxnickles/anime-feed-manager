@@ -30,8 +30,8 @@ public class SerializingTest
         var bytes = Encoding.UTF8.GetBytes(problemDetails);
         var stream = new MemoryStream(bytes);
         var sut = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
-        sut.Errors.Should().NotBeNullOrEmpty();
-        sut.Detail.Should().BeNull();
+        sut?.Errors.Should().NotBeNullOrEmpty();
+        sut?.Detail.Should().BeNull();
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class SerializingTest
         var bytes = Encoding.UTF8.GetBytes(problemDetails);
         var stream = new MemoryStream(bytes);
         var sut = await JsonSerializer.DeserializeAsync<ProblemDetails>(stream);
-        sut.Detail.Should().NotBeNullOrEmpty();
-        sut.Errors.Should().BeNull();
+        sut?.Detail.Should().NotBeNullOrEmpty();
+        sut?.Errors.Should().BeNull();
     }
 }
