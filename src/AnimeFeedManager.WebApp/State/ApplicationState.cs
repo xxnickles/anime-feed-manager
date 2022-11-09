@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using MudBlazor;
 
@@ -16,15 +17,17 @@ public record LocalStorageState(SeasonInfoDto[] AvailableSeasons, long Stamp)
     public static implicit operator State(LocalStorageState localStorageState) =>
         new(
             localStorageState.AvailableSeasons.Any() ? localStorageState.AvailableSeasons[0] : new NullSeasonInfo(),
+            SeriesType.Tv,
             localStorageState.AvailableSeasons.ToImmutableList(),
             new AnonymousUser(),
             ImmutableList<string>.Empty,
             ImmutableList<string>.Empty,
             ImmutableDictionary<string, string>.Empty);
-};
+}
 
 public record State(
     SeasonInfoDto SelectedSeason,
+    SeriesType SelectedSection,
     ImmutableList<SeasonInfoDto> AvailableSeasons,
     User User,
     ImmutableList<string> Subscriptions,
@@ -42,6 +45,7 @@ public sealed class ApplicationState
     /// </summary>
     public State Value { get; private set; } = new(
         new NullSeasonInfo(),
+        SeriesType.Tv,
         ImmutableList<SeasonInfoDto>.Empty,
         new AnonymousUser(),
         ImmutableList<string>.Empty,

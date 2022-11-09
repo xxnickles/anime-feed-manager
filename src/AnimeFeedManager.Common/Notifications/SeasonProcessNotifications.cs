@@ -15,8 +15,6 @@ public enum NotificationType
     Error
 }
 
-
-
 public abstract record RealtimeNotification(string Id,
     TargetAudience TargetAudience,
     NotificationType Result,

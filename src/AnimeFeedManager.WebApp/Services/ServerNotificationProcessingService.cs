@@ -24,7 +24,7 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     private readonly SeasonSideEffects _seasonSideEffects;
     private readonly HttpClient _httpClient;
     private readonly ILogger<ServerNotificationProcessingService> _logger;
-    
+
     public event Func<TitlesUpdateNotification, Task>? TitlesUpdateNotification;
     public event Action<HubConnectionStatus>? ConnectionStatus;
 
@@ -63,7 +63,7 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     public async Task AddToGroup()
     {
         if (!IsConnectedToHub()) throw new HubException("Hub connection is not available at this time");
-        
+
         var response = await _httpClient.PostAsJsonAsync("api/notifications/setup",
             new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
         await response.CheckForProblemDetails();
@@ -85,21 +85,17 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
 
     private void SubscribeToNotifications(HubConnection hubConnection)
     {
-        hubConnection.On<SeasonProcessNotification>(ServerNotifications.SeasonProcess,
-            notification =>
+        hubConnection.On<SeasonProcessNotification>(ServerNotifications.SeasonProcess, async notification =>
+        {
+            SeasonProcessNotification?.Invoke(notification);
+            if (!_state.Value.AvailableSeasons.Contains(notification.Season))
             {
-                SeasonProcessNotification?.Invoke(notification);
-                if (!_state.Value.AvailableSeasons.Contains(notification.Season))
-                {
-                    _seasonSideEffects.LoadAvailableSeasons(_state, true);
-                }
-            });
-        
+                await _seasonSideEffects.LoadAvailableSeasons(_state, true);
+            }
+        });
+
         hubConnection.On<TitlesUpdateNotification>(ServerNotifications.TitleUpdate,
-            notification =>
-            {
-                TitlesUpdateNotification?.Invoke(notification);
-            });
+            notification => { TitlesUpdateNotification?.Invoke(notification); });
     }
 
     private void SubscribeToHubStatus(HubConnection hubConnection)

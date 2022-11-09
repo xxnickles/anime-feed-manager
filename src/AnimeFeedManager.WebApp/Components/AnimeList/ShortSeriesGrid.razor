@@ -1,0 +1,20 @@
+﻿@if (Collection is not EmptyShortSeasonCollection)
+{
+    <MudGrid>
+
+        @foreach (var series in Collection.Animes)
+        {
+            <MudItem xs="12" md="4" lg="3">
+                <ShortAnimeCard Anime="series"></ShortAnimeCard>
+            </MudItem>
+        }
+
+    </MudGrid>
+}
+
+@code {
+
+    [Parameter]
+    public ShortSeasonCollection Collection { get; set; } = new EmptyShortSeasonCollection();
+
+}

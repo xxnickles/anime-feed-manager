@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.ConstrainedTypes;
-using AnimeFeedManager.WebApp.Components;
+using AnimeFeedManager.WebApp.Components.AnimeList;
 
 namespace AnimeFeedManager.WebApp.Tests.Components;
 

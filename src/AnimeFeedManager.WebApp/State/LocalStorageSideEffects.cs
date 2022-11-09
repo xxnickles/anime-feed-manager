@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using Blazored.LocalStorage;
 
@@ -41,6 +42,7 @@ public sealed class LocalStorageSideEffects
             {
                 state.SetState(new State(
                     new NullSeasonInfo(),
+                    SeriesType.Tv,
                     ImmutableList<SeasonInfoDto>.Empty,
                     new AnonymousUser(),
                     ImmutableList<string>.Empty,

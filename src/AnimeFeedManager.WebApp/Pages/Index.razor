@@ -2,8 +2,10 @@
 @page "/{Year:int}/{Season}"
 @using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
+@using AnimeFeedManager.Common
 @implements IDisposable
 @inject ITvCollectionFetcher TvCollectionFetcher
+@inject IOvasCollectionService OvasCollectionService
 @inject ApplicationState State
 @inject NavigationManager NavigationManager
 
@@ -11,13 +13,25 @@
 <SeasonSelector AvailableSeasons="@State.Value.AvailableSeasons" SelectedSeason="@State.Value.SelectedSeason" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
 @if (_filteredCollection is not  EmptySeasonCollection)
 {
-    <FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
-    <SeriesGrid Collection="@_filteredCollection"></SeriesGrid>
+    @if (State.Value.SelectedSection == SeriesType.Tv)
+    {
+        <FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
+    }
+    
+    <MudTabs Elevation="1" Rounded="true" Position="Position.Top" Border="false" PanelClass="mt-3" Color="Color.Transparent" bi>
+        <MudTabPanel Text="TV">
+            <SeriesGrid Collection="@_filteredCollection"></SeriesGrid>
+        </MudTabPanel>
+        <MudTabPanel Text="Ovas">
+            <ShortSeriesGrid Collection="@_ovasCollection"></ShortSeriesGrid>
+        </MudTabPanel>
+    </MudTabs>
 }
 
 @code {
     private readonly CancellationTokenSource _cts = new();
     private SeasonCollection _collection = new EmptySeasonCollection();
+    private ShortSeasonCollection _ovasCollection = new EmptyShortSeasonCollection();
     private SeasonCollection _filteredCollection = new EmptySeasonCollection();
 
     [Parameter]
@@ -43,12 +57,12 @@
 
     private async ValueTask OnSelectedSeason(SeasonInfoDto season)
     {
-        Console.WriteLine($"OnSelectedSeason is called {season}");
         const string key = "lo_series";
         try
         {
             State.AddLoadingItem(key, "Loading Series");
             _collection = await TvCollectionFetcher.GetSeasonLibrary(season, _cts.Token);
+            _ovasCollection = await OvasCollectionService.GetSeasonLibrary(season, _cts.Token);
             _filteredCollection = FilterCollection(_collection, _filters);
             State.RemoveLoadingItem(key);
         }
