@@ -17,7 +17,7 @@ internal static class OvasMappers
             Year = year,
             Synopsis = source.Synopsis.Value.UnpackOption(string.Empty),
             Date = CommonMappers.MapDate(source.Date),
-            Title = source.Title.Value.UnpackOption(string.Empty),
+            Title = source.Title.Value.UnpackOption(string.Empty)
         };
     }
     

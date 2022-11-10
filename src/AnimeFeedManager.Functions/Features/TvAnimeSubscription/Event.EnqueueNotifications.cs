@@ -45,7 +45,7 @@ public class EnqueueNotifications
                 return new NotificationsMessages
                 {
                     Notifications = notificationList.Select(Serializer.ToJson),
-                    ProcessedTitles = titles.Select(Serializer.ToJson),
+                    ProcessedTitles = titles.Select(Serializer.ToJson)
                 };
             },
             e =>

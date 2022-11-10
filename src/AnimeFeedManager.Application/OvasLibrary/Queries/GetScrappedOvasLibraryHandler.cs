@@ -8,9 +8,8 @@ namespace AnimeFeedManager.Application.OvasLibrary.Queries;
 public sealed record GetScrappedOvasLibraryQry
     (SeasonInfoDto Season) : IRequest<Either<DomainError, OvasLibraryForStorage>>;
 
-public sealed class
-    GetScrappedOvasLibraryHandler : IRequestHandler<GetScrappedOvasLibraryQry,
-        Either<DomainError, OvasLibraryForStorage>>
+public sealed class GetScrappedOvasLibraryHandler : IRequestHandler<GetScrappedOvasLibraryQry,
+    Either<DomainError, OvasLibraryForStorage>>
 {
     private readonly IOvasProvider _ovasProvider;
 

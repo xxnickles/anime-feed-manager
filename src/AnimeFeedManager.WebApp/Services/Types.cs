@@ -6,7 +6,7 @@ public enum HubConnectionStatus
 {
     None,
     Connected,
-    Disconnected,
+    Disconnected
 }
 
 public enum NotificationSource

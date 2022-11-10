@@ -8,12 +8,15 @@ using Microsoft.JSInterop;
 
 namespace AnimeFeedManager.WebApp.Authentication
 {
-    public class AppServiceAuthRemoteAuthenticatorView : AppServiceAuthRemoteAuthenticatorViewCore<RemoteAuthenticationState>
+    public class
+        AppServiceAuthRemoteAuthenticatorView : AppServiceAuthRemoteAuthenticatorViewCore<RemoteAuthenticationState>
     {
         public AppServiceAuthRemoteAuthenticatorView() => this.AuthenticationState = new RemoteAuthenticationState();
     }
 
-    public class AppServiceAuthRemoteAuthenticatorViewCore<TAuthenticationState> : RemoteAuthenticatorViewCore<TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
+    public class
+        AppServiceAuthRemoteAuthenticatorViewCore<TAuthenticationState> : RemoteAuthenticatorViewCore<
+            TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
     {
         string message;
 
@@ -34,12 +37,16 @@ namespace AnimeFeedManager.WebApp.Authentication
                     {
                         await this.ProcessLogin(this.GetReturnUrl(state: null));
                     }
+
                     return;
 
                 // Doing this because the SignOutManager intercepts the call otherwise and it'll fail
                 // TODO: Investigate a custom SignOutManager
                 case RemoteAuthenticationActions.LogOut:
-                    RemoteAuthenticationResult<TAuthenticationState> result = await this.AuthenticationService.SignOutAsync(new AppServiceAuthRemoteAuthenticationContext<TAuthenticationState> { State = AuthenticationState });
+                    RemoteAuthenticationResult<TAuthenticationState> result =
+                        await this.AuthenticationService.SignOutAsync(
+                            new AppServiceAuthRemoteAuthenticationContext<TAuthenticationState>
+                                {State = AuthenticationState});
                     switch (result.Status)
                     {
                         case RemoteAuthenticationStatus.Redirect:
@@ -54,7 +61,7 @@ namespace AnimeFeedManager.WebApp.Authentication
                             this.Navigation.NavigateTo(this.ApplicationPaths.LogOutFailedPath);
                             break;
                         default:
-                            throw new InvalidOperationException($"Invalid authentication result status.");
+                            throw new InvalidOperationException("Invalid authentication result status.");
                     }
 
                     break;
@@ -85,11 +92,12 @@ namespace AnimeFeedManager.WebApp.Authentication
         {
             this.AuthenticationState.ReturnUrl = returnUrl;
             RemoteAuthenticationResult<TAuthenticationState> result =
-                await this.AuthenticationService.SignInAsync(new AppServiceAuthRemoteAuthenticationContext<TAuthenticationState>
-                {
-                    State = AuthenticationState,
-                    SelectedProvider = SelectedOption
-                });
+                await this.AuthenticationService.SignInAsync(
+                    new AppServiceAuthRemoteAuthenticationContext<TAuthenticationState>
+                    {
+                        State = AuthenticationState,
+                        SelectedProvider = SelectedOption
+                    });
 
             switch (result.Status)
             {
@@ -126,7 +134,8 @@ namespace AnimeFeedManager.WebApp.Authentication
             if (!string.IsNullOrWhiteSpace(fromQuery) && !fromQuery.StartsWith(this.Navigation.BaseUri))
             {
                 // This is an extra check to prevent open redirects.
-                throw new InvalidOperationException("Invalid return url. The return url needs to have the same origin as the current page.");
+                throw new InvalidOperationException(
+                    "Invalid return url. The return url needs to have the same origin as the current page.");
             }
 
             return fromQuery ?? defaultReturnUrl ?? this.Navigation.BaseUri;
@@ -200,7 +209,9 @@ namespace AnimeFeedManager.WebApp.Authentication
         }
     }
 
-    public class AppServiceAuthRemoteAuthenticationContext<TAuthenticationState> : RemoteAuthenticationContext<TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
+    public class
+        AppServiceAuthRemoteAuthenticationContext<TAuthenticationState> : RemoteAuthenticationContext<
+            TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
     {
         public string SelectedProvider { get; set; }
     }

@@ -55,7 +55,7 @@ public class FeedProviderTest : WithScrapper
         );
     }
     
-    [Fact(Skip = "Takes too long in Git Actions")]
+    [Fact]
     public async Task Ovas_Library_Works()
     {
         var mock = new Mock<IDomainPostman>();

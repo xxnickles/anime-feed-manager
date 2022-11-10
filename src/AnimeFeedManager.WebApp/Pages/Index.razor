@@ -17,8 +17,8 @@
     {
         <FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
     }
-    
-    <MudTabs Elevation="1" Rounded="true" Position="Position.Top" Border="false" PanelClass="mt-3" Color="Color.Transparent" bi>
+
+    <MudTabs Elevation="1" Rounded="true" Position="Position.Top" Border="false" PanelClass="mt-3" Color="Color.Transparent" ActivePanelIndexChanged="index => State.SetState(State.Value with{ SelectedSection = (SeriesType) index})">
         <MudTabPanel Text="TV">
             <SeriesGrid Collection="@_filteredCollection"></SeriesGrid>
         </MudTabPanel>

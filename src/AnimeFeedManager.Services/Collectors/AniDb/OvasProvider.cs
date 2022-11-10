@@ -62,8 +62,8 @@ public class OvasProvider : IOvasProvider
                     NotificationType.Error,
                     new NullSeasonInfo(),
                     SeriesType.Ova,
-                    "AniDb season scrapping failed"));
-            return ExceptionError.FromException(ex, "LiveChartLibrary");
+                    "AniDb ovas season scrapping failed"));
+            return ExceptionError.FromException(ex, "AniDbOvasLibrary");
         }
     }
 }

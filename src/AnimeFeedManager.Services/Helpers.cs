@@ -11,7 +11,7 @@ public static class Helpers
         return result.Score switch
         {
             var s when s > 70 => result.Value,
-            _ => string.Empty,
+            _ => string.Empty
         };
     }
 }

@@ -2,7 +2,7 @@
 
 public enum SeriesType
 {
-    Tv,
-    Ova,
-    Movie
+    Tv = 0,
+    Ova = 1,
+    Movie = 2
 }

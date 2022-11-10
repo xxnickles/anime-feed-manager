@@ -14,11 +14,8 @@ public class ScrapOvasLibraryOutput
 {
     [QueueOutput(QueueNames.OvasLibraryUpdates)]
     public IEnumerable<string>? AnimeMessages { get; set; }
-
     [QueueOutput(QueueNames.ImageProcess)] public IEnumerable<string>? ImagesMessages { get; set; }
-
-    [QueueOutput(QueueNames.AvailableSeasonsUpdates)]
-    public string? SeasonMessage { get; set; }
+   
 }
 
 public class ScrapOvasLibrary
@@ -62,8 +59,7 @@ public class ScrapOvasLibrary
                 return new ScrapOvasLibraryOutput
                 {
                     AnimeMessages = result.Ovas.Select(Serializer.ToJson),
-                    ImagesMessages = result.Images.Select(Serializer.ToJson),
-                    SeasonMessage = Serializer.ToJson(result.Season),
+                    ImagesMessages = result.Images.Select(Serializer.ToJson)
                 };
             },
             e =>
@@ -75,13 +71,12 @@ public class ScrapOvasLibrary
                     NotificationType.Error,
                     new NullSeasonInfo(),
                     SeriesType.Tv,
-                    $"An error occurred before storing ovas."));
+                    "An error occurred before storing ovas."));
 
                 return new ScrapOvasLibraryOutput
                 {
                     AnimeMessages = null,
-                    ImagesMessages = null,
-                    SeasonMessage = null
+                    ImagesMessages = null
                 };
             });
     }

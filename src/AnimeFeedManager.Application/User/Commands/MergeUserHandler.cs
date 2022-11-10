@@ -31,7 +31,7 @@ public class MergeUserHandler : IRequestHandler<MergeUserCmd, Either<DomainError
             {
                 Email = e.Value.UnpackOption(string.Empty),
                 RowKey = request.Id,
-                PartitionKey = "user-group",
+                PartitionKey = "user-group"
             }).ToEither(nameof(MergeUserCmd));
     }
 

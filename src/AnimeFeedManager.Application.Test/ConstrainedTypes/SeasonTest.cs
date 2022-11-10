@@ -60,7 +60,7 @@ public class SeasonTest
     [Fact]
     public void ShouldOrderRepeatedValueCollection()
     {
-        var sample = new[] { Season.Summer, Season.Spring, Season.Summer,  };
+        var sample = new[] { Season.Summer, Season.Spring, Season.Summer};
         var sut = sample.OrderBy(x => x);
         Assert.Collection(sut,
             item => Assert.Equal(Season.Spring, item),
@@ -76,7 +76,7 @@ public class SeasonTest
         {
             new []{ Season.Fall, Season.Summer, Season.Spring, Season.Winter},
             new []{ Season.Spring, Season.Winter, Season.Summer, Season.Fall},
-            new []{ Season.Summer, Season.Winter, Season.Fall, Season.Spring},
+            new []{ Season.Summer, Season.Winter, Season.Fall, Season.Spring}
         };
 
     public static TheoryData<Season, Season> GreaterTestData =>
@@ -98,7 +98,7 @@ public class SeasonTest
             { Season.Spring, Season.Spring },
             { Season.Summer, Season.Fall },
             { Season.Winter, Season.Fall },
-            { Season.Fall, Season.Fall },
+            { Season.Fall, Season.Fall }
         };
 
 
@@ -121,6 +121,6 @@ public class SeasonTest
             { Season.Spring, Season.Spring },
             { Season.Fall, Season.Summer },
             { Season.Fall, Season.Winter },
-            { Season.Fall, Season.Fall },
+            { Season.Fall, Season.Fall }
         };
 }

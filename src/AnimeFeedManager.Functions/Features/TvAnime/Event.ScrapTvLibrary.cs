@@ -72,11 +72,11 @@ public class ScrapTvLibrary
                 TargetAudience.Admins,
                 NotificationType.Information,
                 SeriesType.Tv,
-                $"Latest feed titles have been updated"));
+                "Latest feed titles have been updated"));
 
             return new ScrapTvLibraryOutput
             {
-                TitleMessage = ProcessResult.Ok,
+                TitleMessage = ProcessResult.Ok
             };
         }, e =>
         {
@@ -86,7 +86,7 @@ public class ScrapTvLibrary
                 TargetAudience.Admins,
                 NotificationType.Error,
                 SeriesType.Tv,
-                $"An error occurred before storing feed titles."));
+                "An error occurred before storing feed titles."));
 
             return new ScrapTvLibraryOutput
             {
@@ -134,7 +134,7 @@ public class ScrapTvLibrary
                     AnimeMessages = v.Animes.Select(Serializer.ToJson),
                     ImagesMessages = v.Images.Select(Serializer.ToJson),
                     SeasonMessage = Serializer.ToJson(v.Season),
-                    TitleMessage = ProcessResult.Ok,
+                    TitleMessage = ProcessResult.Ok
                 };
             },
             e =>
@@ -146,7 +146,7 @@ public class ScrapTvLibrary
                     NotificationType.Error,
                     new NullSeasonInfo(),
                     SeriesType.Tv,
-                    $"An error occurred before storing series."));
+                    "An error occurred before storing series."));
 
                 return new ScrapTvLibraryOutput
                 {
