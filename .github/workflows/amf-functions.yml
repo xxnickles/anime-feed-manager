@@ -8,14 +8,12 @@ on:
   push:
     paths-ignore:
       - "src/AnimeFeedManager.WebApp**"
-      - "tools/**"
       - "**/*.md"
     branches:
       - main
   pull_request:
     paths-ignore:
       - "src/AnimeFeedManager.WebApp**"
-      - "tools/**"
       - "**/*.md"
     types: [opened, synchronize, reopened, closed]
     branches:
