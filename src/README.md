@@ -5,7 +5,7 @@ Anime Feed Manager back-end
 
 Please refer to [this post](https://dev.to/azure/develop-azure-functions-using-net-core-3-0-gcm) for information about the specific local setup required
 
-* [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+* [.NET 7](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 * [Azure SDK](https://azure.microsoft.com/en-us/downloads/)
 * [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
 * [docker](https://www.docker.com/)

@@ -16,7 +16,7 @@ _(*) This project used to use [HorribleSubs](https://horriblesubs.info/), but it
 
 ## Dev Requirements
 
-- [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- [.NET 7](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 - [docker](https://www.docker.com/)
 - [swa cli](https://azure.github.io/static-web-apps-cli/docs/cli/swa/)
 
