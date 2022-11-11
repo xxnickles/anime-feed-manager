@@ -12,6 +12,7 @@
 @inject IDialogService DialogService
 @inject INotificationService NotificationService
 @inject ISnackbar Snackbar
+@inject Metadata AppMetadata
 
 
 <MudThemeProvider IsDarkMode="true"/>
@@ -33,6 +34,7 @@
             </MudHidden>
         </MudBreakpointProvider>
         <MudSpacer/>
+        <MudText Typo="Typo.caption" >v.@AppMetadata.Version</MudText>
         <MudDivider Vertical="true" Light="true" DividerType="DividerType.Middle" Class="my-3" FlexItem="true"/>
         <NotificationsPresenter
             Notifications="@NotificationService.Notifications"
@@ -119,7 +121,7 @@
 
     private async Task<string> GetEmailFromUser()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var options = new DialogOptions {CloseOnEscapeKey = true};
         var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
         var result = await dialog.Result;
 
@@ -149,8 +151,9 @@
 
     private async Task Login()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var options = new DialogOptions {CloseOnEscapeKey = true};
         var dialog = DialogService.Show<LoginProviderDialog>("Login", options);
         await dialog.Result;
     }
+
 }

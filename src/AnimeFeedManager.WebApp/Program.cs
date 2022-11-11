@@ -1,3 +1,4 @@
+using System.Reflection;
 using AnimeFeedManager.WebApp;
 using AnimeFeedManager.WebApp.Authentication;
 using AnimeFeedManager.WebApp.State;
@@ -12,7 +13,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-
+builder.Services.AddSingleton(new Metadata(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "fail"));
 builder.Services.AddSingleton<ApplicationState>();
 builder.Services.AddScoped<SeasonSideEffects>();
 builder.Services.AddScoped<UserSideEffects>();
