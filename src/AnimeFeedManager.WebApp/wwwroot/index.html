@@ -40,6 +40,11 @@
             font-size: 20px;
         }
 
+        .loader span::after {
+            content: " [" var(--blazor-load-percentage-text, "Loading") "]";
+        }
+
+        
         @keyframes pulse {
             0% {
                 transform: rotate(-15deg) scale(1);
@@ -259,7 +264,7 @@
 </div>
 <script src="_framework/blazor.webassembly.js"></script>
 <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-<!--<script>navigator.serviceWorker.register('service-worker.js');</script>-->
+<script>navigator.serviceWorker.register('service-worker.js');</script>
 <script src="_content/Toolbelt.Blazor.PWA.Updater.Service/script.min.js"></script>
 </body>
 
