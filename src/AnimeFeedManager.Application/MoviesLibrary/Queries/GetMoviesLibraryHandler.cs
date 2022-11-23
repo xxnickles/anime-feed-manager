@@ -6,35 +6,29 @@ using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Services.Collectors.Interface;
 using MediatR;
 
-namespace AnimeFeedManager.Application.TvAnimeLibrary.Queries;
+namespace AnimeFeedManager.Application.MoviesLibrary.Queries;
 
-public sealed record LibraryForStorage(
-    ImmutableList<AnimeInfoStorage> Animes,
-    ImmutableList<BlobImageInfoEvent> Images,
-    SeasonInfoDto Season
-);
+public sealed record GetMoviesLibraryQry() : IRequest<Either<DomainError, MoviesLibraryForStorage>>;
 
-public sealed record GetScrappedLibraryQry(ImmutableList<string> FeedTitles) : IRequest<Either<DomainError, LibraryForStorage>>;
-
-public class GetScrappedLibraryHandler : IRequestHandler<GetScrappedLibraryQry, Either<DomainError, LibraryForStorage>>
+public class GetMoviesLibraryHandler : IRequestHandler<GetMoviesLibraryQry, Either<DomainError, MoviesLibraryForStorage>>
 {
-    private readonly ITvSeriesProvider _tvSeriesProvider;
+    private readonly IMoviesProvider _moviesProvider;
 
-    public GetScrappedLibraryHandler(ITvSeriesProvider tvSeriesProvider)
+    public GetMoviesLibraryHandler(IMoviesProvider moviesProvider)
     {
-        _tvSeriesProvider = tvSeriesProvider;
+        _moviesProvider = moviesProvider;
     }
 
-    public Task<Either<DomainError, LibraryForStorage>> Handle(GetScrappedLibraryQry request,
+    public Task<Either<DomainError, MoviesLibraryForStorage>> Handle(GetMoviesLibraryQry request,
         CancellationToken cancellationToken)
     {
-        return _tvSeriesProvider.GetLibrary(request.FeedTitles).MapAsync(Map);
+        return _moviesProvider.GetLibrary().MapAsync(Map);
     }
 
-    private static LibraryForStorage Map(TvSeries source)
+    private static MoviesLibraryForStorage Map(Movies source)
     {
-        return new LibraryForStorage(
-            AnimeInfoMappers.ProjectToStorageModel(source.SeriesList),
+        return new MoviesLibraryForStorage(
+            MoviesMappers.ProjectToStorageModel(source.SeriesList),
             Map(source.Images),
             source.Images.First().SeasonInfo.Map()
         );
@@ -56,7 +50,7 @@ public class GetScrappedLibraryHandler : IRequestHandler<GetScrappedLibraryQry, 
             directory,
             source.Name,
             source.Link ?? string.Empty,
-            SeriesType.Tv
+            SeriesType.Movie
         );
     }
 }

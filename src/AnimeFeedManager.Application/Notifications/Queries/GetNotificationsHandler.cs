@@ -30,10 +30,10 @@ public class GetNotificationsHandler
         return Task.FromResult(process);
     }
 
-    private ImmutableList<Notification> ProcessFeed(ImmutableList<SubscriptionCollection> SubscriptionsToProcess,
+    private ImmutableList<Notification> ProcessFeed(ImmutableList<SubscriptionCollection> subscriptionsToProcess,
         ImmutableList<FeedInfo> feed)
     {
-        return SubscriptionsToProcess
+        return subscriptionsToProcess
             .ConvertAll(i => CreateNotification(i, feed))
             .RemoveAll(i => !i.Feeds.Any());
     }

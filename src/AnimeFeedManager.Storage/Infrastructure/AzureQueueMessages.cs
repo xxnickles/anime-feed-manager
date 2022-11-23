@@ -31,8 +31,8 @@ public interface IDomainPostman
 public class AzureQueueMessages : IDomainPostman
 {
     private readonly IQueueResolver _queueResolver;
-    private readonly JsonSerializerOptions jsonOptions;
-    private readonly QueueClientOptions queueClientOptions;
+    private readonly JsonSerializerOptions _jsonOptions;
+    private readonly QueueClientOptions _queueClientOptions;
 
     private readonly AzureBlobStorageOptions _blobStorageOptions;
 
@@ -42,9 +42,9 @@ public class AzureQueueMessages : IDomainPostman
     {
         _queueResolver = queueResolver;
         _blobStorageOptions = blobStorageOptions.Value;
-        jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
+        _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
             {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
-        queueClientOptions = new QueueClientOptions
+        _queueClientOptions = new QueueClientOptions
         {
             MessageEncoding = QueueMessageEncoding.Base64
         };
@@ -64,14 +64,14 @@ public class AzureQueueMessages : IDomainPostman
     private async Task SendMessage<T>(T message, TimeSpan? delay = default,
         CancellationToken cancellationToken = default)
     {
-        var queue = new QueueClient(_blobStorageOptions?.StorageConnectionString ?? string.Empty, _queueResolver.GetQueue(typeof(T)), queueClientOptions);
+        var queue = new QueueClient(_blobStorageOptions?.StorageConnectionString ?? string.Empty, _queueResolver.GetQueue(typeof(T)), _queueClientOptions);
         await queue.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         await queue.SendMessageAsync(AsBinary(message), cancellationToken: cancellationToken, visibilityTimeout: delay);
     }
 
     private BinaryData AsBinary<T>(T data)
     {
-        return BinaryData.FromObjectAsJson(data, jsonOptions);
+        return BinaryData.FromObjectAsJson(data, _jsonOptions);
     }
     
     private static string AsJson<T>(T data)

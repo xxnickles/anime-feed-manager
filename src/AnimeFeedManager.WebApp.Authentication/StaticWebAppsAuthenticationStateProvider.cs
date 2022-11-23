@@ -12,21 +12,21 @@ namespace AnimeFeedManager.WebApp.Authentication
 {
     public class StaticWebAppsAuthenticationStateProvider : AuthenticationStateProvider
     {
-        readonly IConfiguration config;
-        readonly HttpClient http;
+        readonly IConfiguration _config;
+        readonly HttpClient _http;
 
         public StaticWebAppsAuthenticationStateProvider(IConfiguration config, IWebAssemblyHostEnvironment environment)
         {
-            this.config = config;
-            this.http = new HttpClient { BaseAddress = new Uri(environment.BaseAddress) };
+            this._config = config;
+            this._http = new HttpClient { BaseAddress = new Uri(environment.BaseAddress) };
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
             {
-                string authDataUrl = this.config.GetValue("StaticWebAppsAuthentication:AuthenticationDataUrl", "/.auth/me");
-                string json = await this.http.GetStringAsync(authDataUrl);
+                string authDataUrl = this._config.GetValue("StaticWebAppsAuthentication:AuthenticationDataUrl", "/.auth/me");
+                string json = await this._http.GetStringAsync(authDataUrl);
 
                 ClaimsPrincipal user = ParseClaims(json);
                 return new AuthenticationState(user);

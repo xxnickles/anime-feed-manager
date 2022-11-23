@@ -6,7 +6,7 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm @bind-IsValid="@Valid">
+        <MudForm @bind-IsValid="@_valid">
             <MudText Typo="Typo.body1">Email is required to access to the complete set of functionality, would you like to provide your email address?</MudText>
             <MudTextField
                 @bind-Value="@Email"
@@ -20,7 +20,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Success" OnClick="ConfirmEmail" Disabled="@(!Valid)">Save</MudButton>
+        <MudButton Color="Color.Success" OnClick="ConfirmEmail" Disabled="@(!_valid)">Save</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -30,7 +30,7 @@
     MudDialogInstance? MudDialog { get; set; }
 
     private string Email { get; set; } = string.Empty;
-    private bool Valid;
+    private bool _valid;
 
     private void Cancel()
     {

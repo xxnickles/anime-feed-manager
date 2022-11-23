@@ -15,14 +15,14 @@ namespace AnimeFeedManager.WebApp.Authentication
 {
     class AppServiceAuthRemoteAuthenticationService<TAuthenticationState> : AuthenticationStateProvider, IRemoteAuthenticationService<TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
     {
-        const string browserStorageType = "sessionStorage";
-        const string storageKeyPrefix = "Blazor.AppServiceAuth";
-        readonly AppServiceAuthMemoryStorage memoryStorage;
+        const string BrowserStorageType = "sessionStorage";
+        const string StorageKeyPrefix = "Blazor.AppServiceAuth";
+        readonly AppServiceAuthMemoryStorage _memoryStorage;
 
         public RemoteAuthenticationOptions<AppServiceAuthOptions> Options { get; }
         public HttpClient HttpClient { get; }
         public NavigationManager Navigation { get; }
-        public IJSRuntime JSRuntime { get; }
+        public IJSRuntime JsRuntime { get; }
 
         public AppServiceAuthRemoteAuthenticationService(
             IOptions<RemoteAuthenticationOptions<AppServiceAuthOptions>> options,
@@ -33,22 +33,22 @@ namespace AnimeFeedManager.WebApp.Authentication
             this.Options = options.Value;
             this.HttpClient = new HttpClient() { BaseAddress = new Uri(navigationManager.BaseUri) };
             this.Navigation = navigationManager;
-            this.JSRuntime = jsRuntime;
-            this.memoryStorage = memoryStorage;
+            this.JsRuntime = jsRuntime;
+            this._memoryStorage = memoryStorage;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
             {
-                if (this.memoryStorage.AuthenticationData == null)
+                if (this._memoryStorage.AuthenticationData == null)
                 {
                     string authDataUrl = this.Options.ProviderOptions.AuthenticationDataUrl + "/.auth/me";
                     AuthenticationData data = await this.HttpClient.GetFromJsonAsync<AuthenticationData>(authDataUrl);
-                    this.memoryStorage.SetAuthenticationData(data);
+                    this._memoryStorage.SetAuthenticationData(data);
                 }
 
-                ClientPrincipal principal = this.memoryStorage.AuthenticationData.ClientPrincipal;
+                ClientPrincipal principal = this._memoryStorage.AuthenticationData.ClientPrincipal;
 
                 if (principal == null)
                 {
@@ -65,21 +65,21 @@ namespace AnimeFeedManager.WebApp.Authentication
             }
             catch
             {
-                this.memoryStorage.SetAuthenticationData(null);
+                this._memoryStorage.SetAuthenticationData(null);
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
 
         public async Task<RemoteAuthenticationResult<TAuthenticationState>> SignInAsync(RemoteAuthenticationContext<TAuthenticationState> context)
         {
-            if (!(context is AppServiceAuthRemoteAuthenticationContext<TAuthenticationState> AppServiceAuthContext))
+            if (!(context is AppServiceAuthRemoteAuthenticationContext<TAuthenticationState> appServiceAuthContext))
             {
                 throw new InvalidOperationException("Not an AppServiceAuthContext");
             }
 
             string stateId = Guid.NewGuid().ToString();
-            await this.JSRuntime.InvokeVoidAsync($"{browserStorageType}.setItem", $"{storageKeyPrefix}.{stateId}", JsonSerializer.Serialize(context.State));
-            this.Navigation.NavigateTo($"/.auth/login/{AppServiceAuthContext.SelectedProvider}?post_login_redirect_uri={this.BuildRedirectUri(this.Options.AuthenticationPaths.LogInCallbackPath)}/{stateId}", forceLoad: true);
+            await this.JsRuntime.InvokeVoidAsync($"{BrowserStorageType}.setItem", $"{StorageKeyPrefix}.{stateId}", JsonSerializer.Serialize(context.State));
+            this.Navigation.NavigateTo($"/.auth/login/{appServiceAuthContext.SelectedProvider}?post_login_redirect_uri={this.BuildRedirectUri(this.Options.AuthenticationPaths.LogInCallbackPath)}/{stateId}", forceLoad: true);
 
             return new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Redirect };
         }
@@ -87,20 +87,20 @@ namespace AnimeFeedManager.WebApp.Authentication
         public async Task<RemoteAuthenticationResult<TAuthenticationState>> CompleteSignInAsync(RemoteAuthenticationContext<TAuthenticationState> context)
         {
             string stateId = new Uri(context.Url).PathAndQuery.Split("?")[0].Split("/", StringSplitOptions.RemoveEmptyEntries).Last();
-            string serializedState = await this.JSRuntime.InvokeAsync<string>($"{browserStorageType}.getItem", $"{storageKeyPrefix}.{stateId}");
+            string serializedState = await this.JsRuntime.InvokeAsync<string>($"{BrowserStorageType}.getItem", $"{StorageKeyPrefix}.{stateId}");
             TAuthenticationState state = JsonSerializer.Deserialize<TAuthenticationState>(serializedState);
             return new RemoteAuthenticationResult<TAuthenticationState> { State = state, Status = RemoteAuthenticationStatus.Success };
         }
 
         public async Task<RemoteAuthenticationResult<TAuthenticationState>> CompleteSignOutAsync(RemoteAuthenticationContext<TAuthenticationState> context)
         {
-            string[] sessionKeys = await this.JSRuntime.InvokeAsync<string[]>("eval", $"Object.keys({browserStorageType})");
+            string[] sessionKeys = await this.JsRuntime.InvokeAsync<string[]>("eval", $"Object.keys({BrowserStorageType})");
 
-            string stateKey = sessionKeys.FirstOrDefault(key => key.StartsWith(storageKeyPrefix));
+            string stateKey = sessionKeys.FirstOrDefault(key => key.StartsWith(StorageKeyPrefix));
 
             if (stateKey != null)
             {
-                await this.JSRuntime.InvokeAsync<string>($"{browserStorageType}.removeItem", stateKey);
+                await this.JsRuntime.InvokeAsync<string>($"{BrowserStorageType}.removeItem", stateKey);
             }
 
             return new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Success };

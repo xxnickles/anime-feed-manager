@@ -1,10 +1,10 @@
 ﻿using AnimeFeedManager.Common.Dto;
 
-namespace AnimeFeedManager.Application.OvasLibrary;
+namespace AnimeFeedManager.Application.MoviesLibrary;
 
 internal static class Mapper
 {
-    internal static ShortSeasonCollection ProjectSeasonCollection(ushort year, string season, IEnumerable<OvaStorage> animeInfos)
+    internal static ShortSeasonCollection ProjectSeasonCollection(ushort year, string season, IEnumerable<MovieStorage> animeInfos)
     {
         return new ShortSeasonCollection(year, season,
             animeInfos.Select(a =>

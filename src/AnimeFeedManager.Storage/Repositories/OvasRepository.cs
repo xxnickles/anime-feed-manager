@@ -24,9 +24,9 @@ public class OvasRepository : IOvasRepository
             nameof(OvaStorage));
     }
 
-    public async Task<Either<DomainError, Unit>> Merge(OvaStorage Ovas)
+    public async Task<Either<DomainError, Unit>> Merge(OvaStorage ovas)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(Ovas),
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(ovas),
             nameof(OvaStorage));
         return result.Map(_ => unit);
     }

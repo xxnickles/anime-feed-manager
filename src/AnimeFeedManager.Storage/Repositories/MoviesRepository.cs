@@ -24,9 +24,9 @@ public class MoviesRepository : IMoviesRepository
             nameof(MovieStorage));
     }
 
-    public async Task<Either<DomainError, Unit>> Merge(MovieStorage Movies)
+    public async Task<Either<DomainError, Unit>> Merge(MovieStorage movies)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(Movies),
+        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(movies),
             nameof(MovieStorage));
         return result.Map(_ => unit);
     }

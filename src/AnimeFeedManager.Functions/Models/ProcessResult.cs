@@ -24,4 +24,5 @@ public enum ShortSeriesUpdateType
 }
 
 public record struct OvasUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
+public record struct MoviesUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
 

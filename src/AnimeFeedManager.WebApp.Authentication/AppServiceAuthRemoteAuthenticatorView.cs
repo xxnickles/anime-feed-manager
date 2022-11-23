@@ -18,13 +18,13 @@ namespace AnimeFeedManager.WebApp.Authentication
         AppServiceAuthRemoteAuthenticatorViewCore<TAuthenticationState> : RemoteAuthenticatorViewCore<
             TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
     {
-        string message;
+        string _message;
 
         [Parameter] public string SelectedOption { get; set; }
 
         [Inject] NavigationManager Navigation { get; set; }
 
-        [Inject] IJSRuntime JS { get; set; }
+        [Inject] IJSRuntime Js { get; set; }
 
         [Inject] IRemoteAuthenticationService<TAuthenticationState> AuthenticationService { get; set; }
 
@@ -77,10 +77,10 @@ namespace AnimeFeedManager.WebApp.Authentication
             switch (this.Action)
             {
                 case RemoteAuthenticationActions.LogInFailed:
-                    builder.AddContent(0, this.LogInFailed(this.message));
+                    builder.AddContent(0, this.LogInFailed(this._message));
                     break;
                 case RemoteAuthenticationActions.LogOutFailed:
-                    builder.AddContent(0, this.LogOutFailed(this.message));
+                    builder.AddContent(0, this.LogOutFailed(this._message));
                     break;
                 default:
                     base.BuildRenderTree(builder);
@@ -108,7 +108,7 @@ namespace AnimeFeedManager.WebApp.Authentication
                     await this.NavigateToReturnUrl(this.GetReturnUrl(result.State, returnUrl));
                     break;
                 case RemoteAuthenticationStatus.Failure:
-                    this.message = result.ErrorMessage;
+                    this._message = result.ErrorMessage;
                     this.Navigation.NavigateTo(this.ApplicationPaths.LogInFailedPath);
                     break;
                 case RemoteAuthenticationStatus.OperationCompleted:
@@ -120,7 +120,7 @@ namespace AnimeFeedManager.WebApp.Authentication
 
         ValueTask NavigateToReturnUrl(string returnUrl)
         {
-            return this.JS.InvokeVoidAsync("Blazor.navigateTo", returnUrl, false, true);
+            return this.Js.InvokeVoidAsync("Blazor.navigateTo", returnUrl, false, true);
         }
 
         string GetReturnUrl(RemoteAuthenticationState state, string defaultReturnUrl = null)
