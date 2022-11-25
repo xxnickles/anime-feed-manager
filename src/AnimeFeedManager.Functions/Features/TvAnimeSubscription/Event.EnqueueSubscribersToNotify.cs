@@ -19,7 +19,7 @@ public class EnqueueSubscribersToNotify
     [Function("EnqueueSubscribersToNotify")]
     [QueueOutput(QueueNames.SubscribersToProcess, Connection = "AzureWebJobsStorage")]
     public async Task<IEnumerable<string>> Run(
-        [TimerTrigger("0 * * * * *")] TimerInfo timer
+        [TimerTrigger("0 0 * * * *")] TimerInfo timer
     )
     {
         var subscribers = await _subscriptionRepository.GetAllSubscribers();
