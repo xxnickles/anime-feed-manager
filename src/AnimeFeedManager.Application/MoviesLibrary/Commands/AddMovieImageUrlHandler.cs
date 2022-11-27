@@ -1,19 +1,17 @@
-﻿using AnimeFeedManager.Application.OvasLibrary.Commands;
-
-namespace AnimeFeedManager.Application.MoviesLibrary.Commands;
+﻿namespace AnimeFeedManager.Application.MoviesLibrary.Commands;
 
 public record AddMovieImageUrlCmd(ImageStorage Entity) : MediatR.IRequest<Either<DomainError, Unit>>;
 
-public class AddMovieImageUrlHandler : MediatR.IRequestHandler<AddOvaImageUrlCmd, Either<DomainError, Unit>>
+public class AddMovieImageUrlHandler : MediatR.IRequestHandler<AddMovieImageUrlCmd, Either<DomainError, Unit>>
 {
-    private readonly IOvasRepository _ovasRepository;
+    private readonly IMoviesRepository _moviesRepository;
 
-    public AddMovieImageUrlHandler(IOvasRepository ovasRepository) =>
-        _ovasRepository = ovasRepository;
+    public AddMovieImageUrlHandler(IMoviesRepository moviesRepository) =>
+        _moviesRepository = moviesRepository;
 
 
-    public Task<Either<DomainError, Unit>> Handle(AddOvaImageUrlCmd request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Unit>> Handle(AddMovieImageUrlCmd request, CancellationToken cancellationToken)
     {
-        return _ovasRepository.AddImageUrl(request.Entity);
+        return _moviesRepository.AddImageUrl(request.Entity);
     }
 }

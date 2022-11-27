@@ -1,0 +1,80 @@
+﻿@using Microsoft.AspNetCore.Components
+@using System.Collections.Immutable
+@using AnimeFeedManager.Common
+
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+<MudCard Class="@Class">
+    <MudCardContent>
+        <MudText>Automated update latest @Type.AsPluralText() library</MudText>
+        <MudText Typo="Typo.body2">Process in the background the @Type.AsPluralText()' library</MudText>
+    </MudCardContent>
+    <MudCardActions Class="d-flex flex-column flex-grow-1 gap-3 pl-4" Style="place-items:flex-start;">
+        <MudSelect T="SeasonInfoDto" @bind-Value="@SelectedSeason" ToStringFunc="@Converter" Label="Select season" AnchorOrigin="Origin.BottomCenter" >
+            @foreach (var season in Seasons)
+            {
+                <MudSelectItem Value="@season"/>
+            }
+        </MudSelect>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Secondary"
+                   OnClick="ProcessAction"
+                   Disabled="SelectedSeason is NullSeasonInfo">
+            Update
+        </MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code
+{
+    [Parameter]
+    public SeriesType Type { get; set; }
+
+    [Parameter]
+    public ImmutableList<SeasonInfoDto> Seasons { get; set; } = ImmutableList<SeasonInfoDto>.Empty;
+
+    [Parameter]
+    public Func<string, ushort, Task>? Action { get; set; }
+    
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    private Error? Error { get; set; }
+
+    private SeasonInfoDto SelectedSeason { get; set; } = new NullSeasonInfo();
+
+    private async Task ProcessAction()
+    {
+        if (Action is null) return;
+        try
+        {
+            if (SelectedSeason is not NullSeasonInfo &&
+                await GetConfirmation($"Process {Type.AsPluralText()} Library", $"Do you want to update latest season {Type.AsPluralText()} library? This task will run in the background"))
+            {
+                await Action(SelectedSeason.Season, (ushort) SelectedSeason.Year);
+                Snackbar.Add($"{Type.AsPluralText()} status is being updated in the background", Severity.Info);
+            }
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError($"Updating {Type.AsPluralText()} Library", e);
+        }
+    }
+
+    private async Task<bool> GetConfirmation(string title, string message)
+    {
+        var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
+        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var dialog = DialogService.Show<ConfirmationDialog>(title, parameters, options);
+        var result = await dialog.Result;
+        if (result.Cancelled || result.Data == null) return false;
+        return (bool) result.Data;
+    }
+
+
+    private static string Converter(SeasonInfoDto arg) => arg switch {
+        NullSeasonInfo => "Select a Season",
+        _ =>  $"{arg.Year} - {arg.Season}"
+        };
+}

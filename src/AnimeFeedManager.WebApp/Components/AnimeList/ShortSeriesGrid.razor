@@ -1,15 +1,17 @@
 ﻿@if (Collection is not EmptyShortSeasonCollection)
 {
     <MudGrid>
-
         @foreach (var series in Collection.Animes)
         {
             <MudItem xs="12" md="4" lg="3">
                 <ShortAnimeCard Anime="series"></ShortAnimeCard>
             </MudItem>
         }
-
     </MudGrid>
+}
+else
+{
+    <MudAlert Severity="Severity.Warning">Ther are no series available in this category</MudAlert>
 }
 
 @code {

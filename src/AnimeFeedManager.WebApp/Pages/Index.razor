@@ -6,6 +6,7 @@
 @implements IDisposable
 @inject ITvCollectionFetcher TvCollectionFetcher
 @inject IOvasCollectionService OvasCollectionService
+@inject IMoviesCollectionService MoviesCollectionService
 @inject ApplicationState State
 @inject NavigationManager NavigationManager
 
@@ -25,6 +26,9 @@
         <MudTabPanel Text="Ovas">
             <ShortSeriesGrid Collection="@_ovasCollection"></ShortSeriesGrid>
         </MudTabPanel>
+        <MudTabPanel Text="Movies">
+            <ShortSeriesGrid Collection="@_moviesCollection"></ShortSeriesGrid>
+        </MudTabPanel>
     </MudTabs>
 }
 
@@ -32,6 +36,7 @@
     private readonly CancellationTokenSource _cts = new();
     private SeasonCollection _collection = new EmptySeasonCollection();
     private ShortSeasonCollection _ovasCollection = new EmptyShortSeasonCollection();
+    private ShortSeasonCollection _moviesCollection = new EmptyShortSeasonCollection();
     private SeasonCollection _filteredCollection = new EmptySeasonCollection();
 
     [Parameter]
@@ -61,8 +66,10 @@
         try
         {
             State.AddLoadingItem(key, "Loading Series");
+            // TODO: run in separate buckets as one error should not be break all the other operations
             _collection = await TvCollectionFetcher.GetSeasonLibrary(season, _cts.Token);
             _ovasCollection = await OvasCollectionService.GetSeasonLibrary(season, _cts.Token);
+            _moviesCollection = await MoviesCollectionService.GetSeasonLibrary(season, _cts.Token);
             _filteredCollection = FilterCollection(_collection, _filters);
             State.RemoveLoadingItem(key);
         }
@@ -72,6 +79,7 @@
             State.RemoveLoadingItem(key);
         }
     }
+
 
     protected override async Task OnParametersSetAsync()
     {

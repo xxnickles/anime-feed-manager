@@ -55,6 +55,16 @@ public class ScrapMoviesLibrary
                     SeriesType.Movie,
                     $"{result.Movies.Count} Movies of {result.Season.Season}-{result.Season.Year} will be stored"));
 
+                _domainPostman.SendDelayedMessage(new SeasonProcessNotification(
+                        IdHelpers.GetUniqueId(),
+                        TargetAudience.All,
+                        NotificationType.Update,
+                        result.Season,
+                        SeriesType.Movie,
+                        $"Season information for {result.Season.Season}-{result.Season.Year} has been updated recently"),
+                    new MinutesDelay(1));
+                
+                
                 return new ScrapMoviesLibraryOutput
                 {
                     AnimeMessages = result.Movies.Select(Serializer.ToJson),

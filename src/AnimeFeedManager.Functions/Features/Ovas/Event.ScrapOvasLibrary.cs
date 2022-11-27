@@ -14,8 +14,8 @@ public class ScrapOvasLibraryOutput
 {
     [QueueOutput(QueueNames.OvasLibraryUpdates)]
     public IEnumerable<string>? AnimeMessages { get; set; }
+
     [QueueOutput(QueueNames.ImageProcess)] public IEnumerable<string>? ImagesMessages { get; set; }
-   
 }
 
 public class ScrapOvasLibrary
@@ -47,7 +47,6 @@ public class ScrapOvasLibrary
         return result.Match(
             result =>
             {
-                
                 _domainPostman.SendMessage(new SeasonProcessNotification(
                     IdHelpers.GetUniqueId(),
                     TargetAudience.Admins,
@@ -55,6 +54,16 @@ public class ScrapOvasLibrary
                     result.Season,
                     SeriesType.Ova,
                     $"{result.Ovas.Count} ovas of {result.Season.Season}-{result.Season.Year} will be stored"));
+
+                _domainPostman.SendDelayedMessage(new SeasonProcessNotification(
+                        IdHelpers.GetUniqueId(),
+                        TargetAudience.All,
+                        NotificationType.Update,
+                        result.Season,
+                        SeriesType.Ova,
+                        $"Season information for {result.Season.Season}-{result.Season.Year} has been updated recently"),
+                    new MinutesDelay(1));
+
 
                 return new ScrapOvasLibraryOutput
                 {
@@ -90,5 +99,4 @@ public class ScrapOvasLibrary
             _ => throw new ArgumentOutOfRangeException(nameof(command.Type), "Ova update type has is invalid")
         };
     }
-  
 }

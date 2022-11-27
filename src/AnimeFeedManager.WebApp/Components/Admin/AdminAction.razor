@@ -1,0 +1,61 @@
+﻿@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+
+<MudCard Class="@Class">
+    <MudCardContent>
+        <MudText>@Data.Title</MudText>
+        <MudText Typo="Typo.body2">@Data.Description</MudText>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Secondary"
+                   OnClick="ProcessAction">
+            Update
+        </MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+
+    [Parameter]
+    public UpdateData Data { get; set; } = new DefaultUpdateData();
+
+    [Parameter]
+    public Func<Task>? Action { get; set; }
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    private Error? Error { get; set; }
+
+    private async Task ProcessAction()
+    {
+        if (Action is null) return;
+
+        try
+        {
+            if (await GetConfirmation(Data.ConfirmationTitle, Data.ConfirmationMessage))
+            {
+                await Action();
+                Snackbar.Add(Data.UpdateMessage, Severity.Info);
+            }
+        }
+        catch (Exception ex)
+        {
+            Error?.ProcessError(Data.ErrorContext, ex);
+        }
+    }
+
+    private async Task<bool> GetConfirmation(string title, string message)
+    {
+        var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
+        var options = new DialogOptions {CloseOnEscapeKey = true};
+        var dialog = DialogService.Show<ConfirmationDialog>(title, parameters, options);
+        var result = await dialog.Result;
+        if (result.Cancelled || result.Data == null) return false;
+        return (bool) result.Data;
+    }
+
+}

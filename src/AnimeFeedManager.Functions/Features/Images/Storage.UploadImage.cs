@@ -1,3 +1,4 @@
+using AnimeFeedManager.Application.MoviesLibrary.Commands;
 using AnimeFeedManager.Application.OvasLibrary.Commands;
 using AnimeFeedManager.Application.TvAnimeLibrary.Commands;
 using AnimeFeedManager.Common;
@@ -16,7 +17,8 @@ public class UploadImage
     private readonly HttpClient _httpClient;
     private readonly ILogger<UploadImage> _logger;
 
-    public UploadImage(IMediator mediator, IImagesStore imagesStore, IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory)
+    public UploadImage(IMediator mediator, IImagesStore imagesStore, IHttpClientFactory httpClientFactory,
+        ILoggerFactory loggerFactory)
     {
         _mediator = mediator;
         _imagesStore = imagesStore;
@@ -35,7 +37,7 @@ public class UploadImage
     public async Task Run(
         [QueueTrigger(QueueNames.ImageProcess, Connection = "AzureWebJobsStorage")]
         BlobImageInfoEvent imageInfoEvent
-        )
+    )
     {
         _logger.LogInformation("Getting image for {Name} from {RemoteUrl}", imageInfoEvent.BlobName,
             imageInfoEvent.RemoteUrl);
@@ -46,7 +48,8 @@ public class UploadImage
             response.EnsureSuccessStatusCode();
             await using var ms = await response.Content.ReadAsStreamAsync(default);
 
-            var fileLocation = await _imagesStore.Upload($"{imageInfoEvent.BlobName}.jpg", imageInfoEvent.Directory, ms);
+            var fileLocation =
+                await _imagesStore.Upload($"{imageInfoEvent.BlobName}.jpg", imageInfoEvent.Directory, ms);
             _logger.LogInformation("{BlobName} has been uploaded", imageInfoEvent.BlobName);
 
             // Update AnimeInfo
@@ -63,7 +66,6 @@ public class UploadImage
         {
             _logger.LogError(e, "An error has occurred");
         }
-      
     }
 
     private async Task UpdateAnimeInfo(SeriesType type, ImageStorage imageStorage)
@@ -72,11 +74,12 @@ public class UploadImage
         {
             SeriesType.Tv => await _mediator.Send(new AddTvImageUrlCmd(imageStorage)),
             SeriesType.Ova => await _mediator.Send(new AddOvaImageUrlCmd(imageStorage)),
-            // SeriesType.Movie => expr,
+            SeriesType.Movie => await _mediator.Send(new AddMovieImageUrlCmd(imageStorage)),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
         result.Match(
-            _ => _logger.LogInformation("{ImageStorageRowKey} ({Type}) has been updated", imageStorage.RowKey, type.ToString()),
+            _ => _logger.LogInformation("{ImageStorageRowKey} ({Type}) has been updated", imageStorage.RowKey,
+                type.ToString()),
             e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }

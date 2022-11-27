@@ -2,190 +2,103 @@
 @using Microsoft.AspNetCore.Authorization
 @using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
+@using AnimeFeedManager.Common
 @inject IAdminService AdminService
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
 @inject ApplicationState State
 @implements IDisposable
 
 @attribute [Authorize(Roles = "admin")]
-
 <MudContainer MaxWidth="MaxWidth.Large">
-    <MudPaper>
-        <MudSimpleTable>
-            <tbody>
-            <tr>
-                <td>
-                    <MudText Typo="Typo.body1">Automated update latest tv library</MudText>
-                    <MudText Typo="Typo.subtitle2">Process in the background feed titles, animes, and images</MudText>
-                </td>
-                <td style="text-align: right">
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Secondary"
-                               OnClick="ProcessLibrary">
-                        Update
-                    </MudButton>
-                </td>
-            </tr>
 
-            <tr>
-                <td>
-                    <MudText Typo="Typo.body1">Automated update latest feed titles</MudText>
-                    <MudText Typo="Typo.subtitle2">Process in the background feed titles only</MudText>
-                </td>
-                <td style="text-align: right">
-                    <div class="relative d-flex flex-column flex-wrap align-content-end">
-                        <MudSelect T="SeasonInfoDto" @bind-Value="@SelectedSeason" ToStringFunc="@Converter" Label="Select season" AnchorOrigin="Origin.BottomCenter" Variant="Variant.Outlined">
+    <MudText Typo="Typo.h5">Tv Library</MudText>
+    <MudDivider Class="mb-4"/>
+    <MudGrid>
+        <MudItem xs="12" sm="6">
+            <AdminAction
+                Action="AdminService.UpdateTvLibrary"
+                Data="_tvLibraryUpdateData"
+                Class="mb-3">
+            </AdminAction>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <AdminAction
+                Data="_feedTitlesUpdateData"
+                Action="AdminService.UpdateTvTitles"
+                Class="mb-3">
+            </AdminAction>
+        </MudItem>
+    </MudGrid>
 
-                            @foreach (var season in State.Value.AvailableSeasons)
-                            {
-                                <MudSelectItem Value="@season"/>
-                            }
-                            <MudButton></MudButton>
-                        </MudSelect>
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Secondary"
-                                   OnClick="ProcessOvasLibrary"
-                                   Disabled="SelectedSeason is NullSeasonInfo">
-                            Update
-                        </MudButton>
-                    </div>
-                </td>
-            </tr>
+    <MudText Typo="Typo.h5">Ovas Library</MudText>
+    <MudDivider Class="mb-4"/>
 
+    <ShortSeriesSeasonUpdate
+        Type="SeriesType.Ova"
+        Action="AdminService.UpdateOvasLibrary"
+        Seasons="@State.Value.AvailableSeasons"
+        Class="mb-3">
+    </ShortSeriesSeasonUpdate>
 
-            <tr>
-                <td>
-                    <MudText Typo="Typo.body1">Automated update latest ovas library</MudText>
-                    <MudText Typo="Typo.subtitle2">Process in the background feed titles only</MudText>
-                </td>
-                <td style="text-align: right">
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Secondary"
-                               OnClick="ProcessFeedTitles">
-                        Update
-                    </MudButton>
-                </td>
-            </tr>
+    <MudText Typo="Typo.h5">Movies Library</MudText>
+    <MudDivider Class="mb-4"/>
+    <ShortSeriesSeasonUpdate
+        Type="SeriesType.Movie"
+        Action="AdminService.UpdateMoviesLibrary"
+        Seasons="@State.Value.AvailableSeasons"
+        Class="mb-3">
+    </ShortSeriesSeasonUpdate>
 
-            <tr>
-                <td>
-                    <MudText Typo="Typo.body1">Set default state to all</MudText>
-                    <MudText Typo="Typo.subtitle2">Set all series completed status to false</MudText>
-                </td>
-                <td style="text-align: right">
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Secondary"
-                               OnClick="SetCompletedStatus">
-                        Set
-                    </MudButton>
-                </td>
-            </tr>
-            </tbody>
-        </MudSimpleTable>
-    </MudPaper>
+    <MudText Typo="Typo.h5">Others</MudText>
+    <MudDivider Class="mb-4"/>
+    <AdminAction
+        Data="_defaultStatusUpdateData"
+        Action="AdminService.SetAllSeriesAsNoCompleted"
+        Class="mb-3">
+    </AdminAction>
+
 </MudContainer>
 
 @code {
-    private readonly CancellationTokenSource _cts = new();
 
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private SeasonInfoDto SelectedSeason { get; set; } = new NullSeasonInfo();
+    private readonly UpdateData _tvLibraryUpdateData = new(
+        "Automated update latest TV library",
+        "Process in the background feed titles, animes, and images",
+        "Process Latest TV Season Library",
+        "Do you want to update latest season TV library? This task will run in the background",
+        "Latest tv season library would be updated in the background",
+        "Updating TV Library"
+        );
+
+    private readonly UpdateData _feedTitlesUpdateData = new(
+        "Automated update latest feed titles",
+        "Process in the background feed titles only",
+        "Process Latest TV Feed Titles",
+        "Do you want to update latest feed titles? This task will run in the background",
+        "Latest feed titles would be updated in the background",
+        "Updating Feed Titles"
+        );
+
+    private readonly UpdateData _defaultStatusUpdateData = new(
+        "Set default state to all",
+        "Set all series completed status to false",
+        "Set Completed Status",
+        "Do you want to set completed the library to completed status false?",
+        "Series status is being updated in the background",
+        "Setting Series Status"
+        );
 
     protected override void OnInitialized()
     {
         State.OnStateChange += StateHasChanged;
     }
 
-    private async Task ProcessLibrary()
-    {
-        try
-        {
-            if (await GetConfirmation("Process Latest TV Season Library", "Do you want to update latest season TV library? This task will run in the background"))
-            {
-                await AdminService.UpdateTvLibrary(_cts.Token);
-                Snackbar.Add("Latest tv season library would be updated in the background", Severity.Info);
-            }
-        }
-        catch (Exception ex)
-        {
-            Error?.ProcessError("Updating TV Library", ex);
-        }
-    }
-
-    private async Task ProcessFeedTitles()
-    {
-        try
-        {
-            if (await GetConfirmation("Process Latest TV Feed Titles", "Do you want to update latest feed titles? This task will run in the background"))
-            {
-                await AdminService.UpdateTvTitles(_cts.Token);
-                Snackbar.Add("Latest feed titles would be updated in the background", Severity.Info);
-            }
-        }
-        catch (Exception ex)
-        {
-            Error?.ProcessError("Updating Feed Titles", ex);
-        }
-    }
-
-    private async Task SetCompletedStatus()
-    {
-        try
-        {
-            if (await GetConfirmation("Set Completed Status", "Do you want to set completed the library to completed status false?"))
-            {
-                await AdminService.SetAllSeriesAsNoCompleted(_cts.Token);
-                Snackbar.Add("Series status is being updated in the background", Severity.Info);
-            }
-        }
-        catch (Exception ex)
-        {
-            Error?.ProcessError("Setting Series Status", ex);
-        }
-    }
-
-    private async Task ProcessOvasLibrary()
-    {
-        try
-        {
-            if (SelectedSeason is not NullSeasonInfo &&
-                await GetConfirmation("Process Ovas Library", "Do you want to update latest season TV library? This task will run in the background"))
-            {
-                await AdminService.UpdateOvasLibrary(SelectedSeason.Season, (ushort)SelectedSeason.Year, _cts.Token);
-                Snackbar.Add("Series status is being updated in the background", Severity.Info);
-            }
-        }
-        catch (Exception e)
-        {
-            Error?.ProcessError("Updating Ovas Library", e);
-        }
-    }
-
-
-    private async Task<bool> GetConfirmation(string title, string message)
-    {
-        var parameters = new DialogParameters { { nameof(ConfirmationDialog.Message), message } };
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var dialog = DialogService.Show<ConfirmationDialog>(title, parameters, options);
-        var result = await dialog.Result;
-        if (result.Cancelled || result.Data == null) return false;
-        return (bool)result.Data;
-    }
 
     public void Dispose()
     {
         State.OnStateChange -= StateHasChanged;
-        _cts.Cancel();
-        _cts.Dispose();
     }
-
-    private static string Converter(SeasonInfoDto arg) => arg switch {
-        NullSeasonInfo => "Select a Season",
-        _ =>  $"{arg.Year} - {arg.Season}"
-        };
-
 
 }
