@@ -1,5 +1,4 @@
 ﻿@using AnimeFeedManager.WebApp.State
-@using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.Common
 @using AnimeFeedManager.WebApp.Services.Noitifications
 @using Toolbelt.Blazor.PWA.Updater
@@ -50,12 +49,12 @@
             }
         }
 
-        <NotificationsPresenter
+        <NotificationsList
             Notifications="@NotificationService.Notifications"
             OnMarkAllAsRead="NotificationService.SetAllNotificationViewed"
             OnMarkAsRead="NotificationService.SetNotificationViewed"
             OnMarkRemoveAll="NotificationService.RemoveAll">
-        </NotificationsPresenter>
+        </NotificationsList>
         <AuthorizeView>
             <Authorized>
                 <AuthorizedUserPanel User="@State.Value.User"></AuthorizedUserPanel>

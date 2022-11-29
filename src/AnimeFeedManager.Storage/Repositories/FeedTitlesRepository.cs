@@ -34,9 +34,9 @@ public class FeedTitlesRepository : IFeedTitlesRepository
     }
 
     // Fixes store of title with ',' which is used as separator
-    // ToDo: store as individual entries
+    // TODO: store as individual entries
 
-    #region Comman Fixes
+    #region Coma Fixes
 
     private static IEnumerable<string> ReplaceTitleCommas(IEnumerable<string> source)
     {

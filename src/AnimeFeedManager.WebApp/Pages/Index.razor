@@ -1,6 +1,5 @@
 ﻿@page "/"
 @page "/{Year:int}/{Season}"
-@using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.Common
 @using AnimeFeedManager.WebApp.Services.Movies
@@ -15,25 +14,24 @@
 
 <PageTitle>AFM - @GetTitle(State.Value.SelectedSeason)</PageTitle>
 <SeasonSelector AvailableSeasons="@State.Value.AvailableSeasons" SelectedSeason="@State.Value.SelectedSeason" SelectedSeasonChanged="OnSeasonChanged"></SeasonSelector>
-@if (_filteredCollection is not  EmptySeasonCollection)
-{
-    @if (State.Value.SelectedSection == SeriesType.Tv)
-    {
-        <FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
-    }
 
-    <MudTabs Elevation="1" Rounded="true" Position="Position.Top" Border="false" PanelClass="mt-3" Color="Color.Transparent" ActivePanelIndexChanged="index => State.SetState(State.Value with{ SelectedSection = (SeriesType) index})">
-        <MudTabPanel Text="TV">
-            <SeriesGrid Collection="@_filteredCollection"></SeriesGrid>
-        </MudTabPanel>
-        <MudTabPanel Text="Ovas">
-            <ShortSeriesGrid Collection="@_ovasCollection"></ShortSeriesGrid>
-        </MudTabPanel>
-        <MudTabPanel Text="Movies">
-            <ShortSeriesGrid Collection="@_moviesCollection"></ShortSeriesGrid>
-        </MudTabPanel>
-    </MudTabs>
+@if (State.Value.SelectedSection == SeriesType.Tv)
+{
+    <FilterSelector SelectedFiltersChanged="OnFilterSelectionChanges"></FilterSelector>
 }
+
+<MudTabs Elevation="1" Rounded="true" Position="Position.Top" Border="false" PanelClass="mt-3" Color="Color.Transparent" ActivePanelIndexChanged="index => State.SetState(State.Value with{ SelectedSection = (SeriesType) index})">
+    <MudTabPanel Text="TV">
+        <SeriesGrid Collection="@_filteredCollection"></SeriesGrid>
+    </MudTabPanel>
+    <MudTabPanel Text="Ovas">
+        <ShortSeriesGrid Collection="@_ovasCollection"></ShortSeriesGrid>
+    </MudTabPanel>
+    <MudTabPanel Text="Movies">
+        <ShortSeriesGrid Collection="@_moviesCollection"></ShortSeriesGrid>
+    </MudTabPanel>
+</MudTabs>
+
 
 @code {
     private readonly CancellationTokenSource _cts = new();
@@ -66,23 +64,49 @@
     private async ValueTask OnSelectedSeason(SeasonInfoDto season)
     {
         const string key = "lo_series";
+        State.RemoveLoadingItem(key);
+        await GetTvCollection(season);
+        await GetOvasCollection(season);
+        await GetMoviesCollection(season);
+        State.RemoveLoadingItem(key);
+    }
+
+    private async Task GetTvCollection(SeasonInfoDto season)
+    {
         try
         {
-            State.AddLoadingItem(key, "Loading Series");
-            // TODO: run in separate buckets as one error should not be break all the other operations
             _collection = await TvCollectionFetcher.GetSeasonLibrary(season, _cts.Token);
-            _ovasCollection = await OvasCollectionService.GetSeasonLibrary(season, _cts.Token);
-            _moviesCollection = await MoviesCollectionService.GetSeasonLibrary(season, _cts.Token);
             _filteredCollection = FilterCollection(_collection, _filters);
-            State.RemoveLoadingItem(key);
         }
         catch (Exception e)
         {
-            Error?.ProcessError("Season Collection Fetching", e);
-            State.RemoveLoadingItem(key);
+            Error?.ProcessError("TV Collection Fetching", e);
         }
     }
 
+    private async Task GetOvasCollection(SeasonInfoDto season)
+    {
+        try
+        {
+            _ovasCollection = await OvasCollectionService.GetSeasonLibrary(season, _cts.Token);
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError("Ovas Collection Fetching", e);
+        }
+    }
+
+    private async Task GetMoviesCollection(SeasonInfoDto season)
+    {
+        try
+        {
+            _moviesCollection = await MoviesCollectionService.GetSeasonLibrary(season, _cts.Token);
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError("Movies Collection Fetching", e);
+        }
+    }
 
     protected override async Task OnParametersSetAsync()
     {
