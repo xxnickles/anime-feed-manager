@@ -45,6 +45,7 @@ public sealed class LocalStorageSideEffects
                     SeriesType.Tv,
                     ImmutableList<SeasonInfoDto>.Empty,
                     new AnonymousUser(),
+                    HubStatus.Disconnected,
                     ImmutableList<string>.Empty,
                     ImmutableList<string>.Empty,
                     ImmutableDictionary<string, string>.Empty

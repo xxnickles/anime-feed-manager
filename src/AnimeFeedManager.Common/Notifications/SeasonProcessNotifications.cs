@@ -33,6 +33,5 @@ public record TitlesUpdateNotification(
     string Id,
     TargetAudience TargetAudience,
     NotificationType Result,
-    SeriesType SeriesType,
     string Message
 ):RealtimeNotification(Id, TargetAudience, Result, Message);

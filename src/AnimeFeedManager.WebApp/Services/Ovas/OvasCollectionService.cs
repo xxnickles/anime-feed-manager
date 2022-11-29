@@ -1,6 +1,6 @@
 using AnimeFeedManager.Common.Dto;
 
-namespace AnimeFeedManager.WebApp.Services;
+namespace AnimeFeedManager.WebApp.Services.Ovas;
 
 public interface IOvasCollectionService
 {

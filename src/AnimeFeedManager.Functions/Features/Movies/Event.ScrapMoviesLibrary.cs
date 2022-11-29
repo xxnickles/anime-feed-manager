@@ -79,7 +79,7 @@ public class ScrapMoviesLibrary
                     TargetAudience.Admins,
                     NotificationType.Error,
                     new NullSeasonInfo(),
-                    SeriesType.Tv,
+                    SeriesType.Ova,
                     "An error occurred before storing Movies."));
 
                 return new ScrapMoviesLibraryOutput

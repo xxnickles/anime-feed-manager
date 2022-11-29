@@ -1,6 +1,9 @@
 ﻿@using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.Common.Notifications
+@using AnimeFeedManager.WebApp.Services.Noitifications
+@using AnimeFeedManager.Common
+@using System.Diagnostics
 @inject IServerNotificationProcessingService ServerNotificationProcessingService
 @inject ISnackbar Snackbar
 @inject ApplicationState State
@@ -33,10 +36,17 @@
     {
         return ProcessNotification(notification, NotificationSource.Titles);
     }
-    
-    private  Task OnSeasonProcessNotification(SeasonProcessNotification notification)
+
+    private Task OnSeasonProcessNotification(SeasonProcessNotification notification)
     {
-        return ProcessNotification(notification, NotificationSource.SeasonLibrary);
+        var source = notification.SeriesType switch {
+            SeriesType.Tv => NotificationSource.TV,
+            SeriesType.Movie => NotificationSource.Movies,
+            SeriesType.Ova => NotificationSource.Ovas,
+            _ => throw new UnreachableException()}
+            ;
+
+        return ProcessNotification(notification, source);
     }
 
     private async Task ProcessNotification(RealtimeNotification notification, NotificationSource source)
@@ -64,7 +74,7 @@
             notification.Message
             ));
     }
-   
+
 
     private async Task UserChanges(User arg)
     {
@@ -112,13 +122,16 @@
         switch (status)
         {
             case HubConnectionStatus.Connected:
+                State.SetHubStatus(HubStatus.Connected);
                 Snackbar.Add("Connected to notification hub", Severity.Success);
                 break;
             case HubConnectionStatus.Disconnected:
+                State.SetHubStatus(HubStatus.Disconnected);
                 Snackbar.Add("Notification hub connection is lost", Severity.Warning);
                 break;
             case HubConnectionStatus.None:
             default:
+                State.SetHubStatus(HubStatus.Disconnected);
                 Snackbar.Add("Notification hub connection is in strange state", Severity.Error);
                 break;
         }

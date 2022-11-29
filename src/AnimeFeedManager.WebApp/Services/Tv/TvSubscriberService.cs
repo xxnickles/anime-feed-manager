@@ -2,7 +2,7 @@
 using System.Net.Http.Json;
 using AnimeFeedManager.Common.Dto;
 
-namespace AnimeFeedManager.WebApp.Services;
+namespace AnimeFeedManager.WebApp.Services.Tv;
 
 public interface ITvSubscriberService
 {

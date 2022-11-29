@@ -4,7 +4,7 @@ using AnimeFeedManager.WebApp.State;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace AnimeFeedManager.WebApp.Services;
+namespace AnimeFeedManager.WebApp.Services.Noitifications;
 
 public interface IServerNotificationProcessingService
 {

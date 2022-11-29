@@ -1,6 +1,7 @@
 ﻿@using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.Common
+@using AnimeFeedManager.WebApp.Services.Noitifications
 @using Toolbelt.Blazor.PWA.Updater
 @using ApplicationException = AnimeFeedManager.WebApp.State.AppException
 @inherits LayoutComponentBase
@@ -34,8 +35,21 @@
             </MudHidden>
         </MudBreakpointProvider>
         <MudSpacer/>
-        <MudText Typo="Typo.caption" >v.@AppMetadata.Version</MudText>
+        <MudText Typo="Typo.caption">v.@AppMetadata.Version</MudText>
         <MudDivider Vertical="true" Light="true" DividerType="DividerType.Middle" Class="my-3" FlexItem="true"/>
+        @if (State.Value.User is AdminUser)
+        {
+            switch (State.Value.HubStatus)
+            {
+                case HubStatus.Disconnected:
+                    <MudChip Variant="Variant.Text" Color="Color.Error">Notifications are not available</MudChip>
+                    break;
+                case HubStatus.Connected:
+                    <MudChip Variant="Variant.Text" Color="Color.Error">Connected to Notifications Hub</MudChip>
+                    break;
+            }
+        }
+
         <NotificationsPresenter
             Notifications="@NotificationService.Notifications"
             OnMarkAllAsRead="NotificationService.SetAllNotificationViewed"

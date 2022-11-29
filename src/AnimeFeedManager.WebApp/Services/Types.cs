@@ -12,7 +12,9 @@ public enum HubConnectionStatus
 public enum NotificationSource
 {
     None,
-    SeasonLibrary,
+    TV,
+    Ovas,
+    Movies,
     Titles
 }
 

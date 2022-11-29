@@ -79,7 +79,7 @@ public class ScrapOvasLibrary
                     TargetAudience.Admins,
                     NotificationType.Error,
                     new NullSeasonInfo(),
-                    SeriesType.Tv,
+                    SeriesType.Ova,
                     "An error occurred before storing ovas."));
 
                 return new ScrapOvasLibraryOutput

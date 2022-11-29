@@ -5,6 +5,13 @@ using MudBlazor;
 
 namespace AnimeFeedManager.WebApp.State;
 
+public enum HubStatus
+{
+    Disconnected,
+    Connected
+   
+}
+
 public record struct AppException(string Identifier, Exception Exception);
 
 public record struct AppNotification(string Message, Severity Severity);
@@ -20,6 +27,7 @@ public record LocalStorageState(SeasonInfoDto[] AvailableSeasons, long Stamp)
             SeriesType.Tv,
             localStorageState.AvailableSeasons.ToImmutableList(),
             new AnonymousUser(),
+            HubStatus.Disconnected,
             ImmutableList<string>.Empty,
             ImmutableList<string>.Empty,
             ImmutableDictionary<string, string>.Empty);
@@ -30,6 +38,7 @@ public record State(
     SeriesType SelectedSection,
     ImmutableList<SeasonInfoDto> AvailableSeasons,
     User User,
+    HubStatus HubStatus,
     ImmutableList<string> Subscriptions,
     ImmutableList<string> Interested,
     ImmutableDictionary<string, string> LoadingItems)
@@ -48,6 +57,7 @@ public sealed class ApplicationState
         SeriesType.Tv,
         ImmutableList<SeasonInfoDto>.Empty,
         new AnonymousUser(),
+        HubStatus.Disconnected,
         ImmutableList<string>.Empty,
         ImmutableList<string>.Empty,
         ImmutableDictionary<string, string>.Empty
@@ -143,6 +153,11 @@ public sealed class ApplicationState
     {
         if (!Value.LoadingItems.ContainsKey(key)) return;
         SetState(Value with {LoadingItems = Value.LoadingItems.Remove(key)});
+    }
+
+    public void SetHubStatus(HubStatus status)
+    {
+        SetState(Value with{ HubStatus = status});
     }
 
     /// <summary>

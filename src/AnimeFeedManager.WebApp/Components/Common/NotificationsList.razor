@@ -39,8 +39,8 @@
 
 @code {
 
-    private int _unreadNotifications = 0;
-    private int _totalNotifications = 0;
+    private int _unreadNotifications;
+    private int _totalNotifications;
     private ImmutableList<ServerNotification> _notifications = ImmutableList<ServerNotification>.Empty;
 
     [Parameter]
@@ -66,7 +66,9 @@
 
     private string GetTitle(NotificationSource source) => source switch
     {
-        NotificationSource.SeasonLibrary => "Season Library",
+        NotificationSource.TV => "TV Season Library",
+        NotificationSource.Movies => "Movies Season Library",
+        NotificationSource.Ovas => "Ovas Season Library",
         NotificationSource.Titles => "Feed Titles",
         NotificationSource.None => "Information",
         _ => "Information"

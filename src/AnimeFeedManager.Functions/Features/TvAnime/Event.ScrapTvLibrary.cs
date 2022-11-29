@@ -71,7 +71,6 @@ public class ScrapTvLibrary
                 IdHelpers.GetUniqueId(),
                 TargetAudience.Admins,
                 NotificationType.Information,
-                SeriesType.Tv,
                 "Latest feed titles have been updated"));
 
             return new ScrapTvLibraryOutput
@@ -85,7 +84,6 @@ public class ScrapTvLibrary
                 IdHelpers.GetUniqueId(),
                 TargetAudience.Admins,
                 NotificationType.Error,
-                SeriesType.Tv,
                 "An error occurred before storing feed titles."));
 
             return new ScrapTvLibraryOutput
