@@ -19,18 +19,17 @@
     protected override async Task OnInitializedAsync()
     {
         State.OnUserChanges += UserChanges;
-        try
-        {
-            ServerNotificationProcessingService.ConnectionStatus += ProcessStatusChanges;
-            ServerNotificationProcessingService.SeasonProcessNotification += OnSeasonProcessNotification;
-            ServerNotificationProcessingService.TitlesUpdateNotification += OnTitlesUpdateNotification;
-            await ServerNotificationProcessingService.SubscribeToNotifications();
-            
-        }
-        catch (Exception e)
-        {
-            Error?.ProcessError("Notifications hub", e);
-        }
+
+        ServerNotificationProcessingService.ExceptionRisen += OnExceptionRisen;
+        ServerNotificationProcessingService.ConnectionStatus += ProcessStatusChanges;
+        ServerNotificationProcessingService.SeasonProcessNotification += OnSeasonProcessNotification;
+        ServerNotificationProcessingService.TitlesUpdateNotification += OnTitlesUpdateNotification;
+        await ServerNotificationProcessingService.SubscribeToNotifications();
+    }
+
+    private void OnExceptionRisen(Exception ex)
+    {
+        Error?.ProcessError("Notifications hub", ex);
     }
 
     private Task OnTitlesUpdateNotification(TitlesUpdateNotification notification)
@@ -96,26 +95,12 @@
 
     private async Task AddToGroup(User user)
     {
-        try
-        {
-            await ServerNotificationProcessingService.AddToGroup();
-        }
-        catch (Exception e)
-        {
-            Error?.ProcessError("Notifications hub", e);
-        }
+        await ServerNotificationProcessingService.AddToGroup();
     }
 
     private async Task RemoveFromGroup(User user)
     {
-        try
-        {
-            await ServerNotificationProcessingService.RemoveFromGroup();
-        }
-        catch (Exception e)
-        {
-            Error?.ProcessError("Notifications hub", e);
-        }
+        await ServerNotificationProcessingService.RemoveFromGroup();
     }
 
     private ValueTask ProcessStatusChanges(HubConnectionStatus status)

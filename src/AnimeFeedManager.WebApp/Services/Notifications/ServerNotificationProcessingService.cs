@@ -2,7 +2,6 @@
 using System.Net.Http.Json;
 using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.WebApp.State;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace AnimeFeedManager.WebApp.Services.Notifications;
@@ -12,12 +11,14 @@ public interface IServerNotificationProcessingService
     event Func<SeasonProcessNotification, Task>? SeasonProcessNotification;
     event Func<TitlesUpdateNotification, Task>? TitlesUpdateNotification;
     event Func<HubConnectionStatus, ValueTask>? ConnectionStatus;
+    public event Action<Exception>? ExceptionRisen;
+
     Task AddToGroup();
     Task RemoveFromGroup();
     Task SubscribeToNotifications();
 }
 
-public class ServerNotificationProcessingService : IServerNotificationProcessingService, IDisposable
+public class ServerNotificationProcessingService : IServerNotificationProcessingService
 {
     private enum DelayedActions
     {
@@ -34,9 +35,13 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
 
     public event Func<TitlesUpdateNotification, Task>? TitlesUpdateNotification;
     public event Func<HubConnectionStatus, ValueTask>? ConnectionStatus;
+    public event Action<Exception>? ExceptionRisen;
     public event Func<SeasonProcessNotification, Task>? SeasonProcessNotification;
 
     private readonly HashSet<DelayedActions> _delayedActions = new();
+
+    private const string AddToGroupEndpoint = "api/notifications/setup";
+    private const string RemoveFromGroupEndpoint = "api/notifications/remove";
 
     public ServerNotificationProcessingService(
         ApplicationState state,
@@ -53,28 +58,36 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     public async Task SubscribeToNotifications()
     {
         ConnectionStatus += OnConnectionStatus;
-        
-        var response = await _httpClient.PostAsync("api/negotiate", new StringContent(string.Empty));
-        var info = await response.Content.ReadFromJsonAsync<ConnectionInfo>();
 
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(info?.Url ?? string.Empty,
-                options => { options.AccessTokenProvider = () => Task.FromResult(info?.AccessToken); })
-            .WithAutomaticReconnect()
-            .Build();
+        try
+        {
+            var response = await _httpClient.PostAsync("api/negotiate", new StringContent(string.Empty));
+            var info = await response.Content.ReadFromJsonAsync<ConnectionInfo>();
 
-        SubscribeToHubStatus(_hubConnection);
-        SubscribeToNotifications(_hubConnection);
-        await _hubConnection.StartAsync();
-        _logger.LogInformation("Connection to notification hub has been completed successfully");
-        ConnectionStatus?.Invoke(HubConnectionStatus.Connected);
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(info?.Url ?? string.Empty,
+                    options => { options.AccessTokenProvider = () => Task.FromResult(info?.AccessToken); })
+                .WithAutomaticReconnect()
+                .Build();
+
+            SubscribeToHubStatus(_hubConnection);
+            SubscribeToNotifications(_hubConnection);
+            await _hubConnection.StartAsync();
+            _logger.LogInformation("Connection to notification hub has been completed successfully");
+            await RiseStatusChange(HubConnectionStatus.Connected);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GHub connection bootstrapping failed");
+            ExceptionRisen?.Invoke(ex);
+        }
     }
 
     public async Task AddToGroup()
     {
         if (IsConnectedToHub())
         {
-            await AddUserToGroup();
+            await ExecuteAction(AddToGroupEndpoint);
         }
         else
         {
@@ -82,22 +95,11 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         }
     }
 
-    private async Task AddUserToGroup()
-    {
-        var response = await _httpClient.PostAsJsonAsync("api/notifications/setup",
-            new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
-        await response.CheckForProblemDetails();
-    }
-
-    private bool IsConnectedToHub() => _hubConnection?.State is HubConnectionState.Connected &&
-                                       !string.IsNullOrEmpty(_hubConnection.ConnectionId);
-
     public async Task RemoveFromGroup()
     {
         if (IsConnectedToHub())
         {
-            await RemoveUserFromGroup();
-
+            await ExecuteAction(RemoveFromGroupEndpoint);
         }
         else
         {
@@ -105,14 +107,8 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         }
     }
 
-    public async Task RemoveUserFromGroup()
-    {
-        var response = await _httpClient.PostAsJsonAsync("api/notifications/remove",
-                new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
-        await response.CheckForProblemDetails();
-    }
-
-
+    private bool IsConnectedToHub() => _hubConnection?.State is HubConnectionState.Connected &&
+                                       !string.IsNullOrEmpty(_hubConnection.ConnectionId);
 
     private void SubscribeToNotifications(HubConnection hubConnection)
     {
@@ -135,18 +131,16 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         hubConnection.Reconnected += ConnectionRecovered;
     }
 
-    private Task ConnectionRecovered(string? arg)
+    private async Task ConnectionRecovered(string? arg)
     {
         _logger.LogInformation("Connection to the hub has recovered {Id}", arg);
-        ConnectionStatus?.Invoke(HubConnectionStatus.Connected);
-        return Task.CompletedTask;
+        await RiseStatusChange(HubConnectionStatus.Connected);
     }
 
-    private Task ConnectionLost(Exception? arg)
+    private async Task ConnectionLost(Exception? arg)
     {
         _logger.LogError(arg, "Connection to the hub has been lost");
-        ConnectionStatus?.Invoke(HubConnectionStatus.Disconnected);
-        return Task.CompletedTask;
+        await RiseStatusChange(HubConnectionStatus.Disconnected);
     }
 
     private async ValueTask OnConnectionStatus(HubConnectionStatus status)
@@ -160,10 +154,10 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
                     switch (action)
                     {
                         case DelayedActions.AddUser:
-                            await AddUserToGroup();
+                            await ExecuteAction(AddToGroupEndpoint);
                             break;
                         case DelayedActions.RemoveUser:
-                            await RemoveUserFromGroup();
+                            await ExecuteAction(RemoveFromGroupEndpoint);
                             break;
                         default:
                             throw new UnreachableException("Invalid Action Value");
@@ -179,8 +173,24 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         }
     }
 
-    public void Dispose()
+    private async Task ExecuteAction(string endpoint)
     {
-        ConnectionStatus -= OnConnectionStatus;
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync(endpoint,
+                new HubInfo(_hubConnection?.ConnectionId ?? string.Empty));
+            await response.CheckForProblemDetails();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Group action execution failed");
+            ExceptionRisen?.Invoke(ex);
+        }
+    }
+
+    private async Task RiseStatusChange(HubConnectionStatus status)
+    {
+        if (ConnectionStatus != null)
+            await ConnectionStatus.Invoke(status);
     }
 }

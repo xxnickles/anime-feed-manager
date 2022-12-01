@@ -26,7 +26,7 @@ public class NotificationService : INotificationService
     {
         _localStorage = localStorage;
     }
-
+    
     public event Action? NotificationsUpdated;
 
     public ImmutableList<ServerNotification> Notifications { private set; get; } =
