@@ -2,7 +2,7 @@
 using AnimeFeedManager.Common.Notifications;
 using Blazored.LocalStorage;
 
-namespace AnimeFeedManager.WebApp.Services.Noitifications;
+namespace AnimeFeedManager.WebApp.Services.Notifications;
 
 public interface INotificationService
 {

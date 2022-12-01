@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.WebApp.Services;
 using Blazored.LocalStorage;
 
 namespace AnimeFeedManager.WebApp.State;
@@ -45,7 +46,7 @@ public sealed class LocalStorageSideEffects
                     SeriesType.Tv,
                     ImmutableList<SeasonInfoDto>.Empty,
                     new AnonymousUser(),
-                    HubStatus.Disconnected,
+                    HubConnectionStatus.Disconnected,
                     ImmutableList<string>.Empty,
                     ImmutableList<string>.Empty,
                     ImmutableDictionary<string, string>.Empty

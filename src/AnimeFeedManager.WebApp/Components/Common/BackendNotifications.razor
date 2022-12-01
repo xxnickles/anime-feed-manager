@@ -1,9 +1,9 @@
 ﻿@using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.Common.Notifications
-@using AnimeFeedManager.WebApp.Services.Noitifications
 @using AnimeFeedManager.Common
 @using System.Diagnostics
+@using AnimeFeedManager.WebApp.Services.Notifications
 @inject IServerNotificationProcessingService ServerNotificationProcessingService
 @inject ISnackbar Snackbar
 @inject ApplicationState State
@@ -21,10 +21,11 @@
         State.OnUserChanges += UserChanges;
         try
         {
-            await ServerNotificationProcessingService.SubscribeToNotifications();
             ServerNotificationProcessingService.ConnectionStatus += ProcessStatusChanges;
             ServerNotificationProcessingService.SeasonProcessNotification += OnSeasonProcessNotification;
             ServerNotificationProcessingService.TitlesUpdateNotification += OnTitlesUpdateNotification;
+            await ServerNotificationProcessingService.SubscribeToNotifications();
+            
         }
         catch (Exception e)
         {
@@ -117,24 +118,24 @@
         }
     }
 
-    private void ProcessStatusChanges(HubConnectionStatus status)
+    private ValueTask ProcessStatusChanges(HubConnectionStatus status)
     {
+        State.SetHubStatus(status);
         switch (status)
         {
             case HubConnectionStatus.Connected:
-                State.SetHubStatus(HubStatus.Connected);
                 Snackbar.Add("Connected to notification hub", Severity.Success);
                 break;
             case HubConnectionStatus.Disconnected:
-                State.SetHubStatus(HubStatus.Disconnected);
                 Snackbar.Add("Notification hub connection is lost", Severity.Warning);
                 break;
             case HubConnectionStatus.None:
             default:
-                State.SetHubStatus(HubStatus.Disconnected);
                 Snackbar.Add("Notification hub connection is in strange state", Severity.Error);
                 break;
         }
+
+        return new ValueTask();
     }
 
 }

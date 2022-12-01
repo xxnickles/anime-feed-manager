@@ -27,6 +27,7 @@ public class SetupGroupData
     [Function("SetupGroupData")]
     public async Task<GroupDataOutput> Add(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "notifications/setup")]
+        
         HttpRequestData req)
     {
         _logger.LogInformation("Setting up signalr group data");
@@ -54,6 +55,7 @@ public class SetupGroupData
             : new SignalRGroupAction(SignalRGroupActionType.Add)
             {
                 UserId = parameters.principal.Identity?.Name ?? string.Empty,
+                GroupName = HubGroups.UserGroup,
                 ConnectionId = dto.ConnectionId
             };
         _logger.LogInformation("Adding {Connection} {Predicate}. User Id {User}",

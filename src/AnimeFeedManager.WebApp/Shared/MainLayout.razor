@@ -1,6 +1,7 @@
 ﻿@using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.Common
-@using AnimeFeedManager.WebApp.Services.Noitifications
+@using AnimeFeedManager.WebApp.Services
+@using AnimeFeedManager.WebApp.Services.Notifications
 @using Toolbelt.Blazor.PWA.Updater
 @using ApplicationException = AnimeFeedManager.WebApp.State.AppException
 @inherits LayoutComponentBase
@@ -40,11 +41,16 @@
         {
             switch (State.Value.HubStatus)
             {
-                case HubStatus.Disconnected:
+                case HubConnectionStatus.Disconnected:
                     <MudChip Variant="Variant.Text" Color="Color.Error">Notifications are not available</MudChip>
                     break;
-                case HubStatus.Connected:
-                    <MudChip Variant="Variant.Text" Color="Color.Error">Connected to Notifications Hub</MudChip>
+                case HubConnectionStatus.Connected:
+                    <MudChip Variant="Variant.Text" Color="Color.Success">Connected to Notifications Hub</MudChip>
+                    break;
+                case HubConnectionStatus.None:
+                default:
+
+                    <MudChip Variant="Variant.Text" Color="Color.Warning">Invalid Notification Status</MudChip>
                     break;
             }
         }
