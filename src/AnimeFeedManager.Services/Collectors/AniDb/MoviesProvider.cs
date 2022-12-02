@@ -44,7 +44,7 @@ public class MoviesProvider : IMoviesProvider
                 TargetAudience.Admins,
                 NotificationType.Information,
                 new SeasonInfoDto(season.Season, season.Year),
-                SeriesType.Ova,
+                SeriesType.Movie,
                 $"{series.Count()} series have been scrapped for {season.Season}-{season.Year}"));
 
             return new Movies(series.Select(Mappers.Map)
@@ -61,7 +61,7 @@ public class MoviesProvider : IMoviesProvider
                     TargetAudience.Admins,
                     NotificationType.Error,
                     new NullSeasonInfo(),
-                    SeriesType.Ova,
+                    SeriesType.Movie,
                     "AniDb season scrapping failed"));
             return ExceptionError.FromException(ex, "LiveChartLibrary");
         }

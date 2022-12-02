@@ -64,7 +64,7 @@
     private async ValueTask OnSelectedSeason(SeasonInfoDto season)
     {
         const string key = "lo_series";
-        State.RemoveLoadingItem(key);
+        State.AddLoadingItem(key, "Loading Series");
         await GetTvCollection(season);
         await GetOvasCollection(season);
         await GetMoviesCollection(season);
