@@ -13,5 +13,7 @@ internal static class AzureTable
         internal const string Users = "Users";
         internal const string OvaLibrary = "OvaLibrary";
         internal const string MovieLibrary = "MovieLibrary";
+        internal const string MovieSubscriptions = "MovieSubscriptions";
+        internal const string OvaSubscriptions = "OvaSubscriptions";
     }
 }

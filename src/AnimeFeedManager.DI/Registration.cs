@@ -23,7 +23,9 @@ public static class Registration
             nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,   
             nameof(UserStorage) => AzureTable.TableMap.Users,
             nameof(OvaStorage) => AzureTable.TableMap.OvaLibrary,
+            nameof(OvasSubscriptionStorage) => AzureTable.TableMap.OvaSubscriptions,
             nameof(MovieStorage) => AzureTable.TableMap.MovieLibrary,
+            nameof(MoviesSubscriptionStorage) => AzureTable.TableMap.MovieSubscriptions,
             _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}")
         };
     };
