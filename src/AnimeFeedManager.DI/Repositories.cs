@@ -18,6 +18,8 @@ internal static class Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IOvasRepository, OvasRepository>();
         services.AddScoped<IMoviesRepository, MoviesRepository>();
+        services.AddScoped<IMoviesSubscriptionRepository, MoviesSubscriptionRepository>();
+        services.AddScoped<IOvasSubscriptionRepository, OvasSubscriptionRepository>();
         return services;
     }
 }

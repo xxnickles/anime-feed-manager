@@ -18,17 +18,16 @@ public class OvasRepository : IOvasRepository
 
     public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetBySeason(Season season, int year)
     {
-        var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, (ushort) year);
+        var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, (ushort)year);
         return TableUtils.ExecuteQuery(() =>
                 _tableClient.QueryAsync<OvaStorage>(a => a.PartitionKey == partitionKey),
             nameof(OvaStorage));
     }
 
-    public async Task<Either<DomainError, Unit>> Merge(OvaStorage ovas)
+    public Task<Either<DomainError, Unit>> Merge(OvaStorage ovas)
     {
-        var result = await TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(ovas),
-            nameof(OvaStorage));
-        return result.Map(_ => unit);
+        return TableUtils.TryExecute(() => _tableClient.UpsertEntityAsync(ovas),
+            nameof(OvaStorage)).MapAsync(_ => unit);
     }
 
     public async Task<Either<DomainError, Unit>> AddImageUrl(ImageStorage image)
