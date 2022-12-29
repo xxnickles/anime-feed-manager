@@ -22,7 +22,7 @@ public class RemoveInterested
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/removeInterested")]
         HttpRequestData req)
     {
-        var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
+        var dto = await Serializer.FromJson<TvSubscriptionDto>(req.Body);
         ArgumentNullException.ThrowIfNull(dto);
         
         return await req

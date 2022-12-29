@@ -33,7 +33,12 @@ public static class ServiceRegistrationExtensions
         
         services.AddHttpClient<IServerNotificationProcessingService, ServerNotificationProcessingService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
+        
+        services.AddHttpClient<IOvasSubscriberService, OvasSubscriberService>(client =>
+            client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
 
         services.AddScoped<INotificationService,NotificationService>();
+
+        services.AddScoped<IConfirmationMessage, ConfirmationMessage>();
     }
 }

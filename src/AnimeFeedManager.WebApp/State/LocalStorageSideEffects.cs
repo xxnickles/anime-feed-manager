@@ -49,6 +49,7 @@ public sealed class LocalStorageSideEffects
                     HubConnectionStatus.Disconnected,
                     ImmutableList<string>.Empty,
                     ImmutableList<string>.Empty,
+                    ImmutableList<string>.Empty,
                     ImmutableDictionary<string, string>.Empty
                 ));
                 await state.SetSelectedSeason(new NullSeasonInfo());

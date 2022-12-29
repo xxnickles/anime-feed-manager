@@ -13,6 +13,7 @@ internal struct QueueNames
     internal const string MoviesLibraryUpdate = "trigger-movies-library-update";
     internal const string TitleProcess = "title-process";
     internal const string ProcessedTitles = "processed-Titles";
+    
     internal const string SubscribersToProcess = "subscribers-to-process";
     internal const string ProcessAutoSubscriber = "process-auto-subscriber";
     internal const string ToSubscribe = "to-subscribe";

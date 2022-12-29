@@ -1,10 +1,10 @@
-using AnimeFeedManager.Application.TvSubscriptions.Commands;
+using AnimeFeedManager.Application.OvasSubscriptions.Commands;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Features.TvAnime;
+namespace AnimeFeedManager.Functions.Features.OvasSubscriptions;
 
 public class Unsubscribe
 {
@@ -17,15 +17,16 @@ public class Unsubscribe
         _logger = loggerFactory.CreateLogger<Unsubscribe>();
     }
 
-    [Function("Unsubscribe")]
+    [Function("OvasUnsubscribe")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/unsubscribe")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "ovas/subscriptions/unsubscribe")]
         HttpRequestData req)
     {
-        var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
+        var dto = await Serializer.FromJson<ShortSeriesUnsubscribeDto>(req.Body);
         ArgumentNullException.ThrowIfNull(dto);
         return await req
             .WithAuthenticationCheck(new UnsubscribeCmd(dto.UserId, dto.Series))
-            .BindAsync(r => _mediator.Send(r)).ToResponse(req, _logger);
+            .BindAsync(command => _mediator.Send(command))
+            .ToResponse(req, _logger);
     }
 }

@@ -36,7 +36,7 @@
             {
                 if (State.Value.User is ApplicationUser user)
                 {
-                    if (!State.Value.Subscriptions.Contains(Anime.FeedInformation?.Title ?? string.Empty))
+                    if (!State.Value.TvSubscriptions.Contains(Anime.FeedInformation?.Title ?? string.Empty))
                     {
                         <MudChip Label="true" Color="Color.Success">Available</MudChip>
                         <MudSpacer></MudSpacer>
@@ -69,7 +69,7 @@
                 <MudSpacer></MudSpacer>
                 if (State.Value.User is ApplicationUser user)
                 {
-                    if (!State.Value.Interested.Contains(Anime.Title))
+                    if (!State.Value.TvInterested.Contains(Anime.Title))
                     {
                         <MudTooltip Text="Add to Interested">
                             <MudIconButton Icon="@Icons.Filled.AddBox"
@@ -200,7 +200,7 @@
     {
         var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
         var options = new DialogOptions {CloseOnEscapeKey = true};
-        var dialog = DialogService.Show<ConfirmationDialog>(title, parameters, options);
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>(title, parameters, options);
         var result = await dialog.Result;
         if (result.Cancelled || result.Data == null) return false;
         return (bool) result.Data;

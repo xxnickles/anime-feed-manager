@@ -1,5 +1,6 @@
 ﻿@using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.WebApp.Components.Common
+@using AnimeFeedManager.Common
 @inject ApplicationState State
 
 @implements IDisposable
@@ -19,10 +20,24 @@
 
         </MudCardContent>
     </div>
-    <MudCardActions Class="d-flex">
-        <MudChip Label="true" Color="Color.Warning" Icon="@Icons.Filled.Warning">Comming Soon</MudChip>
-        <MudSpacer></MudSpacer>
-    </MudCardActions>
+    @if (State.Value.User is not AnonymousUser)
+    {
+        switch (Type)
+        {
+            case SeriesType.Ova:
+                <OvasActions Anime="Anime"/>
+                break;
+            case SeriesType.Movie:
+                break;
+            case SeriesType.Tv:
+            case SeriesType.None:
+            default:
+                break;
+        }
+        
+        
+    }
+
 </MudCard>
 
 @code {
@@ -31,7 +46,15 @@
     private Error? Error { get; set; }
 
     [Parameter]
-    public SimpleAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty);
+    public SimpleAnime Anime { get; set; } = new(
+        string.Empty,
+        string.Empty,
+        string.Empty,
+        string.Empty,
+        null);
+
+    [Parameter]
+    public SeriesType Type { get; set; } = SeriesType.None;
 
     protected override void OnInitialized()
     {

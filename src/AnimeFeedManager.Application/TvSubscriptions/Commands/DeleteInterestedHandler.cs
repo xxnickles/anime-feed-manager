@@ -22,7 +22,7 @@ public class DeleteInterestedHandler : MediatR.IRequestHandler<DeleteInterestedC
     }
 
     private Validation<ValidationError, InterestedSeries> Validate(DeleteInterestedCmd request) =>
-        (Helpers.SubscriberMustBeValid(request.Subscriber), Helpers.IdListMustHaveElements(request.AnimeId))
+        (ValidationHelpers.SubscriberMustBeValid(request.Subscriber), ValidationHelpers.IdListMustHaveElements(request.AnimeId))
         .Apply((subscriber, id) => new InterestedSeries(subscriber, id));
 
     private Task<Either<DomainError, Unit>> RemoveInterested(InterestedSeries subscription)

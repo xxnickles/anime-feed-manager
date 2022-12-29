@@ -4,7 +4,7 @@ using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Features.TvAnime;
+namespace AnimeFeedManager.Functions.Features.TvAnimeSubscriptions;
 
 public class Subscriptions
 {
@@ -22,7 +22,7 @@ public class Subscriptions
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "tv/subscriptions")]
         HttpRequestData req)
     {
-        var dto = await Serializer.FromJson<SubscriptionDto>(req.Body);
+        var dto = await Serializer.FromJson<TvSubscriptionDto>(req.Body);
         ArgumentNullException.ThrowIfNull(dto);
         return await req
             .WithAuthenticationCheck(new MergeSubscriptionCmd(dto.UserId, dto.Series))

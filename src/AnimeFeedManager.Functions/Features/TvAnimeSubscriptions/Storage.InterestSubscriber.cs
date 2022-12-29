@@ -4,7 +4,7 @@ using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Features.TvAnime;
+namespace AnimeFeedManager.Functions.Features.TvAnimeSubscriptions;
 
 public class GetLibraryMessages
 {
@@ -46,9 +46,9 @@ public class InterestSubscriber
                         {
                             if (r.Any())
                             {
-                                var toSubscribe = r.Select(s => new SubscriptionDto(s.UserId, s.FeedTitle));
+                                var toSubscribe = r.Select(s => new TvSubscriptionDto(s.UserId, s.FeedTitle));
                                 var toRemoveFromInterest =
-                                    r.Select(s => new SubscriptionDto(s.UserId, s.InterestedTitle));
+                                    r.Select(s => new TvSubscriptionDto(s.UserId, s.InterestedTitle));
 
                                 return new GetLibraryMessages
                                 {

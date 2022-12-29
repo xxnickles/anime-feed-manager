@@ -21,7 +21,7 @@ public class UnsubscribeHandler : MediatR.IRequestHandler<UnsubscribeCmd, Either
     }
 
     private Validation<ValidationError, Subscription> Validate(UnsubscribeCmd request) =>
-        (Helpers.SubscriberMustBeValid(request.Subscriber), Helpers.IdListMustHaveElements(request.AnimeId))
+        (ValidationHelpers.SubscriberMustBeValid(request.Subscriber), ValidationHelpers.IdListMustHaveElements(request.AnimeId))
         .Apply((subscriber, id) => new Subscription(subscriber, id));
 
     private Task<Either<DomainError, Unit>> RemoveSubscription(Subscription subscription)

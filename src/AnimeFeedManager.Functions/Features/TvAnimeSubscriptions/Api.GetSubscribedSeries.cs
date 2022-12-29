@@ -3,7 +3,7 @@ using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Features.TvAnime;
+namespace AnimeFeedManager.Functions.Features.TvAnimeSubscriptions;
 
 public class GetSubscribedSeries
 {

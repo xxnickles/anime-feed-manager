@@ -41,8 +41,8 @@
             "Available" => Filters.Available,
             "Not Available" => Filters.NoAvailable,
             "Completed" => Filters.Completed,
-            "Subscribed" => Filters.Subscribed(State.Value.Subscriptions),
-            "Interested" => Filters.Interested(State.Value.Interested),
+            "Subscribed" => Filters.Subscribed(State.Value.TvSubscriptions),
+            "Interested" => Filters.Interested(State.Value.TvInterested),
             _ => throw new ArgumentException($"'{chip.Text}' is an invalid selection")
             };
     }

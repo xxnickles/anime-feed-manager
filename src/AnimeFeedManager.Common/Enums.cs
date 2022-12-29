@@ -6,7 +6,8 @@ public enum SeriesType
 {
     Tv = 0,
     Ova = 1,
-    Movie = 2
+    Movie = 2,
+    None= 3
 }
 
 public static class SeriesTypeExtensions

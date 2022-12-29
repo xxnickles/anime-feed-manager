@@ -4,7 +4,7 @@ public sealed record FeedInfo(bool Available, bool Completed, string? Title);
 
 public abstract record BaseAnime(string Id, string Title, string Synopsis, string? Url);
 
-public sealed record SimpleAnime(string Id, string Title, string Synopsis, string? Url);
+public sealed record SimpleAnime(string Id, string Title, string Synopsis, string? Url, DateTime? AirDate);
 
 public sealed record FeedAnime(string Id, string Title, string Synopsis, string? Url, FeedInfo FeedInformation);
 

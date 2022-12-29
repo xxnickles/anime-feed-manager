@@ -1,13 +1,13 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Application;
 using AnimeFeedManager.Application.Notifications.Queries;
-using AnimeFeedManager.Application.TvSubscriptions;
 using AnimeFeedManager.Application.TvSubscriptions.Queries;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Features.TvAnimeSubscription;
+namespace AnimeFeedManager.Functions.Features.TvAnimeSubscriptions;
 
 public class NotificationsMessages
 {

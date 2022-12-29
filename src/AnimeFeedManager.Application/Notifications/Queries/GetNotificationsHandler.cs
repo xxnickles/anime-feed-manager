@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using AnimeFeedManager.Application.TvSubscriptions;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Services.Collectors.Interface;
@@ -41,7 +40,7 @@ public class GetNotificationsHandler
     private static Notification CreateNotification(SubscriptionCollection subscription, IEnumerable<FeedInfo> feed)
     {
         var matchingFeeds = feed
-            .Where(f => Filter(f, subscription.SubscribedAnimes))
+            .Where(f => Filter(f, subscription.Series))
             .Select(
                 x => new SubscribedFeed(
                     x.AnimeTitle.Value.UnpackOption(string.Empty),
@@ -49,7 +48,7 @@ public class GetNotificationsHandler
                     x.EpisodeInfo,
                     x.PublicationDate));
 
-        return new Notification(subscription.SubscriptionId, matchingFeeds);
+        return new Notification(subscription.Subscriber, matchingFeeds);
     }
 
     private static bool Filter(FeedInfo f, IEnumerable<string> subscribedAnimes)

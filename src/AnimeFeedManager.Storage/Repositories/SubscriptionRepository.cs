@@ -24,7 +24,6 @@ public class SubscriptionRepository : ISubscriptionRepository
         _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
-
     public Task<Either<DomainError, ImmutableList<SubscriptionStorage>>> Get(Email userEmail)
     {
         var user = userEmail.Value.UnpackOption(string.Empty);

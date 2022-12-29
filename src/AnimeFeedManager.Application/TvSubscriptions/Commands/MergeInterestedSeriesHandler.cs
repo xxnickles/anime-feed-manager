@@ -19,7 +19,7 @@ public class MergeInterestedSeriesHandler : MediatR.IRequestHandler<MergeInteres
     }
 
     private Validation<ValidationError, InterestedSeries> Validate(MergeInterestedSeriesCmd request) =>
-        (Helpers.SubscriberMustBeValid(request.Subscriber), Helpers.IdListMustHaveElements(request.AnimeId))
+        (ValidationHelpers.SubscriberMustBeValid(request.Subscriber), ValidationHelpers.IdListMustHaveElements(request.AnimeId))
         .Apply((subscriber, id) => new InterestedSeries(subscriber, id));
 
 

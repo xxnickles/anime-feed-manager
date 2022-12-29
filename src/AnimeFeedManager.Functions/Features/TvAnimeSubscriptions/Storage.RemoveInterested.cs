@@ -4,7 +4,7 @@ using AnimeFeedManager.Functions.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Features.TvAnime;
+namespace AnimeFeedManager.Functions.Features.TvAnimeSubscriptions;
 
 public class DeleteInterested
 {
@@ -18,13 +18,13 @@ public class DeleteInterested
     }
 
     [Function("DeleteInterested")]
-    public async Task Run([QueueTrigger(QueueNames.DeleteInterested, Connection = "AzureWebJobsStorage")] SubscriptionDto newSubscription)
+    public async Task Run([QueueTrigger(QueueNames.DeleteInterested, Connection = "AzureWebJobsStorage")] TvSubscriptionDto newTvSubscription)
     {
-        _logger.LogInformation("Automated interest remove for {Series} for user {UserId}", newSubscription.Series, newSubscription.UserId);
-        var command = new DeleteInterestedCmd(newSubscription.UserId, newSubscription.Series);
+        _logger.LogInformation("Automated interest remove for {Series} for user {UserId}", newTvSubscription.Series, newTvSubscription.UserId);
+        var command = new DeleteInterestedCmd(newTvSubscription.UserId, newTvSubscription.Series);
         var result = await _mediator.Send(command);
         result.Match(
-            _ => _logger.LogInformation("{Series} has been removed from interest list for user {UserId} automatically", newSubscription.Series, newSubscription.UserId),
+            _ => _logger.LogInformation("{Series} has been removed from interest list for user {UserId} automatically", newTvSubscription.Series, newTvSubscription.UserId),
             e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }

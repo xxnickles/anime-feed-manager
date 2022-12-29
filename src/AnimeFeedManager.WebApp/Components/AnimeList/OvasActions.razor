@@ -1,0 +1,98 @@
+
+@using AnimeFeedManager.WebApp.State
+@using AnimeFeedManager.WebApp.Services
+@using AnimeFeedManager.WebApp.Services.Ovas
+@using System.Diagnostics
+@inject IConfirmationMessage ConfirmationMessage
+@inject IOvasSubscriberService OvasSubscriberService
+@inject ApplicationState State
+@inject ISnackbar Snackbar
+
+@if (State.Value.User is ApplicationUser user)
+{
+    @if (!State.Value.OvasSubscriptions.Contains(Anime.Title))
+    {
+        // Subscribe flow
+        if (Anime.AirDate is not null)
+        {
+            <MudChip Label="true" Color="Color.Success">Available for notifications</MudChip>
+            <MudSpacer></MudSpacer>
+            <MudTooltip Text="Subscribe">
+                <MudIconButton Icon="@Icons.Filled.PlaylistAddCheck"
+                               Color="Color.Primary"
+                               OnClick="() => Subscribe(user.Email)"/>
+            </MudTooltip>
+        }
+    }
+    else
+    {
+        // Unsubscribe flow
+        <MudChip Label="true" Color="Color.Secondary">Subscribed for notifications</MudChip>
+        <MudSpacer></MudSpacer>
+        <MudTooltip Text="Unsubscribe">
+            <MudIconButton Icon="@Icons.Filled.PlaylistRemove"
+                           Color="Color.Error"
+                           OnClick="() => Unsubscribe(user.Email)"/>
+        </MudTooltip>
+    } 
+}
+
+
+@code {
+    
+    [CascadingParameter]
+    private Error? Error { get; set; }
+
+    [Parameter]
+    public SimpleAnime Anime { get; set; } = new(
+        string.Empty,
+        string.Empty,
+        string.Empty,
+        string.Empty,
+        null);
+
+    private async Task Subscribe(string userEmail)
+    {
+        if ( await ConfirmationMessage.GetConfirmation("Subscription", $"Would you like to add {Anime.Title} to your subscriptions list?"))
+        {
+            const string key = "lo_subscribe";
+            try
+            {
+                ArgumentNullException.ThrowIfNull(Anime.AirDate);
+                State.AddLoadingItem(key, $"Adding {Anime.Title} to subscriptions");
+                await OvasSubscriberService.Subscribe(userEmail, Anime.Title, Anime.AirDate ?? throw new UnreachableException());
+                State.AddSubscription(Anime.Title);
+                Snackbar.Add($"Subscription to {Anime.Title} has been completed", Severity.Success);
+                State.RemoveLoadingItem(key);
+            }
+            catch (Exception ex)
+            {
+                Error?.ProcessError("Subscribing to Series", ex);
+                State.RemoveLoadingItem(key);
+            }
+        }
+    }
+
+
+    private async Task Unsubscribe(string userEmail)
+    {
+        if ( await ConfirmationMessage.GetConfirmation("Subscription", $"Would you like to add {Anime.Title} to your subscriptions list?"))
+        {
+            const string key = "lo_subscribe";
+            try
+            {
+                ArgumentNullException.ThrowIfNull(Anime.AirDate);
+                State.AddLoadingItem(key, $"Adding {Anime.Title} to subscriptions");
+                await OvasSubscriberService.Unsubscribe(userEmail, Anime.Title);
+                State.AddSubscription(Anime.Title);
+                Snackbar.Add($"Subscription to {Anime.Title} has been completed", Severity.Success);
+                State.RemoveLoadingItem(key);
+            }
+            catch (Exception ex)
+            {
+                Error?.ProcessError("Subscribing to Series", ex);
+                State.RemoveLoadingItem(key);
+            }
+        }
+    }
+}

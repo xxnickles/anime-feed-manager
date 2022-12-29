@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Application.Notifications.Queries;
-using AnimeFeedManager.Application.TvSubscriptions;
 using AnimeFeedManager.Core.Domain;
 using AnimeFeedManager.Services.Collectors.Interface;
 

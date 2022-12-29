@@ -3,6 +3,7 @@ using System.Net;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.WebApp.Services;
+using AnimeFeedManager.WebApp.Services.Ovas;
 using AnimeFeedManager.WebApp.Services.Tv;
 using MudBlazor;
 
@@ -26,22 +27,26 @@ public sealed class UserSideEffects
 
 
     private readonly ITvSubscriberService _tvSubscriberService;
+    private readonly IOvasSubscriberService _ovasSubscriberService;
     private readonly IUserService _userService;
 
     public UserSideEffects(
         ITvSubscriberService tvSubscriberService,
+        IOvasSubscriberService ovasSubscriberService,
         IUserService userService)
     {
         _tvSubscriberService = tvSubscriberService;
+        _ovasSubscriberService = ovasSubscriberService;
         _userService = userService;
     }
 
 
-    public static void CompleteDefaultProfile(ApplicationState state,User user)
+    public static void CompleteDefaultProfile(ApplicationState state, User user)
     {
         state.SetUser(user);
         state.SetSubscriptions(ImmutableList<string>.Empty);
         state.SetInterested(ImmutableList<string>.Empty);
+        state.SetOvasSubscriptions(ImmutableList<string>.Empty);
     }
 
     public async Task CompleteUserProfile(
@@ -153,20 +158,14 @@ public sealed class UserSideEffects
 
     private async Task CompleteProfile(ApplicationState state, string emailValue, CancellationToken token)
     {
-        try
-        {
-            var subscriptions = await _tvSubscriberService.GetSubscriptions(emailValue, token);
-            state.SetSubscriptions(subscriptions);
-        }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-        {
-            state.SetSubscriptions(ImmutableList<string>.Empty);
-        }
-        catch (Exception ex)
-        {
-            state.ReportException(new AppException("Getting Subscriptions", ex));
-        }
+        await GetTvSubscriptions(state, emailValue, token);
+        await GetTvInterested(state, emailValue, token);
+        await GetOvasSubscriptions(state, emailValue, token);
+        state.ReportNotification(new AppNotification("Profile has been completed", Severity.Info));
+    }
 
+    private async Task GetTvInterested(ApplicationState state, string emailValue, CancellationToken token)
+    {
         try
         {
             var interested = await _tvSubscriberService.GetInterested(emailValue, token);
@@ -180,7 +179,39 @@ public sealed class UserSideEffects
         {
             state.ReportException(new AppException("Getting Interested Series", ex));
         }
+    }
 
-        state.ReportNotification(new AppNotification("Profile has been completed", Severity.Info));
+    private async Task GetTvSubscriptions(ApplicationState state, string emailValue, CancellationToken token)
+    {
+        try
+        {
+            var subscriptions = await _tvSubscriberService.GetSubscriptions(emailValue, token);
+            state.SetSubscriptions(subscriptions);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            state.SetSubscriptions(ImmutableList<string>.Empty);
+        }
+        catch (Exception ex)
+        {
+            state.ReportException(new AppException("Getting Subscriptions", ex));
+        }
+    }
+    
+    private async Task GetOvasSubscriptions(ApplicationState state, string emailValue, CancellationToken token)
+    {
+        try
+        {
+            var subscriptions = await _ovasSubscriberService.GetSubscriptions(emailValue, token);
+            state.SetSubscriptions(subscriptions);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            state.SetSubscriptions(ImmutableList<string>.Empty);
+        }
+        catch (Exception ex)
+        {
+            state.ReportException(new AppException("Getting Subscriptions", ex));
+        }
     }
 }
