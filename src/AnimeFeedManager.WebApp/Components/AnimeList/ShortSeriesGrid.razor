@@ -1,10 +1,11 @@
-﻿@if (Collection is not EmptyShortSeasonCollection)
+﻿@using AnimeFeedManager.Common
+@if (Collection is not EmptyShortSeasonCollection)
 {
     <MudGrid>
         @foreach (var series in Collection.Animes)
         {
             <MudItem xs="12" md="4" lg="3">
-                <ShortAnimeCard Anime="series"></ShortAnimeCard>
+                <ShortAnimeCard Anime="series" Type="Type"></ShortAnimeCard>
             </MudItem>
         }
     </MudGrid>
@@ -18,5 +19,8 @@ else
 
     [Parameter]
     public ShortSeasonCollection Collection { get; set; } = new EmptyShortSeasonCollection();
+    
+    [Parameter]
+    public SeriesType Type { get; set; } = SeriesType.None;
 
 }

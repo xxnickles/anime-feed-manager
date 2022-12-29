@@ -142,17 +142,17 @@ public sealed class ApplicationState
     
     public void SetOvasSubscriptions(ImmutableList<string> subscriptions)
     {
-        SetState(Value with {TvSubscriptions = subscriptions});
+        SetState(Value with {OvasSubscriptions = subscriptions});
     }
     
     public void AddOvaSubscription(string subscription)
     {
-        SetState(Value with {TvSubscriptions = Value.OvasSubscriptions.Add(subscription)});
+        SetState(Value with {OvasSubscriptions = Value.OvasSubscriptions.Add(subscription)});
     }
 
     public void RemoveOvaSubscription(string subscription)
     {
-        SetState(Value with {TvSubscriptions = Value.OvasSubscriptions.Remove(subscription)});
+        SetState(Value with {OvasSubscriptions = Value.OvasSubscriptions.Remove(subscription)});
     }
 
     public void AddLoadingItem(string key, string description)

@@ -3,7 +3,7 @@
 @using AnimeFeedManager.WebApp.Components.Common
 @using AnimeFeedManager.WebApp.Services.Tv
 @inject ApplicationState State
-@inject IDialogService DialogService
+@inject IConfirmationMessage ConfirmationMessage
 @inject ITvSubscriberService TvSubscriberService
 @inject ISnackbar Snackbar
 
@@ -111,7 +111,7 @@
 
     private async Task Subscribe(string userEmail)
     {
-        if (await GetConfirmation("Subscription", $"Would you like to add {Anime.Title} to your subscriptions list?"))
+        if (await ConfirmationMessage.GetConfirmation("Subscription", $"Would you like to add {Anime.Title} to your subscriptions list?"))
         {
             const string key = "lo_subscribe";
             try
@@ -133,7 +133,7 @@
 
     private async Task Unsubscribe(string userEmail)
     {
-        if (await GetConfirmation("Unsubscription", $"Would you like to remove {Anime.Title} to your subscriptions list?"))
+        if (await ConfirmationMessage.GetConfirmation("Unsubscription", $"Would you like to remove {Anime.Title} to your subscriptions list?"))
         {
             const string key = "lo_unsubscribe";
             try
@@ -142,7 +142,7 @@
                 State.AddLoadingItem(key, $"Removing {Anime.Title} from subscriptions");
                 await TvSubscriberService.Unsubscribe(userEmail, Anime.FeedInformation.Title ?? string.Empty);
                 State.RemoveSubscription(Anime.FeedInformation.Title ?? string.Empty);
-                Snackbar.Add($"{Anime.Title} has removed from your subscription list", Severity.Success);
+                Snackbar.Add($"{Anime.Title} has been removed from your subscription list", Severity.Success);
                 State.RemoveLoadingItem(key);
             }
             catch (Exception ex)
@@ -155,7 +155,7 @@
 
     private async Task AddToInterested(string userEmail)
     {
-        if (await GetConfirmation("Add to Interested", $"Would you like to add {Anime.Title} to your interested list?"))
+        if (await ConfirmationMessage.GetConfirmation("Add to Interested", $"Would you like to add {Anime.Title} to your interested list?"))
         {
             const string key = "lo_interest";
             try
@@ -176,7 +176,7 @@
 
     private async Task RemoveFromInterested(string userEmail)
     {
-        if (await GetConfirmation("Remove from Interested", $"Would you like to remove {Anime.Title} from your interested list?"))
+        if (await ConfirmationMessage.GetConfirmation("Remove from Interested", $"Would you like to remove {Anime.Title} from your interested list?"))
         {
             const string key = "lo_rinterest";
             try
@@ -195,15 +195,5 @@
         }
     }
 
-
-    private async Task<bool> GetConfirmation(string title, string message)
-    {
-        var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
-        var options = new DialogOptions {CloseOnEscapeKey = true};
-        var dialog = await DialogService.ShowAsync<ConfirmationDialog>(title, parameters, options);
-        var result = await dialog.Result;
-        if (result.Cancelled || result.Data == null) return false;
-        return (bool) result.Data;
-    }
 
 }

@@ -8,7 +8,12 @@
     <MudCardMedia Image="@Anime.Url" Height="250" Title="@Anime.Title"/>
     <div>
         <MudCardContent>
+            @if (Anime.AirDate is not null)
+            {
+                <MudText Typo="Typo.caption" Color="Color.Info">@Anime.AirDate.Value.ToLongDateString()</MudText>
+            }
             <MudText Typo="Typo.h2">@Anime.Title</MudText>
+
             @if (!string.IsNullOrEmpty(@Anime.Synopsis))
             {
                 <MudText Typo="Typo.body2">@Anime.Synopsis</MudText>
@@ -17,27 +22,26 @@
             {
                 <MudText Typo="Typo.body2" Color="Color.Warning">Synopsis Not Available</MudText>
             }
-
         </MudCardContent>
-    </div>
-    @if (State.Value.User is not AnonymousUser)
-    {
-        switch (Type)
-        {
-            case SeriesType.Ova:
-                <OvasActions Anime="Anime"/>
-                break;
-            case SeriesType.Movie:
-                break;
-            case SeriesType.Tv:
-            case SeriesType.None:
-            default:
-                break;
-        }
-        
-        
-    }
 
+    </div>
+    <MudCardActions Class="d-flex">
+        @if (State.Value.User is not AnonymousUser)
+        {
+            switch (Type)
+            {
+                case SeriesType.Ova:
+                    <OvasActions Anime="Anime"/>
+                    break;
+                case SeriesType.Movie:
+                    break;
+                case SeriesType.Tv:
+                case SeriesType.None:
+                default:
+                    break;
+            }
+        }
+    </MudCardActions>
 </MudCard>
 
 @code {

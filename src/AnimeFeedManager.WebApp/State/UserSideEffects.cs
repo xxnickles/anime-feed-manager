@@ -203,11 +203,11 @@ public sealed class UserSideEffects
         try
         {
             var subscriptions = await _ovasSubscriberService.GetSubscriptions(emailValue, token);
-            state.SetSubscriptions(subscriptions);
+            state.SetOvasSubscriptions(subscriptions);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
         {
-            state.SetSubscriptions(ImmutableList<string>.Empty);
+            state.SetOvasSubscriptions(ImmutableList<string>.Empty);
         }
         catch (Exception ex)
         {
