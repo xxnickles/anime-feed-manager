@@ -3,6 +3,7 @@ using System.Net;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.WebApp.Services;
+using AnimeFeedManager.WebApp.Services.Movies;
 using AnimeFeedManager.WebApp.Services.Ovas;
 using AnimeFeedManager.WebApp.Services.Tv;
 using MudBlazor;
@@ -25,18 +26,20 @@ public sealed class UserSideEffects
 
     private record UserNameEmail(string UserId, string Email) : UserEmail(Email);
 
-
     private readonly ITvSubscriberService _tvSubscriberService;
     private readonly IOvasSubscriberService _ovasSubscriberService;
+    private readonly IMoviesSubscriberService _moviesSubscriberService;
     private readonly IUserService _userService;
 
     public UserSideEffects(
         ITvSubscriberService tvSubscriberService,
         IOvasSubscriberService ovasSubscriberService,
+        IMoviesSubscriberService moviesSubscriberService,
         IUserService userService)
     {
         _tvSubscriberService = tvSubscriberService;
         _ovasSubscriberService = ovasSubscriberService;
+        _moviesSubscriberService = moviesSubscriberService;
         _userService = userService;
     }
 
@@ -47,6 +50,7 @@ public sealed class UserSideEffects
         state.SetSubscriptions(ImmutableList<string>.Empty);
         state.SetInterested(ImmutableList<string>.Empty);
         state.SetOvasSubscriptions(ImmutableList<string>.Empty);
+        state.SetMoviesSubscriptions(ImmutableList<string>.Empty);
     }
 
     public async Task CompleteUserProfile(
@@ -161,6 +165,7 @@ public sealed class UserSideEffects
         await GetTvSubscriptions(state, emailValue, token);
         await GetTvInterested(state, emailValue, token);
         await GetOvasSubscriptions(state, emailValue, token);
+        await GetMoviesSubscriptions(state, emailValue, token);
         state.ReportNotification(new AppNotification("Profile has been completed", Severity.Info));
     }
 
@@ -211,7 +216,25 @@ public sealed class UserSideEffects
         }
         catch (Exception ex)
         {
-            state.ReportException(new AppException("Getting Subscriptions", ex));
+            state.ReportException(new AppException("Getting Ovas Subscriptions", ex));
+        }
+    }
+    
+    
+    private async Task GetMoviesSubscriptions(ApplicationState state, string emailValue, CancellationToken token)
+    {
+        try
+        {
+            var subscriptions = await _moviesSubscriberService.GetSubscriptions(emailValue, token);
+            state.SetMoviesSubscriptions(subscriptions);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            state.SetMoviesSubscriptions(ImmutableList<string>.Empty);
+        }
+        catch (Exception ex)
+        {
+            state.ReportException(new AppException("Getting Movies Subscriptions", ex));
         }
     }
 }

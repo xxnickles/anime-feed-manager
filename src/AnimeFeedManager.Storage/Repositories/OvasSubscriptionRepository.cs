@@ -20,7 +20,8 @@ public class OvasSubscriptionRepository : IOvasSubscriptionRepository
     {
         var user = userEmail.Value.UnpackOption(string.Empty);
         return TableUtils.ExecuteQuery(() =>
-            _tableClient.QueryAsync<OvasSubscriptionStorage>(s => s.PartitionKey == user), nameof(SubscriptionStorage));
+                _tableClient.QueryAsync<OvasSubscriptionStorage>(s => s.PartitionKey == user),
+            nameof(OvasSubscriptionStorage));
     }
 
     public Task<Either<DomainError, ImmutableList<OvasSubscriptionStorage>>> GetTodaySubscriptions()
@@ -37,12 +38,11 @@ public class OvasSubscriptionRepository : IOvasSubscriptionRepository
             storage.Processed = true;
             return storage;
         }
-        
+
         return TableUtils.ExecuteQuery(() =>
                 _tableClient.QueryAsync<OvasSubscriptionStorage>(s =>
                     s.PartitionKey == subscriber && s.RowKey == title), nameof(OvasSubscriptionStorage))
             .MapAsync(x => MarkCompleted(x.First()))
-            
             .BindAsync(Merge);
     }
 

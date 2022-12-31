@@ -50,6 +50,7 @@ public sealed class LocalStorageSideEffects
                     ImmutableList<string>.Empty,
                     ImmutableList<string>.Empty,
                     ImmutableList<string>.Empty,
+                    ImmutableList<string>.Empty,
                     ImmutableDictionary<string, string>.Empty
                 ));
                 await state.SetSelectedSeason(new NullSeasonInfo());

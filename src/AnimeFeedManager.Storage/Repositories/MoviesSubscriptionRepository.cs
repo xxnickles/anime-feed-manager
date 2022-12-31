@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Core.Utils;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Infrastructure;
 using AnimeFeedManager.Storage.Interface;
@@ -13,6 +14,13 @@ public class MoviesSubscriptionRepository : IMoviesSubscriptionRepository
     {
         _tableClient = tableClientFactory.GetClient();
         _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
+    }
+
+    public Task<Either<DomainError, ImmutableList<MoviesSubscriptionStorage>>> Get(Email userEmail)
+    {
+        var user = userEmail.Value.UnpackOption(string.Empty);
+        return TableUtils.ExecuteQuery(() =>
+            _tableClient.QueryAsync<MoviesSubscriptionStorage>(s => s.PartitionKey == user), nameof(MoviesSubscriptionStorage));
     }
 
     public Task<Either<DomainError, ImmutableList<MoviesSubscriptionStorage>>> GetTodaySubscriptions()

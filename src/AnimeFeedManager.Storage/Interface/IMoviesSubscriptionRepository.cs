@@ -5,6 +5,7 @@ namespace AnimeFeedManager.Storage.Interface;
 
 public interface IMoviesSubscriptionRepository
 {
+    Task<Either<DomainError, ImmutableList<MoviesSubscriptionStorage>>> Get(Email userEmail);
     Task<Either<DomainError, ImmutableList<MoviesSubscriptionStorage>>> GetTodaySubscriptions();
     Task<Either<DomainError, Unit>> Complete(string subscriber, string title);
     Task<Either<DomainError, Unit>> Merge(MoviesSubscriptionStorage subscription);

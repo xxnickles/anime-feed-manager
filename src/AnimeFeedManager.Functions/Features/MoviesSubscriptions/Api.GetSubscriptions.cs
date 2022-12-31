@@ -1,9 +1,9 @@
-using AnimeFeedManager.Application.OvasSubscriptions.Queries;
+using AnimeFeedManager.Application.MoviesSubscriptions.Queries;
 using AnimeFeedManager.Functions.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Features.OvasSubscriptions;
+namespace AnimeFeedManager.Functions.Features.MoviesSubscriptions;
 
 public class GetSubscriptions
 {
@@ -16,9 +16,9 @@ public class GetSubscriptions
         _logger = loggerFactory.CreateLogger<GetSubscriptions>();
     }
 
-    [Function("GetOvasSubscriptions")]
+    [Function("GetMoviesSubscriptions")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ovas/subscriptions/{subscriber}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Movies/subscriptions/{subscriber}")]
         HttpRequestData req,
         string subscriber)
     {

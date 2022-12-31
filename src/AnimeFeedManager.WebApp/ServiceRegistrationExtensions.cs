@@ -36,6 +36,9 @@ public static class ServiceRegistrationExtensions
         
         services.AddHttpClient<IOvasSubscriberService, OvasSubscriberService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
+        
+        services.AddHttpClient<IMoviesSubscriberService, MoviesSubscriberService>(client =>
+            client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
 
         services.AddScoped<INotificationService,NotificationService>();
 

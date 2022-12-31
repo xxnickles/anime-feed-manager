@@ -25,6 +25,7 @@ public record LocalStorageState(SeasonInfoDto[] AvailableSeasons, long Stamp)
             ImmutableList<string>.Empty,
             ImmutableList<string>.Empty,
             ImmutableList<string>.Empty,
+            ImmutableList<string>.Empty,
             ImmutableDictionary<string, string>.Empty);
 }
 
@@ -37,6 +38,7 @@ public record State(
     ImmutableList<string> TvSubscriptions,
     ImmutableList<string> TvInterested,
     ImmutableList<string> OvasSubscriptions,
+    ImmutableList<string> MoviesSubscriptions,
     ImmutableDictionary<string, string> LoadingItems)
 {
     public static implicit operator LocalStorageState(State state) =>
@@ -54,6 +56,7 @@ public sealed class ApplicationState
         ImmutableList<SeasonInfoDto>.Empty,
         new AnonymousUser(),
         HubConnectionStatus.None,
+        ImmutableList<string>.Empty,
         ImmutableList<string>.Empty,
         ImmutableList<string>.Empty,
         ImmutableList<string>.Empty,
@@ -93,83 +96,98 @@ public sealed class ApplicationState
 
     public async Task SetSelectedSeason(SeasonInfoDto season)
     {
-        SetState(Value with {SelectedSeason = season});
+        SetState(Value with { SelectedSeason = season });
         if (OnSelectedSeason != null) await OnSelectedSeason(season);
     }
 
     public void SetAvailableSeasons(ImmutableList<SeasonInfoDto> seasons)
     {
-        SetState(Value with {AvailableSeasons = seasons});
+        SetState(Value with { AvailableSeasons = seasons });
     }
 
     public void SetUser(User user)
     {
-        SetState(Value with {User = user});
+        SetState(Value with { User = user });
         OnUserChanges?.Invoke(user);
     }
 
     public void SetSubscriptions(ImmutableList<string> subscriptions)
     {
-        SetState(Value with {TvSubscriptions = subscriptions});
+        SetState(Value with { TvSubscriptions = subscriptions });
     }
 
     public void SetInterested(ImmutableList<string> interested)
     {
-        SetState(Value with {TvInterested = interested});
+        SetState(Value with { TvInterested = interested });
     }
 
     public void AddInterested(string interested)
     {
-        SetState(Value with {TvInterested = Value.TvInterested.Add(interested)});
+        SetState(Value with { TvInterested = Value.TvInterested.Add(interested) });
     }
 
 
     public void RemoveInterested(string interested)
     {
-        SetState(Value with {TvInterested = Value.TvInterested.Remove(interested)});
+        SetState(Value with { TvInterested = Value.TvInterested.Remove(interested) });
     }
 
 
     public void AddSubscription(string subscription)
     {
-        SetState(Value with {TvSubscriptions = Value.TvSubscriptions.Add(subscription)});
+        SetState(Value with { TvSubscriptions = Value.TvSubscriptions.Add(subscription) });
     }
 
     public void RemoveSubscription(string subscription)
     {
-        SetState(Value with {TvSubscriptions = Value.TvSubscriptions.Remove(subscription)});
+        SetState(Value with { TvSubscriptions = Value.TvSubscriptions.Remove(subscription) });
     }
-    
+
     public void SetOvasSubscriptions(ImmutableList<string> subscriptions)
     {
-        SetState(Value with {OvasSubscriptions = subscriptions});
+        SetState(Value with { OvasSubscriptions = subscriptions });
     }
-    
+
     public void AddOvaSubscription(string subscription)
     {
-        SetState(Value with {OvasSubscriptions = Value.OvasSubscriptions.Add(subscription)});
+        SetState(Value with { OvasSubscriptions = Value.OvasSubscriptions.Add(subscription) });
     }
 
     public void RemoveOvaSubscription(string subscription)
     {
-        SetState(Value with {OvasSubscriptions = Value.OvasSubscriptions.Remove(subscription)});
+        SetState(Value with { OvasSubscriptions = Value.OvasSubscriptions.Remove(subscription) });
+    }
+
+    public void SetMoviesSubscriptions(ImmutableList<string> subscriptions)
+    {
+        SetState(Value with { MoviesSubscriptions = subscriptions });
+    }
+
+    public void AddMovieSubscription(string subscription)
+    {
+        SetState(Value with { MoviesSubscriptions = Value.MoviesSubscriptions.Add(subscription) });
+    }
+
+    public void RemoveMovieSubscription(string subscription)
+    {
+        SetState(Value with { MoviesSubscriptions = Value.MoviesSubscriptions.Remove(subscription) });
     }
 
     public void AddLoadingItem(string key, string description)
     {
         if (Value.LoadingItems.ContainsKey(key)) return;
-        SetState(Value with {LoadingItems = Value.LoadingItems.Add(key, description)});
+        SetState(Value with { LoadingItems = Value.LoadingItems.Add(key, description) });
     }
 
     public void RemoveLoadingItem(string key)
     {
         if (!Value.LoadingItems.ContainsKey(key)) return;
-        SetState(Value with {LoadingItems = Value.LoadingItems.Remove(key)});
+        SetState(Value with { LoadingItems = Value.LoadingItems.Remove(key) });
     }
 
     public void SetHubStatus(HubConnectionStatus status)
     {
-        SetState(Value with{ HubStatus = status});
+        SetState(Value with { HubStatus = status });
     }
 
     /// <summary>
