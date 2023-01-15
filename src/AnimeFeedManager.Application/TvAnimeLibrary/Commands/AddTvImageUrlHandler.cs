@@ -6,9 +6,11 @@ public class AddTvImageUrlHandler : MediatR.IRequestHandler<AddTvImageUrlCmd, Ei
 {
     private readonly IAnimeInfoRepository _animeInfoRepository;
 
-    public AddTvImageUrlHandler(IAnimeInfoRepository animeInfoRepository) =>
+    public AddTvImageUrlHandler(IAnimeInfoRepository animeInfoRepository)
+    {
         _animeInfoRepository = animeInfoRepository;
-
+    }
+      
 
     public Task<Either<DomainError, Unit>> Handle(AddTvImageUrlCmd request, CancellationToken cancellationToken)
     {

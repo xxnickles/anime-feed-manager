@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Storage.Domain;
 
-public class OvaStorage : ITableEntity
+public sealed class OvaStorage : ITableEntity
 {
     public string? Title { get; set; }
     public string? Synopsis { get; set; }

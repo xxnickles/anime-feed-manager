@@ -2,7 +2,7 @@
 using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
-using AnimeFeedManager.Common.Notifications;
+using AnimeFeedManager.Common.Notifications.Realtime;
 using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Storage.Infrastructure;
 

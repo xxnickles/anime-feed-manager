@@ -36,31 +36,32 @@ public class UploadImage
     [Function("UploadImage")]
     public async Task Run(
         [QueueTrigger(QueueNames.ImageProcess, Connection = "AzureWebJobsStorage")]
-        BlobImageInfoEvent imageInfoEvent
+        StateWrapper<BlobImageInfoEvent> imageInfoEvent
     )
     {
-        _logger.LogInformation("Getting image for {Name} from {RemoteUrl}", imageInfoEvent.BlobName,
-            imageInfoEvent.RemoteUrl);
+        _logger.LogInformation("Getting image for {Name} from {RemoteUrl}", imageInfoEvent.Payload.BlobName,
+            imageInfoEvent.Payload.RemoteUrl);
 
         try
         {
-            var response = await _httpClient.GetAsync(imageInfoEvent.RemoteUrl);
+            var response = await _httpClient.GetAsync(imageInfoEvent.Payload.RemoteUrl);
             response.EnsureSuccessStatusCode();
             await using var ms = await response.Content.ReadAsStreamAsync(default);
 
             var fileLocation =
-                await _imagesStore.Upload($"{imageInfoEvent.BlobName}.jpg", imageInfoEvent.Directory, ms);
-            _logger.LogInformation("{BlobName} has been uploaded", imageInfoEvent.BlobName);
+                await _imagesStore.Upload($"{imageInfoEvent.Payload.BlobName}.jpg", imageInfoEvent.Payload.Directory,
+                    ms);
+            _logger.LogInformation("{BlobName} has been uploaded", imageInfoEvent.Payload.BlobName);
 
             // Update AnimeInfo
             var imageStorage = new ImageStorage
             {
                 ImageUrl = fileLocation.AbsoluteUri,
-                PartitionKey = imageInfoEvent.Partition,
+                PartitionKey = imageInfoEvent.Payload.Partition,
                 RowKey = imageInfoEvent.Id
             };
 
-            await UpdateAnimeInfo(imageInfoEvent.SeriesType, imageStorage);
+            await UpdateAnimeInfo(imageInfoEvent.Id, imageInfoEvent.Payload.SeriesType, imageStorage);
         }
         catch (Exception e)
         {
@@ -68,7 +69,7 @@ public class UploadImage
         }
     }
 
-    private async Task UpdateAnimeInfo(SeriesType type, ImageStorage imageStorage)
+    private async Task UpdateAnimeInfo(string stateId, SeriesType type, ImageStorage imageStorage)
     {
         var result = type switch
         {

@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Storage.Domain;
 
-public class OvasSubscriptionStorage : ITableEntity
+public sealed class OvasSubscriptionStorage : ITableEntity
 {
     public string? PartitionKey { get; set; }
     public string? RowKey { get; set; }

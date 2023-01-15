@@ -2,7 +2,7 @@ using AnimeFeedManager.Application.MoviesLibrary.Queries;
 using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
-using AnimeFeedManager.Common.Notifications;
+using AnimeFeedManager.Common.Notifications.Realtime;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Infrastructure;
 using MediatR;

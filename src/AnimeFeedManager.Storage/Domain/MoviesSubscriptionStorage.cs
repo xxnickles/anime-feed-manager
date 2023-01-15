@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Storage.Domain;
 
-public class MoviesSubscriptionStorage : ITableEntity
+public sealed class MoviesSubscriptionStorage : ITableEntity
 {
     public string? PartitionKey { get; set; }
     public string? RowKey { get; set; }

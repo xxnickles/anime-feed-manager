@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Storage.Domain;
 
-public class UserStorage : ITableEntity
+public sealed class UserStorage : ITableEntity
 {
     public string? Email { get; set; }
     public string? PartitionKey { get; set; }

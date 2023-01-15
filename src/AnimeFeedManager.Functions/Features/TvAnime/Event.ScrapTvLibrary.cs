@@ -4,10 +4,11 @@ using AnimeFeedManager.Application.TvAnimeLibrary.Queries;
 using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
-using AnimeFeedManager.Common.Notifications;
+using AnimeFeedManager.Common.Notifications.Realtime;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Services.Collectors.Interface;
 using AnimeFeedManager.Storage.Infrastructure;
+using AnimeFeedManager.Storage.Interface;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -15,11 +16,14 @@ namespace AnimeFeedManager.Functions.Features.TvAnime;
 
 public class ScrapTvLibraryOutput
 {
-    [QueueOutput(QueueNames.TitleProcess)] public string? TitleMessage { get; set; }
+    [QueueOutput(QueueNames.TitleProcess)] 
+    public string? TitleMessage { get; set; }
 
-    [QueueOutput(QueueNames.TvAnimeLibraryUpdates)] public IEnumerable<string>? AnimeMessages { get; set; }
+    [QueueOutput(QueueNames.TvAnimeLibraryUpdates)]
+    public IEnumerable<string>? AnimeMessages { get; set; }
 
-    [QueueOutput(QueueNames.ImageProcess)] public IEnumerable<string>? ImagesMessages { get; set; }
+    [QueueOutput(QueueNames.ImageProcess)] 
+    public IEnumerable<string>? ImagesMessages { get; set; }
 
     [QueueOutput(QueueNames.AvailableSeasonsUpdates)]
     public string? SeasonMessage { get; set; }
@@ -27,17 +31,26 @@ public class ScrapTvLibraryOutput
 
 public class ScrapTvLibrary
 {
+    private record struct StateLibraryForStorage(
+        ImmutableList<StateWrapper<AnimeInfoStorage>> Animes,
+        ImmutableList<StateWrapper<BlobImageInfoEvent>> Images,
+        SeasonInfoDto Season
+    );
+
+    private readonly IUpdateState _updateState;
     private readonly IDomainPostman _domainPostman;
     private readonly IFeedProvider _feedProvider;
     private readonly IMediator _mediator;
     private readonly ILogger<ScrapTvLibrary> _logger;
 
     public ScrapTvLibrary(
+        IUpdateState _updateState,
         IDomainPostman domainPostman,
         IFeedProvider feedProvider,
         IMediator mediator,
         ILoggerFactory loggerFactory)
     {
+        this._updateState = _updateState;
         _domainPostman = domainPostman;
         _feedProvider = feedProvider;
         _mediator = mediator;
@@ -49,7 +62,6 @@ public class ScrapTvLibrary
         [QueueTrigger(QueueNames.TvAnimeLibraryUpdate, Connection = "AzureWebJobsStorage")]
         LibraryUpdate startProcess)
     {
-
         return startProcess.Type switch
         {
             TvUpdateType.Full => await ProcessFullLibrary(),
@@ -101,31 +113,14 @@ public class ScrapTvLibrary
         _logger.LogInformation("Processing update of the full library");
 
         var result = await _feedProvider.GetTitles()
-            .BindAsync(CollectLibrary);
+            .BindAsync(CollectLibrary)
+            .BindAsync(AddState);
 
 
         return result.Match(
             v =>
             {
                 _logger.LogInformation("Titles have been updated and Series information has been collected");
-
-                _domainPostman.SendMessage(new SeasonProcessNotification(
-                    IdHelpers.GetUniqueId(),
-                    TargetAudience.Admins,
-                    NotificationType.Information,
-                    v.Season,
-                    SeriesType.Tv,
-                    $"{v.Animes.Count} series of {v.Season.Season}-{v.Season.Year} will be stored"));
-
-
-                _domainPostman.SendDelayedMessage(new SeasonProcessNotification(
-                        IdHelpers.GetUniqueId(),
-                        TargetAudience.All,
-                        NotificationType.Update,
-                        v.Season,
-                        SeriesType.Tv,
-                        $"Season information for {v.Season.Season}-{v.Season.Year} has been updated recently"),
-                    new MinutesDelay(1));
 
                 return new ScrapTvLibraryOutput
                 {
@@ -160,5 +155,23 @@ public class ScrapTvLibrary
     {
         return _mediator.Send(new AddTitlesCmd(feedTitles))
             .BindAsync(_ => _mediator.Send(new GetScrappedLibraryQry(feedTitles)));
+    }
+
+
+    private Task<Either<DomainError, StateLibraryForStorage>> AddState(LibraryForStorage library)
+    {
+        Task<Either<DomainError, (string seriesStateId, string imagesStateId)>> CombineIds(string seriesStateId)
+        {
+            return _updateState.Create(Common.Notifications.NotificationType.Images, library.Images.Count)
+                .MapAsync(imgIds => (seriesStateId, imgIds));
+        }
+
+        return _updateState.Create(Common.Notifications.NotificationType.Tv, library.Animes.Count)
+            .BindAsync(CombineIds)
+            .MapAsync(r => new StateLibraryForStorage(
+                library.Animes.ConvertAll(a => new StateWrapper<AnimeInfoStorage>(r.seriesStateId, a)),
+                library.Images.ConvertAll(i => new StateWrapper<BlobImageInfoEvent>(r.imagesStateId, i)),
+                library.Season
+            ));
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Common.Notifications;
+﻿namespace AnimeFeedManager.Common.Notifications.Realtime;
 
 public static class Boxes
 {

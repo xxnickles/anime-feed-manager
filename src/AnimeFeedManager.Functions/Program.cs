@@ -14,13 +14,15 @@ static SendGridConfiguration GetSendGridConfiguration()
 }
 
 var storageConnection = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? string.Empty;
+TryParse(Environment.GetEnvironmentVariable("DownloadChromiumToProjectFolder"),
+    out var downloadChromiumToProjectFolder);
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(s =>
     {
         s.AddHttpClient();
         s.RegisterStorage(storageConnection);
-        s.RegisterPuppeteer();
+        s.RegisterPuppeteer(downloadChromiumToProjectFolder);
         s.RegisterAppServices();
         s.RegisterApplicationServices();
         s.AddSendGrid(options => options.ApiKey = Environment.GetEnvironmentVariable("SendGridKey"));

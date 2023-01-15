@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Storage.Domain;
 
-public class ProcessedTitlesStorage : ITableEntity
+public sealed class ProcessedTitlesStorage : ITableEntity
 {
     public string? PartitionKey { get; set; }
     public string? RowKey { get; set; }

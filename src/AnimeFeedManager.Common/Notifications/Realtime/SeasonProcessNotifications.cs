@@ -1,6 +1,6 @@
 ﻿using AnimeFeedManager.Common.Dto;
 
-namespace AnimeFeedManager.Common.Notifications;
+namespace AnimeFeedManager.Common.Notifications.Realtime;
 
 public enum TargetAudience
 {

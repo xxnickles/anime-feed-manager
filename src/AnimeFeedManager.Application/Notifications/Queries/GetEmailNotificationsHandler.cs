@@ -7,21 +7,21 @@ using FeedInfo = AnimeFeedManager.Core.Domain.FeedInfo;
 
 namespace AnimeFeedManager.Application.Notifications.Queries;
 
-public sealed record GetNotificationsQry
+public sealed record GetEmailNotificationsQry
     (ImmutableList<SubscriptionCollection> SubscriptionsToProcess) : IRequest<
         Either<DomainError, ImmutableList<Notification>>>;
 
-public class GetNotificationsHandler
-    : IRequestHandler<GetNotificationsQry, Either<DomainError, ImmutableList<Notification>>>
+public class GetEmailNotificationsHandler
+    : IRequestHandler<GetEmailNotificationsQry, Either<DomainError, ImmutableList<Notification>>>
 {
     private readonly IFeedProvider _feedProvider;
 
-    public GetNotificationsHandler(IFeedProvider feedProvider)
+    public GetEmailNotificationsHandler(IFeedProvider feedProvider)
     {
         _feedProvider = feedProvider;
     }
 
-    public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetNotificationsQry request,
+    public Task<Either<DomainError, ImmutableList<Notification>>> Handle(GetEmailNotificationsQry request,
         CancellationToken cancellationToken)
     {
         var process = _feedProvider.GetFeed(Resolution.Hd)

@@ -14,7 +14,7 @@ public class GetNotificationsHandlerTests
         var mockRepo = new Mock<IFeedProvider>();
         mockRepo.Setup(r => r.GetFeed(It.IsAny<Resolution>())).Returns(SampleFeed());
 
-        var handler = new GetNotificationsHandler(mockRepo.Object);
+        var handler = new GetEmailNotificationsHandler(mockRepo.Object);
 
         var oneUserSubscription = new[]
         {
@@ -25,7 +25,7 @@ public class GetNotificationsHandlerTests
             })
         }.ToImmutableList();
 
-        var sut = await handler.Handle(new GetNotificationsQry(oneUserSubscription), CancellationToken.None);
+        var sut = await handler.Handle(new GetEmailNotificationsQry(oneUserSubscription), CancellationToken.None);
         Assert.True(sut.IsRight, "Handler should not be in an error state");
 
         sut.Match(
@@ -57,7 +57,7 @@ public class GetNotificationsHandlerTests
         var mockRepo = new Mock<IFeedProvider>();
         mockRepo.Setup(r => r.GetFeed(It.IsAny<Resolution>())).Returns(SampleFeed());
 
-        var handler = new GetNotificationsHandler(mockRepo.Object);
+        var handler = new GetEmailNotificationsHandler(mockRepo.Object);
 
         var oneUserSubscription = new[]
         {
@@ -75,7 +75,7 @@ public class GetNotificationsHandlerTests
             new SubscriptionCollection("test3@test.com", Enumerable.Empty<string>())
         }.ToImmutableList();
 
-        var sut = await handler.Handle(new GetNotificationsQry(oneUserSubscription), CancellationToken.None);
+        var sut = await handler.Handle(new GetEmailNotificationsQry(oneUserSubscription), CancellationToken.None);
         Assert.True(sut.IsRight, "Handler should not be in an error state");
 
         sut.Match(

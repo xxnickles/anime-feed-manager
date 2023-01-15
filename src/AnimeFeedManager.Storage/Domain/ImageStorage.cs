@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Storage.Domain;
 
-public class ImageStorage : ITableEntity
+public sealed class ImageStorage : ITableEntity
 {
     public string? ImageUrl { get; set; }
     public string? PartitionKey { get; set; }

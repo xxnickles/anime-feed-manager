@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Common.Notifications;
+﻿using AnimeFeedManager.Common.Notifications.Realtime;
 
 namespace AnimeFeedManager.Storage.Infrastructure;
 

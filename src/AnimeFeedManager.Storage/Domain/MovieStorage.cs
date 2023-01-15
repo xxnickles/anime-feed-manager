@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Storage.Domain;
 
-public class MovieStorage : ITableEntity
+public sealed class MovieStorage : ITableEntity
 {
     public string? Title { get; set; }
     public string? Synopsis { get; set; }

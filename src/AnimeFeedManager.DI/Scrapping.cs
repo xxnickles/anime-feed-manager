@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using AnimeFeedManager.Common;
+﻿using AnimeFeedManager.Common;
 using Microsoft.Extensions.DependencyInjection;
 using PuppeteerSharp;
 
@@ -7,11 +6,12 @@ namespace AnimeFeedManager.DI;
 
 public static class PuppeteerServiceRegistration
 {
-    public static IServiceCollection RegisterPuppeteer(this IServiceCollection serviceCollection)
+    public static IServiceCollection RegisterPuppeteer(this IServiceCollection serviceCollection,
+        bool downloadToProjectFolder = false)
     {
         var fetcherOptions = new BrowserFetcherOptions();
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        if (!downloadToProjectFolder)
         {
             fetcherOptions.Path = Path.GetTempPath();
         }

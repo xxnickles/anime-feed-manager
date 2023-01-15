@@ -15,7 +15,7 @@ public class AnimeInfoStorage : ITableEntity
     public ETag ETag { get; set; }
 }
 
-public class AnimeInfoWithImageStorage : AnimeInfoStorage
+public sealed class AnimeInfoWithImageStorage : AnimeInfoStorage
 {
     public string? ImageUrl { get; set; }
 }

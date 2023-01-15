@@ -58,7 +58,7 @@ public class EnqueueNotifications
     private Task<Either<DomainError, (ImmutableList<Notification> notifications, ImmutableList<NotifiedTitle> titles)>>
         ProcessSubscriptions(ImmutableList<SubscriptionCollection> subscriptionsToProcess)
     {
-        return _mediator.Send(new GetNotificationsQry(subscriptionsToProcess))
+        return _mediator.Send(new GetEmailNotificationsQry(subscriptionsToProcess))
             .MapAsync(notifications => (notifications, Map(notifications)));
     }
 

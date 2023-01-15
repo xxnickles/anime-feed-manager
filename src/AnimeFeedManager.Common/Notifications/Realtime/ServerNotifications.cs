@@ -1,5 +1,5 @@
 ﻿
-namespace AnimeFeedManager.Common.Notifications;
+namespace AnimeFeedManager.Common.Notifications.Realtime;
 public record ConnectionInfo(string Url, string AccessToken);
 
 public record HubInfo(string ConnectionId);
