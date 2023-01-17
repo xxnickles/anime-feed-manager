@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Infrastructure;
@@ -20,10 +21,11 @@ public class UpdateState : IUpdateState
         var id = Guid.NewGuid().ToString();
         var newState = new UpdateStateStorage
         {
-            RowKey = id,
+            RowKey = Guid.NewGuid().ToString(),
             PartitionKey = type.Value,
-            Completed = 0,
-            Errors = 0
+            Type = UpdateType.Created,
+            SeriesToUpdate = updatesTotal,
+            StateGroup =  id
         };
 
         return TableUtils
@@ -31,56 +33,52 @@ public class UpdateState : IUpdateState
             .MapAsync(_ => id);
     }
 
-    public Task<Either<DomainError, NotificationResult>> AddComplete(string id, NotificationType type)
+    public Task<Either<DomainError, Unit>> AddComplete(string id, NotificationType type)
     {
-        UpdateStateStorage Add(UpdateStateStorage entity)
+        return Merge(new UpdateStateStorage
         {
-            entity.Completed += 1;
-            return entity;
-        }
-        
-        return Get(id, type)
-            .MapAsync(Add)
-            .BindAsync(Merge)
-            .MapAsync(Map);
-        
+            RowKey = Guid.NewGuid().ToString(),
+            StateGroup = id,
+            PartitionKey = type.Value,
+            Type = UpdateType.Complete,
+        });
     }
 
-    public Task<Either<DomainError, NotificationResult>> AddError(string id, NotificationType type)
+    public Task<Either<DomainError, Unit>> AddError(string id, NotificationType type)
     {
-        UpdateStateStorage Add(UpdateStateStorage entity)
+        return Merge(new UpdateStateStorage
         {
-            entity.Errors += 1;
-            return entity;
-        }
-
-        return Get(id, type)
-            .MapAsync(Add)
-            .BindAsync(Merge)
-            .MapAsync(Map);
-            
+            RowKey = Guid.NewGuid().ToString(),
+            StateGroup = id,
+            PartitionKey = type.Value,
+            Type = UpdateType.Error,
+        });
     }
 
-    public Task<Either<DomainError, UpdateStateStorage>> Get(string id, NotificationType type)
+    public Task<Either<DomainError, NotificationResult>> GetCurrent(string id, NotificationType type)
     {
         return TableUtils.ExecuteQuery(() =>
-                _tableClient.QueryAsync<UpdateStateStorage>(n => n.PartitionKey == type.Value && n.RowKey == id),
-            nameof(UpdateStateStorage)).MapAsync(e => e.First());
+                _tableClient.QueryAsync<UpdateStateStorage>(n => n.PartitionKey == type.Value && n.StateGroup == id),
+            nameof(UpdateStateStorage)).MapAsync(Map);
     }
-    
-    private Task<Either<DomainError, UpdateStateStorage>> Merge(UpdateStateStorage updateStateStorage)
+
+    private Task<Either<DomainError, Unit>> Merge(UpdateStateStorage updateStateStorage)
     {
         return TableUtils
             .TryExecute(() => _tableClient.UpsertEntityAsync(updateStateStorage), nameof(NotificationStorage))
-            .MapAsync(_ => updateStateStorage);
+            .MapAsync(_ => new Unit());
+      
     }
 
-    private static NotificationResult Map(UpdateStateStorage storage)
+    private static NotificationResult Map(ImmutableList<UpdateStateStorage> storage)
     {
+        var total = storage.FirstOrDefault(x => x.Type == UpdateType.Created)?.SeriesToUpdate ?? 0;
+        var completed = storage.Count(x => x.Type == UpdateType.Complete);
+        var errors = storage.Count(x => x.Type == UpdateType.Error);
+        
         return new NotificationResult(
-            NotificationType.Parse(storage.PartitionKey),
-            storage.Completed,
-            storage.Errors,
-            storage.Errors + storage.Completed == storage.SeriesToUpdate);
+            completed,
+            errors,
+            total > 0 && completed + errors == total);
     }
 }

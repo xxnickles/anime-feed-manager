@@ -1,8 +1,10 @@
 using AnimeFeedManager.Application.MoviesLibrary.Commands;
 using AnimeFeedManager.Application.OvasLibrary.Commands;
+using AnimeFeedManager.Application.State.Commands;
 using AnimeFeedManager.Application.TvAnimeLibrary.Commands;
 using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Models;
 using AnimeFeedManager.Storage.Infrastructure;
 using MediatR;
@@ -58,7 +60,7 @@ public class UploadImage
             {
                 ImageUrl = fileLocation.AbsoluteUri,
                 PartitionKey = imageInfoEvent.Payload.Partition,
-                RowKey = imageInfoEvent.Id
+                RowKey = imageInfoEvent.Payload.Id
             };
 
             await UpdateAnimeInfo(imageInfoEvent.Id, imageInfoEvent.Payload.SeriesType, imageStorage);
@@ -78,10 +80,35 @@ public class UploadImage
             SeriesType.Movie => await _mediator.Send(new AddMovieImageUrlCmd(imageStorage)),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
-        result.Match(
-            _ => _logger.LogInformation("{ImageStorageRowKey} ({Type}) has been updated", imageStorage.RowKey,
-                type.ToString()),
-            e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
+       var stateResult = await result.MatchAsync(
+            _ => OnSuccess(imageStorage.ImageUrl ?? string.Empty, imageStorage.RowKey ?? string.Empty, stateId, type),
+            e => OnError(imageStorage.ImageUrl ?? string.Empty, e, stateId, type)
         );
+       
+       stateResult.Match(
+           _ => _logger.LogInformation("[{Caller}] State has been updated", "ImageUploader"),
+           e => _logger.LogError("[{CorrelationId}] An error occurred when updating state for image {Title}: {Error}",
+               e.CorrelationId, imageStorage.RowKey, e.Message)
+       );
+    }
+    
+    private Task<Either<DomainError, LanguageExt.Unit>> OnSuccess(
+        string path,
+        string seriesId,
+        string stateId, 
+        SeriesType seriesType)
+    {
+        _logger.LogInformation("{ImageStorageRowKey} ({Type}) has been updated", seriesId, seriesType);
+        return _mediator.Send(new UpdateImageScrapStateCmd(stateId, seriesType, UpdateType.Complete, path));
+    }
+
+    private Task<Either<DomainError, LanguageExt.Unit>> OnError(
+        string path,
+        DomainError error,
+        string stateId, 
+        SeriesType seriesType)
+    {
+        _logger.LogError("[{CorrelationId}]: {Message}", error.CorrelationId, error.Message);
+        return _mediator.Send(new UpdateImageScrapStateCmd(stateId, seriesType, UpdateType.Error, path));
     }
 }

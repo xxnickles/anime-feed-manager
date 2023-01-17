@@ -68,7 +68,7 @@
         var options = new DialogOptions {CloseOnEscapeKey = true};
         var dialog = DialogService.Show<ConfirmationDialog>(title, parameters, options);
         var result = await dialog.Result;
-        if (result.Cancelled || result.Data == null) return false;
+        if (result.Canceled || result.Data == null) return false;
         return (bool) result.Data;
     }
 

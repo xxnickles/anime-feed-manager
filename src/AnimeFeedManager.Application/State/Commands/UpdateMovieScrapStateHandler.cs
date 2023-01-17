@@ -11,16 +11,16 @@ using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Application.State.Commands;
 
-public record UpdateTvScrapStateCmd
+public record UpdateMovieScrapStateCmd
     (string StateId, UpdateType Type, SeasonInfoDto SeasonInfo) : IRequest<Either<DomainError, Unit>>;
 
-public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, Either<DomainError, Unit>>
+public class UpdateMovieScrapStateHandler : IRequestHandler<UpdateMovieScrapStateCmd, Either<DomainError, Unit>>
 {
     private readonly IUpdateState _updateState;
     private readonly IDomainPostman _domainPostman;
     private readonly INotificationsRepository _repository;
 
-    public UpdateTvScrapStateHandler(
+    public UpdateMovieScrapStateHandler(
         IUpdateState updateState,
         IDomainPostman domainPostman,
         INotificationsRepository repository)
@@ -30,7 +30,7 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
         _repository = repository;
     }
 
-    public Task<Either<DomainError, Unit>> Handle(UpdateTvScrapStateCmd request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Unit>> Handle(UpdateMovieScrapStateCmd request, CancellationToken cancellationToken)
     {
         return (request.Type switch
             {
@@ -46,17 +46,18 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
     {
         // Wait a little to catch any other updated
         Task.Delay(500);
-        return _updateState.GetCurrent(id, NotificationType.Tv);
+        return _updateState.GetCurrent(id, NotificationType.Movie);
     }
+
 
     private Task<Either<DomainError, Unit>> UpdateCompletedState(string stateId)
     {
-        return _updateState.AddComplete(stateId, NotificationType.Tv);
+        return _updateState.AddComplete(stateId, NotificationType.Movie);
     }
 
     private Task<Either<DomainError, Unit>> UpdateErrorState(string stateId)
     {
-        return _updateState.AddError(stateId, NotificationType.Tv);
+        return _updateState.AddError(stateId, NotificationType.Movie);
     }
 
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, string season, int year)
@@ -68,7 +69,7 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
             TargetAudience.All,
             Common.Notifications.Realtime.NotificationType.Update,
             new SeasonInfoDto(season, year),
-            SeriesType.Tv,
+            SeriesType.Movie,
             $"Season information for {season}-{year} has been updated"));
 
 
@@ -77,10 +78,10 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
             TargetAudience.Admins,
             Common.Notifications.Realtime.NotificationType.Information,
             new SeasonInfoDto(season, year),
-            SeriesType.Tv,
-            $"TV series has been updated. [{result.Completed}] Completed [{result.Errors}] Errors"));
+            SeriesType.Movie,
+            $"Movie series has been updated. [{result.Completed}] Completed [{result.Errors}] Errors"));
 
-        return await _repository.Merge(UserRoles.Admin, NotificationType.Tv,
+        return await _repository.Merge(UserRoles.Admin, NotificationType.Movie,
             new UpdateNotification(result.Completed, result.Errors));
     }
 }

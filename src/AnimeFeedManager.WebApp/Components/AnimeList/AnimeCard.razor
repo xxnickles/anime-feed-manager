@@ -41,7 +41,7 @@
                         <MudChip Label="true" Color="Color.Success">Available</MudChip>
                         <MudSpacer></MudSpacer>
                         <MudTooltip Text="Subscribe">
-                            <MudIconButton Icon="@Icons.Filled.PlaylistAddCheck"
+                            <MudIconButton Icon="@Icons.Material.Filled.PlaylistAddCheck"
                                            Color="Color.Primary"
                                            OnClick="() => Subscribe(user.Email)"/>
                         </MudTooltip>
@@ -51,7 +51,7 @@
                         <MudChip Label="true" Color="Color.Secondary">Subscribed</MudChip>
                         <MudSpacer></MudSpacer>
                         <MudTooltip Text="Unsubscribe">
-                            <MudIconButton Icon="@Icons.Filled.PlaylistRemove"
+                            <MudIconButton Icon="@Icons.Material.Filled.PlaylistRemove"
                                            Color="Color.Error"
                                            OnClick="() => Unsubscribe(user.Email)"/>
                         </MudTooltip>
@@ -72,7 +72,7 @@
                     if (!State.Value.TvInterested.Contains(Anime.Title))
                     {
                         <MudTooltip Text="Add to Interested">
-                            <MudIconButton Icon="@Icons.Filled.AddBox"
+                            <MudIconButton Icon="@Icons.Material.Filled.AddBox"
                                            Color="Color.Primary"
                                            OnClick="() => AddToInterested(user.Email)"/>
                         </MudTooltip>
@@ -80,7 +80,7 @@
                     else
                     {
                         <MudTooltip Text="Remove from Interested">
-                            <MudIconButton Icon="@Icons.Filled.RemoveCircleOutline"
+                            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
                                            Color="Color.Error"
                                            OnClick="() => RemoveFromInterested(user.Email)"/>
                         </MudTooltip>

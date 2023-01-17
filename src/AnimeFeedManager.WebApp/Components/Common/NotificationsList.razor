@@ -3,7 +3,7 @@
 @using AnimeFeedManager.Common.Notifications.Realtime
 
 <MudBadge Dot="true" Overlap="true" Color="Color.Secondary" Visible="_unreadNotifications > 0">
-    <MudMenu Icon="@Icons.Filled.Notifications" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter">
+    <MudMenu Icon="@Icons.Material.Filled.Notifications" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter">
         @if (Notifications.Any())
         {
             @foreach (var notification in Notifications)
@@ -13,7 +13,7 @@
                     <MudText Typo="Typo.subtitle2" Color="@GetColor(notification.Type)">
                         @if (!notification.Read)
                         {
-                            <MudIcon Style="font-size: 0.7rem; margin-right: 0.5rem;" Icon="@Icons.Filled.Circle" Color="@GetColor(notification.Type)" Title="Unread"/>
+                            <MudIcon Style="font-size: 0.7rem; margin-right: 0.5rem;" Icon="@Icons.Material.Filled.Circle" Color="@GetColor(notification.Type)" Title="Unread"/>
                         }
                         @GetTitle(notification.Source)
                     </MudText>

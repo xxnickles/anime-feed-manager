@@ -18,14 +18,14 @@
             <MudChip Label="true" Color="Color.Success">Available for notifications</MudChip>
             <MudSpacer></MudSpacer>
             <MudTooltip Text="Subscribe">
-                <MudIconButton Icon="@Icons.Filled.PlaylistAddCheck"
+                <MudIconButton Icon="@Icons.Material.Filled.PlaylistAddCheck"
                                Color="Color.Primary"
                                OnClick="() => Subscribe(user.Email)"/>
             </MudTooltip>
         }
         else
         {
-            <MudChip Label="true" Color="Color.Info" Icon="@Icons.Filled.Info">No actions available</MudChip>
+            <MudChip Label="true" Color="Color.Info" Icon="@Icons.Material.Filled.Info">No actions available</MudChip>
             <MudSpacer></MudSpacer>
         }
     }
@@ -35,7 +35,7 @@
         <MudChip Label="true" Color="Color.Secondary">Subscribed for notifications</MudChip>
         <MudSpacer></MudSpacer>
         <MudTooltip Text="Unsubscribe">
-            <MudIconButton Icon="@Icons.Filled.PlaylistRemove"
+            <MudIconButton Icon="@Icons.Material.Filled.PlaylistRemove"
                            Color="Color.Error"
                            OnClick="() => Unsubscribe(user.Email)"/>
         </MudTooltip>

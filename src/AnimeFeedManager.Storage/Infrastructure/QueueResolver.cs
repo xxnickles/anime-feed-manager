@@ -15,6 +15,7 @@ public sealed class QueueResolver : IQueueResolver
         {
             nameof(SeasonProcessNotification) => Boxes.SeasonProcessNotifications,
             nameof(TitlesUpdateNotification) => Boxes.TitleUpdatesNotifications,
+            nameof(ImageUpdateNotification) => Boxes.ImageUpdateNotifications,
             _ => throw new ArgumentException($"Type '{type.Name}' has not an associated queue")
         };
     }

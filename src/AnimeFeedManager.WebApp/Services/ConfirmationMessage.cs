@@ -23,7 +23,7 @@ public class ConfirmationMessage : IConfirmationMessage
         var options = new DialogOptions {CloseOnEscapeKey = true};
         var dialog = await _dialogService.ShowAsync<ConfirmationDialog>(title, parameters, options);
         var result = await dialog.Result;
-        if (result.Cancelled || result.Data == null) return false;
+        if (result.Canceled || result.Data == null) return false;
         return (bool) result.Data;
     }
 }

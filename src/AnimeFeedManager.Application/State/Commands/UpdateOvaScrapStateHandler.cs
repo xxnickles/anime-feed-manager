@@ -11,16 +11,16 @@ using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Application.State.Commands;
 
-public record UpdateTvScrapStateCmd
+public record UpdateOvaScrapStateCmd
     (string StateId, UpdateType Type, SeasonInfoDto SeasonInfo) : IRequest<Either<DomainError, Unit>>;
 
-public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, Either<DomainError, Unit>>
+public class UpdateOvaScrapStateHandler : IRequestHandler<UpdateOvaScrapStateCmd, Either<DomainError, Unit>>
 {
     private readonly IUpdateState _updateState;
     private readonly IDomainPostman _domainPostman;
     private readonly INotificationsRepository _repository;
 
-    public UpdateTvScrapStateHandler(
+    public UpdateOvaScrapStateHandler(
         IUpdateState updateState,
         IDomainPostman domainPostman,
         INotificationsRepository repository)
@@ -30,7 +30,7 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
         _repository = repository;
     }
 
-    public Task<Either<DomainError, Unit>> Handle(UpdateTvScrapStateCmd request, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Unit>> Handle(UpdateOvaScrapStateCmd request, CancellationToken cancellationToken)
     {
         return (request.Type switch
             {
@@ -44,19 +44,17 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
 
     private Task<Either<DomainError, NotificationResult>> GetLastState(string id)
     {
-        // Wait a little to catch any other updated
-        Task.Delay(500);
-        return _updateState.GetCurrent(id, NotificationType.Tv);
+        return _updateState.GetCurrent(id, NotificationType.Ova);
     }
 
     private Task<Either<DomainError, Unit>> UpdateCompletedState(string stateId)
     {
-        return _updateState.AddComplete(stateId, NotificationType.Tv);
+        return _updateState.AddComplete(stateId, NotificationType.Ova);
     }
 
     private Task<Either<DomainError, Unit>> UpdateErrorState(string stateId)
     {
-        return _updateState.AddError(stateId, NotificationType.Tv);
+        return _updateState.AddError(stateId, NotificationType.Ova);
     }
 
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, string season, int year)
@@ -68,7 +66,7 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
             TargetAudience.All,
             Common.Notifications.Realtime.NotificationType.Update,
             new SeasonInfoDto(season, year),
-            SeriesType.Tv,
+            SeriesType.Ova,
             $"Season information for {season}-{year} has been updated"));
 
 
@@ -77,10 +75,10 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
             TargetAudience.Admins,
             Common.Notifications.Realtime.NotificationType.Information,
             new SeasonInfoDto(season, year),
-            SeriesType.Tv,
-            $"TV series has been updated. [{result.Completed}] Completed [{result.Errors}] Errors"));
+            SeriesType.Ova,
+            $"Ova series has been updated. [{result.Completed}] Completed [{result.Errors}] Errors"));
 
-        return await _repository.Merge(UserRoles.Admin, NotificationType.Tv,
+        return await _repository.Merge(UserRoles.Admin, NotificationType.Ova,
             new UpdateNotification(result.Completed, result.Errors));
     }
 }

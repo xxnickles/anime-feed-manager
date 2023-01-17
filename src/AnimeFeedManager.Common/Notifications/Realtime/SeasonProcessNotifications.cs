@@ -27,11 +27,14 @@ public record SeasonProcessNotification(
     SeasonInfoDto Season,
     SeriesType SeriesType,
     string Message
-):RealtimeNotification(Id, TargetAudience, Result, Message);
+) : RealtimeNotification(Id, TargetAudience, Result, Message);
 
 public record TitlesUpdateNotification(
     string Id,
     TargetAudience TargetAudience,
     NotificationType Result,
     string Message
-):RealtimeNotification(Id, TargetAudience, Result, Message);
+) : RealtimeNotification(Id, TargetAudience, Result, Message);
+
+public record ImageUpdateNotification(string Id,NotificationType Result, SeriesType SeriesType, string Message) : RealtimeNotification(Id,
+    TargetAudience.Admins, Result, Message);

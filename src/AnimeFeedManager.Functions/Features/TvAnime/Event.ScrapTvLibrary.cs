@@ -44,13 +44,13 @@ public class ScrapTvLibrary
     private readonly ILogger<ScrapTvLibrary> _logger;
 
     public ScrapTvLibrary(
-        IUpdateState _updateState,
+        IUpdateState updateState,
         IDomainPostman domainPostman,
         IFeedProvider feedProvider,
         IMediator mediator,
         ILoggerFactory loggerFactory)
     {
-        this._updateState = _updateState;
+        _updateState = updateState;
         _domainPostman = domainPostman;
         _feedProvider = feedProvider;
         _mediator = mediator;

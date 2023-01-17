@@ -6,7 +6,7 @@
 
         <MudTooltip Text="@PreviousSeasonLabel">
             <MudIconButton Color="Color.Primary"
-                           Icon="@Icons.Filled.ArrowBackIosNew"
+                           Icon="@Icons.Material.Filled.ArrowBackIosNew"
                            Disabled="@(SelectedIndex == CollectionLength || CollectionLength == 0)"
                            OnClick="Forward">
             </MudIconButton>
@@ -19,7 +19,7 @@
 
         <MudTooltip Text="@NextSeasonLabel">
             <MudIconButton Color="Color.Primary"
-                           Icon="@Icons.Filled.ArrowForwardIos"
+                           Icon="@Icons.Material.Filled.ArrowForwardIos"
                            Disabled="@(SelectedIndex == 0 || CollectionLength == 0)"
                            OnClick="Backwards">
             </MudIconButton>
@@ -30,7 +30,7 @@
 else
 {
     <div class="d-flex justify-center">
-        <MudChip Icon="@Icons.Filled.Warning" Label="true" Color="Color.Warning">No Season Data Available</MudChip>
+        <MudChip Icon="@Icons.Material.Filled.Warning" Label="true" Color="Color.Warning">No Season Data Available</MudChip>
     </div>
 }
 

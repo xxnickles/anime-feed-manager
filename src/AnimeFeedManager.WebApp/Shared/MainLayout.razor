@@ -126,7 +126,7 @@
 
     private async ValueTask OnSelectedSeason(SeasonInfoDto season)
     {
-    // If for whatever reason Selected season goes null have, try to stabilize reloading info from server
+        // If for whatever reason Selected season goes null have, try to stabilize reloading info from server
         if (season is NullSeasonInfo)
         {
             await SeasonSideEffects.LoadAvailableSeasons(State, true, _cts.Token);
@@ -144,7 +144,7 @@
         var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
         var result = await dialog.Result;
 
-        if (!result.Cancelled && result.Data != null)
+        if (!result.Canceled && result.Data != null)
         {
             return result.Data.ToString() ?? string.Empty;
         }
