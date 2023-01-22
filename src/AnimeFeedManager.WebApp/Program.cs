@@ -23,8 +23,11 @@ builder.Services.AddPWAUpdater();
 builder.Services.RegisterHttpServices(builder.Configuration.GetValue<string>("ApiUrl") ?? builder.HostEnvironment.BaseAddress);
 builder.Services.AddMudServices(config =>
 {
+    config.SnackbarConfiguration.PreventDuplicates = true;
+    config.SnackbarConfiguration.MaxDisplayedSnackbars = 1;
+    config.SnackbarConfiguration.BackgroundBlurred = true;
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
-    config.SnackbarConfiguration.VisibleStateDuration = 8000;
+    config.SnackbarConfiguration.VisibleStateDuration = 6000;
 });
 
 builder.Services.AddStaticWebAppsAuthentication();

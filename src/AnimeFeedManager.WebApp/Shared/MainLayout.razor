@@ -42,15 +42,20 @@
             switch (State.Value.HubStatus)
             {
                 case HubConnectionStatus.Disconnected:
-                    <MudChip Variant="Variant.Text" Color="Color.Error">Notifications are not available</MudChip>
+                    <MudTooltip Text="Notifications are not available">
+                        <MudIconButton Icon="@Icons.Material.Filled.SignalWifiBad" aria-label="Notifications are not available" Color="Color.Error" Disabled="true" Size="Size.Medium"></MudIconButton>
+                    </MudTooltip>
                     break;
                 case HubConnectionStatus.Connected:
-                    <MudChip Variant="Variant.Text" Color="Color.Success">Connected to Notifications Hub</MudChip>
+                    <MudTooltip Text="Connected to Notifications Hub">
+                        <MudIconButton Icon="@Icons.Material.Filled.SignalWifiStatusbar4Bar" aria-label="Connected to Notifications Hub" Color="Color.Success" Size="Size.Medium"></MudIconButton>
+                    </MudTooltip>
                     break;
                 case HubConnectionStatus.None:
                 default:
-
-                    <MudChip Variant="Variant.Text" Color="Color.Warning">Invalid Notification Status</MudChip>
+                    <MudTooltip Text="Invalid Notification Status">
+                        <MudIconButton Icon="@Icons.Material.Filled.SignalWifiStatusbarConnectedNoInternet4" aria-label="Invalid Notification Status" Color="Color.Warning" Size="Size.Medium"></MudIconButton>
+                    </MudTooltip>
                     break;
             }
         }

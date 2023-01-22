@@ -70,7 +70,6 @@ public class ScrapTvLibrary
         };
     }
 
-
     private async Task<ScrapTvLibraryOutput> ProcessTitles()
     {
         _logger.LogInformation("Processing update of the feed titles only");

@@ -70,7 +70,7 @@ public class UpdateOvaScrapStateHandler : IRequestHandler<UpdateOvaScrapStateCmd
             Common.Notifications.Realtime.NotificationType.Information,
             new SeasonInfoDto(season, year),
             SeriesType.Ova,
-            $"Ova series has been updated. [Completed]: {result.Completed} [Errors]: {result.Errors}"));
+            $"Ova series has been updated. Completed: {result.Completed} Errors: {result.Errors}"));
 
         return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Ova,
             new UpdateNotification(result.Completed, result.Errors));

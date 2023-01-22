@@ -70,7 +70,7 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
             Common.Notifications.Realtime.NotificationType.Information,
             new SeasonInfoDto(season, year),
             SeriesType.Tv,
-            $"TV series has been updated. [Completed]: {result.Completed} [Errors]: {result.Errors}"));
+            $"TV series has been updated. Completed: {result.Completed} Errors: {result.Errors}"));
 
         return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Tv,
             new UpdateNotification(result.Completed, result.Errors));

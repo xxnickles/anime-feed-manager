@@ -9,6 +9,7 @@ namespace AnimeFeedManager.WebApp.Services.Notifications;
 public interface IServerNotificationProcessingService
 {
     event Func<SeasonProcessNotification, Task>? SeasonProcessNotification;
+    event Func<ImageUpdateNotification, Task>? ImagesUpdateNotification;
     event Func<TitlesUpdateNotification, Task>? TitlesUpdateNotification;
     event Func<HubConnectionStatus, ValueTask>? ConnectionStatus;
     public event Action<Exception>? ExceptionRisen;
@@ -33,6 +34,7 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     private readonly HttpClient _httpClient;
     private readonly ILogger<ServerNotificationProcessingService> _logger;
 
+    public event Func<ImageUpdateNotification, Task>? ImagesUpdateNotification;
     public event Func<TitlesUpdateNotification, Task>? TitlesUpdateNotification;
     public event Func<HubConnectionStatus, ValueTask>? ConnectionStatus;
     public event Action<Exception>? ExceptionRisen;
@@ -123,6 +125,9 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
 
         hubConnection.On<TitlesUpdateNotification>(ServerNotifications.TitleUpdate,
             notification => { TitlesUpdateNotification?.Invoke(notification); });
+
+        hubConnection.On<ImageUpdateNotification>(ServerNotifications.ImageUpdate,
+            notification => { ImagesUpdateNotification?.Invoke(notification); });
     }
 
     private void SubscribeToHubStatus(HubConnection hubConnection)

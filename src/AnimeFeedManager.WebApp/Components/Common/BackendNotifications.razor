@@ -24,7 +24,19 @@
         ServerNotificationProcessingService.ConnectionStatus += ProcessStatusChanges;
         ServerNotificationProcessingService.SeasonProcessNotification += OnSeasonProcessNotification;
         ServerNotificationProcessingService.TitlesUpdateNotification += OnTitlesUpdateNotification;
+        ServerNotificationProcessingService.ImagesUpdateNotification += OnImagesUpdateNotification;
         await ServerNotificationProcessingService.SubscribeToNotifications();
+    }
+
+    private Task OnImagesUpdateNotification(ImageUpdateNotification notification)
+    {
+        var source = notification.SeriesType switch {
+            SeriesType.Movie => NotificationSource.Movies,
+            SeriesType.Ova => NotificationSource.Ovas,
+            SeriesType.Tv => NotificationSource.TV,
+            SeriesType.None => NotificationSource.None
+            };
+        return ProcessNotification(notification, source);
     }
 
     private void OnExceptionRisen(Exception ex)
@@ -43,8 +55,7 @@
             SeriesType.Tv => NotificationSource.TV,
             SeriesType.Movie => NotificationSource.Movies,
             SeriesType.Ova => NotificationSource.Ovas,
-            _ => throw new UnreachableException()}
-            ;
+            _ => throw new UnreachableException()};
 
         return ProcessNotification(notification, source);
     }

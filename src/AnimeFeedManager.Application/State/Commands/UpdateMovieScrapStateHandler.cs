@@ -71,7 +71,7 @@ public class UpdateMovieScrapStateHandler : IRequestHandler<UpdateMovieScrapStat
             Common.Notifications.Realtime.NotificationType.Information,
             new SeasonInfoDto(season, year),
             SeriesType.Movie,
-            $"Movie series has been updated. [Completed]: {result.Completed} [Errors]: {result.Errors}"));
+            $"Movie series has been updated. Completed: {result.Completed} Errors: {result.Errors}"));
 
         return await _repository.Merge(result.Id,UserRoles.Admin, NotificationType.Movie,
             new UpdateNotification(result.Completed, result.Errors));

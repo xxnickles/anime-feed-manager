@@ -58,12 +58,11 @@ public class UpdateImageScrapStateHandler : IRequestHandler<UpdateImageScrapStat
     {
         if (!result.ShouldNotify) return new Unit();
 
-
         await _domainPostman.SendMessage(new ImageUpdateNotification(
             IdHelpers.GetUniqueId(),
             Common.Notifications.Realtime.NotificationType.Information,
             seriesType,
-            $"Images for {seriesType}/{path} have been scrapped. [Completed]: {result.Completed} [Errors]: {result.Errors}"));
+            $"Images for {seriesType} have been scrapped. Completed: {result.Completed} Errors: {result.Errors}"));
 
         return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Images,
             new UpdateNotification(result.Completed, result.Errors));

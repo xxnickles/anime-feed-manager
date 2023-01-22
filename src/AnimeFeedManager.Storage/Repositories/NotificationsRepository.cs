@@ -35,7 +35,7 @@ public class NotificationsRepository : INotificationsRepository
     {
         return TableUtils.ExecuteQuery(() =>
                 _tableClient.QueryAsync<NotificationStorage>(n =>
-                    n.PartitionKey == userId && n.PartitionKey == UserRoles.Admin),
+                    n.PartitionKey == userId && n.PartitionKey == UserRoles.Admin ),
             nameof(NotificationStorage));
     }
 
