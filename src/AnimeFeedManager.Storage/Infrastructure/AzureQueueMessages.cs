@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace AnimeFeedManager.Storage.Infrastructure;
 
-public record struct MinutesDelay()
+public readonly record struct MinutesDelay()
 {
     public ushort Value { get; } = 0;
 

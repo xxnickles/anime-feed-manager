@@ -31,7 +31,7 @@ public class ScrapTvLibraryOutput
 
 public class ScrapTvLibrary
 {
-    private record struct StateLibraryForStorage(
+    private readonly record struct StateLibraryForStorage(
         ImmutableList<StateWrapper<AnimeInfoStorage>> Animes,
         ImmutableList<StateWrapper<BlobImageInfoEvent>> Images,
         SeasonInfoDto Season

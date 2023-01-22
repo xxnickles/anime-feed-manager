@@ -40,21 +40,15 @@ public class UpdateImageScrapStateHandler : IRequestHandler<UpdateImageScrapStat
                 UpdateType.Error => UpdateErrorState(request.StateId),
                 _ => throw new UnreachableException($"'{nameof(request.Type)}' Should not have invalid value")
             })
-            .BindAsync(_ => GetLastState(request.StateId))
             .BindAsync(nr => CheckState(nr, request.SeriesType, request.Path));
     }
 
-    private Task<Either<DomainError, NotificationResult>> GetLastState(string id)
-    {
-        return _updateState.GetCurrent(id, NotificationType.Images);
-    }
-
-    private Task<Either<DomainError, Unit>> UpdateCompletedState(string stateId)
+    private Task<Either<DomainError, NotificationResult>> UpdateCompletedState(string stateId)
     {
         return _updateState.AddComplete(stateId, NotificationType.Images);
     }
 
-    private Task<Either<DomainError, Unit>> UpdateErrorState(string stateId)
+    private Task<Either<DomainError, NotificationResult>> UpdateErrorState(string stateId)
     {
         return _updateState.AddError(stateId, NotificationType.Images);
     }
@@ -62,16 +56,16 @@ public class UpdateImageScrapStateHandler : IRequestHandler<UpdateImageScrapStat
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, SeriesType seriesType,
         string path)
     {
-        if (!result.IsCompleted) return new Unit();
+        if (!result.ShouldNotify) return new Unit();
 
 
         await _domainPostman.SendMessage(new ImageUpdateNotification(
             IdHelpers.GetUniqueId(),
             Common.Notifications.Realtime.NotificationType.Information,
             seriesType,
-            $"Images for {seriesType}/{path} have been scrapped. [{result.Completed}] Completed [{result.Errors}] Errors"));
+            $"Images for {seriesType}/{path} have been scrapped. [Completed]: {result.Completed} [Errors]: {result.Errors}"));
 
-        return await _repository.Merge(UserRoles.Admin, NotificationType.Images,
+        return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Images,
             new UpdateNotification(result.Completed, result.Errors));
     }
 }

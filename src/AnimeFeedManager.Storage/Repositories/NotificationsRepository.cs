@@ -39,12 +39,12 @@ public class NotificationsRepository : INotificationsRepository
             nameof(NotificationStorage));
     }
 
-    public Task<Either<DomainError, Unit>> Merge<T>(string userId, NotificationType type, T payload)
+    public Task<Either<DomainError, Unit>> Merge<T>(string id,string userId, NotificationType type, T payload)
     {
         var notificationStorage = new NotificationStorage
         {
             PartitionKey = type != NotificationType.Admin ? userId : UserRoles.Admin,
-            RowKey = Guid.NewGuid().ToString(),
+            RowKey = id,
             Payload = JsonSerializer.Serialize(payload, _serializerOptions),
             Type = type.Value
         };

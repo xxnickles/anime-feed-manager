@@ -38,30 +38,22 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
                 UpdateType.Error => UpdateErrorState(request.StateId),
                 _ => throw new UnreachableException($"'{nameof(request.Type)}' Should not have invalid value")
             })
-            .BindAsync(_ => GetLastState(request.StateId))
             .BindAsync(nr => CheckState(nr, request.SeasonInfo.Season, request.SeasonInfo.Year));
     }
 
-    private Task<Either<DomainError, NotificationResult>> GetLastState(string id)
-    {
-        // Wait a little to catch any other updated
-        Task.Delay(500);
-        return _updateState.GetCurrent(id, NotificationType.Tv);
-    }
-
-    private Task<Either<DomainError, Unit>> UpdateCompletedState(string stateId)
+    private Task<Either<DomainError, NotificationResult >> UpdateCompletedState(string stateId)
     {
         return _updateState.AddComplete(stateId, NotificationType.Tv);
     }
 
-    private Task<Either<DomainError, Unit>> UpdateErrorState(string stateId)
+    private Task<Either<DomainError, NotificationResult>> UpdateErrorState(string stateId)
     {
         return _updateState.AddError(stateId, NotificationType.Tv);
     }
 
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, string season, int year)
     {
-        if (!result.IsCompleted) return new Unit();
+        if (!result.ShouldNotify) return new Unit();
 
         await _domainPostman.SendMessage(new SeasonProcessNotification(
             IdHelpers.GetUniqueId(),
@@ -78,9 +70,9 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
             Common.Notifications.Realtime.NotificationType.Information,
             new SeasonInfoDto(season, year),
             SeriesType.Tv,
-            $"TV series has been updated. [{result.Completed}] Completed [{result.Errors}] Errors"));
+            $"TV series has been updated. [Completed]: {result.Completed} [Errors]: {result.Errors}"));
 
-        return await _repository.Merge(UserRoles.Admin, NotificationType.Tv,
+        return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Tv,
             new UpdateNotification(result.Completed, result.Errors));
     }
 }

@@ -10,7 +10,7 @@ using MudBlazor;
 
 namespace AnimeFeedManager.WebApp.State;
 
-public record struct UserInformation(
+public readonly record struct UserInformation(
     string UserId,
     string UserName,
     bool IsAdmin

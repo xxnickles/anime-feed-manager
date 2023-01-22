@@ -22,7 +22,7 @@ public class ScrapMoviesLibraryOutput
 
 public class ScrapMoviesLibrary
 {
-    private record struct StateLibraryForStorage(
+    private readonly record struct StateLibraryForStorage(
         ImmutableList<StateWrapper<MovieStorage>> Movies,
         ImmutableList<StateWrapper<BlobImageInfoEvent>> Images,
         SeasonInfoDto Season

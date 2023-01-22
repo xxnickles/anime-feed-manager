@@ -22,7 +22,7 @@ public class ScrapOvasLibraryOutput
 
 public class ScrapOvasLibrary
 {
-    private record struct StateLibraryForStorage(
+    private readonly record struct StateLibraryForStorage(
         ImmutableList<StateWrapper<OvaStorage>> Ovas,
         ImmutableList<StateWrapper<BlobImageInfoEvent>> Images,
         SeasonInfoDto Season

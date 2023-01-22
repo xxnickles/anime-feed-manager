@@ -3,7 +3,7 @@ using static LanguageExt.Prelude;
 
 namespace AnimeFeedManager.Core.ConstrainedTypes;
 
-public record struct Year 
+public readonly record struct Year 
 {
     public readonly Option<ushort> Value;
 

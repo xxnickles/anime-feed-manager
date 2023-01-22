@@ -4,5 +4,6 @@ public enum UpdateType
 {
     Created,
     Error,
-    Complete
+    Complete,
+    Done
 }

@@ -6,9 +6,9 @@ using MudBlazor;
 
 namespace AnimeFeedManager.WebApp.State;
 
-public record struct AppException(string Identifier, Exception Exception);
+public readonly record struct AppException(string Identifier, Exception Exception);
 
-public record struct AppNotification(string Message, Severity Severity);
+public readonly record struct AppNotification(string Message, Severity Severity);
 
 // Using array as trimming (for serialization purposes) is not so nice with immutable lists. We have no control of the local storage library serialization
 // It is just simple to use a native primitive just for the sake of it.

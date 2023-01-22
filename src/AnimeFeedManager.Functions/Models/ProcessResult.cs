@@ -15,7 +15,7 @@ public enum TvUpdateType
     Titles
 }
 
-public record struct LibraryUpdate(TvUpdateType Type);
+public readonly record struct LibraryUpdate(TvUpdateType Type);
 
 public enum ShortSeriesUpdateType
 {
@@ -23,6 +23,6 @@ public enum ShortSeriesUpdateType
     Season
 }
 
-public record struct OvasUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
-public record struct MoviesUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
+public readonly record struct OvasUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
+public readonly record struct MoviesUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
 

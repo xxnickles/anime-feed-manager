@@ -38,28 +38,22 @@ public class UpdateOvaScrapStateHandler : IRequestHandler<UpdateOvaScrapStateCmd
                 UpdateType.Error => UpdateErrorState(request.StateId),
                 _ => throw new UnreachableException($"'{nameof(request.Type)}' Should not have invalid value")
             })
-            .BindAsync(_ => GetLastState(request.StateId))
             .BindAsync(nr => CheckState(nr, request.SeasonInfo.Season, request.SeasonInfo.Year));
     }
 
-    private Task<Either<DomainError, NotificationResult>> GetLastState(string id)
-    {
-        return _updateState.GetCurrent(id, NotificationType.Ova);
-    }
-
-    private Task<Either<DomainError, Unit>> UpdateCompletedState(string stateId)
+    private Task<Either<DomainError, NotificationResult>> UpdateCompletedState(string stateId)
     {
         return _updateState.AddComplete(stateId, NotificationType.Ova);
     }
 
-    private Task<Either<DomainError, Unit>> UpdateErrorState(string stateId)
+    private Task<Either<DomainError, NotificationResult>> UpdateErrorState(string stateId)
     {
         return _updateState.AddError(stateId, NotificationType.Ova);
     }
 
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, string season, int year)
     {
-        if (!result.IsCompleted) return new Unit();
+        if (!result.ShouldNotify) return new Unit();
 
         await _domainPostman.SendMessage(new SeasonProcessNotification(
             IdHelpers.GetUniqueId(),
@@ -76,9 +70,9 @@ public class UpdateOvaScrapStateHandler : IRequestHandler<UpdateOvaScrapStateCmd
             Common.Notifications.Realtime.NotificationType.Information,
             new SeasonInfoDto(season, year),
             SeriesType.Ova,
-            $"Ova series has been updated. [{result.Completed}] Completed [{result.Errors}] Errors"));
+            $"Ova series has been updated. [Completed]: {result.Completed} [Errors]: {result.Errors}"));
 
-        return await _repository.Merge(UserRoles.Admin, NotificationType.Ova,
+        return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Ova,
             new UpdateNotification(result.Completed, result.Errors));
     }
 }
