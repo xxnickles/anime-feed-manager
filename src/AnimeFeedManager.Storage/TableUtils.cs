@@ -80,6 +80,7 @@ internal static class TableUtils
     {
         try
         {
+            if (!entities.Any()) return Right(unit);
             var deleteEntitiesBatch = entities
                 .Select(entityToDelete => new TableTransactionAction(TableTransactionActionType.Delete, entityToDelete))
                 .ToList();

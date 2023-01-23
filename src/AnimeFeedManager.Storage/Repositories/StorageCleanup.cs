@@ -21,23 +21,23 @@ public class StorageCleanup : IStorageCleanup
         _notificationsTableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
-    public Task<Either<DomainError, Unit>> CleanOldState()
+    public Task<Either<DomainError, Unit>> CleanOldState(DateTimeOffset beforeOf)
     {
         return TableUtils.ExecuteQueryWithEmpty(
-                () => _stateTableClient.QueryAsync<UpdateStateStorage>(s => s.Timestamp <= DateTime.Now.AddDays(-7)),
+                () => _stateTableClient.QueryAsync<UpdateStateStorage>(s => s.Timestamp <= beforeOf),
                 nameof(UpdateStateStorage))
             .BindAsync(entities => TableUtils.BatchDelete(_stateTableClient, entities, nameof(UpdateStateStorage)))
             .MapAsync(r => new Unit());
     }
 
-    public Task<Either<DomainError, Unit>> CleanOldNotifications()
+    public Task<Either<DomainError, Unit>> CleanOldNotifications(DateTimeOffset beforeOf)
     {
         // Cleaning Admin Notifications Only for now
         return TableUtils.ExecuteQueryWithEmpty(
                 () => _notificationsTableClient.QueryAsync<NotificationStorage>(s =>
-                    s.PartitionKey == UserRoles.Admin && s.Timestamp <= DateTime.Now.AddDays(-30)),
+                    s.PartitionKey == UserRoles.Admin && s.Timestamp <= beforeOf),
                 nameof(UpdateStateStorage))
-            .BindAsync(entities => TableUtils.BatchDelete(_stateTableClient, entities, nameof(UpdateStateStorage)))
+            .BindAsync(entities => TableUtils.BatchDelete(_notificationsTableClient, entities, nameof(NotificationStorage)))
             .MapAsync(r => new Unit());
     }
 }

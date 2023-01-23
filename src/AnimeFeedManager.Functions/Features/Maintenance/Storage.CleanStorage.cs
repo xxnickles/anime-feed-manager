@@ -17,7 +17,7 @@ public class CleanStorage
     [Function("CleanOldNotifications")]
     public async Task RunCleanNotifications([TimerTrigger("0 0 0 1 * *")] TimerInfo timer)
     {
-        var result = await _storageCleanup.CleanOldNotifications();
+        var result = await _storageCleanup.CleanOldNotifications(DateTime.Now.AddDays(-30));
         result.Match(
             _ => { _logger.LogInformation("Old notification has been cleaned"); },
             e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
@@ -27,7 +27,7 @@ public class CleanStorage
     [Function("CleanOldState")]
     public async Task RunCleanState([TimerTrigger("0 0 10 * * SAT")] TimerInfo timer)
     {
-        var result = await _storageCleanup.CleanOldState();
+        var result = await _storageCleanup.CleanOldState(DateTime.Now.AddDays(-7));
         result.Match(
             _ => { _logger.LogInformation("Old state has been cleaned"); },
             e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)

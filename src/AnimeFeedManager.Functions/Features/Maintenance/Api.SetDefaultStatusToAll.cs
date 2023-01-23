@@ -1,6 +1,10 @@
+using System.Collections.Immutable;
 using AnimeFeedManager.Application.TvAnimeLibrary.Queries;
+using AnimeFeedManager.Common;
+using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Models;
+using AnimeFeedManager.Storage.Interface;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -15,11 +19,17 @@ public class SetDefaultStatusResponse
 
 public class SetDefaultStatusToAll
 {
+    private readonly IUpdateState _updateState;
     private readonly IMediator _mediator;
     private readonly ILogger<SetDefaultStatusToAll> _logger;
 
-    public SetDefaultStatusToAll(IMediator mediator, ILoggerFactory loggerFactory)
+
+    public SetDefaultStatusToAll(
+        IUpdateState updateState,
+        IMediator mediator, 
+        ILoggerFactory loggerFactory)
     {
+        _updateState = updateState;
         _mediator = mediator;
         _logger = loggerFactory.CreateLogger<SetDefaultStatusToAll>();
     }
@@ -31,13 +41,15 @@ public class SetDefaultStatusToAll
     {
 
         var result = await req.AllowAdminOnly(new GetAllQry())
-            .BindAsync(r => _mediator.Send(r));
+            .BindAsync(r => _mediator.Send(r))
+            .MapAsync(r => r.ConvertAll(SetDefaultStatus))
+            .BindAsync(AddState);
 
 
         return await result.MatchAsync(
             async r => new SetDefaultStatusResponse
             {
-                AnimeMessages = r.Select(SetDefaultStatus).Select(Serializer.ToJson),
+                AnimeMessages = r.Select(Serializer.ToJson),
                 HttpResponse = await req.Ok()
             },
             async e => new SetDefaultStatusResponse
@@ -52,5 +64,12 @@ public class SetDefaultStatusToAll
     {
         storage.Completed = false;
         return storage;
+    }
+    
+    private Task<Either<DomainError, ImmutableList<StateWrapper<AnimeInfoStorage>>>> AddState(
+        ImmutableList<AnimeInfoStorage> animes)
+    {
+        return _updateState.Create(NotificationType.Tv, animes.Count)
+            .MapAsync(id => animes.ConvertAll(a => new StateWrapper<AnimeInfoStorage>(id, a)));
     }
 }

@@ -46,7 +46,7 @@ public class NotificationsRepository : INotificationsRepository
             PartitionKey = type != NotificationType.Admin ? userId : UserRoles.Admin,
             RowKey = id,
             Payload = JsonSerializer.Serialize(payload, _serializerOptions),
-            Type = type.Value
+            Type = type.Value,
         };
         return TableUtils
             .TryExecute(() => _tableClient.UpsertEntityAsync(notificationStorage), nameof(NotificationStorage))
