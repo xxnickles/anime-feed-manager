@@ -22,6 +22,7 @@ internal static class Repositories
         services.AddScoped<IOvasSubscriptionRepository, OvasSubscriptionRepository>();
         services.AddScoped<INotificationsRepository, NotificationsRepository>();
         services.AddScoped<IUpdateState, UpdateState>();
+        services.AddScoped<IStorageCleanup, StorageCleanup>();
         return services;
     }
 }

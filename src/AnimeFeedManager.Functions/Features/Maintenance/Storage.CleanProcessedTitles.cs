@@ -16,9 +16,7 @@ public class CleanProcessedTitles
     }
 
     [Function("CleanProcessedTitles")]
-    public async Task Run(
-        [TimerTrigger("0 30 1 * * *")] TimerInfo timer
-        )
+    public async Task Run([TimerTrigger("0 30 1 * * *")] TimerInfo timer)
     {
         var result = await _mediator.Send(new CleanProcessedTitlesCmd());
         result.Match(

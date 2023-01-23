@@ -96,7 +96,7 @@ public class UpdateState : IUpdateState
     }
 
 
-    public Task<Either<DomainError, UpdateStateStorage>> GetCurrent(string id, NotificationType type)
+    private Task<Either<DomainError, UpdateStateStorage>> GetCurrent(string id, NotificationType type)
     {
         return TableUtils.TryExecute(() => _tableClient.GetEntityAsync<UpdateStateStorage>(type.Value, id),
                 nameof(UpdateStateStorage))
@@ -106,7 +106,7 @@ public class UpdateState : IUpdateState
     private static NotificationResult Map(UpdateStateStorage storage)
     {
         return new NotificationResult(
-            storage.RowKey,
+            storage.RowKey!,
             storage.Completed,
             storage.Errors,
             storage.SeriesToUpdate > 0 && storage.SeriesToUpdate == storage.Completed + storage.Errors);

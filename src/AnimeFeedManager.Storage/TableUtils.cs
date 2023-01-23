@@ -4,6 +4,13 @@ namespace AnimeFeedManager.Storage;
 
 internal static class TableUtils
 {
+    /// <summary>
+    /// Executes a query. Returns Domain Error on empty results
+    /// </summary>
+    /// <param name="query">Query</param>
+    /// <param name="typeName">Parameter name</param>
+    /// <typeparam name="T">Table Entity</typeparam>
+    /// <returns>Error or Immutable list of <typeparamref name="T"/> (only when there are results)</returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQuery<T>(
         Func<AsyncPageable<T>> query, string typeName) where T : ITableEntity
     {
@@ -27,6 +34,13 @@ internal static class TableUtils
         }
     }
 
+    /// <summary>
+    /// Executes a query with default empty results
+    /// </summary>
+    /// <param name="query">Query</param>
+    /// <param name="typeName">Parameter name</param>
+    /// <typeparam name="T">Table Entity</typeparam>
+    /// <returns>Error or Immutable list of <typeparamref name="T"/></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithEmpty<T>(
         Func<AsyncPageable<T>> query, string typeName) where T : ITableEntity
     {
