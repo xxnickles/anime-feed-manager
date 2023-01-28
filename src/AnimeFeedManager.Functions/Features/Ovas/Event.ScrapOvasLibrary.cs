@@ -94,11 +94,11 @@ public class ScrapOvasLibrary
     {
         Task<Either<DomainError, (string seriesStateId, string imagesStateId)>> CombineIds(string seriesStateId)
         {
-            return _updateState.Create(Common.Notifications.NotificationType.Images, library.Images.Count)
+            return _updateState.Create(Common.Notifications.NotificationFor.Images, library.Images.Count)
                 .MapAsync(imgIds => (seriesStateId, imgIds));
         }
 
-        return _updateState.Create(Common.Notifications.NotificationType.Ova, library.Ovas.Count)
+        return _updateState.Create(Common.Notifications.NotificationFor.Ova, library.Ovas.Count)
             .BindAsync(CombineIds)
             .MapAsync(r => new StateLibraryForStorage(
                 library.Ovas.ConvertAll(a => new StateWrapper<OvaStorage>(r.seriesStateId, a)),

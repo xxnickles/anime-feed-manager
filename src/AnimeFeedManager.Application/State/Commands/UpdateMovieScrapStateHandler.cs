@@ -44,12 +44,12 @@ public class UpdateMovieScrapStateHandler : IRequestHandler<UpdateMovieScrapStat
 
     private Task<Either<DomainError, NotificationResult>> UpdateCompletedState(string stateId)
     {
-        return _updateState.AddComplete(stateId, NotificationType.Movie);
+        return _updateState.AddComplete(stateId, NotificationFor.Movie);
     }
 
     private Task<Either<DomainError, NotificationResult>> UpdateErrorState(string stateId)
     {
-        return _updateState.AddError(stateId, NotificationType.Movie);
+        return _updateState.AddError(stateId, NotificationFor.Movie);
     }
 
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, string season, int year)
@@ -73,7 +73,10 @@ public class UpdateMovieScrapStateHandler : IRequestHandler<UpdateMovieScrapStat
             SeriesType.Movie,
             $"Movie series has been updated. Completed: {result.Completed} Errors: {result.Errors}"));
 
-        return await _repository.Merge(result.Id,UserRoles.Admin, NotificationType.Movie,
+        return await _repository.Merge(
+            result.Id,UserRoles.Admin, 
+            NotificationFor.Movie,
+            NotificationType.Update, 
             new UpdateNotification(result.Completed, result.Errors));
     }
 }

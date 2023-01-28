@@ -39,14 +39,15 @@ public class NotificationsRepository : INotificationsRepository
             nameof(NotificationStorage));
     }
 
-    public Task<Either<DomainError, Unit>> Merge<T>(string id,string userId, NotificationType type, T payload)
+    public Task<Either<DomainError, Unit>> Merge<T>(string id,string userId, NotificationFor @for, NotificationType type, T payload)
     {
         var notificationStorage = new NotificationStorage
         {
-            PartitionKey = type != NotificationType.Admin ? userId : UserRoles.Admin,
+            PartitionKey = @for != NotificationFor.Admin ? userId : UserRoles.Admin,
             RowKey = id,
             Payload = JsonSerializer.Serialize(payload, _serializerOptions),
             Type = type.Value,
+            For = @for.Value
         };
         return TableUtils
             .TryExecute(() => _tableClient.UpsertEntityAsync(notificationStorage), nameof(NotificationStorage))

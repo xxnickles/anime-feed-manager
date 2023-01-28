@@ -7,5 +7,6 @@ public class NotificationStorage : ITableEntity
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
     public string? Payload { get; set; }
+    public string? For { get; set; }
     public string? Type { get; set; }
 }

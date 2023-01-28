@@ -43,12 +43,12 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
 
     private Task<Either<DomainError, NotificationResult >> UpdateCompletedState(string stateId)
     {
-        return _updateState.AddComplete(stateId, NotificationType.Tv);
+        return _updateState.AddComplete(stateId, NotificationFor.Tv);
     }
 
     private Task<Either<DomainError, NotificationResult>> UpdateErrorState(string stateId)
     {
-        return _updateState.AddError(stateId, NotificationType.Tv);
+        return _updateState.AddError(stateId, NotificationFor.Tv);
     }
 
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, string season, int year)
@@ -72,7 +72,11 @@ public class UpdateTvScrapStateHandler : IRequestHandler<UpdateTvScrapStateCmd, 
             SeriesType.Tv,
             $"TV series has been updated. Completed: {result.Completed} Errors: {result.Errors}"));
 
-        return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Tv,
+        return await _repository.Merge(
+            result.Id,
+            UserRoles.Admin,
+            NotificationFor.Tv,
+            NotificationType.Update, 
             new UpdateNotification(result.Completed, result.Errors));
     }
 }

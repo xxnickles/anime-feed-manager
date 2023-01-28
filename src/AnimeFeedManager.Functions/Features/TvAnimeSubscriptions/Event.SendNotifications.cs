@@ -43,8 +43,12 @@ public class SendNotifications
             var response = await _client.SendEmailAsync(message);
             if (response.IsSuccessStatusCode)
             {
-                await _notificationsRepository.Merge(Guid.NewGuid().ToString(), notification.Subscriber,
-                    NotificationType.Tv, new TvNotification(DateTime.Now, notification.Feeds));
+                await _notificationsRepository.Merge(
+                    Guid.NewGuid().ToString(), 
+                    notification.Subscriber,
+                    NotificationFor.Tv, 
+                    NotificationType.Feed, 
+                    new TvNotification(DateTime.Now, notification.Feeds));
                 _logger.LogInformation("Sending notification to {NotificationSubscriber}", notification.Subscriber);
             }
             else

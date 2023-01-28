@@ -43,12 +43,12 @@ public class UpdateOvaScrapStateHandler : IRequestHandler<UpdateOvaScrapStateCmd
 
     private Task<Either<DomainError, NotificationResult>> UpdateCompletedState(string stateId)
     {
-        return _updateState.AddComplete(stateId, NotificationType.Ova);
+        return _updateState.AddComplete(stateId, NotificationFor.Ova);
     }
 
     private Task<Either<DomainError, NotificationResult>> UpdateErrorState(string stateId)
     {
-        return _updateState.AddError(stateId, NotificationType.Ova);
+        return _updateState.AddError(stateId, NotificationFor.Ova);
     }
 
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, string season, int year)
@@ -72,7 +72,11 @@ public class UpdateOvaScrapStateHandler : IRequestHandler<UpdateOvaScrapStateCmd
             SeriesType.Ova,
             $"Ova series has been updated. Completed: {result.Completed} Errors: {result.Errors}"));
 
-        return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Ova,
+        return await _repository.Merge(
+            result.Id, 
+            UserRoles.Admin,
+            NotificationFor.Ova,
+            NotificationType.Update, 
             new UpdateNotification(result.Completed, result.Errors));
     }
 }

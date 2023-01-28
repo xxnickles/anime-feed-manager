@@ -72,7 +72,7 @@ public class UpdateAnimeStatus
     private Task<Either<DomainError, ImmutableList<StateWrapper<AnimeInfoStorage>>>> AddState(
         ImmutableList<AnimeInfoStorage> animes)
     {
-        return _updateState.Create(NotificationType.Tv, animes.Count)
+        return _updateState.Create(NotificationFor.Tv, animes.Count)
             .MapAsync(id => animes.ConvertAll(a => new StateWrapper<AnimeInfoStorage>(id, a)));
     }
 }

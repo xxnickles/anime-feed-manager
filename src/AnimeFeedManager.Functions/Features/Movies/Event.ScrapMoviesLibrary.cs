@@ -93,11 +93,11 @@ public class ScrapMoviesLibrary
     {
         Task<Either<DomainError, (string seriesStateId, string imagesStateId)>> CombineIds(string seriesStateId)
         {
-            return _updateState.Create(Common.Notifications.NotificationType.Images, library.Images.Count)
+            return _updateState.Create(Common.Notifications.NotificationFor.Images, library.Images.Count)
                 .MapAsync(imgIds => (seriesStateId, imgIds));
         }
 
-        return _updateState.Create(Common.Notifications.NotificationType.Movie, library.Movies.Count)
+        return _updateState.Create(Common.Notifications.NotificationFor.Movie, library.Movies.Count)
             .BindAsync(CombineIds)
             .MapAsync(r => new StateLibraryForStorage(
                 library.Movies.ConvertAll(a => new StateWrapper<MovieStorage>(r.seriesStateId, a)),

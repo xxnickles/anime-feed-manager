@@ -45,12 +45,12 @@ public class UpdateImageScrapStateHandler : IRequestHandler<UpdateImageScrapStat
 
     private Task<Either<DomainError, NotificationResult>> UpdateCompletedState(string stateId)
     {
-        return _updateState.AddComplete(stateId, NotificationType.Images);
+        return _updateState.AddComplete(stateId, NotificationFor.Images);
     }
 
     private Task<Either<DomainError, NotificationResult>> UpdateErrorState(string stateId)
     {
-        return _updateState.AddError(stateId, NotificationType.Images);
+        return _updateState.AddError(stateId, NotificationFor.Images);
     }
 
     private async Task<Either<DomainError, Unit>> CheckState(NotificationResult result, SeriesType seriesType,
@@ -64,7 +64,10 @@ public class UpdateImageScrapStateHandler : IRequestHandler<UpdateImageScrapStat
             seriesType,
             $"Images for {seriesType} have been scrapped. Completed: {result.Completed} Errors: {result.Errors}"));
 
-        return await _repository.Merge(result.Id, UserRoles.Admin, NotificationType.Images,
+        return await _repository.Merge(
+            result.Id, UserRoles.Admin,
+            NotificationFor.Images,
+            NotificationType.Update,
             new UpdateNotification(result.Completed, result.Errors));
     }
 }

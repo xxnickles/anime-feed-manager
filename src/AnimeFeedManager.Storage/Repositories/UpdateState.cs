@@ -15,13 +15,13 @@ public class UpdateState : IUpdateState
         _tableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
-    public Task<Either<DomainError, string>> Create(NotificationType type, int updatesTotal)
+    public Task<Either<DomainError, string>> Create(NotificationFor @for, int updatesTotal)
     {
         var id = Guid.NewGuid().ToString();
         var newState = new UpdateStateStorage
         {
             RowKey = id,
-            PartitionKey = type.Value,
+            PartitionKey = @for.Value,
             Errors = 0,
             Completed = 0,
             SeriesToUpdate = updatesTotal
@@ -32,7 +32,7 @@ public class UpdateState : IUpdateState
             .MapAsync(_ => id);
     }
 
-    public Task<Either<DomainError, NotificationResult>> AddComplete(string id, NotificationType type)
+    public Task<Either<DomainError, NotificationResult>> AddComplete(string id, NotificationFor @for)
     {
         UpdateStateStorage Add(UpdateStateStorage original)
         {
@@ -40,10 +40,10 @@ public class UpdateState : IUpdateState
             return original;
         }
 
-        return TryUpdate(id, type, Add);
+        return TryUpdate(id, @for, Add);
     }
 
-    public Task<Either<DomainError, NotificationResult>> AddError(string id, NotificationType type)
+    public Task<Either<DomainError, NotificationResult>> AddError(string id, NotificationFor @for)
     {
         UpdateStateStorage Add(UpdateStateStorage original)
         {
@@ -51,10 +51,10 @@ public class UpdateState : IUpdateState
             return original;
         }
 
-        return TryUpdate(id, type, Add);
+        return TryUpdate(id, @for, Add);
     }
 
-    private async Task<Either<DomainError, NotificationResult>> TryUpdate(string id, NotificationType type,
+    private async Task<Either<DomainError, NotificationResult>> TryUpdate(string id, NotificationFor @for,
         Func<UpdateStateStorage, UpdateStateStorage> modifier)
     {
         var keepTrying = true;
@@ -65,7 +65,7 @@ public class UpdateState : IUpdateState
         {
             try
             {
-                finalResult = await GetCurrent(id, type)
+                finalResult = await GetCurrent(id, @for)
                     .MapAsync(modifier)
                     .MapAsync(Update);
 
@@ -96,9 +96,9 @@ public class UpdateState : IUpdateState
     }
 
 
-    private Task<Either<DomainError, UpdateStateStorage>> GetCurrent(string id, NotificationType type)
+    private Task<Either<DomainError, UpdateStateStorage>> GetCurrent(string id, NotificationFor @for)
     {
-        return TableUtils.TryExecute(() => _tableClient.GetEntityAsync<UpdateStateStorage>(type.Value, id),
+        return TableUtils.TryExecute(() => _tableClient.GetEntityAsync<UpdateStateStorage>(@for.Value, id),
                 nameof(UpdateStateStorage))
             .MapAsync(r => r.Value);
     }
