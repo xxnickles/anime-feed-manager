@@ -10,11 +10,11 @@ namespace AnimeFeedManager.Functions.Extensions;
 
 internal static class SendGridMessageExtensions
 {
-    internal static SendGridMessage AddInfoFromNotification(this SendGridMessage @this, ShorSeriesSubscriptionCollection notification)
+    internal static SendGridMessage AddInfoFromNotification(this SendGridMessage @this, ShortSeriesSubscriptionCollection notification, string type)
     {
         @this.AddTo(notification.Subscriber);
         @this.SetSubject(DefaultSubject());
-        @this.AddContent(MimeType.Html, CreateHtmlBody(notification.Series));
+        @this.AddContent(MimeType.Html, CreateHtmlBody(notification.Series, type));
         return @this;
     }
     
@@ -26,12 +26,11 @@ internal static class SendGridMessageExtensions
         return @this;
     }
 
-    private static string CreateHtmlBody(IEnumerable<ShortSeries> feeds)
+    private static string CreateHtmlBody(IEnumerable<ShortSeries> feeds, string type)
     {
         const string rowStyle = "style=\"vertical-align:top; padding: 20px 15px;\"";
         const string dateStyle = "style=\"font-size: 12px; line-height: 1.5; margin: 0;\"";
         const string contentStyle = "style=\"line-height: 1.2; font-size: 18px; color: #2bbbb2; margin: 0;\"";
-        const string linkStyle = "style=\"margin: 0;\"";
         var stringBuilder = new StringBuilder();
         stringBuilder.Append(
             @"<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"">");
@@ -46,7 +45,7 @@ internal static class SendGridMessageExtensions
         stringBuilder.Append("</head>");
         stringBuilder.Append("<body>");
         stringBuilder.AppendLine(
-            "<p style=\"color: #28404F\">The following OVAs has been released:</p>");
+            $"<p style=\"color: #28404F\">The following {type}s has been released:</p>");
         stringBuilder.AppendLine("<table>");
         stringBuilder.AppendLine("<tbody>");
         foreach (var subscribedFeed in feeds)

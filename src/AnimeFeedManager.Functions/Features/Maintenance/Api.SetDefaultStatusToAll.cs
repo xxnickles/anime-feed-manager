@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using AnimeFeedManager.Application.TvAnimeLibrary.Queries;
 using AnimeFeedManager.Common;
+using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Models;

@@ -4,10 +4,10 @@ using MediatR;
 
 namespace AnimeFeedManager.Application.OvasSubscriptions.Queries;
 
-public record GetTodaySubscriptionsQry : IRequest<Either<DomainError, ImmutableList<ShorSeriesSubscriptionCollection>>>;
+public record GetTodaySubscriptionsQry : IRequest<Either<DomainError, ImmutableList<ShortSeriesSubscriptionCollection>>>;
 
 public class GetTodaySubscriptionsHandler : IRequestHandler<GetTodaySubscriptionsQry,
-    Either<DomainError, ImmutableList<ShorSeriesSubscriptionCollection>>>
+    Either<DomainError, ImmutableList<ShortSeriesSubscriptionCollection>>>
 {
     private readonly IOvasSubscriptionRepository _subscriptionRepository;
 
@@ -16,7 +16,7 @@ public class GetTodaySubscriptionsHandler : IRequestHandler<GetTodaySubscription
         _subscriptionRepository = subscriptionRepository;
     }
 
-    public Task<Either<DomainError, ImmutableList<ShorSeriesSubscriptionCollection>>> Handle(
+    public Task<Either<DomainError, ImmutableList<ShortSeriesSubscriptionCollection>>> Handle(
         GetTodaySubscriptionsQry request,
         CancellationToken cancellationToken)
     {
@@ -25,12 +25,12 @@ public class GetTodaySubscriptionsHandler : IRequestHandler<GetTodaySubscription
             .MapAsync(Project);
     }
 
-    private static ImmutableList<ShorSeriesSubscriptionCollection> Project(ImmutableList<OvasSubscriptionStorage> original)
+    private static ImmutableList<ShortSeriesSubscriptionCollection> Project(ImmutableList<OvasSubscriptionStorage> original)
     {
         return original.GroupBy(
                 x => x.PartitionKey,
-                x => new ShortSeries(x.RowKey, x.DateToNotify?.DateTime ?? DateTime.Today),
-                (key, list) => new ShorSeriesSubscriptionCollection(key ?? string.Empty, list))
+                x => new ShortSeries(x!.RowKey, x.DateToNotify?.DateTime ?? DateTime.Today),
+                (key, list) => new ShortSeriesSubscriptionCollection(key ?? string.Empty, list))
             .ToImmutableList();
     }
 }
