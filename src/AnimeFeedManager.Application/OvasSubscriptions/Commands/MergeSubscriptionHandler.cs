@@ -20,7 +20,7 @@ public class MergeSubscriptionHandler : IRequestHandler<MergeSubscriptionCmd, Ei
     {
         return Validate(request)
             .ToEither(nameof(MergeSubscriptionCmd))
-            .BindAsync(Persit);
+            .BindAsync(Persist);
     }
 
     private Validation<ValidationError, MergeSubscriptionCmd> Validate(MergeSubscriptionCmd request)
@@ -30,7 +30,7 @@ public class MergeSubscriptionHandler : IRequestHandler<MergeSubscriptionCmd, Ei
             .Apply((subscriber, title) => new MergeSubscriptionCmd(subscriber, title, request.NotificationDate));
     }
 
-    private Task<Either<DomainError, Unit>> Persit(MergeSubscriptionCmd request)
+    private Task<Either<DomainError, Unit>> Persist(MergeSubscriptionCmd request)
     {
         return _subscriptionRepository.Merge(Map(request));
     }

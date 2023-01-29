@@ -1,6 +1,8 @@
 ﻿using System.Text;
+using AnimeFeedManager.Application;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Helpers;
+using AnimeFeedManager.Common.Notifications;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -8,12 +10,60 @@ namespace AnimeFeedManager.Functions.Extensions;
 
 internal static class SendGridMessageExtensions
 {
+    internal static SendGridMessage AddInfoFromNotification(this SendGridMessage @this, ShorSeriesSubscriptionCollection notification)
+    {
+        @this.AddTo(notification.Subscriber);
+        @this.SetSubject(DefaultSubject());
+        @this.AddContent(MimeType.Html, CreateHtmlBody(notification.Series));
+        return @this;
+    }
+    
     internal static SendGridMessage AddInfoFromNotification(this SendGridMessage @this, Notification notification)
     {
         @this.AddTo(notification.Subscriber);
         @this.SetSubject(DefaultSubject());
         @this.AddContent(MimeType.Html, CreateHtmlBody(notification.Feeds));
         return @this;
+    }
+
+    private static string CreateHtmlBody(IEnumerable<ShortSeries> feeds)
+    {
+        const string rowStyle = "style=\"vertical-align:top; padding: 20px 15px;\"";
+        const string dateStyle = "style=\"font-size: 12px; line-height: 1.5; margin: 0;\"";
+        const string contentStyle = "style=\"line-height: 1.2; font-size: 18px; color: #2bbbb2; margin: 0;\"";
+        const string linkStyle = "style=\"margin: 0;\"";
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append(
+            @"<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"">");
+        stringBuilder.Append("<html>");
+        stringBuilder.Append("<head>");
+        stringBuilder.Append(@"<style type=""text/css"">
+                    body, p, div {
+                      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+                      font-size: 16px;
+                    }
+                    </style>");
+        stringBuilder.Append("</head>");
+        stringBuilder.Append("<body>");
+        stringBuilder.AppendLine(
+            "<p style=\"color: #28404F\">The following OVAs has been released:</p>");
+        stringBuilder.AppendLine("<table>");
+        stringBuilder.AppendLine("<tbody>");
+        foreach (var subscribedFeed in feeds)
+        {
+            stringBuilder.AppendLine("<tr>");
+            stringBuilder.AppendLine($"<td {rowStyle}>");
+            stringBuilder.AppendLine($"<p {dateStyle}>{subscribedFeed.Publication:f}</p>");
+            stringBuilder.AppendLine($"<p {contentStyle}><strong>{subscribedFeed.Title}</strong></p>");
+            stringBuilder.AppendLine("</td>");
+            stringBuilder.AppendLine("</tr>");
+        }
+        stringBuilder.AppendLine("</tbody>");
+        stringBuilder.AppendLine("</table>");
+        stringBuilder.Append("</body>");
+        stringBuilder.Append("</html>");
+
+        return stringBuilder.ToString();
     }
 
     private static string CreateHtmlBody(IEnumerable<SubscribedFeed> feeds)
@@ -36,7 +86,7 @@ internal static class SendGridMessageExtensions
         stringBuilder.Append("</head>");
         stringBuilder.Append("<body>");
         stringBuilder.AppendLine(
-            "<p style=\"color: #28404F\">Available download links based on your subscription for Today:</p>");
+            "<p style=\"color: #28404F\">Available download links based on your subscription:</p>");
         stringBuilder.AppendLine("<table>");
         stringBuilder.AppendLine("<tbody>");
         foreach (var subscribedFeed in feeds)

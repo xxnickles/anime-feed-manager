@@ -5,6 +5,7 @@ internal struct QueueNames
     internal const string TvAnimeLibraryUpdates = "tv-anime-library-updates";
     internal const string OvasLibraryUpdates = "ovas-library-updates";
     internal const string MoviesLibraryUpdates = "movies-library-updates";
+    
     internal const string AvailableSeasonsUpdates = "available-seasons-updates";
     internal const string Notifications = "notifications";
     internal const string ImageProcess = "image-process";
@@ -15,6 +16,12 @@ internal struct QueueNames
     internal const string ProcessedTitles = "processed-Titles";
     
     internal const string SubscribersToProcess = "subscribers-to-process";
+    internal const string OvasSubscriptionsToProcess = "ovas-subscriptions-to-process";
+    internal const string MoviesSubscriptionsToProcess = "moviess-subscriptions-to-process";
+    
+    internal const string OvasMarkCompletedProcess = "ovas-mark-completed";
+    internal const string MoviesMarkCompletedProcess = "movies-mark-completed";
+    
     internal const string ProcessAutoSubscriber = "process-auto-subscriber";
     internal const string ToSubscribe = "to-subscribe";
     internal const string DeleteInterested = "interest-remove";

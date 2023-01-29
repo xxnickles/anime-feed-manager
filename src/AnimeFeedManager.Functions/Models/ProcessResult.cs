@@ -23,6 +23,8 @@ public enum ShortSeriesUpdateType
     Season
 }
 
+public readonly record struct ShortSeriesUpdate(string User, string Series);
+
 public readonly record struct OvasUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
 public readonly record struct MoviesUpdate(ShortSeriesUpdateType Type, SeasonInfoDto? SeasonInformation);
 

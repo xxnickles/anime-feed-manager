@@ -1,12 +1,13 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Common.Notifications;
 using MediatR;
 
 namespace AnimeFeedManager.Application.OvasSubscriptions.Queries;
 
-public record GetTodaySubscriptionsQry : IRequest<Either<DomainError, ImmutableList<SubscriptionCollection>>>;
+public record GetTodaySubscriptionsQry : IRequest<Either<DomainError, ImmutableList<ShorSeriesSubscriptionCollection>>>;
 
 public class GetTodaySubscriptionsHandler : IRequestHandler<GetTodaySubscriptionsQry,
-    Either<DomainError, ImmutableList<SubscriptionCollection>>>
+    Either<DomainError, ImmutableList<ShorSeriesSubscriptionCollection>>>
 {
     private readonly IOvasSubscriptionRepository _subscriptionRepository;
 
@@ -15,7 +16,8 @@ public class GetTodaySubscriptionsHandler : IRequestHandler<GetTodaySubscription
         _subscriptionRepository = subscriptionRepository;
     }
 
-    public Task<Either<DomainError, ImmutableList<SubscriptionCollection>>> Handle(GetTodaySubscriptionsQry request,
+    public Task<Either<DomainError, ImmutableList<ShorSeriesSubscriptionCollection>>> Handle(
+        GetTodaySubscriptionsQry request,
         CancellationToken cancellationToken)
     {
         return _subscriptionRepository
@@ -23,12 +25,12 @@ public class GetTodaySubscriptionsHandler : IRequestHandler<GetTodaySubscription
             .MapAsync(Project);
     }
 
-    private ImmutableList<SubscriptionCollection> Project(ImmutableList<OvasSubscriptionStorage> original)
+    private static ImmutableList<ShorSeriesSubscriptionCollection> Project(ImmutableList<OvasSubscriptionStorage> original)
     {
         return original.GroupBy(
                 x => x.PartitionKey,
-                x => x.RowKey,
-                (key, list) => new SubscriptionCollection(key ?? string.Empty, list!))
+                x => new ShortSeries(x.RowKey, x.DateToNotify?.DateTime ?? DateTime.Today),
+                (key, list) => new ShorSeriesSubscriptionCollection(key ?? string.Empty, list))
             .ToImmutableList();
     }
 }

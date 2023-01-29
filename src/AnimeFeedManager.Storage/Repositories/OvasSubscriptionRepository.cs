@@ -28,7 +28,7 @@ public class OvasSubscriptionRepository : IOvasSubscriptionRepository
     {
         return TableUtils.ExecuteQuery(() =>
             _tableClient.QueryAsync<OvasSubscriptionStorage>(
-                s => s.DateToNotify >= DateTime.Today), nameof(OvasSubscriptionStorage));
+                s => s.DateToNotify <= DateTime.Today && !s.Processed), nameof(OvasSubscriptionStorage));
     }
 
     public Task<Either<DomainError, Unit>> Complete(string subscriber, string title)

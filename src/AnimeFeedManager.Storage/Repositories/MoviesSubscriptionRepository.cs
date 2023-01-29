@@ -27,7 +27,7 @@ public class MoviesSubscriptionRepository : IMoviesSubscriptionRepository
     {
         return TableUtils.ExecuteQuery(() =>
             _tableClient.QueryAsync<MoviesSubscriptionStorage>(
-                s => s.DateToNotify >= DateTime.Today), nameof(MoviesSubscriptionStorage));
+                s => s.DateToNotify <= DateTime.Today && !s.Processed), nameof(MoviesSubscriptionStorage));
     }
 
     public Task<Either<DomainError, Unit>> Complete(string subscriber, string title)
