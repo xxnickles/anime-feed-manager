@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Common.Notifications;
 
-public readonly record struct NotificationFor
+public readonly record struct NotificationFor : IEquatable<string>
 {
     private const string TvValue = "TV";
     private const string TvTitlesValue = "TVTITLES";
@@ -39,6 +39,12 @@ public readonly record struct NotificationFor
             _ => None
         };
     }
+    
+    public bool Equals(string? other)
+    {
+        return other == Value;
+    }
+   
 }
 
 

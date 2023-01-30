@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Application.MoviesLibrary.Commands;
 using AnimeFeedManager.Application.State.Commands;
-using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Models;

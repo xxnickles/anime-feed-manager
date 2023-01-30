@@ -74,7 +74,8 @@ public class UpdateMovieScrapStateHandler : IRequestHandler<UpdateMovieScrapStat
             $"Movie series has been updated. Completed: {result.Completed} Errors: {result.Errors}"));
 
         return await _repository.Merge(
-            result.Id,UserRoles.Admin, 
+            result.Id,
+            UserRoles.Admin, 
             NotificationFor.Movie,
             NotificationType.Update, 
             new UpdateNotification(result.Completed, result.Errors));

@@ -7,3 +7,4 @@ public readonly record struct NotificationResult(string Id, int Completed, int E
 public readonly record struct TvNotification(DateTime Time, IEnumerable<SubscribedFeed> Feeds);
 public readonly record struct ShortSeriesNotification(DateTime Time, IEnumerable<ShortSeries> Feeds);
 public readonly record struct UpdateNotification(int Completed, int Errors);
+

@@ -24,16 +24,16 @@ public class NotificationsRepository : INotificationsRepository
         };
     }
 
-    public Task<Either<DomainError, ImmutableList<NotificationStorage>>> Get(string userId)
+    public Task<Either<DomainError, ImmutableList<NotificationStorage>>> GetForUser(string userId)
     {
-        return TableUtils.ExecuteQuery(() =>
+        return TableUtils.ExecuteLimitedQuery(() =>
             _tableClient.QueryAsync<NotificationStorage>(n => n.PartitionKey == userId),
             nameof(NotificationStorage));
     }
 
     public Task<Either<DomainError, ImmutableList<NotificationStorage>>> GetForAdmin(string userId)
     {
-        return TableUtils.ExecuteQuery(() =>
+        return TableUtils.ExecuteLimitedQuery(() =>
                 _tableClient.QueryAsync<NotificationStorage>(n =>
                     n.PartitionKey == userId && n.PartitionKey == UserRoles.Admin ),
             nameof(NotificationStorage));
