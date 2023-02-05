@@ -35,17 +35,22 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
+    private User CurrentUser = new AnonymousUser();
+
     private UiNotifications NotificationList { get; set; } = new EmptyUINotifications();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         State.OnStateChange += StateHasChanged;
         State.OnUserChanges += OnUserChanges;
+        await OnUserChanges(State.Value.User);
+
     }
 
     private async Task OnUserChanges(User user)
     {
-        if (user is ApplicationUser u)
+        CurrentUser = user;
+        if (CurrentUser != user && user is ApplicationUser u)
         {
             await GetNotifications(u.Email);
         }
