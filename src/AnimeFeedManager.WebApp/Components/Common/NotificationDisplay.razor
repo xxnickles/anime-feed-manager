@@ -1,0 +1,47 @@
+@using System.Collections.Immutable
+@using AnimeFeedManager.Common.Notifications
+@using LanguageExt.UnitsOfMeasure
+@if (Notifications.Length > 0)
+{
+    <MudSimpleTable Style="width: 100%">
+        <tbody>
+        @foreach (var row in Notifications.OrderByDescending(x => x.TimeOffset))
+        {
+            <tr>
+                <td style="width: 1.5rem">
+                    <MudIcon Icon="@GetIcon(row.Type)" Color="Color.Secondary"/>
+                </td>
+                <td style="width: 7.3rem">@row.TimeOffset.ToString("MMM d, yyyy")</td>
+
+                <td>
+                    @row.Payload
+                </td>
+            </tr>
+        }
+        </tbody>
+    </MudSimpleTable>
+}
+else
+{
+    <MudAlert Severity="Severity.Warning" Style="width: 100%">There no notifications available</MudAlert>
+}
+
+
+@code {
+
+    [Parameter]
+    public UiNotification[] Notifications { get; set; } = Array.Empty<UiNotification>();
+
+
+    private string GetIcon(string type)
+    {
+        var parsed = NotificationType.Parse(type);
+        if (parsed == NotificationType.Feed)
+            return Icons.Material.Filled.RssFeed;
+        if (parsed == NotificationType.Error)
+            return Icons.Material.Filled.Error;
+
+        return parsed == NotificationType.Update ? Icons.Material.Filled.SystemUpdate : Icons.Material.Filled.Warning;
+    }
+
+}

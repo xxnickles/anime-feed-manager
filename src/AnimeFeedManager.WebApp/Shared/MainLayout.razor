@@ -11,7 +11,7 @@
 @inject SeasonSideEffects SeasonSideEffects
 @inject LocalStorageSideEffects LocalStorageSideEffects
 @inject IDialogService DialogService
-@inject INotificationService NotificationService
+@inject IRealtimeNotificationService RealtimeNotificationService
 @inject ISnackbar Snackbar
 @inject Metadata AppMetadata
 
@@ -60,12 +60,13 @@
             }
         }
 
-        <NotificationsList
-            Notifications="@NotificationService.Notifications"
-            OnMarkAllAsRead="NotificationService.SetAllNotificationViewed"
-            OnMarkAsRead="NotificationService.SetNotificationViewed"
-            OnMarkRemoveAll="NotificationService.RemoveAll">
-        </NotificationsList>
+        <RealTimeNotificationsList
+            Notifications="@RealtimeNotificationService.Notifications"
+            OnMarkAllAsRead="RealtimeNotificationService.SetAllNotificationViewed"
+            OnMarkAsRead="RealtimeNotificationService.SetNotificationViewed"
+            OnMarkRemoveAll="RealtimeNotificationService.RemoveAll">
+        </RealTimeNotificationsList>
+        
         <AuthorizeView>
             <Authorized>
                 <AuthorizedUserPanel User="@State.Value.User"></AuthorizedUserPanel>
@@ -107,17 +108,17 @@
         State.OnException += OnException;
         State.OnNotification += OnNotification;
         State.OnSelectedSeason += OnSelectedSeason;
-        NotificationService.NotificationsUpdated += StateHasChanged;
+        RealtimeNotificationService.NotificationsUpdated += StateHasChanged;
 
         await LocalStorageSideEffects.TryAssignLocalState(State);
-        await NotificationService.LoadLocalNotifications();
+        await RealtimeNotificationService.LoadLocalNotifications();
 
         ArgumentNullException.ThrowIfNull(AuthenticationState);
         var state = await AuthenticationState;
         if (state?.User.Identity == null || state.User.Identity?.IsAuthenticated is false)
         {
             UserSideEffects.CompleteDefaultProfile(State, new AnonymousUser());
-            await NotificationService.RemoveAdminNotifications();
+            await RealtimeNotificationService.RemoveAdminNotifications();
         }
         else
         {
@@ -146,7 +147,7 @@
     private async Task<string> GetEmailFromUser()
     {
         var options = new DialogOptions {CloseOnEscapeKey = true};
-        var dialog = DialogService.Show<UserEmailDialog>("Complete Profile", options);
+        var dialog = await DialogService.ShowAsync<UserEmailDialog>("Complete Profile", options);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null)
@@ -163,7 +164,7 @@
         State.OnException -= OnException;
         State.OnNotification -= OnNotification;
         State.OnSelectedSeason -= OnSelectedSeason;
-        NotificationService.NotificationsUpdated -= StateHasChanged;
+        RealtimeNotificationService.NotificationsUpdated -= StateHasChanged;
         _cts.Cancel();
         _cts.Dispose();
     }
@@ -176,7 +177,7 @@
     private async Task Login()
     {
         var options = new DialogOptions {CloseOnEscapeKey = true};
-        var dialog = DialogService.Show<LoginProviderDialog>("Login", options);
+        var dialog = await DialogService.ShowAsync<LoginProviderDialog>("Login", options);
         await dialog.Result;
     }
 

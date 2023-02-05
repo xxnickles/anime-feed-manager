@@ -9,9 +9,10 @@ internal sealed class Mappers
     internal static UiNotification Map(NotificationStorage storage)
     {
         return new UiNotification(
-            NotificationType.Parse(storage.Type), storage.Payload);
+            storage.Type!,
+            storage.Timestamp.GetValueOrDefault(),
+            storage.Payload!);
     }
-
 
     internal static UiNotifications Map(ImmutableList<NotificationStorage> storage)
     {

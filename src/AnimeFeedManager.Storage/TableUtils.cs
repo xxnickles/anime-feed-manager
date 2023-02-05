@@ -64,22 +64,22 @@ internal static class TableUtils
 
     
     /// <summary>
-    /// Executes a query that iterates in a limited set of table pages at least once. Max records per page/request is 1000 <see cref="https://learn.microsoft.com/en-us/rest/api/storageservices/query-timeout-and-pagination"/>
+    /// Executes a query that iterates in a limited set of records at least once. Max records per page/request is 1000 <see cref="https://learn.microsoft.com/en-us/rest/api/storageservices/query-timeout-and-pagination"/>
     /// </summary>
     /// <param name="query">Query</param>
     /// <param name="typeName">Parameter Name</param>
-    /// <param name="pageLimit">Maximum table pages to iterate</param>
+    /// <param name="items">Maximum items</param>
     /// <typeparam name="T">Table Entity<</typeparam>
     /// <returns></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteLimitedQuery<T>(
-        Func<AsyncPageable<T>> query, string typeName, byte pageLimit = 1)
+        Func<AsyncPageable<T>> query, string typeName, byte items = 1)
     {
         var enumerator = query().GetAsyncEnumerator();
         var counter = 0;
         try
         {
             var resultList = ImmutableList<T>.Empty;
-            while (await enumerator.MoveNextAsync() && counter < pageLimit)
+            while (await enumerator.MoveNextAsync() && counter < items)
             {
                 resultList = resultList.Add(enumerator.Current);
                 counter++;

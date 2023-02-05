@@ -30,6 +30,11 @@ public readonly record struct NotificationType
             _ => None
         };
     }
+    
+    public bool Equals(string? other)
+    {
+        return other == Value;
+    }
 }
 
 

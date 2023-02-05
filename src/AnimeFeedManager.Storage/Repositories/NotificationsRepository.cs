@@ -28,15 +28,15 @@ public class NotificationsRepository : INotificationsRepository
     {
         return TableUtils.ExecuteLimitedQuery(() =>
             _tableClient.QueryAsync<NotificationStorage>(n => n.PartitionKey == userId),
-            nameof(NotificationStorage));
+            nameof(NotificationStorage), 200);
     }
 
     public Task<Either<DomainError, ImmutableList<NotificationStorage>>> GetForAdmin(string userId)
     {
         return TableUtils.ExecuteLimitedQuery(() =>
                 _tableClient.QueryAsync<NotificationStorage>(n =>
-                    n.PartitionKey == userId && n.PartitionKey == UserRoles.Admin ),
-            nameof(NotificationStorage));
+                    n.PartitionKey == userId || n.PartitionKey == UserRoles.Admin ),
+            nameof(NotificationStorage), 200);
     }
 
     public Task<Either<DomainError, Unit>> Merge<T>(string id,string userId, NotificationFor @for, NotificationType type, T payload)

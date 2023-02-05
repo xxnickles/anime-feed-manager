@@ -1,0 +1,74 @@
+@page "/Notifications"
+@using AnimeFeedManager.WebApp.State
+@using AnimeFeedManager.WebApp.Services.Notifications
+@inject ApplicationState State
+@inject INotificationService NotificationService
+@implements IDisposable
+
+<MudTabs Rounded="true" ApplyEffectsToContainer="true" Style="width: 100%" Position="Position.Left">
+    <MudTabPanel Text="TV">
+        <NotificationDisplay Notifications="NotificationList.TvNotifications"></NotificationDisplay>
+    </MudTabPanel>
+    <MudTabPanel Text="Ovas">
+        <NotificationDisplay Notifications="NotificationList.OvasNotifications"></NotificationDisplay>
+    </MudTabPanel>
+    <MudTabPanel Text="Movies">
+        <NotificationDisplay Notifications="NotificationList.MoviesNotifications"></NotificationDisplay>
+    </MudTabPanel>
+    @if (State.Value.User is AdminUser)
+    {
+        <MudTabPanel Text="Titles">
+            <NotificationDisplay Notifications="NotificationList.TvTitlesNotifications"></NotificationDisplay>
+        </MudTabPanel>
+        <MudTabPanel Text="Images">
+            <NotificationDisplay Notifications="NotificationList.ImagesNotifications"></NotificationDisplay>
+        </MudTabPanel>
+        <MudTabPanel Text="Admin">
+            <NotificationDisplay Notifications="NotificationList.AdminNotifications"></NotificationDisplay>
+        </MudTabPanel>
+    }
+</MudTabs>
+
+@code {
+    private readonly CancellationTokenSource _cts = new();
+
+    [CascadingParameter]
+    private Error? Error { get; set; }
+
+    private UiNotifications NotificationList { get; set; } = new EmptyUINotifications();
+
+    protected override void OnInitialized()
+    {
+        State.OnStateChange += StateHasChanged;
+        State.OnUserChanges += OnUserChanges;
+    }
+
+    private async Task OnUserChanges(User user)
+    {
+        if (user is ApplicationUser u)
+        {
+            await GetNotifications(u.Email);
+        }
+    }
+
+
+    private async Task GetNotifications(string user)
+    {
+        try
+        {
+            NotificationList = await NotificationService.GetNotifications(user, _cts.Token);
+        }
+        catch (Exception e)
+        {
+            Error?.ProcessError("Getting Notification", e);
+        }
+    }
+
+    public void Dispose()
+    {
+        State.OnStateChange -= StateHasChanged;
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+
+}

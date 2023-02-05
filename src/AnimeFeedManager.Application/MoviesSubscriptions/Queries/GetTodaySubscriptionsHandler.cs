@@ -28,7 +28,7 @@ public class GetTodaySubscriptionsHandler : IRequestHandler<GetTodaySubscription
     {
         return original.GroupBy(
                 x => x.PartitionKey,
-                x => new ShortSeries(x!.RowKey, x.DateToNotify?.DateTime ?? DateTime.Today),
+                x => new ShortSeries(x.RowKey!, x.DateToNotify?.DateTime ?? DateTime.Today),
                 (key, list) => new ShortSeriesSubscriptionCollection(key ?? string.Empty, list))
             .ToImmutableList();
     }

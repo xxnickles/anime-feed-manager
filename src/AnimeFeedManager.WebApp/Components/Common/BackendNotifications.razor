@@ -7,7 +7,7 @@
 @inject IServerNotificationProcessingService ServerNotificationProcessingService
 @inject ISnackbar Snackbar
 @inject ApplicationState State
-@inject INotificationService NotificationService
+@inject IRealtimeNotificationService RealtimeNotificationService
 
 @code {
 
@@ -75,7 +75,7 @@
                 break;
         }
 
-        await NotificationService.AddNotification(new ServerNotification(
+        await RealtimeNotificationService.AddNotification(new ServerNotification(
             notification.Id,
             false,
             DateTime.Now,

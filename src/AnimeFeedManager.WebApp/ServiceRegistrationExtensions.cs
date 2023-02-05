@@ -39,8 +39,11 @@ public static class ServiceRegistrationExtensions
         
         services.AddHttpClient<IMoviesSubscriberService, MoviesSubscriberService>(client =>
             client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
+        
+        services.AddHttpClient<INotificationService, NotificationService>(client =>
+            client.BaseAddress = new Uri($"{baseApiUri}")).AddPolicyHandler((sp, _) => HttpClientPolicies.GetRetryPolicy(sp));
 
-        services.AddScoped<INotificationService,NotificationService>();
+        services.AddScoped<IRealtimeNotificationService,RealTimeRealtimeNotificationService>();
 
         services.AddScoped<IConfirmationMessage, ConfirmationMessage>();
     }
