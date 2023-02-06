@@ -34,8 +34,8 @@
             SeriesType.Movie => NotificationSource.Movies,
             SeriesType.Ova => NotificationSource.Ovas,
             SeriesType.Tv => NotificationSource.TV,
-            SeriesType.None => NotificationSource.None
-            };
+            SeriesType.None => NotificationSource.None,
+            _ => throw new UnreachableException()};
         return ProcessNotification(notification, source);
     }
 

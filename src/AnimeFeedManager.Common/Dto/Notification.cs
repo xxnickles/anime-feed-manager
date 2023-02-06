@@ -14,14 +14,12 @@ public readonly record struct UiNotification(string Type, DateTimeOffset TimeOff
 
 public record UiNotifications(
     UiNotification[] TvNotifications,
-    UiNotification[] TvTitlesNotifications,
     UiNotification[] OvasNotifications,
     UiNotification[] MoviesNotifications,
     UiNotification[] ImagesNotifications,
     UiNotification[] AdminNotifications);
 
 public record EmptyUINotifications() : UiNotifications(
-    Array.Empty<UiNotification>(),
     Array.Empty<UiNotification>(),
     Array.Empty<UiNotification>(),
     Array.Empty<UiNotification>(),

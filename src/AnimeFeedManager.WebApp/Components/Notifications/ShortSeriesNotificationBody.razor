@@ -8,6 +8,6 @@
 @code {
 
     [Parameter]
-    public ShortSeriesNotification Notification { get; set; }
+    public ShortSeriesNotification Notification { get; set; } = new ShortSeriesNotification(DateTime.Now, Array.Empty<ShortSeries>());
 
 }

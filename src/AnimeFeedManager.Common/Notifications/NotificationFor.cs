@@ -4,7 +4,6 @@ public enum NotificationForValue
 {
     None,
     Tv,
-    TvTitles,
     Ova,
     Movie,
     Admin,
@@ -14,7 +13,6 @@ public enum NotificationForValue
 public readonly record struct NotificationFor : IEquatable<string>
 {
     private const string TvValue = "TV";
-    private const string TvTitlesValue = "TVTITLES";
     private const string OvaValue = "OVA";
     private const string MovieValue= "MOVIE";
     private const string AdminValue = "ADMIN";
@@ -32,7 +30,6 @@ public readonly record struct NotificationFor : IEquatable<string>
     }
 
     public static NotificationFor Tv = new(TvValue, NotificationForValue.Tv);
-    public static NotificationFor TvTitles = new(TvTitlesValue, NotificationForValue.TvTitles);
     public static NotificationFor Ova = new(OvaValue, NotificationForValue.Ova);
     public static NotificationFor Movie = new(MovieValue, NotificationForValue.Movie);
     public static NotificationFor Admin = new(AdminValue, NotificationForValue.Admin);
@@ -45,7 +42,6 @@ public readonly record struct NotificationFor : IEquatable<string>
         return value switch
         {
             TvValue => Tv,
-            TvTitlesValue => TvTitles,
             MovieValue => Movie,
             OvaValue => Ova,
             AdminValue => Admin,

@@ -53,17 +53,17 @@
 
     private static TvNotification ParseTvNotification(string payload)
     {
-        return JsonSerializer.Deserialize<TvNotification>(payload);
+        return JsonSerializer.Deserialize<TvNotification>(payload)!;
     }
 
     private static ShortSeriesNotification ParseShortSeries(string payload)
     {
-        return JsonSerializer.Deserialize<ShortSeriesNotification>(payload);
+        return JsonSerializer.Deserialize<ShortSeriesNotification>(payload)!;
     }
 
     private static UpdateNotification ParseUpdate(string payload)
     {
-        return JsonSerializer.Deserialize<UpdateNotification>(payload);
+        return JsonSerializer.Deserialize<UpdateNotification>(payload)!;
     }
 
 }

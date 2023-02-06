@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Application.Notifications.Queries;
 
 internal sealed class Mappers
 {
-    internal static UiNotification Map(NotificationStorage storage)
+    private static UiNotification Map(NotificationStorage storage)
     {
         return new UiNotification(
             storage.Type!,
@@ -32,10 +32,7 @@ internal sealed class Mappers
             .Where(n => NotificationFor.Images.Equals(n.For))
             .Select(Map)
             .ToArray();
-        var tvTitles = storage
-            .Where(n => NotificationFor.TvTitles.Equals(n.For))
-            .Select(Map)
-            .ToArray();
+
         var admin = storage
             .Where(n => NotificationFor.Admin.Equals(n.For))
             .Select(Map)
@@ -43,12 +40,10 @@ internal sealed class Mappers
 
         return new UiNotifications(
             tv,
-            tvTitles,
             ovas,
             movies,
             images,
             admin
         );
-
     }
 }
