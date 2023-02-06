@@ -1,4 +1,3 @@
-using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Functions.Extensions;
 using AnimeFeedManager.Functions.Infrastructure;
@@ -7,6 +6,7 @@ using AnimeFeedManager.Storage.Interface;
 using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Notification = AnimeFeedManager.Common.Dto.Notification;
 
 namespace AnimeFeedManager.Functions.Features.TvAnimeSubscriptions;
 

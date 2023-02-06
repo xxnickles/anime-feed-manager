@@ -1,0 +1,17 @@
+@using AnimeFeedManager.Common.Notifications
+<MudText Typo="Typo.body1">
+    @{
+        var notificationCompleted = Notification.Completed + Notification.Errors;
+        notificationCompleted.ToString();
+    }
+    Series have been updated | 
+    <MudText Color="Color.Success" Inline="true">Completed: @Notification.Completed </MudText> 
+    <MudText Color="Color.Error" Inline="true">Errors: @Notification.Errors </MudText>
+</MudText>
+
+@code {
+
+    [Parameter]
+    public UpdateNotification Notification { get; set; }
+
+}

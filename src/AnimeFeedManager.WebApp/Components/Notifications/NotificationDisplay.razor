@@ -1,6 +1,5 @@
-@using System.Collections.Immutable
 @using AnimeFeedManager.Common.Notifications
-@using LanguageExt.UnitsOfMeasure
+
 @if (Notifications.Length > 0)
 {
     <MudSimpleTable Style="width: 100%">
@@ -14,7 +13,7 @@
                 <td style="width: 7.3rem">@row.TimeOffset.ToString("MMM d, yyyy")</td>
 
                 <td>
-                    @row.Payload
+                   <NotificationBody Notification="new NotificationBodyPayload(row, For)"></NotificationBody>
                 </td>
             </tr>
         }
@@ -31,6 +30,9 @@ else
 
     [Parameter]
     public UiNotification[] Notifications { get; set; } = Array.Empty<UiNotification>();
+
+    [Parameter]
+    public NotificationFor For { get; set; } = NotificationFor.None;
 
 
     private string GetIcon(string type)

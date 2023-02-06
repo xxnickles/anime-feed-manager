@@ -1,0 +1,69 @@
+@using AnimeFeedManager.Common.Notifications
+@using System.Text.Json
+
+@switch (_parsedNotification)
+{
+    case UpdateNotification u:
+        <UpdateNotificationBody Notification="u"></UpdateNotificationBody>
+        break;
+    case TvNotification t:
+        <TvNotificationBody Notification="t"></TvNotificationBody>
+        break;
+    case ShortSeriesNotification sr:
+        <ShortSeriesNotificationBody Notification="sr"></ShortSeriesNotificationBody>
+        break;    
+        
+    case StringNotification s:
+        <MudText Typo="Typo.body1">@s.Value</MudText>
+        break;
+}
+
+@code {
+
+    private NotificationBodyPayload _notification;
+    private AnimeFeedManager.Common.Notifications.Notification _parsedNotification = new StringNotification(string.Empty);
+
+    [Parameter]
+    public NotificationBodyPayload Notification
+    {
+        get => _notification;
+        set
+        {
+            _parsedNotification = Parse(value);
+            _notification = value;
+        }
+    }
+
+    private static AnimeFeedManager.Common.Notifications.Notification Parse(NotificationBodyPayload notification)
+    {
+        var notificationType = NotificationType.Parse(notification.Notification.Type);
+        return (notification.Target.Type, notificationType.Type) switch {
+            (NotificationForValue.Tv, NotificationTypeValue.Feed) => ParseTvNotification(notification.Notification.Payload),
+            (NotificationForValue.Ova or NotificationForValue.Movie, NotificationTypeValue.Feed) => ParseShortSeries(notification.Notification.Payload),
+            (_, NotificationTypeValue.Update) => ParseUpdate(notification.Notification.Payload),
+            _ => ParseStringNotification(notification.Notification.Payload)
+            };
+    }
+
+
+    private static StringNotification ParseStringNotification(string Payload)
+    {
+        return new StringNotification(Payload);
+    }
+
+    private static TvNotification ParseTvNotification(string payload)
+    {
+        return JsonSerializer.Deserialize<TvNotification>(payload);
+    }
+
+    private static ShortSeriesNotification ParseShortSeries(string payload)
+    {
+        return JsonSerializer.Deserialize<ShortSeriesNotification>(payload);
+    }
+
+    private static UpdateNotification ParseUpdate(string payload)
+    {
+        return JsonSerializer.Deserialize<UpdateNotification>(payload);
+    }
+
+}

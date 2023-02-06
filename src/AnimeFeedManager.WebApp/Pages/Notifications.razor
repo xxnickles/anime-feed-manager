@@ -1,30 +1,32 @@
 @page "/Notifications"
 @using AnimeFeedManager.WebApp.State
 @using AnimeFeedManager.WebApp.Services.Notifications
+@using AnimeFeedManager.WebApp.Components.Notifications
+@using AnimeFeedManager.Common.Notifications
 @inject ApplicationState State
 @inject INotificationService NotificationService
 @implements IDisposable
 
 <MudTabs Rounded="true" ApplyEffectsToContainer="true" Style="width: 100%" Position="Position.Left">
     <MudTabPanel Text="TV">
-        <NotificationDisplay Notifications="NotificationList.TvNotifications"></NotificationDisplay>
+        <NotificationDisplay Notifications="NotificationList.TvNotifications" For="NotificationFor.Tv"></NotificationDisplay>
     </MudTabPanel>
     <MudTabPanel Text="Ovas">
-        <NotificationDisplay Notifications="NotificationList.OvasNotifications"></NotificationDisplay>
+        <NotificationDisplay Notifications="NotificationList.OvasNotifications" For="NotificationFor.Ova"></NotificationDisplay>
     </MudTabPanel>
     <MudTabPanel Text="Movies">
-        <NotificationDisplay Notifications="NotificationList.MoviesNotifications"></NotificationDisplay>
+        <NotificationDisplay Notifications="NotificationList.MoviesNotifications" For="NotificationFor.Movie" ></NotificationDisplay>
     </MudTabPanel>
     @if (State.Value.User is AdminUser)
     {
         <MudTabPanel Text="Titles">
-            <NotificationDisplay Notifications="NotificationList.TvTitlesNotifications"></NotificationDisplay>
+            <NotificationDisplay Notifications="NotificationList.TvTitlesNotifications" For="NotificationFor.TvTitles"></NotificationDisplay>
         </MudTabPanel>
         <MudTabPanel Text="Images">
-            <NotificationDisplay Notifications="NotificationList.ImagesNotifications"></NotificationDisplay>
+            <NotificationDisplay Notifications="NotificationList.ImagesNotifications" For="NotificationFor.Images"></NotificationDisplay>
         </MudTabPanel>
         <MudTabPanel Text="Admin">
-            <NotificationDisplay Notifications="NotificationList.AdminNotifications"></NotificationDisplay>
+            <NotificationDisplay Notifications="NotificationList.AdminNotifications" For="NotificationFor.Admin"></NotificationDisplay>
         </MudTabPanel>
     }
 </MudTabs>
@@ -35,8 +37,6 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private User CurrentUser = new AnonymousUser();
-
     private UiNotifications NotificationList { get; set; } = new EmptyUINotifications();
 
     protected override async Task OnInitializedAsync()
@@ -44,16 +44,12 @@
         State.OnStateChange += StateHasChanged;
         State.OnUserChanges += OnUserChanges;
         await OnUserChanges(State.Value.User);
-
     }
 
     private async Task OnUserChanges(User user)
     {
-        CurrentUser = user;
-        if (CurrentUser != user && user is ApplicationUser u)
-        {
+        if (user is ApplicationUser u)
             await GetNotifications(u.Email);
-        }
     }
 
 

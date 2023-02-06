@@ -1,5 +1,12 @@
 ﻿namespace AnimeFeedManager.Common.Notifications;
 
+public enum NotificationTypeValue {
+    None,
+    Feed,
+    Update,
+    Error
+}
+
 public readonly record struct NotificationType
 {
     private const string FeedValue = "FEED";
@@ -8,16 +15,18 @@ public readonly record struct NotificationType
     private const string NoneValue = "NONE";
     
     public string Value { get; }
+    public NotificationTypeValue Type {get;}
 
-    private NotificationType(string value)
+    private NotificationType(string value, NotificationTypeValue type)
     {
         Value = value;
+        Type = type;
     }
 
-    public static NotificationType Feed = new(FeedValue);
-    public static NotificationType Update = new(UpdateValue);
-    public static NotificationType Error = new(ErrorValue);
-    public static NotificationType None = new(NoneValue);
+    public static NotificationType Feed = new(FeedValue, NotificationTypeValue.Feed);
+    public static NotificationType Update = new(UpdateValue, NotificationTypeValue.Update);
+    public static NotificationType Error = new(ErrorValue, NotificationTypeValue.Error);
+    public static NotificationType None = new(NoneValue, NotificationTypeValue.None);
    
     
     public static NotificationType Parse(string value)
@@ -30,11 +39,7 @@ public readonly record struct NotificationType
             _ => None
         };
     }
-    
-    public bool Equals(string? other)
-    {
-        return other == Value;
-    }
+
 }
 
 

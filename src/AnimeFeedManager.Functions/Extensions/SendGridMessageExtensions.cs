@@ -5,6 +5,7 @@ using AnimeFeedManager.Common.Helpers;
 using AnimeFeedManager.Common.Notifications;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Notification = AnimeFeedManager.Common.Dto.Notification;
 
 namespace AnimeFeedManager.Functions.Extensions;
 

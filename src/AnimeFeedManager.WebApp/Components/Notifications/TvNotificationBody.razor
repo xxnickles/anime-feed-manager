@@ -1,0 +1,29 @@
+@using AnimeFeedManager.Common.Notifications
+<MudText Typo="Typo.body1">Notification for the following series was sent at @Notification.Time.ToString("f")</MudText>
+<ul>
+    @foreach (var feed in Notification.Feeds)
+    {
+        <li>
+            <MudText Typo="Typo.body1">
+                @feed.Title - @feed.EpisodeInfo&nbsp;
+                @for (var i = 0; i < feed.Links.Count; i++)
+                {
+                    var link = feed.Links[i];
+                    <MudLink Href="@link.Link">@link.Type</MudLink>
+                    @if (i < feed.Links.Count - 1)
+                    {
+                        <span> | </span>
+                    }
+                       
+                }
+            </MudText>
+        </li>
+    }
+</ul>
+
+@code {
+
+    [Parameter]
+    public TvNotification Notification { get; set; } = new TvNotification(DateTime.Now, Array.Empty<SubscribedFeed>());
+
+}
