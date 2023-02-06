@@ -44,7 +44,7 @@ public class GetEmailNotificationsHandler
             .Select(
                 x => new SubscribedFeed(
                     x.AnimeTitle.Value.UnpackOption(string.Empty),
-                    x.Links,
+                    x.Links.ToArray(),
                     x.EpisodeInfo,
                     x.PublicationDate));
 

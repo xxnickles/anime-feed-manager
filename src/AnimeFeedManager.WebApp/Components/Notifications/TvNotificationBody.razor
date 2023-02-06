@@ -6,11 +6,11 @@
         <li>
             <MudText Typo="Typo.body1">
                 @feed.Title - @feed.EpisodeInfo&nbsp;
-                @for (var i = 0; i < feed.Links.Count; i++)
+                @for (var i = 0; i < feed.Links.Length; i++)
                 {
                     var link = feed.Links[i];
                     <MudLink Href="@link.Link">@link.Type</MudLink>
-                    @if (i < feed.Links.Count - 1)
+                    @if (i < feed.Links.Length - 1)
                     {
                         <span> | </span>
                     }
