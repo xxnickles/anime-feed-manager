@@ -3,12 +3,13 @@
 @using AnimeFeedManager.WebApp.Services.Notifications
 @using AnimeFeedManager.WebApp.Components.Notifications
 @using AnimeFeedManager.Common.Notifications
+@using Microsoft.AspNetCore.Authorization
 @using MudBlazor.Services
 @inject ApplicationState State
 @inject INotificationService NotificationService
 @inject IBreakpointService BreakpointListener
 @implements IAsyncDisposable
-
+@attribute [Authorize]
 <MudTabs Rounded="true" ApplyEffectsToContainer="true" Style="width: 100%" Position="TabPosition">
     <MudTabPanel Text="TV">
         <NotificationDisplay Notifications="NotificationList.TvNotifications" For="NotificationFor.Tv"></NotificationDisplay>

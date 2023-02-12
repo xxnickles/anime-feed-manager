@@ -17,7 +17,6 @@ var applicationInsightsName = appName
 var storageAccountName = 'animefeedmanagerstorage'
 var functionWorkerRuntime = 'dotnet-isolated'
 
-
 resource signalR 'Microsoft.SignalRService/signalR@2022-02-01' = {
   name: 'afm-web-events'
   location: location
@@ -54,16 +53,7 @@ resource signalR 'Microsoft.SignalRService/signalR@2022-02-01' = {
     cors: {
       allowedOrigins: [ 'https://delightful-smoke-0eded0c0f.1.azurestaticapps.net' ]
     }
-    networkACLs: {
-      defaultAction: 'Deny'
-      publicNetwork: {
-        allow: [
-          'ServerConnection'
-          'ClientConnection'
-        ]
-      }
-      privateEndpoints: []
-    }
+
     publicNetworkAccess: 'Enabled'
     disableAadAuth: false
     disableLocalAuth: false

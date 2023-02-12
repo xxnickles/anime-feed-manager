@@ -2,23 +2,28 @@
 
 @if (Notifications.Length > 0)
 {
-    <MudSimpleTable Style="width: 100%">
-        <tbody>
-        @foreach (var row in Notifications.OrderByDescending(x => x.TimeOffset))
-        {
-            <tr>
-                <td style="width: 1.5rem">
-                    <MudIcon Icon="@GetIcon(row.Type)" Color="Color.Secondary"/>
-                </td>
-                <td style="width: 7.3rem">@row.TimeOffset.ToString("MMM d, yyyy")</td>
-
-                <td>
-                   <NotificationBody Notification="new NotificationBodyPayload(row, For)"></NotificationBody>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </MudSimpleTable>
+    <MudTable Items="Notifications.OrderByDescending(x => x.TimeOffset)" Style="width: 100%">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Notification for @For.Value</MudText>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh Style="width: 1.5rem">Type</MudTh>
+            <MudTh Style="width: 7.3rem">Date</MudTh>
+            <MudTh>Notification</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Type">
+                <MudIcon Icon="@GetIcon(context.Type)" Color="Color.Secondary"/>
+            </MudTd>
+            <MudTd DataLabel="Date">@context.TimeOffset.ToString("MMM d, yyyy")</MudTd>
+            <MudTd DataLabel="Notification">
+                <NotificationBody Notification="new NotificationBodyPayload(context, For)"></NotificationBody>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager/>
+        </PagerContent>
+    </MudTable>
 }
 else
 {

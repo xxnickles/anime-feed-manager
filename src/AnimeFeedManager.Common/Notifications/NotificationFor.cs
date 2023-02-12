@@ -54,7 +54,6 @@ public readonly record struct NotificationFor : IEquatable<string>
     {
         return other == Value;
     }
-   
 }
 
 
