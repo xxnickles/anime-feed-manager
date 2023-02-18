@@ -54,7 +54,7 @@ public static class Registration
 
     public static IServiceCollection RegisterApplicationServices(this IServiceCollection services)
     {
-        services.AddMediatR(typeof(GetSeasonCollectionQry).Assembly);
+        services.AddMediatR(conf => conf.RegisterServicesFromAssembly(typeof(GetSeasonCollectionQry).Assembly));
         return services;
     }
 
