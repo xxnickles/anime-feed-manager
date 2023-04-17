@@ -1,4 +1,5 @@
 using AnimeFeedManager.Common;
+using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Storage.Domain;
 using AnimeFeedManager.Storage.Infrastructure;
 using AnimeFeedManager.Storage.Interface;
@@ -21,10 +22,11 @@ public class StorageCleanup : IStorageCleanup
         _notificationsTableClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
     }
 
-    public Task<Either<DomainError, Unit>> CleanOldState(DateTimeOffset beforeOf)
+    public Task<Either<DomainError, Unit>> CleanOldState(NotificationFor @for, DateTimeOffset beforeOf)
     {
         return TableUtils.ExecuteQueryWithEmpty(
-                () => _stateTableClient.QueryAsync<UpdateStateStorage>(s => s.Timestamp <= beforeOf),
+                () => _stateTableClient.QueryAsync<UpdateStateStorage>(s =>
+                    s.PartitionKey == @for.Value && s.Timestamp <= beforeOf),
                 nameof(UpdateStateStorage))
             .BindAsync(entities => TableUtils.BatchDelete(_stateTableClient, entities, nameof(UpdateStateStorage)))
             .MapAsync(r => new Unit());
@@ -37,7 +39,8 @@ public class StorageCleanup : IStorageCleanup
                 () => _notificationsTableClient.QueryAsync<NotificationStorage>(s =>
                     s.PartitionKey == UserRoles.Admin && s.Timestamp <= beforeOf),
                 nameof(UpdateStateStorage))
-            .BindAsync(entities => TableUtils.BatchDelete(_notificationsTableClient, entities, nameof(NotificationStorage)))
+            .BindAsync(entities =>
+                TableUtils.BatchDelete(_notificationsTableClient, entities, nameof(NotificationStorage)))
             .MapAsync(r => new Unit());
     }
 }

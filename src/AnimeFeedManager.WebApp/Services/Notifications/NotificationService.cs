@@ -18,6 +18,6 @@ public class NotificationService : INotificationService
     public async Task<UiNotifications> GetNotifications(string user, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/notifications/{user}", cancellationToken);
-        return await response.MapToObject<UiNotifications>(new EmptyUINotifications());
+        return await response.MapToObject<UiNotifications>(new EmptyUiNotifications());
     }
 }

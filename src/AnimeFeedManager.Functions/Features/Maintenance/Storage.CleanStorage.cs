@@ -1,3 +1,4 @@
+using AnimeFeedManager.Common.Notifications;
 using AnimeFeedManager.Storage.Interface;
 using Microsoft.Extensions.Logging;
 
@@ -23,14 +24,26 @@ public class CleanStorage
             e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
         );
     }
-    
+
     [Function("CleanOldState")]
     public async Task RunCleanState([TimerTrigger("0 0 10 * * SAT")] TimerInfo timer)
     {
-        var result = await _storageCleanup.CleanOldState(DateTime.Now.AddDays(-7));
-        result.Match(
-            _ => { _logger.LogInformation("Old state has been cleaned"); },
-            e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
-        );
+        var notificationTypes = new[]
+        {
+            NotificationFor.Admin,
+            NotificationFor.Images,
+            NotificationFor.Movie,
+            NotificationFor.Ova,
+            NotificationFor.Tv
+        };
+
+        foreach (var type in notificationTypes)
+        {
+            var result = await _storageCleanup.CleanOldState(type, DateTime.Now.AddDays(-7));
+            result.Match(
+                _ => { _logger.LogInformation("Old state has been cleaned"); },
+                e => _logger.LogError("[{CorrelationId}]: {Message}", e.CorrelationId, e.Message)
+            );
+        }
     }
 }

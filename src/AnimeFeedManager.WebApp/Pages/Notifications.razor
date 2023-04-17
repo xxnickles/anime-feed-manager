@@ -10,7 +10,7 @@
 @inject IBreakpointService BreakpointListener
 @implements IAsyncDisposable
 @attribute [Authorize]
-<MudTabs Rounded="true" ApplyEffectsToContainer="true" Style="width: 100%" Position="TabPosition">
+<MudTabs Rounded="true" ApplyEffectsToContainer="true" Style="width: 100%" Position="_tabPosition">
     <MudTabPanel Text="TV">
         <NotificationDisplay Notifications="NotificationList.TvNotifications" For="NotificationFor.Tv"></NotificationDisplay>
     </MudTabPanel>
@@ -37,15 +37,15 @@
     [CascadingParameter]
     private Error? Error { get; set; }
 
-    private UiNotifications NotificationList { get; set; } = new EmptyUINotifications();
-    private Position TabPosition = Position.Bottom;
+    private UiNotifications NotificationList { get; set; } = new EmptyUiNotifications();
+    private Position _tabPosition = Position.Bottom;
     private Guid? _subscriptionId;
 
     protected override async Task OnInitializedAsync()
     {
         State.OnStateChange += StateHasChanged;
         State.OnUserChanges += OnUserChanges;
-        TabPosition = GetPosition(await BreakpointListener.GetBreakpoint());
+        _tabPosition = GetPosition(await BreakpointListener.GetBreakpoint());
             await OnUserChanges(State.Value.User);
     }
 
@@ -55,7 +55,7 @@
         {
             var subscriptionResult = await BreakpointListener.Subscribe((breakpoint) =>
             {
-                TabPosition = GetPosition(breakpoint);
+                _tabPosition = GetPosition(breakpoint);
                 InvokeAsync(StateHasChanged);
             }, new ResizeOptions
             {

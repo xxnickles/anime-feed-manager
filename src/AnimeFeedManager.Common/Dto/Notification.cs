@@ -19,7 +19,7 @@ public record UiNotifications(
     UiNotification[] ImagesNotifications,
     UiNotification[] AdminNotifications);
 
-public record EmptyUINotifications() : UiNotifications(
+public record EmptyUiNotifications() : UiNotifications(
     Array.Empty<UiNotification>(),
     Array.Empty<UiNotification>(),
     Array.Empty<UiNotification>(),
