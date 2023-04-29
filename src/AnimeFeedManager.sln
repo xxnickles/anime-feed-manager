@@ -35,6 +35,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Functions", "Functions", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storage", "Storage", "{EFD420A8-555E-4DA4-A35B-6DEAA4EDD0F3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ContainerServices", "ContainerServices", "{61619128-4830-40AA-B332-46660C71687B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Scrapping", "AnimeFeedManager.Scrapping\AnimeFeedManager.Scrapping.csproj", "{8E358001-236D-42E7-B8F0-D2B697918000}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +93,10 @@ Global
 		{5813A94D-2F9E-4867-A019-8F0485723904}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5813A94D-2F9E-4867-A019-8F0485723904}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5813A94D-2F9E-4867-A019-8F0485723904}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E358001-236D-42E7-B8F0-D2B697918000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E358001-236D-42E7-B8F0-D2B697918000}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E358001-236D-42E7-B8F0-D2B697918000}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E358001-236D-42E7-B8F0-D2B697918000}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +110,7 @@ Global
 		{5813A94D-2F9E-4867-A019-8F0485723904} = {30A1FBA3-75BF-4B00-9614-90A975B6AF2E}
 		{0900AC25-B01E-448D-BA15-20AF1741ED5B} = {7074DB6B-D873-46C3-BBE2-3D088F08120F}
 		{379F782C-D854-4595-8D60-299E197AE715} = {EFD420A8-555E-4DA4-A35B-6DEAA4EDD0F3}
+		{8E358001-236D-42E7-B8F0-D2B697918000} = {61619128-4830-40AA-B332-46660C71687B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {628063C2-8D1C-46C8-A506-8760464EB763}
