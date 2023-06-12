@@ -10,7 +10,9 @@ public class MudBlazorBaseTestContext : TestContext
     {
         Services.AddSingleton(A.Dummy<IKeyInterceptor>());
         Services.AddSingleton(A.Dummy<IScrollManager>());
-        Services.AddSingleton(A.Dummy<IMudPopoverService>());
+        Services.AddSingleton(A.Dummy<IPopoverService>());
+        Services.AddSingleton(A.Dummy<MudPopover>());
         Services.AddSingleton(A.Dummy<IJsApiService>());
+        Services.AddSingleton(A.Dummy<IMudPopoverService>());
     }
 }

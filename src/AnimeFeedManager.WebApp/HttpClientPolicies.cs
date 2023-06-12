@@ -17,6 +17,6 @@ public static class HttpClientPolicies
                 {
                     Console.WriteLine($"[Form console] tentative #{index}, received {result.Result.StatusCode}, retrying...");
                     var logger = serviceProvider.GetService<ILogger>();
-                    logger?.LogWarning($"tentative #{index}, received {result.Result.StatusCode}, retrying...");
+                    logger?.LogWarning("tentative #{Index}, received {ResultStatusCode}, retrying...", index, result.Result.StatusCode);
                 });
 }
