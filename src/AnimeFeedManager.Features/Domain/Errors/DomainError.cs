@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Common.Error;
+﻿namespace AnimeFeedManager.Features.Domain.Errors;
 
 public abstract class DomainError
 {

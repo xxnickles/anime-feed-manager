@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Common.Utils;
+﻿using AnimeFeedManager.Features.Domain.Errors;
+
+namespace AnimeFeedManager.Features.Common.Utils;
 
 public static class LanguageExtensions
 {

@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics.Contracts;
 using System.Text;
 
-namespace AnimeFeedManager.Features.Common.Error;
+namespace AnimeFeedManager.Features.Domain.Errors;
 
 public sealed class ExceptionError : DomainError
 {
-    public Exception Exception { get; }
+    private Exception Exception { get; }
 
-    public ExceptionError(Exception exn, string correlationId) : base(correlationId,  exn.Message)
+    private ExceptionError(Exception exn, string correlationId) : base(correlationId,  exn.Message)
     {
         Exception = exn;
     }

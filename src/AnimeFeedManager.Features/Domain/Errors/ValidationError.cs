@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace AnimeFeedManager.Features.Common.Error;
+namespace AnimeFeedManager.Features.Domain.Errors;
 
 public sealed class ValidationError
 {

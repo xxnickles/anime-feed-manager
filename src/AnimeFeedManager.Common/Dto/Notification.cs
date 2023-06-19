@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using AnimeFeedManager.Core.Domain;
+﻿using AnimeFeedManager.Core.Domain;
 
 namespace AnimeFeedManager.Common.Dto;
 

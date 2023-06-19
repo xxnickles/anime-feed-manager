@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using AnimeFeedManager.Features.Domain.Errors;
 
 namespace AnimeFeedManager.Features.Common.Types;
 

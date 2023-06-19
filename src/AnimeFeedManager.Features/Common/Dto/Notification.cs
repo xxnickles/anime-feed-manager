@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Common.Types;
+﻿using AnimeFeedManager.Features.Domain;
 
 namespace AnimeFeedManager.Features.Common.Dto;
 public sealed record SubscribedFeed(string Title, TorrentLink[] Links, string EpisodeInfo, DateTime PublicationDate);

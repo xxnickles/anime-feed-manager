@@ -1,8 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using AnimeFeedManager.Features.Common.Types;
+using AnimeFeedManager.Features.Domain;
+using AnimeFeedManager.Features.Domain.Errors;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.IO;
+namespace AnimeFeedManager.Features.Tv.Feed.IO;
 
 internal record struct Accumulator(string AnimeTitle,
     string FeedTitle,
@@ -31,8 +33,8 @@ public sealed class FeedProvider : IFeedProvider
                 let links = source.Select(x => new TorrentLink(x.Type, x.Link)).ToImmutableList()
                 let baseElement = source.First()
                 select new FeedInfo(
-                    NonEmptyString.FromString(baseElement.AnimeTitle),
-                    NonEmptyString.FromString(baseElement.FeedTitle),
+                    baseElement.AnimeTitle,
+                    baseElement.FeedTitle,
                     baseElement.PublicationDate,
                     links,
                     baseElement.EpisodeInfo);

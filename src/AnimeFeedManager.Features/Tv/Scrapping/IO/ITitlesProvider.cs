@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Tv.Scrapping.IO;
+﻿using AnimeFeedManager.Features.Domain.Errors;
+
+namespace AnimeFeedManager.Features.Tv.Scrapping.IO;
 
 public interface ITitlesProvider
 {

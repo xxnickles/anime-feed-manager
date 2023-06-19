@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Domain.Errors;
 using PuppeteerSharp;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.IO;
