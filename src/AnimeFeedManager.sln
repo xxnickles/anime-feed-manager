@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storage", "Storage", "{EFD4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features", "AnimeFeedManager.Features\AnimeFeedManager.Features.csproj", "{C45FDC33-7E71-46A6-96B7-E949B01AD73E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Backend.Functions", "AnimeFeedManager.Backend.Functions\AnimeFeedManager.Backend.Functions.csproj", "{01635DED-9DD8-4763-A447-727319B2CF36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{C45FDC33-7E71-46A6-96B7-E949B01AD73E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C45FDC33-7E71-46A6-96B7-E949B01AD73E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C45FDC33-7E71-46A6-96B7-E949B01AD73E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01635DED-9DD8-4763-A447-727319B2CF36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01635DED-9DD8-4763-A447-727319B2CF36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01635DED-9DD8-4763-A447-727319B2CF36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01635DED-9DD8-4763-A447-727319B2CF36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -108,6 +114,7 @@ Global
 		{5813A94D-2F9E-4867-A019-8F0485723904} = {30A1FBA3-75BF-4B00-9614-90A975B6AF2E}
 		{0900AC25-B01E-448D-BA15-20AF1741ED5B} = {7074DB6B-D873-46C3-BBE2-3D088F08120F}
 		{379F782C-D854-4595-8D60-299E197AE715} = {EFD420A8-555E-4DA4-A35B-6DEAA4EDD0F3}
+		{01635DED-9DD8-4763-A447-727319B2CF36} = {7074DB6B-D873-46C3-BBE2-3D088F08120F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {628063C2-8D1C-46C8-A506-8760464EB763}

@@ -1,18 +1,17 @@
-﻿using AnimeFeedManager.Features.Common.Utils;
-
-namespace AnimeFeedManager.Features.Common.Types;
-
-public record SeasonInformation(Season Season, Year Year);
-
-public record DefaultSeasonInformation() : SeasonInformation(Season.Winter, Year.FromNumber(2000));
-
-public static class SeasonInformationExtensions
+﻿namespace AnimeFeedManager.Features.Common.Types
 {
-    public static ImmutableList<SeasonInformation> Order(this IEnumerable<SeasonInformation> @this)
+    public record SeasonInformation(Season Season, Year Year);
+
+    public record DefaultSeasonInformation() : SeasonInformation(Season.Winter, Year.FromNumber(2000));
+
+    public static class SeasonInformationExtensions
     {
-        return @this.OrderByDescending(x => x.Year.Value.UnpackOption((ushort) 0))
-            .ThenByDescending(x => x.Season)
-            .ToImmutableList();
+        public static ImmutableList<SeasonInformation> Order(this IEnumerable<SeasonInformation> @this)
+        {
+            return @this.OrderByDescending(x => x.Year.Value.UnpackOption((ushort) 0))
+                .ThenByDescending(x => x.Season)
+                .ToImmutableList();
+        }
     }
 }
 

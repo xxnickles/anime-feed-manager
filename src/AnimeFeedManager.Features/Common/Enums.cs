@@ -1,25 +1,26 @@
 ﻿using System.Diagnostics;
 
-namespace AnimeFeedManager.Features.Common;
-
-public enum SeriesType
+namespace AnimeFeedManager.Features.Common
 {
-    Tv = 0,
-    Ova = 1,
-    Movie = 2,
-    None= 3
-}
-
-public static class SeriesTypeExtensions
-{
-    public static string AsPluralText(this SeriesType shortSeries)
+    public enum SeriesType
     {
-        return shortSeries switch
+        Tv = 0,
+        Ova = 1,
+        Movie = 2,
+        None= 3
+    }
+
+    public static class SeriesTypeExtensions
+    {
+        public static string AsPluralText(this SeriesType shortSeries)
         {
-            SeriesType.Tv => "TV",
-            SeriesType.Movie => "Movies",
-            SeriesType.Ova => "OVAs",
-            _ => throw new UnreachableException($"{nameof(SeriesType)} value is out of range")
-        };
+            return shortSeries switch
+            {
+                SeriesType.Tv => "TV",
+                SeriesType.Movie => "Movies",
+                SeriesType.Ova => "OVAs",
+                _ => throw new UnreachableException($"{nameof(SeriesType)} value is out of range")
+            };
+        }
     }
 }

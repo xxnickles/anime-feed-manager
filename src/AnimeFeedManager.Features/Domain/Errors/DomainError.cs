@@ -1,19 +1,20 @@
-﻿namespace AnimeFeedManager.Features.Domain.Errors;
-
-public abstract class DomainError
+﻿namespace AnimeFeedManager.Features.Domain.Errors
 {
-    public string CorrelationId { get; }
-    public string Message { get; }
-
-    protected DomainError(string correlationId, string message)
+    public abstract class DomainError
     {
-        CorrelationId = correlationId;
-        Message = message;
-    }
+        public string CorrelationId { get; }
+        public string Message { get; }
 
-    public override string ToString()
-    {
-        return $"[{CorrelationId}] - {Message}";
-    }
+        protected DomainError(string correlationId, string message)
+        {
+            CorrelationId = correlationId;
+            Message = message;
+        }
 
+        public override string ToString()
+        {
+            return $"[{CorrelationId}] - {Message}";
+        }
+
+    }
 }

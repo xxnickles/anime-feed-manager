@@ -1,9 +1,7 @@
-﻿using AnimeFeedManager.Features.Domain.Errors;
-using Azure.Data.Tables;
-
-namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
-
-public interface ITableClientFactory<T> where T : ITableEntity
+﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage
 {
-    Task<Either<DomainError,TableClient>> GetClient();
+    public interface ITableClientFactory<T> where T : ITableEntity
+    {
+        Task<Either<DomainError,TableClient>> GetClient();
+    }
 }

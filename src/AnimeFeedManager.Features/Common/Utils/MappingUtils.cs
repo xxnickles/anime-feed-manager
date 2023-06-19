@@ -1,15 +1,16 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AnimeFeedManager.Features.Common.Utils;
-
-internal static class MappingUtils
+namespace AnimeFeedManager.Features.Common.Utils
 {
-    internal static DateTime? ParseDate(string dateStr, int year)
+    internal static class MappingUtils
     {
-        const string pattern = @"(\d{1,2})(\w{2})(\s\w+)";
-        const string replacement = "$1$3";
-        var dateCleaned = Regex.Replace(dateStr, pattern, replacement);
-        var result = DateTime.TryParse($"{dateCleaned} {year}", out var date);
-        return result ? date : null;
+        internal static DateTime? ParseDate(string dateStr, int year)
+        {
+            const string pattern = @"(\d{1,2})(\w{2})(\s\w+)";
+            const string replacement = "$1$3";
+            var dateCleaned = Regex.Replace(dateStr, pattern, replacement);
+            var result = DateTime.TryParse($"{dateCleaned} {year}", out var date);
+            return result ? date : null;
+        }
     }
 }

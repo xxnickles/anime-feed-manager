@@ -1,11 +1,12 @@
-﻿namespace AnimeFeedManager.Features.Common.Utils;
-
-public static class OptionUtils
+﻿namespace AnimeFeedManager.Features.Common.Utils
 {
-    public static T UnpackOption<T>(this Option<T> value, T noneValue)
+    public static class OptionUtils
     {
-        return value.Match(
-            v => v,
-            () => noneValue);
+        public static T UnpackOption<T>(this Option<T> value, T noneValue)
+        {
+            return value.Match(
+                v => v,
+                () => noneValue);
+        }
     }
 }

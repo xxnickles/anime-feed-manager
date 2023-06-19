@@ -1,17 +1,18 @@
 ﻿using FuzzySharp;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping;
-
-internal static class Utils
+namespace AnimeFeedManager.Features.Tv.Scrapping
 {
-    internal static string TryGetFeedTitle(IEnumerable<string> titleList, string animeTitle)
+    internal static class Utils
     {
-        if (!titleList.Any()) return string.Empty;
-        var result = Process.ExtractOne(animeTitle, titleList);
-        return result.Score switch
+        internal static string TryGetFeedTitle(IEnumerable<string> titleList, string animeTitle)
         {
-            > 70 => result.Value,
-            _ => string.Empty
-        };
+            if (!titleList.Any()) return string.Empty;
+            var result = Process.ExtractOne(animeTitle, titleList);
+            return result.Score switch
+            {
+                > 70 => result.Value,
+                _ => string.Empty
+            };
+        }
     }
 }

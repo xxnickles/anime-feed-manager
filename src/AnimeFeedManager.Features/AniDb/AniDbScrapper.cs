@@ -1,36 +1,36 @@
-﻿using AnimeFeedManager.Features.Common;
-using PuppeteerSharp;
+﻿using PuppeteerSharp;
 
-namespace AnimeFeedManager.Features.AniDb;
-
-internal static class AniDbScrapper
+namespace AnimeFeedManager.Features.AniDb
 {
-    internal static async Task<ScrapResult> Scrap(string url, PuppeteerOptions puppeteerOptions)
+    internal static class AniDbScrapper
     {
-        await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+        internal static async Task<ScrapResult> Scrap(string url, PuppeteerOptions puppeteerOptions)
         {
-            Headless = true,
-            DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
-            ExecutablePath = puppeteerOptions.Path
-        });
+            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Headless = true,
+                DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
+                ExecutablePath = puppeteerOptions.Path
+            });
         
-        await using var page = await browser.NewPageAsync();
-        await page.GoToAsync(url);
-        await page.WaitForSelectorAsync("div.g_bubblewrap.g_bubble.container");
-        var data = await page.EvaluateFunctionAsync<JsonAnimeInfo[]>(Constants.ScrappingScript);
-        await browser.CloseAsync();
+            await using var page = await browser.NewPageAsync();
+            await page.GoToAsync(url);
+            await page.WaitForSelectorAsync("div.g_bubblewrap.g_bubble.container");
+            var data = await page.EvaluateFunctionAsync<JsonAnimeInfo[]>(Constants.ScrappingScript);
+            await browser.CloseAsync();
 
-        return new ScrapResult(data.Select(Map),  data.First().SeasonInfo);
-    }
+            return new ScrapResult(data.Select(Map),  data.First().SeasonInfo);
+        }
     
-    private static SeriesContainer Map(JsonAnimeInfo info)
-    {
-        return new SeriesContainer(
-            IdHelpers.GenerateAnimeId(info.SeasonInfo.Season, info.SeasonInfo.Year.ToString(), info.Title),
-            info.Title,
-            info.ImageUrl,
-            info.Synopsys,
-            info.Date,
-            info.SeasonInfo);
+        private static SeriesContainer Map(JsonAnimeInfo info)
+        {
+            return new SeriesContainer(
+                IdHelpers.GenerateAnimeId(info.SeasonInfo.Season, info.SeasonInfo.Year.ToString(), info.Title),
+                info.Title,
+                info.ImageUrl,
+                info.Synopsys,
+                info.Date,
+                info.SeasonInfo);
+        }
     }
 }
