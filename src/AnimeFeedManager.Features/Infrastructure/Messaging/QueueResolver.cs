@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Domain.Notifications;
+﻿using AnimeFeedManager.Features.Domain.Events;
+using AnimeFeedManager.Features.Domain.Notifications;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging
 {

@@ -26,4 +26,11 @@
   <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Images\" />
+    <Folder Include="Tv\" />
+  </ItemGroup>
 </Project>

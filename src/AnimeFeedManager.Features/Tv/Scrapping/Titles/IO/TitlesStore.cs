@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Features.Infrastructure.TableStorage;
-using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
+﻿using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 

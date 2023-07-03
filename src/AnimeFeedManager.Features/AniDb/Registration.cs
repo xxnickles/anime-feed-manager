@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using PuppeteerSharp;
+﻿using PuppeteerSharp;
 
 namespace AnimeFeedManager.Features.AniDb;
 

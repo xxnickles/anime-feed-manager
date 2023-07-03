@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features
+﻿namespace AnimeFeedManager.Features.Domain.Events
 {
     public record DownloadImageEvent(string Partition, 
         string Id, 
@@ -6,4 +6,6 @@
         string BlobName, 
         string RemoteUrl,
         SeriesType SeriesType);
+    
+     
 }

@@ -1,6 +1,4 @@
 ﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Infrastructure.TableStorage;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeFeedManager.Features.Infrastructure;
 
@@ -14,13 +12,11 @@ public static class InfrastructureRegistration
             options.StorageConnectionString = connectionString;
         });
 
-        // services.TryAddSingleton<IImagesStore, AzureStorageBlobStore>();
-        
         var tableClient = new TableServiceClient(connectionString);
-        services.AddSingleton<IQueueResolver, QueueResolver>();
-        services.AddSingleton<IDomainPostman, AzureQueueMessages>();
-        services.AddSingleton(typeof(ITableClientFactory<>), typeof(TableClientFactory<>));
-        services.AddSingleton(tableClient);
+        services.TryAddSingleton<IQueueResolver, QueueResolver>();
+        services.TryAddSingleton<IDomainPostman, AzureQueueMessages>();
+        services.TryAddSingleton(typeof(ITableClientFactory<>), typeof(TableClientFactory<>));
+        services.TryAddSingleton(tableClient);
 
         return services;
     }

@@ -1,4 +1,6 @@
-﻿using AnimeFeedManager.Features.Tv.Scrapping.Images;
+﻿using AnimeFeedManager.Features.Domain.Events;
+using AnimeFeedManager.Features.Images;
+using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
@@ -59,15 +61,23 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series
 
         private Task<Either<DomainError, Unit>> Persist(TvSeries series, CancellationToken token)
         {
+            var reference = series.SeriesList.First();
             return _seriesStore.Add(series.SeriesList, token)
-                .MapAsync(_ => CreateImageEvents(series.Images, token));
+                .MapAsync(_ => CreateImageEvents(series.Images, token))
+                .MapAsync(_ => CreateSeasonEvent(reference.Season, reference.Year));
         }
 
-        private async Task<Unit> CreateImageEvents(ImmutableList<DownloadImageEvent> events,
+        private Unit CreateImageEvents(ImmutableList<DownloadImageEvent> events,
             CancellationToken token)
         {
             // Publish event to scrap images
             _mediator.Publish(new ScrapNotificationImages(events), token);
+            return unit;
+        }
+
+        private Unit CreateSeasonEvent(string season, int year)
+        {
+            _mediator.Publish(new AddSeasonNotification(season, year));
             return unit;
         }
     }

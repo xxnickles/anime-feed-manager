@@ -1,10 +1,11 @@
-﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
+﻿using AnimeFeedManager.Features.Domain.Events;
+using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.State.Types;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Images;
+namespace AnimeFeedManager.Features.Images;
 
 public readonly record struct ScrapNotificationImages(ImmutableList<DownloadImageEvent> events) : INotification;
 

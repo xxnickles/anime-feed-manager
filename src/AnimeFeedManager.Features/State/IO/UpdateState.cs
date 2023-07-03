@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Features.Infrastructure.TableStorage;
-using AnimeFeedManager.Features.State.Types;
+﻿using AnimeFeedManager.Features.State.Types;
 
 namespace AnimeFeedManager.Features.State.IO;
 

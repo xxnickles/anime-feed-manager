@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.AniDb
+﻿using AnimeFeedManager.Features.Domain.Events;
+
+namespace AnimeFeedManager.Features.AniDb
 {
     internal static class AniDbMappers
     {
