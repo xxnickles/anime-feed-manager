@@ -1,8 +1,8 @@
 ﻿namespace AnimeFeedManager.Features.Common.Dto
 {
-    public record SeasonInfoDto(string Season, int Year);
+    public record SimpleSeasonInfo(string Season, int Year);
 
-    public record NullSeasonInfo() : SeasonInfoDto(string.Empty, 0);
+    public record NullSimpleSeasonInfo() : SimpleSeasonInfo(string.Empty, 0);
     public record TvSubscriptionDto(string UserId, string Series);
 
     public record ShortSeriesSubscriptionDto(string UserId, string Series, DateTime NotificationDate);
@@ -12,14 +12,14 @@
 
     public static class DtoFactories
     {
-        public static bool TryToParse(string seasonString, int year, out SeasonInfoDto season)
+        public static bool TryToParse(string seasonString, int year, out SimpleSeasonInfo simpleSeason)
         {
             if (!Year.IsValid(year) || !Season.IsValid(seasonString))
             {
-                season = new NullSeasonInfo();
+                simpleSeason = new NullSimpleSeasonInfo();
                 return false;
             }
-            season = new SeasonInfoDto(seasonString, year);
+            simpleSeason = new SimpleSeasonInfo(seasonString, year);
             return true;
 
         }

@@ -2,9 +2,9 @@
 {
     public static class DtoMappers
     {
-        public static SeasonInfoDto Map(SeasonInformation seasonInformation)
+        public static SimpleSeasonInfo Map(SeasonInformation seasonInformation)
         {
-            return new SeasonInfoDto(seasonInformation.Season.Value, seasonInformation.Year.Value.UnpackOption<ushort>(0));
+            return new SimpleSeasonInfo(seasonInformation.Season.Value, seasonInformation.Year.Value.UnpackOption<ushort>(0));
         }
     }
 }

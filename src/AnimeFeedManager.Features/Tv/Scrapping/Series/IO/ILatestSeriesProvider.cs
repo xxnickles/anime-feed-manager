@@ -4,6 +4,6 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO
 {
     public interface ILatestSeriesProvider
     {
-        Task<Either<DomainError, TvSeries>> GetLibrary(CancellationToken token);
+        Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token);
     }
 }

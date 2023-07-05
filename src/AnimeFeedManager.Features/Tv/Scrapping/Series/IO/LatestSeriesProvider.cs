@@ -19,20 +19,20 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO
             _puppeteerOptions = puppeteerOptions;
         }
 
-        public async Task<Either<DomainError, TvSeries>> GetLibrary(CancellationToken token)
+        public async Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token)
         {
             try
             {
-                var (series, season) =
-                    await AniDbScrapper.Scrap("https://anidb.net/anime/season/?type.tvseries=1", _puppeteerOptions);
+                var (series, jsonSeason) =
+                    await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
 
                 await _domainPostman.SendMessage(new SeasonProcessNotification(
                     IdHelpers.GetUniqueId(),
                     TargetAudience.Admins,
                     NotificationType.Information,
-                    new SeasonInfoDto(season.Season, season.Year),
+                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
                     SeriesType.Tv,
-                    $"{series.Count()} series have been scrapped for {season.Season}-{season.Year}"), token);
+                    $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"), token);
 
                 return new TvSeries(series.Select(MapInfo)
                         .ToImmutableList(),
@@ -47,11 +47,20 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO
                         IdHelpers.GetUniqueId(),
                         TargetAudience.Admins,
                         NotificationType.Error,
-                        new NullSeasonInfo(),
+                        new NullSimpleSeasonInfo(),
                         SeriesType.Tv,
                         "AniDb season scrapping failed"), token);
                 return ExceptionError.FromException(ex, "AniDbLibrary");
             }
+        }
+
+        private static string CreateScrappingLink(SeasonSelector season)
+        {
+            return season switch
+            {
+                Latest => "https://anidb.net/anime/season/?type.tvseries=1",
+                BySeason s => $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1"
+            };
         }
 
         private static AnimeInfoStorage MapInfo(SeriesContainer container)

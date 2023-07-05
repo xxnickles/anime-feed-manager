@@ -4,7 +4,7 @@
         string Id,
         TargetAudience TargetAudience,
         NotificationType Result,
-        SeasonInfoDto Season,
+        SimpleSeasonInfo SimpleSeason,
         SeriesType SeriesType,
         string Message
     ) : Notification(Id, TargetAudience, Result, Message);

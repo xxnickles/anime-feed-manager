@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Features.Domain.Events;
+using AnimeFeedManager.Features.Domain.Validators;
 using AnimeFeedManager.Features.Images;
 using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
@@ -28,11 +29,21 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series
             _seriesStore = seriesStore;
         }
 
-        public Task<Either<DomainError, Unit>> Update(CancellationToken token = default)
+        public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
         {
-            return _latestSeriesProvider.GetLibrary(token)
+            return Validate(season)
+                .BindAsync(s => _latestSeriesProvider.GetLibrary(s, token))
                 .BindAsync(series => TryAddFeedTitles(series, token))
                 .BindAsync(series => Persist(series, token));
+        }
+
+        private Either<DomainError, SeasonSelector> Validate(SeasonSelector season)
+        {
+            return season switch
+            {
+                Latest => season,
+                BySeason s => SeasonValidators.Validate(s.SeasonInfo).Apply(_ => season)
+            };
         }
 
         private Task<Either<DomainError, TvSeries>> TryAddFeedTitles(TvSeries series, CancellationToken token)
