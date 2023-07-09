@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.1.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.11.0" OutputItemType="Analyzer" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.16.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.17.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -28,9 +28,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Images\" />
-    <Folder Include="Tv\" />
   </ItemGroup>
 </Project>

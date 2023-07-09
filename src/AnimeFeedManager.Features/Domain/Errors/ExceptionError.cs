@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Domain.Errors
 {
     public sealed class ExceptionError : DomainError
     {
-        private Exception Exception { get; }
+        public Exception Exception { get; }
 
         private ExceptionError(Exception exn, string correlationId) : base(correlationId,  exn.Message)
         {

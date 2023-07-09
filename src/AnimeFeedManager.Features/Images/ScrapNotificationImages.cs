@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Domain.Events;
+﻿using AnimeFeedManager.Backend.Functions.ResponseExtensions;
+using AnimeFeedManager.Features.Domain.Events;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.State.Types;
@@ -28,8 +29,7 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
             .MapAsync(r => SendMessages(r, cancellationToken));
 
         results.Match(async r => await r,
-            e => _logger.LogError("An error occurred while trying to send image events: {Error}", e.ToString())
-        );
+            e => e.LogDomainError(_logger));
     }
 
     private async Task SendMessages(ImmutableList<StateWrap<DownloadImageEvent>> events, CancellationToken token)

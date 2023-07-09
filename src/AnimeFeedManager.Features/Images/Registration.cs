@@ -6,7 +6,9 @@ public static class ImageRegistration
 {
     public static IServiceCollection RegisterImageServices(this IServiceCollection services)
     {
-        services.TryAddSingleton<IImagesStore, AzureImagesStore>();
+        services.TryAddSingleton<IImagesBlobStore, AzureImagesBlobStore>();
+        services.TryAddScoped<ITvImageStorage, TvImageStorage>();
+        services.TryAddScoped<ImageAdder>();
         return services;
     }
 }

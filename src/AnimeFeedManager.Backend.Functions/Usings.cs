@@ -1,5 +1,10 @@
 ﻿global using AnimeFeedManager.Features.AniDb;
-global using AnimeFeedManager.Features.Tv;
+global using AnimeFeedManager.Features.Domain.Types;
+global using AnimeFeedManager.Features.Images;
 global using AnimeFeedManager.Features.Infrastructure;
 global using AnimeFeedManager.Features.State;
-global using AnimeFeedManager.Features.Images;
+global using AnimeFeedManager.Features.Tv;
+global using Microsoft.Azure.Functions.Worker;
+global using Microsoft.Azure.Functions.Worker.Http;
+global using LanguageExt;
+global using static LanguageExt.Prelude;

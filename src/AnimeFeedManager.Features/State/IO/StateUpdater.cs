@@ -1,17 +1,24 @@
 ﻿using AnimeFeedManager.Features.State.Types;
+using MediatR;
+using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.State.IO;
 
-public sealed class UpdateState : IUpdateState
+public sealed class StateUpdater : IStateUpdater
 {
+    private readonly IMediator _mediator;
     private readonly ITableClientFactory<StateUpdateStorage> _tableClientFactory;
 
-    public UpdateState(ITableClientFactory<StateUpdateStorage> tableClientFactory)
+    public StateUpdater(
+        IMediator mediator,
+        ITableClientFactory<StateUpdateStorage> tableClientFactory)
     {
+        _mediator = mediator;
         _tableClientFactory = tableClientFactory;
     }
 
-    public Task<Either<DomainError, CurrentState>> UpdateCompleted(string id, StateUpdateTarget target,
+
+    private Task<Either<DomainError, CurrentState>> UpdateCompleted(string id, StateUpdateTarget target,
         CancellationToken token = default)
     {
         StateUpdateStorage Add(StateUpdateStorage original)
@@ -24,7 +31,7 @@ public sealed class UpdateState : IUpdateState
             .BindAsync(client => TryUpdate(client, id, target, Add, token));
     }
 
-    public Task<Either<DomainError, CurrentState>> UpdateError(string id, StateUpdateTarget target,
+    private Task<Either<DomainError, CurrentState>> UpdateError(string id, StateUpdateTarget target,
         CancellationToken token = default)
     {
         StateUpdateStorage Add(StateUpdateStorage original)
@@ -100,5 +107,20 @@ public sealed class UpdateState : IUpdateState
             updateStateStorage.Errors,
             updateStateStorage.SeriesToUpdate > 0 && updateStateStorage.SeriesToUpdate ==
             updateStateStorage.Completed + updateStateStorage.Errors);
+    }
+
+    public Task<Either<DomainError, Unit>> Update<T>(Either<DomainError, T> result, StateChange change, CancellationToken token = default)
+    {
+       return result.MatchAsync(
+            _ => UpdateCompleted(change.StateId, change.Target, token),
+            _ => UpdateError(change.StateId, change.Target, token))
+           .MapAsync(current =>
+           {
+               if (current.ShouldNotify)
+               {
+                   _mediator.Publish(new StateOperationCompletedNotification(change, current), token);
+               }
+               return unit;
+           });
     }
 }

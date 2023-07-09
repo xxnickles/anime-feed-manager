@@ -10,14 +10,14 @@ using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series
 {
-    public sealed class LatestLibraryUpdater
+    public sealed class TvLibraryUpdater
     {
         private readonly IMediator _mediator;
         private readonly ILatestSeriesProvider _latestSeriesProvider;
         private readonly ITitlesProvider _titlesProvider;
         private readonly ITvSeriesStore _seriesStore;
 
-        public LatestLibraryUpdater(
+        public TvLibraryUpdater(
             IMediator mediator,
             ILatestSeriesProvider latestSeriesProvider,
             ITitlesProvider titlesProvider,

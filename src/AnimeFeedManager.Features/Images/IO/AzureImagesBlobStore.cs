@@ -5,11 +5,11 @@ using Microsoft.Extensions.Options;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
-public class AzureImagesStore : IImagesStore
+public class AzureImagesBlobStore : IImagesBlobStore
 {
     private const string Container = "images";
     private readonly BlobContainerClient _containerClient;
-    public AzureImagesStore(IOptionsSnapshot<AzureBlobStorageOptions> blobStorageOptions)
+    public AzureImagesBlobStore(IOptionsSnapshot<AzureBlobStorageOptions> blobStorageOptions)
     {
         var blobStorageOptionsValue = blobStorageOptions.Value;
         _containerClient = new BlobContainerClient(blobStorageOptionsValue.StorageConnectionString, Container);
