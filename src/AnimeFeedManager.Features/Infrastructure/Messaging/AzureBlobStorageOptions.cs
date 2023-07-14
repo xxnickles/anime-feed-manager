@@ -1,7 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Infrastructure.Messaging
+﻿namespace AnimeFeedManager.Features.Infrastructure.Messaging;
+
+public sealed class AzureBlobStorageOptions
 {
-    public sealed class AzureBlobStorageOptions
-    {
-        public string? StorageConnectionString { get; set; }
-    }
+    public string? StorageConnectionString { get; set; }
 }

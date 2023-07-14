@@ -1,14 +1,13 @@
 ﻿using MediatR;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Titles
-{
-    public readonly record struct UpdateSeasonTitles (ImmutableList<string> Titles): INotification;
+namespace AnimeFeedManager.Features.Tv.Scrapping.Titles;
 
-    public sealed class UpdateSeasonTitlesHandler : INotificationHandler<UpdateSeasonTitles>
+public readonly record struct UpdateSeasonTitles (ImmutableList<string> Titles): INotification;
+
+public sealed class UpdateSeasonTitlesHandler : INotificationHandler<UpdateSeasonTitles>
+{
+    public Task Handle(UpdateSeasonTitles notification, CancellationToken cancellationToken)
     {
-        public Task Handle(UpdateSeasonTitles notification, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
     }
 }

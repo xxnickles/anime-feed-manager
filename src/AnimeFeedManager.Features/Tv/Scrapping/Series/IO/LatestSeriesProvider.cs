@@ -4,87 +4,86 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO
+namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+
+public sealed class LatestSeriesProvider : ILatestSeriesProvider
 {
-    public sealed class LatestSeriesProvider : ILatestSeriesProvider
+    private readonly IDomainPostman _domainPostman;
+    private readonly PuppeteerOptions _puppeteerOptions;
+
+    public LatestSeriesProvider(
+        IDomainPostman domainPostman,
+        PuppeteerOptions puppeteerOptions)
     {
-        private readonly IDomainPostman _domainPostman;
-        private readonly PuppeteerOptions _puppeteerOptions;
+        _domainPostman = domainPostman;
+        _puppeteerOptions = puppeteerOptions;
+    }
 
-        public LatestSeriesProvider(
-            IDomainPostman domainPostman,
-            PuppeteerOptions puppeteerOptions)
+    public async Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token)
+    {
+        try
         {
-            _domainPostman = domainPostman;
-            _puppeteerOptions = puppeteerOptions;
+            var (series, jsonSeason) =
+                await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
+
+            await _domainPostman.SendMessage(new SeasonProcessNotification(
+                IdHelpers.GetUniqueId(),
+                TargetAudience.Admins,
+                NotificationType.Information,
+                new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
+                SeriesType.Tv,
+                $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"), token);
+
+            return new TvSeries(series.Select(MapInfo)
+                    .ToImmutableList(),
+                series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
+                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer , SeriesType.Tv))
+                    .ToImmutableList());
         }
-
-        public async Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token)
+        catch (Exception ex)
         {
-            try
-            {
-                var (series, jsonSeason) =
-                    await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
-
-                await _domainPostman.SendMessage(new SeasonProcessNotification(
+            await _domainPostman.SendMessage(
+                new SeasonProcessNotification(
                     IdHelpers.GetUniqueId(),
                     TargetAudience.Admins,
-                    NotificationType.Information,
-                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
+                    NotificationType.Error,
+                    new NullSimpleSeasonInfo(),
                     SeriesType.Tv,
-                    $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"), token);
-
-                return new TvSeries(series.Select(MapInfo)
-                        .ToImmutableList(),
-                    series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
-                        .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer , SeriesType.Tv))
-                        .ToImmutableList());
-            }
-            catch (Exception ex)
-            {
-                await _domainPostman.SendMessage(
-                    new SeasonProcessNotification(
-                        IdHelpers.GetUniqueId(),
-                        TargetAudience.Admins,
-                        NotificationType.Error,
-                        new NullSimpleSeasonInfo(),
-                        SeriesType.Tv,
-                        "AniDb season scrapping failed"), token);
-                return ExceptionError.FromException(ex, "AniDbLibrary");
-            }
+                    "AniDb season scrapping failed"), token);
+            return ExceptionError.FromException(ex, "AniDbLibrary");
         }
+    }
 
-        private static string CreateScrappingLink(SeasonSelector season)
+    private static string CreateScrappingLink(SeasonSelector season)
+    {
+        return season switch
         {
-            return season switch
-            {
-                Latest => "https://anidb.net/anime/season/?type.tvseries=1",
-                BySeason s => $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1"
-            };
-        }
+            Latest => "https://anidb.net/anime/season/?type.tvseries=1",
+            BySeason s => $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1"
+        };
+    }
 
-        private static AnimeInfoStorage MapInfo(SeriesContainer container)
+    private static AnimeInfoStorage MapInfo(SeriesContainer container)
+    {
+        var seasonInfo = MapSeasonInfo(container.SeasonInfo);
+        var year = seasonInfo.Year.Value.UnpackOption((ushort)0);
+
+        return new AnimeInfoStorage
         {
-            var seasonInfo = MapSeasonInfo(container.SeasonInfo);
-            var year = seasonInfo.Year.Value.UnpackOption((ushort)0);
+            RowKey = container.Id,
+            PartitionKey = IdHelpers.GenerateAnimePartitionKey(seasonInfo.Season, year),
+            Title = container.Title,
+            Synopsis = container.Synopsys,
+            FeedTitle = string.Empty,
+            Date = MappingUtils.ParseDate(container.Date, container.SeasonInfo.Year)?.ToUniversalTime(),
+            Completed = false,
+            Season = seasonInfo.Season.Value,
+            Year = year
+        };
+    }
 
-            return new AnimeInfoStorage
-            {
-                RowKey = container.Id,
-                PartitionKey = IdHelpers.GenerateAnimePartitionKey(seasonInfo.Season, year),
-                Title = container.Title,
-                Synopsis = container.Synopsys,
-                FeedTitle = string.Empty,
-                Date = MappingUtils.ParseDate(container.Date, container.SeasonInfo.Year)?.ToUniversalTime(),
-                Completed = false,
-                Season = seasonInfo.Season.Value,
-                Year = year
-            };
-        }
-
-        private static SeasonInformation MapSeasonInfo(JsonSeasonInfo jsonSeasonInfo)
-        {
-            return new SeasonInformation(Season.FromString(jsonSeasonInfo.Season), Year.FromNumber(jsonSeasonInfo.Year));
-        }
+    private static SeasonInformation MapSeasonInfo(JsonSeasonInfo jsonSeasonInfo)
+    {
+        return new SeasonInformation(Season.FromString(jsonSeasonInfo.Season), Year.FromNumber(jsonSeasonInfo.Year));
     }
 }

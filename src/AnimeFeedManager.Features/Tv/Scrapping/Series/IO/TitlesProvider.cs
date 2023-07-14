@@ -1,45 +1,44 @@
 ﻿using PuppeteerSharp;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO
+namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+
+public class TitlesProvider : ITitlesProvider
 {
-    public class TitlesProvider : ITitlesProvider
+    private readonly PuppeteerOptions _puppeteerOptions;
+
+    public TitlesProvider(PuppeteerOptions puppeteerOptions)
     {
-        private readonly PuppeteerOptions _puppeteerOptions;
+        _puppeteerOptions = puppeteerOptions;
+    }
 
-        public TitlesProvider(PuppeteerOptions puppeteerOptions)
+    public async Task<Either<DomainError, ImmutableList<string>>> GetTitles()
+    {
+        try
         {
-            _puppeteerOptions = puppeteerOptions;
-        }
+            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Product = Product.Chrome,
+                Headless = true,
+                DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
+                ExecutablePath = _puppeteerOptions.Path
+            });
 
-        public async Task<Either<DomainError, ImmutableList<string>>> GetTitles()
+            await using var page = await browser.NewPageAsync();
+            await page.GoToAsync("https://subsplease.org/schedule/");
+            await page.WaitForSelectorAsync("table#full-schedule-table td.all-schedule-show");
+            var data = await page.EvaluateFunctionAsync<IEnumerable<string>>(ScrappingScript);
+            await browser.CloseAsync();
+            return data.ToImmutableList();
+        }
+        catch (Exception e)
         {
-            try
-            {
-                await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-                {
-                    Product = Product.Chrome,
-                    Headless = true,
-                    DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
-                    ExecutablePath = _puppeteerOptions.Path
-                });
-
-                await using var page = await browser.NewPageAsync();
-                await page.GoToAsync("https://subsplease.org/schedule/");
-                await page.WaitForSelectorAsync("table#full-schedule-table td.all-schedule-show");
-                var data = await page.EvaluateFunctionAsync<IEnumerable<string>>(ScrappingScript);
-                await browser.CloseAsync();
-                return data.ToImmutableList();
-            }
-            catch (Exception e)
-            {
-                return ExceptionError.FromException(e, "SubsPlease_Feed_Titles_Exception");
-            }
+            return ExceptionError.FromException(e, "SubsPlease_Feed_Titles_Exception");
         }
+    }
 
-        private const string ScrappingScript = @"
+    private const string ScrappingScript = @"
         () => {
             return Array.from(document.querySelectorAll('td.all-schedule-show a')).map(x => x.innerText);
         }
     ";
-    }
 }

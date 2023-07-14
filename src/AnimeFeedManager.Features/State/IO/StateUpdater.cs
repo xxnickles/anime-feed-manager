@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.State.Types;
+﻿using AnimeFeedManager.Features.Domain.Notifications;
+using AnimeFeedManager.Features.State.Types;
 using MediatR;
 using Unit = LanguageExt.Unit;
 
@@ -10,15 +11,13 @@ public sealed class StateUpdater : IStateUpdater
     private readonly ITableClientFactory<StateUpdateStorage> _tableClientFactory;
 
     public StateUpdater(
-        IMediator mediator,
         ITableClientFactory<StateUpdateStorage> tableClientFactory)
     {
-        _mediator = mediator;
         _tableClientFactory = tableClientFactory;
     }
 
 
-    private Task<Either<DomainError, CurrentState>> UpdateCompleted(string id, StateUpdateTarget target,
+    private Task<Either<DomainError, CurrentState>> UpdateCompleted(string id, NotificationTarget target,
         CancellationToken token = default)
     {
         StateUpdateStorage Add(StateUpdateStorage original)
@@ -31,7 +30,7 @@ public sealed class StateUpdater : IStateUpdater
             .BindAsync(client => TryUpdate(client, id, target, Add, token));
     }
 
-    private Task<Either<DomainError, CurrentState>> UpdateError(string id, StateUpdateTarget target,
+    private Task<Either<DomainError, CurrentState>> UpdateError(string id, NotificationTarget target,
         CancellationToken token = default)
     {
         StateUpdateStorage Add(StateUpdateStorage original)
@@ -48,7 +47,7 @@ public sealed class StateUpdater : IStateUpdater
     private static async Task<Either<DomainError, CurrentState>> TryUpdate(
         TableClient client,
         string id,
-        StateUpdateTarget target,
+        NotificationTarget target,
         Func<StateUpdateStorage, StateUpdateStorage> modifier,
         CancellationToken token)
     {
@@ -88,7 +87,7 @@ public sealed class StateUpdater : IStateUpdater
     private static Task<Either<DomainError, StateUpdateStorage>> GetCurrent(
         TableClient client,
         string id,
-        StateUpdateTarget target)
+        NotificationTarget target)
     {
         return TableUtils.TryExecute(() => client.GetEntityAsync<StateUpdateStorage>(target.Value, id),
                 nameof(StateUpdateStorage))
@@ -109,18 +108,11 @@ public sealed class StateUpdater : IStateUpdater
             updateStateStorage.Completed + updateStateStorage.Errors);
     }
 
-    public Task<Either<DomainError, Unit>> Update<T>(Either<DomainError, T> result, StateChange change, CancellationToken token = default)
+    public Task<Either<DomainError, CurrentState>> Update<T>(Either<DomainError, T> result, StateChange change, CancellationToken token = default)
     {
-       return result.MatchAsync(
+        return result.MatchAsync(
             _ => UpdateCompleted(change.StateId, change.Target, token),
-            _ => UpdateError(change.StateId, change.Target, token))
-           .MapAsync(current =>
-           {
-               if (current.ShouldNotify)
-               {
-                   _mediator.Publish(new StateOperationCompletedNotification(change, current), token);
-               }
-               return unit;
-           });
+            _ => UpdateError(change.StateId, change.Target, token));
+
     }
 }

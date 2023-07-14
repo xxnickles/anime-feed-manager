@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Features.State.IO;
 
 public interface IStateUpdater
 {
-    public Task<Either<DomainError, Unit>> Update<T>(Either<DomainError, T> result, StateChange change,
+    public Task<Either<DomainError, CurrentState>> Update<T>(Either<DomainError, T> result, StateChange change,
         CancellationToken token = default);
 
 }

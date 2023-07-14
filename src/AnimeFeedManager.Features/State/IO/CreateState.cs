@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.State.Types;
+﻿using AnimeFeedManager.Features.Domain.Notifications;
+using AnimeFeedManager.Features.State.Types;
 
 namespace AnimeFeedManager.Features.State.IO;
 
@@ -11,7 +12,7 @@ public sealed class CreateState : ICreateState
         _tableClientFactory = tableClientFactory;
     }
 
-    public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(StateUpdateTarget target,
+    public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
         ImmutableList<T> entities)
     {
         var id = Guid.NewGuid().ToString();

@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.State.Types;
+﻿namespace AnimeFeedManager.Features.Domain.Notifications;
 
 public enum Target
 {
@@ -10,7 +10,7 @@ public enum Target
     Image
 }
 
-public readonly record struct StateUpdateTarget : IEquatable<string>
+public readonly record struct NotificationTarget : IEquatable<string>
 {
     private const string TvValue = "TV";
     private const string OvaValue = "OVA";
@@ -23,21 +23,21 @@ public readonly record struct StateUpdateTarget : IEquatable<string>
     
     public Target Type { get; }
 
-    private StateUpdateTarget(string value, Target type)
+    private NotificationTarget(string value, Target type)
     {
         Value = value;
         Type = type;
     }
 
-    public static StateUpdateTarget Tv = new(TvValue, Target.Tv);
-    public static StateUpdateTarget Ova = new(OvaValue, Target.Ova);
-    public static StateUpdateTarget Movie = new(MovieValue, Target.Movie);
-    public static StateUpdateTarget Admin = new(AdminValue, Target.Admin);
-    public static StateUpdateTarget Images = new(ImagesValue, Target.Image);
-    public static StateUpdateTarget None = new(NoneValue, Target.None);
+    public static NotificationTarget Tv = new(TvValue, Target.Tv);
+    public static NotificationTarget Ova = new(OvaValue, Target.Ova);
+    public static NotificationTarget Movie = new(MovieValue, Target.Movie);
+    public static NotificationTarget Admin = new(AdminValue, Target.Admin);
+    public static NotificationTarget Images = new(ImagesValue, Target.Image);
+    public static NotificationTarget None = new(NoneValue, Target.None);
    
     
-    public static StateUpdateTarget Parse(string value)
+    public static NotificationTarget Parse(string value)
     {
         return value switch
         {

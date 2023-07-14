@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Backend.Functions.ResponseExtensions;
 using AnimeFeedManager.Features.Domain.Events;
+using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.State.Types;
@@ -25,7 +26,7 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
 
     public async Task Handle(ScrapNotificationImages notification, CancellationToken cancellationToken)
     {
-        var results = await _stateCreator.Create(StateUpdateTarget.Images, notification.events)
+        var results = await _stateCreator.Create(NotificationTarget.Images, notification.events)
             .MapAsync(r => SendMessages(r, cancellationToken));
 
         results.Match(async r => await r,
