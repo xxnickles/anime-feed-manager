@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Backend.Functions.ResponseExtensions;
+namespace AnimeFeedManager.Features.Domain.Errors;
 
 public static class ErrorLogger
 {

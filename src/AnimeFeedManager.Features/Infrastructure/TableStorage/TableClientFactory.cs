@@ -1,5 +1,7 @@
-﻿using AnimeFeedManager.Features.State.Types;
+﻿using AnimeFeedManager.Features.Notifications.Types;
+using AnimeFeedManager.Features.State.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
 
 namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
@@ -36,14 +38,14 @@ public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITa
             // nameof(SubscriptionStorage) => AzureTable.TableMap.Subscriptions,
             // nameof(SeasonStorage) => AzureTable.TableMap.AvailableSeasons,
             // nameof(InterestedStorage) => AzureTable.TableMap.InterestedSeries,
-            // nameof(TitlesStorage) => AzureTable.TableMap.FeedTitles,
+            nameof(TitlesStorage) => AzureTableMap.StoreTo.FeedTitles,
             // nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,   
             // nameof(UserStorage) => AzureTable.TableMap.Users,
             // nameof(OvaStorage) => AzureTable.TableMap.OvaLibrary,
             // nameof(OvasSubscriptionStorage) => AzureTable.TableMap.OvaSubscriptions,
             // nameof(MovieStorage) => AzureTable.TableMap.MovieLibrary,
             // nameof(MoviesSubscriptionStorage) => AzureTable.TableMap.MovieSubscriptions,
-            // nameof(NotificationStorage) => AzureTable.TableMap.Notifications,
+            nameof(NotificationStorage) => AzureTableMap.StoreTo.Notifications,
             nameof(StateUpdateStorage) => AzureTableMap.StoreTo.StateUpdates,
             _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}")
         };

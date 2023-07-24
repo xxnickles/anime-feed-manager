@@ -22,25 +22,22 @@ public readonly record struct MinutesDelay()
 
 public interface IDomainPostman
 {
-    Task SendMessage<T>(T message, CancellationToken cancellationToken = default);
+    Task SendMessage<T>(T message, string destiny, CancellationToken cancellationToken = default);
 
-    Task SendDelayedMessage<T>(T message, MinutesDelay delay,
+    Task SendDelayedMessage<T>(T message, string destiny, MinutesDelay delay,
         CancellationToken cancellationToken = default);
 }
 
 public class AzureQueueMessages : IDomainPostman
 {
-    private readonly IQueueResolver _queueResolver;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly QueueClientOptions _queueClientOptions;
 
     private readonly AzureBlobStorageOptions _blobStorageOptions;
 
     public AzureQueueMessages(
-        IQueueResolver queueResolver,
         IOptionsSnapshot<AzureBlobStorageOptions> blobStorageOptions)
     {
-        _queueResolver = queueResolver;
         _blobStorageOptions = blobStorageOptions.Value;
         _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
             {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
@@ -50,21 +47,21 @@ public class AzureQueueMessages : IDomainPostman
         };
     }
 
-    public Task SendMessage<T>(T message, CancellationToken cancellationToken = default)
+    public Task SendMessage<T>(T message, string destiny, CancellationToken cancellationToken = default)
     {
-        return SendMessage(message, null, cancellationToken);
+        return SendMessage(message, destiny, null, cancellationToken);
     }
 
-    public Task SendDelayedMessage<T>(T message, MinutesDelay delay,
+    public Task SendDelayedMessage<T>(T message, string destiny, MinutesDelay delay,
         CancellationToken cancellationToken = default)
     {
-        return SendMessage(message, TimeSpan.FromMinutes(delay.Value), cancellationToken);
+        return SendMessage(message, destiny,TimeSpan.FromMinutes(delay.Value), cancellationToken);
     }
 
-    private async Task SendMessage<T>(T message, TimeSpan? delay = default,
+    private async Task SendMessage<T>(T message, string destiny, TimeSpan? delay = default,
         CancellationToken cancellationToken = default)
     {
-        var queue = new QueueClient(_blobStorageOptions?.StorageConnectionString ?? string.Empty, _queueResolver.GetQueue(typeof(T)), _queueClientOptions);
+        var queue = new QueueClient(_blobStorageOptions?.StorageConnectionString ?? string.Empty,destiny, _queueClientOptions);
         await queue.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         await queue.SendMessageAsync(AsBinary(message), cancellationToken: cancellationToken, visibilityTimeout: delay);
     }

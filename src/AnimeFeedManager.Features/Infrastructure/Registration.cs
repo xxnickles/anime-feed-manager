@@ -13,7 +13,6 @@ public static class InfrastructureRegistration
         });
 
         var tableClient = new TableServiceClient(connectionString);
-        services.TryAddSingleton<IQueueResolver, QueueResolver>();
         services.TryAddSingleton<IDomainPostman, AzureQueueMessages>();
         services.TryAddSingleton(typeof(ITableClientFactory<>), typeof(TableClientFactory<>));
         services.TryAddSingleton(tableClient);

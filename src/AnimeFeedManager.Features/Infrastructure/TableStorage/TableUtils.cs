@@ -135,7 +135,7 @@ internal static class TableUtils
             // Create the batch.
             var addEntitiesBatch = new List<TableTransactionAction>();
             addEntitiesBatch.AddRange(
-                entities.Select(e => new TableTransactionAction(TableTransactionActionType.Add, e)));
+                entities.Select(e => new TableTransactionAction(TableTransactionActionType.UpsertMerge, e)));
             
             var response = await tableClient.SubmitTransactionAsync(addEntitiesBatch, token).ConfigureAwait(false);
             return unit;

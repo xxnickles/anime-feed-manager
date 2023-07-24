@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Features.Seasons;
-using MediatR.NotificationPublishers;
+﻿using MediatR.NotificationPublishers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeFeedManager.Backend.Functions.Bootstrapping;
@@ -24,6 +23,7 @@ internal static class Registration
         services.RegisterImageServices();
         services.RegisterStateServices();
         services.RegisterTvServices();
+        services.RegisterNotificationServices();
 
         return services;
     }

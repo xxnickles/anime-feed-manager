@@ -27,7 +27,7 @@ public class StoreNotification : IStoreNotification
             {
                 var notificationStorage = new NotificationStorage
                 {
-                    PartitionKey = target != NotificationTarget.Admin ? userId : UserRoles.Admin,
+                    PartitionKey = userId,
                     RowKey = id,
                     Payload = JsonSerializer.Serialize(payload, _serializerOptions),
                     Type = area.Value,

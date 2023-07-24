@@ -31,6 +31,6 @@ public class AddSeasonHandler : INotificationHandler<AddSeasonNotification>
         
         result.Match(
             _ => _logger.LogInformation("Entry for {Season} updated successfully", $"{notification.Year}-{notification.Season}"),
-            e =>  _logger.LogError("An error occurred while trying to send image events: {Error}", e.ToString()));
+            e =>  e.LogDomainError(_logger));
     }
 }

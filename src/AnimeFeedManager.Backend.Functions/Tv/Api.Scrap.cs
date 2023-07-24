@@ -24,9 +24,11 @@ public class Scrap
         HttpRequestData req)
     {
         _logger.LogInformation("Automated Update of Library (Manual trigger)");
-        var result = await req.AllowAdminOnly()
-            .BindAsync(_ => _libraryUpdater.Update(new Latest()));
+        // var result = await req.AllowAdminOnly()
+        //     .BindAsync(_ => _libraryUpdater.Update(new Latest()));
 
+        var result = await _libraryUpdater.Update(new Latest());
+        
         return await result.Match(
             _ => req.Ok(),
             error => error.ToResponse(req, _logger)

@@ -27,17 +27,19 @@ public sealed class LatestSeriesProvider : ILatestSeriesProvider
                 await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
 
             await _domainPostman.SendMessage(new SeasonProcessNotification(
-                IdHelpers.GetUniqueId(),
-                TargetAudience.Admins,
-                NotificationType.Information,
-                new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
-                SeriesType.Tv,
-                $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"), token);
+                    IdHelpers.GetUniqueId(),
+                    TargetAudience.Admins,
+                    NotificationType.Information,
+                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
+                    SeriesType.Tv,
+                    $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
+                Boxes.SeasonProcessNotifications,
+                token);
 
             return new TvSeries(series.Select(MapInfo)
                     .ToImmutableList(),
                 series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
-                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer , SeriesType.Tv))
+                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Tv))
                     .ToImmutableList());
         }
         catch (Exception ex)
@@ -49,7 +51,9 @@ public sealed class LatestSeriesProvider : ILatestSeriesProvider
                     NotificationType.Error,
                     new NullSimpleSeasonInfo(),
                     SeriesType.Tv,
-                    "AniDb season scrapping failed"), token);
+                    "AniDb season scrapping failed"),
+                Boxes.SeasonProcessNotifications,
+                token);
             return ExceptionError.FromException(ex, "AniDbLibrary");
         }
     }
@@ -59,7 +63,8 @@ public sealed class LatestSeriesProvider : ILatestSeriesProvider
         return season switch
         {
             Latest => "https://anidb.net/anime/season/?type.tvseries=1",
-            BySeason s => $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1"
+            BySeason s =>
+                $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1"
         };
     }
 

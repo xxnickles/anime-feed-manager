@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Backend.Functions.ResponseExtensions;
-using AnimeFeedManager.Features.Domain.Events;
+﻿using AnimeFeedManager.Features.Domain.Events;
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
@@ -17,7 +16,8 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
     private readonly IDomainPostman _domainPostman;
     private readonly ILogger<ScrapImagesNotificationHandler> _logger;
 
-    public ScrapImagesNotificationHandler(ICreateState stateCreator, IDomainPostman domainPostman, ILogger<ScrapImagesNotificationHandler> logger)
+    public ScrapImagesNotificationHandler(ICreateState stateCreator, IDomainPostman domainPostman,
+        ILogger<ScrapImagesNotificationHandler> logger)
     {
         _stateCreator = stateCreator;
         _domainPostman = domainPostman;
@@ -36,8 +36,8 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
     private async Task SendMessages(ImmutableList<StateWrap<DownloadImageEvent>> events, CancellationToken token)
     {
         var results = events.AsParallel()
-            .Select(imageEvent => _domainPostman.SendMessage(imageEvent, token));
-        
+            .Select(imageEvent => _domainPostman.SendMessage(imageEvent, Boxes.ImageProcess, token));
+
         try
         {
             results.ForAll(async imageEvent => await imageEvent);

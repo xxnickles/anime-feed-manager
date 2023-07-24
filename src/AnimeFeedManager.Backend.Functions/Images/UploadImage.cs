@@ -1,4 +1,3 @@
-using AnimeFeedManager.Backend.Functions.ResponseExtensions;
 using AnimeFeedManager.Features.Domain.Events;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.Types;
@@ -49,6 +48,4 @@ public class UploadImage
                 _ => _logger.LogInformation(""),
                 e => e.LogDomainError(_logger));
     }
-
-
 }
