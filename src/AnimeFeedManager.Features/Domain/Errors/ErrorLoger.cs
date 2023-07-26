@@ -15,13 +15,13 @@ public static class ErrorLogger
 
     private static Unit LogException(this ExceptionError eError, ILogger logger)
     {
-        logger.LogError(eError.Exception, "[{CorrelationId}] An Exception has occurred", eError.CorrelationId);
+        logger.LogError(eError.Exception, "{Error}", eError.Message);
         return unit;
     }
     
     private static Unit LogError(this DomainError error, ILogger logger)
     {
-        logger.LogError("[{CorrelationId}] {Message}", error.CorrelationId, error.Message);
+        logger.LogError("{Message}", error.Message);
         return unit;
     }
     

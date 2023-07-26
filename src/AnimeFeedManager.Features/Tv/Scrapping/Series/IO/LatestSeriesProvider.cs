@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.AniDb;
+﻿using System.Diagnostics;
+using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
@@ -64,7 +65,8 @@ public sealed class LatestSeriesProvider : ILatestSeriesProvider
         {
             Latest => "https://anidb.net/anime/season/?type.tvseries=1",
             BySeason s =>
-                $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1"
+                $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1",
+            _ => throw new UnreachableException()
         };
     }
 

@@ -50,7 +50,8 @@ public class ImageAdder
             SeriesType.Tv => _tvImageStorage.AddTvImage(stateWrap, imageUrl, token),
             SeriesType.Movie => throw new NotImplementedException(),
             SeriesType.Ova =>  throw new NotImplementedException(),
-            SeriesType.None => throw new UnreachableException()
+            SeriesType.None => throw new UnreachableException(),
+            _ => throw new UnreachableException()
         };
     }
 

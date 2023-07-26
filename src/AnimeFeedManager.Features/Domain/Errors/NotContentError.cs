@@ -2,9 +2,9 @@
 
 public sealed class NoContentError : DomainError
 {
-    private NoContentError(string correlationId, string message) : base(correlationId, message)
+    private NoContentError(string message) : base(message)
     {
     }
 
-    public static NoContentError Create(string correlationId, string message) => new(correlationId, message);
+    public static NoContentError Create(string message) => new(message);
 }

@@ -2,18 +2,16 @@
 
 public abstract class DomainError
 {
-    public string CorrelationId { get; }
     public string Message { get; }
 
-    protected DomainError(string correlationId, string message)
+    protected DomainError(string message)
     {
-        CorrelationId = correlationId;
         Message = message;
     }
 
     public override string ToString()
     {
-        return $"[{CorrelationId}] - {Message}";
+        return Message;
     }
 
 }

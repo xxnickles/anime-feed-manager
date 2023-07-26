@@ -7,7 +7,7 @@ public sealed class ExceptionError : DomainError
 {
     public Exception Exception { get; }
 
-    private ExceptionError(Exception exn, string correlationId) : base(correlationId,  exn.Message)
+    private ExceptionError(Exception exn) : base(exn.Message)
     {
         Exception = exn;
     }
@@ -16,7 +16,7 @@ public sealed class ExceptionError : DomainError
     {
         var builder = new StringBuilder();
         var innerErrors = ExtractErrors(Exception);
-        builder.AppendLine($"[{CorrelationId}] - {Message}");
+        builder.AppendLine(Message);
         if (!innerErrors.Any()) return builder.ToString();
         builder.AppendLine("Inner Errors: ");
         foreach (var error in innerErrors)
@@ -37,6 +37,6 @@ public sealed class ExceptionError : DomainError
         return lst;
     }
 
-    public static ExceptionError FromException(Exception exn, string correlationId) => new(exn, correlationId);
-    public static ExceptionError FromException(Exception exn) => new(exn, "Generic_Exception");
+    public static ExceptionError FromException(Exception exn, string correlationId) => new(exn);
+    public static ExceptionError FromException(Exception exn) => new(exn);
 }

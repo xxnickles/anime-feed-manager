@@ -23,8 +23,7 @@ internal static class TableUtils
 
             return !resultList.IsEmpty
                 ? resultList
-                : NoContentError.Create($"TableQuery-{typeName}",
-                    "Query returned no results");
+                : NoContentError.Create("Query returned no results");
         }
         catch (Exception e)
         {
@@ -69,7 +68,7 @@ internal static class TableUtils
     /// <typeparam name="T">Table Entity<</typeparam>
     /// <returns></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteLimitedQuery<T>(
-        Func<AsyncPageable<T>> query, string typeName, byte items = 1)
+        Func<AsyncPageable<T>> query, string typeName, byte items = 1) where T : notnull
     {
         var enumerator = query().GetAsyncEnumerator();
         var counter = 0;
@@ -103,7 +102,7 @@ internal static class TableUtils
         catch (Exception e)
         {
             return e.Message == "Not Found"
-                ? NotFoundError.Create($"TableOperation-{typeName}", "The entity was not found")
+                ? NotFoundError.Create("The entity was not found")
                 : ExceptionError.FromException(e, $"TableOperation-{typeName}");
         }
     }

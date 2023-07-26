@@ -22,7 +22,7 @@ public static class ErrorToActionResults
     private static Task<HttpResponseData> ToResponse(this ValidationErrors error, HttpRequestData request, ILogger log)
     {
         if (error == null) return request.UnprocessableEntity();
-        log.LogError("[{CorrelationId}] {Error}",error.CorrelationId, error.Message);
+        log.LogError("{Error}", error.Message);
         foreach (var validationError in error.Errors)
             log.LogError("Field: {Field} Messages: {Messages}", validationError.Key, string.Join(". ", validationError.Value));
 

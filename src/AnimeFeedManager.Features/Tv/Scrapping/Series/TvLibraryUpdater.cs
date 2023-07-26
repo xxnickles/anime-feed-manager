@@ -42,7 +42,9 @@ public sealed class TvLibraryUpdater
         return season switch
         {
             Latest => season,
-            BySeason s => SeasonValidators.Validate(s.SeasonInfo).Apply(_ => season)
+            BySeason s => SeasonValidators.Validate(s.SeasonInfo).Apply(_ => season),
+            _ => ValidationErrors.Create(new ValidationError[]
+                { ValidationError.Create(nameof(season), "Season Value is incorrect") })
         };
     }
 
@@ -55,7 +57,7 @@ public sealed class TvLibraryUpdater
                 var updatedSeries =
                     series.SeriesList.ConvertAll(s =>
                     {
-                        s.FeedTitle = Utils.TryGetFeedTitle(titles, s.Title);
+                        s.FeedTitle = Utils.TryGetFeedTitle(titles, s.Title ?? string.Empty);
                         return s;
                     });
 
@@ -75,7 +77,7 @@ public sealed class TvLibraryUpdater
         var reference = series.SeriesList.First();
         return _seriesStore.Add(series.SeriesList, token)
             .MapAsync(_ => CreateImageEvents(series.Images, token))
-            .MapAsync(_ => CreateSeasonEvent(reference.Season, reference.Year));
+            .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year));
     }
 
     private Unit CreateImageEvents(ImmutableList<DownloadImageEvent> events,

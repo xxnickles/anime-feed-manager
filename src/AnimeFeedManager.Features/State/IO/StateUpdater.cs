@@ -7,7 +7,6 @@ namespace AnimeFeedManager.Features.State.IO;
 
 public sealed class StateUpdater : IStateUpdater
 {
-    private readonly IMediator _mediator;
     private readonly ITableClientFactory<StateUpdateStorage> _tableClientFactory;
 
     public StateUpdater(
@@ -54,8 +53,7 @@ public sealed class StateUpdater : IStateUpdater
         var keepTrying = true;
         var finalResult =
             Left<DomainError, CurrentState>(
-                new BasicError($"TableOperation-{nameof(StateUpdateStorage)}",
-                    "Failure Updating State"));
+                new BasicError("Failure Updating State"));
         do
         {
             try

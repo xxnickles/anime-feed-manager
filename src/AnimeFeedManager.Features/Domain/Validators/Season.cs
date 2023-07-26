@@ -5,7 +5,7 @@ internal static class SeasonValidators
     internal static Either<DomainError, (Season season, ushort year)> Validate(SimpleSeasonInfo param) =>
         (ValidateSeason(param), ValidateYear(param))
         .Apply((season, year) => (season, year))
-        .ToEither("Season");
+        .ValidationToEither();
     
     private static Validation<ValidationError, Season> ValidateSeason(SimpleSeasonInfo param) =>
         Season.TryCreateFromString(param.Season).ToValidation(

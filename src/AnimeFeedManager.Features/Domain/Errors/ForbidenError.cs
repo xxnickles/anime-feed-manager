@@ -2,9 +2,9 @@
 
 public sealed class ForbiddenError: DomainError
 {
-    private ForbiddenError(string correlationId, string message) : base(correlationId, message)
+    private ForbiddenError(string message) : base(message)
     {
     }
 
-    public static ForbiddenError Create(string endpoint) => new("api-forbidden", $"Anonymous User are not allowed for {endpoint}");
+    public static ForbiddenError Create(string endpoint) => new($"Anonymous User are not allowed for {endpoint}");
 }

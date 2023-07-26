@@ -40,7 +40,7 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
 
         try
         {
-            results.ForAll(async imageEvent => await imageEvent);
+            await Task.WhenAll(results);
         }
         catch (AggregateException e)
         {
@@ -49,5 +49,10 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
                 _logger.LogError(exception, "An Error has occurred when sending image information for scrapping");
             }
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An Error has occurred when sending image information for scrapping");
+        }
+        
     }
 }

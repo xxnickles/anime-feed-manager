@@ -2,9 +2,9 @@
 
 public sealed class BasicError : DomainError
 {
-    public BasicError(string correlationId, string message) : base(correlationId, message)
+    public BasicError( string message) : base(message)
     {
     }
 
-    public static BasicError Create(string correlationId, string message) => new(correlationId, message);
+    public static BasicError Create(string message) => new(message);
 }
