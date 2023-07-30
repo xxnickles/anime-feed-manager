@@ -1,35 +1,31 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Notifications.Types;
+using Notification = AnimeFeedManager.Features.Domain.Notifications.Notification;
 
 namespace AnimeFeedManager.Features.Notifications.IO;
 
 public class StoreNotification : IStoreNotification
 {
     private readonly ITableClientFactory<NotificationStorage> _tableClientFactory;
-    private readonly JsonSerializerOptions _serializerOptions;
+
     public StoreNotification(ITableClientFactory<NotificationStorage> tableClientFactory)
     {
         _tableClientFactory = tableClientFactory;
-        _serializerOptions = new JsonSerializerOptions()
-        {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        };
     }
-    
-    public Task<Either<DomainError, Unit>> Add<T>(string id, string userId, NotificationTarget target, NotificationArea area, T payload,
-        CancellationToken token)
-    {
 
-       return _tableClientFactory.GetClient()
+    public Task<Either<DomainError, Unit>> Add<T>(string id, string userId, NotificationTarget target,
+        NotificationArea area, T payload,
+        CancellationToken token) where T : Notification
+    {
+        return _tableClientFactory.GetClient()
             .BindAsync(client =>
             {
                 var notificationStorage = new NotificationStorage
                 {
                     PartitionKey = userId,
                     RowKey = id,
-                    Payload = JsonSerializer.Serialize(payload, _serializerOptions),
+                    Payload = GetSerializedPayload(payload),
                     Type = area.Value,
                     For = @target.Value
                 };
@@ -41,5 +37,12 @@ public class StoreNotification : IStoreNotification
             });
     }
 
-  
+    private static string GetSerializedPayload(Notification payload) => payload switch
+    {
+        ImageUpdateNotification imageUpdateNotification => JsonSerializer.Serialize(imageUpdateNotification,
+            ImageUpdateNotificationContext.Default.ImageUpdateNotification),
+        SeasonProcessNotification seasonProcessNotification => JsonSerializer.Serialize(seasonProcessNotification,
+            SeasonProcessNotificationContext.Default.SeasonProcessNotification),
+        _ => JsonSerializer.Serialize(payload, NotificationContext.Default.Notification)
+    };
 }

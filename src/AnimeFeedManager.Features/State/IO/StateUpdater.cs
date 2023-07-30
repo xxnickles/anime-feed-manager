@@ -1,7 +1,5 @@
 ﻿using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.State.Types;
-using MediatR;
-using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.State.IO;
 

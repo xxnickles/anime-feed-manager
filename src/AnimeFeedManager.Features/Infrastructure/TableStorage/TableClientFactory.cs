@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Features.Notifications.Types;
+using AnimeFeedManager.Features.Seasons.Types;
 using AnimeFeedManager.Features.State.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
@@ -36,7 +37,7 @@ public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITa
         {
             nameof(AnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             // nameof(SubscriptionStorage) => AzureTable.TableMap.Subscriptions,
-            // nameof(SeasonStorage) => AzureTable.TableMap.AvailableSeasons,
+            nameof(SeasonStorage) => AzureTableMap.StoreTo.AvailableSeasons,
             // nameof(InterestedStorage) => AzureTable.TableMap.InterestedSeries,
             nameof(TitlesStorage) => AzureTableMap.StoreTo.FeedTitles,
             // nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,   

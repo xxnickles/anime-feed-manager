@@ -24,8 +24,7 @@ public class OnImageNotification
     [Function("OnImageNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(Boxes.ImageUpdateNotifications, Connection = "AzureWebJobsStorage")] string myQueueItem,
-        ImageUpdateNotification notification)
+        [QueueTrigger(Boxes.ImageUpdateNotifications, Connection = "AzureWebJobsStorage")] ImageUpdateNotification notification)
     {
         
         // Stores notification
