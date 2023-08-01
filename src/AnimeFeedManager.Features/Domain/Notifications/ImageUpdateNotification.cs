@@ -11,16 +11,7 @@ public class ImageUpdateNotification : Notification
         SeriesType = seriesType;
     }
 
-    [JsonInclude]
     public SeriesType SeriesType { get; set; }
-
-    public void Deconstruct(out string id, out NotificationType result, out SeriesType seriesType, out string message)
-    {
-        id = Id;
-        result = Result;
-        seriesType = SeriesType;
-        message = Message;
-    }
 }
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]

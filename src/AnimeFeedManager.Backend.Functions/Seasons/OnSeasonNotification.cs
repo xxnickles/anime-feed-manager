@@ -1,36 +1,36 @@
-﻿using AnimeFeedManager.Features.Common.RealTimeNotifications;
+﻿using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;
-using ImageUpdateNotification = AnimeFeedManager.Features.Domain.Notifications.ImageUpdateNotification;
 
-namespace AnimeFeedManager.Backend.Functions.Images;
+namespace AnimeFeedManager.Backend.Functions.Seasons;
 
-public class OnImageNotification
+public class OnSeasonNotification
 {
     private readonly IStoreNotification _storeNotification;
-    private readonly ILogger<OnImageNotification> _logger;
+    private readonly ILogger<OnSeasonNotification> _logger;
 
-    public OnImageNotification(
+    public OnSeasonNotification(
         IStoreNotification storeNotification,
         ILoggerFactory loggerFactory)
     {
         _storeNotification = storeNotification;
-        _logger = loggerFactory.CreateLogger<OnImageNotification>();
+        _logger = loggerFactory.CreateLogger<OnSeasonNotification>();
     }
 
-    [Function("OnImageNotification")]
+    [Function("OnSeasonNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(Boxes.ImageUpdateNotifications, Connection = "AzureWebJobsStorage")] ImageUpdateNotification notification)
+        [QueueTrigger(Boxes.SeasonProcessNotifications, Connection = "AzureWebJobsStorage")]
+        SeasonProcessNotification notification)
     {
-        
         // Stores notification
         var result = await _storeNotification.Add(
             IdHelpers.GetUniqueId(),
             UserRoles.Admin,
-            NotificationTarget.Images,
-            NotificationArea.Update,
+            FromNotification(notification.SeriesType),
+             NotificationArea.Update,
             notification,
             default);
 
@@ -44,10 +44,10 @@ public class OnImageNotification
             }
         );
     }
-    
-    private static SignalRMessageAction CreateMessage(ImageUpdateNotification notification)
+
+    private static SignalRMessageAction CreateMessage(SeasonProcessNotification notification)
     {
-        return new SignalRMessageAction(ServerNotifications.ImageUpdate)
+        return new SignalRMessageAction(ServerNotifications.SeasonProcess)
         {
             GroupName = HubGroups.AdminGroup,
             Arguments = new object[]
@@ -56,4 +56,12 @@ public class OnImageNotification
             }
         };
     }
+
+    private static NotificationTarget FromNotification(SeriesType type) => type switch
+    {
+        SeriesType.Tv => NotificationTarget.Tv,
+        SeriesType.Movie => NotificationTarget.Movie,
+        SeriesType.Ova => NotificationTarget.Ova,
+        SeriesType.None => NotificationTarget.None
+    };
 }

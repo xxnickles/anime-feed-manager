@@ -27,7 +27,7 @@ public class StoreNotification : IStoreNotification
                     RowKey = id,
                     Payload = GetSerializedPayload(payload),
                     Type = area.Value,
-                    For = @target.Value
+                    For = target.Value
                 };
 
                 return TableUtils.TryExecute(

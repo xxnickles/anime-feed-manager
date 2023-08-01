@@ -29,6 +29,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
-    <ProjectReference Include="..\AnimeFeedManager.WebApp\AnimeFeedManager.WebApp.csproj" />
   </ItemGroup>
 </Project>

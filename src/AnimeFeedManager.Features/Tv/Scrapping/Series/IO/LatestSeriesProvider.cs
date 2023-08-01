@@ -4,6 +4,8 @@ using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
+using NotificationType = AnimeFeedManager.Features.Domain.Notifications.NotificationType;
+using TargetAudience = AnimeFeedManager.Features.Domain.Notifications.TargetAudience;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 
