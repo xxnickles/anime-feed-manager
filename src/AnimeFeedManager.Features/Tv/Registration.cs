@@ -8,7 +8,7 @@ public static class TvRegistration
 {
     public static IServiceCollection RegisterTvServices(this IServiceCollection services)
     {
-        services.TryAddSingleton<ILatestSeriesProvider, LatestSeriesProvider>();
+        services.TryAddSingleton<ISeriesProvider, SeriesProvider>();
         services.TryAddSingleton<ITitlesProvider, TitlesProvider>();
         services.TryAddScoped<ITvSeriesStore, TvSeriesStore>();
         services.TryAddScoped<ITitlesStore, TitlesStore>();

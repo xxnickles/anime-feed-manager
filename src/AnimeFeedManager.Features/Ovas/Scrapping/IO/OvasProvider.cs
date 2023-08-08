@@ -2,27 +2,24 @@
 using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
-using NotificationType = AnimeFeedManager.Features.Domain.Notifications.NotificationType;
-using TargetAudience = AnimeFeedManager.Features.Domain.Notifications.TargetAudience;
+using AnimeFeedManager.Features.Ovas.Scrapping.Types;
+using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+namespace AnimeFeedManager.Features.Ovas.Scrapping.IO;
 
-public sealed class LatestSeriesProvider : ILatestSeriesProvider
+public sealed class OvasProvider : IOvasProvider
 {
     private readonly IDomainPostman _domainPostman;
     private readonly PuppeteerOptions _puppeteerOptions;
 
-    public LatestSeriesProvider(
-        IDomainPostman domainPostman,
+    public OvasProvider(IDomainPostman domainPostman,
         PuppeteerOptions puppeteerOptions)
     {
         _domainPostman = domainPostman;
         _puppeteerOptions = puppeteerOptions;
     }
 
-    public async Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token)
+    public async Task<Either<DomainError, OvasCollection>> GetLibrary(SeasonSelector season, CancellationToken token)
     {
         try
         {
@@ -34,15 +31,15 @@ public sealed class LatestSeriesProvider : ILatestSeriesProvider
                     TargetAudience.Admins,
                     NotificationType.Information,
                     new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
-                    SeriesType.Tv,
-                    $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
+                    SeriesType.Ova,
+                    $"{series.Count()} ovas have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
                 Boxes.SeasonProcessNotifications,
                 token);
 
-            return new TvSeries(series.Select(MapInfo)
+            return new Types.OvasCollection(series.Select(MapInfo)
                     .ToImmutableList(),
                 series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
-                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Tv))
+                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Ova))
                     .ToImmutableList());
         }
         catch (Exception ex)
@@ -54,38 +51,37 @@ public sealed class LatestSeriesProvider : ILatestSeriesProvider
                     NotificationType.Error,
                     new NullSimpleSeasonInfo(),
                     SeriesType.Tv,
-                    "AniDb season scrapping failed"),
+                    "AniDb ovas season scrapping failed"),
                 Boxes.SeasonProcessNotifications,
                 token);
-            return ExceptionError.FromException(ex, "AniDbLibrary");
+            return ExceptionError.FromException(ex);
         }
     }
-
+    
     private static string CreateScrappingLink(SeasonSelector season)
     {
         return season switch
         {
-            Latest => "https://anidb.net/anime/season/?type.tvseries=1",
+            Latest => "https://anidb.net/anime/season/?type.ova=1&type.tvspecial=1&type.web=1",
             BySeason s =>
-                $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1",
+                $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?type.ova=1&type.tvspecial=1&type.web=1",
             _ => throw new UnreachableException()
         };
     }
-
-    private static AnimeInfoStorage MapInfo(SeriesContainer container)
+    
+    
+    private static OvaStorage MapInfo(SeriesContainer container)
     {
         var seasonInfo = MapSeasonInfo(container.SeasonInfo);
         var year = seasonInfo.Year.Value.UnpackOption((ushort)0);
 
-        return new AnimeInfoStorage
+        return new OvaStorage
         {
             RowKey = container.Id,
             PartitionKey = IdHelpers.GenerateAnimePartitionKey(seasonInfo.Season, year),
             Title = container.Title,
             Synopsis = container.Synopsys,
-            FeedTitle = string.Empty,
             Date = MappingUtils.ParseDate(container.Date, container.SeasonInfo.Year)?.ToUniversalTime(),
-            Completed = false,
             Season = seasonInfo.Season.Value,
             Year = year
         };

@@ -14,7 +14,7 @@ public class TvSeriesStore : ITvSeriesStore
     public Task<Either<DomainError, Unit>> Add(ImmutableList<AnimeInfoStorage> series, CancellationToken token)
     {
         return _tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.BatchAdd(client, series, nameof(AnimeInfoStorage), token))
+            .BindAsync(client => TableUtils.BatchAdd(client, series, token))
             .MapAsync(_ => unit);
     }
 }

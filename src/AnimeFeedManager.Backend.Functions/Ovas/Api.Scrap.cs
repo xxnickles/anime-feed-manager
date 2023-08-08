@@ -1,29 +1,29 @@
 ﻿using AnimeFeedManager.Backend.Functions.ResponseExtensions;
 using AnimeFeedManager.Features.Common.Dto;
-using AnimeFeedManager.Features.Tv.Scrapping.Series;
+using AnimeFeedManager.Features.Ovas.Scrapping;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Backend.Functions.Tv;
+namespace AnimeFeedManager.Backend.Functions.Ovas;
 
 public class Scrap
 {
-    private readonly TvLibraryUpdater _libraryUpdater;
+    private readonly OvasLibraryUpdater _libraryUpdater;
     private readonly ILogger _logger;
     
     public Scrap(
-        TvLibraryUpdater libraryUpdater,
+        OvasLibraryUpdater libraryUpdater,
         ILoggerFactory loggerFactory)
     {
         _libraryUpdater = libraryUpdater;
         _logger = loggerFactory.CreateLogger<Scrap>();
     }
 
-    [Function("ScrapLatestTvSeason")]
+    [Function("ScrapLatestOvasSeason")]
     public async Task<HttpResponseData> RunLatest(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/library")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library")]
         HttpRequestData req)
     {
-        _logger.LogInformation("Automated Update of Library (Manual trigger)");
+        _logger.LogInformation("Automated Update of Ovas Library (Manual trigger)");
 
         var result = await _libraryUpdater.Update(new Latest());
         
@@ -33,14 +33,14 @@ public class Scrap
         );
     }
     
-    [Function("ScrapCustomTvSeason")]
+    [Function("ScrapCustomOvasSeason")]
     public async Task<HttpResponseData> RunSeason(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/library/{year}/{season}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library/{year}/{season}")]
         HttpRequestData req,
         string season,
         ushort year)
     {
-        _logger.LogInformation("Automated Update Library (Manual trigger) for Custom Season");
+        _logger.LogInformation("Automated Update Ovas Library (Manual trigger) for Custom Season");
         var result = await req.AllowAdminOnly()
             .BindAsync(_ => _libraryUpdater.Update(new BySeason(new SimpleSeasonInfo(season,year))));
 

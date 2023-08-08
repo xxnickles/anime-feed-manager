@@ -37,6 +37,5 @@ public sealed class ExceptionError : DomainError
         return lst;
     }
 
-    public static ExceptionError FromException(Exception exn, string correlationId) => new(exn);
     public static ExceptionError FromException(Exception exn) => new(exn);
 }

@@ -27,7 +27,7 @@ public sealed class CreateState : ICreateState
 
         return _tableClientFactory.GetClient()
             .BindAsync(client =>
-                TableUtils.TryExecute(() => client.UpsertEntityAsync(newState), nameof(StateUpdateStorage)))
+                TableUtils.TryExecute(() => client.UpsertEntityAsync(newState)))
             .MapAsync(_ => entities.ConvertAll(e => new StateWrap<T>(id, e)));
     }
 }

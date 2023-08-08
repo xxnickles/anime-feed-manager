@@ -10,15 +10,18 @@ public class ImageAdder
 {
     private readonly IImagesBlobStore _imagesBlobStore;
     private readonly ITvImageStorage _tvImageStorage;
+    private readonly IOvasImageStorage _ovasImageStorage;
     private readonly ILogger<ImageAdder> _logger;
 
     public ImageAdder(
         IImagesBlobStore imagesBlobStore,
         ITvImageStorage tvImageStorage,
+        IOvasImageStorage ovasImageStorage,
         ILogger<ImageAdder> logger)
     {
         _imagesBlobStore = imagesBlobStore;
         _tvImageStorage = tvImageStorage;
+        _ovasImageStorage = ovasImageStorage;
         _logger = logger;
     }
 
@@ -45,16 +48,13 @@ public class ImageAdder
 
     private  Task<Either<DomainError, Unit>> Store( StateWrap<DownloadImageEvent> stateWrap, string imageUrl, CancellationToken token)
     {
-       return stateWrap.Payload.SeriesType switch
+        return stateWrap.Payload.SeriesType switch
         {
             SeriesType.Tv => _tvImageStorage.AddTvImage(stateWrap, imageUrl, token),
             SeriesType.Movie => throw new NotImplementedException(),
-            SeriesType.Ova =>  throw new NotImplementedException(),
+            SeriesType.Ova =>  _ovasImageStorage.AddOvasImage(stateWrap,imageUrl,token),
             SeriesType.None => throw new UnreachableException(),
             _ => throw new UnreachableException()
         };
     }
-
-
-
 }

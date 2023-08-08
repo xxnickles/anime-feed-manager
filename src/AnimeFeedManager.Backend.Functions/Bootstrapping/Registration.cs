@@ -1,4 +1,5 @@
-﻿using MediatR.NotificationPublishers;
+﻿using AnimeFeedManager.Features.Ovas;
+using MediatR.NotificationPublishers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeFeedManager.Backend.Functions.Bootstrapping;
@@ -23,6 +24,7 @@ internal static class Registration
         services.RegisterImageServices();
         services.RegisterStateServices();
         services.RegisterTvServices();
+        services.RegisterOvasServices();
         services.RegisterNotificationServices();
 
         return services;

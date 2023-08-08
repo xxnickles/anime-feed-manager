@@ -40,7 +40,7 @@ public sealed class FeedProvider : IFeedProvider
         catch (Exception e)
         {
             return Left<DomainError, ImmutableList<FeedInfo>>(
-                ExceptionError.FromException(e, "SubsPlease_Feed_Exception"));
+                ExceptionError.FromException(e));
         }
     }
 

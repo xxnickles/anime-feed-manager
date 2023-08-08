@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Features.Notifications.Types;
+using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 using AnimeFeedManager.Features.Seasons.Types;
 using AnimeFeedManager.Features.State.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
@@ -42,7 +43,7 @@ public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITa
             nameof(TitlesStorage) => AzureTableMap.StoreTo.FeedTitles,
             // nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,   
             // nameof(UserStorage) => AzureTable.TableMap.Users,
-            // nameof(OvaStorage) => AzureTable.TableMap.OvaLibrary,
+            nameof(OvaStorage) => AzureTableMap.StoreTo.OvaLibrary,
             // nameof(OvasSubscriptionStorage) => AzureTable.TableMap.OvaSubscriptions,
             // nameof(MovieStorage) => AzureTable.TableMap.MovieLibrary,
             // nameof(MoviesSubscriptionStorage) => AzureTable.TableMap.MovieSubscriptions,

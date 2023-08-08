@@ -10,7 +10,7 @@ internal static class TableUtils
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns>Error or Immutable list of <typeparamref name="T"/> (only when there are results)</returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQuery<T>(
-        Func<AsyncPageable<T>> query, string typeName) where T : ITableEntity
+        Func<AsyncPageable<T>> query) where T : ITableEntity
     {
         try
         {
@@ -27,7 +27,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e, $"TableQuery-{typeName}");
+            return ExceptionError.FromException(e);
         }
     }
 
@@ -39,7 +39,7 @@ internal static class TableUtils
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns>Error or Immutable list of <typeparamref name="T"/></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithEmpty<T>(
-        Func<AsyncPageable<T>> query, string typeName) where T : ITableEntity
+        Func<AsyncPageable<T>> query) where T : ITableEntity
     {
         try
         {
@@ -54,7 +54,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e, $"TableQuery-{typeName}");
+            return ExceptionError.FromException(e);
         }
     }
 
@@ -68,7 +68,7 @@ internal static class TableUtils
     /// <typeparam name="T">Table Entity<</typeparam>
     /// <returns></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteLimitedQuery<T>(
-        Func<AsyncPageable<T>> query, string typeName, byte items = 1) where T : notnull
+        Func<AsyncPageable<T>> query, byte items = 1) where T : notnull
     {
         var enumerator = query().GetAsyncEnumerator();
         var counter = 0;
@@ -85,7 +85,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e, $"TableQuery-{typeName}");
+            return ExceptionError.FromException(e);
         }
         finally
         {
@@ -93,7 +93,7 @@ internal static class TableUtils
         }
     }
 
-    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action, string typeName)
+    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action)
     {
         try
         {
@@ -103,12 +103,12 @@ internal static class TableUtils
         {
             return e.Message == "Not Found"
                 ? NotFoundError.Create("The entity was not found")
-                : ExceptionError.FromException(e, $"TableOperation-{typeName}");
+                : ExceptionError.FromException(e);
         }
     }
 
     internal static async Task<Either<DomainError, Unit>> BatchDelete<T>(TableClient tableClient,
-        ImmutableList<T> entities, string typeName, CancellationToken token) where T : ITableEntity
+        ImmutableList<T> entities, CancellationToken token) where T : ITableEntity
     {
         try
         {
@@ -122,12 +122,12 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e, $"BatchDelete-{typeName}");
+            return ExceptionError.FromException(e);
         }
     }
 
     internal static async Task<Either<DomainError, Unit>> BatchAdd<T>(TableClient tableClient,
-        ImmutableList<T> entities, string typeName, CancellationToken token) where T : ITableEntity
+        ImmutableList<T> entities, CancellationToken token) where T : ITableEntity
     {
         try
         {
@@ -141,7 +141,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e, $"BatchAdd-{typeName}");
+            return ExceptionError.FromException(e);
         }
     }
 }

@@ -15,8 +15,7 @@ public class SeasonStore : ISeasonStore
     {
         return _tableClientFactory.GetClient()
             .BindAsync(
-                client => TableUtils.TryExecute(() => client.UpsertEntityAsync(season, cancellationToken: token),
-                nameof(SeasonStorage)))
+                client => TableUtils.TryExecute(() => client.UpsertEntityAsync(season, cancellationToken: token)))
             .MapAsync(_ => unit);
     }
 }

@@ -32,7 +32,7 @@ public class TitlesProvider : ITitlesProvider
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e, "SubsPlease_Feed_Titles_Exception");
+            return ExceptionError.FromException(e);
         }
     }
 

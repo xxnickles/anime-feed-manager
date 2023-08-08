@@ -55,7 +55,3 @@ public readonly record struct NotificationTarget : IEquatable<string>
         return other == Value;
     }
 }
-
-
-
-

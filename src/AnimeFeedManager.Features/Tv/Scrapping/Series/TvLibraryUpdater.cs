@@ -13,39 +13,28 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series;
 public sealed class TvLibraryUpdater
 {
     private readonly IMediator _mediator;
-    private readonly ILatestSeriesProvider _latestSeriesProvider;
+    private readonly ISeriesProvider _seriesProvider;
     private readonly ITitlesProvider _titlesProvider;
     private readonly ITvSeriesStore _seriesStore;
 
     public TvLibraryUpdater(
         IMediator mediator,
-        ILatestSeriesProvider latestSeriesProvider,
+        ISeriesProvider seriesProvider,
         ITitlesProvider titlesProvider,
         ITvSeriesStore seriesStore)
     {
         _mediator = mediator;
-        _latestSeriesProvider = latestSeriesProvider;
+        _seriesProvider = seriesProvider;
         _titlesProvider = titlesProvider;
         _seriesStore = seriesStore;
     }
 
     public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
     {
-        return Validate(season)
-            .BindAsync(s => _latestSeriesProvider.GetLibrary(s, token))
+        return SeasonValidators.Validate(season)
+            .BindAsync(s => _seriesProvider.GetLibrary(s, token))
             .BindAsync(series => TryAddFeedTitles(series, token))
             .BindAsync(series => Persist(series, token));
-    }
-
-    private Either<DomainError, SeasonSelector> Validate(SeasonSelector season)
-    {
-        return season switch
-        {
-            Latest => season,
-            BySeason s => SeasonValidators.Validate(s.SeasonInfo).Apply(_ => season),
-            _ => ValidationErrors.Create(new ValidationError[]
-                { ValidationError.Create(nameof(season), "Season Value is incorrect") })
-        };
     }
 
     private Task<Either<DomainError, TvSeries>> TryAddFeedTitles(TvSeries series, CancellationToken token)

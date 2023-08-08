@@ -67,13 +67,13 @@ public sealed class StateUpdater : IStateUpdater
                 if (e.Status == 412) continue; // not because to pessimistic concurrency
                 keepTrying = false;
                 finalResult = Left<DomainError, CurrentState>(
-                    ExceptionError.FromException(e, $"TableOperation-{nameof(StateUpdateStorage)}"));
+                    ExceptionError.FromException(e));
             }
             catch (Exception ex)
             {
                 keepTrying = false;
                 finalResult = Left<DomainError, CurrentState>(
-                    ExceptionError.FromException(ex, $"TableOperation-{nameof(StateUpdateStorage)}"));
+                    ExceptionError.FromException(ex));
             }
         } while (keepTrying);
 
@@ -85,8 +85,7 @@ public sealed class StateUpdater : IStateUpdater
         string id,
         NotificationTarget target)
     {
-        return TableUtils.TryExecute(() => client.GetEntityAsync<StateUpdateStorage>(target.Value, id),
-                nameof(StateUpdateStorage))
+        return TableUtils.TryExecute(() => client.GetEntityAsync<StateUpdateStorage>(target.Value, id))
             .MapAsync(r => r.Value);
     }
 

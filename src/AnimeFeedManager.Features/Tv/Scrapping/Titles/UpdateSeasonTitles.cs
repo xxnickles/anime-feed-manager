@@ -19,10 +19,10 @@ public sealed class UpdateSeasonTitlesHandler : INotificationHandler<UpdateSeaso
     public async Task Handle(UpdateSeasonTitles notification, CancellationToken cancellationToken)
     {
         
-       var result = await _titlesStore.UpdateTitles(notification.Titles, cancellationToken);
+        var result = await _titlesStore.UpdateTitles(notification.Titles, cancellationToken);
 
-       result.Match(
-           _ => _logger.LogInformation("Titles ({Count}) have been updated successfully", notification.Titles.Count),
-           e => e.LogDomainError(_logger));
+        result.Match(
+            _ => _logger.LogInformation("Titles ({Count}) have been updated successfully", notification.Titles.Count),
+            e => e.LogDomainError(_logger));
     }
 }

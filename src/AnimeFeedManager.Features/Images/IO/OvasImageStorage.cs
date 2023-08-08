@@ -2,29 +2,29 @@
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Images.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.State.Types;
-using AnimeInfoStorage = AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage.AnimeInfoStorage;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
-public class TvImageStorage : ITvImageStorage
+public class OvasImageStorage : IOvasImageStorage
 {
     private readonly IStateUpdater _stateUpdaterUpdater;
     private readonly IDomainPostman _domainPostman;
-    private readonly ITableClientFactory<AnimeInfoStorage> _tableClientFactory;
+    private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
 
-    public TvImageStorage(
+    public OvasImageStorage(
         IStateUpdater stateUpdaterUpdater,
         IDomainPostman domainPostman,
-        ITableClientFactory<AnimeInfoStorage> tableClientFactory)
+        ITableClientFactory<OvaStorage> tableClientFactory)
     {
         _stateUpdaterUpdater = stateUpdaterUpdater;
         _domainPostman = domainPostman;
         _tableClientFactory = tableClientFactory;
     }
 
-    public async Task<Either<DomainError, Unit>> AddTvImage(StateWrap<DownloadImageEvent> imageStateWrap,
+    public async Task<Either<DomainError, Unit>> AddOvasImage(StateWrap<DownloadImageEvent> imageStateWrap,
         string imageUrl, CancellationToken token)
     {
         var storeResult = await _tableClientFactory.GetClient()
@@ -56,12 +56,12 @@ public class TvImageStorage : ITvImageStorage
         try
         {
             if (!currentState.ShouldNotify) return unit;
-            
+
             var notification = new ImageUpdateNotification(
                 IdHelpers.GetUniqueId(),
                 NotificationType.Information,
-                SeriesType.Tv,
-                $"Images for TV have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
+                SeriesType.Ova,
+                $"Images for OVAS have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
             await _domainPostman.SendMessage(notification, Boxes.ImageUpdateNotifications, token);
 
             return unit;

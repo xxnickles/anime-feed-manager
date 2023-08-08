@@ -7,6 +7,18 @@ internal static class SeasonValidators
         .Apply((season, year) => (season, year))
         .ValidationToEither();
     
+    
+    internal static Either<DomainError, SeasonSelector> Validate(SeasonSelector season)
+    {
+        return season switch
+        {
+            Latest => season,
+            BySeason s => SeasonValidators.Validate(s.SeasonInfo).Apply(_ => season),
+            _ => ValidationErrors.Create(new ValidationError[]
+                { ValidationError.Create(nameof(season), "Season Value is incorrect") })
+        };
+    }
+    
     private static Validation<ValidationError, Season> ValidateSeason(SimpleSeasonInfo param) =>
         Season.TryCreateFromString(param.Season).ToValidation(
             ValidationError.Create(nameof(param.Season), new[] { "Parameter provided doesn't represent a valid season" }));

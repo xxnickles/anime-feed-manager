@@ -15,7 +15,7 @@ public sealed class TitlesStore : ITitlesStore
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client =>
-                TableUtils.TryExecute(() => client.UpsertEntityAsync(GetEntity(titles), cancellationToken: token), nameof(TitlesStorage)))
+                TableUtils.TryExecute(() => client.UpsertEntityAsync(GetEntity(titles), cancellationToken: token)))
             .MapAsync(x => unit);
     }
 

@@ -31,8 +31,7 @@ public class StoreNotification : IStoreNotification
                 };
 
                 return TableUtils.TryExecute(
-                        () => client.UpsertEntityAsync(notificationStorage, cancellationToken: token),
-                        nameof(NotificationStorage))
+                        () => client.UpsertEntityAsync(notificationStorage, cancellationToken: token))
                     .MapAsync(_ => unit);
             });
     }
