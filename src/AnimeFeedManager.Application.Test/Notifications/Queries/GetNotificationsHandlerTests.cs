@@ -11,10 +11,10 @@ public class GetNotificationsHandlerTests
     [Fact]
     public async Task Should_Return_Organized_Feed_For_A_User()
     {
-        var mockRepo = new Mock<IFeedProvider>();
-        mockRepo.Setup(r => r.GetFeed(It.IsAny<Resolution>())).Returns(SampleFeed());
+        var mockRepo = Substitute.For<IFeedProvider>();
+        mockRepo.GetFeed(Arg.Any<Resolution>()).Returns(SampleFeed());
 
-        var handler = new GetEmailNotificationsHandler(mockRepo.Object);
+        var handler = new GetEmailNotificationsHandler(mockRepo);
 
         var oneUserSubscription = new[]
         {
@@ -31,7 +31,7 @@ public class GetNotificationsHandlerTests
         sut.Match(
             notification =>
             {
-                Assert.Single( notification);
+                Assert.Single(notification);
                 var feeds = notification[0].Feeds;
                 Assert.Equal(2, feeds.Count());
                 Assert.Collection(feeds,
@@ -47,17 +47,17 @@ public class GetNotificationsHandlerTests
                     }
                 );
             },
-            _ => Assert.True(false, "shouldn't be here"));
+            _ => Assert.Fail("shouldn't be here"));
     }
 
 
     [Fact]
     public async Task Should_Return_Organized_Feed_For_Multiple_Users()
     {
-        var mockRepo = new Mock<IFeedProvider>();
-        mockRepo.Setup(r => r.GetFeed(It.IsAny<Resolution>())).Returns(SampleFeed());
+        var mockRepo = Substitute.For<IFeedProvider>();
+        mockRepo.GetFeed(Arg.Any<Resolution>()).Returns(SampleFeed());
 
-        var handler = new GetEmailNotificationsHandler(mockRepo.Object);
+        var handler = new GetEmailNotificationsHandler(mockRepo);
 
         var oneUserSubscription = new[]
         {
@@ -123,7 +123,7 @@ public class GetNotificationsHandlerTests
                     }
                 );
             },
-            _ => Assert.True(false, "shouldn't be here"));
+            _ => Assert.Fail("shouldn't be here"));
     }
 
 

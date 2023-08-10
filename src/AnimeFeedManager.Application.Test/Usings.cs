@@ -1,5 +1,5 @@
 ﻿global using Xunit;
-global using Moq;
+global using NSubstitute;
 global using AnimeFeedManager.Storage.Domain;
 global using AnimeFeedManager.Storage.Interface;
 global using static LanguageExt.Prelude;

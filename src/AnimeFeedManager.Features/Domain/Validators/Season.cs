@@ -13,7 +13,7 @@ internal static class SeasonValidators
         return season switch
         {
             Latest => season,
-            BySeason s => SeasonValidators.Validate(s.SeasonInfo).Apply(_ => season),
+            BySeason s => Validate(s.SeasonInfo).Apply(_ => season),
             _ => ValidationErrors.Create(new ValidationError[]
                 { ValidationError.Create(nameof(season), "Season Value is incorrect") })
         };

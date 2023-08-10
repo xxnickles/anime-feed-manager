@@ -35,15 +35,15 @@ public class FeedProviderTest : WithScrapper
         Assert.True(sut.IsRight);
         sut.Match(
             Assert.NotEmpty,
-            _ => Assert.True(false, "An error happened getting titles"));
+            _ => Assert.Fail("An error happened getting titles"));
     }
 
 
     [Fact(Skip = "Takes too long in Git Actions")]
     public async Task Tv_Library_Works()
     {
-        var mock = new Mock<IDomainPostman>();
-        var sut = await new TvSeriesProvider(mock.Object, BrowserOptions).GetLibrary(new[] {"a", "b", "c"}.ToImmutableList());
+        var mock = Substitute.For<IDomainPostman>();
+        var sut = await new TvSeriesProvider(mock, BrowserOptions).GetLibrary(new[] {"a", "b", "c"}.ToImmutableList());
         Assert.True(sut.IsRight);
         sut.Match(
             r =>
@@ -58,8 +58,8 @@ public class FeedProviderTest : WithScrapper
     [Fact]
     public async Task Ovas_Library_Works()
     {
-        var mock = new Mock<IDomainPostman>();
-        var sut = await new OvasProvider(mock.Object, BrowserOptions).GetLibrary();
+        var mock = Substitute.For<IDomainPostman>();
+        var sut = await new OvasProvider(mock, BrowserOptions).GetLibrary();
         Assert.True(sut.IsRight);
         sut.Match(
             r =>
@@ -74,8 +74,8 @@ public class FeedProviderTest : WithScrapper
     [Fact(Skip = "Takes too long in Git Actions")]
     public async Task Ovas_Library_By_Season_Works()
     {
-        var mock = new Mock<IDomainPostman>();
-        var sut = await new OvasProvider(mock.Object, BrowserOptions).GetLibrary(new SeasonInformation(Season.Spring, Year.FromNumber(2022)));
+        var mock = Substitute.For<IDomainPostman>();
+        var sut = await new OvasProvider(mock, BrowserOptions).GetLibrary(new SeasonInformation(Season.Spring, Year.FromNumber(2022)));
         Assert.True(sut.IsRight);
         sut.Match(
             r =>
@@ -90,8 +90,8 @@ public class FeedProviderTest : WithScrapper
     [Fact(Skip = "Takes too long in Git Actions")]
     public async Task Movies_Library_Works()
     {
-        var mock = new Mock<IDomainPostman>();
-        var sut = await new MoviesProvider(mock.Object, BrowserOptions).GetLibrary();
+        var mock = Substitute.For<IDomainPostman>();
+        var sut = await new MoviesProvider(mock, BrowserOptions).GetLibrary();
         Assert.True(sut.IsRight);
         sut.Match(
             r =>
@@ -106,8 +106,8 @@ public class FeedProviderTest : WithScrapper
     [Fact(Skip = "Takes too long in Git Actions")]
     public async Task Movies_Library_By_Season_Works()
     {
-        var mock = new Mock<IDomainPostman>();
-        var sut = await new MoviesProvider(mock.Object, BrowserOptions).GetLibrary(new SeasonInformation(Season.Spring, Year.FromNumber(2022)));
+        var mock = Substitute.For<IDomainPostman>();
+        var sut = await new MoviesProvider(mock, BrowserOptions).GetLibrary(new SeasonInformation(Season.Spring, Year.FromNumber(2022)));
         Assert.True(sut.IsRight);
         sut.Match(
             r =>

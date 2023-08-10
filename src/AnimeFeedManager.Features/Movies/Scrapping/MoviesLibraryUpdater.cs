@@ -1,43 +1,43 @@
 ﻿using AnimeFeedManager.Features.Domain.Events;
 using AnimeFeedManager.Features.Domain.Validators;
 using AnimeFeedManager.Features.Images;
-using AnimeFeedManager.Features.Ovas.Scrapping.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Types;
+using AnimeFeedManager.Features.Movies.Scrapping.IO;
+using AnimeFeedManager.Features.Movies.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons;
 using MediatR;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping;
+namespace AnimeFeedManager.Features.Movies.Scrapping;
 
-public class OvasLibraryUpdater
+public class MoviesLibraryUpdater
 {
     private readonly IMediator _mediator;
-    private readonly IOvasProvider _ovasProvider;
-    private readonly IOvasStorage _ovasStorage;
+    private readonly IMoviesProvider _moviesProvider;
+    private readonly IMoviesStorage _moviesStorage;
 
-    public OvasLibraryUpdater(
+    public MoviesLibraryUpdater(
         IMediator mediator,
-        IOvasProvider ovasProvider,
-        IOvasStorage ovasStorage)
+        IMoviesProvider moviesProvider,
+        IMoviesStorage moviesStorage)
     {
         _mediator = mediator;
-        _ovasProvider = ovasProvider;
-        _ovasStorage = ovasStorage;
+        _moviesProvider = moviesProvider;
+        _moviesStorage = moviesStorage;
     }
 
 
     public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
     {
         return SeasonValidators.Validate(season)
-            .BindAsync(s => _ovasProvider.GetLibrary(s, token))
+            .BindAsync(s => _moviesProvider.GetLibrary(s, token))
             .BindAsync(series => Persist(series, token));
     }
 
 
-    private Task<Either<DomainError, Unit>> Persist(OvasCollection series, CancellationToken token)
+    private Task<Either<DomainError, Unit>> Persist(MoviesCollection series, CancellationToken token)
     {
         var reference = series.SeriesList.First();
-        return _ovasStorage.Add(series.SeriesList, token)
+        return _moviesStorage.Add(series.SeriesList, token)
             .MapAsync(_ => CreateImageEvents(series.Images, token))
             .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year));
     }

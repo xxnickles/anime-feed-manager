@@ -4,6 +4,8 @@ global using AnimeFeedManager.Features.Images;
 global using AnimeFeedManager.Features.Infrastructure;
 global using AnimeFeedManager.Features.State;
 global using AnimeFeedManager.Features.Tv;
+global using AnimeFeedManager.Features.Movies;
+global using AnimeFeedManager.Features.Ovas;
 global using AnimeFeedManager.Features.Domain;
 global using AnimeFeedManager.Features.Domain.Errors;
 global using AnimeFeedManager.Features.Domain.Notifications;

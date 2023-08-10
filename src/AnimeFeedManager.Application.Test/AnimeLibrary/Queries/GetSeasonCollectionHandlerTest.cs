@@ -36,23 +36,22 @@ public class GetSeasonCollectionHandlerTest
             _ => { },
             error =>
             {
-
                 Assert.IsType<ValidationErrors>(error);
                 var typedError = (ValidationErrors)error;
                 Assert.Equal(2, typedError.Errors.Count);
                 Assert.NotEmpty(typedError.Errors["Season"]);
                 Assert.NotEmpty(typedError.Errors["Year"]);
             });
-
     }
 
 
     private static IAnimeInfoRepository GetMockedRepoWithResults()
     {
-        var mock = new Mock<IAnimeInfoRepository>();
-        mock.Setup(r => r.GetBySeason(It.IsAny<Season>(), It.IsAny<int>()))
-            .ReturnsAsync((Season season, int year) => Right(GetData(season.Value, (ushort)year).ToImmutableList()));
-        return mock.Object;
+        var mock = Substitute.For<IAnimeInfoRepository>();
+        mock.GetBySeason(Arg.Any<Season>(), Arg.Any<int>()).Returns((s) =>
+            Right(GetData(s.Arg<Season>().Value, (ushort)s.Arg<int>()).ToImmutableList()));
+
+        return mock;
     }
 
     private static IEnumerable<AnimeInfoWithImageStorage> GetData(string season, ushort year)
@@ -75,7 +74,5 @@ public class GetSeasonCollectionHandlerTest
                 Timestamp = DateTimeOffset.Now.AddDays(-1)
             };
         }
-
-
     }
 }
