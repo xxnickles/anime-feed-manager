@@ -34,7 +34,7 @@ public sealed class TvLibraryUpdater
         return SeasonValidators.Validate(season)
             .BindAsync(s => _seriesProvider.GetLibrary(s, token))
             .BindAsync(series => TryAddFeedTitles(series, token))
-            .BindAsync(series => Persist(series, token));
+            .BindAsync(series => Persist(series, season, token));
     }
 
     private Task<Either<DomainError, TvSeries>> TryAddFeedTitles(TvSeries series, CancellationToken token)
@@ -61,12 +61,12 @@ public sealed class TvLibraryUpdater
         return titles;
     }
 
-    private Task<Either<DomainError, Unit>> Persist(TvSeries series, CancellationToken token)
+    private Task<Either<DomainError, Unit>> Persist(TvSeries series, SeasonSelector seasonSelector, CancellationToken token)
     {
         var reference = series.SeriesList.First();
         return _seriesStore.Add(series.SeriesList, token)
             .MapAsync(_ => CreateImageEvents(series.Images, token))
-            .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year));
+            .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest()));
     }
 
     private Unit CreateImageEvents(ImmutableList<DownloadImageEvent> events,
@@ -77,9 +77,9 @@ public sealed class TvLibraryUpdater
         return unit;
     }
 
-    private Unit CreateSeasonEvent(string season, int year)
+    private Unit CreateSeasonEvent(string season, int year, bool isLatest)
     {
-        _mediator.Publish(new AddSeasonNotification(season, year));
+        _mediator.Publish(new AddSeasonNotification(season, year, isLatest));
         return unit;
     }
 }

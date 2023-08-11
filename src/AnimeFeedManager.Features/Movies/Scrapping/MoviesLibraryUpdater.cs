@@ -30,16 +30,16 @@ public class MoviesLibraryUpdater
     {
         return SeasonValidators.Validate(season)
             .BindAsync(s => _moviesProvider.GetLibrary(s, token))
-            .BindAsync(series => Persist(series, token));
+            .BindAsync(series => Persist(series, season, token));
     }
 
 
-    private Task<Either<DomainError, Unit>> Persist(MoviesCollection series, CancellationToken token)
+    private Task<Either<DomainError, Unit>> Persist(MoviesCollection series, SeasonSelector seasonSelector, CancellationToken token)
     {
         var reference = series.SeriesList.First();
         return _moviesStorage.Add(series.SeriesList, token)
             .MapAsync(_ => CreateImageEvents(series.Images, token))
-            .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year));
+            .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest()));
     }
 
     private Unit CreateImageEvents(ImmutableList<DownloadImageEvent> events,
@@ -50,9 +50,9 @@ public class MoviesLibraryUpdater
         return unit;
     }
     
-    private Unit CreateSeasonEvent(string season, int year)
+    private Unit CreateSeasonEvent(string season, int year, bool isLatest )
     {
-        _mediator.Publish(new AddSeasonNotification(season, year));
+        _mediator.Publish(new AddSeasonNotification(season, year, isLatest));
         return unit;
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Seasons;
 
-public readonly record struct AddSeasonNotification(string Season, int Year) : INotification;
+public readonly record struct AddSeasonNotification(string Season, int Year, bool IsLatest) : INotification;
 
 public class AddSeasonHandler : INotificationHandler<AddSeasonNotification>
 {
@@ -20,14 +20,15 @@ public class AddSeasonHandler : INotificationHandler<AddSeasonNotification>
 
     public async Task Handle(AddSeasonNotification notification, CancellationToken cancellationToken)
     {
+        var seasonType = notification.IsLatest ? SeasonType.Latest : SeasonType.Season;
         var result = await _seasonStore.AddSeason(new SeasonStorage
         {
-            PartitionKey = "Season",
+            PartitionKey = seasonType,
             RowKey = $"{notification.Year}-{notification.Season}",
             Season = notification.Season,
             Year = notification.Year
 
-        }, cancellationToken);
+        }, seasonType , cancellationToken);
         
         result.Match(
             _ => _logger.LogInformation("Entry for {Season} updated successfully", $"{notification.Year}-{notification.Season}"),

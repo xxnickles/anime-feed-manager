@@ -4,5 +4,5 @@ namespace AnimeFeedManager.Features.Seasons.IO;
 
 public interface ISeasonStore
 {
-    public Task<Either<DomainError, Unit>> AddSeason(SeasonStorage season, CancellationToken token);
+    public Task<Either<DomainError, Unit>> AddSeason(SeasonStorage season, SeasonType seasonType, CancellationToken token);
 }

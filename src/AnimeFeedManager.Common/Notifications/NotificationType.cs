@@ -27,7 +27,7 @@ public readonly record struct NotificationType
     public static NotificationType Update = new(UpdateValue, NotificationTypeValue.Update);
     public static NotificationType Error = new(ErrorValue, NotificationTypeValue.Error);
     public static NotificationType None = new(NoneValue, NotificationTypeValue.None);
-   
+
     
     public static NotificationType Parse(string value)
     {
