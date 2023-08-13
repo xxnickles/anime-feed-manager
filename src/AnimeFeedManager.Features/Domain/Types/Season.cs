@@ -4,7 +4,7 @@ public abstract record SeasonSelector;
 
 public record Latest : SeasonSelector;
 
-public record BySeason(SimpleSeasonInfo SeasonInfo) : SeasonSelector;
+public record BySeason(string Season, int Year) : SeasonSelector;
 
 public static class Extensions
 {

@@ -7,7 +7,7 @@ namespace AnimeFeedManager.Features.Seasons;
 
 public readonly record struct AddSeasonNotification(string Season, int Year, bool IsLatest) : INotification;
 
-public class AddSeasonHandler : INotificationHandler<AddSeasonNotification>
+public sealed class AddSeasonHandler : INotificationHandler<AddSeasonNotification>
 {
     private readonly ISeasonStore _seasonStore;
     private readonly ILogger<AddSeasonHandler> _logger;

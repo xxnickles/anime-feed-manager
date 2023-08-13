@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Backend.Functions.ResponseExtensions;
-using AnimeFeedManager.Features.Common.Dto;
 using AnimeFeedManager.Features.Movies.Scrapping;
 using Microsoft.Extensions.Logging;
 
@@ -42,7 +41,7 @@ public class Scrap
     {
         _logger.LogInformation("Automated Update Movies Library (Manual trigger) for Custom Season");
         var result = await req.AllowAdminOnly()
-            .BindAsync(_ => _libraryUpdater.Update(new BySeason(new SimpleSeasonInfo(season,year))));
+            .BindAsync(_ => _libraryUpdater.Update(new BySeason(season,year)));
 
         return await result.Match(
             _ => req.Ok(),

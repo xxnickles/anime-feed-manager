@@ -6,12 +6,12 @@ internal static class AniDbMappers
 {
     internal static DownloadImageEvent MapImages(SeriesContainer container, SeriesType type)
     {
-        var season = DtoMappers.Map(
-            new SeasonInformation(Season.FromString(container.SeasonInfo.Season),
-                Year.FromNumber(container.SeasonInfo.Year)));
-            
-        var partition = IdHelpers.GenerateAnimePartitionKey(season.Season, (ushort)season.Year);
-        var directory = $"{season.Year}/{season.Season}";
+
+        var season = container.SeasonInfo.Season;
+        var seasonYear = container.SeasonInfo.Year;
+        
+        var partition = IdHelpers.GenerateAnimePartitionKey(season, (ushort)seasonYear);
+        var directory = $"{seasonYear}/{season}";
         return new DownloadImageEvent(
             partition,
             container.Id,

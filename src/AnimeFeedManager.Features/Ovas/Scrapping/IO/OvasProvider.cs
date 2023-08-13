@@ -30,7 +30,7 @@ public sealed class OvasProvider : IOvasProvider
                     IdHelpers.GetUniqueId(),
                     TargetAudience.Admins,
                     NotificationType.Information,
-                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
+                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
                     SeriesType.Ova,
                     $"{series.Count()} ovas have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
                 Boxes.SeasonProcessNotifications,
@@ -64,7 +64,7 @@ public sealed class OvasProvider : IOvasProvider
         {
             Latest => "https://anidb.net/anime/season/?type.ova=1&type.tvspecial=1&type.web=1",
             BySeason s =>
-                $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?type.ova=1&type.tvspecial=1&type.web=1",
+                $"https://anidb.net/anime/season/{s.Year}/{s.Season}/?type.ova=1&type.tvspecial=1&type.web=1",
             _ => throw new UnreachableException()
         };
     }

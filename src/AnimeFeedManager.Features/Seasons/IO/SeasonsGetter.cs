@@ -1,0 +1,20 @@
+﻿using AnimeFeedManager.Features.Seasons.Types;
+
+namespace AnimeFeedManager.Features.Seasons.IO;
+
+public sealed class SeasonsGetter : ISeasonsGetter
+{
+    private readonly ITableClientFactory<SeasonStorage> _tableClientFactory;
+
+    public SeasonsGetter(ITableClientFactory<SeasonStorage> tableClientFactory)
+    {
+        _tableClientFactory = tableClientFactory;
+    }
+    
+    public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons()
+    {
+        return _tableClientFactory.GetClient()
+            .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<SeasonStorage>(season =>
+                season.PartitionKey == SeasonType.Season && season.PartitionKey == SeasonType.Latest)));
+    }
+}

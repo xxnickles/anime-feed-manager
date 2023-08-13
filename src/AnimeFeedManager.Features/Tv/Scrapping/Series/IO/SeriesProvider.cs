@@ -33,7 +33,7 @@ public sealed class SeriesProvider : ISeriesProvider
                     IdHelpers.GetUniqueId(),
                     TargetAudience.Admins,
                     NotificationType.Information,
-                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
+                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
                     SeriesType.Tv,
                     $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
                 Boxes.SeasonProcessNotifications,
@@ -67,7 +67,7 @@ public sealed class SeriesProvider : ISeriesProvider
         {
             Latest => "https://anidb.net/anime/season/?type.tvseries=1",
             BySeason s =>
-                $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?do=calendar&h=1&type.tvseries=1",
+                $"https://anidb.net/anime/season/{s.Year}/{s.Season}/?do=calendar&h=1&type.tvseries=1",
             _ => throw new UnreachableException()
         };
     }

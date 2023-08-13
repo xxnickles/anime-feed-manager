@@ -44,6 +44,7 @@ public readonly record struct Season : IComparable<Season>
     public static Season Fall = new(FallValue);
     public static Season Winter = new(WinterValue);
 
+
     public static Season FromString(string? val) => val != null ? val.ToLowerInvariant() switch
     {
         SpringValue => Spring,
@@ -81,6 +82,8 @@ public readonly record struct Season : IComparable<Season>
     // Operators
     public static bool operator >(Season a, Season b) => GetSeasonWeight(a) > GetSeasonWeight(b);
     public static bool operator <(Season a, Season b) => GetSeasonWeight(a) < GetSeasonWeight(b);
+    
+    public static implicit operator string(Season season) => season.Value;
 
     private static byte GetSeasonWeight(Season season) => season.Value switch
     {

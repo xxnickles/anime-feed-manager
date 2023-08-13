@@ -10,6 +10,7 @@ internal record SeriesContainer(string Id, string Title, string? ImageUrl, strin
 
 internal record ScrapResult(IEnumerable<SeriesContainer> Series, JsonSeasonInfo Season);
 
+
 internal static class Constants {
     internal const string ScrappingScript = @"
         () => {

@@ -30,7 +30,7 @@ public sealed class MoviesProvider : IMoviesProvider
                     IdHelpers.GetUniqueId(),
                     TargetAudience.Admins,
                     NotificationType.Information,
-                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year),
+                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
                     SeriesType.Movie,
                     $"{series.Count()} movies have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
                 Boxes.SeasonProcessNotifications,
@@ -64,7 +64,7 @@ public sealed class MoviesProvider : IMoviesProvider
         {
             Latest => "https://anidb.net/anime/season/?type.movie=1",
             BySeason s =>
-                $"https://anidb.net/anime/season/{s.SeasonInfo.Year}/{s.SeasonInfo.Season}/?type.movie=1",
+                $"https://anidb.net/anime/season/{s.Year}/{s.Season}/?type.movie=1",
             _ => throw new UnreachableException()
         };
     }

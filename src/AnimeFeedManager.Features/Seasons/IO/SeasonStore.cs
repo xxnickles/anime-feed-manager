@@ -2,7 +2,7 @@
 
 namespace AnimeFeedManager.Features.Seasons.IO;
 
-public class SeasonStore : ISeasonStore
+public sealed class SeasonStore : ISeasonStore
 {
     private readonly ITableClientFactory<SeasonStorage> _tableClientFactory;
 
@@ -21,7 +21,8 @@ public class SeasonStore : ISeasonStore
             .MapAsync(_ => unit);
     }
 
-    private Task<Either<DomainError, TableClient>> CleanLatest(TableClient client, SeasonType seasonType, CancellationToken token)
+    private Task<Either<DomainError, TableClient>> CleanLatest(TableClient client, SeasonType seasonType,
+        CancellationToken token)
     {
         if (!seasonType.IsLatest()) return Task.FromResult(Right<DomainError, TableClient>(client));
 
@@ -30,7 +31,8 @@ public class SeasonStore : ISeasonStore
             .BindAsync(i => RemoveLatest(client, i, token));
     }
 
-    private Task<Either<DomainError, TableClient>> RemoveLatest(TableClient client, ImmutableList<SeasonStorage> latestSeason,
+    private Task<Either<DomainError, TableClient>> RemoveLatest(TableClient client,
+        ImmutableList<SeasonStorage> latestSeason,
         CancellationToken token)
     {
         if (latestSeason.IsEmpty) return Task.FromResult(Right<DomainError, TableClient>(client));
