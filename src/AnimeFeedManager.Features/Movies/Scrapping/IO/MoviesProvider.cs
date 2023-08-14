@@ -73,7 +73,7 @@ public sealed class MoviesProvider : IMoviesProvider
     private static MovieStorage MapInfo(SeriesContainer container)
     {
         var seasonInfo = MapSeasonInfo(container.SeasonInfo);
-        var year = seasonInfo.Year.Value.UnpackOption((ushort)0);
+        var year = seasonInfo.Year;
 
         return new MovieStorage
         {

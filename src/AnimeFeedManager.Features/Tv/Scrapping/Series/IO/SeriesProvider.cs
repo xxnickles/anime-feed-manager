@@ -3,7 +3,7 @@ using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Features.Tv.Types;
 using NotificationType = AnimeFeedManager.Features.Domain.Notifications.NotificationType;
 using TargetAudience = AnimeFeedManager.Features.Domain.Notifications.TargetAudience;
 
@@ -75,7 +75,7 @@ public sealed class SeriesProvider : ISeriesProvider
     private static AnimeInfoStorage MapInfo(SeriesContainer container)
     {
         var seasonInfo = MapSeasonInfo(container.SeasonInfo);
-        var year = seasonInfo.Year.Value.UnpackOption((ushort)0);
+        var year = seasonInfo.Year.Value;
 
         return new AnimeInfoStorage
         {

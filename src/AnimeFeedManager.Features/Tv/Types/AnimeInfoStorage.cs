@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
+﻿namespace AnimeFeedManager.Features.Tv.Types;
 
 public class AnimeInfoStorage : ITableEntity
 {

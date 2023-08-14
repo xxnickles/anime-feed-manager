@@ -73,7 +73,7 @@ public sealed class OvasProvider : IOvasProvider
     private static OvaStorage MapInfo(SeriesContainer container)
     {
         var seasonInfo = MapSeasonInfo(container.SeasonInfo);
-        var year = seasonInfo.Year.Value.UnpackOption((ushort)0);
+        var year = seasonInfo.Year.Value;
 
         return new OvaStorage
         {

@@ -1,4 +1,3 @@
-using AnimeFeedManager.Backend.Functions.ResponseExtensions;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Seasons;

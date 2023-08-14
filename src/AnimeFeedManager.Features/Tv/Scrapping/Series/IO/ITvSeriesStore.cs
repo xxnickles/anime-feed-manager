@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage;
+﻿using AnimeFeedManager.Features.Tv.Types;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 

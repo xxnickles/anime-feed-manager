@@ -14,7 +14,7 @@ public class GetAvailableSeasonsTests
     public async Task Should_Order_Stored_Seasons_Correctly()
     {
         var mock = Substitute.For<ISeasonsGetter>();
-        mock.GetAvailableSeasons().Returns(Right<DomainError, ImmutableList<SeasonStorage>>(TestData()));
+        mock.GetAvailableSeasons(Arg.Any<CancellationToken>()).Returns(Right<DomainError, ImmutableList<SeasonStorage>>(TestData()));
 
         var sut = new SeasonsGetter(mock);
         var result = await sut.GetAvailable();

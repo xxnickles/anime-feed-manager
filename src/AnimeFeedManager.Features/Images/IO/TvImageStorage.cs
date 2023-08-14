@@ -4,7 +4,7 @@ using AnimeFeedManager.Features.Images.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.State.Types;
-using AnimeInfoStorage = AnimeFeedManager.Features.Tv.Scrapping.Series.Types.Storage.AnimeInfoStorage;
+using AnimeInfoStorage = AnimeFeedManager.Features.Tv.Types.AnimeInfoStorage;
 
 namespace AnimeFeedManager.Features.Images.IO;
 

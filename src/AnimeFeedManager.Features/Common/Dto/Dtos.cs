@@ -14,7 +14,7 @@ public static class DtoFactories
 {
     public static bool TryToParse(string seasonString, int year, bool isLatest, out SimpleSeasonInfo simpleSeason)
     {
-        if (!Year.IsValid(year) || !Season.IsValid(seasonString))
+        if (!Year.NumberIsValid(year) || !Season.IsValid(seasonString))
         {
             simpleSeason = new NullSimpleSeasonInfo();
             return false;

@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Backend.Functions.ResponseExtensions;
-using AnimeFeedManager.Features.Ovas.Scrapping;
+﻿using AnimeFeedManager.Features.Ovas.Scrapping;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Ovas;

@@ -11,10 +11,10 @@ public sealed class SeasonsGetter : ISeasonsGetter
         _tableClientFactory = tableClientFactory;
     }
     
-    public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons()
+    public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons(CancellationToken token)
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<SeasonStorage>(season =>
-                season.PartitionKey == SeasonType.Season && season.PartitionKey == SeasonType.Latest)));
+                season.PartitionKey == SeasonType.Season || season.PartitionKey == SeasonType.Latest, cancellationToken: token)));
     }
 }

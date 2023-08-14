@@ -12,9 +12,9 @@ public sealed class SeasonsGetter
         _seasonsGetter = seasonsGetter;
     }
     
-    public Task<Either<DomainError,ImmutableList<SimpleSeasonInfo>>> GetAvailable()
+    public Task<Either<DomainError,ImmutableList<SimpleSeasonInfo>>> GetAvailable(CancellationToken token = default)
     {
-       return _seasonsGetter.GetAvailableSeasons()
+       return _seasonsGetter.GetAvailableSeasons(token)
             .MapAsync(seasons => 
                 seasons.ConvertAll(s => s.ToWrapper())
                     .OrderByDescending(s => s.Year)

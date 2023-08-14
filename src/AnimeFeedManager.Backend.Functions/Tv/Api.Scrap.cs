@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Backend.Functions.ResponseExtensions;
-using AnimeFeedManager.Features.Tv.Scrapping.Series;
+﻿using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Tv;

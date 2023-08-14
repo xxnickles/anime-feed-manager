@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Backend.Functions.ResponseExtensions;
-using AnimeFeedManager.Features.Movies.Scrapping;
+﻿using AnimeFeedManager.Features.Movies.Scrapping;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Movies;

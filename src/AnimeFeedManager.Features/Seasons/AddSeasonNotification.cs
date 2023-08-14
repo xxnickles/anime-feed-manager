@@ -26,7 +26,8 @@ public sealed class AddSeasonHandler : INotificationHandler<AddSeasonNotificatio
             PartitionKey = seasonType,
             RowKey = $"{notification.Year}-{notification.Season}",
             Season = notification.Season,
-            Year = notification.Year
+            Year = notification.Year,
+            Latest = seasonType.IsLatest()
 
         }, seasonType , cancellationToken);
         

@@ -1,4 +1,6 @@
-﻿using AnimeFeedManager.Features.Tv.Scrapping.Series;
+﻿using AnimeFeedManager.Features.Tv.Library;
+using AnimeFeedManager.Features.Tv.Library.IO;
+using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 
@@ -12,7 +14,9 @@ public static class TvRegistration
         services.TryAddSingleton<ITitlesProvider, TitlesProvider>();
         services.TryAddScoped<ITvSeriesStore, TvSeriesStore>();
         services.TryAddScoped<ITitlesStore, TitlesStore>();
+        services.TryAddSingleton<ITvSeasonalLibrary, TvSeasonalLibrary>();
         services.TryAddScoped<TvLibraryUpdater>();
+        services.TryAddScoped<TvLibraryGetter>();
 
         return services;
     }
