@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+﻿namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 
 public interface ITitlesProvider
 {

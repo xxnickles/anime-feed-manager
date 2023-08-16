@@ -42,10 +42,7 @@ public class Scrap
         var result = await req.AllowAdminOnly()
             .BindAsync(_ => _libraryUpdater.Update(new BySeason(season,year)));
 
-        return await result.Match(
-            _ => req.Ok(),
-            error => error.ToResponse(req, _logger)
-        );
+        return await result.ToResponse(req, _logger);
 
     }
 }
