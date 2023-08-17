@@ -50,7 +50,7 @@ public sealed class UpdateSeasonTitlesHandler : INotificationHandler<UpdateSeaso
                     TargetAudience.Admins,
                     NotificationType.Information,
                     "Latest feed titles have been updated"
-                ), Boxes.TitleUpdatesNotifications,
+                ), Box.TitleUpdatesNotifications,
                 cancellationToken);
 
             return unit;

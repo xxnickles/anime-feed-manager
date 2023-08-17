@@ -36,7 +36,7 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
     private async Task SendMessages(ImmutableList<StateWrap<DownloadImageEvent>> events, CancellationToken token)
     {
         var results = events.AsParallel()
-            .Select(imageEvent => _domainPostman.SendMessage(imageEvent, Boxes.ImageProcess, token));
+            .Select(imageEvent => _domainPostman.SendMessage(imageEvent, Box.ImageProcess, token));
 
         try
         {

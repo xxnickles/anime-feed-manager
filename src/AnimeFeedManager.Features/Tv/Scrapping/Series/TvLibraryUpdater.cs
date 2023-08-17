@@ -6,6 +6,7 @@ using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+using AnimeFeedManager.Features.Tv.Types;
 using MediatR;
 using Unit = LanguageExt.Unit;
 
@@ -46,7 +47,11 @@ public sealed class TvLibraryUpdater
                 var updatedSeries =
                     series.SeriesList.ConvertAll(s =>
                     {
-                        s.FeedTitle = Utils.TryGetFeedTitle(titles, s.Title ?? string.Empty);
+                        var feedTitle = Utils.TryGetFeedTitle(titles, s.Title ?? string.Empty);
+                        s.FeedTitle = feedTitle;
+                        // If there is an available feed, it is an ongoing series
+                        if (!string.IsNullOrEmpty(feedTitle))
+                            s.Status = SeriesStatus.Ongoing;
                         return s;
                     });
 

@@ -2,36 +2,36 @@
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Images.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.State.Types;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
-public class OvasImageStorage : IOvasImageStorage
+public class MoviesImageStorage : IMoviesImageStorage
 {
     private readonly IStateUpdater _stateUpdaterUpdater;
     private readonly IDomainPostman _domainPostman;
-    private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
+    private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
 
-    public OvasImageStorage(
+    public MoviesImageStorage(
         IStateUpdater stateUpdaterUpdater,
         IDomainPostman domainPostman,
-        ITableClientFactory<OvaStorage> tableClientFactory)
+        ITableClientFactory<MovieStorage> tableClientFactory)
     {
         _stateUpdaterUpdater = stateUpdaterUpdater;
         _domainPostman = domainPostman;
         _tableClientFactory = tableClientFactory;
     }
 
-    public async Task<Either<DomainError, Unit>> AddOvasImage(StateWrap<DownloadImageEvent> imageStateWrap,
+    public async Task<Either<DomainError, Unit>> AddMoviesImage(StateWrap<DownloadImageEvent> imageStateWrap,
         string imageUrl, CancellationToken token)
     {
         var storeResult = await _tableClientFactory.GetClient()
             .BindAsync(client => Store(client, imageUrl, imageStateWrap, token));
 
         return await _stateUpdaterUpdater.Update(storeResult,
-                new ImageStateChange(imageStateWrap.StateId, NotificationTarget.Images, SeriesType.Ova), token)
+                new ImageStateChange(imageStateWrap.StateId, NotificationTarget.Images, SeriesType.Movie), token)
             .BindAsync(currentState => TryToPublishUpdate(currentState, token));
     }
 
@@ -61,7 +61,7 @@ public class OvasImageStorage : IOvasImageStorage
                 IdHelpers.GetUniqueId(),
                 NotificationType.Information,
                 SeriesType.Ova,
-                $"Images for OVAS have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
+                $"Images for Movies have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
             await _domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
 
             return unit;

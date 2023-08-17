@@ -13,8 +13,10 @@ public abstract class WithScrapper
         };
 
         var browserFetcher = new BrowserFetcher(fetcherOptions);
-        browserFetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision).GetAwaiter().GetResult();
-        BrowserOptions = new PuppeteerOptions(browserFetcher.GetExecutablePath(BrowserFetcher.DefaultChromiumRevision));
+        browserFetcher.DownloadAsync(PuppeteerSharp.BrowserData.Chrome.DefaultBuildId).GetAwaiter().GetResult();
+        var executablePath = browserFetcher.GetInstalledBrowsers().Single(b => b.Browser is SupportedBrowser.Chrome)
+            .GetExecutablePath();
+        BrowserOptions = new PuppeteerOptions(executablePath);
     }
 
     protected PuppeteerOptions BrowserOptions { get; }

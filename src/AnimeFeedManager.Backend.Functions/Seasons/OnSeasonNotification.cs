@@ -22,7 +22,7 @@ public class OnSeasonNotification
     [Function("OnSeasonNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(Boxes.SeasonProcessNotifications, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(Box.Available.SeasonProcessNotificationsBox, Connection = "AzureWebJobsStorage")]
         SeasonProcessNotification notification)
     {
         // Stores notification

@@ -15,6 +15,6 @@ public static class EitherToActionResponse
     {
         return either.Match(
             Left: error => error.ToResponse(request, log),
-            Right: r => r is Unit ? request.Ok(): request.Ok(r));
+            Right: r => r is Unit ? request.Accepted(): request.Ok(r));
     }
 }

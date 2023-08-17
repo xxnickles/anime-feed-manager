@@ -1,14 +1,16 @@
 ﻿using AnimeFeedManager.Features.Tv.Library;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Backend.Functions.Tv;
+namespace AnimeFeedManager.Backend.Functions.Tv.Series;
 
 public class GetLibrary
 {
     private readonly TvLibraryGetter _tvLibraryGetter;
     private readonly ILogger _logger;
     
-    public GetLibrary(TvLibraryGetter tvLibraryGetter,  ILoggerFactory loggerFactory )
+    public GetLibrary(
+        TvLibraryGetter tvLibraryGetter, 
+        ILoggerFactory loggerFactory )
     {
         _tvLibraryGetter = tvLibraryGetter;
         _logger = loggerFactory.CreateLogger<GetLibrary>();

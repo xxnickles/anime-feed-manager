@@ -36,7 +36,7 @@ public sealed class SeriesProvider : ISeriesProvider
                     new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
                     SeriesType.Tv,
                     $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
-                Boxes.SeasonProcessNotifications,
+                Box.SeasonProcessNotifications,
                 token);
 
             return new TvSeries(series.Select(MapInfo)
@@ -55,7 +55,7 @@ public sealed class SeriesProvider : ISeriesProvider
                     new NullSimpleSeasonInfo(),
                     SeriesType.Tv,
                     "AniDb season scrapping failed"),
-                Boxes.SeasonProcessNotifications,
+                Box.SeasonProcessNotifications,
                 token);
             return ExceptionError.FromException(ex);
         }
@@ -85,7 +85,7 @@ public sealed class SeriesProvider : ISeriesProvider
             Synopsis = container.Synopsys,
             FeedTitle = string.Empty,
             Date = MappingUtils.ParseDate(container.Date, container.SeasonInfo.Year)?.ToUniversalTime(),
-            Completed = false,
+            Status = SeriesStatus.NotAvailable,
             Season = seasonInfo.Season.Value,
             Year = year
         };

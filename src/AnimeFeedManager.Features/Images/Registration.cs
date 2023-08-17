@@ -9,6 +9,7 @@ public static class ImageRegistration
         services.TryAddSingleton<IImagesBlobStore, AzureImagesBlobStore>();
         services.TryAddScoped<ITvImageStorage, TvImageStorage>();
         services.TryAddScoped<IOvasImageStorage, OvasImageStorage>();
+        services.TryAddScoped<IMoviesImageStorage, MoviesImageStorage>();
         services.TryAddScoped<ImageAdder>();
         return services;
     }

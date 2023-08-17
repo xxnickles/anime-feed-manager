@@ -1,9 +1,7 @@
-﻿using AnimeFeedManager.Backend.Functions.Images;
-using AnimeFeedManager.Features.Common.RealTimeNotifications;
+﻿using AnimeFeedManager.Features.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;
-using ImageUpdateNotification = AnimeFeedManager.Features.Domain.Notifications.ImageUpdateNotification;
 
 namespace AnimeFeedManager.Backend.Functions.Tv.Titles;
 
@@ -23,7 +21,7 @@ public class OnTitlesNotification
     [Function("OnTitlesNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(Boxes.TitleUpdatesNotifications, Connection = "AzureWebJobsStorage")] TitlesUpdateNotification notification)
+        [QueueTrigger(Box.Available.TitleUpdatesNotificationsBox, Connection = "AzureWebJobsStorage")] TitlesUpdateNotification notification)
     {
         
         // Stores notification

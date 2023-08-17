@@ -5,7 +5,7 @@ using AnimeFeedManager.Features.Domain.Validators;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Backend.Functions.Ovas;
+namespace AnimeFeedManager.Backend.Functions.Tv.Series;
 
 public class Scrap
 {
@@ -20,42 +20,43 @@ public class Scrap
         _logger = loggerFactory.CreateLogger<Scrap>();
     }
 
-    [Function("ScrapLatestOvasSeason")]
+    [Function("ScrapLatestTvSeason")]
     public async Task<HttpResponseData> RunLatest(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/library")]
         HttpRequestData req)
     {
-        _logger.LogInformation("Automated Update of Ovas Library (Manual trigger)");
+        _logger.LogInformation("Automated Update of Library (Manual trigger)");
 
         var result = await req.AllowAdminOnly()
             .BindAsync(_ =>
-                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest)));
+                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, null, ScrapType.Latest)));
 
         // var result =
-        //     await _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest));
-
+        //     await _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, null, ScrapType.Latest));
+        
         return await result.ToResponse(req, _logger);
     }
     
-    [Function("ScrapCustomOvasSeason")]
+    [Function("ScrapCustomTvSeason")]
     public async Task<HttpResponseData> RunSeason(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library/{year}/{season}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/library/{year}/{season}")]
         HttpRequestData req,
         string season,
         ushort year)
     {
-        _logger.LogInformation("Automated Update Ovas Library (Manual trigger) for Custom Season");
+        _logger.LogInformation("Automated Update Library (Manual trigger) for Custom Season");
+       
         
         var result = await req.AllowAdminOnly()
             .BindAsync(_ => SeasonValidators.Validate(season, year))
             .MapAsync(param => param.ToSeasonParameter())
             .BindAsync(param =>
-                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, param, ScrapType.BySeason)));
+                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, param, ScrapType.BySeason)));
 
         // var result = await SeasonValidators.Validate(season, year)
         //     .Map(param => param.ToSeasonParameter())
         //     .BindAsync(param =>
-        //         _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, param, ScrapType.BySeason)));
+        //         _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, param, ScrapType.BySeason)));
 
         return await result.ToResponse(req, _logger);
 

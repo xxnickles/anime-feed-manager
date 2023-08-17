@@ -31,7 +31,7 @@ public sealed class TvLibraryGetter
                         a?.Title ?? "Not Available",
                         a?.Synopsis ?? "Not Available",
                         a?.ImageUrl,
-                        new Common.Dto.Feed(!string.IsNullOrEmpty(a?.FeedTitle), a?.Completed ?? false,
+                        new Common.Dto.Feed(!string.IsNullOrEmpty(a?.FeedTitle), a?.Status ?? SeriesStatus.NotAvailable,
                             a?.FeedTitle ?? string.Empty)
                     ))
                 .ToArray());

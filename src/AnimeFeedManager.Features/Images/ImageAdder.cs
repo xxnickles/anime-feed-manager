@@ -11,17 +11,20 @@ public class ImageAdder
     private readonly IImagesBlobStore _imagesBlobStore;
     private readonly ITvImageStorage _tvImageStorage;
     private readonly IOvasImageStorage _ovasImageStorage;
+    private readonly IMoviesImageStorage _moviesImageStorage;
     private readonly ILogger<ImageAdder> _logger;
 
     public ImageAdder(
         IImagesBlobStore imagesBlobStore,
         ITvImageStorage tvImageStorage,
         IOvasImageStorage ovasImageStorage,
+        IMoviesImageStorage moviesImageStorage,
         ILogger<ImageAdder> logger)
     {
         _imagesBlobStore = imagesBlobStore;
         _tvImageStorage = tvImageStorage;
         _ovasImageStorage = ovasImageStorage;
+        _moviesImageStorage = moviesImageStorage;
         _logger = logger;
     }
 
@@ -51,7 +54,7 @@ public class ImageAdder
         return stateWrap.Payload.SeriesType switch
         {
             SeriesType.Tv => _tvImageStorage.AddTvImage(stateWrap, imageUrl, token),
-            SeriesType.Movie => throw new NotImplementedException(),
+            SeriesType.Movie => _moviesImageStorage.AddMoviesImage(stateWrap,imageUrl,token),
             SeriesType.Ova =>  _ovasImageStorage.AddOvasImage(stateWrap,imageUrl,token),
             SeriesType.None => throw new UnreachableException(),
             _ => throw new UnreachableException()

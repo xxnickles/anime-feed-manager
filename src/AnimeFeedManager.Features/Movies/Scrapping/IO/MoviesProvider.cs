@@ -33,13 +33,13 @@ public sealed class MoviesProvider : IMoviesProvider
                     new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
                     SeriesType.Movie,
                     $"{series.Count()} movies have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
-                Boxes.SeasonProcessNotifications,
+                Box.SeasonProcessNotifications,
                 token);
 
             return new MoviesCollection(series.Select(MapInfo)
                     .ToImmutableList(),
                 series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
-                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Ova))
+                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Movie))
                     .ToImmutableList());
         }
         catch (Exception ex)
@@ -52,7 +52,7 @@ public sealed class MoviesProvider : IMoviesProvider
                     new NullSimpleSeasonInfo(),
                     SeriesType.Tv,
                     "AniDb movies season scrapping failed"),
-                Boxes.SeasonProcessNotifications,
+                Box.SeasonProcessNotifications,
                 token);
             return ExceptionError.FromException(ex);
         }

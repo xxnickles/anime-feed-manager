@@ -17,9 +17,12 @@ public static class PuppeteerServiceRegistration
         }
 
         var browserFetcher = new BrowserFetcher(fetcherOptions);
-        browserFetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision).GetAwaiter().GetResult();
+        browserFetcher.DownloadAsync(PuppeteerSharp.BrowserData.Chrome.DefaultBuildId).GetAwaiter().GetResult();
+        var executablePath = browserFetcher.GetInstalledBrowsers().Single(b => b.Browser is SupportedBrowser.Chrome)
+            .GetExecutablePath();
+        
         serviceCollection.AddSingleton(
-            new PuppeteerOptions(browserFetcher.GetExecutablePath(BrowserFetcher.DefaultChromiumRevision)));
+            new PuppeteerOptions(executablePath));
         return serviceCollection;
     }
 }

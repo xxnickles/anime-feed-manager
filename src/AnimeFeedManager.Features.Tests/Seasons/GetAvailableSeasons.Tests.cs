@@ -6,7 +6,7 @@ using AnimeFeedManager.Features.Seasons.IO;
 using AnimeFeedManager.Features.Seasons.Types;
 using SeasonsGetter = AnimeFeedManager.Features.Seasons.SeasonsGetter;
 
-namespace AnimeFeedManager.Features.Tests;
+namespace AnimeFeedManager.Features.Tests.Seasons;
 
 public class GetAvailableSeasonsTests
 {

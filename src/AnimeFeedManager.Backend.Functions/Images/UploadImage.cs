@@ -30,7 +30,7 @@ public class UploadImage
 
     [Function("UploadImage")]
     public async Task Run(
-        [QueueTrigger(Boxes.ImageProcess, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(Box.Available.ImageProcessBox, Connection = "AzureWebJobsStorage")]
         StateWrap<DownloadImageEvent> imageScrapEvent
     )
     {

@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.Domain.Validators;
 
-internal static class SeasonValidators
+public static class SeasonValidators
 {
     // internal static Either<DomainError, (Season season, ushort year)> Validate(SimpleSeasonInfo param) =>
     //     (ValidateSeason(param.Season), ValidateYear(param.Year))
@@ -19,7 +19,7 @@ internal static class SeasonValidators
         };
     }
 
-    internal static Either<DomainError, (Season season, Year year)> Validate(string season, ushort year)
+    public static Either<DomainError, (Season season, Year year)> Validate(string season, ushort year)
     {
         return (ValidateSeason(season), ValidateYear(year))
             .Apply((s, y) => (s, y))

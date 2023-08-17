@@ -17,7 +17,7 @@ public class TitlesProvider : ITitlesProvider
         {
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
-                Product = Product.Chrome,
+                Browser = SupportedBrowser.Chrome,
                 Headless = true,
                 DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
                 ExecutablePath = _puppeteerOptions.Path

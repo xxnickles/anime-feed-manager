@@ -43,11 +43,19 @@ public static class HttpRequestDataExtensions
         return request.CreateErrorDetailResponse(new NotFoundProblemDetail(request.Url.AbsoluteUri, detail));
     }
 
+    public static Task<HttpResponseData> Accepted(this HttpRequestData request)
+    {
+        var response = request.CreateResponse(HttpStatusCode.Accepted);
+        return Task.FromResult(response);
+    }
+    
     public static Task<HttpResponseData> NoContent(this HttpRequestData request)
     {
         var response = request.CreateResponse(HttpStatusCode.NoContent);
         return Task.FromResult(response);
     }
+    
+   
     
     public static Task<HttpResponseData> Ok(this HttpRequestData request)
     {

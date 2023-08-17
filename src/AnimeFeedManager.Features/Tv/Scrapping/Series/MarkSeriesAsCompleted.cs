@@ -38,7 +38,7 @@ public class MarkSeriesAsCompletedHandler : INotificationHandler<MarkSeriesAsCom
 
     private static AnimeInfoStorage MarkAsCompleted(AnimeInfoStorage original)
     {
-        original.Completed = true;
+        original.Status = SeriesStatus.Completed;
         return original;
     }
 

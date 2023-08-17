@@ -14,7 +14,7 @@ internal static class Registration
         services.RegisterStorage(storageConnection);
         
         // Puppeteer
-        var _ = bool.TryParse(Environment.GetEnvironmentVariable("DownloadChromiumToProjectFolder"),
+        _ = bool.TryParse(Environment.GetEnvironmentVariable("DownloadChromiumToProjectFolder"),
             out var downloadChromiumToProjectFolder);
         services.RegisterPuppeteer(downloadChromiumToProjectFolder);
         

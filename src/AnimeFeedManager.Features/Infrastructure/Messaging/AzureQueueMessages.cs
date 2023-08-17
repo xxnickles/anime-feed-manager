@@ -22,9 +22,9 @@ public readonly record struct MinutesDelay()
 
 public interface IDomainPostman
 {
-    Task SendMessage<T>(T message, string destiny, CancellationToken cancellationToken = default);
+    Task SendMessage<T>(T message, Box destiny, CancellationToken cancellationToken = default);
 
-    Task SendDelayedMessage<T>(T message, string destiny, MinutesDelay delay,
+    Task SendDelayedMessage<T>(T message, Box destiny, MinutesDelay delay,
         CancellationToken cancellationToken = default);
 }
 
@@ -47,12 +47,12 @@ public class AzureQueueMessages : IDomainPostman
         };
     }
 
-    public Task SendMessage<T>(T message, string destiny, CancellationToken cancellationToken = default)
+    public Task SendMessage<T>(T message, Box destiny, CancellationToken cancellationToken = default)
     {
         return SendMessage(message, destiny, null, cancellationToken);
     }
 
-    public Task SendDelayedMessage<T>(T message, string destiny, MinutesDelay delay,
+    public Task SendDelayedMessage<T>(T message, Box destiny, MinutesDelay delay,
         CancellationToken cancellationToken = default)
     {
         return SendMessage(message, destiny,TimeSpan.FromMinutes(delay.Value), cancellationToken);

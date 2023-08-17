@@ -13,7 +13,7 @@ public static class TvRegistration
     {
         services.TryAddSingleton<ISeriesProvider, SeriesProvider>();
         services.TryAddSingleton<ITitlesProvider, TitlesProvider>();
-        services.TryAddSingleton<IIncompleteSeriesProvider, IIncompleteSeriesProvider>();
+        services.TryAddSingleton<IIncompleteSeriesProvider, IncompleteSeriesProvider>();
         services.TryAddScoped<ITvSeriesStore, TvSeriesStore>();
         services.TryAddScoped<ITitlesStore, TitlesStore>();
         services.TryAddSingleton<ITvSeasonalLibrary, TvSeasonalLibrary>();

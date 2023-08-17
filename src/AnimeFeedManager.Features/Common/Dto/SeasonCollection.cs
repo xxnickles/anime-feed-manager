@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.Common.Dto;
 
-public sealed record Feed(bool Available, bool Completed, string? Title);
+public sealed record Feed(bool Available, string Status, string? Title);
 
 public abstract record BaseAnime(string Id, string Title, string Synopsis, string? Url);
 

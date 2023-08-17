@@ -33,7 +33,7 @@ public sealed class OvasProvider : IOvasProvider
                     new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
                     SeriesType.Ova,
                     $"{series.Count()} ovas have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
-                Boxes.SeasonProcessNotifications,
+                Box.SeasonProcessNotifications,
                 token);
 
             return new Types.OvasCollection(series.Select(MapInfo)
@@ -52,7 +52,7 @@ public sealed class OvasProvider : IOvasProvider
                     new NullSimpleSeasonInfo(),
                     SeriesType.Tv,
                     "AniDb ovas season scrapping failed"),
-                Boxes.SeasonProcessNotifications,
+                Box.SeasonProcessNotifications,
                 token);
             return ExceptionError.FromException(ex);
         }
