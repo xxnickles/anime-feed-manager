@@ -5,6 +5,7 @@ using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
+using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 using MediatR;
 using Unit = LanguageExt.Unit;
 
@@ -40,7 +41,6 @@ public sealed class TvLibraryUpdater
     private Task<Either<DomainError, TvSeries>> TryAddFeedTitles(TvSeries series, CancellationToken token)
     {
         return _titlesProvider.GetTitles()
-            .MapAsync(titles => UpdateTitles(titles, token))
             .MapAsync(titles =>
             {
                 var updatedSeries =
@@ -50,18 +50,19 @@ public sealed class TvLibraryUpdater
                         return s;
                     });
 
-                return series with { SeriesList = updatedSeries };
-            });
+                return (Series: series with { SeriesList = updatedSeries }, Titles: titles);
+            }).MapAsync(param => UpdateTitles(param.Titles, param.Series, token));
     }
 
-    private ImmutableList<string> UpdateTitles(ImmutableList<string> titles, CancellationToken token)
+    private TvSeries UpdateTitles(ImmutableList<string> titles, TvSeries series, CancellationToken token)
     {
         // Publish event to update titles
         _mediator.Publish(new UpdateSeasonTitles(titles), token);
-        return titles;
+        return series;
     }
 
-    private Task<Either<DomainError, Unit>> Persist(TvSeries series, SeasonSelector seasonSelector, CancellationToken token)
+    private Task<Either<DomainError, Unit>> Persist(TvSeries series, SeasonSelector seasonSelector,
+        CancellationToken token)
     {
         var reference = series.SeriesList.First();
         return _seriesStore.Add(series.SeriesList, token)
