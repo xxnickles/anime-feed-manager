@@ -36,7 +36,8 @@ public readonly record struct Season : IComparable<Season>
 
     public override int GetHashCode()
     {
-        return base.GetHashCode();
+        // When you have multiple fields HashCode.Combine can be used
+        return Value.GetHashCode();
     }
 
     public static Season Spring = new(SpringValue);
@@ -68,7 +69,7 @@ public readonly record struct Season : IComparable<Season>
 
     public static Option<Season> TryCreateFromString(string val)
     {
-        return val switch
+        return val.ToLowerInvariant() switch
         {
             SpringValue => Some(Spring),
             SummerValue => Some(Summer),

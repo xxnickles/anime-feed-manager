@@ -28,7 +28,7 @@ public static class SeasonValidators
 
     private static Validation<ValidationError, Season> ValidateSeason(string season) =>
         Season.TryCreateFromString(season).ToValidation(
-            ValidationError.Create(nameof(season),
+            ValidationError.Create("Season",
                 new[] { "Parameter provided doesn't represent a valid season" }));
 
 
@@ -37,6 +37,6 @@ public static class SeasonValidators
         var yearValue = Year.TryFromNumber(year);
 
         return yearValue.ToValidation(
-            ValidationError.Create(nameof(year), new[] { "Parameter provided doesn't represent a valid year" }));
+            ValidationError.Create("Year", new[] { "Parameter provided doesn't represent a valid year" }));
     }
 }
