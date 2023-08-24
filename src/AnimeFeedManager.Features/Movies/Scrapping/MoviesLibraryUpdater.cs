@@ -9,7 +9,7 @@ using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Movies.Scrapping;
 
-public class MoviesLibraryUpdater
+public sealed class MoviesLibraryUpdater
 {
     private readonly IMediator _mediator;
     private readonly IMoviesProvider _moviesProvider;

@@ -9,7 +9,7 @@ using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping;
 
-public class OvasLibraryUpdater
+public sealed class OvasLibraryUpdater
 {
     private readonly IMediator _mediator;
     private readonly IOvasProvider _ovasProvider;

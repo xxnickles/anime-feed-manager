@@ -23,7 +23,7 @@ public class MergeUser
     {
         var dto = await Serializer.FromJson<UserDto>(req.Body);
         ArgumentNullException.ThrowIfNull(dto);
-        var command = new MergeUserCmd(dto.UserId, dto.Email);
+default));        var command = new MergeUserCmd(dto.UserId, dto.Email);
         return await _mediator.Send(command).ToResponse(req, _logger);
     }
 }

@@ -2,38 +2,36 @@
 
 namespace AnimeFeedManager.Features.Common.Types;
 
-public record Email 
+public partial record Email
 {
-    private const string EmailPattern =
-        @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
+    public readonly string Value;
 
-    public readonly Option<string> Value;
-
-    public Email(string value)
+    private Email(string value)
     {
-        if (!string.IsNullOrEmpty(value))
-        {
-            Value = IsEmail(value) ? Some(value) : None;
-        }
-        else
-        {
-            Value = None;
-        }
+        Value = value;
     }
 
-    public static bool IsEmail(string value) =>  Regex.Match(value, EmailPattern).Success;
-    
+    private static bool IsEmail(string value) => LocalRegex().Match(value).Success;
 
-    public static Email FromString(string value) => new(value);
+    public static Option<Email> FromString(string value) => IsEmail(value) switch
+    {
+        true => Some(new Email(value)),
+        false => None
+    };
+
+    [GeneratedRegex(
+        @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")]
+    private static partial Regex LocalRegex();
+
+    public static implicit operator string(Email email) => email.Value;
 }
 
-public static class EmailExtensions
+public static class EmailValidators
 {
-    public static Validation<ValidationError, Email> ToValidation(this Email email, ValidationError error)
+    public static Either<DomainError, Email> ValidateEmail(string emailValue)
     {
-        var value = email.Value;
-        return value.Match(
-            _ => Success<ValidationError, Email>(email),
-            () => Fail<ValidationError, Email>(error));
+        return Email.FromString(emailValue).ToValidation(
+                ValidationError.Create("Email", new[] { "A valid email address must be provided" }))
+            .ValidationToEither();
     }
 }

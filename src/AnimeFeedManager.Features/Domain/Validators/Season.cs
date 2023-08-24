@@ -34,9 +34,7 @@ public static class SeasonValidators
 
     private static Validation<ValidationError, Year> ValidateYear(int year)
     {
-        var yearValue = Year.TryFromNumber(year);
-
-        return yearValue.ToValidation(
+        return Year.TryFromNumber(year).ToValidation(
             ValidationError.Create("Year", new[] { "Parameter provided doesn't represent a valid year" }));
     }
 }
