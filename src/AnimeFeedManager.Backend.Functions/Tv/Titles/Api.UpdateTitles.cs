@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Tv.Titles;
 
-public class UpdateTitles
+public sealed class UpdateTitles
 {
     private readonly ScrapSeasonTitles _titlesScrapper;
     private readonly ILogger _logger;

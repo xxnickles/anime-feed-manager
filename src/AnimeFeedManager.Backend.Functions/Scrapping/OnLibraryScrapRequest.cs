@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Scrapping;
 
-public class OnLibraryScrapRequest
+public sealed class OnLibraryScrapRequest
 {
     private readonly TvLibraryUpdater _tvLibraryUpdater;
     private readonly OvasLibraryUpdater _ovasLibraryUpdater;

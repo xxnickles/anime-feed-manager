@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Images;
 
-public class UploadImage
+public sealed class UploadImage
 {
     private readonly ImageAdder _imageAdder;
     private readonly HttpClient _httpClient;

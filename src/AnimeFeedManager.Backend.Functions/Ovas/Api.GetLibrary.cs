@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Ovas;
 
-public class GetLibrary
+public sealed class GetLibrary
 {
     private readonly OvasLibraryGetter _ovasLibraryGetter;
     private readonly ILogger _logger;

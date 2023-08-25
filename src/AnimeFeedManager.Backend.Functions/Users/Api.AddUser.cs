@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Users;
 
-public class AddUser
+public sealed class AddUser
 {
     private readonly IUserStore _userStore;
     private readonly ILogger<AddUser> _logger;

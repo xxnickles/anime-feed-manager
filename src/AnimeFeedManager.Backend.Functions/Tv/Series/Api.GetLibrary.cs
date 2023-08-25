@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Tv.Series;
 
-public class GetLibrary
+public sealed class GetLibrary
 {
     private readonly TvLibraryGetter _tvLibraryGetter;
     private readonly ILogger _logger;

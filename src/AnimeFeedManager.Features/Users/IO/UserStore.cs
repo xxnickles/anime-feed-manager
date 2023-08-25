@@ -46,7 +46,7 @@ public sealed class UserStore : IUserStore
         {
             Email = email,
             RowKey = id,
-            PartitionKey = "user-group"
+            PartitionKey = Constants.UserPartitionKey
         };
 
         return TableUtils.TryExecute(() => client.UpsertEntityAsync(user, TableUpdateMode.Merge, token))

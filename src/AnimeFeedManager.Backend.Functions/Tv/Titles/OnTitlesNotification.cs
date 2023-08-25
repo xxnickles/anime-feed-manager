@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Tv.Titles;
 
-public class OnTitlesNotification
+public sealed class OnTitlesNotification
 {
     private readonly IStoreNotification _storeNotification;
     private readonly ILogger<OnTitlesNotification> _logger;

@@ -93,16 +93,20 @@ internal static class TableUtils
         }
     }
 
-    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action)
+    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action )
     {
         try
         {
             return await action();
         }
+        catch (RequestFailedException e)
+        {
+            return NotFoundError.Create($"The entity of type {typeof(T).Name} was not found");
+        }
         catch (Exception e)
         {
             return e.Message == "Not Found"
-                ? NotFoundError.Create("The entity was not found")
+                ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found")
                 : ExceptionError.FromException(e);
         }
     }

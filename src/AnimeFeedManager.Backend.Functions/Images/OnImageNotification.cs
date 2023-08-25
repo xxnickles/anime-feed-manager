@@ -6,7 +6,7 @@ using ImageUpdateNotification = AnimeFeedManager.Features.Domain.Notifications.I
 
 namespace AnimeFeedManager.Backend.Functions.Images;
 
-public class OnImageNotification
+public sealed class OnImageNotification
 {
     private readonly IStoreNotification _storeNotification;
     private readonly ILogger<OnImageNotification> _logger;

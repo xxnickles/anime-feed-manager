@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Movies;
 
-public class Scrap
+public sealed class Scrap
 {
     private readonly IDomainPostman _domainPostman;
     private readonly ILogger _logger;

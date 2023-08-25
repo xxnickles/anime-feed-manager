@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Seasons;
 
-public class GetAvailableSeasons
+public sealed class GetAvailableSeasons
 {
     private readonly SeasonsGetter _seasonsGetter;
     private readonly ILogger<GetAvailableSeasons> _logger;

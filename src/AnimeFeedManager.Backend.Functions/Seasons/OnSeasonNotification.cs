@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Seasons;
 
-public class OnSeasonNotification
+public sealed class OnSeasonNotification
 {
     private readonly IStoreNotification _storeNotification;
     private readonly ILogger<OnSeasonNotification> _logger;
