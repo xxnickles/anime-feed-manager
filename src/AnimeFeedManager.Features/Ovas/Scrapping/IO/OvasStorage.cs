@@ -2,6 +2,11 @@
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping.IO;
 
+public interface IOvasStorage
+{
+    Task<Either<DomainError, Unit>> Add(ImmutableList<OvaStorage> series, CancellationToken token);
+}
+
 public sealed class OvasStorage : IOvasStorage
 {
     private readonly ITableClientFactory<OvaStorage> _tableClientFactory;

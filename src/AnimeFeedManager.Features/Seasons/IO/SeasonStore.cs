@@ -2,6 +2,11 @@
 
 namespace AnimeFeedManager.Features.Seasons.IO;
 
+public interface ISeasonStore
+{
+    public Task<Either<DomainError, Unit>> AddSeason(SeasonStorage season, SeasonType seasonType, CancellationToken token);
+}
+
 public sealed class SeasonStore : ISeasonStore
 {
     private readonly ITableClientFactory<SeasonStorage> _tableClientFactory;

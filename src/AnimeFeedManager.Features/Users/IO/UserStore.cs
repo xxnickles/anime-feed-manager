@@ -2,6 +2,11 @@
 
 namespace AnimeFeedManager.Features.Users.IO;
 
+public interface IUserStore
+{
+    public Task<Either<DomainError, Unit>> AddUser(UserId id, Email email, CancellationToken cancellationToken);
+}
+
 public sealed class UserStore : IUserStore
 {
     private readonly ITableClientFactory<UserStorage> _tableClientFactory;
@@ -11,7 +16,7 @@ public sealed class UserStore : IUserStore
         _tableClientFactory = tableClientFactory;
     }
 
-    public Task<Either<DomainError, Unit>> AddUser(string id, Email email, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Unit>> AddUser(UserId id, Email email, CancellationToken cancellationToken)
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client => CheckEmailExits(client, email, cancellationToken))

@@ -2,6 +2,11 @@
 
 namespace AnimeFeedManager.Features.Movies.Library.IO;
 
+public interface IMoviesSeasonalLibrary
+{
+    public Task<Either<DomainError, ImmutableList<MovieStorage>>> GetSeasonalLibrary(Season season, Year year, CancellationToken token);
+}
+
 public class MoviesSeasonalLibrary : IMoviesSeasonalLibrary
 {
     private readonly ITableClientFactory<MovieStorage> _tableClientFactory;

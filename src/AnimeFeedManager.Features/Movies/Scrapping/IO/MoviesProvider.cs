@@ -7,6 +7,11 @@ using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
 
 namespace AnimeFeedManager.Features.Movies.Scrapping.IO;
 
+public interface IMoviesProvider
+{
+    Task<Either<DomainError, MoviesCollection>> GetLibrary(SeasonSelector season, CancellationToken token);
+}
+
 public sealed class MoviesProvider : IMoviesProvider
 {
     private readonly IDomainPostman _domainPostman;

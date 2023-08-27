@@ -1,6 +1,5 @@
 using System.Text.Json;
-using AnimeFeedManager.Features.Common.Dto;
-using AnimeFeedManager.Features.Common.Types;
+
 using AnimeFeedManager.Features.Users.IO;
 using Microsoft.Extensions.Logging;
 
@@ -24,8 +23,16 @@ public sealed class AddUser
     {
         var payload = await JsonSerializer.DeserializeAsync(req.Body, SimpleUserContext.Default.SimpleUser);
         ArgumentNullException.ThrowIfNull(payload);
-        return await EmailValidators.ValidateEmail(payload.Email)
-            .BindAsync(email => _userStore.AddUser(payload.UserId, email, default))
+        return await Validate(payload)
+            .BindAsync(param => _userStore.AddUser(param.UserId, param.Email, default))
             .ToResponse(req, _logger);
+    }
+
+
+    private Either<DomainError, (Email Email, UserId UserId)> Validate(SimpleUser payload)
+    {
+       return (EmailValidator.Validate(payload.Email), UserIdValidator.Validate(payload.UserId))
+            .Apply((email, userid) => (email, userid))
+            .ValidationToEither();
     }
 }

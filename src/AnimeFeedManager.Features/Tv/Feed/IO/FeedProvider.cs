@@ -3,6 +3,10 @@ using System.Xml.Linq;
 
 namespace AnimeFeedManager.Features.Tv.Feed.IO;
 
+public interface IFeedProvider {
+    Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution);
+}
+
 internal record struct Accumulator(string AnimeTitle,
     string FeedTitle,
     string EpisodeInfo,

@@ -2,6 +2,11 @@
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 
+public interface IIncompleteSeriesProvider
+{
+    Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(CancellationToken token);
+}
+
 public class IncompleteSeriesProvider : IIncompleteSeriesProvider
 {
     private readonly ITableClientFactory<AnimeInfoWithImageStorage> _tableClientFactory;
@@ -10,8 +15,9 @@ public class IncompleteSeriesProvider : IIncompleteSeriesProvider
     {
         _tableClientFactory = tableClientFactory;
     }
-    
-    public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(CancellationToken token)
+
+    public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(
+        CancellationToken token)
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<AnimeInfoWithImageStorage>(a =>

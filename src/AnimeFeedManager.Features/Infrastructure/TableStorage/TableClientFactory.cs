@@ -4,7 +4,10 @@ using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 using AnimeFeedManager.Features.Seasons.Types;
 using AnimeFeedManager.Features.State.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
+using AnimeFeedManager.Features.Tv.Subscriptions;
+using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 using AnimeFeedManager.Features.Tv.Types;
+using AnimeFeedManager.Features.Users.Types;
 
 namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
@@ -41,10 +44,10 @@ public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITa
             nameof(AnimeInfoWithImageStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             // nameof(SubscriptionStorage) => AzureTable.TableMap.Subscriptions,
             nameof(SeasonStorage) => AzureTableMap.StoreTo.AvailableSeasons,
-            // nameof(InterestedStorage) => AzureTable.TableMap.InterestedSeries,
+            nameof(InterestedStorage) => AzureTableMap.StoreTo.InterestedSeries,
             nameof(TitlesStorage) => AzureTableMap.StoreTo.FeedTitles,
             // nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,   
-            // nameof(UserStorage) => AzureTable.TableMap.Users,
+            nameof(UserStorage) => AzureTableMap.StoreTo.Users,
             nameof(OvaStorage) => AzureTableMap.StoreTo.OvaLibrary,
             // nameof(OvasSubscriptionStorage) => AzureTable.TableMap.OvaSubscriptions,
             nameof(MovieStorage) => AzureTableMap.StoreTo.MovieLibrary,

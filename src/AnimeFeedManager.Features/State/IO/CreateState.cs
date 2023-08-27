@@ -3,6 +3,11 @@ using AnimeFeedManager.Features.State.Types;
 
 namespace AnimeFeedManager.Features.State.IO;
 
+public interface ICreateState
+{
+    public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target, ImmutableList<T> entities);
+}
+
 public sealed class CreateState : ICreateState
 {
     private readonly ITableClientFactory<StateUpdateStorage> _tableClientFactory;

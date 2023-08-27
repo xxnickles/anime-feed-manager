@@ -2,6 +2,10 @@
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 
+public interface ITitlesProvider
+{
+    Task<Either<DomainError, ImmutableList<string>>> GetTitles();
+}
 public class TitlesProvider : ITitlesProvider
 {
     private readonly PuppeteerOptions _puppeteerOptions;

@@ -1,5 +1,8 @@
 ﻿global using AnimeFeedManager.Backend.Functions.ResponseExtensions;
 global using AnimeFeedManager.Features.AniDb;
+global using AnimeFeedManager.Features.Common.Dto;
+global using AnimeFeedManager.Features.Common.Types;
+global using AnimeFeedManager.Features.Common.Utils;
 global using AnimeFeedManager.Features.Domain.Types;
 global using AnimeFeedManager.Features.Images;
 global using AnimeFeedManager.Features.Infrastructure;

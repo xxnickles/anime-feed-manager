@@ -26,12 +26,12 @@ public partial record Email
     public static implicit operator string(Email email) => email.Value;
 }
 
-public static class EmailValidators
+public static class EmailValidator
 {
-    public static Either<DomainError, Email> ValidateEmail(string emailValue)
+    public static Validation<ValidationError, Email> Validate(string emailValue)
     {
         return Email.FromString(emailValue).ToValidation(
-                ValidationError.Create("Email", new[] { "A valid email address must be provided" }))
-            .ValidationToEither();
+                ValidationError.Create("Email", new[] { "A valid email address must be provided" }));
     }
+
 }

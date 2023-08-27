@@ -2,12 +2,6 @@
 
 public static class SeasonValidators
 {
-    // internal static Either<DomainError, (Season season, ushort year)> Validate(SimpleSeasonInfo param) =>
-    //     (ValidateSeason(param.Season), ValidateYear(param.Year))
-    //     .Apply((season, year) => (season, year))
-    //     .ValidationToEither();
-
-
     internal static Either<DomainError, SeasonSelector> Validate(SeasonSelector season)
     {
         return season switch

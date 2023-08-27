@@ -2,6 +2,11 @@
 
 namespace AnimeFeedManager.Features.Movies.Scrapping.IO;
 
+public interface IMoviesStorage
+{
+    Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token);
+}
+
 public sealed class MoviesStorage : IMoviesStorage
 {
     private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
@@ -10,11 +15,11 @@ public sealed class MoviesStorage : IMoviesStorage
     {
         _tableClientFactory = tableClientFactory;
     }
-    
+
     public Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token)
     {
         return _tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.BatchAdd(client, series,  token))
+            .BindAsync(client => TableUtils.BatchAdd(client, series, token))
             .MapAsync(_ => unit);
     }
 }

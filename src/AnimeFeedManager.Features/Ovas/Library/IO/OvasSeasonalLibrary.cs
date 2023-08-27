@@ -2,6 +2,11 @@
 
 namespace AnimeFeedManager.Features.Ovas.Library.IO;
 
+public interface IOvasSeasonalLibrary
+{
+    public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season, Year year, CancellationToken token);
+}
+
 public class OvasSeasonalLibrary : IOvasSeasonalLibrary
 {
     private readonly ITableClientFactory<OvaStorage> _tableClientFactory;

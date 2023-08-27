@@ -2,6 +2,11 @@
 
 namespace AnimeFeedManager.Features.Seasons.IO;
 
+public interface ISeasonsGetter
+{
+    Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons(CancellationToken token);
+}
+
 public sealed class SeasonsGetter : ISeasonsGetter
 {
     private readonly ITableClientFactory<SeasonStorage> _tableClientFactory;

@@ -9,6 +9,11 @@ using TargetAudience = AnimeFeedManager.Features.Domain.Notifications.TargetAudi
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 
+public interface ISeriesProvider
+{
+    Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token);
+}
+
 public sealed class SeriesProvider : ISeriesProvider
 {
     private readonly IDomainPostman _domainPostman;
