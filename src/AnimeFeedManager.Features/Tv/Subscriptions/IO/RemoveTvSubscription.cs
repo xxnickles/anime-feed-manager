@@ -2,26 +2,26 @@
 
 namespace AnimeFeedManager.Features.Tv.Subscriptions.IO;
 
-public interface IRemoveInterestedSeries
+public interface IRemoveTvSubscription
 {
-    public Task<Either<DomainError, Unit>> Remove(UserId userId, NoEmptyString series, CancellationToken token);
+    public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series, CancellationToken token);
 }
 
-public sealed class RemoveInterestedSeries : IRemoveInterestedSeries
+public sealed class RemoveTvSubscription : IRemoveTvSubscription
 {
-    private readonly ITableClientFactory<InterestedStorage> _clientFactory;
+    private readonly ITableClientFactory<SubscriptionStorage> _clientFactory;
 
-    public RemoveInterestedSeries(ITableClientFactory<InterestedStorage> clientFactory)
+    public RemoveTvSubscription(ITableClientFactory<SubscriptionStorage> clientFactory)
     {
         _clientFactory = clientFactory;
     }
-
-    public Task<Either<DomainError, Unit>> Remove(UserId userId, NoEmptyString series, CancellationToken token)
+    
+    public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series, CancellationToken token)
     {
         return _clientFactory.GetClient()
             .BindAsync(client => Delete(client, userId, series, token));
     }
-
+    
     private static Task<Either<DomainError, Unit>> Delete(TableClient client, UserId userId, NoEmptyString series,
         CancellationToken token)
     {

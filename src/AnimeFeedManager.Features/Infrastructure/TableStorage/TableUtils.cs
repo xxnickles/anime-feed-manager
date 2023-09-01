@@ -23,7 +23,7 @@ internal static class TableUtils
 
             return !resultList.IsEmpty
                 ? resultList
-                : NoContentError.Create("Query returned no results");
+                : NoContentError.Create($"Query for the entity '{typeof(T).Name}' returned no results");
         }
         catch (Exception e)
         {

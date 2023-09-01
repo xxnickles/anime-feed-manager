@@ -21,7 +21,8 @@ public class StoreNotification : IStoreNotification
     }
 
     public Task<Either<DomainError, Unit>> Add<T>(string id, string userId, NotificationTarget target,
-        NotificationArea area, T payload,
+        NotificationArea area,
+        T payload,
         CancellationToken token) where T : Notification
     {
         return _tableClientFactory.GetClient()

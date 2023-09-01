@@ -21,7 +21,6 @@ public static class ErrorToActionResults
     
     private static Task<HttpResponseData> ToResponse(this ValidationErrors error, HttpRequestData request, ILogger log)
     {
-        if (error == null) return request.UnprocessableEntity();
         log.LogError("{Error}", error.Message);
         foreach (var validationError in error.Errors)
             log.LogError("Field: {Field} Messages: {Messages}", validationError.Key, string.Join(". ", validationError.Value));
@@ -43,7 +42,7 @@ public static class ErrorToActionResults
     
     private static  Task<HttpResponseData> ToResponse(this NoContentError error, HttpRequestData request, ILogger log)
     {
-        log.LogInformation("{Error}", error.ToString());
+        log.LogWarning("{Error}", error.ToString());
         return request.NoContent();
     }
     

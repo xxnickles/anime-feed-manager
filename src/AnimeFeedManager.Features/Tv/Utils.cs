@@ -1,10 +1,10 @@
 ﻿using FuzzySharp;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping;
+namespace AnimeFeedManager.Features.Tv;
 
 internal static class Utils
 {
-    internal static string TryGetFeedTitle(IEnumerable<string> titleList, string animeTitle)
+    internal static string TryGetFeedTitle(ImmutableList<string> titleList, string animeTitle)
     {
         if (!titleList.Any()) return string.Empty;
         var result = Process.ExtractOne(animeTitle, titleList);

@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="FuzzySharp" Version="2.0.2" />
     <PackageReference Include="LanguageExt.Core" Version="4.4.3" />
-    <PackageReference Include="PuppeteerSharp" Version="11.0.2" />
+    <PackageReference Include="PuppeteerSharp" Version="11.0.4" />
   </ItemGroup>
 
   <ItemGroup>

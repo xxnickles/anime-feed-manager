@@ -5,6 +5,7 @@ namespace AnimeFeedManager.Features.Domain.Notifications;
 public enum TargetAudience
 {
     All,
+    User,
     Admins
 }
 

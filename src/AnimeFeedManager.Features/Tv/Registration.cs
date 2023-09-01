@@ -15,6 +15,7 @@ public static class TvRegistration
         services.TryAddSingleton<ITitlesProvider, TitlesProvider>();
         services.TryAddSingleton<IIncompleteSeriesProvider, IncompleteSeriesProvider>();
         services.TryAddScoped<ITvSeriesStore, TvSeriesStore>();
+        services.TryAddScoped<ITittlesGetter, TittlesGetter>();
         services.TryAddScoped<ITitlesStore, TitlesStore>();
         services.TryAddSingleton<ITvSeasonalLibrary, TvSeasonalLibrary>();
         services.TryAddScoped<TvLibraryUpdater>();

@@ -11,8 +11,7 @@ public sealed class AddInterested : IAddInterested
 {
     private readonly ITableClientFactory<InterestedStorage> _clientFactory;
 
-    public AddInterested(
-        ITableClientFactory<InterestedStorage> clientFactory)
+    public AddInterested(ITableClientFactory<InterestedStorage> clientFactory)
     {
         _clientFactory = clientFactory;
     }
@@ -23,7 +22,7 @@ public sealed class AddInterested : IAddInterested
             .BindAsync(client => Persist(client, userId, series, token));
     }
 
-    private Task<Either<DomainError, Unit>> Persist(TableClient client, UserId userId, NoEmptyString series,
+    private static Task<Either<DomainError, Unit>> Persist(TableClient client, UserId userId, NoEmptyString series,
         CancellationToken token)
     {
         var storage = new InterestedStorage

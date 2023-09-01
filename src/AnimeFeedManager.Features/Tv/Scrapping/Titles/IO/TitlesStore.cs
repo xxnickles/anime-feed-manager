@@ -29,8 +29,8 @@ public sealed class TitlesStore : ITitlesStore
         return new TitlesStorage
         {
             Titles = string.Join(',', Utils.ReplaceTitleCommas(titles)), 
-            PartitionKey = "feed_titles",
-            RowKey = "standard"
+            PartitionKey = Utils.TitlesPartitionKey,
+            RowKey = Utils.RowKey
         };
     }
 }
