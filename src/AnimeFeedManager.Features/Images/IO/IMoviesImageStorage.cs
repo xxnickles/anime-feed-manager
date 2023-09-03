@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Features.Domain.Events;
-using AnimeFeedManager.Features.State.Types;
 
 namespace AnimeFeedManager.Features.Images.IO;
 

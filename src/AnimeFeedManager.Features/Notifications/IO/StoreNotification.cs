@@ -49,6 +49,9 @@ public class StoreNotification : IStoreNotification
             ImageUpdateNotificationContext.Default.ImageUpdateNotification),
         SeasonProcessNotification seasonProcessNotification => JsonSerializer.Serialize(seasonProcessNotification,
             SeasonProcessNotificationContext.Default.SeasonProcessNotification),
+        AutomatedSubscriptionProcessNotification automatedSubscriptionProcessNotification => JsonSerializer.Serialize(
+            automatedSubscriptionProcessNotification,
+            AutomatedSubscriptionProcessNotificationContext.Default.AutomatedSubscriptionProcessNotification),
         _ => JsonSerializer.Serialize(payload, NotificationContext.Default.Notification)
     };
 }

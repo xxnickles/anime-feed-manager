@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Features.Domain.Notifications;
-using AnimeFeedManager.Features.State.Types;
 
 namespace AnimeFeedManager.Features.State.IO;
 
@@ -7,7 +6,6 @@ public interface IStateUpdater
 {
     public Task<Either<DomainError, CurrentState>> Update<T>(Either<DomainError, T> result, StateChange change,
         CancellationToken token = default);
-
 }
 
 public sealed class StateUpdater : IStateUpdater
@@ -21,12 +19,13 @@ public sealed class StateUpdater : IStateUpdater
     }
 
 
-    private Task<Either<DomainError, CurrentState>> UpdateCompleted(string id, NotificationTarget target,
+    private Task<Either<DomainError, CurrentState>> UpdateCompleted(string id, NotificationTarget target, string item,
         CancellationToken token = default)
     {
         StateUpdateStorage Add(StateUpdateStorage original)
         {
             original.Completed += 1;
+            original.Items = string.Join(',', original.Items, item);
             return original;
         }
 
@@ -63,7 +62,7 @@ public sealed class StateUpdater : IStateUpdater
         {
             try
             {
-                finalResult = await  GetCurrent(client, id, target)
+                finalResult = await GetCurrent(client, id, target)
                     .MapAsync(modifier)
                     .MapAsync(s => Update(client, s, token));
 
@@ -106,15 +105,16 @@ public sealed class StateUpdater : IStateUpdater
             updateStateStorage.RowKey!,
             updateStateStorage.Completed,
             updateStateStorage.Errors,
-            updateStateStorage.SeriesToUpdate > 0 && updateStateStorage.SeriesToUpdate ==
+            updateStateStorage.Items ?? string.Empty,
+            updateStateStorage.ToUpdate > 0 && updateStateStorage.ToUpdate ==
             updateStateStorage.Completed + updateStateStorage.Errors);
     }
 
-    public Task<Either<DomainError, CurrentState>> Update<T>(Either<DomainError, T> result, StateChange change, CancellationToken token = default)
+    public Task<Either<DomainError, CurrentState>> Update<T>(Either<DomainError, T> result, StateChange change,
+        CancellationToken token = default)
     {
         return result.MatchAsync(
-            _ => UpdateCompleted(change.StateId, change.Target, token),
+            _ => UpdateCompleted(change.StateId, change.Target, change.Item, token),
             _ => UpdateError(change.StateId, change.Target, token));
-
     }
 }

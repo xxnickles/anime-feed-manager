@@ -17,3 +17,4 @@ public record NoEmptyString
 
     public static implicit operator string(NoEmptyString value) => value.Value;
 }
+

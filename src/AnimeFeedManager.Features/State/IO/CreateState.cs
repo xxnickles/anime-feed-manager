@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Features.Domain.Notifications;
-using AnimeFeedManager.Features.State.Types;
 
 namespace AnimeFeedManager.Features.State.IO;
 
@@ -27,7 +26,7 @@ public sealed class CreateState : ICreateState
             PartitionKey = target.Value,
             Errors = 0,
             Completed = 0,
-            SeriesToUpdate = entities.Count
+            ToUpdate = entities.Count
         };
 
         return _tableClientFactory.GetClient()

@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using AnimeFeedManager.Features.Domain.Events;
 using AnimeFeedManager.Features.Images.IO;
-using AnimeFeedManager.Features.State.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Images;

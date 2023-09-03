@@ -4,7 +4,6 @@ using AnimeFeedManager.Features.Images.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
 using AnimeFeedManager.Features.State.IO;
-using AnimeFeedManager.Features.State.Types;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
@@ -31,7 +30,7 @@ public class MoviesImageStorage : IMoviesImageStorage
             .BindAsync(client => Store(client, imageUrl, imageStateWrap, token));
 
         return await _stateUpdaterUpdater.Update(storeResult,
-                new ImageStateChange(imageStateWrap.StateId, NotificationTarget.Images, SeriesType.Movie), token)
+                new StateChange(imageStateWrap.StateId, NotificationTarget.Images, imageStateWrap.Payload.Id), token)
             .BindAsync(currentState => TryToPublishUpdate(currentState, token));
     }
 

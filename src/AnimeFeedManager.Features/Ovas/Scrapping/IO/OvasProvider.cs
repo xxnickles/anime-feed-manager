@@ -41,7 +41,7 @@ public sealed class OvasProvider : IOvasProvider
                 Box.SeasonProcessNotifications,
                 token);
 
-            return new Types.OvasCollection(series.Select(MapInfo)
+            return new OvasCollection(series.Select(MapInfo)
                     .ToImmutableList(),
                 series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
                     .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Ova))

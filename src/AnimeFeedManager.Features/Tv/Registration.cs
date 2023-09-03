@@ -4,6 +4,7 @@ using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+using AnimeFeedManager.Features.Tv.Subscriptions;
 
 namespace AnimeFeedManager.Features.Tv;
 
@@ -21,6 +22,8 @@ public static class TvRegistration
         services.TryAddScoped<TvLibraryUpdater>();
         services.TryAddScoped<TvLibraryGetter>();
         services.TryAddScoped<ScrapSeasonTitles>();
+        services.TryAddScoped<InterestedToSubscribe>();
+        services.TryAddScoped<ProcessAutomatedSubscription>();
 
         return services;
     }

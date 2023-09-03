@@ -2,13 +2,12 @@
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
-using AnimeFeedManager.Features.State.Types;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Images;
 
-public readonly record struct ScrapNotificationImages(ImmutableList<DownloadImageEvent> events) : INotification;
+public readonly record struct ScrapNotificationImages(ImmutableList<DownloadImageEvent> Events) : INotification;
 
 public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapNotificationImages>
 {
@@ -26,7 +25,7 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
 
     public async Task Handle(ScrapNotificationImages notification, CancellationToken cancellationToken)
     {
-        var results = await _stateCreator.Create(NotificationTarget.Images, notification.events)
+        var results = await _stateCreator.Create(NotificationTarget.Images, notification.Events)
             .MapAsync(r => SendMessages(r, cancellationToken));
 
         results.Match(async r => await r,

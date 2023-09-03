@@ -3,7 +3,6 @@ using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Images.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
-using AnimeFeedManager.Features.State.Types;
 using AnimeInfoStorage = AnimeFeedManager.Features.Tv.Types.AnimeInfoStorage;
 
 namespace AnimeFeedManager.Features.Images.IO;
@@ -31,7 +30,7 @@ public class TvImageStorage : ITvImageStorage
             .BindAsync(client => Store(client, imageUrl, imageStateWrap, token));
 
         return await _stateUpdaterUpdater.Update(storeResult,
-                new ImageStateChange(imageStateWrap.StateId, NotificationTarget.Images, SeriesType.Tv), token)
+                new StateChange(imageStateWrap.StateId, NotificationTarget.Images, imageStateWrap.Payload.Id), token)
             .BindAsync(currentState => TryToPublishUpdate(currentState, token));
     }
 
