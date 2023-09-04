@@ -31,7 +31,7 @@ public sealed class OvasProvider : IOvasProvider
             var (series, jsonSeason) =
                 await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
 
-            await _domainPostman.SendMessage(new SeasonProcessNotification(
+            return await _domainPostman.SendMessage(new SeasonProcessNotification(
                     IdHelpers.GetUniqueId(),
                     TargetAudience.Admins,
                     NotificationType.Information,
@@ -39,30 +39,28 @@ public sealed class OvasProvider : IOvasProvider
                     SeriesType.Ova,
                     $"{series.Count()} ovas have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
                 Box.SeasonProcessNotifications,
-                token);
-
-            return new OvasCollection(series.Select(MapInfo)
+                token).MapAsync(_ => new OvasCollection(series.Select(MapInfo)
                     .ToImmutableList(),
                 series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
                     .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Ova))
-                    .ToImmutableList());
+                    .ToImmutableList()));
         }
         catch (Exception ex)
         {
-            await _domainPostman.SendMessage(
-                new SeasonProcessNotification(
-                    IdHelpers.GetUniqueId(),
-                    TargetAudience.Admins,
-                    NotificationType.Error,
-                    new NullSimpleSeasonInfo(),
-                    SeriesType.Tv,
-                    "AniDb ovas season scrapping failed"),
-                Box.SeasonProcessNotifications,
-                token);
-            return ExceptionError.FromException(ex);
+            return await _domainPostman.SendMessage(
+                    new SeasonProcessNotification(
+                        IdHelpers.GetUniqueId(),
+                        TargetAudience.Admins,
+                        NotificationType.Error,
+                        new NullSimpleSeasonInfo(),
+                        SeriesType.Tv,
+                        "AniDb ovas season scrapping failed"),
+                    Box.SeasonProcessNotifications,
+                    token)
+                .BindAsync(_ => Left<DomainError, OvasCollection>(ExceptionError.FromException(ex)));
         }
     }
-    
+
     private static string CreateScrappingLink(SeasonSelector season)
     {
         return season switch
@@ -73,8 +71,8 @@ public sealed class OvasProvider : IOvasProvider
             _ => throw new UnreachableException()
         };
     }
-    
-    
+
+
     private static OvaStorage MapInfo(SeriesContainer container)
     {
         var seasonInfo = MapSeasonInfo(container.SeasonInfo);

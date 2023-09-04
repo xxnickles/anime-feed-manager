@@ -9,7 +9,8 @@ public readonly struct Box
         public const string ImageUpdateNotificationsBox = "image-update-notifications";
         public const string ImageProcessBox = "image-process";
         public const string LibraryScrapEventsBox = "library-scrap-events";
-        public const string AutomaticSubscriptionsBox = "automatic-subscriptions";
+        public const string UserAutoSubscriptionBox = "user-auto-subscription";
+        public const string AutoSubscriptionsProcessBox = "auto-subscriptions-process";
     }
     
   
@@ -35,6 +36,7 @@ public readonly struct Box
 
     public static Box LibraryScrapEvents => new(Available.LibraryScrapEventsBox);
 
-    public static Box AutomaticSubscriptions => new(Available.AutomaticSubscriptionsBox);
+    public static Box UserAutoSubscription => new(Available.AutoSubscriptionsProcessBox);
+    public static Box AutoSubscriptionsProcess => new(Available.AutoSubscriptionsProcessBox);
 
 }

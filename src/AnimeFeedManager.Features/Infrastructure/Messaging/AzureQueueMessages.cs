@@ -22,9 +22,10 @@ public readonly record struct MinutesDelay()
 
 public interface IDomainPostman
 {
-    Task SendMessage<T>(T message, Box destiny, CancellationToken cancellationToken = default);
+    Task<Either<DomainError, Unit>> SendMessage<T>(T message, Box destiny,
+        CancellationToken cancellationToken = default);
 
-    Task SendDelayedMessage<T>(T message, Box destiny, MinutesDelay delay,
+    Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, Box destiny, MinutesDelay delay,
         CancellationToken cancellationToken = default);
 }
 
@@ -40,28 +41,46 @@ public class AzureQueueMessages : IDomainPostman
     {
         _blobStorageOptions = blobStorageOptions.Value;
         _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
-            {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         _queueClientOptions = new QueueClientOptions
         {
             MessageEncoding = QueueMessageEncoding.Base64
         };
     }
 
-    public Task SendMessage<T>(T message, Box destiny, CancellationToken cancellationToken = default)
-    {
-        return SendMessage(message, destiny, null, cancellationToken);
-    }
-
-    public Task SendDelayedMessage<T>(T message, Box destiny, MinutesDelay delay,
+    public async Task<Either<DomainError, Unit>> SendMessage<T>(T message, Box destiny,
         CancellationToken cancellationToken = default)
     {
-        return SendMessage(message, destiny,TimeSpan.FromMinutes(delay.Value), cancellationToken);
+        try
+        {
+            await SendMessage(message, destiny, null, cancellationToken);
+            return unit;
+        }
+        catch (Exception e)
+        {
+            return ExceptionError.FromException(e);
+        }
+    }
+
+    public async Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, Box destiny, MinutesDelay delay,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await SendMessage(message, destiny, TimeSpan.FromMinutes(delay.Value), cancellationToken);
+            return unit;
+        }
+        catch (Exception e)
+        {
+            return ExceptionError.FromException(e);
+        }
     }
 
     private async Task SendMessage<T>(T message, string destiny, TimeSpan? delay = default,
         CancellationToken cancellationToken = default)
     {
-        var queue = new QueueClient(_blobStorageOptions?.StorageConnectionString ?? string.Empty,destiny, _queueClientOptions);
+        var queue = new QueueClient(_blobStorageOptions?.StorageConnectionString ?? string.Empty, destiny,
+            _queueClientOptions);
         await queue.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         await queue.SendMessageAsync(AsBinary(message), cancellationToken: cancellationToken, visibilityTimeout: delay);
     }

@@ -31,38 +31,37 @@ public sealed class MoviesProvider : IMoviesProvider
             var (series, jsonSeason) =
                 await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
 
-            await _domainPostman.SendMessage(new SeasonProcessNotification(
-                    IdHelpers.GetUniqueId(),
-                    TargetAudience.Admins,
-                    NotificationType.Information,
-                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
-                    SeriesType.Movie,
-                    $"{series.Count()} movies have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
-                Box.SeasonProcessNotifications,
-                token);
-
-            return new MoviesCollection(series.Select(MapInfo)
-                    .ToImmutableList(),
-                series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
-                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Movie))
-                    .ToImmutableList());
+            return await _domainPostman.SendMessage(new SeasonProcessNotification(
+                        IdHelpers.GetUniqueId(),
+                        TargetAudience.Admins,
+                        NotificationType.Information,
+                        new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
+                        SeriesType.Movie,
+                        $"{series.Count()} movies have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
+                    Box.SeasonProcessNotifications,
+                    token)
+                .MapAsync(_ => new MoviesCollection(series.Select(MapInfo)
+                        .ToImmutableList(),
+                    series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
+                        .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Movie))
+                        .ToImmutableList()));
         }
         catch (Exception ex)
         {
-            await _domainPostman.SendMessage(
-                new SeasonProcessNotification(
-                    IdHelpers.GetUniqueId(),
-                    TargetAudience.Admins,
-                    NotificationType.Error,
-                    new NullSimpleSeasonInfo(),
-                    SeriesType.Tv,
-                    "AniDb movies season scrapping failed"),
-                Box.SeasonProcessNotifications,
-                token);
-            return ExceptionError.FromException(ex);
+            return await _domainPostman.SendMessage(
+                    new SeasonProcessNotification(
+                        IdHelpers.GetUniqueId(),
+                        TargetAudience.Admins,
+                        NotificationType.Error,
+                        new NullSimpleSeasonInfo(),
+                        SeriesType.Tv,
+                        "AniDb movies season scrapping failed"),
+                    Box.SeasonProcessNotifications,
+                    token)
+                .BindAsync(_ => Left<DomainError, MoviesCollection>(ExceptionError.FromException(ex)));
         }
     }
-    
+
     private static string CreateScrappingLink(SeasonSelector season)
     {
         return season switch
@@ -73,8 +72,8 @@ public sealed class MoviesProvider : IMoviesProvider
             _ => throw new UnreachableException()
         };
     }
-    
-    
+
+
     private static MovieStorage MapInfo(SeriesContainer container)
     {
         var seasonInfo = MapSeasonInfo(container.SeasonInfo);

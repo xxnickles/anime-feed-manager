@@ -2,6 +2,7 @@
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+using AnimeFeedManager.Features.Tv.Subscriptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Unit = LanguageExt.Unit;
@@ -34,6 +35,7 @@ public sealed class UpdateSeasonTitlesHandler : INotificationHandler<UpdateSeaso
         var result = await _titlesStore.UpdateTitles(notification.Titles, cancellationToken)
             .BindAsync(_ => SendNotification(cancellationToken))
             .MapAsync(_ => _mediator.Publish(new MarkSeriesAsComplete(notification.Titles), cancellationToken))
+            .MapAsync(_ => _mediator.Publish(new AutomatedSubscription(), cancellationToken))
             .MapAsync(_ => unit);
 
         result.Match(
@@ -41,23 +43,14 @@ public sealed class UpdateSeasonTitlesHandler : INotificationHandler<UpdateSeaso
             e => e.LogDomainError(_logger));
     }
 
-    private async Task<Either<DomainError, Unit>> SendNotification(CancellationToken cancellationToken)
+    private Task<Either<DomainError, Unit>> SendNotification(CancellationToken cancellationToken)
     {
-        try
-        {
-            await _domainPostman.SendMessage(new TitlesUpdateNotification(
-                    IdHelpers.GetUniqueId(),
-                    TargetAudience.Admins,
-                    NotificationType.Information,
-                    "Latest feed titles have been updated"
-                ), Box.TitleUpdatesNotifications,
-                cancellationToken);
-
-            return unit;
-        }
-        catch (Exception e)
-        {
-            return ExceptionError.FromException(e);
-        }
+        return _domainPostman.SendMessage(new TitlesUpdateNotification(
+                IdHelpers.GetUniqueId(),
+                TargetAudience.Admins,
+                NotificationType.Information,
+                "Latest feed titles have been updated"
+            ), Box.TitleUpdatesNotifications,
+            cancellationToken);
     }
 }

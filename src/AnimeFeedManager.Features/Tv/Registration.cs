@@ -23,7 +23,7 @@ public static class TvRegistration
         services.TryAddScoped<TvLibraryGetter>();
         services.TryAddScoped<ScrapSeasonTitles>();
         services.TryAddScoped<InterestedToSubscribe>();
-        services.TryAddScoped<ProcessAutomatedSubscription>();
+        services.TryAddScoped<AutomatedSubscriptionProcessor>();
 
         return services;
     }

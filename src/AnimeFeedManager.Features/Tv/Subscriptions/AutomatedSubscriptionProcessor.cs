@@ -6,7 +6,7 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Tv.Subscriptions;
 
-public class ProcessAutomatedSubscription
+public class AutomatedSubscriptionProcessor
 {
     private record struct Payload(
         UserId UserId,
@@ -18,7 +18,7 @@ public class ProcessAutomatedSubscription
     private readonly IStateUpdater _stateUpdater;
     private readonly IStoreNotification _storeNotification;
 
-    public ProcessAutomatedSubscription(
+    public AutomatedSubscriptionProcessor(
         IAddTvSubscription addTvSubscription,
         IRemoveInterestedSeries removeInterestedSeries,
         IStateUpdater stateUpdater,

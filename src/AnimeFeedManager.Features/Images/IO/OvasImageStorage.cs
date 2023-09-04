@@ -52,22 +52,13 @@ public class OvasImageStorage : IOvasImageStorage
 
     private async Task<Either<DomainError, Unit>> TryToPublishUpdate(CurrentState currentState, CancellationToken token)
     {
-        try
-        {
-            if (!currentState.ShouldNotify) return unit;
+        if (!currentState.ShouldNotify) return unit;
 
-            var notification = new ImageUpdateNotification(
-                IdHelpers.GetUniqueId(),
-                NotificationType.Information,
-                SeriesType.Ova,
-                $"Images for OVAS have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
-            await _domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
-
-            return unit;
-        }
-        catch (Exception e)
-        {
-            return ExceptionError.FromException(e);
-        }
+        var notification = new ImageUpdateNotification(
+            IdHelpers.GetUniqueId(),
+            NotificationType.Information,
+            SeriesType.Ova,
+            $"Images for OVAS have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
+        return await _domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
     }
 }

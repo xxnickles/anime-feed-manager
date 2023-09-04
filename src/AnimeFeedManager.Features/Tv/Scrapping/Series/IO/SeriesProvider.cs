@@ -34,35 +34,34 @@ public sealed class SeriesProvider : ISeriesProvider
             var (series, jsonSeason) =
                 await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
 
-            await _domainPostman.SendMessage(new SeasonProcessNotification(
-                    IdHelpers.GetUniqueId(),
-                    TargetAudience.Admins,
-                    NotificationType.Information,
-                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
-                    SeriesType.Tv,
-                    $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
-                Box.SeasonProcessNotifications,
-                token);
-
-            return new TvSeries(series.Select(MapInfo)
-                    .ToImmutableList(),
-                series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
-                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Tv))
-                    .ToImmutableList());
+            return await _domainPostman.SendMessage(new SeasonProcessNotification(
+                        IdHelpers.GetUniqueId(),
+                        TargetAudience.Admins,
+                        NotificationType.Information,
+                        new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
+                        SeriesType.Tv,
+                        $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
+                    Box.SeasonProcessNotifications,
+                    token)
+                .MapAsync(_ => new TvSeries(series.Select(MapInfo)
+                        .ToImmutableList(),
+                    series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
+                        .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Tv))
+                        .ToImmutableList()));
         }
         catch (Exception ex)
         {
-            await _domainPostman.SendMessage(
-                new SeasonProcessNotification(
-                    IdHelpers.GetUniqueId(),
-                    TargetAudience.Admins,
-                    NotificationType.Error,
-                    new NullSimpleSeasonInfo(),
-                    SeriesType.Tv,
-                    "AniDb season scrapping failed"),
-                Box.SeasonProcessNotifications,
-                token);
-            return ExceptionError.FromException(ex);
+            return await _domainPostman.SendMessage(
+                    new SeasonProcessNotification(
+                        IdHelpers.GetUniqueId(),
+                        TargetAudience.Admins,
+                        NotificationType.Error,
+                        new NullSimpleSeasonInfo(),
+                        SeriesType.Tv,
+                        "AniDb season scrapping failed"),
+                    Box.SeasonProcessNotifications,
+                    token)
+                .BindAsync(_ => Left<DomainError, TvSeries>(ExceptionError.FromException(ex)));
         }
     }
 

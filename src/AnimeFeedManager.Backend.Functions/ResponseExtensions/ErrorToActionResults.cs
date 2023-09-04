@@ -6,61 +6,52 @@ public static class ErrorToActionResults
 {
     public static Task<HttpResponseData> ToResponse(this DomainError error, HttpRequestData request, ILogger log)
     {
+        error.LogDomainError(log);
         return error switch
         {
-            ExceptionError eError => eError.ToResponse(request,log),
-            ValidationErrors vError => vError.ToResponse(request,log),
-            NotFoundError nError => nError.ToResponse(request,log),
-            NoContentError cError => cError.ToResponse(request,log),
-            UnauthorizedError uError => uError.ToResponse(request,log),
-            ForbiddenError fError => fError.ToResponse(request, log),
-            BasicError bError => bError.ToResponse(request,log),
+            ExceptionError eError => eError.ToResponse(request),
+            ValidationErrors vError => vError.ToResponse(request),
+            NotFoundError nError => nError.ToResponse(request),
+            NoContentError cError => cError.ToResponse(request),
+            UnauthorizedError uError => uError.ToResponse(request),
+            ForbiddenError fError => fError.ToResponse(request),
+            BasicError bError => bError.ToResponse(request),
             _ => request.InternalServerError("An unhandled error has occurred")
         };
     }
-    
-    private static Task<HttpResponseData> ToResponse(this ValidationErrors error, HttpRequestData request, ILogger log)
-    {
-        log.LogError("{Error}", error.Message);
-        foreach (var validationError in error.Errors)
-            log.LogError("Field: {Field} Messages: {Messages}", validationError.Key, string.Join(". ", validationError.Value));
 
+    private static Task<HttpResponseData> ToResponse(this ValidationErrors error, HttpRequestData request)
+    {
         return request.UnprocessableEntity(error.Errors);
     }
 
-    private static Task<HttpResponseData> ToResponse(this ExceptionError error, HttpRequestData request, ILogger log)
+    private static Task<HttpResponseData> ToResponse(this ExceptionError _, HttpRequestData request)
     {
-        log.LogError(error.Exception,"{Error}",error.ToString());
         return request.InternalServerError("An internal error occurred");
     }
 
-    private static  Task<HttpResponseData> ToResponse(this NotFoundError error, HttpRequestData request, ILogger log)
+    private static Task<HttpResponseData> ToResponse(this NotFoundError error, HttpRequestData request)
     {
-        log.LogError("{Error}", error.ToString());
         return request.NotFound(error.Message);
     }
-    
-    private static  Task<HttpResponseData> ToResponse(this NoContentError error, HttpRequestData request, ILogger log)
+
+    private static Task<HttpResponseData> ToResponse(this NoContentError _, HttpRequestData request)
     {
-        log.LogWarning("{Error}", error.ToString());
         return request.NoContent();
     }
-    
-    private static  Task<HttpResponseData> ToResponse(this UnauthorizedError error, HttpRequestData request, ILogger log)
+
+    private static Task<HttpResponseData> ToResponse(this UnauthorizedError _, HttpRequestData request)
     {
-        log.LogError("{Error}", error.ToString());
         return request.Unauthorized();
     }
 
-    private static Task<HttpResponseData> ToResponse(this ForbiddenError error, HttpRequestData request, ILogger log)
+    private static Task<HttpResponseData> ToResponse(this ForbiddenError _, HttpRequestData request)
     {
-        log.LogError("{Error}", error.ToString());
         return request.Forbidden();
     }
 
-    private static  Task<HttpResponseData> ToResponse(this BasicError error, HttpRequestData request, ILogger log)
+    private static Task<HttpResponseData> ToResponse(this BasicError error, HttpRequestData request)
     {
-        log.LogError("{Error}", error.ToString());
         return request.InternalServerError(error.ToString());
     }
 }

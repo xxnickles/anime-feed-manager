@@ -37,21 +37,14 @@ public sealed class ScrapImagesNotificationHandler : INotificationHandler<ScrapN
         var results = events.AsParallel()
             .Select(imageEvent => _domainPostman.SendMessage(imageEvent, Box.ImageProcess, token));
 
-        try
+        var processResults = await Task.WhenAll(results);
+
+        foreach (var processResult in processResults)
         {
-            await Task.WhenAll(results);
+            processResult.Match(
+                _ => { },
+                error => error.LogDomainError(_logger)
+            );
         }
-        catch (AggregateException e)
-        {
-            foreach (var exception in e.InnerExceptions)
-            {
-                _logger.LogError(exception, "An Error has occurred when sending image information for scrapping");
-            }
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "An Error has occurred when sending image information for scrapping");
-        }
-        
     }
 }
