@@ -3,7 +3,6 @@
 public record SimpleSeasonInfo(string Season, int Year, bool IsLatest);
 
 public record NullSimpleSeasonInfo() : SimpleSeasonInfo(string.Empty, 0,false);
-public record TvSubscriptionDto(string UserId, string Series);
 
 public record ShortSeriesSubscriptionDto(string UserId, string Series, DateTime NotificationDate);
 public record ShortSeriesUnsubscribeDto(string UserId, string Series);

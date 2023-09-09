@@ -17,5 +17,6 @@ global using AnimeFeedManager.Features.Notifications;
 global using AnimeFeedManager.Features.Seasons;
 global using Microsoft.Azure.Functions.Worker;
 global using Microsoft.Azure.Functions.Worker.Http;
+global using System.Text.Json;
 global using LanguageExt;
 global using static LanguageExt.Prelude;
