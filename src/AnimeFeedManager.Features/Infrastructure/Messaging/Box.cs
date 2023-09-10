@@ -13,8 +13,6 @@ public readonly struct Box
         public const string AutoSubscriptionsProcessBox = "auto-subscriptions-process";
     }
     
-  
-    
     private readonly string _boxValue;
 
     private Box(string boxValue)
@@ -38,5 +36,4 @@ public readonly struct Box
 
     public static Box UserAutoSubscription => new(Available.AutoSubscriptionsProcessBox);
     public static Box AutoSubscriptionsProcess => new(Available.AutoSubscriptionsProcessBox);
-
 }
