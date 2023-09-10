@@ -44,7 +44,7 @@ public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITa
             nameof(SeasonStorage) => AzureTableMap.StoreTo.AvailableSeasons,
             nameof(InterestedStorage) => AzureTableMap.StoreTo.InterestedSeries,
             nameof(TitlesStorage) => AzureTableMap.StoreTo.FeedTitles,
-            // nameof(ProcessedTitlesStorage) => AzureTable.TableMap.ProcessedTitles,   
+            nameof(ProcessedTitlesStorage) => AzureTableMap.StoreTo.ProcessedTitles,   
             nameof(UserStorage) => AzureTableMap.StoreTo.Users,
             nameof(OvaStorage) => AzureTableMap.StoreTo.OvaLibrary,
             // nameof(OvasSubscriptionStorage) => AzureTable.TableMap.OvaSubscriptions,

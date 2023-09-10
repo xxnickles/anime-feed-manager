@@ -48,13 +48,13 @@ public sealed class FeedProvider : IFeedProvider
         }
     }
 
-    private IEnumerable<Accumulator> GetFeedInformation(Resolution resolution, LinkType type)
+    private static IEnumerable<Accumulator> GetFeedInformation(Resolution resolution, LinkType type)
     {
         var rssFeed = XDocument.Load(GetRssUrl(resolution, type));
         return rssFeed.Descendants("item").Select(item => AccumulatorMapper(item, type));
     }
 
-    private Accumulator AccumulatorMapper(XElement item, LinkType type)
+    private static Accumulator AccumulatorMapper(XElement item, LinkType type)
     {
         var cleanedTitle = ReplaceKnownProblematicCharacters(item.Element("title")?.Value ?? string.Empty);
         return new Accumulator(
