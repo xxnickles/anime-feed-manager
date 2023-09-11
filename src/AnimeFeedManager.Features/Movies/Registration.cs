@@ -1,5 +1,4 @@
-﻿
-using AnimeFeedManager.Features.Movies.Library;
+﻿using AnimeFeedManager.Features.Movies.Library;
 using AnimeFeedManager.Features.Movies.Library.IO;
 using AnimeFeedManager.Features.Movies.Scrapping;
 using AnimeFeedManager.Features.Movies.Scrapping.IO;

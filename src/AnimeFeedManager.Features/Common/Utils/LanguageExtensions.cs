@@ -17,10 +17,25 @@ public static class LanguageExtensions
             true => AggregatedError.FailureType.Partial,
             false => AggregatedError.FailureType.Total
         };
-        
+
         return new AggregatedError(results.Lefts().ToImmutableList(), errorType);
     }
 
     public static async Task<Either<DomainError, ImmutableList<T>>> Flatten<T>(
         this Task<Either<DomainError, T>[]> results) => (await results).Flatten();
+
+
+    public static ImmutableList<T> Flattern<T>(this ImmutableList<Option<T>> options)
+    {
+        var results = new List<T>();
+        foreach (var option in options)
+        {
+            option.Match(
+                value => results.Add(value),
+                () => {}
+            );
+        }
+
+        return results.ToImmutableList();
+    }
 }
