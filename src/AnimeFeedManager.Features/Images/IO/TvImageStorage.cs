@@ -55,7 +55,6 @@ public class TvImageStorage : ITvImageStorage
         if (!currentState.ShouldNotify) return unit;
 
         var notification = new ImageUpdateNotification(
-            IdHelpers.GetUniqueId(),
             NotificationType.Information,
             SeriesType.Tv,
             $"Images for TV have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");

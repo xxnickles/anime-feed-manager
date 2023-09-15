@@ -2,7 +2,7 @@
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;
-using ImageUpdateNotification = AnimeFeedManager.Features.Domain.Notifications.ImageUpdateNotification;
+using ImageUpdateNotification = AnimeFeedManager.Features.Images.ImageUpdateNotification;
 
 namespace AnimeFeedManager.Backend.Functions.Images;
 

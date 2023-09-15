@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AnimeFeedManager.Features.Domain.Notifications;
 
@@ -6,18 +7,26 @@ public class AutomatedSubscriptionProcessNotification : Notification
 {
     public string[] SubscribedSeries { get; }
 
-    [Newtonsoft.Json.JsonConstructor]
+    [JsonConstructor]
     public AutomatedSubscriptionProcessNotification(
-        string id, 
         TargetAudience targetAudience,
         NotificationType result,
         string[] subscribedSeries,
-        string message) : base(id, targetAudience, result, message)
+        string message) : base(targetAudience, result, message)
     {
         SubscribedSeries = subscribedSeries;
     }
+
+    public override string GetSerializedPayload()
+    {
+        return JsonSerializer.Serialize(this,
+            AutomatedSubscriptionProcessNotificationContext.Default.AutomatedSubscriptionProcessNotification);
+    }
 }
 
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(AutomatedSubscriptionProcessNotification))]
-public partial class AutomatedSubscriptionProcessNotificationContext : JsonSerializerContext {}
+public partial class AutomatedSubscriptionProcessNotificationContext : JsonSerializerContext
+{
+}

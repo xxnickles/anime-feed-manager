@@ -4,6 +4,7 @@ using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Seasons;
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping.IO;
 
@@ -32,7 +33,6 @@ public sealed class OvasProvider : IOvasProvider
                 await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
 
             return await _domainPostman.SendMessage(new SeasonProcessNotification(
-                    IdHelpers.GetUniqueId(),
                     TargetAudience.Admins,
                     NotificationType.Information,
                     new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
@@ -49,7 +49,6 @@ public sealed class OvasProvider : IOvasProvider
         {
             return await _domainPostman.SendMessage(
                     new SeasonProcessNotification(
-                        IdHelpers.GetUniqueId(),
                         TargetAudience.Admins,
                         NotificationType.Error,
                         new NullSimpleSeasonInfo(),

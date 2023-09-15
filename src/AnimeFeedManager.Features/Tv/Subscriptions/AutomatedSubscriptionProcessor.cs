@@ -67,7 +67,7 @@ public class AutomatedSubscriptionProcessor
     {
         if (!currentState.ShouldNotify) return Task.FromResult(Right<DomainError, Unit>(unit));
 
-        var notification = new AutomatedSubscriptionProcessNotification(IdHelpers.GetUniqueId(),
+        var notification = new AutomatedSubscriptionProcessNotification(
             TargetAudience.User,
             NotificationType.Update,
             currentState.Items.Split(','),

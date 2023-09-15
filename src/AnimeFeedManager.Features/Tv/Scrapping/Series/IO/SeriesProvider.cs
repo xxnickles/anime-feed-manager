@@ -2,6 +2,7 @@
 using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Types;
 using NotificationType = AnimeFeedManager.Features.Domain.Notifications.NotificationType;
@@ -35,7 +36,6 @@ public sealed class SeriesProvider : ISeriesProvider
                 await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
 
             return await _domainPostman.SendMessage(new SeasonProcessNotification(
-                        IdHelpers.GetUniqueId(),
                         TargetAudience.Admins,
                         NotificationType.Information,
                         new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
@@ -53,7 +53,6 @@ public sealed class SeriesProvider : ISeriesProvider
         {
             return await _domainPostman.SendMessage(
                     new SeasonProcessNotification(
-                        IdHelpers.GetUniqueId(),
                         TargetAudience.Admins,
                         NotificationType.Error,
                         new NullSimpleSeasonInfo(),

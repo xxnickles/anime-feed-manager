@@ -55,7 +55,6 @@ public class MoviesImageStorage : IMoviesImageStorage
         if (!currentState.ShouldNotify) return unit;
 
         var notification = new ImageUpdateNotification(
-            IdHelpers.GetUniqueId(),
             NotificationType.Information,
             SeriesType.Ova,
             $"Images for Movies have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");

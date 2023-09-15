@@ -1,6 +1,7 @@
 ﻿using AnimeFeedManager.Features.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
+using AnimeFeedManager.Features.Tv.Scrapping.Titles;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Backend.Functions.Tv.Titles;

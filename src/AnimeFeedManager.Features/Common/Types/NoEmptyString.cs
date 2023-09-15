@@ -2,11 +2,11 @@
 
 public record NoEmptyString
 {
-    public readonly string Value;
+    private readonly string _value;
 
-    private NoEmptyString(string value)
+    protected NoEmptyString(string value)
     {
-        Value = value;
+        _value = value;
     }
 
     public static Option<NoEmptyString> FromString(string value) => !string.IsNullOrWhiteSpace(value) switch
@@ -15,6 +15,18 @@ public record NoEmptyString
         false => None
     };
 
-    public static implicit operator string(NoEmptyString value) => value.Value;
+    public static implicit operator string(NoEmptyString value) => value._value;
 }
 
+public record AnimeTitle : NoEmptyString
+{
+    protected AnimeTitle(string value) : base(value)
+    {
+    }
+
+    public new static Option<AnimeTitle> FromString(string value) => !string.IsNullOrWhiteSpace(value) switch
+    {
+        true => Some(new AnimeTitle(value)),
+        false => None
+    };
+}

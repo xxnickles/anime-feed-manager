@@ -1,6 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using AnimeFeedManager.Features.Domain.Notifications;
 
-namespace AnimeFeedManager.Features.Domain.Notifications;
+namespace AnimeFeedManager.Features.Tv.Scrapping.Titles;
 
 public class TitlesUpdateNotification : Notification
 {
@@ -8,18 +10,21 @@ public class TitlesUpdateNotification : Notification
     public TitlesUpdateNotification(string id,
         TargetAudience targetAudience,
         NotificationType result,
-        string message) : base(id, targetAudience, result, message)
+        string message) : base(targetAudience, result, message)
     {
     }
-
-
-    public new void Deconstruct(out string id, out TargetAudience targetAudience, out NotificationType result,
+    
+    public new void Deconstruct(out TargetAudience targetAudience, out NotificationType result,
         out string message)
     {
-        id = Id;
         targetAudience = TargetAudience;
         result = Result;
         message = Message;
+    }
+
+    public override string GetSerializedPayload()
+    {
+        return JsonSerializer.Serialize(this, TitlesUpdateNotificationContext.Default.TitlesUpdateNotification);
     }
 }
 

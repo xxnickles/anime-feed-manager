@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AnimeFeedManager.Features.Domain.Notifications;
 
@@ -18,28 +19,30 @@ public enum NotificationType
 
 public abstract class Notification
 {
-    protected Notification(string id,
+    protected Notification(
         TargetAudience targetAudience,
         NotificationType result,
         string message)
     {
-        Id = id;
         TargetAudience = targetAudience;
         Result = result;
         Message = message;
     }
 
-    public string Id { get; set; }
     public TargetAudience TargetAudience { get; set; }
     public NotificationType Result { get; set; }
     public string Message { get; set; }
 
-    public void Deconstruct(out string id, out TargetAudience targetAudience, out NotificationType result, out string message)
+    public void Deconstruct(out TargetAudience targetAudience, out NotificationType result, out string message)
     {
-        id = Id;
         targetAudience = TargetAudience;
         result = Result;
         message = Message;
+    }
+
+    public virtual string GetSerializedPayload()
+    {
+        return JsonSerializer.Serialize(this, NotificationContext.Default.Notification);
     }
 }
 

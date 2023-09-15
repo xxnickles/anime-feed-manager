@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using AnimeFeedManager.Features.Domain.Notifications;
+﻿using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Notifications.Types;
 using Notification = AnimeFeedManager.Features.Domain.Notifications.Notification;
 
@@ -32,7 +31,7 @@ public class StoreNotification : IStoreNotification
                 {
                     PartitionKey = userId,
                     RowKey = id,
-                    Payload = GetSerializedPayload(payload),
+                    Payload = payload.GetSerializedPayload(),
                     Type = area.Value,
                     For = target.Value
                 };
@@ -42,16 +41,4 @@ public class StoreNotification : IStoreNotification
                     .MapAsync(_ => unit);
             });
     }
-
-    private static string GetSerializedPayload(Notification payload) => payload switch
-    {
-        ImageUpdateNotification imageUpdateNotification => JsonSerializer.Serialize(imageUpdateNotification,
-            ImageUpdateNotificationContext.Default.ImageUpdateNotification),
-        SeasonProcessNotification seasonProcessNotification => JsonSerializer.Serialize(seasonProcessNotification,
-            SeasonProcessNotificationContext.Default.SeasonProcessNotification),
-        AutomatedSubscriptionProcessNotification automatedSubscriptionProcessNotification => JsonSerializer.Serialize(
-            automatedSubscriptionProcessNotification,
-            AutomatedSubscriptionProcessNotificationContext.Default.AutomatedSubscriptionProcessNotification),
-        _ => JsonSerializer.Serialize(payload, NotificationContext.Default.Notification)
-    };
 }

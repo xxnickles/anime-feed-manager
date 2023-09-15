@@ -4,6 +4,7 @@ using AnimeFeedManager.Features.Domain.Notifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Movies.Scrapping.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Seasons;
 
 namespace AnimeFeedManager.Features.Movies.Scrapping.IO;
 
@@ -32,7 +33,6 @@ public sealed class MoviesProvider : IMoviesProvider
                 await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
 
             return await _domainPostman.SendMessage(new SeasonProcessNotification(
-                        IdHelpers.GetUniqueId(),
                         TargetAudience.Admins,
                         NotificationType.Information,
                         new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
@@ -50,7 +50,6 @@ public sealed class MoviesProvider : IMoviesProvider
         {
             return await _domainPostman.SendMessage(
                     new SeasonProcessNotification(
-                        IdHelpers.GetUniqueId(),
                         TargetAudience.Admins,
                         NotificationType.Error,
                         new NullSimpleSeasonInfo(),

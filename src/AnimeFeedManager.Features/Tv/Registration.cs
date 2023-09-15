@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library;
+﻿using AnimeFeedManager.Features.Tv.Feed.IO;
+using AnimeFeedManager.Features.Tv.Library;
 using AnimeFeedManager.Features.Tv.Library.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
@@ -13,6 +14,7 @@ public static class TvRegistration
 {
     public static IServiceCollection RegisterTvServices(this IServiceCollection services)
     {
+        services.TryAddSingleton<IFeedProvider, FeedProvider>();
         services.TryAddScoped<ISeriesProvider, SeriesProvider>();
         services.TryAddScoped<ITitlesProvider, TitlesProvider>();
         services.TryAddScoped<IIncompleteSeriesProvider, IncompleteSeriesProvider>();
@@ -31,6 +33,7 @@ public static class TvRegistration
         services.TryAddScoped<ScrapSeasonTitles>();
         services.TryAddScoped<InterestedToSubscribe>();
         services.TryAddScoped<AutomatedSubscriptionProcessor>();
+        services.TryAddScoped<UserNotificationsCollector>();
 
         return services;
     }

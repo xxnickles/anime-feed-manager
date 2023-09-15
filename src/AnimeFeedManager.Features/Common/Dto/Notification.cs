@@ -4,11 +4,11 @@ namespace AnimeFeedManager.Features.Common.Dto;
 
 public record SubscribedFeed(string Title, TorrentLink[] Links, string EpisodeInfo, DateTime PublicationDate);
 
-public record SubscriberNotification(string Subscriber, SubscribedFeed[] Feeds);
+public record SubscriberTvNotification(string Subscriber, SubscribedFeed[] Feeds);
 
 
 [JsonSerializable(typeof(SubscribedFeed))]
-[JsonSerializable(typeof(SubscriberNotification))]
+[JsonSerializable(typeof(SubscriberTvNotification))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class SubscriberNotificationContext : JsonSerializerContext
