@@ -25,8 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>    
-    <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
-    <ProjectReference Include="..\AnimeFeedManager.Core\AnimeFeedManager.Core.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.WebApp.Authentication\AnimeFeedManager.WebApp.Authentication.csproj" />
   </ItemGroup>
 

@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "AnimeFeedManager.Functions": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7071 --pause-on-error",
-      "launchBrowser": false
-    }
-  }
-}
