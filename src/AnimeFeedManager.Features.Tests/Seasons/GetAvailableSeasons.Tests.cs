@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Features.Common.Domain.Errors;
 using AnimeFeedManager.Features.Common.Dto;
 using AnimeFeedManager.Features.Common.Types;
-using AnimeFeedManager.Features.Domain.Errors;
 using AnimeFeedManager.Features.Seasons.IO;
 using AnimeFeedManager.Features.Seasons.Types;
 using SeasonsGetter = AnimeFeedManager.Features.Seasons.SeasonsGetter;

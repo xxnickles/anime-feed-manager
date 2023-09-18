@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Seasons.IO;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Seasons.IO;
 using AnimeFeedManager.Features.Seasons.Types;
 using MediatR;
 using Microsoft.Extensions.Logging;

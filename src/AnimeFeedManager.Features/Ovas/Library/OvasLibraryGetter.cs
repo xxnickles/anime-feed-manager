@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Domain.Validators;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Validators;
 using AnimeFeedManager.Features.Ovas.Library.IO;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 

@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Seasons.Types;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Seasons.Types;
 
 namespace AnimeFeedManager.Features.Seasons.IO;
 

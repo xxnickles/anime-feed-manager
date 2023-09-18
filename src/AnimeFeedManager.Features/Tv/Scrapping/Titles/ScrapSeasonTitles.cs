@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 using MediatR;
 using Unit = LanguageExt.Unit;
 

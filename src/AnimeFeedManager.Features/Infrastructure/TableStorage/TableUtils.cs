@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+
+namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
 internal static class TableUtils
 {
@@ -99,7 +101,7 @@ internal static class TableUtils
         {
             return await action();
         }
-        catch (RequestFailedException e)
+        catch (RequestFailedException _)
         {
             return NotFoundError.Create($"The entity of type {typeof(T).Name} was not found");
         }

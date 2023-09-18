@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics;
 using AnimeFeedManager.Features.AniDb;
-using AnimeFeedManager.Features.Domain.Notifications;
+using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Types;
-using NotificationType = AnimeFeedManager.Features.Domain.Notifications.NotificationType;
-using TargetAudience = AnimeFeedManager.Features.Domain.Notifications.TargetAudience;
+using NotificationType = AnimeFeedManager.Features.Common.Domain.Notifications.NotificationType;
+using TargetAudience = AnimeFeedManager.Features.Common.Domain.Notifications.TargetAudience;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 

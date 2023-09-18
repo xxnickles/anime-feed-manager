@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using AnimeFeedManager.Features.Common.Domain.Errors;
 using Azure.Storage.Queues;
 using Microsoft.Extensions.Options;
 

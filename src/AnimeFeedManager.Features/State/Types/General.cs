@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Features.Domain.Notifications;
-
-namespace AnimeFeedManager.Features.State.Types;
+﻿namespace AnimeFeedManager.Features.State.Types;
 
 public readonly record struct CurrentState(string Id, int Completed, int Errors, string Items, bool ShouldNotify);
 

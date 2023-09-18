@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Common.RealTimeNotifications;
 using Microsoft.Extensions.Logging;
 

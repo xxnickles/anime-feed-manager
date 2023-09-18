@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Domain.Notifications;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;

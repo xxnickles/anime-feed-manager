@@ -1,4 +1,5 @@
-﻿using PuppeteerSharp;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using PuppeteerSharp;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 

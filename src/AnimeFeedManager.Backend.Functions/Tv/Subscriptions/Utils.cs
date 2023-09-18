@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Backend.Functions.Tv.Subscriptions;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+
+namespace AnimeFeedManager.Backend.Functions.Tv.Subscriptions;
 
 internal static class Utils
 {

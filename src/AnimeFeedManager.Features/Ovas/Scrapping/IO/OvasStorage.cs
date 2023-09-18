@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping.IO;
 

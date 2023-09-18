@@ -1,4 +1,9 @@
-﻿using AnimeFeedManager.Features.Common;
+﻿using System.Diagnostics;
+using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Common.Domain;
+using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Notifications;
+using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
@@ -62,6 +67,7 @@ public sealed class OnSeasonNotification
         SeriesType.Tv => NotificationTarget.Tv,
         SeriesType.Movie => NotificationTarget.Movie,
         SeriesType.Ova => NotificationTarget.Ova,
-        SeriesType.None => NotificationTarget.None
+        SeriesType.None => NotificationTarget.None,
+        _ =>  throw new UnreachableException("Value not expected")
     };
 }

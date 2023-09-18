@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Domain.Notifications;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
 
 namespace AnimeFeedManager.Features.State.IO;
 

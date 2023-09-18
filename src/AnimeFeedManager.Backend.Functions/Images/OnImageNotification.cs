@@ -1,4 +1,8 @@
-﻿using AnimeFeedManager.Features.Common.RealTimeNotifications;
+﻿using AnimeFeedManager.Features.Common.Domain;
+using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Notifications;
+using AnimeFeedManager.Features.Common.Domain.Types;
+using AnimeFeedManager.Features.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;

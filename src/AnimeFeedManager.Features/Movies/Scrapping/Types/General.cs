@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Domain.Events;
+﻿using AnimeFeedManager.Features.Common.Domain.Events;
 using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
 
 namespace AnimeFeedManager.Features.Movies.Scrapping.Types;

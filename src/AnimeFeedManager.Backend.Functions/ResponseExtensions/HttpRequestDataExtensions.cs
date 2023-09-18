@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Net;
 using System.Security.Claims;
+using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Types;
 using MediatR;
 using Unit = LanguageExt.Unit;
 

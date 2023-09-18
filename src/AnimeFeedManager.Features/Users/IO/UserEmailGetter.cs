@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Users.Types;
 
 namespace AnimeFeedManager.Features.Users.IO;
 
@@ -29,6 +30,6 @@ public sealed class UserEmailGetter : IUserEmailGetter
     {
         return !storage.HasValue
             ? NotFoundError.Create($"Email for '{id}' has not been found")
-            : EmailValidator.Validate(storage.Value.Email ?? string.Empty).ValidationToEither();
+            : EmailValidator.Validate(storage.Value?.Email ?? string.Empty).ValidationToEither();
     }
 }

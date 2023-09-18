@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
+﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
 using AnimeFeedManager.Features.Notifications.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 using AnimeFeedManager.Features.Seasons.Types;
