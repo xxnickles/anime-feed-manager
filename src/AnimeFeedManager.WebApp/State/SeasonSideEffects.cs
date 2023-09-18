@@ -1,4 +1,3 @@
-using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.WebApp.Services;
 
 namespace AnimeFeedManager.WebApp.State;

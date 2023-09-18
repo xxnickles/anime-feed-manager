@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.WebApp.Aut
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features", "AnimeFeedManager.Features\AnimeFeedManager.Features.csproj", "{C45FDC33-7E71-46A6-96B7-E949B01AD73E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Backend.Functions", "AnimeFeedManager.Backend.Functions\AnimeFeedManager.Backend.Functions.csproj", "{01635DED-9DD8-4763-A447-727319B2CF36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Functions", "AnimeFeedManager.Functions\AnimeFeedManager.Functions.csproj", "{01635DED-9DD8-4763-A447-727319B2CF36}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{71417D4D-4455-47E2-874A-B3B835AF46CA}"
 EndProject

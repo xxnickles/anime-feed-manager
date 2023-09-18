@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using AnimeFeedManager.Common.Dto;
 
 namespace AnimeFeedManager.WebApp.Services;
 

@@ -1,6 +1,4 @@
 ﻿using System.Collections.Immutable;
-using AnimeFeedManager.Common;
-using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.WebApp.Services;
 using MudBlazor;
 

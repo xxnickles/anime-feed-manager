@@ -1,7 +1,5 @@
 using System.Collections.Immutable;
 using System.Net;
-using AnimeFeedManager.Common.Dto;
-using AnimeFeedManager.Core.ConstrainedTypes;
 using AnimeFeedManager.WebApp.Services;
 using AnimeFeedManager.WebApp.Services.Movies;
 using AnimeFeedManager.WebApp.Services.Ovas;

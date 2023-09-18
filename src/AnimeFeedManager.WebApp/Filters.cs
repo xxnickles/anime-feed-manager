@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Common.Dto;
-
-namespace AnimeFeedManager.WebApp;
+﻿namespace AnimeFeedManager.WebApp;
 
 public static class Filters
 {

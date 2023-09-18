@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Common.Notifications.Realtime;
-
-namespace AnimeFeedManager.WebApp.Services;
+﻿namespace AnimeFeedManager.WebApp.Services;
 
 public enum HubConnectionStatus
 {

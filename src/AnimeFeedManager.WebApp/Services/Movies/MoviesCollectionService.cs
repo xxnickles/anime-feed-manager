@@ -1,5 +1,3 @@
-using AnimeFeedManager.Common.Dto;
-
 namespace AnimeFeedManager.WebApp.Services.Movies;
 
 public interface IMoviesCollectionService

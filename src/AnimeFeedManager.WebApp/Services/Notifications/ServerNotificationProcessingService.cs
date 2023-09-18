@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Json;
-using AnimeFeedManager.Common.Notifications.Realtime;
 using AnimeFeedManager.WebApp.State;
 using Microsoft.AspNetCore.SignalR.Client;
 

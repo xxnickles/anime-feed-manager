@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Common.Dto;
-
-namespace AnimeFeedManager.WebApp.Services.Tv;
+﻿namespace AnimeFeedManager.WebApp.Services.Tv;
 
 public interface ITvCollectionFetcher
 {
