@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Users;
+﻿using AnimeFeedManager.Features.Maintenance;
+using AnimeFeedManager.Features.Users;
 using MediatR.NotificationPublishers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,6 +29,7 @@ internal static class Registration
         services.RegisterMoviesServices();
         services.RegisterNotificationServices();
         services.RegisterUserServices();
+        services.RegisterMaintenanceServices();
 
         return services;
     }
