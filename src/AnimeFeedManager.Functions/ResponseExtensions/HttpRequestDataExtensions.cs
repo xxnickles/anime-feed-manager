@@ -84,24 +84,6 @@ public static class HttpRequestDataExtensions
         return Task.FromResult(response);
     }
 
-    public static Task<Either<DomainError, IRequest<T>>> WithAuthenticationCheck<T>(this HttpRequestData request,
-        IRequest<T> command)
-    {
-
-        return request.CheckAuthorization().MapAsync(_ => command);
-    }
-
-    public static Task<Either<DomainError, IRequest<T>>> WithRoleCheck<T>(this HttpRequestData request, string role,
-        IRequest<T> command)
-    {
-        return request.CheckAuthorization().BindAsync((p) =>
-        {
-            var (principal, r) = p;
-            return principal.IsInRole(role) ? Right<DomainError, IRequest<T>>(command) : Left<DomainError, IRequest<T>>(ForbiddenError.Create(request.Url.AbsoluteUri));
-        });
-    }
-
-
     public static Task<Either<DomainError, Unit>> WithRoleCheck(this HttpRequestData request, string role)
     {
         return request.CheckAuthorization().BindAsync((p) =>
@@ -114,12 +96,6 @@ public static class HttpRequestDataExtensions
     public static Task<Either<DomainError, Unit>> AllowAdminOnly(this HttpRequestData request)
     {
         return request.WithRoleCheck(UserRoles.Admin);
-    }
-
-    public static Task<Either<DomainError, IRequest<T>>> AllowAdminOnly<T>(this HttpRequestData request,
-        IRequest<T> command)
-    {
-        return request.WithRoleCheck(UserRoles.Admin, command);
     }
 
     public static async Task<Either<DomainError, (ClaimsPrincipal principal, HttpRequestData request)>> CheckAuthorization(this HttpRequestData request)

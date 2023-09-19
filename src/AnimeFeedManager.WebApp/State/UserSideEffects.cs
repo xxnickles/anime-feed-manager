@@ -139,7 +139,7 @@ public sealed class UserSideEffects
         state.AddLoadingItem(key, "Storing User");
         try
         {
-            await _userService.MergeUser(new UserDto(userId, email), token);
+            await _userService.MergeUser(new SimpleUser(userId, email), token);
             state.ReportNotification(new AppNotification("Email has been stored", Severity.Info));
             state.RemoveLoadingItem(key);
             return isAdmin ? new AdminUser(email) : new ApplicationUser(email);

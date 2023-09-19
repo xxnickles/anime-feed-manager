@@ -1,30 +1,30 @@
-﻿using AnimeFeedManager.Features.Movies.Library;
+﻿using AnimeFeedManager.Features.Ovas.Library;
 using AnimeFeedManager.Functions.ResponseExtensions;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Movies;
+namespace AnimeFeedManager.Functions.Ovas.Series;
 
 public sealed class GetLibrary
 {
-    private readonly MoviesLibraryGetter _moviesLibraryGetter;
+    private readonly OvasLibraryGetter _ovasLibraryGetter;
     private readonly ILogger _logger;
     
     public GetLibrary(
-        MoviesLibraryGetter moviesLibraryGetter, 
+        OvasLibraryGetter ovasLibraryGetter, 
         ILoggerFactory loggerFactory )
     {
-        _moviesLibraryGetter = moviesLibraryGetter;
+        _ovasLibraryGetter = ovasLibraryGetter;
         _logger = loggerFactory.CreateLogger<GetLibrary>();
     }
     
-    [Function("GetSeasonMoviesLibrary")]
+    [Function("GetSeasonOvasLibrary")]
     public async Task<HttpResponseData> RunSeason(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "movies/{year}/{season}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ovas/{year}/{season}")]
         HttpRequestData req,
         string season,
         ushort year)
     {
-        return await _moviesLibraryGetter.GetForSeason(season,year)
+        return await _ovasLibraryGetter.GetForSeason(season,year)
             .ToResponse(req,_logger);
     }
 }

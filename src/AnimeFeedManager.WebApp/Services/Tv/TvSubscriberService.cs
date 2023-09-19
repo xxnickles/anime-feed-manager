@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Net.Http.Json;
+using AnimeFeedManager.Features.Common.Dto;
 
 namespace AnimeFeedManager.WebApp.Services.Tv;
 
@@ -36,25 +37,25 @@ public class TvSubscriberService : ITvSubscriberService
 
     public async Task Subscribe(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/tv/subscriptions", new TvSubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync("api/tv/subscriptions", new SimpleTvSubscription(subscriber, series), cancellationToken: cancellationToken);
         await response.CheckForProblemDetails();
     }
 
     public async Task AddToInterest(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        var response= await _httpClient.PostAsJsonAsync("api/tv/interested", new TvSubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        var response= await _httpClient.PostAsJsonAsync("api/tv/interested", new SimpleTvSubscription(subscriber, series), cancellationToken: cancellationToken);
         await response.CheckForProblemDetails();
     }
 
     public async Task RemoveFromInterest(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/tv/removeInterested", new TvSubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync("api/tv/removeInterested", new SimpleTvSubscription(subscriber, series), cancellationToken: cancellationToken);
         await response.CheckForProblemDetails();
     }
 
     public  async Task Unsubscribe(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/tv/unsubscribe", new TvSubscriptionDto(subscriber, series), cancellationToken: cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync("api/tv/unsubscribe", new SimpleTvSubscription(subscriber, series), cancellationToken: cancellationToken);
         await response.CheckForProblemDetails();
     }
 }

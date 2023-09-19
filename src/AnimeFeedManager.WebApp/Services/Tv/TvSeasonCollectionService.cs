@@ -1,8 +1,10 @@
-﻿namespace AnimeFeedManager.WebApp.Services.Tv;
+﻿using AnimeFeedManager.Features.Common.Dto;
+
+namespace AnimeFeedManager.WebApp.Services.Tv;
 
 public interface ITvCollectionFetcher
 {
-    public Task<SeasonCollection> GetSeasonLibrary(SeasonInfoDto season, CancellationToken cancellationToken = default);
+    public Task<SeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season, CancellationToken cancellationToken = default);
 }
 
 public class TvCollectionService : ITvCollectionFetcher
@@ -14,9 +16,9 @@ public class TvCollectionService : ITvCollectionFetcher
         _httpClient = httpClient;
     }
 
-    public async Task<SeasonCollection> GetSeasonLibrary(SeasonInfoDto season, CancellationToken cancellationToken = default)
+    public async Task<SeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/tv/{season.Year}/{season.Season}", cancellationToken);
+        var response = await _httpClient.GetAsync($"api/tv/{season.Year}/{season.Season}",  cancellationToken);
         return await response.MapToObject<SeasonCollection>(new EmptySeasonCollection());
     }
 }

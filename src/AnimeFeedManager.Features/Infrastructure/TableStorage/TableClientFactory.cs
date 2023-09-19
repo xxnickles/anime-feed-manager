@@ -1,7 +1,9 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
 using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 using AnimeFeedManager.Features.Notifications.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 using AnimeFeedManager.Features.Seasons.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
@@ -48,9 +50,9 @@ public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITa
             nameof(ProcessedTitlesStorage) => AzureTableMap.StoreTo.ProcessedTitles,   
             nameof(UserStorage) => AzureTableMap.StoreTo.Users,
             nameof(OvaStorage) => AzureTableMap.StoreTo.OvaLibrary,
-            // nameof(OvasSubscriptionStorage) => AzureTable.TableMap.OvaSubscriptions,
+            nameof(OvasSubscriptionStorage) => AzureTableMap.StoreTo.OvaSubscriptions,
             nameof(MovieStorage) => AzureTableMap.StoreTo.MovieLibrary,
-            // nameof(MoviesSubscriptionStorage) => AzureTable.TableMap.MovieSubscriptions,
+            nameof(MoviesSubscriptionStorage) => AzureTableMap.StoreTo.MovieSubscriptions,
             nameof(NotificationStorage) => AzureTableMap.StoreTo.Notifications,
             nameof(StateUpdateStorage) => AzureTableMap.StoreTo.StateUpdates,
             _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}")

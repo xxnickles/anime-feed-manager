@@ -1,10 +1,11 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Features.Common.Dto;
 
 namespace AnimeFeedManager.WebApp.Services;
 
 public interface ISeasonFetcherService
 {
-    Task<ImmutableList<SeasonInfoDto>> GetAvailableSeasons(CancellationToken cancellationToken = default);
+    Task<ImmutableList<SimpleSeasonInfo>> GetAvailableSeasons(CancellationToken cancellationToken = default);
 }
 
 public sealed class SeasonService : ISeasonFetcherService
@@ -16,9 +17,9 @@ public sealed class SeasonService : ISeasonFetcherService
         _httpClient = httpClient;
     }
 
-    public async Task<ImmutableList<SeasonInfoDto>> GetAvailableSeasons(CancellationToken cancellationToken = default)
+    public async Task<ImmutableList<SimpleSeasonInfo>> GetAvailableSeasons(CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync("api/seasons", cancellationToken);
-        return await response.MapToList<SeasonInfoDto>();
+        return await response.MapToList<SimpleSeasonInfo>();
     }
 }

@@ -1,11 +1,19 @@
-﻿namespace AnimeFeedManager.Features.Common.Dto;
+﻿using System.Text.Json.Serialization;
+
+namespace AnimeFeedManager.Features.Common.Dto;
 
 public record SimpleSeasonInfo(string Season, int Year, bool IsLatest);
 
+[JsonSerializable(typeof(SimpleSeasonInfo))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+public partial class SimpleSeasonInfoContext : JsonSerializerContext
+{
+}
+
 public record NullSimpleSeasonInfo() : SimpleSeasonInfo(string.Empty, 0,false);
 
-public record ShortSeriesSubscriptionDto(string UserId, string Series, DateTime NotificationDate);
-public record ShortSeriesUnsubscribeDto(string UserId, string Series);
+
 
 public static class DtoFactories
 {
