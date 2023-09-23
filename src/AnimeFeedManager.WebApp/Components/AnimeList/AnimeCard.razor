@@ -44,7 +44,7 @@
                         <MudTooltip Text="Subscribe">
                             <MudIconButton Icon="@Icons.Material.Filled.PlaylistAddCheck"
                                            Color="Color.Primary"
-                                           OnClick="() => Subscribe(user.Email)"/>
+                                           OnClick="() => Subscribe(user.Id)"/>
                         </MudTooltip>
                     }
                     else
@@ -54,7 +54,7 @@
                         <MudTooltip Text="Unsubscribe">
                             <MudIconButton Icon="@Icons.Material.Filled.PlaylistRemove"
                                            Color="Color.Error"
-                                           OnClick="() => Unsubscribe(user.Email)"/>
+                                           OnClick="() => Unsubscribe(user.Id)"/>
                         </MudTooltip>
                     }
                 }
@@ -75,7 +75,7 @@
                         <MudTooltip Text="Add to Interested">
                             <MudIconButton Icon="@Icons.Material.Filled.AddBox"
                                            Color="Color.Primary"
-                                           OnClick="() => AddToInterested(user.Email)"/>
+                                           OnClick="() => AddToInterested(user.Id)"/>
                         </MudTooltip>
                     }
                     else
@@ -83,7 +83,7 @@
                         <MudTooltip Text="Remove from Interested">
                             <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
                                            Color="Color.Error"
-                                           OnClick="() => RemoveFromInterested(user.Email)"/>
+                                           OnClick="() => RemoveFromInterested(user.Id)"/>
                         </MudTooltip>
                     }
                 }

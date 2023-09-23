@@ -1,10 +1,11 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;
-using ImageUpdateNotification = AnimeFeedManager.Features.Images.ImageUpdateNotification;
+using ImageUpdateNotification = AnimeFeedManager.Features.Common.Domain.Notifications.ImageUpdateNotification;
 
 namespace AnimeFeedManager.Functions.Images;
 

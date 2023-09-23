@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using AnimeFeedManager.Features.Common.Dto;
 
 namespace AnimeFeedManager.WebApp.Services;
@@ -6,7 +7,7 @@ namespace AnimeFeedManager.WebApp.Services;
 public interface IUserService
 {
     public Task MergeUser(SimpleUser user, CancellationToken cancellationToken = default);
-    public Task<string?> GetEmail(string id, CancellationToken cancellationToken = default);
+    public Task<bool> UserExist(string id, CancellationToken cancellationToken = default);
 }
 
 public class UserService : IUserService
@@ -25,9 +26,9 @@ public class UserService : IUserService
         await result.CheckForProblemDetails();
     }
 
-    public async Task<string?> GetEmail(string id, CancellationToken cancellationToken = default)
+    public async Task<bool> UserExist(string id, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/user/{id}", cancellationToken);
-        return await response.MapToString();
+        return response.StatusCode == HttpStatusCode.Accepted;
     }
 }

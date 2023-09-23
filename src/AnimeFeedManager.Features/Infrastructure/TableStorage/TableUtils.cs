@@ -40,6 +40,36 @@ internal static class TableUtils
     /// <param name="typeName">Parameter name</param>
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns>Error or Immutable list of <typeparamref name="T"/></returns>
+    internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithNotFound<T>(
+        Func<AsyncPageable<T>> query) where T : ITableEntity
+    {
+        try
+        {
+            var queryResults = query();
+            var resultList = ImmutableList<T>.Empty;
+            await foreach (var qEntity in queryResults)
+            {
+                resultList = resultList.Add(qEntity);
+            }
+
+            return !resultList.IsEmpty
+                ? resultList
+                : NotFoundError.Create($"Query for the entity '{typeof(T).Name}' returned no results");
+        }
+        catch (Exception e)
+        {
+            return ExceptionError.FromException(e);
+        }
+    }
+
+
+    /// <summary>
+    /// Executes a query with that return no found instead of no content when no items match
+    /// </summary>
+    /// <param name="query">Query</param>
+    /// <param name="typeName">Parameter name</param>
+    /// <typeparam name="T">Table Entity</typeparam>
+    /// <returns>Error or Immutable list of <typeparamref name="T"/></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithEmpty<T>(
         Func<AsyncPageable<T>> query) where T : ITableEntity
     {
@@ -95,7 +125,7 @@ internal static class TableUtils
         }
     }
 
-    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action )
+    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action)
     {
         try
         {
@@ -141,7 +171,7 @@ internal static class TableUtils
             var addEntitiesBatch = new List<TableTransactionAction>();
             addEntitiesBatch.AddRange(
                 entities.Select(e => new TableTransactionAction(TableTransactionActionType.UpsertMerge, e)));
-            
+
             var response = await tableClient.SubmitTransactionAsync(addEntitiesBatch, token).ConfigureAwait(false);
             return unit;
         }

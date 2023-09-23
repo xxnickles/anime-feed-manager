@@ -1,8 +1,9 @@
 ﻿@using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.State
-@using AnimeFeedManager.Common
 @using System.Diagnostics
-@using AnimeFeedManager.Common.Notifications.Realtime
+@using AnimeFeedManager.Features.Common.Domain
+@using AnimeFeedManager.Features.Common.Domain.Notifications
+@using AnimeFeedManager.Features.Common.Domain.Notifications.Base
 @using AnimeFeedManager.WebApp.Services.Notifications
 @inject IServerNotificationProcessingService ServerNotificationProcessingService
 @inject ISnackbar Snackbar
@@ -33,7 +34,7 @@
         var source = notification.SeriesType switch {
             SeriesType.Movie => NotificationSource.Movies,
             SeriesType.Ova => NotificationSource.Ovas,
-            SeriesType.Tv => NotificationSource.TV,
+            SeriesType.Tv => NotificationSource.Tv,
             SeriesType.None => NotificationSource.None,
             _ => throw new UnreachableException()};
         return ProcessNotification(notification, source);
@@ -52,7 +53,7 @@
     private Task OnSeasonProcessNotification(SeasonProcessNotification notification)
     {
         var source = notification.SeriesType switch {
-            SeriesType.Tv => NotificationSource.TV,
+            SeriesType.Tv => NotificationSource.Tv,
             SeriesType.Movie => NotificationSource.Movies,
             SeriesType.Ova => NotificationSource.Ovas,
             _ => throw new UnreachableException()};
@@ -60,7 +61,7 @@
         return ProcessNotification(notification, source);
     }
 
-    private async Task ProcessNotification(RealtimeNotification notification, NotificationSource source)
+    private async Task ProcessNotification(Notification notification, NotificationSource source)
     {
         switch (notification.Result)
         {
@@ -76,7 +77,7 @@
         }
 
         await RealtimeNotificationService.AddNotification(new ServerNotification(
-            notification.Id,
+            IdHelpers.GetUniqueId(),
             false,
             DateTime.Now,
             notification.Result,

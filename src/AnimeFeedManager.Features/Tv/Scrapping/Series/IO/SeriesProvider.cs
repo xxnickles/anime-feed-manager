@@ -6,8 +6,8 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Types;
-using NotificationType = AnimeFeedManager.Features.Common.Domain.Notifications.NotificationType;
-using TargetAudience = AnimeFeedManager.Features.Common.Domain.Notifications.TargetAudience;
+using NotificationType = AnimeFeedManager.Features.Common.Domain.Notifications.Base.NotificationType;
+using TargetAudience = AnimeFeedManager.Features.Common.Domain.Notifications.Base.TargetAudience;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 

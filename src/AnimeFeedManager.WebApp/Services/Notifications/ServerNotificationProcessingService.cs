@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Json;
+using AnimeFeedManager.Features.Common.Domain.Notifications;
+using AnimeFeedManager.Features.Common.RealTimeNotifications;
 using AnimeFeedManager.WebApp.State;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -116,7 +118,7 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         hubConnection.On<SeasonProcessNotification>(ServerNotifications.SeasonProcess, async notification =>
         {
             SeasonProcessNotification?.Invoke(notification);
-            if (!_state.Value.AvailableSeasons.Contains(notification.Season))
+            if (!_state.Value.AvailableSeasons.Contains(notification.SimpleSeason))
             {
                 await _seasonSideEffects.LoadAvailableSeasons(_state, true);
             }

@@ -20,7 +20,7 @@
             <MudTooltip Text="Subscribe">
                 <MudIconButton Icon="@Icons.Material.Filled.PlaylistAddCheck"
                                Color="Color.Primary"
-                               OnClick="() => Subscribe(user.Email)"/>
+                               OnClick="() => Subscribe(user.Id)"/>
             </MudTooltip>
         }
         else
@@ -37,7 +37,7 @@
         <MudTooltip Text="Unsubscribe">
             <MudIconButton Icon="@Icons.Material.Filled.PlaylistRemove"
                            Color="Color.Error"
-                           OnClick="() => Unsubscribe(user.Email)"/>
+                           OnClick="() => Unsubscribe(user.Id)"/>
         </MudTooltip>
     } 
 }

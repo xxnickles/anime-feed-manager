@@ -6,6 +6,6 @@ public record AnonymousUser() : User;
 
 public record AuthenticatedUser(string Id) : User;
 
-public record ApplicationUser(string Email) : User;
+public record ApplicationUser(string Id) : User;
 
-public record AdminUser(string Email) : ApplicationUser(Email);
+public record AdminUser(string Id) : ApplicationUser(Id);

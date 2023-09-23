@@ -7,6 +7,7 @@ public static class NotificationRegistration
     public static IServiceCollection RegisterNotificationServices(this IServiceCollection services)
     {
         services.TryAddScoped<IStoreNotification, StoreNotification>();
+        services.TryAddScoped<IGetNotifications, GetNotifications>();
         return services;
     }
 }

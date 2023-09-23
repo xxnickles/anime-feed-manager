@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types;

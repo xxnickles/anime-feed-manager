@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
 using AnimeFeedManager.Features.Common.Domain.Events;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Images.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;

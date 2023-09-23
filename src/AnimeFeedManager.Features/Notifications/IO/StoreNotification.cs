@@ -1,6 +1,7 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Notifications.Types;
-using Notification = AnimeFeedManager.Features.Common.Domain.Notifications.Notification;
+using Notification = AnimeFeedManager.Features.Common.Domain.Notifications.Base.Notification;
 
 namespace AnimeFeedManager.Features.Notifications.IO;
 

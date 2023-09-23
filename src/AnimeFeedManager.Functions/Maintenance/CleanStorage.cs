@@ -1,4 +1,5 @@
 using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Maintenance.IO;
 using Microsoft.Extensions.Logging;
 

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Features.Notifications;
 

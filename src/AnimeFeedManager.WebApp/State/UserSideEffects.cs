@@ -18,13 +18,13 @@ public readonly record struct UserInformation(
 
 public sealed class UserSideEffects
 {
-    private record UserEmail(string Email);
+    private record SystemUser(string Email);
 
-    private record InvalidEmail(string UserId) : UserEmail(string.Empty);
+    private record Invalid(string UserId) : SystemUser(string.Empty);
 
-    private record LocalEmail(string UserId, string Email) : UserEmail(Email);
+    private record Local(string UserId, string Email) : SystemUser(Email);
 
-    private record UserNameEmail(string UserId, string Email) : UserEmail(Email);
+    private record FromUserName(string UserId, string Email) : SystemUser(Email);
 
     private readonly ITvSubscriberService _tvSubscriberService;
     private readonly IOvasSubscriberService _ovasSubscriberService;
@@ -71,15 +71,15 @@ public sealed class UserSideEffects
 
         var task = user switch
         {
-            AdminUser au => CompleteProfile(state, au.Email, token),
-            ApplicationUser ap => CompleteProfile(state, ap.Email, token),
+            AdminUser au => CompleteProfile(state, au.Id, token),
+            ApplicationUser ap => CompleteProfile(state, ap.Id, token),
             _ => Task.CompletedTask
         };
 
         await task;
     }
 
-    private async Task<UserEmail> GetUserEmail(
+    private async Task<SystemUser> GetUserEmail(
         ApplicationState state,
         string userId,
         string userName,
@@ -90,16 +90,15 @@ public sealed class UserSideEffects
         state.AddLoadingItem(key, "Loading user Email");
         try
         {
-            var userEmail = await _userService.GetEmail(userId, token);
-            if (Email.IsEmail(userEmail ?? string.Empty))
+            if ( await _userService.UserExist(userId, token))
             {
-                return new UserEmail(userEmail ?? string.Empty);
+                return new SystemUser(userId);
             }
             else
             {
                 if (Email.IsEmail(userName))
                 {
-                    return new UserNameEmail(userId, userName);
+                    return new FromUserName(userId, userName);
                 }
             }
 
@@ -112,7 +111,7 @@ public sealed class UserSideEffects
         catch (Exception ex)
         {
             state.ReportException(new AppException("User Fetching", ex));
-            return new InvalidEmail(userId);
+            return new Invalid(userId);
         }
         finally
         {
@@ -120,16 +119,16 @@ public sealed class UserSideEffects
         }
     }
 
-    private Task<User> GetUser(ApplicationState state, UserEmail userEmail, bool isAdmin, CancellationToken token)
+    private Task<User> GetUser(ApplicationState state, SystemUser systemUser, bool isAdmin, CancellationToken token)
     {
-        return userEmail switch
+        return systemUser switch
         {
-            LocalEmail le => TryPersistUser(state, le.UserId, le.Email, isAdmin, token),
-            UserNameEmail ue => TryPersistUser(state, ue.UserId, ue.Email, isAdmin, token),
-            InvalidEmail ie => Task.FromResult<User>(new AuthenticatedUser(ie.UserId)),
+            Local le => TryPersistUser(state, le.UserId, le.Email, isAdmin, token),
+            FromUserName ue => TryPersistUser(state, ue.UserId, ue.Email, isAdmin, token),
+            Invalid ie => Task.FromResult<User>(new AuthenticatedUser(ie.UserId)),
             not null => isAdmin
-                ? Task.FromResult<User>(new AdminUser(userEmail.Email))
-                : Task.FromResult<User>(new ApplicationUser(userEmail.Email)),
+                ? Task.FromResult<User>(new AdminUser(systemUser.Email))
+                : Task.FromResult<User>(new ApplicationUser(systemUser.Email)),
             _ => Task.FromResult<User>(new AnonymousUser()) // to be here something went badly wrong
         };
     }
@@ -154,10 +153,10 @@ public sealed class UserSideEffects
         }
     }
 
-    private static async Task<UserEmail> GetEmailFromLocal(string userId, Func<Task<string>> localEmailProvider)
+    private static async Task<SystemUser> GetEmailFromLocal(string userId, Func<Task<string>> localEmailProvider)
     {
         var emailValue = await localEmailProvider();
-        return Email.IsEmail(emailValue) ? new LocalEmail(userId, emailValue) : new InvalidEmail(userId);
+        return Email.IsEmail(emailValue) ? new Local(userId, emailValue) : new Invalid(userId);
     }
 
     private async Task CompleteProfile(ApplicationState state, string emailValue, CancellationToken token)

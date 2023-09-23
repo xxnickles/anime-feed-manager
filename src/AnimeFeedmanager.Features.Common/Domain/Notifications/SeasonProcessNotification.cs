@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Features.Common.Dto;
 
-namespace AnimeFeedManager.Features.Seasons;
+namespace AnimeFeedManager.Features.Common.Domain.Notifications;
 
 public class SeasonProcessNotification : Notification
 {

@@ -1,4 +1,7 @@
-﻿namespace AnimeFeedManager.WebApp.Services;
+﻿using AnimeFeedManager.Features.Common.Domain.Notifications;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
+
+namespace AnimeFeedManager.WebApp.Services;
 
 public enum HubConnectionStatus
 {
@@ -10,7 +13,7 @@ public enum HubConnectionStatus
 public enum NotificationSource
 {
     None,
-    TV,
+    Tv,
     Ovas,
     Movies,
     Titles

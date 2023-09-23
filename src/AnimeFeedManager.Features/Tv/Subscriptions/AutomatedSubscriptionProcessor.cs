@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Notifications.IO;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
