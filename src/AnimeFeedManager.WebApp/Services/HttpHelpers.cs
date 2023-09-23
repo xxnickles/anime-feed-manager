@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using AnimeFeedManager.WebApp.Exceptions;
 
 namespace AnimeFeedManager.WebApp.Services;
@@ -11,18 +12,30 @@ public static class HttpHelpers
     private record ProblemDetails(string Type, string Title, string Instance, HttpStatusCode Status,
         ImmutableDictionary<string, string[]>? Errors, string? Detail);
 
-    public static async Task<ImmutableList<T>> MapToList<T>(this HttpResponseMessage response)
+    public static async Task<ImmutableList<string>> MapToListOfStrings(this HttpResponseMessage response)
     {
-        var result = await response.MapToObject(Enumerable.Empty<T>());
-        return result.ToImmutableList();
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return ImmutableList<string>.Empty;
+        var result = await response.Content.ReadFromJsonAsync<string[]>();
+        return result?.ToImmutableList() ?? ImmutableList<string>.Empty;
     }
+    
+    
 
-    public static async Task<T> MapToObject<T>(this HttpResponseMessage response, T defaultValue)
+    public static async Task<T> MapToObject<T>(this HttpResponseMessage response, JsonTypeInfo<T> jsonTypeInfo, T defaultValue)
     {
         if (response.StatusCode == HttpStatusCode.NoContent)
             return defaultValue;
-        var result = await response.Content.ReadFromJsonAsync<T>();
+        var result = await response.Content.ReadFromJsonAsync(jsonTypeInfo);
         return result ?? defaultValue;
+    }
+    
+    public static async Task<string?> MapToString(this HttpResponseMessage response)
+    {
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return default;
+        var result = await response.Content.ReadAsStringAsync();
+        return result;
     }
 
     /// <summary>

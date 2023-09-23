@@ -2,6 +2,7 @@
 @using AnimeFeedManager.WebApp.Services
 @using AnimeFeedManager.WebApp.Components.Common
 @using AnimeFeedManager.WebApp.Services.Tv
+@using AnimeFeedManager.Features.Common.Domain.Types
 @inject ApplicationState State
 @inject IConfirmationMessage ConfirmationMessage
 @inject ITvSubscriberService TvSubscriberService
@@ -26,7 +27,7 @@
     </div>
     <MudCardActions Class="d-flex">
 
-        @if (Anime.FeedInformation.Completed)
+        @if (Anime.FeedInformation.Status == SeriesStatus.Completed)
         {
             <MudChip Label="true" Color="Color.Info">Series has ended</MudChip>
         }
@@ -97,7 +98,7 @@
     private Error? Error { get; set; }
 
     [Parameter]
-    public FeedAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new FeedInfo(false, false, string.Empty));
+    public FeedAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new Feed(false, SeriesStatus.NotAvailable, string.Empty));
 
     protected override void OnInitialized()
     {

@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Features.Common.Dto;
+using AnimeFeedManager.Features.Common.Types;
 using AnimeFeedManager.WebApp.Components.AnimeList;
 
 namespace AnimeFeedManager.WebApp.Tests.Components;
@@ -17,9 +19,9 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
     [Fact]
     public void Should_Render_Defaults_When_Data()
     {
-        var seasons = new List<SeasonInfoDto>
+        var seasons = new List<SimpleSeasonInfo>
         {
-            new(Season.Fall.ToString(), 2022)
+            new(Season.Fall.ToString(), 2022, false)
         }.ToImmutableList();
         
         var cut = RenderComponent<SeasonSelector>(param =>
@@ -39,11 +41,11 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
     [Fact]
     public void Back_Button_Should_Be_Enabled_When_There_is_More_Than_An_Element()
     {
-        var seasons = new List<SeasonInfoDto>
+        var seasons = new List<SimpleSeasonInfo>
         {
-            new(Season.Fall.ToString(), 2022),
-            new(Season.Summer.ToString(), 2022),
-            new(Season.Spring.ToString(), 2022)
+            new(Season.Fall.ToString(), 2022, false),
+            new(Season.Summer.ToString(), 2022, false),
+            new(Season.Spring.ToString(), 2022, false)
         }.ToImmutableList();
         
         var cut = RenderComponent<SeasonSelector>(param =>
@@ -63,23 +65,23 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
     [Fact]
     public void Should_be_In_ExpectedState_After_First_Interaction()
     {
-        SeasonInfoDto? selectedSeason = null;
+        SimpleSeasonInfo? selectedSeason = null;
 
-        void SelectionHandler(SeasonInfoDto dto)
+        void SelectionHandler(SimpleSeasonInfo dto)
         {
             selectedSeason = dto;
         }
 
-        var seasons = new List<SeasonInfoDto>
+        var seasons = new List<SimpleSeasonInfo>
         {
-            new(Season.Fall.ToString(), 2022),
-            new(Season.Summer.ToString(), 2022),
-            new(Season.Spring.ToString(), 2022)
+            new(Season.Fall.ToString(), 2022, false),
+            new(Season.Summer.ToString(), 2022, false),
+            new(Season.Spring.ToString(), 2022, false)
         }.ToImmutableList();
         
         var cut = RenderComponent<SeasonSelector>(param =>
             param.Add(p => p.AvailableSeasons, seasons)
-                .Add(p => p.SelectedSeasonChanged, (Action<SeasonInfoDto>) SelectionHandler)
+                .Add(p => p.SelectedSeasonChanged, (Action<SimpleSeasonInfo>) SelectionHandler)
             
         );
         
@@ -96,7 +98,7 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
         backButton = buttons[0];
         forwardButton = buttons[1];
 
-        selectedSeason.Should().Be(new SeasonInfoDto(Season.Summer.ToString(), 2022), "Should match expoected value") ;
+        selectedSeason.Should().Be(new SimpleSeasonInfo(Season.Summer.ToString(), 2022, false), "Should match expoected value") ;
         backButton.Attributes["disabled"].Should().BeNull("Back button should enabled");
         forwardButton.Attributes["disabled"].Should().BeNull("Forward Button button should enabled");
     }

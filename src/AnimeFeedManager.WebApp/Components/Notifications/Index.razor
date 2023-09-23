@@ -54,13 +54,13 @@
     {
         State.OnStateChange += StateHasChanged;
         State.OnSelectedSeason += OnSelectedSeason;
-        if (State.Value.SelectedSeason is not NullSeasonInfo)
+        if (State.Value.SelectedSeason is not NullSimpleSeasonInfo)
         {
             await OnSelectedSeason(State.Value.SelectedSeason);
         }
     }
 
-    private async ValueTask OnSelectedSeason(SeasonInfoDto season)
+    private async ValueTask OnSelectedSeason(SimpleSeasonInfo season)
     {
         const string key = "lo_series";
         State.AddLoadingItem(key, "Loading Series");
@@ -70,7 +70,7 @@
         State.RemoveLoadingItem(key);
     }
 
-    private async Task GetTvCollection(SeasonInfoDto season)
+    private async Task GetTvCollection(SimpleSeasonInfo season)
     {
         try
         {
@@ -83,7 +83,7 @@
         }
     }
 
-    private async Task GetOvasCollection(SeasonInfoDto season)
+    private async Task GetOvasCollection(SimpleSeasonInfo season)
     {
         try
         {
@@ -95,7 +95,7 @@
         }
     }
 
-    private async Task GetMoviesCollection(SeasonInfoDto season)
+    private async Task GetMoviesCollection(SimpleSeasonInfo season)
     {
         try
         {
@@ -109,7 +109,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var result = DtoFactories.TryToParse(Season, Year, out var season);
+        // TODO: refactor to use updated season type
+        var result = DtoFactories.TryToParse(Season, Year, false, out var season);
         if (result)
         {
             await State.SetSelectedSeason(season);
@@ -120,8 +121,8 @@
         }
     }
 
-    private static string GetTitle(SeasonInfoDto season) =>
-        season is not NullSeasonInfo ? $"{season.Year} - {season.Season.ToUpper()}" : "No Data Available";
+    private static string GetTitle(SimpleSeasonInfo season) =>
+        season is not NullSimpleSeasonInfo ? $"{season.Year} - {season.Season.ToUpper()}" : "No Data Available";
 
 
     public void Dispose()
@@ -132,7 +133,7 @@
         _cts.Dispose();
     }
 
-    private void OnSeasonChanged(SeasonInfoDto season)
+    private void OnSeasonChanged(SimpleSeasonInfo season)
     {
         NavigationManager.NavigateTo($"/{season.Year}/{season.Season}");
     }

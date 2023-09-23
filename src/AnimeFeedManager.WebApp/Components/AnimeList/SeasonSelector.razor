@@ -1,6 +1,6 @@
 @using System.Collections.Immutable
 
-@if (SelectedSeason is not (null or NullSeasonInfo))
+@if (SelectedSeason is not (null or NullSimpleSeasonInfo))
 {
     <MudStack Row="true" Spacing="5">
 
@@ -37,11 +37,11 @@ else
 
 @code {
 
-    private ImmutableList<SeasonInfoDto> _availableSeasons = ImmutableList<SeasonInfoDto>.Empty;
+    private ImmutableList<SimpleSeasonInfo> _availableSeasons = ImmutableList<SimpleSeasonInfo>.Empty;
 
 
     [Parameter]
-    public ImmutableList<SeasonInfoDto> AvailableSeasons
+    public ImmutableList<SimpleSeasonInfo> AvailableSeasons
     {
         get => _availableSeasons;
         set
@@ -54,10 +54,10 @@ else
     }
 
     [Parameter]
-    public SeasonInfoDto SelectedSeason { get; set; } = new NullSeasonInfo();
+    public SimpleSeasonInfo SelectedSeason { get; set; } = new NullSimpleSeasonInfo();
 
     [Parameter]
-    public EventCallback<SeasonInfoDto> SelectedSeasonChanged { get; set; }
+    public EventCallback<SimpleSeasonInfo> SelectedSeasonChanged { get; set; }
 
     private string PreviousSeasonLabel
     {
@@ -91,7 +91,7 @@ else
 
     private ushort CollectionLength { get; set; } = 0;
 
-    private async Task OnSelectionChanged(SeasonInfoDto selectedYear)
+    private async Task OnSelectionChanged(SimpleSeasonInfo selectedYear)
     {
         await SelectedSeasonChanged.InvokeAsync(selectedYear);
     }
@@ -110,10 +110,10 @@ else
 
     private async Task NotifyValueUpdate()
     {
-        if (SelectedSeason is not NullSeasonInfo)
+        if (SelectedSeason is not NullSimpleSeasonInfo)
             await OnSelectionChanged(SelectedSeason);
     }
 
-    private string SeasonText(SeasonInfoDto? seasonInfo) => seasonInfo is not null ? $"{seasonInfo.Season.ToUpper()} {seasonInfo.Year}" : "Not Available";
+    private string SeasonText(SimpleSeasonInfo? seasonInfo) => seasonInfo is not null ? $"{seasonInfo.Season.ToUpper()} {seasonInfo.Year}" : "Not Available";
 
 }

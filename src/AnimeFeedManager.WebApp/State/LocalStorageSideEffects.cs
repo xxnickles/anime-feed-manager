@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Common.Dto;
 using AnimeFeedManager.WebApp.Services;
 using Blazored.LocalStorage;
 
@@ -29,7 +31,7 @@ public sealed class LocalStorageSideEffects
                     state.SetState(localState);
                     await state.SetSelectedSeason(localState.AvailableSeasons.Any()
                         ? localState.AvailableSeasons[0]
-                        : new NullSeasonInfo());
+                        : new NullSimpleSeasonInfo());
                 }
                 else
                 {
@@ -40,9 +42,9 @@ public sealed class LocalStorageSideEffects
             catch (Exception e)
             {
                 state.SetState(new State(
-                    new NullSeasonInfo(),
+                    new NullSimpleSeasonInfo(),
                     SeriesType.Tv,
-                    ImmutableList<SeasonInfoDto>.Empty,
+                    ImmutableList<SimpleSeasonInfo>.Empty,
                     new AnonymousUser(),
                     HubConnectionStatus.Disconnected,
                     ImmutableList<string>.Empty,
@@ -51,7 +53,7 @@ public sealed class LocalStorageSideEffects
                     ImmutableList<string>.Empty,
                     ImmutableDictionary<string, string>.Empty
                 ));
-                await state.SetSelectedSeason(new NullSeasonInfo());
+                await state.SetSelectedSeason(new NullSimpleSeasonInfo());
                 state.ReportException(new AppException("Local User", e));
             }
         }

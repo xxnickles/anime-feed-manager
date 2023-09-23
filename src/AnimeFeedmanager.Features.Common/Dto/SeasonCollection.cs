@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Common.Dto;
+﻿using System.Text.Json.Serialization;
+
+namespace AnimeFeedManager.Features.Common.Dto;
 
 public sealed record Feed(bool Available, string Status, string? Title);
 
@@ -11,7 +13,24 @@ public sealed record FeedAnime(string Id, string Title, string Synopsis, string?
 
 public record SeasonCollection(ushort Year, string Season, FeedAnime[] Animes);
 
+[JsonSerializable(typeof(SeasonCollection))]
+[JsonSerializable(typeof(FeedAnime[]))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+public partial class SeasonCollectionContext : JsonSerializerContext
+{
+}
+
 public record ShortSeasonCollection(ushort Year, string Season, SimpleAnime[] Animes);
+
+
+[JsonSerializable(typeof(ShortSeasonCollection))]
+[JsonSerializable(typeof(SimpleAnime[]))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+public partial class ShortSeasonCollectionContext : JsonSerializerContext
+{
+}
 
 public record EmptySeasonCollection() : SeasonCollection(0, string.Empty, System.Array.Empty<FeedAnime>());
 

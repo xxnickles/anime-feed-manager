@@ -12,7 +12,7 @@ public partial record Email
         Value = value;
     }
 
-    private static bool IsEmail(string value) => LocalRegex().Match(value).Success;
+    public static bool IsEmail(string value) => LocalRegex().Match(value).Success;
 
     public static Option<Email> FromString(string value) => IsEmail(value) switch
     {

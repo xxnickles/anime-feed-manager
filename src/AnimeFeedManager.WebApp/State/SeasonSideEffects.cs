@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Common.Dto;
 using AnimeFeedManager.WebApp.Services;
 
 namespace AnimeFeedManager.WebApp.State;
@@ -28,7 +29,7 @@ public sealed class SeasonSideEffects
                 {
                     var latest = seasons[0];
                     state.SetAvailableSeasons(seasons);
-                    if (latest is not NullSeasonInfo)
+                    if (latest is not NullSimpleSeasonInfo)
                     {
                         await state.SetSelectedSeason(latest);
                     }

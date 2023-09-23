@@ -3,6 +3,7 @@
 @using AnimeFeedManager.WebApp.Services.Notifications
 @using Toolbelt.Blazor.PWA.Updater
 @using ApplicationException = AnimeFeedManager.WebApp.State.AppException
+@using AnimeFeedManager.Features.Common.Domain.Types
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject ApplicationState State
@@ -129,10 +130,10 @@
         await SeasonSideEffects.LoadAvailableSeasons(State, false, _cts.Token);
     }
 
-    private async ValueTask OnSelectedSeason(SeasonInfoDto season)
+    private async ValueTask OnSelectedSeason(SimpleSeasonInfo season)
     {
         // If for whatever reason Selected season goes null have, try to stabilize reloading info from server
-        if (season is NullSeasonInfo)
+        if (season is NullSimpleSeasonInfo)
         {
             await SeasonSideEffects.LoadAvailableSeasons(State, true, _cts.Token);
         }

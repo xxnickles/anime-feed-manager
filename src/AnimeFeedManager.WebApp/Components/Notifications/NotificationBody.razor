@@ -1,5 +1,6 @@
-@using AnimeFeedManager.Common.Notifications
+
 @using System.Text.Json
+@using AnimeFeedManager.Features.Common.Domain.Notifications
 
 @switch (_parsedNotification)
 {
@@ -21,7 +22,7 @@
 @code {
 
     private NotificationBodyPayload _notification;
-    private AnimeFeedManager.Common.Notifications.Notification _parsedNotification = new StringNotification(string.Empty);
+    private Notification _parsedNotification = new StringNotification(string.Empty);
 
     [Parameter]
     public NotificationBodyPayload Notification
@@ -34,7 +35,7 @@
         }
     }
 
-    private static AnimeFeedManager.Common.Notifications.Notification Parse(NotificationBodyPayload notification)
+    private static Notification Parse(NotificationBodyPayload notification)
     {
         var notificationType = NotificationType.Parse(notification.Notification.Type);
         return (notification.Target.Type, notificationType.Type) switch {

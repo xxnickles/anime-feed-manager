@@ -26,13 +26,13 @@ public class TvSubscriberService : ITvSubscriberService
     public async Task<ImmutableList<string>> GetSubscriptions(string subscriber, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/subscriptions/{subscriber}", cancellationToken);
-        return await response.MapToList<string>();
+        return await response.MapToListOfStrings();
     }
 
     public async Task<ImmutableList<string>> GetInterested(string subscriber, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/tv/interested/{subscriber}", cancellationToken);
-        return await response.MapToList<string>();
+        return await response.MapToListOfStrings();
     }
 
     public async Task Subscribe(string subscriber, string series, CancellationToken cancellationToken = default)

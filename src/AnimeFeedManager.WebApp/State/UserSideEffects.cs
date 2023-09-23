@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 using System.Net;
+using AnimeFeedManager.Features.Common.Dto;
+using AnimeFeedManager.Features.Common.Types;
 using AnimeFeedManager.WebApp.Services;
 using AnimeFeedManager.WebApp.Services.Movies;
 using AnimeFeedManager.WebApp.Services.Ovas;
@@ -125,7 +127,7 @@ public sealed class UserSideEffects
             LocalEmail le => TryPersistUser(state, le.UserId, le.Email, isAdmin, token),
             UserNameEmail ue => TryPersistUser(state, ue.UserId, ue.Email, isAdmin, token),
             InvalidEmail ie => Task.FromResult<User>(new AuthenticatedUser(ie.UserId)),
-            UserEmail => isAdmin
+            not null => isAdmin
                 ? Task.FromResult<User>(new AdminUser(userEmail.Email))
                 : Task.FromResult<User>(new ApplicationUser(userEmail.Email)),
             _ => Task.FromResult<User>(new AnonymousUser()) // to be here something went badly wrong

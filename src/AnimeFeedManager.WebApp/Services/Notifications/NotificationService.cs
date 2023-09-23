@@ -1,3 +1,5 @@
+using AnimeFeedManager.Features.Common.Dto;
+
 namespace AnimeFeedManager.WebApp.Services.Notifications;
 public interface INotificationService
 {

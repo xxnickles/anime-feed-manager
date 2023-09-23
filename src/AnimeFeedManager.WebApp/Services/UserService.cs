@@ -18,7 +18,6 @@ public class UserService : IUserService
         _httpClient = httpClient;
     }
 
-
     public async Task MergeUser(SimpleUser user, CancellationToken cancellationToken = default)
     {
         var result = await _httpClient.PostAsJsonAsync("api/user", user, SimpleUserContext.Default.SimpleUser,
@@ -29,6 +28,6 @@ public class UserService : IUserService
     public async Task<string?> GetEmail(string id, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/user/{id}", cancellationToken);
-        return await response.MapToObject<string?>(null);
+        return await response.MapToString();
     }
 }

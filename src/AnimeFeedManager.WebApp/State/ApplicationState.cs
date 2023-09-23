@@ -1,4 +1,6 @@
 ﻿using System.Collections.Immutable;
+using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Common.Dto;
 using AnimeFeedManager.WebApp.Services;
 using MudBlazor;
 
@@ -11,11 +13,13 @@ public readonly record struct AppNotification(string Message, Severity Severity)
 // Using array as trimming (for serialization purposes) is not so nice with immutable lists. We have no control of the local storage library serialization
 // It is just simple to use a native primitive just for the sake of it.
 // https://github.com/dotnet/runtime/issues/62242
-public record LocalStorageState(SeasonInfoDto[] AvailableSeasons, long Stamp)
+public record LocalStorageState(SimpleSeasonInfo[] AvailableSeasons, long Stamp)
 {
     public static implicit operator State(LocalStorageState localStorageState) =>
         new(
-            localStorageState.AvailableSeasons.Any() ? localStorageState.AvailableSeasons[0] : new NullSeasonInfo(),
+            localStorageState.AvailableSeasons.Any()
+                ? localStorageState.AvailableSeasons[0]
+                : new NullSimpleSeasonInfo(),
             SeriesType.Tv,
             localStorageState.AvailableSeasons.ToImmutableList(),
             new AnonymousUser(),
@@ -28,9 +32,9 @@ public record LocalStorageState(SeasonInfoDto[] AvailableSeasons, long Stamp)
 }
 
 public record State(
-    SeasonInfoDto SelectedSeason,
+    SimpleSeasonInfo SelectedSeason,
     SeriesType SelectedSection,
-    ImmutableList<SeasonInfoDto> AvailableSeasons,
+    ImmutableList<SimpleSeasonInfo> AvailableSeasons,
     User User,
     HubConnectionStatus HubStatus,
     ImmutableList<string> TvSubscriptions,
@@ -49,9 +53,9 @@ public sealed class ApplicationState
     /// The State property with initial value
     /// </summary>
     public State Value { get; private set; } = new(
-        new NullSeasonInfo(),
+        new NullSimpleSeasonInfo(),
         SeriesType.Tv,
-        ImmutableList<SeasonInfoDto>.Empty,
+        ImmutableList<SimpleSeasonInfo>.Empty,
         new AnonymousUser(),
         HubConnectionStatus.None,
         ImmutableList<string>.Empty,
@@ -64,7 +68,7 @@ public sealed class ApplicationState
     /// <summary>
     /// Notifies when selected season changes
     /// </summary>
-    public event Func<SeasonInfoDto, ValueTask>? OnSelectedSeason;
+    public event Func<SimpleSeasonInfo, ValueTask>? OnSelectedSeason;
 
     /// <summary>
     /// Notifies when Exceptions Happen
@@ -92,13 +96,13 @@ public sealed class ApplicationState
         OnStateChange?.Invoke();
     }
 
-    public async Task SetSelectedSeason(SeasonInfoDto season)
+    public async Task SetSelectedSeason(SimpleSeasonInfo season)
     {
         SetState(Value with { SelectedSeason = season });
         if (OnSelectedSeason != null) await OnSelectedSeason(season);
     }
 
-    public void SetAvailableSeasons(ImmutableList<SeasonInfoDto> seasons)
+    public void SetAvailableSeasons(ImmutableList<SimpleSeasonInfo> seasons)
     {
         SetState(Value with { AvailableSeasons = seasons });
     }
