@@ -29,6 +29,7 @@ public static class TvRegistration
         services.TryAddScoped<IRemoveProcessedTitles, RemoveProcessedTitles>();
         services.TryAddScoped<ITvSeasonalLibrary, TvSeasonalLibrary>();
         services.TryAddScoped<IGetTvSubscriptions, GetTvSubscriptions>();
+        services.TryAddScoped<IGetProcessedTitles, GetProcessedTitles>();
         services.TryAddScoped<TvLibraryUpdater>();
         services.TryAddScoped<TvLibraryGetter>();
         services.TryAddScoped<ScrapSeasonTitles>();

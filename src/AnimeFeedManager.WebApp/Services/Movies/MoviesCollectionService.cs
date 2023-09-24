@@ -21,7 +21,6 @@ public sealed class MoviesCollectionService : IMoviesCollectionService
         CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/Movies/{season.Year}/{season.Season}", cancellationToken);
-        return await response.MapToObject(ShortSeasonCollectionContext.Default.ShortSeasonCollection,
-            new EmptyShortSeasonCollection());
+        return await response.MapToObject(new EmptyShortSeasonCollection());
     }
 }

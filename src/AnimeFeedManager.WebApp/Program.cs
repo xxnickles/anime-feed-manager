@@ -17,7 +17,6 @@ builder.Services.AddSingleton(new Metadata(Assembly.GetExecutingAssembly().GetCu
 builder.Services.AddSingleton<ApplicationState>();
 builder.Services.AddScoped<SeasonSideEffects>();
 builder.Services.AddScoped<UserSideEffects>();
-builder.Services.AddScoped<LocalStorageSideEffects>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddPWAUpdater();
 builder.Services.RegisterHttpServices(builder.Configuration.GetValue<string>("ApiUrl") ?? builder.HostEnvironment.BaseAddress);

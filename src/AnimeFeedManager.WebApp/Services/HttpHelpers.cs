@@ -19,16 +19,23 @@ public static class HttpHelpers
         var result = await response.Content.ReadFromJsonAsync<string[]>();
         return result?.ToImmutableList() ?? ImmutableList<string>.Empty;
     }
-    
-    
 
-    public static async Task<T> MapToObject<T>(this HttpResponseMessage response, JsonTypeInfo<T> jsonTypeInfo, T defaultValue)
+    public static async Task<T> MapToObject<T>(this HttpResponseMessage response, T defaultValue)
     {
         if (response.StatusCode == HttpStatusCode.NoContent)
             return defaultValue;
-        var result = await response.Content.ReadFromJsonAsync(jsonTypeInfo);
+        var result = await response.Content.ReadFromJsonAsync<T>();
         return result ?? defaultValue;
     }
+
+    // TODO: Check why doesn't work
+    //public static async Task<T> MapToObject<T>(this HttpResponseMessage response, JsonTypeInfo<T> jsonTypeInfo, T defaultValue)
+    //{
+    //    if (response.StatusCode == HttpStatusCode.NoContent)
+    //        return defaultValue;
+    //    var result = await response.Content.ReadFromJsonAsync(jsonTypeInfo);
+    //    return result ?? defaultValue;
+    //}
     
     public static async Task<string?> MapToString(this HttpResponseMessage response)
     {

@@ -9,7 +9,6 @@
 @inject ApplicationState State
 @inject UserSideEffects UserSideEffects
 @inject SeasonSideEffects SeasonSideEffects
-@inject LocalStorageSideEffects LocalStorageSideEffects
 @inject IDialogService DialogService
 @inject IRealtimeNotificationService RealtimeNotificationService
 @inject ISnackbar Snackbar
@@ -110,7 +109,6 @@
         State.OnSelectedSeason += OnSelectedSeason;
         RealtimeNotificationService.NotificationsUpdated += StateHasChanged;
 
-        await LocalStorageSideEffects.TryAssignLocalState(State);
         await RealtimeNotificationService.LoadLocalNotifications();
 
         ArgumentNullException.ThrowIfNull(AuthenticationState);

@@ -19,7 +19,7 @@ public sealed class GetLibrary
     
     [Function("GetSeasonOvasLibrary")]
     public async Task<HttpResponseData> RunSeason(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ovas/{year}/{season}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ovas/{year:int}/{season}")]
         HttpRequestData req,
         string season,
         ushort year)

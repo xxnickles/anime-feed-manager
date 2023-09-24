@@ -2,21 +2,19 @@ using AnimeFeedManager.Features.Common.Dto;
 using AnimeFeedManager.WebApp.Services;
 
 namespace AnimeFeedManager.WebApp.State;
+
 public sealed class SeasonSideEffects
 {
-    
-    private readonly LocalStorageSideEffects _localStorageSideEffects;
     private readonly ISeasonFetcherService _seasonFetcherService;
 
     public SeasonSideEffects(
-        LocalStorageSideEffects localStorageSideEffects,
         ISeasonFetcherService seasonFetcherService)
     {
-        _localStorageSideEffects = localStorageSideEffects;
         _seasonFetcherService = seasonFetcherService;
     }
-    
-    public async Task LoadAvailableSeasons(ApplicationState state, bool forceRefresh = false, CancellationToken token = default)
+
+    public async Task LoadAvailableSeasons(ApplicationState state, bool forceRefresh = false,
+        CancellationToken token = default)
     {
         if (!state.Value.AvailableSeasons.Any() || forceRefresh)
         {
@@ -34,8 +32,8 @@ public sealed class SeasonSideEffects
                         await state.SetSelectedSeason(latest);
                     }
                 }
+
                 state.RemoveLoadingItem(key);
-                await _localStorageSideEffects.StoreState(state);
             }
             catch (Exception e)
             {

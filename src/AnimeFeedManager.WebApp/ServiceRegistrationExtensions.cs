@@ -48,6 +48,9 @@ public static class ServiceRegistrationExtensions
 
         services.AddScoped<IRealtimeNotificationService, RealTimeRealtimeNotificationService>();
 
+        services.AddHttpClient<IServerNotificationProcessingService, ServerNotificationProcessingService>(client =>
+            client.BaseAddress = new Uri($"{baseApiUri}"));
+
         services.AddScoped<IConfirmationMessage, ConfirmationMessage>();
     }
 }

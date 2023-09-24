@@ -131,7 +131,7 @@ internal static class TableUtils
         {
             return await action();
         }
-        catch (RequestFailedException _)
+        catch (RequestFailedException)
         {
             return NotFoundError.Create($"The entity of type {typeof(T).Name} was not found");
         }

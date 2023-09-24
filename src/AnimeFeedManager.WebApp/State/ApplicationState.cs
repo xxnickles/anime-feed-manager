@@ -10,26 +10,6 @@ public readonly record struct AppException(string Identifier, Exception Exceptio
 
 public readonly record struct AppNotification(string Message, Severity Severity);
 
-// Using array as trimming (for serialization purposes) is not so nice with immutable lists. We have no control of the local storage library serialization
-// It is just simple to use a native primitive just for the sake of it.
-// https://github.com/dotnet/runtime/issues/62242
-public record LocalStorageState(SimpleSeasonInfo[] AvailableSeasons, long Stamp)
-{
-    public static implicit operator State(LocalStorageState localStorageState) =>
-        new(
-            localStorageState.AvailableSeasons.Any()
-                ? localStorageState.AvailableSeasons[0]
-                : new NullSimpleSeasonInfo(),
-            SeriesType.Tv,
-            localStorageState.AvailableSeasons.ToImmutableList(),
-            new AnonymousUser(),
-            HubConnectionStatus.None,
-            ImmutableList<string>.Empty,
-            ImmutableList<string>.Empty,
-            ImmutableList<string>.Empty,
-            ImmutableList<string>.Empty,
-            ImmutableDictionary<string, string>.Empty);
-}
 
 public record State(
     SimpleSeasonInfo SelectedSeason,
@@ -41,11 +21,8 @@ public record State(
     ImmutableList<string> TvInterested,
     ImmutableList<string> OvasSubscriptions,
     ImmutableList<string> MoviesSubscriptions,
-    ImmutableDictionary<string, string> LoadingItems)
-{
-    public static implicit operator LocalStorageState(State state) =>
-        new(state.AvailableSeasons.ToArray(), DateTime.UtcNow.Ticks);
-}
+    ImmutableDictionary<string, string> LoadingItems);
+
 
 public sealed class ApplicationState
 {
@@ -98,98 +75,97 @@ public sealed class ApplicationState
 
     public async Task SetSelectedSeason(SimpleSeasonInfo season)
     {
-        SetState(Value with { SelectedSeason = season });
+        SetState(Value with {SelectedSeason = season});
         if (OnSelectedSeason != null) await OnSelectedSeason(season);
     }
 
     public void SetAvailableSeasons(ImmutableList<SimpleSeasonInfo> seasons)
     {
-        SetState(Value with { AvailableSeasons = seasons });
+        SetState(Value with {AvailableSeasons = seasons});
     }
 
     public void SetUser(User user)
     {
-        SetState(Value with { User = user });
+        SetState(Value with {User = user});
         OnUserChanges?.Invoke(user);
     }
 
     public void SetSubscriptions(ImmutableList<string> subscriptions)
     {
-        SetState(Value with { TvSubscriptions = subscriptions });
+        SetState(Value with {TvSubscriptions = subscriptions});
     }
 
     public void SetInterested(ImmutableList<string> interested)
     {
-        SetState(Value with { TvInterested = interested });
+        SetState(Value with {TvInterested = interested});
     }
 
     public void AddInterested(string interested)
     {
-        SetState(Value with { TvInterested = Value.TvInterested.Add(interested) });
+        SetState(Value with {TvInterested = Value.TvInterested.Add(interested)});
     }
-
 
     public void RemoveInterested(string interested)
     {
-        SetState(Value with { TvInterested = Value.TvInterested.Remove(interested) });
+        SetState(Value with {TvInterested = Value.TvInterested.Remove(interested)});
     }
 
 
     public void AddSubscription(string subscription)
     {
-        SetState(Value with { TvSubscriptions = Value.TvSubscriptions.Add(subscription) });
+        SetState(Value with {TvSubscriptions = Value.TvSubscriptions.Add(subscription)});
     }
 
     public void RemoveSubscription(string subscription)
     {
-        SetState(Value with { TvSubscriptions = Value.TvSubscriptions.Remove(subscription) });
+        SetState(Value with {TvSubscriptions = Value.TvSubscriptions.Remove(subscription)});
     }
 
     public void SetOvasSubscriptions(ImmutableList<string> subscriptions)
     {
-        SetState(Value with { OvasSubscriptions = subscriptions });
+        SetState(Value with {OvasSubscriptions = subscriptions});
     }
 
     public void AddOvaSubscription(string subscription)
     {
-        SetState(Value with { OvasSubscriptions = Value.OvasSubscriptions.Add(subscription) });
+        SetState(Value with {OvasSubscriptions = Value.OvasSubscriptions.Add(subscription)});
     }
 
     public void RemoveOvaSubscription(string subscription)
     {
-        SetState(Value with { OvasSubscriptions = Value.OvasSubscriptions.Remove(subscription) });
+        SetState(Value with {OvasSubscriptions = Value.OvasSubscriptions.Remove(subscription)});
     }
 
     public void SetMoviesSubscriptions(ImmutableList<string> subscriptions)
     {
-        SetState(Value with { MoviesSubscriptions = subscriptions });
+        SetState(Value with {MoviesSubscriptions = subscriptions});
     }
 
     public void AddMovieSubscription(string subscription)
     {
-        SetState(Value with { MoviesSubscriptions = Value.MoviesSubscriptions.Add(subscription) });
+        SetState(Value with {MoviesSubscriptions = Value.MoviesSubscriptions.Add(subscription)});
     }
 
     public void RemoveMovieSubscription(string subscription)
     {
-        SetState(Value with { MoviesSubscriptions = Value.MoviesSubscriptions.Remove(subscription) });
+        SetState(Value with {MoviesSubscriptions = Value.MoviesSubscriptions.Remove(subscription)});
     }
 
     public void AddLoadingItem(string key, string description)
     {
         if (Value.LoadingItems.ContainsKey(key)) return;
-        SetState(Value with { LoadingItems = Value.LoadingItems.Add(key, description) });
+        SetState(Value with {LoadingItems = Value.LoadingItems.Add(key, description)});
     }
 
     public void RemoveLoadingItem(string key)
     {
         if (!Value.LoadingItems.ContainsKey(key)) return;
-        SetState(Value with { LoadingItems = Value.LoadingItems.Remove(key) });
+        SetState(Value with {LoadingItems = Value.LoadingItems.Remove(key)});
     }
 
     public void SetHubStatus(HubConnectionStatus status)
     {
-        SetState(Value with { HubStatus = status });
+        SetState(Value with {HubStatus = status});
     }
 
     /// <summary>

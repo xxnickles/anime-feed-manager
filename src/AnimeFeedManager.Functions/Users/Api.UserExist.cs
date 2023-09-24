@@ -19,7 +19,7 @@ public class UserExist
 
     [Function("UserExist")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "user/{id}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/{id}")]
         HttpRequestData req,
         string id)
     {
