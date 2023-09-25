@@ -47,7 +47,6 @@ public sealed class UpdateSeasonTitlesHandler : INotificationHandler<UpdateSeaso
     private Task<Either<DomainError, Unit>> SendNotification(CancellationToken cancellationToken)
     {
         return _domainPostman.SendMessage(new TitlesUpdateNotification(
-                IdHelpers.GetUniqueId(),
                 TargetAudience.Admins,
                 NotificationType.Information,
                 "Latest feed titles have been updated"

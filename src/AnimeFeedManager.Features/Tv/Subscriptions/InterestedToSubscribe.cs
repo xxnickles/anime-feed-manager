@@ -64,7 +64,7 @@ public sealed class InterestedToSubscribe
         ImmutableList<StateWrap<InterestedToSubscription>> events, CancellationToken token)
     {
         return await Task.WhenAll(events.AsParallel()
-            .Select(imageEvent => _domainPostman.SendMessage(imageEvent, Box.AutoSubscriptionsProcess, token)))
+            .Select(stateWrap => _domainPostman.SendMessage(stateWrap, Box.AutoSubscriptionsProcess, token)))
             .Flatten()
             .MapAsync(results => results.Count);
     }

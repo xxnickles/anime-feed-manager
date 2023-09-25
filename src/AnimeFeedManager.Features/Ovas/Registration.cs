@@ -15,6 +15,7 @@ public static class OvasRegistration
         services.TryAddScoped<IOvasSeasonalLibrary, OvasSeasonalLibrary>();
         services.TryAddScoped<IAddOvasSubscription,AddOvasSubscription>();
         services.TryAddScoped<IRemoveOvasSubscription, RemoveOvasSubscription>();
+        services.TryAddScoped<IGetOvasSubscriptions, GetOvasSubscriptions>();
         services.TryAddScoped<OvasLibraryUpdater>();
         services.TryAddScoped<OvasLibraryGetter>();
         return services;

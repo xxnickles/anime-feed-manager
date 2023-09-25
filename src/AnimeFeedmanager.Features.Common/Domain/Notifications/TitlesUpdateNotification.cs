@@ -7,13 +7,13 @@ namespace AnimeFeedManager.Features.Common.Domain.Notifications;
 public class TitlesUpdateNotification : Notification
 {
     [JsonConstructor]
-    public TitlesUpdateNotification(string id,
+    public TitlesUpdateNotification(
         TargetAudience targetAudience,
         NotificationType result,
         string message) : base(targetAudience, result, message)
     {
     }
-    
+
     public new void Deconstruct(out TargetAudience targetAudience, out NotificationType result,
         out string message)
     {

@@ -15,6 +15,7 @@ public static class MoviesRegistration
         services.TryAddScoped<IMoviesSeasonalLibrary, MoviesSeasonalLibrary>();
         services.TryAddScoped<IAddMovieSubscription, AddMovieSubscription>();
         services.TryAddScoped<IRemoveMovieSubscription, RemoveMovieSubscription>();
+        services.TryAddScoped<IGetMovieSubscriptions, GetMovieSubscriptions>();
         services.TryAddScoped<MoviesLibraryUpdater>();
         services.TryAddScoped<MoviesLibraryGetter>();
         return services;
