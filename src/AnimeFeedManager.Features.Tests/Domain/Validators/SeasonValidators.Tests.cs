@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
-using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Common.Domain.Validators;
 
 namespace AnimeFeedManager.Features.Tests.Domain.Validators;
@@ -43,7 +42,7 @@ public class SeasonValidatorsTests
     }
     
     [Fact]
-    public void Season_Validator_Should_Respect_Uper_Boundary()
+    public void Season_Validator_Should_Respect_Upper_Boundary()
     {
         // Cannot ve lower than 20009
         var sut = SeasonValidators.Validate("Summer", (ushort)(DateTime.Now.Year + 2));
@@ -56,25 +55,5 @@ public class SeasonValidatorsTests
                 var errors = (ValidationErrors)e;
                 errors.Errors.Keys.Should().ContainSingle(error => error == "Year");
             });
-    }
-
-    [Fact]
-    public void Should_Always_Pass_Latest()
-    {
-        var sut = SeasonValidators.Validate(new Latest());
-        sut.Match(
-            selector => selector.Should().BeOfType<Latest>(),
-            _ => Assert.Fail("Should not be an error")
-        );
-    }
-    
-    [Fact]
-    public void Should_Always_Pass_A_Valid_Season_Selector()
-    {
-        var sut = SeasonValidators.Validate(new BySeason("Summer", 2010));
-        sut.Match(
-            selector => selector.Should().BeOfType<BySeason>(),
-            _ => Assert.Fail("Should not be an error")
-        );
     }
 }

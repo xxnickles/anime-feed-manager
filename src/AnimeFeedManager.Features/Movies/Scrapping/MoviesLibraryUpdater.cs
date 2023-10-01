@@ -1,7 +1,6 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
 using AnimeFeedManager.Features.Common.Domain.Events;
 using AnimeFeedManager.Features.Common.Domain.Types;
-using AnimeFeedManager.Features.Common.Domain.Validators;
 using AnimeFeedManager.Features.Images;
 using AnimeFeedManager.Features.Movies.Scrapping.IO;
 using AnimeFeedManager.Features.Movies.Scrapping.Types;
@@ -30,13 +29,13 @@ public sealed class MoviesLibraryUpdater
 
     public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
     {
-        return SeasonValidators.Validate(season)
-            .BindAsync(s => _moviesProvider.GetLibrary(s, token))
+        return _moviesProvider.GetLibrary(season, token)
             .BindAsync(series => Persist(series, season, token));
     }
 
 
-    private Task<Either<DomainError, Unit>> Persist(MoviesCollection series, SeasonSelector seasonSelector, CancellationToken token)
+    private Task<Either<DomainError, Unit>> Persist(MoviesCollection series, SeasonSelector seasonSelector,
+        CancellationToken token)
     {
         var reference = series.SeriesList.First();
         return _moviesStorage.Add(series.SeriesList, token)
@@ -51,8 +50,8 @@ public sealed class MoviesLibraryUpdater
         _mediator.Publish(new ScrapNotificationImages(events), token);
         return unit;
     }
-    
-    private Unit CreateSeasonEvent(string season, int year, bool isLatest )
+
+    private Unit CreateSeasonEvent(string season, int year, bool isLatest)
     {
         _mediator.Publish(new AddSeasonNotification(season, year, isLatest));
         return unit;

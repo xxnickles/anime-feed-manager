@@ -1,14 +1,12 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
 using AnimeFeedManager.Features.Common.Domain.Events;
 using AnimeFeedManager.Features.Common.Domain.Types;
-using AnimeFeedManager.Features.Common.Domain.Validators;
 using AnimeFeedManager.Features.Images;
 using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-using AnimeFeedManager.Features.Tv.Types;
 using MediatR;
 using Unit = LanguageExt.Unit;
 
@@ -35,10 +33,9 @@ public sealed class TvLibraryUpdater
 
     public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
     {
-        return SeasonValidators.Validate(season)
-            .BindAsync(s => _seriesProvider.GetLibrary(s, token))
-            .BindAsync(series => TryAddFeedTitles(series, token))
-            .BindAsync(series => Persist(series, season, token));
+        return _seriesProvider.GetLibrary(season, token)
+                .BindAsync(series => TryAddFeedTitles(series, token))
+                .BindAsync(series => Persist(series, season, token));
     }
 
     private Task<Either<DomainError, TvSeries>> TryAddFeedTitles(TvSeries series, CancellationToken token)
@@ -57,7 +54,7 @@ public sealed class TvLibraryUpdater
                         return s;
                     });
 
-                return (Series: series with { SeriesList = updatedSeries }, Titles: titles);
+                return (Series: series with {SeriesList = updatedSeries}, Titles: titles);
             }).MapAsync(param => UpdateTitles(param.Titles, param.Series, token));
     }
 

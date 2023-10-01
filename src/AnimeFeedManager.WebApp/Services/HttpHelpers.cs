@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using AnimeFeedManager.WebApp.Exceptions;
 
 namespace AnimeFeedManager.WebApp.Services;

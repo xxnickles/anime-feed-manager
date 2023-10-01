@@ -40,7 +40,7 @@ public sealed class Scrap
 
     [Function("ScrapCustomMoviesSeason")]
     public async Task<HttpResponseData> RunSeason(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "movies/library/{year}/{season}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "movies/library/{year:int}/{season}")]
         HttpRequestData req,
         string season,
         ushort year)

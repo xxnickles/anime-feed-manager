@@ -5,7 +5,8 @@ namespace AnimeFeedManager.Features.Seasons.IO;
 
 public interface ISeasonStore
 {
-    public Task<Either<DomainError, Unit>> AddSeason(SeasonStorage season, SeasonType seasonType, CancellationToken token);
+    public Task<Either<DomainError, Unit>> AddSeason(SeasonStorage season, SeasonType seasonType,
+        CancellationToken token);
 }
 
 public sealed class SeasonStore : ISeasonStore
@@ -21,13 +22,26 @@ public sealed class SeasonStore : ISeasonStore
         CancellationToken token)
     {
         return _tableClientFactory.GetClient()
+            .BindAsync(client => CheckIfExist(client, season, token))
             .BindAsync(client => CleanLatest(client, seasonType, token))
             .BindAsync(
                 client => TableUtils.TryExecute(() => client.UpsertEntityAsync(season, cancellationToken: token)))
             .MapAsync(_ => unit);
     }
 
-    private Task<Either<DomainError, TableClient>> CleanLatest(TableClient client, SeasonType seasonType,
+    private static Task<Either<DomainError, TableClient>> CheckIfExist(TableClient client, SeasonStorage season,
+        CancellationToken token)
+    {
+        var createResult = (ImmutableList<SeasonStorage> items) => !items.IsEmpty
+            ? Right<DomainError, TableClient>(client)
+            : BasicError.Create($"'{season.Year}-{season.Season}' already exist");
+
+        return TableUtils.ExecuteQueryWithEmpty(() =>
+                client.QueryAsync<SeasonStorage>(s => s.Season == season.Season && s.Year == season.Year))
+            .BindAsync(createResult);
+    }
+
+    private static Task<Either<DomainError, TableClient>> CleanLatest(TableClient client, SeasonType seasonType,
         CancellationToken token)
     {
         if (!seasonType.IsLatest()) return Task.FromResult(Right<DomainError, TableClient>(client));
@@ -37,7 +51,7 @@ public sealed class SeasonStore : ISeasonStore
             .BindAsync(i => RemoveLatest(client, i, token));
     }
 
-    private Task<Either<DomainError, TableClient>> RemoveLatest(TableClient client,
+    private static Task<Either<DomainError, TableClient>> RemoveLatest(TableClient client,
         ImmutableList<SeasonStorage> latestSeason,
         CancellationToken token)
     {

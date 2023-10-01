@@ -3,7 +3,6 @@ using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Common.Domain.Errors;
 using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Types;
 using NotificationType = AnimeFeedManager.Features.Common.Domain.Notifications.Base.NotificationType;
@@ -71,7 +70,7 @@ public sealed class SeriesProvider : ISeriesProvider
         {
             Latest => "https://anidb.net/anime/season/?type.tvseries=1",
             BySeason s =>
-                $"https://anidb.net/anime/season/{s.Year}/{s.Season}/?do=calendar&h=1&type.tvseries=1",
+                $"https://anidb.net/anime/season/{s.Year}/{s.Season.ToAlternativeString()}/?do=calendar&h=1&type.tvseries=1",
             _ => throw new UnreachableException()
         };
     }

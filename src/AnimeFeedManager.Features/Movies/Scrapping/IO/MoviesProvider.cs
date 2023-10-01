@@ -6,7 +6,6 @@ using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Movies.Scrapping.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
-using AnimeFeedManager.Features.Seasons;
 
 namespace AnimeFeedManager.Features.Movies.Scrapping.IO;
 
@@ -69,7 +68,7 @@ public sealed class MoviesProvider : IMoviesProvider
         {
             Latest => "https://anidb.net/anime/season/?type.movie=1",
             BySeason s =>
-                $"https://anidb.net/anime/season/{s.Year}/{s.Season}/?type.movie=1",
+                $"https://anidb.net/anime/season/{s.Year}/{s.Season.ToAlternativeString()}/?type.movie=1",
             _ => throw new UnreachableException()
         };
     }

@@ -16,7 +16,7 @@ public static class AniDbRegistration
 
         var browserFetcher = new BrowserFetcher(fetcherOptions);
         browserFetcher.DownloadAsync(PuppeteerSharp.BrowserData.Chrome.DefaultBuildId).GetAwaiter().GetResult();
-        var executablePath = browserFetcher.GetInstalledBrowsers().Single(b => b.Browser is SupportedBrowser.Chrome)
+        var executablePath = browserFetcher.GetInstalledBrowsers().Last(b => b.Browser is SupportedBrowser.Chrome)
             .GetExecutablePath();
         serviceCollection.AddSingleton(
             new PuppeteerOptions(executablePath));

@@ -28,19 +28,19 @@ public sealed class Scrap
     {
         _logger.LogInformation("Automated Update of Library (Manual trigger)");
 
-        // var result = await req.AllowAdminOnly()
-        //     .BindAsync(_ =>
-        //         _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, null, ScrapType.Latest)));
+        var result = await req.AllowAdminOnly()
+            .BindAsync(_ =>
+                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, null, ScrapType.Latest)));
 
-        var result =
-            await _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, null, ScrapType.Latest));
+        // var result =
+        //     await _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, null, ScrapType.Latest));
         
         return await result.ToResponse(req, _logger);
     }
     
     [Function("ScrapCustomTvSeason")]
     public async Task<HttpResponseData> RunSeason(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/library/{year}/{season}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/library/{year:int}/{season}")]
         HttpRequestData req,
         string season,
         ushort year)

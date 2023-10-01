@@ -20,7 +20,7 @@ public sealed class MoviesCollectionService : IMoviesCollectionService
     public async Task<ShortSeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/Movies/{season.Year}/{season.Season}", cancellationToken);
+        var response = await _httpClient.GetAsync($"api/movies/{season.Year}/{season.Season}", cancellationToken);
         return await response.MapToObject(new EmptyShortSeasonCollection());
     }
 }

@@ -18,12 +18,13 @@
         </MudHidden>
     </MudBreakpointProvider>
 }
-else
-{
-    <MudTooltip Text="Notifications">
-        <MudIconButton Icon="@Icons.Material.Filled.CircleNotifications" aria-label="Logout" Href="Notifications" Size="Size.Medium"></MudIconButton>
-    </MudTooltip>
-}
+ @* Removing the ability to show notification in the UI for now. Wil bring back after refactoring *@
+@* else *@
+@* { *@
+@*     <MudTooltip Text="Notifications"> *@
+@*         <MudIconButton Icon="@Icons.Material.Filled.CircleNotifications" aria-label="Notifications" Href="Notifications" Size="Size.Medium"></MudIconButton> *@
+@*     </MudTooltip> *@
+@* } *@
 
 @if (User is AdminUser)
 {

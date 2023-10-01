@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Notifications;
-using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
+﻿using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.WebApp.Services;
 

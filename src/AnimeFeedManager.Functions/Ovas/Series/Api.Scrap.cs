@@ -40,7 +40,7 @@ public sealed class Scrap
     
     [Function("ScrapCustomOvasSeason")]
     public async Task<HttpResponseData> RunSeason(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library/{year}/{season}")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library/{year:int}/{season}")]
         HttpRequestData req,
         string season,
         ushort year)

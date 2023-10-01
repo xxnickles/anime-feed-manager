@@ -6,7 +6,6 @@ using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
-using AnimeFeedManager.Features.Seasons;
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping.IO;
 
@@ -68,7 +67,7 @@ public sealed class OvasProvider : IOvasProvider
         {
             Latest => "https://anidb.net/anime/season/?type.ova=1&type.tvspecial=1&type.web=1",
             BySeason s =>
-                $"https://anidb.net/anime/season/{s.Year}/{s.Season}/?type.ova=1&type.tvspecial=1&type.web=1",
+                $"https://anidb.net/anime/season/{s.Year}/{s.Season.ToAlternativeString()}/?type.ova=1&type.tvspecial=1&type.web=1",
             _ => throw new UnreachableException()
         };
     }

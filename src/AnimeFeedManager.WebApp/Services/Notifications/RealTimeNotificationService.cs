@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using AnimeFeedManager.Features.Common.Domain.Notifications;
 using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
 using Blazored.LocalStorage;
 

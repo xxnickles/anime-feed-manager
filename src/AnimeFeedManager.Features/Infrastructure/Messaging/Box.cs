@@ -33,7 +33,7 @@ public readonly struct Box
     public static Box ImageUpdateNotifications => new (Available.ImageUpdateNotificationsBox);
     public static Box ImageProcess => new (Available.ImageProcessBox);
     public static Box LibraryScrapEvents => new(Available.LibraryScrapEventsBox);
-    public static Box UserAutoSubscription => new(Available.AutoSubscriptionsProcessBox);
+    public static Box UserAutoSubscription => new(Available.UserAutoSubscriptionBox);
     public static Box AutoSubscriptionsProcess => new(Available.AutoSubscriptionsProcessBox);
     public static Box TvNotifications => new(Available.TvNotificationsBox);
 }

@@ -31,13 +31,13 @@ public class AdminService : IAdminService
 
     public async Task UpdateOvasLibrary(string season, ushort year)
     {
-        var response =await _httpClient.PostAsync($"/api/ovas/{year}/{season}", null);
+        var response =await _httpClient.PostAsync($"/api/ovas/library/{year}/{season}", null);
         await response.CheckForProblemDetails();
     }
         
     public async Task UpdateMoviesLibrary(string season, ushort year)
     {
-        var response =await _httpClient.PostAsync($"/api/movies/{year}/{season}", null);
+        var response =await _httpClient.PostAsync($"/api/movies/library/{year}/{season}", null);
         await response.CheckForProblemDetails();
     }
 
