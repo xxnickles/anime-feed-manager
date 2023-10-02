@@ -40,7 +40,7 @@ public sealed class UpdateSeasonTitlesHandler : INotificationHandler<UpdateSeaso
             .MapAsync(_ => unit);
 
         result.Match(
-            _ => _logger.LogInformation("Titles ({Count}) have been updated successfully", notification.Titles.Count),
+            _ => _logger.LogInformation("Titles ({Count}) have been updated successfully", notification.Titles.Count.ToString()),
             e => e.LogDomainError(_logger));
     }
 

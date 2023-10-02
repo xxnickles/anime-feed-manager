@@ -32,13 +32,14 @@ public sealed class SeasonStore : ISeasonStore
     private static Task<Either<DomainError, TableClient>> CheckIfExist(TableClient client, SeasonStorage season,
         CancellationToken token)
     {
-        var createResult = (ImmutableList<SeasonStorage> items) => !items.IsEmpty
-            ? Right<DomainError, TableClient>(client)
-            : BasicError.Create($"'{season.Year}-{season.Season}' already exist");
-
         return TableUtils.ExecuteQueryWithEmpty(() =>
                 client.QueryAsync<SeasonStorage>(s => s.Season == season.Season && s.Year == season.Year))
-            .BindAsync(createResult);
+            .BindAsync((Func<ImmutableList<SeasonStorage>, Either<DomainError, TableClient>>?) CreateResult);
+
+        Either<DomainError, TableClient> CreateResult(ImmutableList<SeasonStorage> items) =>
+            items.IsEmpty
+                ? Right<DomainError, TableClient>(client)
+                : BasicError.Create($"'{season.Year}-{season.Season}' already exist");
     }
 
     private static Task<Either<DomainError, TableClient>> CleanLatest(TableClient client, SeasonType seasonType,

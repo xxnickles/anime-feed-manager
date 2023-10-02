@@ -17,7 +17,7 @@ public class AddMovieSubscription
 
     [Function("AddMovieSubscription")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "Movie/subscriptions")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "movies/subscriptions")]
         HttpRequestData req)
     {
         var payload =

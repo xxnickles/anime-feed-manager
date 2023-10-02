@@ -109,7 +109,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        // TODO: refactor to use updated season type
+    // TODO: refactor to use updated season type
         var result = DtoFactories.TryToParse(Season, Year, false, out var season);
         if (result)
         {
