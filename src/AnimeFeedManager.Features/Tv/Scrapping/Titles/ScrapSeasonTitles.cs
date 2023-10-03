@@ -1,6 +1,7 @@
 ﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+using AnimeFeedManager.Features.Common.Domain.Events;
+using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-using MediatR;
 using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Titles;
@@ -8,18 +9,17 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Titles;
 public class ScrapSeasonTitles
 {
     private readonly ITitlesProvider _titlesProvider;
-    private readonly IMediator _mediator;
+    private readonly IDomainPostman _domainPostman;
 
-    public ScrapSeasonTitles(ITitlesProvider titlesProvider, IMediator mediator)
+    public ScrapSeasonTitles(ITitlesProvider titlesProvider, IDomainPostman domainPostman)
     {
         _titlesProvider = titlesProvider;
-        _mediator = mediator;
+        _domainPostman = domainPostman;
     }
 
     public Task<Either<DomainError, Unit>> Scrap(CancellationToken token = default)
     {
        return _titlesProvider.GetTitles()
-           .MapAsync(titles => _mediator.Publish(new UpdateSeasonTitles(titles), token))
-           .MapAsync(_ => unit);
+           .BindAsync(titles => _domainPostman.SendMessage(new UpdateSeasonTitlesRequest(titles), Box.SeasonTitlesProcess,  token));
     }
 }

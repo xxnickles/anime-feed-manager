@@ -2,10 +2,10 @@
 using AnimeFeedManager.Features.Common.Domain.Events;
 using AnimeFeedManager.Features.Common.Domain.Types;
 using AnimeFeedManager.Features.Images;
+using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
-using AnimeFeedManager.Features.Tv.Scrapping.Titles;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 using MediatR;
 using Unit = LanguageExt.Unit;
@@ -15,17 +15,20 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series;
 public sealed class TvLibraryUpdater
 {
     private readonly IMediator _mediator;
+    private readonly IDomainPostman _domainPostman;
     private readonly ISeriesProvider _seriesProvider;
     private readonly ITitlesProvider _titlesProvider;
     private readonly ITvSeriesStore _seriesStore;
 
     public TvLibraryUpdater(
         IMediator mediator,
+        IDomainPostman domainPostman,
         ISeriesProvider seriesProvider,
         ITitlesProvider titlesProvider,
         ITvSeriesStore seriesStore)
     {
         _mediator = mediator;
+        _domainPostman = domainPostman;
         _seriesProvider = seriesProvider;
         _titlesProvider = titlesProvider;
         _seriesStore = seriesStore;
@@ -61,7 +64,7 @@ public sealed class TvLibraryUpdater
     private TvSeries UpdateTitles(ImmutableList<string> titles, TvSeries series, CancellationToken token)
     {
         // Publish event to update titles
-        _mediator.Publish(new UpdateSeasonTitles(titles), token);
+        _domainPostman.SendMessage(new UpdateSeasonTitlesRequest(titles), Box.SeasonTitlesProcess, token);
         return series;
     }
 

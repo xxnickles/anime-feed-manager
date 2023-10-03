@@ -25,6 +25,7 @@ public class GetInterestedSeries
         return await req.CheckAuthorization()
             .BindAsync(_ => UserIdValidator.Validate(subscriber).ValidationToEither())
             .BindAsync(user => _getInterestedSeries.Get(user, default))
+            .MapAsync(items => items.ConvertAll(i => i.RowKey))
             .ToResponse(req, _logger);
     }
 }

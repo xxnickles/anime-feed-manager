@@ -12,6 +12,7 @@ public readonly struct Box
         public const string UserAutoSubscriptionBox = "user-auto-subscription";
         public const string AutoSubscriptionsProcessBox = "auto-subscriptions-process";
         public const string TvNotificationsBox = "tv-notifications";
+        public const string SeasonTitlesProcessBox = "season-titles-process";
     }
     
     private readonly string _boxValue;
@@ -36,4 +37,6 @@ public readonly struct Box
     public static Box UserAutoSubscription => new(Available.UserAutoSubscriptionBox);
     public static Box AutoSubscriptionsProcess => new(Available.AutoSubscriptionsProcessBox);
     public static Box TvNotifications => new(Available.TvNotificationsBox);
+    
+    public static Box SeasonTitlesProcess=> new(Available.SeasonTitlesProcessBox);
 }

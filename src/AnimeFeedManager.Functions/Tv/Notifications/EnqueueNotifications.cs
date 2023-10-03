@@ -28,6 +28,7 @@ public class EnqueueNotifications
     [Function("EnqueueNotifications")]
     public async Task Run(
         [TimerTrigger("0 0 * * * *")] TimerInfo timer
+        // [TimerTrigger("0 0/1 * * * *")] TimerInfo timer
     )
     {
         var users = await _userGetter.GetAvailableUsers(default);
@@ -38,7 +39,8 @@ public class EnqueueNotifications
             {
                 error.LogDomainError(_logger);
                 return Task.CompletedTask;
-            }); }
+            });
+    }
 
     private async Task ProcessUsers(ImmutableList<string> users)
     {
@@ -50,12 +52,11 @@ public class EnqueueNotifications
             result.Match(
                 notificationResult =>
                     _logger.LogInformation("A notification with {Count} series will be sent to {UserId}",
-                        notificationResult.SeriesCount, notificationResult.Subscriber),
+                        notificationResult.SeriesCount.ToString(), notificationResult.Subscriber),
                 error => error.LogDomainError(_logger)
             );
         }
     }
-
 
     private Task<Either<DomainError, CollectedNotificationResult>> Process(string userId)
     {
