@@ -56,8 +56,9 @@ public class UserNotificationsCollector
     private static SubscriberTvNotification CreateNotification(UserId userId, SubscriptionCollection subscription,
         IEnumerable<FeedInfo> feed)
     {
+        var subscribedSeries = subscription.Series.Select(x => x.ToString());
         var matchingFeeds = feed
-            .Where(feedInfo => subscription.Series.Select(x => x.ToString()).Contains(feedInfo.AnimeTitle))
+            .Where(feedInfo => subscribedSeries.Contains(feedInfo.AnimeTitle))
             .Select(
                 x => new SubscribedFeed(
                     x.AnimeTitle,
@@ -65,7 +66,7 @@ public class UserNotificationsCollector
                     x.EpisodeInfo,
                     x.PublicationDate));
 
-        return new SubscriberTvNotification(userId, matchingFeeds.ToArray());
+        return new SubscriberTvNotification(subscription.SubscriberEmail, userId, matchingFeeds.ToArray());
     }
 
     private Task<Either<DomainError, CollectedNotificationResult>> CreateNotificationEvent(

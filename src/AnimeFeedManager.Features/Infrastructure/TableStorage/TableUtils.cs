@@ -163,16 +163,16 @@ internal static class TableUtils
     }
 
     internal static async Task<Either<DomainError, Unit>> BatchAdd<T>(TableClient tableClient,
-        ImmutableList<T> entities, CancellationToken token) where T : ITableEntity
+        IEnumerable<T> entities, CancellationToken token) where T : ITableEntity
     {
         try
         {
             // Create the batch.
             var addEntitiesBatch = new List<TableTransactionAction>();
             addEntitiesBatch.AddRange(
-                entities.Select(e => new TableTransactionAction(TableTransactionActionType.UpsertMerge, e)));
+                entities.Select(tableEntity => new TableTransactionAction(TableTransactionActionType.UpsertMerge, tableEntity)));
 
-            var response = await tableClient.SubmitTransactionAsync(addEntitiesBatch, token).ConfigureAwait(false);
+            _ = await tableClient.SubmitTransactionAsync(addEntitiesBatch, token).ConfigureAwait(false);
             return unit;
         }
         catch (Exception e)

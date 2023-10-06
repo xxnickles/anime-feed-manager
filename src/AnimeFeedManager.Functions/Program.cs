@@ -8,6 +8,7 @@ var host = new HostBuilder()
     {
         services.AddHttpClient();
         services.RegisterAppDependencies();
+        services.RegisterSendGrid();
     })
     .Build();
 
