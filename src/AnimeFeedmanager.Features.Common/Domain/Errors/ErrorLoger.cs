@@ -13,6 +13,7 @@ public static class ErrorLogger
             NoContentError noContentError => noContentError.LogNoContent(logger),
             ValidationErrors validationErrors => validationErrors.LogValidationErrors(logger),
             AggregatedError aError => aError.LogAggregatedError(logger),
+            NotingToProcessError notingToProcessError => notingToProcessError.LogNotingToProcess(logger),
             _ => error.LogError(logger)
         };
     }
@@ -60,4 +61,10 @@ public static class ErrorLogger
         logger.LogError("{Message}", error.Message);
         return unit;
     }
+
+private static Unit LogNotingToProcess(this NotingToProcessError nError, ILogger logger)
+{
+    logger.LogWarning("{Error}", nError.Message);
+    return unit;
+}
 }

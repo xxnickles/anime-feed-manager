@@ -4,8 +4,7 @@ on:
   push:
     paths:
       - "src/AnimeFeedManager.WebApp**"
-      - "src/AnimeFeedManager.Core/**"
-      - "src/AnimeFeedManager.Common/**"
+      - "src/AnimeFeedManager.Features.Common/**"
       - "!deployment/**"
       - "!**/*.md"
     branches:
@@ -13,8 +12,7 @@ on:
   pull_request:
     paths:
       - "src/AnimeFeedManager.WebApp**"
-      - "src/AnimeFeedManager.Core/**"
-      - "src/AnimeFeedManager.Common/**"
+      - "src/AnimeFeedManager.Features.Common/**"
       - "!deployment/**"
       - "!**/*.md"
     types: [opened, synchronize, reopened, closed]

@@ -17,7 +17,7 @@ var applicationInsightsName = appName
 var storageAccountName = 'animefeedmanagerstorage'
 var functionWorkerRuntime = 'dotnet-isolated'
 
-resource signalR 'Microsoft.SignalRService/signalR@2022-02-01' = {
+resource signalR 'Microsoft.SignalRService/signalR@2023-02-01' = {
   name: 'afm-web-events'
   location: location
   sku: {
@@ -60,7 +60,7 @@ resource signalR 'Microsoft.SignalRService/signalR@2022-02-01' = {
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -72,7 +72,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   }
 }
 
-resource hostingPlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+resource hostingPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: hostingPlanName
   location: location
   kind: 'functionapp,linux'
@@ -116,7 +116,7 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
         }
         {
           name: 'SignalRConnectionString'
-          value: listKeys(signalR.id, signalR.apiVersion).primaryConnectionString
+          value: signalR.listKeys().primaryConnectionString
         }
         {
           name: 'WEBSITE_CONTENTSHARE'
