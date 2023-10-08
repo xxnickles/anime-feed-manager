@@ -26,7 +26,7 @@ public sealed class StateUpdater : IStateUpdater
         StateUpdateStorage Add(StateUpdateStorage original)
         {
             original.Completed += 1;
-            original.Items = string.Join(',', original.Items, item);
+            original.Items = !string.IsNullOrWhiteSpace(original.Items) ? string.Join(',', original.Items, item) : item;
             return original;
         }
 

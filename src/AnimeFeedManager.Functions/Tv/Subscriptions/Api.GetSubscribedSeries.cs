@@ -25,6 +25,7 @@ public class GetSubscribedSeries
             .CheckAuthorization()
             .BindAsync(_ => UserIdValidator.Validate(subscriber).ValidationToEither())
             .BindAsync(userId => _tvSubscriptions.GetUserSubscriptions(userId, default))
+            .MapAsync(collection => collection.Series.Select(s => s.ToString()))
             .ToResponse(req, _logger);
     }
 }

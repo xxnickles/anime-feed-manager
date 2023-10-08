@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Common.Dto;
 
 public record SubscribedFeed(string Title, TorrentLink[] Links, string EpisodeInfo, DateTime PublicationDate);
 
-public record SubscriberTvNotification(string Subscriber, SubscribedFeed[] Feeds);
+public record SubscriberTvNotification(string Subscriber, string SubscriberId, SubscribedFeed[] Feeds);
 
 
 [JsonSerializable(typeof(SubscribedFeed))]

@@ -15,6 +15,11 @@ public record NoEmptyString
         false => None
     };
 
+    public override string ToString()
+    {
+        return _value;
+    }
+
     public static implicit operator string(NoEmptyString value) => value._value;
 }
 

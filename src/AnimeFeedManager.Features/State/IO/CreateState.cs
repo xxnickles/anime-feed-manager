@@ -5,7 +5,8 @@ namespace AnimeFeedManager.Features.State.IO;
 
 public interface ICreateState
 {
-    public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target, ImmutableList<T> entities);
+    public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
+        ImmutableList<T> entities);
 }
 
 public sealed class CreateState : ICreateState
@@ -20,7 +21,12 @@ public sealed class CreateState : ICreateState
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
         ImmutableList<T> entities)
     {
-        var id = Guid.NewGuid().ToString();
+        if (!entities.Any())
+            return Task.FromResult(
+                Left<DomainError, ImmutableList<StateWrap<T>>>(
+                    NotingToProcessError.Create("Collection of entities is empty")));
+
+        var id = IdHelpers.GetUniqueId();
         var newState = new StateUpdateStorage
         {
             RowKey = id,

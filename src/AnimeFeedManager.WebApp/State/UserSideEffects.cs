@@ -192,7 +192,7 @@ public sealed class UserSideEffects
             var subscriptions = await _tvSubscriberService.GetSubscriptions(emailValue, token);
             state.SetSubscriptions(subscriptions);
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound) 
         {
             state.SetSubscriptions(ImmutableList<string>.Empty);
         }

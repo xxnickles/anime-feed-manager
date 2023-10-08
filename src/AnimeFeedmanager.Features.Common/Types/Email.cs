@@ -5,11 +5,11 @@ namespace AnimeFeedManager.Features.Common.Types;
 
 public partial record Email
 {
-    public readonly string Value;
+    private readonly string _value;
 
     private Email(string value)
     {
-        Value = value;
+        _value = value;
     }
 
     public static bool IsEmail(string value) => LocalRegex().Match(value).Success;
@@ -24,7 +24,12 @@ public partial record Email
         @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")]
     private static partial Regex LocalRegex();
 
-    public static implicit operator string(Email email) => email.Value;
+    public static implicit operator string(Email email) => email._value;
+
+    public override string ToString()
+    {
+        return _value;
+    }
 }
 
 public static class EmailValidator
