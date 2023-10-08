@@ -7,7 +7,6 @@ public interface IAdminService
 
     Task UpdateOvasLibrary(string season, ushort year);
     Task UpdateMoviesLibrary(string season, ushort year);
-    Task SetAllSeriesAsNoCompleted();
 }
 
 public class AdminService : IAdminService
@@ -39,11 +38,6 @@ public class AdminService : IAdminService
     {
         var response =await _httpClient.PostAsync($"/api/movies/library/{year}/{season}", null);
         await response.CheckForProblemDetails();
-    }
-
-    public Task SetAllSeriesAsNoCompleted()
-    {
-        return _httpClient.PostAsync("/api/management/set-status", null);
     }
 
 }

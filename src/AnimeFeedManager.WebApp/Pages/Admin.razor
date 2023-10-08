@@ -47,14 +47,6 @@
         Class="mb-3">
     </ShortSeriesSeasonUpdate>
 
-    <MudText Typo="Typo.h5">Others</MudText>
-    <MudDivider Class="mb-4"/>
-    <AdminAction
-        Data="_defaultStatusUpdateData"
-        Action="AdminService.SetAllSeriesAsNoCompleted"
-        Class="mb-3">
-    </AdminAction>
-
 </MudContainer>
 
 @code {
@@ -78,15 +70,6 @@
         "Do you want to update latest feed titles? This task will run in the background",
         "Latest feed titles would be updated in the background",
         "Updating Feed Titles"
-        );
-
-    private readonly UpdateData _defaultStatusUpdateData = new(
-        "Set default state to all",
-        "Set all series completed status to false",
-        "Set Completed Status",
-        "Do you want to set completed the library to completed status false?",
-        "Series status is being updated in the background",
-        "Setting Series Status"
         );
 
     protected override void OnInitialized()
