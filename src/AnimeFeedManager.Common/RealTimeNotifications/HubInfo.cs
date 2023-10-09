@@ -1,13 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AnimeFeedManager.Common.RealTimeNotifications
-{
-    public record HubInfo(string ConnectionId);
+namespace AnimeFeedManager.Common.RealTimeNotifications;
 
-    [JsonSerializable(typeof(HubInfo))]
-    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-    public partial class HubInfoContext : JsonSerializerContext
-    {
-    }
+public record HubInfo(string ConnectionId);
+
+[JsonSerializable(typeof(HubInfo))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+public partial class HubInfoContext : JsonSerializerContext
+{
 }

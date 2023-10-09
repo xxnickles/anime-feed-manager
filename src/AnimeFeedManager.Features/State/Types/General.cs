@@ -1,10 +1,9 @@
 ﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
 
-namespace AnimeFeedManager.Features.State.Types
-{
-    public readonly record struct CurrentState(string Id, int Completed, int Errors, string Items, bool ShouldNotify);
+namespace AnimeFeedManager.Features.State.Types;
 
-    public record StateWrap<T>(string StateId, T Payload);
+public readonly record struct CurrentState(string Id, int Completed, int Errors, string Items, bool ShouldNotify);
 
-    public readonly record struct StateChange(string StateId, NotificationTarget Target, string Item);
-}
+public record StateWrap<T>(string StateId, T Payload);
+
+public readonly record struct StateChange(string StateId, NotificationTarget Target, string Item);

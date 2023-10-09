@@ -1,28 +1,27 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Tv.Subscriptions.IO
+namespace AnimeFeedManager.Features.Tv.Subscriptions.IO;
+
+public interface IGetInterestedSeries
 {
-    public interface IGetInterestedSeries
+    Task<Either<DomainError, ImmutableList<InterestedStorage>>> Get(UserId userId, CancellationToken token);
+}
+
+public sealed class GetInterestedSeries : IGetInterestedSeries
+{
+    private readonly ITableClientFactory<InterestedStorage> _clientFactory;
+
+    public GetInterestedSeries(ITableClientFactory<InterestedStorage> clientFactory)
     {
-        Task<Either<DomainError, ImmutableList<InterestedStorage>>> Get(UserId userId, CancellationToken token);
+        _clientFactory = clientFactory;
     }
 
-    public sealed class GetInterestedSeries : IGetInterestedSeries
+    public Task<Either<DomainError, ImmutableList<InterestedStorage>>> Get(UserId userId, CancellationToken token)
     {
-        private readonly ITableClientFactory<InterestedStorage> _clientFactory;
-
-        public GetInterestedSeries(ITableClientFactory<InterestedStorage> clientFactory)
-        {
-            _clientFactory = clientFactory;
-        }
-
-        public Task<Either<DomainError, ImmutableList<InterestedStorage>>> Get(UserId userId, CancellationToken token)
-        {
-            return _clientFactory.GetClient()
-                .BindAsync(client =>
-                    TableUtils.ExecuteQuery(() =>
-                        client.QueryAsync<InterestedStorage>(i => i.PartitionKey == userId, cancellationToken: token)));
-        }
+        return _clientFactory.GetClient()
+            .BindAsync(client =>
+                TableUtils.ExecuteQuery(() =>
+                    client.QueryAsync<InterestedStorage>(i => i.PartitionKey == userId, cancellationToken: token)));
     }
 }

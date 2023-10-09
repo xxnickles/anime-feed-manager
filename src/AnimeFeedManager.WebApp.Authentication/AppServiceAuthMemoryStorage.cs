@@ -3,16 +3,15 @@
 
 using AnimeFeedManager.WebApp.Authentication.Models;
 
-namespace AnimeFeedManager.WebApp.Authentication
-{
-    // A simple in-memory storage model for caching auth data
-    class AppServiceAuthMemoryStorage
-    {
-        public AuthenticationData AuthenticationData { get; private set; }
+namespace AnimeFeedManager.WebApp.Authentication;
 
-        public void SetAuthenticationData(AuthenticationData data)
-        {
-            AuthenticationData = data;
-        }
+// A simple in-memory storage model for caching auth data
+class AppServiceAuthMemoryStorage
+{
+    public AuthenticationData AuthenticationData { get; private set; }
+
+    public void SetAuthenticationData(AuthenticationData data)
+    {
+        AuthenticationData = data;
     }
 }

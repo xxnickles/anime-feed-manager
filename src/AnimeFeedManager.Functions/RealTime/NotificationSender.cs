@@ -4,64 +4,63 @@ using AnimeFeedManager.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.RealTime
+namespace AnimeFeedManager.Functions.RealTime;
+
+public class NotificationSender
 {
-    public class NotificationSender
+    private readonly ILogger<NotificationSender> _logger;
+
+    public NotificationSender(ILoggerFactory loggerFactory)
     {
-        private readonly ILogger<NotificationSender> _logger;
+        _logger = loggerFactory.CreateLogger<NotificationSender>();
+    }
 
-        public NotificationSender(ILoggerFactory loggerFactory)
+    [Function("LibraryNotificationSender")]
+    [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
+    public SignalRMessageAction SendLibraryNotifications(
+        [QueueTrigger(Box.Available.SeasonProcessNotificationsBox, Connection = "AzureWebJobsStorage")]
+        SeasonProcessNotification notification,
+        FunctionContext context)
+    {
+        _logger.LogInformation("Library notification ready to process {@Notification}", notification);
+
+        return new SignalRMessageAction(ServerNotifications.SeasonProcess)
         {
-            _logger = loggerFactory.CreateLogger<NotificationSender>();
-        }
+            GroupName = notification.TargetAudience == TargetAudience.Admins ? HubGroups.AdminGroup : null,
+            Arguments = new object[] { notification }
+        };
+    }
 
-        [Function("LibraryNotificationSender")]
-        [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
-        public SignalRMessageAction SendLibraryNotifications(
-            [QueueTrigger(Box.Available.SeasonProcessNotificationsBox, Connection = "AzureWebJobsStorage")]
-            SeasonProcessNotification notification,
-            FunctionContext context)
+    [Function("TitleNotificationSender")]
+    [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
+    public SignalRMessageAction SendTitleNotifications(
+        [QueueTrigger(Box.Available.TitleUpdatesNotificationsBox, Connection = "AzureWebJobsStorage")]
+        TitlesUpdateNotification notification,
+        FunctionContext context)
+    {
+        _logger.LogInformation("Title notification ready to process {@Notification}", notification);
+
+        return new SignalRMessageAction(ServerNotifications.SeasonProcess)
         {
-            _logger.LogInformation("Library notification ready to process {@Notification}", notification);
+            GroupName = notification.TargetAudience == TargetAudience.Admins ? HubGroups.AdminGroup : null,
+            Arguments = new object[] { notification }
+        };
+    }
 
-            return new SignalRMessageAction(ServerNotifications.SeasonProcess)
-            {
-                GroupName = notification.TargetAudience == TargetAudience.Admins ? HubGroups.AdminGroup : null,
-                Arguments = new object[] { notification }
-            };
-        }
 
-        [Function("TitleNotificationSender")]
-        [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
-        public SignalRMessageAction SendTitleNotifications(
-            [QueueTrigger(Box.Available.TitleUpdatesNotificationsBox, Connection = "AzureWebJobsStorage")]
-            TitlesUpdateNotification notification,
-            FunctionContext context)
+    [Function("ImageNotificationSender")]
+    [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
+    public SignalRMessageAction SendImageNotifications(
+        [QueueTrigger(Box.Available.ImageUpdateNotificationsBox, Connection = "AzureWebJobsStorage")]
+        ImageUpdateNotification notification,
+        FunctionContext context)
+    {
+        _logger.LogInformation("Image notification ready to process {@Notification}", notification);
+
+        return new SignalRMessageAction(ServerNotifications.ImageUpdate)
         {
-            _logger.LogInformation("Title notification ready to process {@Notification}", notification);
-
-            return new SignalRMessageAction(ServerNotifications.SeasonProcess)
-            {
-                GroupName = notification.TargetAudience == TargetAudience.Admins ? HubGroups.AdminGroup : null,
-                Arguments = new object[] { notification }
-            };
-        }
-
-
-        [Function("ImageNotificationSender")]
-        [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
-        public SignalRMessageAction SendImageNotifications(
-            [QueueTrigger(Box.Available.ImageUpdateNotificationsBox, Connection = "AzureWebJobsStorage")]
-            ImageUpdateNotification notification,
-            FunctionContext context)
-        {
-            _logger.LogInformation("Image notification ready to process {@Notification}", notification);
-
-            return new SignalRMessageAction(ServerNotifications.ImageUpdate)
-            {
-                GroupName = HubGroups.AdminGroup,
-                Arguments = new object[] { notification }
-            };
-        }
+            GroupName = HubGroups.AdminGroup,
+            Arguments = new object[] { notification }
+        };
     }
 }

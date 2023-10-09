@@ -1,9 +1,8 @@
-﻿namespace AnimeFeedManager.Common.Types
-{
-    public record SeasonInformation(Season Season, Year Year);
+﻿namespace AnimeFeedManager.Common.Types;
 
-    public record DefaultSeasonInformation() : SeasonInformation(Season.Winter, default);
-}
+public record SeasonInformation(Season Season, Year Year);
+
+public record DefaultSeasonInformation() : SeasonInformation(Season.Winter, default);
 
 // public static class SeasonInformationExtensions
 // {

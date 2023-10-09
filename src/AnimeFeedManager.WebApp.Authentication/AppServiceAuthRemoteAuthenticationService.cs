@@ -11,111 +11,110 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 
-namespace AnimeFeedManager.WebApp.Authentication
+namespace AnimeFeedManager.WebApp.Authentication;
+
+class AppServiceAuthRemoteAuthenticationService<TAuthenticationState> : AuthenticationStateProvider, IRemoteAuthenticationService<TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
 {
-    class AppServiceAuthRemoteAuthenticationService<TAuthenticationState> : AuthenticationStateProvider, IRemoteAuthenticationService<TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
+    const string BrowserStorageType = "sessionStorage";
+    const string StorageKeyPrefix = "Blazor.AppServiceAuth";
+    readonly AppServiceAuthMemoryStorage _memoryStorage;
+
+    public RemoteAuthenticationOptions<AppServiceAuthOptions> Options { get; }
+    public HttpClient HttpClient { get; }
+    public NavigationManager Navigation { get; }
+    public IJSRuntime JsRuntime { get; }
+
+    public AppServiceAuthRemoteAuthenticationService(
+        IOptions<RemoteAuthenticationOptions<AppServiceAuthOptions>> options,
+        NavigationManager navigationManager,
+        IJSRuntime jsRuntime,
+        AppServiceAuthMemoryStorage memoryStorage)
     {
-        const string BrowserStorageType = "sessionStorage";
-        const string StorageKeyPrefix = "Blazor.AppServiceAuth";
-        readonly AppServiceAuthMemoryStorage _memoryStorage;
+        Options = options.Value;
+        HttpClient = new HttpClient() { BaseAddress = new Uri(navigationManager.BaseUri) };
+        Navigation = navigationManager;
+        JsRuntime = jsRuntime;
+        _memoryStorage = memoryStorage;
+    }
 
-        public RemoteAuthenticationOptions<AppServiceAuthOptions> Options { get; }
-        public HttpClient HttpClient { get; }
-        public NavigationManager Navigation { get; }
-        public IJSRuntime JsRuntime { get; }
-
-        public AppServiceAuthRemoteAuthenticationService(
-            IOptions<RemoteAuthenticationOptions<AppServiceAuthOptions>> options,
-            NavigationManager navigationManager,
-            IJSRuntime jsRuntime,
-            AppServiceAuthMemoryStorage memoryStorage)
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        try
         {
-            Options = options.Value;
-            HttpClient = new HttpClient() { BaseAddress = new Uri(navigationManager.BaseUri) };
-            Navigation = navigationManager;
-            JsRuntime = jsRuntime;
-            _memoryStorage = memoryStorage;
-        }
-
-        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
-        {
-            try
+            if (_memoryStorage.AuthenticationData == null)
             {
-                if (_memoryStorage.AuthenticationData == null)
-                {
-                    string authDataUrl = Options.ProviderOptions.AuthenticationDataUrl + "/.auth/me";
-                    AuthenticationData data = await HttpClient.GetFromJsonAsync<AuthenticationData>(authDataUrl);
-                    _memoryStorage.SetAuthenticationData(data);
-                }
-
-                ClientPrincipal principal = _memoryStorage.AuthenticationData.ClientPrincipal;
-
-                if (principal == null)
-                {
-                    return new AuthenticationState(new ClaimsPrincipal());
-                }
-
-                principal.UserRoles = principal.UserRoles.Except(new string[] { "anonymous" }, StringComparer.CurrentCultureIgnoreCase);
-
-                var identity = new ClaimsIdentity(principal.IdentityProvider);
-                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, principal.UserId));
-                identity.AddClaim(new Claim(ClaimTypes.Name, principal.UserDetails));
-                identity.AddClaims(principal.UserRoles.Select(r => new Claim(ClaimTypes.Role, r)));
-                return new AuthenticationState(new ClaimsPrincipal(identity));
-            }
-            catch
-            {
-                _memoryStorage.SetAuthenticationData(null);
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-            }
-        }
-
-        public async Task<RemoteAuthenticationResult<TAuthenticationState>> SignInAsync(RemoteAuthenticationContext<TAuthenticationState> context)
-        {
-            if (!(context is AppServiceAuthRemoteAuthenticationContext<TAuthenticationState> appServiceAuthContext))
-            {
-                throw new InvalidOperationException("Not an AppServiceAuthContext");
+                string authDataUrl = Options.ProviderOptions.AuthenticationDataUrl + "/.auth/me";
+                AuthenticationData data = await HttpClient.GetFromJsonAsync<AuthenticationData>(authDataUrl);
+                _memoryStorage.SetAuthenticationData(data);
             }
 
-            string stateId = Guid.NewGuid().ToString();
-            await JsRuntime.InvokeVoidAsync($"{BrowserStorageType}.setItem", $"{StorageKeyPrefix}.{stateId}", JsonSerializer.Serialize(context.State));
-            Navigation.NavigateTo($"/.auth/login/{appServiceAuthContext.SelectedProvider}?post_login_redirect_uri={BuildRedirectUri(Options.AuthenticationPaths.LogInCallbackPath)}/{stateId}", forceLoad: true);
+            ClientPrincipal principal = _memoryStorage.AuthenticationData.ClientPrincipal;
 
-            return new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Redirect };
-        }
-
-        public async Task<RemoteAuthenticationResult<TAuthenticationState>> CompleteSignInAsync(RemoteAuthenticationContext<TAuthenticationState> context)
-        {
-            string stateId = new Uri(context.Url).PathAndQuery.Split("?")[0].Split("/", StringSplitOptions.RemoveEmptyEntries).Last();
-            string serializedState = await JsRuntime.InvokeAsync<string>($"{BrowserStorageType}.getItem", $"{StorageKeyPrefix}.{stateId}");
-            TAuthenticationState state = JsonSerializer.Deserialize<TAuthenticationState>(serializedState);
-            return new RemoteAuthenticationResult<TAuthenticationState> { State = state, Status = RemoteAuthenticationStatus.Success };
-        }
-
-        public async Task<RemoteAuthenticationResult<TAuthenticationState>> CompleteSignOutAsync(RemoteAuthenticationContext<TAuthenticationState> context)
-        {
-            string[] sessionKeys = await JsRuntime.InvokeAsync<string[]>("eval", $"Object.keys({BrowserStorageType})");
-
-            string stateKey = sessionKeys.FirstOrDefault(key => key.StartsWith(StorageKeyPrefix));
-
-            if (stateKey != null)
+            if (principal == null)
             {
-                await JsRuntime.InvokeAsync<string>($"{BrowserStorageType}.removeItem", stateKey);
+                return new AuthenticationState(new ClaimsPrincipal());
             }
 
-            return new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Success };
-        }
+            principal.UserRoles = principal.UserRoles.Except(new string[] { "anonymous" }, StringComparer.CurrentCultureIgnoreCase);
 
-        public Task<RemoteAuthenticationResult<TAuthenticationState>> SignOutAsync(RemoteAuthenticationContext<TAuthenticationState> context)
+            var identity = new ClaimsIdentity(principal.IdentityProvider);
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, principal.UserId));
+            identity.AddClaim(new Claim(ClaimTypes.Name, principal.UserDetails));
+            identity.AddClaims(principal.UserRoles.Select(r => new Claim(ClaimTypes.Role, r)));
+            return new AuthenticationState(new ClaimsPrincipal(identity));
+        }
+        catch
         {
-            Navigation.NavigateTo($"/.auth/logout?post_logout_redirect_uri={BuildRedirectUri(Options.AuthenticationPaths.LogOutCallbackPath)}", forceLoad: true);
-
-            return Task.FromResult(new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Redirect });
+            _memoryStorage.SetAuthenticationData(null);
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
+    }
 
-        string BuildRedirectUri(string path)
+    public async Task<RemoteAuthenticationResult<TAuthenticationState>> SignInAsync(RemoteAuthenticationContext<TAuthenticationState> context)
+    {
+        if (!(context is AppServiceAuthRemoteAuthenticationContext<TAuthenticationState> appServiceAuthContext))
         {
-            return new Uri(new Uri(Navigation.BaseUri), path).ToString();
+            throw new InvalidOperationException("Not an AppServiceAuthContext");
         }
+
+        string stateId = Guid.NewGuid().ToString();
+        await JsRuntime.InvokeVoidAsync($"{BrowserStorageType}.setItem", $"{StorageKeyPrefix}.{stateId}", JsonSerializer.Serialize(context.State));
+        Navigation.NavigateTo($"/.auth/login/{appServiceAuthContext.SelectedProvider}?post_login_redirect_uri={BuildRedirectUri(Options.AuthenticationPaths.LogInCallbackPath)}/{stateId}", forceLoad: true);
+
+        return new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Redirect };
+    }
+
+    public async Task<RemoteAuthenticationResult<TAuthenticationState>> CompleteSignInAsync(RemoteAuthenticationContext<TAuthenticationState> context)
+    {
+        string stateId = new Uri(context.Url).PathAndQuery.Split("?")[0].Split("/", StringSplitOptions.RemoveEmptyEntries).Last();
+        string serializedState = await JsRuntime.InvokeAsync<string>($"{BrowserStorageType}.getItem", $"{StorageKeyPrefix}.{stateId}");
+        TAuthenticationState state = JsonSerializer.Deserialize<TAuthenticationState>(serializedState);
+        return new RemoteAuthenticationResult<TAuthenticationState> { State = state, Status = RemoteAuthenticationStatus.Success };
+    }
+
+    public async Task<RemoteAuthenticationResult<TAuthenticationState>> CompleteSignOutAsync(RemoteAuthenticationContext<TAuthenticationState> context)
+    {
+        string[] sessionKeys = await JsRuntime.InvokeAsync<string[]>("eval", $"Object.keys({BrowserStorageType})");
+
+        string stateKey = sessionKeys.FirstOrDefault(key => key.StartsWith(StorageKeyPrefix));
+
+        if (stateKey != null)
+        {
+            await JsRuntime.InvokeAsync<string>($"{BrowserStorageType}.removeItem", stateKey);
+        }
+
+        return new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Success };
+    }
+
+    public Task<RemoteAuthenticationResult<TAuthenticationState>> SignOutAsync(RemoteAuthenticationContext<TAuthenticationState> context)
+    {
+        Navigation.NavigateTo($"/.auth/logout?post_logout_redirect_uri={BuildRedirectUri(Options.AuthenticationPaths.LogOutCallbackPath)}", forceLoad: true);
+
+        return Task.FromResult(new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Redirect });
+    }
+
+    string BuildRedirectUri(string path)
+    {
+        return new Uri(new Uri(Navigation.BaseUri), path).ToString();
     }
 }

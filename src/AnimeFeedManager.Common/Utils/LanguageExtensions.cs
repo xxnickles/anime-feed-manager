@@ -1,44 +1,43 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 
-namespace AnimeFeedManager.Common.Utils
+namespace AnimeFeedManager.Common.Utils;
+
+public static class LanguageExtensions
 {
-    public static class LanguageExtensions
+    public static Either<DomainError, TR> ValidationToEither<TR>(this Validation<ValidationError, TR> validation) =>
+        validation.ToEither().MapLeft(errors => (DomainError)ValidationErrors.Create(errors));
+
+
+    public static Either<DomainError, ImmutableList<T>> Flatten<T>(this Either<DomainError, T>[] results)
     {
-        public static Either<DomainError, TR> ValidationToEither<TR>(this Validation<ValidationError, TR> validation) =>
-            validation.ToEither().MapLeft(errors => (DomainError)ValidationErrors.Create(errors));
+        var oks = results.Rights().ToImmutableList();
+        if (oks.Count == results.Length)
+            return results.Rights().ToImmutableList();
 
-
-        public static Either<DomainError, ImmutableList<T>> Flatten<T>(this Either<DomainError, T>[] results)
+        var errorType = oks.Any() switch
         {
-            var oks = results.Rights().ToImmutableList();
-            if (oks.Count == results.Length)
-                return results.Rights().ToImmutableList();
+            true => AggregatedError.FailureType.Partial,
+            false => AggregatedError.FailureType.Total
+        };
 
-            var errorType = oks.Any() switch
-            {
-                true => AggregatedError.FailureType.Partial,
-                false => AggregatedError.FailureType.Total
-            };
+        return new AggregatedError(results.Lefts().ToImmutableList(), errorType);
+    }
 
-            return new AggregatedError(results.Lefts().ToImmutableList(), errorType);
+    public static async Task<Either<DomainError, ImmutableList<T>>> Flatten<T>(
+        this Task<Either<DomainError, T>[]> results) => (await results).Flatten();
+
+
+    public static ImmutableList<T> Flattern<T>(this ImmutableList<Option<T>> options)
+    {
+        var results = new List<T>();
+        foreach (var option in options)
+        {
+            option.Match(
+                value => results.Add(value),
+                () => {}
+            );
         }
 
-        public static async Task<Either<DomainError, ImmutableList<T>>> Flatten<T>(
-            this Task<Either<DomainError, T>[]> results) => (await results).Flatten();
-
-
-        public static ImmutableList<T> Flattern<T>(this ImmutableList<Option<T>> options)
-        {
-            var results = new List<T>();
-            foreach (var option in options)
-            {
-                option.Match(
-                    value => results.Add(value),
-                    () => {}
-                );
-            }
-
-            return results.ToImmutableList();
-        }
+        return results.ToImmutableList();
     }
 }

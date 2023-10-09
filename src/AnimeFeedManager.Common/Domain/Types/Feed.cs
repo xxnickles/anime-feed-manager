@@ -1,17 +1,16 @@
-﻿namespace AnimeFeedManager.Common.Domain.Types
+﻿namespace AnimeFeedManager.Common.Domain.Types;
+
+public enum LinkType
 {
-    public enum LinkType
-    {
-        None,
-        TorrentFile,
-        Magnet
-    }
-
-    public record struct TorrentLink(LinkType Type, string Link);
-
-    public record struct FeedInfo(string AnimeTitle,
-        string FeedTitle,
-        DateTime PublicationDate,
-        IImmutableList<TorrentLink> Links,
-        string EpisodeInfo);
+    None,
+    TorrentFile,
+    Magnet
 }
+
+public record struct TorrentLink(LinkType Type, string Link);
+
+public record struct FeedInfo(string AnimeTitle,
+    string FeedTitle,
+    DateTime PublicationDate,
+    IImmutableList<TorrentLink> Links,
+    string EpisodeInfo);

@@ -1,45 +1,44 @@
 ﻿using System.Text;
 
-namespace AnimeFeedManager.Common.Domain.Errors
+namespace AnimeFeedManager.Common.Domain.Errors;
+
+public sealed class ValidationError
 {
-    public sealed class ValidationError
+    public KeyValuePair<string, string[]> Error { get; }
+
+    public ValidationError(string field, string[] errors)
     {
-        public KeyValuePair<string, string[]> Error { get; }
-
-        public ValidationError(string field, string[] errors)
-        {
-            Error = new KeyValuePair<string, string[]>(field, errors);
-        }
-
-        public static ValidationError Create(string field, string[] errors) => new(field, errors);
-        public static ValidationError Create(string field, string error) => new(field, new[] { error });
+        Error = new KeyValuePair<string, string[]>(field, errors);
     }
 
-    public class ValidationErrors : DomainError
+    public static ValidationError Create(string field, string[] errors) => new(field, errors);
+    public static ValidationError Create(string field, string error) => new(field, new[] { error });
+}
+
+public class ValidationErrors : DomainError
+{
+    public ImmutableDictionary<string, string[]> Errors { get; }
+
+    public ValidationErrors(IEnumerable<ValidationError> errors)
+        : base("One or more validations have failed")
     {
-        public ImmutableDictionary<string, string[]> Errors { get; }
+        Errors = new Dictionary<string, string[]>(errors.Select(x => x.Error))
+            .ToImmutableDictionary();
+    }
 
-        public ValidationErrors(IEnumerable<ValidationError> errors)
-            : base("One or more validations have failed")
+    public static ValidationErrors Create(IEnumerable<ValidationError> errors) =>
+        new(errors);
+
+    public override string ToString()
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine(Message);
+        builder.AppendLine("Validation Errors");
+        foreach (var (key, value) in Errors)
         {
-            Errors = new Dictionary<string, string[]>(errors.Select(x => x.Error))
-                .ToImmutableDictionary();
+            builder.AppendLine($"{key}: {string.Join(", ", value)}");
         }
 
-        public static ValidationErrors Create(IEnumerable<ValidationError> errors) =>
-            new(errors);
-
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-            builder.AppendLine(Message);
-            builder.AppendLine("Validation Errors");
-            foreach (var (key, value) in Errors)
-            {
-                builder.AppendLine($"{key}: {string.Join(", ", value)}");
-            }
-
-            return builder.ToString();
-        }
+        return builder.ToString();
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace AnimeFeedManager.Functions
+﻿namespace AnimeFeedManager.Functions;
+
+internal struct HubNames
 {
-    internal struct HubNames
-    {
-        internal const string Notifications = "notifications";
-    }
+    internal const string Notifications = "notifications";
 }

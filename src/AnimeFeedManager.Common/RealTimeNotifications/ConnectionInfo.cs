@@ -1,13 +1,12 @@
 using System.Text.Json.Serialization;
 
-namespace AnimeFeedManager.Common.RealTimeNotifications
-{
-    public record ConnectionInfo(string Url, string AccessToken);
+namespace AnimeFeedManager.Common.RealTimeNotifications;
 
-    [JsonSerializable(typeof(ConnectionInfo))]
-    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-    public partial class ConnectionInfoContext : JsonSerializerContext
-    {
-    }
+public record ConnectionInfo(string AccessToken,string Url);
+
+[JsonSerializable(typeof(ConnectionInfo))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+public partial class ConnectionInfoContext : JsonSerializerContext
+{
 }

@@ -11,49 +11,47 @@ using AnimeFeedManager.Features.Tv.Subscriptions;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 using SendGrid.Extensions.DependencyInjection;
 
-namespace AnimeFeedManager.Features.Tv
+namespace AnimeFeedManager.Features.Tv;
+
+public static class TvRegistration
 {
-    public static class TvRegistration
+    public static IServiceCollection RegisterTvServices(this IServiceCollection services)
     {
-        public static IServiceCollection RegisterTvServices(this IServiceCollection services)
-        {
-            services.TryAddSingleton<IFeedProvider, FeedProvider>();
-            services.TryAddScoped<ISeriesProvider, SeriesProvider>();
-            services.TryAddScoped<ITitlesProvider, TitlesProvider>();
-            services.TryAddScoped<IIncompleteSeriesProvider, IncompleteSeriesProvider>();
-            services.TryAddScoped<ITvSeriesStore, TvSeriesStore>();
-            services.TryAddScoped<ITittlesGetter, TittlesGetter>();
-            services.TryAddScoped<ITitlesStore, TitlesStore>();
-            services.TryAddScoped<IAddInterested, AddInterested>();
-            services.TryAddScoped<IAddTvSubscription, AddTvTvSubscription>();
-            services.TryAddScoped<IGetInterestedSeries, GetInterestedSeries>();
-            services.TryAddScoped<IRemoveInterestedSeries, RemoveInterestedSeries>();
-            services.TryAddScoped<IAddProcessedTitles, AddProcessedTitles>();
-            services.TryAddScoped<IRemoveProcessedTitles, RemoveProcessedTitles>();
-            services.TryAddScoped<ITvSeasonalLibrary, TvSeasonalLibrary>();
-            services.TryAddScoped<IGetTvSubscriptions, GetTvSubscriptions>();
-            services.TryAddScoped<IGetProcessedTitles, GetProcessedTitles>();
-            services.TryAddScoped<TvLibraryUpdater>();
-            services.TryAddScoped<TvLibraryGetter>();
-            services.TryAddScoped<ScrapSeasonTitles>();
-            services.TryAddScoped<InterestedToSubscribe>();
-            services.TryAddScoped<AutomatedSubscriptionProcessor>();
-            services.TryAddScoped<UserNotificationsCollector>();
-            services.TryAddScoped<SeasonTitlesUpdater>();
+        services.TryAddSingleton<IFeedProvider, FeedProvider>();
+        services.TryAddScoped<ISeriesProvider, SeriesProvider>();
+        services.TryAddScoped<ITitlesProvider, TitlesProvider>();
+        services.TryAddScoped<IIncompleteSeriesProvider, IncompleteSeriesProvider>();
+        services.TryAddScoped<ITvSeriesStore, TvSeriesStore>();
+        services.TryAddScoped<ITittlesGetter, TittlesGetter>();
+        services.TryAddScoped<ITitlesStore, TitlesStore>();
+        services.TryAddScoped<IAddInterested, AddInterested>();
+        services.TryAddScoped<IAddTvSubscription, AddTvTvSubscription>();
+        services.TryAddScoped<IGetInterestedSeries, GetInterestedSeries>();
+        services.TryAddScoped<IRemoveInterestedSeries, RemoveInterestedSeries>();
+        services.TryAddScoped<IAddProcessedTitles, AddProcessedTitles>();
+        services.TryAddScoped<IRemoveProcessedTitles, RemoveProcessedTitles>();
+        services.TryAddScoped<ITvSeasonalLibrary, TvSeasonalLibrary>();
+        services.TryAddScoped<IGetTvSubscriptions, GetTvSubscriptions>();
+        services.TryAddScoped<IGetProcessedTitles, GetProcessedTitles>();
+        services.TryAddScoped<TvLibraryUpdater>();
+        services.TryAddScoped<TvLibraryGetter>();
+        services.TryAddScoped<ScrapSeasonTitles>();
+        services.TryAddScoped<InterestedToSubscribe>();
+        services.TryAddScoped<AutomatedSubscriptionProcessor>();
+        services.TryAddScoped<UserNotificationsCollector>();
+        services.TryAddScoped<SeasonTitlesUpdater>();
 
-            return services;
-        }
+        return services;
+    }
 
-        public static IServiceCollection RegisterSendGrid(this IServiceCollection services)
-        {
-            var defaultFromEmail = Environment.GetEnvironmentVariable("FromEmail") ?? "test@test.com";
-            var defaultFromName = Environment.GetEnvironmentVariable("FromName") ?? "Test";
-            var parseResult = bool.TryParse(Environment.GetEnvironmentVariable("Sandbox"), out var sandbox);
-            var config = new SendGridConfiguration(defaultFromEmail, defaultFromName, parseResult && sandbox);
-            services.AddSingleton(config);
-            services.AddSendGrid(options => options.ApiKey = Environment.GetEnvironmentVariable("SendGridKey"));
-            return services;
-        }
+    public static IServiceCollection RegisterSendGrid(this IServiceCollection services)
+    {
+        var defaultFromEmail = Environment.GetEnvironmentVariable("FromEmail") ?? "test@test.com";
+        var defaultFromName = Environment.GetEnvironmentVariable("FromName") ?? "Test";
+        var parseResult = bool.TryParse(Environment.GetEnvironmentVariable("Sandbox"), out var sandbox);
+        var config = new SendGridConfiguration(defaultFromEmail, defaultFromName, parseResult && sandbox);
+        services.AddSingleton(config);
+        services.AddSendGrid(options => options.ApiKey = Environment.GetEnvironmentVariable("SendGridKey"));
+        return services;
     }
 }
-

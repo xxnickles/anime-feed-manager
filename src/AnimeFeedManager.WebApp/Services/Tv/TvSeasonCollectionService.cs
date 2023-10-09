@@ -1,27 +1,26 @@
 ﻿using AnimeFeedManager.Common.Dto;
 
-namespace AnimeFeedManager.WebApp.Services.Tv
+namespace AnimeFeedManager.WebApp.Services.Tv;
+
+public interface ITvCollectionFetcher
 {
-    public interface ITvCollectionFetcher
+    public Task<SeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
+        CancellationToken cancellationToken = default);
+}
+
+public class TvCollectionService : ITvCollectionFetcher
+{
+    private readonly HttpClient _httpClient;
+
+    public TvCollectionService(HttpClient httpClient)
     {
-        public Task<SeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
-            CancellationToken cancellationToken = default);
+        _httpClient = httpClient;
     }
 
-    public class TvCollectionService : ITvCollectionFetcher
+    public async Task<SeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
+        CancellationToken cancellationToken = default)
     {
-        private readonly HttpClient _httpClient;
-
-        public TvCollectionService(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
-        }
-
-        public async Task<SeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
-            CancellationToken cancellationToken = default)
-        {
-            var response = await _httpClient.GetAsync($"api/tv/{season.Year}/{season.Season}", cancellationToken);
-            return await response.MapToObject<SeasonCollection>(new EmptySeasonCollection());
-        }
+        var response = await _httpClient.GetAsync($"api/tv/{season.Year}/{season.Season}", cancellationToken);
+        return await response.MapToObject<SeasonCollection>(new EmptySeasonCollection());
     }
 }

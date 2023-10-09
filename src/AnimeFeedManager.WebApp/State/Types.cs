@@ -1,12 +1,11 @@
-﻿namespace AnimeFeedManager.WebApp.State
-{
-    public abstract record User();
+﻿namespace AnimeFeedManager.WebApp.State;
 
-    public record AnonymousUser() : User;
+public abstract record User();
 
-    public record AuthenticatedUser(string Id) : User;
+public record AnonymousUser() : User;
 
-    public record ApplicationUser(string Id) : User;
+public record AuthenticatedUser(string Id) : User;
 
-    public record AdminUser(string Id) : ApplicationUser(Id);
-}
+public record ApplicationUser(string Id) : User;
+
+public record AdminUser(string Id) : ApplicationUser(Id);

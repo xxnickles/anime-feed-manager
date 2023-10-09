@@ -1,52 +1,51 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO
+namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+
+public interface ITittlesGetter
 {
-    public interface ITittlesGetter
+    public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token);
+}
+
+public class TittlesGetter : ITittlesGetter
+{
+    private readonly ITableClientFactory<TitlesStorage> _tableClientFactory;
+
+    public TittlesGetter(ITableClientFactory<TitlesStorage> tableClientFactory)
     {
-        public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token);
+        _tableClientFactory = tableClientFactory;
     }
 
-    public class TittlesGetter : ITittlesGetter
+    public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token)
     {
-        private readonly ITableClientFactory<TitlesStorage> _tableClientFactory;
+        return _tableClientFactory.GetClient()
+            .BindAsync(client => TableUtils.ExecuteQuery(() =>
+                client.QueryAsync<TitlesStorage>(t => t.PartitionKey == Utils.TitlesPartitionKey,
+                    cancellationToken: token)))
+            .BindAsync(ExtractTitles);
+    }
 
-        public TittlesGetter(ITableClientFactory<TitlesStorage> tableClientFactory)
+    private static Either<DomainError, ImmutableList<string>> ExtractTitles(IImmutableList<TitlesStorage> source)
+    {
+        try
         {
-            _tableClientFactory = tableClientFactory;
-        }
-
-        public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token)
-        {
-            return _tableClientFactory.GetClient()
-                .BindAsync(client => TableUtils.ExecuteQuery(() =>
-                    client.QueryAsync<TitlesStorage>(t => t.PartitionKey == Utils.TitlesPartitionKey,
-                        cancellationToken: token)))
-                .BindAsync(ExtractTitles);
-        }
-
-        private static Either<DomainError, ImmutableList<string>> ExtractTitles(IImmutableList<TitlesStorage> source)
-        {
-            try
+            if (!source.Any()) return ImmutableList<string>.Empty;
+            var item = source.Single();
+            if (string.IsNullOrWhiteSpace(item.Titles))
             {
-                if (!source.Any()) return ImmutableList<string>.Empty;
-                var item = source.Single();
-                if (string.IsNullOrWhiteSpace(item.Titles))
-                {
-                    return BasicError.Create("Title source contains more than one record");
-                }
+                return BasicError.Create("Title source contains more than one record");
+            }
 
-                return Utils.RestoreTitleCommas(item
-                        .Titles
-                        .Split(',')
-                        .Select(x => x.Trim()))
-                    .ToImmutableList();
-            }
-            catch (Exception e)
-            {
-                return ExceptionError.FromException(e);
-            }
+            return Utils.RestoreTitleCommas(item
+                    .Titles
+                    .Split(',')
+                    .Select(x => x.Trim()))
+                .ToImmutableList();
+        }
+        catch (Exception e)
+        {
+            return ExceptionError.FromException(e);
         }
     }
 }

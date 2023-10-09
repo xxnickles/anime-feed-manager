@@ -1,10 +1,9 @@
-﻿namespace AnimeFeedManager.Common.Dto
+﻿namespace AnimeFeedManager.Common.Dto;
+
+public static class DtoMappers
 {
-    public static class DtoMappers
+    public static SimpleSeasonInfo Map(SeasonInformation seasonInformation, bool isLatest)
     {
-        public static SimpleSeasonInfo Map(SeasonInformation seasonInformation, bool isLatest)
-        {
-            return new SimpleSeasonInfo(seasonInformation.Season.Value, seasonInformation.Year.Value, isLatest);
-        }
+        return new SimpleSeasonInfo(seasonInformation.Season.Value, seasonInformation.Year.Value, isLatest);
     }
 }

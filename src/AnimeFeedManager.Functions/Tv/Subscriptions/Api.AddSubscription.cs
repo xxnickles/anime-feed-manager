@@ -3,33 +3,32 @@ using AnimeFeedManager.Functions.ResponseExtensions;
 using Microsoft.Extensions.Logging;
 using SimpleTvSubscriptionContext = AnimeFeedManager.Common.Dto.SimpleTvSubscriptionContext;
 
-namespace AnimeFeedManager.Functions.Tv.Subscriptions
+namespace AnimeFeedManager.Functions.Tv.Subscriptions;
+
+public class AddSubscription
 {
-    public class AddSubscription
+    private readonly IAddTvSubscription _tvSubscriptionAdder;
+    private readonly ILogger<AddSubscription> _logger;
+
+    public AddSubscription(
+        IAddTvSubscription tvSubscriptionAdder,
+        ILoggerFactory loggerFactory)
     {
-        private readonly IAddTvSubscription _tvSubscriptionAdder;
-        private readonly ILogger<AddSubscription> _logger;
+        _tvSubscriptionAdder = tvSubscriptionAdder;
+        _logger = loggerFactory.CreateLogger<AddSubscription>();
+    }
 
-        public AddSubscription(
-            IAddTvSubscription tvSubscriptionAdder,
-            ILoggerFactory loggerFactory)
-        {
-            _tvSubscriptionAdder = tvSubscriptionAdder;
-            _logger = loggerFactory.CreateLogger<AddSubscription>();
-        }
-
-        [Function("AddTvSubscription")]
-        public async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "tv/subscriptions")]
-            HttpRequestData req)
-        {
-            var payload =
-                await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription);
-            ArgumentNullException.ThrowIfNull(payload);
-            return await req.CheckAuthorization()
-                .BindAsync(_ => Utils.Validate(payload))
-                .BindAsync(param => _tvSubscriptionAdder.Subscribe(param.UserId, param.Series, default))
-                .ToResponse(req, _logger);
-        }
+    [Function("AddTvSubscription")]
+    public async Task<HttpResponseData> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "tv/subscriptions")]
+        HttpRequestData req)
+    {
+        var payload =
+            await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription);
+        ArgumentNullException.ThrowIfNull(payload);
+        return await req.CheckAuthorization()
+            .BindAsync(_ => Utils.Validate(payload))
+            .BindAsync(param => _tvSubscriptionAdder.Subscribe(param.UserId, param.Series, default))
+            .ToResponse(req, _logger);
     }
 }

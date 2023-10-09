@@ -10,85 +10,84 @@ using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 using MediatR;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series
+namespace AnimeFeedManager.Features.Tv.Scrapping.Series;
+
+public sealed class TvLibraryUpdater
 {
-    public sealed class TvLibraryUpdater
+    private readonly IMediator _mediator;
+    private readonly IDomainPostman _domainPostman;
+    private readonly ISeriesProvider _seriesProvider;
+    private readonly ITitlesProvider _titlesProvider;
+    private readonly ITvSeriesStore _seriesStore;
+
+    public TvLibraryUpdater(
+        IMediator mediator,
+        IDomainPostman domainPostman,
+        ISeriesProvider seriesProvider,
+        ITitlesProvider titlesProvider,
+        ITvSeriesStore seriesStore)
     {
-        private readonly IMediator _mediator;
-        private readonly IDomainPostman _domainPostman;
-        private readonly ISeriesProvider _seriesProvider;
-        private readonly ITitlesProvider _titlesProvider;
-        private readonly ITvSeriesStore _seriesStore;
+        _mediator = mediator;
+        _domainPostman = domainPostman;
+        _seriesProvider = seriesProvider;
+        _titlesProvider = titlesProvider;
+        _seriesStore = seriesStore;
+    }
 
-        public TvLibraryUpdater(
-            IMediator mediator,
-            IDomainPostman domainPostman,
-            ISeriesProvider seriesProvider,
-            ITitlesProvider titlesProvider,
-            ITvSeriesStore seriesStore)
-        {
-            _mediator = mediator;
-            _domainPostman = domainPostman;
-            _seriesProvider = seriesProvider;
-            _titlesProvider = titlesProvider;
-            _seriesStore = seriesStore;
-        }
+    public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
+    {
+        return _seriesProvider.GetLibrary(season, token)
+            .BindAsync(series => TryAddFeedTitles(series, token))
+            .BindAsync(series => Persist(series, season, token));
+    }
 
-        public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
-        {
-            return _seriesProvider.GetLibrary(season, token)
-                .BindAsync(series => TryAddFeedTitles(series, token))
-                .BindAsync(series => Persist(series, season, token));
-        }
+    private Task<Either<DomainError, TvSeries>> TryAddFeedTitles(TvSeries series, CancellationToken token)
+    {
+        return _titlesProvider.GetTitles()
+            .MapAsync(titles =>
+            {
+                var updatedSeries =
+                    series.SeriesList.ConvertAll(s =>
+                    {
+                        var feedTitle = Utils.TryGetFeedTitle(titles, s.Title ?? string.Empty);
+                        s.FeedTitle = feedTitle;
+                        // If there is an available feed, it is an ongoing series
+                        if (!string.IsNullOrEmpty(feedTitle))
+                            s.Status = SeriesStatus.Ongoing;
+                        return s;
+                    });
 
-        private Task<Either<DomainError, TvSeries>> TryAddFeedTitles(TvSeries series, CancellationToken token)
-        {
-            return _titlesProvider.GetTitles()
-                .MapAsync(titles =>
-                {
-                    var updatedSeries =
-                        series.SeriesList.ConvertAll(s =>
-                        {
-                            var feedTitle = Utils.TryGetFeedTitle(titles, s.Title ?? string.Empty);
-                            s.FeedTitle = feedTitle;
-                            // If there is an available feed, it is an ongoing series
-                            if (!string.IsNullOrEmpty(feedTitle))
-                                s.Status = SeriesStatus.Ongoing;
-                            return s;
-                        });
+                return (Series: series with {SeriesList = updatedSeries}, Titles: titles);
+            }).MapAsync(param => UpdateTitles(param.Titles, param.Series, token));
+    }
 
-                    return (Series: series with {SeriesList = updatedSeries}, Titles: titles);
-                }).MapAsync(param => UpdateTitles(param.Titles, param.Series, token));
-        }
+    private TvSeries UpdateTitles(ImmutableList<string> titles, TvSeries series, CancellationToken token)
+    {
+        // Publish event to update titles
+        _domainPostman.SendMessage(new UpdateSeasonTitlesRequest(titles), Box.SeasonTitlesProcess, token);
+        return series;
+    }
 
-        private TvSeries UpdateTitles(ImmutableList<string> titles, TvSeries series, CancellationToken token)
-        {
-            // Publish event to update titles
-            _domainPostman.SendMessage(new UpdateSeasonTitlesRequest(titles), Box.SeasonTitlesProcess, token);
-            return series;
-        }
+    private Task<Either<DomainError, Unit>> Persist(TvSeries series, SeasonSelector seasonSelector,
+        CancellationToken token)
+    {
+        var reference = series.SeriesList.First();
+        return _seriesStore.Add(series.SeriesList, token)
+            .MapAsync(_ => CreateImageEvents(series.Images, token))
+            .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest()));
+    }
 
-        private Task<Either<DomainError, Unit>> Persist(TvSeries series, SeasonSelector seasonSelector,
-            CancellationToken token)
-        {
-            var reference = series.SeriesList.First();
-            return _seriesStore.Add(series.SeriesList, token)
-                .MapAsync(_ => CreateImageEvents(series.Images, token))
-                .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest()));
-        }
+    private Unit CreateImageEvents(ImmutableList<DownloadImageEvent> events,
+        CancellationToken token)
+    {
+        // Publish event to scrap images
+        _mediator.Publish(new ScrapNotificationImages(events), token);
+        return unit;
+    }
 
-        private Unit CreateImageEvents(ImmutableList<DownloadImageEvent> events,
-            CancellationToken token)
-        {
-            // Publish event to scrap images
-            _mediator.Publish(new ScrapNotificationImages(events), token);
-            return unit;
-        }
-
-        private Unit CreateSeasonEvent(string season, int year, bool isLatest)
-        {
-            _mediator.Publish(new AddSeasonNotification(season, year, isLatest));
-            return unit;
-        }
+    private Unit CreateSeasonEvent(string season, int year, bool isLatest)
+    {
+        _mediator.Publish(new AddSeasonNotification(season, year, isLatest));
+        return unit;
     }
 }

@@ -1,34 +1,33 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Movies.Subscriptions.IO
+namespace AnimeFeedManager.Features.Movies.Subscriptions.IO;
+
+public interface IRemoveMovieSubscription
 {
-    public interface IRemoveMovieSubscription
+    public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series, CancellationToken token);
+}
+
+public sealed class RemoveMovieSubscription : IRemoveMovieSubscription
+{
+    private readonly ITableClientFactory<MoviesSubscriptionStorage> _clientFactory;
+
+    public RemoveMovieSubscription(ITableClientFactory<MoviesSubscriptionStorage> clientFactory)
     {
-        public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series, CancellationToken token);
+        _clientFactory = clientFactory;
     }
 
-    public sealed class RemoveMovieSubscription : IRemoveMovieSubscription
+    public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series,
+        CancellationToken token)
     {
-        private readonly ITableClientFactory<MoviesSubscriptionStorage> _clientFactory;
+        return _clientFactory.GetClient()
+            .BindAsync(client => Delete(client, userId, series, token));
+    }
 
-        public RemoveMovieSubscription(ITableClientFactory<MoviesSubscriptionStorage> clientFactory)
-        {
-            _clientFactory = clientFactory;
-        }
-
-        public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series,
-            CancellationToken token)
-        {
-            return _clientFactory.GetClient()
-                .BindAsync(client => Delete(client, userId, series, token));
-        }
-
-        private static Task<Either<DomainError, Unit>> Delete(TableClient client, UserId userId, NoEmptyString series,
-            CancellationToken token)
-        {
-            return TableUtils.TryExecute(() => client.DeleteEntityAsync(userId, series, cancellationToken: token))
-                .MapAsync(_ => unit);
-        }
+    private static Task<Either<DomainError, Unit>> Delete(TableClient client, UserId userId, NoEmptyString series,
+        CancellationToken token)
+    {
+        return TableUtils.TryExecute(() => client.DeleteEntityAsync(userId, series, cancellationToken: token))
+            .MapAsync(_ => unit);
     }
 }

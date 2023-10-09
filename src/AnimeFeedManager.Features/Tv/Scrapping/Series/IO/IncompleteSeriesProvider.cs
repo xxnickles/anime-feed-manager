@@ -2,28 +2,27 @@
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Tv.Types;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO
+namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+
+public interface IIncompleteSeriesProvider
 {
-    public interface IIncompleteSeriesProvider
+    Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(CancellationToken token);
+}
+
+public class IncompleteSeriesProvider : IIncompleteSeriesProvider
+{
+    private readonly ITableClientFactory<AnimeInfoWithImageStorage> _tableClientFactory;
+
+    public IncompleteSeriesProvider(ITableClientFactory<AnimeInfoWithImageStorage> tableClientFactory)
     {
-        Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(CancellationToken token);
+        _tableClientFactory = tableClientFactory;
     }
 
-    public class IncompleteSeriesProvider : IIncompleteSeriesProvider
+    public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(
+        CancellationToken token)
     {
-        private readonly ITableClientFactory<AnimeInfoWithImageStorage> _tableClientFactory;
-
-        public IncompleteSeriesProvider(ITableClientFactory<AnimeInfoWithImageStorage> tableClientFactory)
-        {
-            _tableClientFactory = tableClientFactory;
-        }
-
-        public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(
-            CancellationToken token)
-        {
-            return _tableClientFactory.GetClient()
-                .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<AnimeInfoWithImageStorage>(a =>
-                    a.Status == SeriesStatus.Ongoing)));
-        }
+        return _tableClientFactory.GetClient()
+            .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<AnimeInfoWithImageStorage>(a =>
+                a.Status == SeriesStatus.Ongoing)));
     }
 }

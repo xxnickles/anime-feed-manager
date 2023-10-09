@@ -7,45 +7,44 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Features.Tv.Subscriptions
+namespace AnimeFeedManager.Features.Tv.Subscriptions;
+
+public record AutomatedSubscription : INotification;
+
+public sealed class AutomatedSubscriptionHandler : INotificationHandler<AutomatedSubscription>
 {
-    public record AutomatedSubscription : INotification;
+    private readonly IDomainPostman _domainPostman;
+    private readonly IUserGetter _userGetter;
+    private readonly ILogger<AutomatedSubscriptionHandler> _logger;
 
-    public sealed class AutomatedSubscriptionHandler : INotificationHandler<AutomatedSubscription>
+    public AutomatedSubscriptionHandler(
+        IDomainPostman domainPostman,
+        IUserGetter userGetter,
+        ILogger<AutomatedSubscriptionHandler> logger)
     {
-        private readonly IDomainPostman _domainPostman;
-        private readonly IUserGetter _userGetter;
-        private readonly ILogger<AutomatedSubscriptionHandler> _logger;
+        _domainPostman = domainPostman;
+        _userGetter = userGetter;
+        _logger = logger;
+    }
 
-        public AutomatedSubscriptionHandler(
-            IDomainPostman domainPostman,
-            IUserGetter userGetter,
-            ILogger<AutomatedSubscriptionHandler> logger)
-        {
-            _domainPostman = domainPostman;
-            _userGetter = userGetter;
-            _logger = logger;
-        }
+    public async Task Handle(AutomatedSubscription _, CancellationToken cancellationToken)
+    {
+        var results = await _userGetter.GetAvailableUsers(cancellationToken)
+            .MapAsync(users => users.ConvertAll(u => new UserAutoSubscription(u)))
+            .BindAsync(events => SendMessages(events, cancellationToken));
 
-        public async Task Handle(AutomatedSubscription _, CancellationToken cancellationToken)
-        {
-            var results = await _userGetter.GetAvailableUsers(cancellationToken)
-                .MapAsync(users => users.ConvertAll(u => new UserAutoSubscription(u)))
-                .BindAsync(events => SendMessages(events, cancellationToken));
+        results.Match(
+            _ => _logger.LogInformation("Automated subscriptions will be processed for available users"),
+            error => error.LogDomainError(_logger));
+    }
 
-            results.Match(
-                _ => _logger.LogInformation("Automated subscriptions will be processed for available users"),
-                error => error.LogDomainError(_logger));
-        }
-
-        private async Task<Either<DomainError, Unit>> SendMessages(
-            ImmutableList<UserAutoSubscription> events, CancellationToken token)
-        {
-            return await Task.WhenAll(events.AsParallel()
-                    .Select(autoSubscriptionEvent =>
-                        _domainPostman.SendMessage(autoSubscriptionEvent, Box.UserAutoSubscription, token)))
-                .Flatten()
-                .MapAsync(_ => unit);
-        }
+    private async Task<Either<DomainError, Unit>> SendMessages(
+        ImmutableList<UserAutoSubscription> events, CancellationToken token)
+    {
+        return await Task.WhenAll(events.AsParallel()
+                .Select(autoSubscriptionEvent =>
+                    _domainPostman.SendMessage(autoSubscriptionEvent, Box.UserAutoSubscription, token)))
+            .Flatten()
+            .MapAsync(_ => unit);
     }
 }

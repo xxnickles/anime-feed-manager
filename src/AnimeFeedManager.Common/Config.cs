@@ -1,4 +1,3 @@
-﻿namespace AnimeFeedManager.Common
-{
-    public record PuppeteerOptions(string Path);
-}
+﻿namespace AnimeFeedManager.Common;
+
+public record PuppeteerOptions(string Path);

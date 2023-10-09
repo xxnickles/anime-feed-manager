@@ -1,27 +1,26 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
 
-namespace AnimeFeedManager.Features.Movies.Scrapping.IO
+namespace AnimeFeedManager.Features.Movies.Scrapping.IO;
+
+public interface IMoviesStorage
 {
-    public interface IMoviesStorage
+    Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token);
+}
+
+public sealed class MoviesStorage : IMoviesStorage
+{
+    private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
+
+    public MoviesStorage(ITableClientFactory<MovieStorage> tableClientFactory)
     {
-        Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token);
+        _tableClientFactory = tableClientFactory;
     }
 
-    public sealed class MoviesStorage : IMoviesStorage
+    public Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token)
     {
-        private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
-
-        public MoviesStorage(ITableClientFactory<MovieStorage> tableClientFactory)
-        {
-            _tableClientFactory = tableClientFactory;
-        }
-
-        public Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token)
-        {
-            return _tableClientFactory.GetClient()
-                .BindAsync(client => TableUtils.BatchAdd(client, series, token))
-                .MapAsync(_ => unit);
-        }
+        return _tableClientFactory.GetClient()
+            .BindAsync(client => TableUtils.BatchAdd(client, series, token))
+            .MapAsync(_ => unit);
     }
 }

@@ -1,11 +1,10 @@
-﻿namespace AnimeFeedManager.Common.Domain.Errors
-{
-    public sealed class BasicError : DomainError
-    {
-        public BasicError( string message) : base(message)
-        {
-        }
+﻿namespace AnimeFeedManager.Common.Domain.Errors;
 
-        public static BasicError Create(string message) => new(message);
+public sealed class BasicError : DomainError
+{
+    public BasicError( string message) : base(message)
+    {
     }
+
+    public static BasicError Create(string message) => new(message);
 }

@@ -1,38 +1,37 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Tv.Subscriptions.IO
+namespace AnimeFeedManager.Features.Tv.Subscriptions.IO;
+
+public interface IAddTvSubscription
 {
-    public interface IAddTvSubscription
+    public Task<Either<DomainError, Unit>> Subscribe(UserId userId, NoEmptyString series, CancellationToken token);
+}
+
+public sealed class AddTvTvSubscription : IAddTvSubscription
+{
+    private readonly ITableClientFactory<SubscriptionStorage> _clientFactory;
+
+    public AddTvTvSubscription(ITableClientFactory<SubscriptionStorage> clientFactory)
     {
-        public Task<Either<DomainError, Unit>> Subscribe(UserId userId, NoEmptyString series, CancellationToken token);
+        _clientFactory = clientFactory;
     }
 
-    public sealed class AddTvTvSubscription : IAddTvSubscription
+    public Task<Either<DomainError, Unit>> Subscribe(UserId userId, NoEmptyString series, CancellationToken token)
     {
-        private readonly ITableClientFactory<SubscriptionStorage> _clientFactory;
+        return _clientFactory.GetClient().BindAsync(client => Persist(client, userId, series, token));
+    }
 
-        public AddTvTvSubscription(ITableClientFactory<SubscriptionStorage> clientFactory)
+    private static Task<Either<DomainError, Unit>> Persist(TableClient client, UserId userId, NoEmptyString series,
+        CancellationToken token)
+    {
+        var storage = new SubscriptionStorage
         {
-            _clientFactory = clientFactory;
-        }
+            PartitionKey = userId,
+            RowKey = series,
+        };
 
-        public Task<Either<DomainError, Unit>> Subscribe(UserId userId, NoEmptyString series, CancellationToken token)
-        {
-            return _clientFactory.GetClient().BindAsync(client => Persist(client, userId, series, token));
-        }
-
-        private static Task<Either<DomainError, Unit>> Persist(TableClient client, UserId userId, NoEmptyString series,
-            CancellationToken token)
-        {
-            var storage = new SubscriptionStorage
-            {
-                PartitionKey = userId,
-                RowKey = series,
-            };
-
-            return TableUtils.TryExecute(() => client.UpsertEntityAsync(storage, cancellationToken: token))
-                .MapAsync(_ => unit);
-        }
+        return TableUtils.TryExecute(() => client.UpsertEntityAsync(storage, cancellationToken: token))
+            .MapAsync(_ => unit);
     }
 }

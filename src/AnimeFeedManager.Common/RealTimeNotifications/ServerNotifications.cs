@@ -1,10 +1,9 @@
 ﻿
-namespace AnimeFeedManager.Common.RealTimeNotifications
+namespace AnimeFeedManager.Common.RealTimeNotifications;
+
+public static class ServerNotifications
 {
-    public static class ServerNotifications
-    {
-        public const string SeasonProcess = "seasonprocess";
-        public const string TitleUpdate = "titleupdate";
-        public const string ImageUpdate = "imageupdate";
-    }
+    public const string SeasonProcess = "seasonprocess";
+    public const string TitleUpdate = "titleupdate";
+    public const string ImageUpdate = "imageupdate";
 }

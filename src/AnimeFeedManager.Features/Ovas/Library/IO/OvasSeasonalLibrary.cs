@@ -1,30 +1,29 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 
-namespace AnimeFeedManager.Features.Ovas.Library.IO
+namespace AnimeFeedManager.Features.Ovas.Library.IO;
+
+public interface IOvasSeasonalLibrary
 {
-    public interface IOvasSeasonalLibrary
+    public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season, Year year, CancellationToken token);
+}
+
+public class OvasSeasonalLibrary : IOvasSeasonalLibrary
+{
+    private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
+
+    public OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFactory)
     {
-        public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season, Year year, CancellationToken token);
+        _tableClientFactory = tableClientFactory;
     }
 
-    public class OvasSeasonalLibrary : IOvasSeasonalLibrary
+    public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season,
+        Year year, CancellationToken token)
     {
-        private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
-
-        public OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFactory)
-        {
-            _tableClientFactory = tableClientFactory;
-        }
-
-        public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season,
-            Year year, CancellationToken token)
-        {
-            var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, year);
-            return _tableClientFactory.GetClient()
-                .BindAsync(client => TableUtils.ExecuteQuery(() =>
-                    client.QueryAsync<OvaStorage>(a => a.PartitionKey == partitionKey,
-                        cancellationToken: token)));
-        }
+        var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, year);
+        return _tableClientFactory.GetClient()
+            .BindAsync(client => TableUtils.ExecuteQuery(() =>
+                client.QueryAsync<OvaStorage>(a => a.PartitionKey == partitionKey,
+                    cancellationToken: token)));
     }
 }
