@@ -1,18 +1,18 @@
-﻿namespace AnimeFeedManager.Features.AniDb;
+﻿namespace AnimeFeedManager.Features.AniDb
+{
+    internal record JsonSeasonInfo(string Season, int Year);
 
-internal record JsonSeasonInfo(string Season, int Year);
+    internal record JsonAnimeInfo(string Title, string? ImageUrl, string Synopsys, string Date,
+        JsonSeasonInfo SeasonInfo);
 
-internal record JsonAnimeInfo(string Title, string? ImageUrl, string Synopsys, string Date,
-    JsonSeasonInfo SeasonInfo);
+    internal record SeriesContainer(string Id, string Title, string? ImageUrl, string Synopsys, string Date,
+        JsonSeasonInfo SeasonInfo);
 
-internal record SeriesContainer(string Id, string Title, string? ImageUrl, string Synopsys, string Date,
-    JsonSeasonInfo SeasonInfo);
-
-internal record ScrapResult(IEnumerable<SeriesContainer> Series, JsonSeasonInfo Season);
+    internal record ScrapResult(IEnumerable<SeriesContainer> Series, JsonSeasonInfo Season);
 
 
-internal static class Constants {
-    internal const string ScrappingScript = @"
+    internal static class Constants {
+        internal const string ScrappingScript = @"
         () => {
             const seasonInfomationGetter = () => {
                 const getDate = (str) => str.includes('/') ? str.split('/')[1] : str;
@@ -51,4 +51,5 @@ internal static class Constants {
                 );
          }
     ";
+    }
 }

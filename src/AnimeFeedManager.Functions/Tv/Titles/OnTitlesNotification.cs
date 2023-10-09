@@ -1,61 +1,64 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
-using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Common.Domain.Types;
-using AnimeFeedManager.Features.Common.RealTimeNotifications;
+﻿using AnimeFeedManager.Common.Domain;
+using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Notifications;
+using AnimeFeedManager.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Tv.Titles;
-
-public sealed class OnTitlesNotification
+namespace AnimeFeedManager.Functions.Tv.Titles
 {
-    private readonly IStoreNotification _storeNotification;
-    private readonly ILogger<OnTitlesNotification> _logger;
-
-    public OnTitlesNotification(
-        IStoreNotification storeNotification,
-        ILoggerFactory loggerFactory)
+    public sealed class OnTitlesNotification
     {
-        _storeNotification = storeNotification;
-        _logger = loggerFactory.CreateLogger<OnTitlesNotification>();
-    }
+        private readonly IStoreNotification _storeNotification;
+        private readonly ILogger<OnTitlesNotification> _logger;
 
-    [Function("OnTitlesNotification")]
-    [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
-    public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(Box.Available.TitleUpdatesNotificationsBox, Connection = "AzureWebJobsStorage")] TitlesUpdateNotification notification)
-    {
-        
-        // Stores notification
-        var result = await _storeNotification.Add(
-            IdHelpers.GetUniqueId(),
-            UserRoles.Admin,
-            NotificationTarget.Tv,
-            NotificationArea.Update,
-            notification,
-            default);
-
-
-        return result.Match(
-            _ => CreateMessage(notification),
-            e =>
-            {
-                e.LogDomainError(_logger);
-                return CreateMessage(notification);
-            }
-        );
-    }
-    
-    private static SignalRMessageAction CreateMessage(TitlesUpdateNotification notification)
-    {
-        return new SignalRMessageAction(ServerNotifications.TitleUpdate)
+        public OnTitlesNotification(
+            IStoreNotification storeNotification,
+            ILoggerFactory loggerFactory)
         {
-            GroupName = HubGroups.AdminGroup,
-            Arguments = new object[]
+            _storeNotification = storeNotification;
+            _logger = loggerFactory.CreateLogger<OnTitlesNotification>();
+        }
+
+        [Function("OnTitlesNotification")]
+        [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
+        public async Task<SignalRMessageAction> Run(
+            [QueueTrigger(Box.Available.TitleUpdatesNotificationsBox, Connection = "AzureWebJobsStorage")] TitlesUpdateNotification notification)
+        {
+        
+            // Stores notification
+            var result = await _storeNotification.Add(
+                IdHelpers.GetUniqueId(),
+                UserRoles.Admin,
+                NotificationTarget.Tv,
+                NotificationArea.Update,
+                notification,
+                default);
+
+
+            return result.Match(
+                _ => CreateMessage(notification),
+                e =>
+                {
+                    e.LogDomainError(_logger);
+                    return CreateMessage(notification);
+                }
+            );
+        }
+    
+        private static SignalRMessageAction CreateMessage(TitlesUpdateNotification notification)
+        {
+            return new SignalRMessageAction(ServerNotifications.TitleUpdate)
             {
-                notification
-            }
-        };
+                GroupName = HubGroups.AdminGroup,
+                Arguments = new object[]
+                {
+                    notification
+                }
+            };
+        }
     }
 }

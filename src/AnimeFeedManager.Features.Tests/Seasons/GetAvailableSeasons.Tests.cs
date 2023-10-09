@@ -1,60 +1,61 @@
 using System.Collections.Immutable;
-using AnimeFeedManager.Features.Common.Domain.Errors;
-using AnimeFeedManager.Features.Common.Dto;
-using AnimeFeedManager.Features.Common.Types;
+using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Common.Types;
 using AnimeFeedManager.Features.Seasons.IO;
 using AnimeFeedManager.Features.Seasons.Types;
 using SeasonsGetter = AnimeFeedManager.Features.Seasons.SeasonsGetter;
 
-namespace AnimeFeedManager.Features.Tests.Seasons;
-
-public class GetAvailableSeasonsTests
+namespace AnimeFeedManager.Features.Tests.Seasons
 {
-    [Fact]
-    public async Task Should_Order_Stored_Seasons_Correctly()
+    public class GetAvailableSeasonsTests
     {
-        var mock = Substitute.For<ISeasonsGetter>();
-        mock.GetAvailableSeasons(Arg.Any<CancellationToken>()).Returns(Right<DomainError, ImmutableList<SeasonStorage>>(TestData()));
-
-        var sut = new SeasonsGetter(mock);
-        var result = await sut.GetAvailable();
-
-        result.Match(
-            items => items.Should().BeEquivalentTo(OrderedResults(), config => config.WithStrictOrdering()),
-            _ => Assert.Fail("Should not be here")
-        );
-    }
-
-
-    private static ImmutableList<SeasonStorage> TestData()
-    {
-        var list = new List<SeasonStorage>
+        [Fact]
+        public async Task Should_Order_Stored_Seasons_Correctly()
         {
-            new() { Season = Season.Summer, Year = 2022, Latest = false },
-            new() { Season = Season.Fall, Year = 2022, Latest = false },
-            new() { Season = Season.Winter, Year = 2023, Latest = false },
-            new() { Season = Season.Winter, Year = 2024, Latest = false },
-            new() { Season = Season.Summer, Year = 2023, Latest = false },
-            new() { Season = Season.Spring, Year = 2023, Latest = false },
-            new() { Season = Season.Fall, Year = 2023, Latest = true }
-        };
+            var mock = Substitute.For<ISeasonsGetter>();
+            mock.GetAvailableSeasons(Arg.Any<CancellationToken>()).Returns(Right<DomainError, ImmutableList<SeasonStorage>>(TestData()));
 
-        return list.ToImmutableList();
-    }
+            var sut = new SeasonsGetter(mock);
+            var result = await sut.GetAvailable();
 
-    private static ImmutableList<SimpleSeasonInfo> OrderedResults()
-    {
-        var list = new List<SimpleSeasonInfo>
+            result.Match(
+                items => items.Should().BeEquivalentTo(OrderedResults(), config => config.WithStrictOrdering()),
+                _ => Assert.Fail("Should not be here")
+            );
+        }
+
+
+        private static ImmutableList<SeasonStorage> TestData()
         {
-            new(Season.Winter, 2024, false),
-            new(Season.Fall, 2023, true),
-            new(Season.Summer, 2023, false),
-            new(Season.Spring, 2023, false),
-            new(Season.Winter, 2023, false),
-            new(Season.Fall, 2022, false),
-            new(Season.Summer, 2022, false),
-        };
+            var list = new List<SeasonStorage>
+            {
+                new() { Season = Season.Summer, Year = 2022, Latest = false },
+                new() { Season = Season.Fall, Year = 2022, Latest = false },
+                new() { Season = Season.Winter, Year = 2023, Latest = false },
+                new() { Season = Season.Winter, Year = 2024, Latest = false },
+                new() { Season = Season.Summer, Year = 2023, Latest = false },
+                new() { Season = Season.Spring, Year = 2023, Latest = false },
+                new() { Season = Season.Fall, Year = 2023, Latest = true }
+            };
 
-        return list.ToImmutableList();
+            return list.ToImmutableList();
+        }
+
+        private static ImmutableList<SimpleSeasonInfo> OrderedResults()
+        {
+            var list = new List<SimpleSeasonInfo>
+            {
+                new(Season.Winter, 2024, false),
+                new(Season.Fall, 2023, true),
+                new(Season.Summer, 2023, false),
+                new(Season.Spring, 2023, false),
+                new(Season.Winter, 2023, false),
+                new(Season.Fall, 2022, false),
+                new(Season.Summer, 2022, false),
+            };
+
+            return list.ToImmutableList();
+        }
     }
 }

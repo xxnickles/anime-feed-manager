@@ -1,9 +1,8 @@
-﻿global using AnimeFeedManager.Features.Common;
-global using AnimeFeedManager.Features.Common.Dto;
-global using AnimeFeedManager.Features.Common.Types;
-global using AnimeFeedManager.Features.Common.Utils;
-global using AnimeFeedManager.Features.Common.Domain;
-global using AnimeFeedManager.Features.Common.Domain.Notifications;
+﻿global using AnimeFeedManager.Common;
+global using AnimeFeedManager.Common.Dto;
+global using AnimeFeedManager.Common.Types;
+global using AnimeFeedManager.Common.Domain;
+global using AnimeFeedManager.Common.Domain.Notifications;
 global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Features.State.Types;
 global using Azure;

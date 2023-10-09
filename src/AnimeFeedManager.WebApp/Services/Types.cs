@@ -1,29 +1,30 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
+﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
 
-namespace AnimeFeedManager.WebApp.Services;
-
-public enum HubConnectionStatus
+namespace AnimeFeedManager.WebApp.Services
 {
-    None,
-    Connected,
-    Disconnected
-}
+    public enum HubConnectionStatus
+    {
+        None,
+        Connected,
+        Disconnected
+    }
 
-public enum NotificationSource
-{
-    None,
-    Tv,
-    Ovas,
-    Movies,
-    Titles
-}
+    public enum NotificationSource
+    {
+        None,
+        Tv,
+        Ovas,
+        Movies,
+        Titles
+    }
 
-public record ServerNotification(
-    string Id,
-    bool Read,
-    DateTime Time,
-    NotificationType Type,
-    NotificationSource Source,
-    TargetAudience Audience,
-    string Message);
+    public record ServerNotification(
+        string Id,
+        bool Read,
+        DateTime Time,
+        NotificationType Type,
+        NotificationSource Source,
+        TargetAudience Audience,
+        string Message);
+}
 

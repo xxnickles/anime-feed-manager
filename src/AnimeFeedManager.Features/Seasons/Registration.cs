@@ -1,14 +1,15 @@
 ﻿using AnimeFeedManager.Features.Seasons.IO;
 
-namespace AnimeFeedManager.Features.Seasons;
-
-public static class Registration
+namespace AnimeFeedManager.Features.Seasons
 {
-    public static IServiceCollection RegisterSeasonsServices(this IServiceCollection services)
+    public static class Registration
     {
-        services.TryAddScoped<ISeasonStore, SeasonStore>();
-        services.TryAddScoped<ISeasonsGetter, IO.SeasonsGetter>();
-        services.TryAddScoped<SeasonsGetter>();
-        return services;
+        public static IServiceCollection RegisterSeasonsServices(this IServiceCollection services)
+        {
+            services.TryAddScoped<ISeasonStore, SeasonStore>();
+            services.TryAddScoped<ISeasonsGetter, IO.SeasonsGetter>();
+            services.TryAddScoped<SeasonsGetter>();
+            return services;
+        }
     }
 }

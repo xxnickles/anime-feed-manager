@@ -1,61 +1,62 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Users.Types;
 
-namespace AnimeFeedManager.Features.Users.IO;
-
-public interface IUserStore
+namespace AnimeFeedManager.Features.Users.IO
 {
-    public Task<Either<DomainError, Unit>> AddUser(UserId id, Email email, CancellationToken cancellationToken);
-}
-
-public sealed class UserStore : IUserStore
-{
-    private readonly ITableClientFactory<UserStorage> _tableClientFactory;
-
-    public UserStore(ITableClientFactory<UserStorage> tableClientFactory)
+    public interface IUserStore
     {
-        _tableClientFactory = tableClientFactory;
+        public Task<Either<DomainError, Unit>> AddUser(UserId id, Email email, CancellationToken cancellationToken);
     }
 
-    public Task<Either<DomainError, Unit>> AddUser(UserId id, Email email, CancellationToken cancellationToken)
+    public sealed class UserStore : IUserStore
     {
-        return _tableClientFactory.GetClient()
-            .BindAsync(client => CheckEmailExits(client, email, cancellationToken))
-            .BindAsync(client => Persist(client, id, email, cancellationToken));
-    }
+        private readonly ITableClientFactory<UserStorage> _tableClientFactory;
 
-    private static Task<Either<DomainError, TableClient>> CheckEmailExits(TableClient client, Email email,
-        CancellationToken token)
-    {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
-                client.QueryAsync<UserStorage>(user => user.Email == email, cancellationToken: token))
-            .BindAsync(CheckMatches)
-            .MapAsync(_ => client);
-    }
-
-    private static Either<DomainError, Unit> CheckMatches(
-        ImmutableList<UserStorage> results)
-    {
-        if (results.Any())
+        public UserStore(ITableClientFactory<UserStorage> tableClientFactory)
         {
-            return Left<DomainError, Unit>(ValidationErrors.Create(new[]
-                { ValidationError.Create("Email", "Provided email is already registered in the system") }));
+            _tableClientFactory = tableClientFactory;
         }
 
-        return Right<DomainError, Unit>(unit);
-    }
-
-    private static Task<Either<DomainError, Unit>> Persist(TableClient client, string id, Email email,
-        CancellationToken token)
-    {
-        var user = new UserStorage
+        public Task<Either<DomainError, Unit>> AddUser(UserId id, Email email, CancellationToken cancellationToken)
         {
-            Email = email,
-            RowKey = id,
-            PartitionKey = Constants.UserPartitionKey
-        };
+            return _tableClientFactory.GetClient()
+                .BindAsync(client => CheckEmailExits(client, email, cancellationToken))
+                .BindAsync(client => Persist(client, id, email, cancellationToken));
+        }
 
-        return TableUtils.TryExecute(() => client.UpsertEntityAsync(user, TableUpdateMode.Merge, token))
-            .MapAsync(_ => unit);
+        private static Task<Either<DomainError, TableClient>> CheckEmailExits(TableClient client, Email email,
+            CancellationToken token)
+        {
+            return TableUtils.ExecuteQueryWithEmpty(() =>
+                    client.QueryAsync<UserStorage>(user => user.Email == email, cancellationToken: token))
+                .BindAsync(CheckMatches)
+                .MapAsync(_ => client);
+        }
+
+        private static Either<DomainError, Unit> CheckMatches(
+            ImmutableList<UserStorage> results)
+        {
+            if (results.Any())
+            {
+                return Left<DomainError, Unit>(ValidationErrors.Create(new[]
+                    { ValidationError.Create("Email", "Provided email is already registered in the system") }));
+            }
+
+            return Right<DomainError, Unit>(unit);
+        }
+
+        private static Task<Either<DomainError, Unit>> Persist(TableClient client, string id, Email email,
+            CancellationToken token)
+        {
+            var user = new UserStorage
+            {
+                Email = email,
+                RowKey = id,
+                PartitionKey = Constants.UserPartitionKey
+            };
+
+            return TableUtils.TryExecute(() => client.UpsertEntityAsync(user, TableUpdateMode.Merge, token))
+                .MapAsync(_ => unit);
+        }
     }
 }

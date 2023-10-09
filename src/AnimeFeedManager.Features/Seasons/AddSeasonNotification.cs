@@ -1,39 +1,40 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Seasons.IO;
 using AnimeFeedManager.Features.Seasons.Types;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Features.Seasons;
-
-public readonly record struct AddSeasonNotification(string Season, int Year, bool IsLatest) : INotification;
-
-public sealed class AddSeasonHandler : INotificationHandler<AddSeasonNotification>
+namespace AnimeFeedManager.Features.Seasons
 {
-    private readonly ISeasonStore _seasonStore;
-    private readonly ILogger<AddSeasonHandler> _logger;
+    public readonly record struct AddSeasonNotification(string Season, int Year, bool IsLatest) : INotification;
 
-    public AddSeasonHandler(ISeasonStore seasonStore, ILogger<AddSeasonHandler> logger)
+    public sealed class AddSeasonHandler : INotificationHandler<AddSeasonNotification>
     {
-        _seasonStore = seasonStore;
-        _logger = logger;
-    }
+        private readonly ISeasonStore _seasonStore;
+        private readonly ILogger<AddSeasonHandler> _logger;
 
-    public async Task Handle(AddSeasonNotification notification, CancellationToken cancellationToken)
-    {
-        var seasonType = notification.IsLatest ? SeasonType.Latest : SeasonType.Season;
-        var result = await _seasonStore.AddSeason(new SeasonStorage
+        public AddSeasonHandler(ISeasonStore seasonStore, ILogger<AddSeasonHandler> logger)
         {
-            PartitionKey = seasonType,
-            RowKey = $"{notification.Year}-{notification.Season}",
-            Season = notification.Season,
-            Year = notification.Year,
-            Latest = seasonType.IsLatest()
+            _seasonStore = seasonStore;
+            _logger = logger;
+        }
 
-        }, seasonType , cancellationToken);
+        public async Task Handle(AddSeasonNotification notification, CancellationToken cancellationToken)
+        {
+            var seasonType = notification.IsLatest ? SeasonType.Latest : SeasonType.Season;
+            var result = await _seasonStore.AddSeason(new SeasonStorage
+            {
+                PartitionKey = seasonType,
+                RowKey = $"{notification.Year}-{notification.Season}",
+                Season = notification.Season,
+                Year = notification.Year,
+                Latest = seasonType.IsLatest()
+
+            }, seasonType , cancellationToken);
         
-        result.Match(
-            _ => _logger.LogInformation("Entry for {Season} updated successfully", $"{notification.Year}-{notification.Season}"),
-            e =>  e.LogDomainError(_logger));
+            result.Match(
+                _ => _logger.LogInformation("Entry for {Season} updated successfully", $"{notification.Year}-{notification.Season}"),
+                e =>  e.LogDomainError(_logger));
+        }
     }
 }

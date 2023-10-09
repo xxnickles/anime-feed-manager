@@ -1,29 +1,30 @@
 using AnimeFeedManager.WebApp.Components.Common;
 using MudBlazor;
 
-namespace AnimeFeedManager.WebApp.Services;
-
-public interface IConfirmationMessage
+namespace AnimeFeedManager.WebApp.Services
 {
-    Task<bool> GetConfirmation(string title, string message);
-}
-
-public class ConfirmationMessage : IConfirmationMessage
-{
-    private readonly IDialogService _dialogService;
-
-    public ConfirmationMessage(IDialogService dialogService)
+    public interface IConfirmationMessage
     {
-        _dialogService = dialogService;
+        Task<bool> GetConfirmation(string title, string message);
     }
-    
-    public async Task<bool> GetConfirmation(string title, string message)
+
+    public class ConfirmationMessage : IConfirmationMessage
     {
-        var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
-        var options = new DialogOptions {CloseOnEscapeKey = true};
-        var dialog = await _dialogService.ShowAsync<ConfirmationDialog>(title, parameters, options);
-        var result = await dialog.Result;
-        if (result.Canceled || result.Data == null) return false;
-        return (bool) result.Data;
+        private readonly IDialogService _dialogService;
+
+        public ConfirmationMessage(IDialogService dialogService)
+        {
+            _dialogService = dialogService;
+        }
+    
+        public async Task<bool> GetConfirmation(string title, string message)
+        {
+            var parameters = new DialogParameters {{nameof(ConfirmationDialog.Message), message}};
+            var options = new DialogOptions {CloseOnEscapeKey = true};
+            var dialog = await _dialogService.ShowAsync<ConfirmationDialog>(title, parameters, options);
+            var result = await dialog.Result;
+            if (result.Canceled || result.Data == null) return false;
+            return (bool) result.Data;
+        }
     }
 }

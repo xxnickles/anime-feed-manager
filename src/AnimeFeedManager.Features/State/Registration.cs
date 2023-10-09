@@ -1,13 +1,14 @@
 ﻿using AnimeFeedManager.Features.State.IO;
 
-namespace AnimeFeedManager.Features.State;
-
-public static class StateRegistration
+namespace AnimeFeedManager.Features.State
 {
-    public static IServiceCollection RegisterStateServices(this IServiceCollection services)
+    public static class StateRegistration
     {
-        services.TryAddScoped<ICreateState, CreateState>();
-        services.TryAddScoped<IStateUpdater, StateUpdater>();
-        return services;
+        public static IServiceCollection RegisterStateServices(this IServiceCollection services)
+        {
+            services.TryAddScoped<ICreateState, CreateState>();
+            services.TryAddScoped<IStateUpdater, StateUpdater>();
+            return services;
+        }
     }
 }

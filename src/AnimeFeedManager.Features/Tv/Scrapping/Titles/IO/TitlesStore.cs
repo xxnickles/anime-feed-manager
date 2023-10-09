@@ -1,37 +1,38 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-
-public interface ITitlesStore
+namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO
 {
-    public Task<Either<DomainError, Unit>> UpdateTitles(IEnumerable<string> titles, CancellationToken token);
-}
-
-public sealed class TitlesStore : ITitlesStore
-{
-    private readonly ITableClientFactory<TitlesStorage> _tableClientFactory;
-
-    public TitlesStore(ITableClientFactory<TitlesStorage> tableClientFactory)
+    public interface ITitlesStore
     {
-        _tableClientFactory = tableClientFactory;
-    }
-    
-    public Task<Either<DomainError, Unit>> UpdateTitles(IEnumerable<string> titles, CancellationToken token )
-    {
-        return _tableClientFactory.GetClient()
-            .BindAsync(client =>
-                TableUtils.TryExecute(() => client.UpsertEntityAsync(GetEntity(titles), cancellationToken: token)))
-            .MapAsync(x => unit);
+        public Task<Either<DomainError, Unit>> UpdateTitles(IEnumerable<string> titles, CancellationToken token);
     }
 
-    private static TitlesStorage GetEntity(IEnumerable<string> titles)
+    public sealed class TitlesStore : ITitlesStore
     {
-        return new TitlesStorage
+        private readonly ITableClientFactory<TitlesStorage> _tableClientFactory;
+
+        public TitlesStore(ITableClientFactory<TitlesStorage> tableClientFactory)
         {
-            Titles = string.Join(',', Utils.ReplaceTitleCommas(titles)), 
-            PartitionKey = Utils.TitlesPartitionKey,
-            RowKey = Utils.RowKey
-        };
+            _tableClientFactory = tableClientFactory;
+        }
+    
+        public Task<Either<DomainError, Unit>> UpdateTitles(IEnumerable<string> titles, CancellationToken token )
+        {
+            return _tableClientFactory.GetClient()
+                .BindAsync(client =>
+                    TableUtils.TryExecute(() => client.UpsertEntityAsync(GetEntity(titles), cancellationToken: token)))
+                .MapAsync(x => unit);
+        }
+
+        private static TitlesStorage GetEntity(IEnumerable<string> titles)
+        {
+            return new TitlesStorage
+            {
+                Titles = string.Join(',', Utils.ReplaceTitleCommas(titles)), 
+                PartitionKey = Utils.TitlesPartitionKey,
+                RowKey = Utils.RowKey
+            };
+        }
     }
 }

@@ -1,22 +1,23 @@
 ﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
 
-namespace AnimeFeedManager.Features.Infrastructure;
-
-public static class InfrastructureRegistration
+namespace AnimeFeedManager.Features.Infrastructure
 {
-    public static IServiceCollection RegisterStorage(this IServiceCollection services, string connectionString)
+    public static class InfrastructureRegistration
     {
-        
-        services.Configure<AzureBlobStorageOptions>(options =>
+        public static IServiceCollection RegisterStorage(this IServiceCollection services, string connectionString)
         {
-            options.StorageConnectionString = connectionString;
-        });
+        
+            services.Configure<AzureBlobStorageOptions>(options =>
+            {
+                options.StorageConnectionString = connectionString;
+            });
 
-        var tableClient = new TableServiceClient(connectionString);
-        services.TryAddSingleton<IDomainPostman, AzureQueueMessages>();
-        services.TryAddSingleton(typeof(ITableClientFactory<>), typeof(TableClientFactory<>));
-        services.TryAddSingleton(tableClient);
+            var tableClient = new TableServiceClient(connectionString);
+            services.TryAddSingleton<IDomainPostman, AzureQueueMessages>();
+            services.TryAddSingleton(typeof(ITableClientFactory<>), typeof(TableClientFactory<>));
+            services.TryAddSingleton(tableClient);
 
-        return services;
+            return services;
+        }
     }
 }

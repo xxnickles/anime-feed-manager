@@ -1,14 +1,15 @@
 ﻿using AnimeFeedManager.Features.Users.IO;
 
-namespace AnimeFeedManager.Features.Users;
-
-public static class UsersRegistration
+namespace AnimeFeedManager.Features.Users
 {
-    public static IServiceCollection RegisterUserServices(this IServiceCollection services)
+    public static class UsersRegistration
     {
-        services.TryAddScoped<IUserStore, UserStore>();
-        services.TryAddScoped<IUserGetter, UserGetter>();
-        services.TryAddScoped<IUserEmailGetter, UserEmailGetter>();
-        return services;
+        public static IServiceCollection RegisterUserServices(this IServiceCollection services)
+        {
+            services.TryAddScoped<IUserStore, UserStore>();
+            services.TryAddScoped<IUserGetter, UserGetter>();
+            services.TryAddScoped<IUserEmailGetter, UserEmailGetter>();
+            return services;
+        }
     }
 }

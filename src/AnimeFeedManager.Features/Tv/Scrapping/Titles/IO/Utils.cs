@@ -1,20 +1,21 @@
-﻿namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-
-internal static class Utils
+﻿namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO
 {
-    private const char Comma = ',';
-    private const char CommaReplacement = '#';
-
-    internal const string TitlesPartitionKey = "feed_titles";
-    internal const string RowKey = "standard";
-
-    internal static IEnumerable<string> ReplaceTitleCommas(IEnumerable<string> source)
+    internal static class Utils
     {
-        return source.Select(t => t.Contains(Comma) ? t.Replace(Comma, CommaReplacement) : t);
-    }
+        private const char Comma = ',';
+        private const char CommaReplacement = '#';
 
-    internal static IEnumerable<string> RestoreTitleCommas(IEnumerable<string> source)
-    {
-        return source.Select(t => t.Contains(Comma) ? t.Replace(CommaReplacement, Comma) : t);
+        internal const string TitlesPartitionKey = "feed_titles";
+        internal const string RowKey = "standard";
+
+        internal static IEnumerable<string> ReplaceTitleCommas(IEnumerable<string> source)
+        {
+            return source.Select(t => t.Contains(Comma) ? t.Replace(Comma, CommaReplacement) : t);
+        }
+
+        internal static IEnumerable<string> RestoreTitleCommas(IEnumerable<string> source)
+        {
+            return source.Select(t => t.Contains(Comma) ? t.Replace(CommaReplacement, Comma) : t);
+        }
     }
 }

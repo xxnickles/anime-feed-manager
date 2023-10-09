@@ -4,20 +4,21 @@ using AnimeFeedManager.Features.Ovas.Scrapping;
 using AnimeFeedManager.Features.Ovas.Scrapping.IO;
 using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
 
-namespace AnimeFeedManager.Features.Ovas;
-
-public static class OvasRegistration
+namespace AnimeFeedManager.Features.Ovas
 {
-    public static IServiceCollection RegisterOvasServices(this IServiceCollection services)
+    public static class OvasRegistration
     {
-        services.TryAddSingleton<IOvasProvider, OvasProvider>();
-        services.TryAddScoped<IOvasStorage, OvasStorage>();
-        services.TryAddScoped<IOvasSeasonalLibrary, OvasSeasonalLibrary>();
-        services.TryAddScoped<IAddOvasSubscription,AddOvasSubscription>();
-        services.TryAddScoped<IRemoveOvasSubscription, RemoveOvasSubscription>();
-        services.TryAddScoped<IGetOvasSubscriptions, GetOvasSubscriptions>();
-        services.TryAddScoped<OvasLibraryUpdater>();
-        services.TryAddScoped<OvasLibraryGetter>();
-        return services;
+        public static IServiceCollection RegisterOvasServices(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IOvasProvider, OvasProvider>();
+            services.TryAddScoped<IOvasStorage, OvasStorage>();
+            services.TryAddScoped<IOvasSeasonalLibrary, OvasSeasonalLibrary>();
+            services.TryAddScoped<IAddOvasSubscription,AddOvasSubscription>();
+            services.TryAddScoped<IRemoveOvasSubscription, RemoveOvasSubscription>();
+            services.TryAddScoped<IGetOvasSubscriptions, GetOvasSubscriptions>();
+            services.TryAddScoped<OvasLibraryUpdater>();
+            services.TryAddScoped<OvasLibraryGetter>();
+            return services;
+        }
     }
 }

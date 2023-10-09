@@ -1,19 +1,20 @@
-﻿namespace AnimeFeedManager.Features.Seasons.Types;
-
-public readonly struct SeasonType
+﻿namespace AnimeFeedManager.Features.Seasons.Types
 {
-    public string Value { get; }
-
-    private SeasonType(string value)
+    public readonly struct SeasonType
     {
-        Value = value;
+        public string Value { get; }
+
+        private SeasonType(string value)
+        {
+            Value = value;
+        }
+
+        public override string ToString() => Value;
+        public static implicit operator string(SeasonType seasonType) => seasonType.Value;
+
+        public bool IsLatest() => Value == "Latest";
+
+        public static SeasonType Latest => new("Latest");
+        public static SeasonType Season => new("Season");
     }
-
-    public override string ToString() => Value;
-    public static implicit operator string(SeasonType seasonType) => seasonType.Value;
-
-    public bool IsLatest() => Value == "Latest";
-
-    public static SeasonType Latest => new("Latest");
-    public static SeasonType Season => new("Season");
 }

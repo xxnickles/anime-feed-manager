@@ -1,13 +1,14 @@
 ﻿using AnimeFeedManager.Features.Notifications.IO;
 
-namespace AnimeFeedManager.Features.Notifications;
-
-public static class NotificationRegistration
+namespace AnimeFeedManager.Features.Notifications
 {
-    public static IServiceCollection RegisterNotificationServices(this IServiceCollection services)
+    public static class NotificationRegistration
     {
-        services.TryAddScoped<IStoreNotification, StoreNotification>();
-        services.TryAddScoped<IGetNotifications, GetNotifications>();
-        return services;
+        public static IServiceCollection RegisterNotificationServices(this IServiceCollection services)
+        {
+            services.TryAddScoped<IStoreNotification, StoreNotification>();
+            services.TryAddScoped<IGetNotifications, GetNotifications>();
+            return services;
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿@if (Collection is not EmptyShortSeasonCollection)
+﻿@using AnimeFeedManager.Common.Dto
+@using AnimeFeedManager.Common
+@if (Collection is not EmptyShortSeasonCollection)
 {
     <MudGrid>
         @foreach (var series in Collection.Animes)

@@ -1,26 +1,27 @@
-using AnimeFeedManager.Features.Common.Dto;
+using AnimeFeedManager.Common.Dto;
 
-namespace AnimeFeedManager.WebApp.Services.Movies;
-
-public interface IMoviesCollectionService
+namespace AnimeFeedManager.WebApp.Services.Movies
 {
-    public Task<ShortSeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
-        CancellationToken cancellationToken = default);
-}
-
-public sealed class MoviesCollectionService : IMoviesCollectionService
-{
-    private readonly HttpClient _httpClient;
-
-    public MoviesCollectionService(HttpClient httpClient)
+    public interface IMoviesCollectionService
     {
-        _httpClient = httpClient;
+        public Task<ShortSeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
+            CancellationToken cancellationToken = default);
     }
 
-    public async Task<ShortSeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
-        CancellationToken cancellationToken = default)
+    public sealed class MoviesCollectionService : IMoviesCollectionService
     {
-        var response = await _httpClient.GetAsync($"api/movies/{season.Year}/{season.Season}", cancellationToken);
-        return await response.MapToObject<ShortSeasonCollection>(new EmptyShortSeasonCollection());
+        private readonly HttpClient _httpClient;
+
+        public MoviesCollectionService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public async Task<ShortSeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
+            CancellationToken cancellationToken = default)
+        {
+            var response = await _httpClient.GetAsync($"api/movies/{season.Year}/{season.Season}", cancellationToken);
+            return await response.MapToObject<ShortSeasonCollection>(new EmptyShortSeasonCollection());
+        }
     }
 }

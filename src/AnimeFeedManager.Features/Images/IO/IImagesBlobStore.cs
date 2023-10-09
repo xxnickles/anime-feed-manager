@@ -1,6 +1,7 @@
-﻿namespace AnimeFeedManager.Features.Images.IO;
-
-public interface IImagesBlobStore
+﻿namespace AnimeFeedManager.Features.Images.IO
 {
-    public Task<Uri> Upload(string fileName, string path, Stream data);
+    public interface IImagesBlobStore
+    {
+        public Task<Uri> Upload(string fileName, string path, Stream data);
+    }
 }

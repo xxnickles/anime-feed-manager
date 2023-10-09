@@ -1,51 +1,52 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-
-public interface ITittlesGetter
+namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO
 {
-    public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token);
-}
-
-public class TittlesGetter : ITittlesGetter
-{
-    private readonly ITableClientFactory<TitlesStorage> _tableClientFactory;
-
-    public TittlesGetter(ITableClientFactory<TitlesStorage> tableClientFactory)
+    public interface ITittlesGetter
     {
-        _tableClientFactory = tableClientFactory;
+        public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token);
     }
 
-    public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token)
+    public class TittlesGetter : ITittlesGetter
     {
-        return _tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.ExecuteQuery(() =>
-                client.QueryAsync<TitlesStorage>(t => t.PartitionKey == Utils.TitlesPartitionKey,
-                    cancellationToken: token)))
-            .BindAsync(ExtractTitles);
-    }
+        private readonly ITableClientFactory<TitlesStorage> _tableClientFactory;
 
-    private static Either<DomainError, ImmutableList<string>> ExtractTitles(IImmutableList<TitlesStorage> source)
-    {
-        try
+        public TittlesGetter(ITableClientFactory<TitlesStorage> tableClientFactory)
         {
-            if (!source.Any()) return ImmutableList<string>.Empty;
-            var item = source.Single();
-            if (string.IsNullOrWhiteSpace(item.Titles))
-            {
-                return BasicError.Create("Title source contains more than one record");
-            }
-
-            return Utils.RestoreTitleCommas(item
-                    .Titles
-                    .Split(',')
-                    .Select(x => x.Trim()))
-                .ToImmutableList();
+            _tableClientFactory = tableClientFactory;
         }
-        catch (Exception e)
+
+        public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token)
         {
-            return ExceptionError.FromException(e);
+            return _tableClientFactory.GetClient()
+                .BindAsync(client => TableUtils.ExecuteQuery(() =>
+                    client.QueryAsync<TitlesStorage>(t => t.PartitionKey == Utils.TitlesPartitionKey,
+                        cancellationToken: token)))
+                .BindAsync(ExtractTitles);
+        }
+
+        private static Either<DomainError, ImmutableList<string>> ExtractTitles(IImmutableList<TitlesStorage> source)
+        {
+            try
+            {
+                if (!source.Any()) return ImmutableList<string>.Empty;
+                var item = source.Single();
+                if (string.IsNullOrWhiteSpace(item.Titles))
+                {
+                    return BasicError.Create("Title source contains more than one record");
+                }
+
+                return Utils.RestoreTitleCommas(item
+                        .Titles
+                        .Split(',')
+                        .Select(x => x.Trim()))
+                    .ToImmutableList();
+            }
+            catch (Exception e)
+            {
+                return ExceptionError.FromException(e);
+            }
         }
     }
 }

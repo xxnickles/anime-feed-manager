@@ -1,24 +1,25 @@
 ﻿using PuppeteerSharp;
 
-namespace AnimeFeedManager.Features.AniDb;
-
-public static class AniDbRegistration
+namespace AnimeFeedManager.Features.AniDb
 {
-    public static void RegisterPuppeteer(this IServiceCollection serviceCollection,
-        bool downloadToProjectFolder = false)
+    public static class AniDbRegistration
     {
-        var fetcherOptions = new BrowserFetcherOptions();
-
-        if (!downloadToProjectFolder)
+        public static void RegisterPuppeteer(this IServiceCollection serviceCollection,
+            bool downloadToProjectFolder = false)
         {
-            fetcherOptions.Path = Path.GetTempPath();
-        }
+            var fetcherOptions = new BrowserFetcherOptions();
 
-        var browserFetcher = new BrowserFetcher(fetcherOptions);
-        browserFetcher.DownloadAsync(PuppeteerSharp.BrowserData.Chrome.DefaultBuildId).GetAwaiter().GetResult();
-        var executablePath = browserFetcher.GetInstalledBrowsers().Last(b => b.Browser is SupportedBrowser.Chrome)
-            .GetExecutablePath();
-        serviceCollection.AddSingleton(
-            new PuppeteerOptions(executablePath));
+            if (!downloadToProjectFolder)
+            {
+                fetcherOptions.Path = Path.GetTempPath();
+            }
+
+            var browserFetcher = new BrowserFetcher(fetcherOptions);
+            browserFetcher.DownloadAsync(PuppeteerSharp.BrowserData.Chrome.DefaultBuildId).GetAwaiter().GetResult();
+            var executablePath = browserFetcher.GetInstalledBrowsers().Last(b => b.Browser is SupportedBrowser.Chrome)
+                .GetExecutablePath();
+            serviceCollection.AddSingleton(
+                new PuppeteerOptions(executablePath));
+        }
     }
 }

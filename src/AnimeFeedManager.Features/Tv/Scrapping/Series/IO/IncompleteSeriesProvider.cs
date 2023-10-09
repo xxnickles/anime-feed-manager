@@ -1,28 +1,29 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
-using AnimeFeedManager.Features.Common.Domain.Types;
+﻿using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Tv.Types;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
-
-public interface IIncompleteSeriesProvider
+namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO
 {
-    Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(CancellationToken token);
-}
-
-public class IncompleteSeriesProvider : IIncompleteSeriesProvider
-{
-    private readonly ITableClientFactory<AnimeInfoWithImageStorage> _tableClientFactory;
-
-    public IncompleteSeriesProvider(ITableClientFactory<AnimeInfoWithImageStorage> tableClientFactory)
+    public interface IIncompleteSeriesProvider
     {
-        _tableClientFactory = tableClientFactory;
+        Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(CancellationToken token);
     }
 
-    public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(
-        CancellationToken token)
+    public class IncompleteSeriesProvider : IIncompleteSeriesProvider
     {
-        return _tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<AnimeInfoWithImageStorage>(a =>
-                a.Status == SeriesStatus.Ongoing)));
+        private readonly ITableClientFactory<AnimeInfoWithImageStorage> _tableClientFactory;
+
+        public IncompleteSeriesProvider(ITableClientFactory<AnimeInfoWithImageStorage> tableClientFactory)
+        {
+            _tableClientFactory = tableClientFactory;
+        }
+
+        public Task<Either<DomainError, ImmutableList<AnimeInfoWithImageStorage>>> GetIncompleteSeries(
+            CancellationToken token)
+        {
+            return _tableClientFactory.GetClient()
+                .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<AnimeInfoWithImageStorage>(a =>
+                    a.Status == SeriesStatus.Ongoing)));
+        }
     }
 }

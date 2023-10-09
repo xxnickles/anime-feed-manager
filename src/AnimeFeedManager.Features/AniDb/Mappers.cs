@@ -1,23 +1,24 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Events;
+﻿using AnimeFeedManager.Common.Domain.Events;
 
-namespace AnimeFeedManager.Features.AniDb;
-
-internal static class AniDbMappers
+namespace AnimeFeedManager.Features.AniDb
 {
-    internal static DownloadImageEvent MapImages(SeriesContainer container, SeriesType type)
+    internal static class AniDbMappers
     {
+        internal static DownloadImageEvent MapImages(SeriesContainer container, SeriesType type)
+        {
 
-        var season = container.SeasonInfo.Season;
-        var seasonYear = container.SeasonInfo.Year;
+            var season = container.SeasonInfo.Season;
+            var seasonYear = container.SeasonInfo.Year;
         
-        var partition = IdHelpers.GenerateAnimePartitionKey(season, (ushort)seasonYear);
-        var directory = $"{seasonYear}/{season}";
-        return new DownloadImageEvent(
-            partition,
-            container.Id,
-            directory,
-            IdHelpers.CleanAndFormatAnimeTitle(container.Title),
-            container.ImageUrl ?? string.Empty,
-            type);
+            var partition = IdHelpers.GenerateAnimePartitionKey(season, (ushort)seasonYear);
+            var directory = $"{seasonYear}/{season}";
+            return new DownloadImageEvent(
+                partition,
+                container.Id,
+                directory,
+                IdHelpers.CleanAndFormatAnimeTitle(container.Title),
+                container.ImageUrl ?? string.Empty,
+                type);
+        }
     }
 }

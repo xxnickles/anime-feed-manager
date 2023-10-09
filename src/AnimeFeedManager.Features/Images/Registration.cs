@@ -1,16 +1,17 @@
 ﻿using AnimeFeedManager.Features.Images.IO;
 
-namespace AnimeFeedManager.Features.Images;
-
-public static class ImageRegistration
+namespace AnimeFeedManager.Features.Images
 {
-    public static IServiceCollection RegisterImageServices(this IServiceCollection services)
+    public static class ImageRegistration
     {
-        services.TryAddSingleton<IImagesBlobStore, AzureImagesBlobStore>();
-        services.TryAddScoped<ITvImageStorage, TvImageStorage>();
-        services.TryAddScoped<IOvasImageStorage, OvasImageStorage>();
-        services.TryAddScoped<IMoviesImageStorage, MoviesImageStorage>();
-        services.TryAddScoped<ImageAdder>();
-        return services;
+        public static IServiceCollection RegisterImageServices(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IImagesBlobStore, AzureImagesBlobStore>();
+            services.TryAddScoped<ITvImageStorage, TvImageStorage>();
+            services.TryAddScoped<IOvasImageStorage, OvasImageStorage>();
+            services.TryAddScoped<IMoviesImageStorage, MoviesImageStorage>();
+            services.TryAddScoped<ImageAdder>();
+            return services;
+        }
     }
 }

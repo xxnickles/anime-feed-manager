@@ -1,21 +1,22 @@
-﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
-
-internal static class AzureTableMap
+﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage
 {
-    internal readonly struct StoreTo
+    internal static class AzureTableMap
     {
-        internal const string AnimeLibrary = "AnimeLibrary";
-        internal const string Subscriptions = "Subscriptions";
-        internal const string AvailableSeasons = "AvailableSeasons";
-        internal const string InterestedSeries = "InterestedSeries";
-        internal const string FeedTitles = "FeedTitles";
-        internal const string ProcessedTitles = "ProcessedTitles";
-        internal const string Users = "Users";
-        internal const string OvaLibrary = "OvaLibrary";
-        internal const string MovieLibrary = "MovieLibrary";
-        internal const string MovieSubscriptions = "MovieSubscriptions";
-        internal const string OvaSubscriptions = "OvaSubscriptions";
-        internal const string Notifications = "Notifications";
-        internal const string StateUpdates = "StateUpdates";
+        internal readonly struct StoreTo
+        {
+            internal const string AnimeLibrary = "AnimeLibrary";
+            internal const string Subscriptions = "Subscriptions";
+            internal const string AvailableSeasons = "AvailableSeasons";
+            internal const string InterestedSeries = "InterestedSeries";
+            internal const string FeedTitles = "FeedTitles";
+            internal const string ProcessedTitles = "ProcessedTitles";
+            internal const string Users = "Users";
+            internal const string OvaLibrary = "OvaLibrary";
+            internal const string MovieLibrary = "MovieLibrary";
+            internal const string MovieSubscriptions = "MovieSubscriptions";
+            internal const string OvaSubscriptions = "OvaSubscriptions";
+            internal const string Notifications = "Notifications";
+            internal const string StateUpdates = "StateUpdates";
+        }
     }
 }

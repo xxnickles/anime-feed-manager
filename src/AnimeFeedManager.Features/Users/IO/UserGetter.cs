@@ -1,42 +1,43 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Users.Types;
 
-namespace AnimeFeedManager.Features.Users.IO;
-
-public interface IUserGetter
+namespace AnimeFeedManager.Features.Users.IO
 {
-    Task<Either<DomainError, ImmutableList<string>>> GetAvailableUsers(CancellationToken token);
-    Task<Either<DomainError, Unit>> UserExist(UserId userId, CancellationToken token);
-}
-
-public class UserGetter : IUserGetter
-{
-    private readonly ITableClientFactory<UserStorage> _tableClientFactory;
-
-    public UserGetter(
-        ITableClientFactory<UserStorage> tableClientFactory)
+    public interface IUserGetter
     {
-        _tableClientFactory = tableClientFactory;
+        Task<Either<DomainError, ImmutableList<string>>> GetAvailableUsers(CancellationToken token);
+        Task<Either<DomainError, Unit>> UserExist(UserId userId, CancellationToken token);
     }
 
-    public Task<Either<DomainError, ImmutableList<string>>> GetAvailableUsers(CancellationToken token)
+    public class UserGetter : IUserGetter
     {
-        return _tableClientFactory.GetClient()
-            .BindAsync(client =>
-                TableUtils.ExecuteQuery(() =>
-                    client.QueryAsync<UserStorage>(u => u.PartitionKey == Constants.UserPartitionKey,
-                        cancellationToken: token)))
-            .MapAsync(items => items.ConvertAll(user => user.RowKey ?? string.Empty));
-    }
+        private readonly ITableClientFactory<UserStorage> _tableClientFactory;
 
-    public Task<Either<DomainError, Unit>> UserExist(UserId userId, CancellationToken token)
-    {
-        return _tableClientFactory.GetClient()
-            .BindAsync(client =>
-                TableUtils.ExecuteQueryWithNotFound(() =>
-                    client.QueryAsync<UserStorage>(
-                        u => u.PartitionKey == Constants.UserPartitionKey && u.RowKey == userId,
-                        cancellationToken: token)))
-            .MapAsync(_ => unit);
+        public UserGetter(
+            ITableClientFactory<UserStorage> tableClientFactory)
+        {
+            _tableClientFactory = tableClientFactory;
+        }
+
+        public Task<Either<DomainError, ImmutableList<string>>> GetAvailableUsers(CancellationToken token)
+        {
+            return _tableClientFactory.GetClient()
+                .BindAsync(client =>
+                    TableUtils.ExecuteQuery(() =>
+                        client.QueryAsync<UserStorage>(u => u.PartitionKey == Constants.UserPartitionKey,
+                            cancellationToken: token)))
+                .MapAsync(items => items.ConvertAll(user => user.RowKey ?? string.Empty));
+        }
+
+        public Task<Either<DomainError, Unit>> UserExist(UserId userId, CancellationToken token)
+        {
+            return _tableClientFactory.GetClient()
+                .BindAsync(client =>
+                    TableUtils.ExecuteQueryWithNotFound(() =>
+                        client.QueryAsync<UserStorage>(
+                            u => u.PartitionKey == Constants.UserPartitionKey && u.RowKey == userId,
+                            cancellationToken: token)))
+                .MapAsync(_ => unit);
+        }
     }
 }

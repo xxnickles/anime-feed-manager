@@ -1,34 +1,36 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using AnimeFeedManager.Features.Common.Dto;
+using AnimeFeedManager.Common.Dto;
+using SimpleUserContext = AnimeFeedManager.Common.Dto.SimpleUserContext;
 
-namespace AnimeFeedManager.WebApp.Services;
-
-public interface IUserService
+namespace AnimeFeedManager.WebApp.Services
 {
-    public Task MergeUser(SimpleUser user, CancellationToken cancellationToken = default);
-    public Task<bool> UserExist(string id, CancellationToken cancellationToken = default);
-}
-
-public class UserService : IUserService
-{
-    private readonly HttpClient _httpClient;
-
-    public UserService(HttpClient httpClient)
+    public interface IUserService
     {
-        _httpClient = httpClient;
+        public Task MergeUser(SimpleUser user, CancellationToken cancellationToken = default);
+        public Task<bool> UserExist(string id, CancellationToken cancellationToken = default);
     }
 
-    public async Task MergeUser(SimpleUser user, CancellationToken cancellationToken = default)
+    public class UserService : IUserService
     {
-        var result = await _httpClient.PostAsJsonAsync("api/user", user, SimpleUserContext.Default.SimpleUser,
-            cancellationToken: cancellationToken);
-        await result.CheckForProblemDetails();
-    }
+        private readonly HttpClient _httpClient;
 
-    public async Task<bool> UserExist(string id, CancellationToken cancellationToken = default)
-    {
-        var response = await _httpClient.GetAsync($"api/user/{id}", cancellationToken);
-        return response.StatusCode == HttpStatusCode.Accepted;
+        public UserService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public async Task MergeUser(SimpleUser user, CancellationToken cancellationToken = default)
+        {
+            var result = await _httpClient.PostAsJsonAsync("api/user", user, SimpleUserContext.Default.SimpleUser,
+                cancellationToken: cancellationToken);
+            await result.CheckForProblemDetails();
+        }
+
+        public async Task<bool> UserExist(string id, CancellationToken cancellationToken = default)
+        {
+            var response = await _httpClient.GetAsync($"api/user/{id}", cancellationToken);
+            return response.StatusCode == HttpStatusCode.Accepted;
+        }
     }
 }

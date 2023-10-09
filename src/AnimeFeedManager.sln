@@ -21,7 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{7141
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features.Tests", "AnimeFeedManager.Features.Tests\AnimeFeedManager.Features.Tests.csproj", "{7FAAF47E-037F-4B0C-8600-0AD6B3DC77D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features.Common", "AnimeFeedManager.Features.Common\AnimeFeedManager.Features.Common.csproj", "{9B66E1B2-7416-4858-B68A-6763A4C64279}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Common", "AnimeFeedManager.Common\AnimeFeedManager.Common.csproj", "{9B66E1B2-7416-4858-B68A-6763A4C64279}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

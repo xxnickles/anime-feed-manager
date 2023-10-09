@@ -1,50 +1,51 @@
-using AnimeFeedManager.Features.Common.Domain.Errors;
-using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Maintenance.IO;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Maintenance;
-
-public class CleanStorage
+namespace AnimeFeedManager.Functions.Maintenance
 {
-    private readonly IStorageCleanup _storageCleanup;
-    private readonly ILogger<CleanStorage> _logger;
-
-    public CleanStorage(IStorageCleanup storageCleanup, ILoggerFactory loggerFactory)
+    public class CleanStorage
     {
-        _storageCleanup = storageCleanup;
-        _logger = loggerFactory.CreateLogger<CleanStorage>();
-    }
+        private readonly IStorageCleanup _storageCleanup;
+        private readonly ILogger<CleanStorage> _logger;
 
-    [Function("CleanOldNotifications")]
-    public async Task RunCleanNotifications([TimerTrigger("0 0 0 1 * *")] TimerInfo timer)
-    {
-        var result = await _storageCleanup.CleanOldNotifications(DateTime.Now.AddDays(-30), default);
-        result.Match(
-            _ => { _logger.LogInformation("Old notifications have been cleaned"); },
-            e => e.LogDomainError(_logger)
-        );
-    }
-
-    [Function("CleanOldState")]
-    public async Task RunCleanState([TimerTrigger("0 0 10 * * SAT")] TimerInfo timer)
-    {
-        var notificationTypes = new[]
+        public CleanStorage(IStorageCleanup storageCleanup, ILoggerFactory loggerFactory)
         {
-            NotificationTarget.Admin,
-            NotificationTarget.Images,
-            NotificationTarget.Movie,
-            NotificationTarget.Ova,
-            NotificationTarget.Tv
-        };
+            _storageCleanup = storageCleanup;
+            _logger = loggerFactory.CreateLogger<CleanStorage>();
+        }
 
-        foreach (var type in notificationTypes)
+        [Function("CleanOldNotifications")]
+        public async Task RunCleanNotifications([TimerTrigger("0 0 0 1 * *")] TimerInfo timer)
         {
-            var result = await _storageCleanup.CleanOldState(type, DateTime.Now.AddDays(-7), default);
+            var result = await _storageCleanup.CleanOldNotifications(DateTime.Now.AddDays(-30), default);
             result.Match(
-                _ => { _logger.LogInformation("Old state has been cleaned"); },
+                _ => { _logger.LogInformation("Old notifications have been cleaned"); },
                 e => e.LogDomainError(_logger)
             );
+        }
+
+        [Function("CleanOldState")]
+        public async Task RunCleanState([TimerTrigger("0 0 10 * * SAT")] TimerInfo timer)
+        {
+            var notificationTypes = new[]
+            {
+                NotificationTarget.Admin,
+                NotificationTarget.Images,
+                NotificationTarget.Movie,
+                NotificationTarget.Ova,
+                NotificationTarget.Tv
+            };
+
+            foreach (var type in notificationTypes)
+            {
+                var result = await _storageCleanup.CleanOldState(type, DateTime.Now.AddDays(-7), default);
+                result.Match(
+                    _ => { _logger.LogInformation("Old state has been cleaned"); },
+                    e => e.LogDomainError(_logger)
+                );
+            }
         }
     }
 }

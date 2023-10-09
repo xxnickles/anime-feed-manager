@@ -1,26 +1,27 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Tv.Types;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
-
-public interface ITvSeriesStore
+namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO
 {
-    Task<Either<DomainError, Unit>> Add(ImmutableList<AnimeInfoStorage> series, CancellationToken token);
-}
-
-public class TvSeriesStore : ITvSeriesStore
-{
-    private readonly ITableClientFactory<AnimeInfoStorage> _tableClientFactory;
-
-    public TvSeriesStore(ITableClientFactory<AnimeInfoStorage> tableClientFactory)
+    public interface ITvSeriesStore
     {
-        _tableClientFactory = tableClientFactory;
+        Task<Either<DomainError, Unit>> Add(ImmutableList<AnimeInfoStorage> series, CancellationToken token);
     }
 
-    public Task<Either<DomainError, Unit>> Add(ImmutableList<AnimeInfoStorage> series, CancellationToken token)
+    public class TvSeriesStore : ITvSeriesStore
     {
-        return _tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.BatchAdd(client, series, token))
-            .MapAsync(_ => unit);
+        private readonly ITableClientFactory<AnimeInfoStorage> _tableClientFactory;
+
+        public TvSeriesStore(ITableClientFactory<AnimeInfoStorage> tableClientFactory)
+        {
+            _tableClientFactory = tableClientFactory;
+        }
+
+        public Task<Either<DomainError, Unit>> Add(ImmutableList<AnimeInfoStorage> series, CancellationToken token)
+        {
+            return _tableClientFactory.GetClient()
+                .BindAsync(client => TableUtils.BatchAdd(client, series, token))
+                .MapAsync(_ => unit);
+        }
     }
 }

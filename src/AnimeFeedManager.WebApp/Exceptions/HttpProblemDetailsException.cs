@@ -1,12 +1,13 @@
 using System.Net;
 
-namespace AnimeFeedManager.WebApp.Exceptions;
-
-public class HttpProblemDetailsException : HttpRequestException
+namespace AnimeFeedManager.WebApp.Exceptions
 {
-    public string Detail { get; }
-    public HttpProblemDetailsException(string message, string detail, HttpStatusCode statusCode) : base(message,null, statusCode)
+    public class HttpProblemDetailsException : HttpRequestException
     {
-        Detail = detail;
+        public string Detail { get; }
+        public HttpProblemDetailsException(string message, string detail, HttpStatusCode statusCode) : base(message,null, statusCode)
+        {
+            Detail = detail;
+        }
     }
 }

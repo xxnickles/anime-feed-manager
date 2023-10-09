@@ -1,30 +1,31 @@
 using System.Collections.Immutable;
-using AnimeFeedManager.Features.Common.Dto;
+using AnimeFeedManager.Common.Dto;
 
-namespace AnimeFeedManager.WebApp.Services;
-
-public interface ISeasonFetcherService
+namespace AnimeFeedManager.WebApp.Services
 {
-    Task<ImmutableList<SimpleSeasonInfo>> GetAvailableSeasons(CancellationToken cancellationToken = default);
-}
-
-public sealed class SeasonService : ISeasonFetcherService
-{
-    private readonly HttpClient _httpClient;
-
-    public SeasonService(
-        HttpClient httpClient)
+    public interface ISeasonFetcherService
     {
-        _httpClient = httpClient;
+        Task<ImmutableList<SimpleSeasonInfo>> GetAvailableSeasons(CancellationToken cancellationToken = default);
     }
 
-    public async Task<ImmutableList<SimpleSeasonInfo>> GetAvailableSeasons(
-        CancellationToken cancellationToken = default)
+    public sealed class SeasonService : ISeasonFetcherService
     {
-        var response = await _httpClient.GetAsync("api/seasons", cancellationToken);
+        private readonly HttpClient _httpClient;
 
-        var value = await response.MapToObject(Array.Empty<SimpleSeasonInfo>());
+        public SeasonService(
+            HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
 
-        return value.ToImmutableList();
+        public async Task<ImmutableList<SimpleSeasonInfo>> GetAvailableSeasons(
+            CancellationToken cancellationToken = default)
+        {
+            var response = await _httpClient.GetAsync("api/seasons", cancellationToken);
+
+            var value = await response.MapToObject(Array.Empty<SimpleSeasonInfo>());
+
+            return value.ToImmutableList();
+        }
     }
 }

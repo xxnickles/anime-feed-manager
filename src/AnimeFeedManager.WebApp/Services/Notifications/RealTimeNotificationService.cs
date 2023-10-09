@@ -1,98 +1,99 @@
 ﻿using System.Collections.Immutable;
-using AnimeFeedManager.Features.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Common.Domain.Notifications.Base;
 using Blazored.LocalStorage;
 
-namespace AnimeFeedManager.WebApp.Services.Notifications;
-
-public interface IRealtimeNotificationService
+namespace AnimeFeedManager.WebApp.Services.Notifications
 {
-    event Action? NotificationsUpdated;
-    ImmutableList<ServerNotification> Notifications { get; }
-    Task AddNotification(ServerNotification notification);
-    Task LoadLocalNotifications();
-    Task SetNotificationViewed(string id);
-    Task SetAllNotificationViewed();
-    Task RemoveAll();
-    Task RemoveAdminNotifications();
-}
-
-public class RealTimeRealtimeNotificationService : IRealtimeNotificationService
-{
-    private readonly ILocalStorageService _localStorage;
-    private const string NotificationsKey = "notifications";
-    private const byte MaxNotifications = 5;
-
-    public RealTimeRealtimeNotificationService(ILocalStorageService localStorage)
+    public interface IRealtimeNotificationService
     {
-        _localStorage = localStorage;
+        event Action? NotificationsUpdated;
+        ImmutableList<ServerNotification> Notifications { get; }
+        Task AddNotification(ServerNotification notification);
+        Task LoadLocalNotifications();
+        Task SetNotificationViewed(string id);
+        Task SetAllNotificationViewed();
+        Task RemoveAll();
+        Task RemoveAdminNotifications();
     }
+
+    public class RealTimeRealtimeNotificationService : IRealtimeNotificationService
+    {
+        private readonly ILocalStorageService _localStorage;
+        private const string NotificationsKey = "notifications";
+        private const byte MaxNotifications = 5;
+
+        public RealTimeRealtimeNotificationService(ILocalStorageService localStorage)
+        {
+            _localStorage = localStorage;
+        }
     
-    public event Action? NotificationsUpdated;
+        public event Action? NotificationsUpdated;
 
-    public ImmutableList<ServerNotification> Notifications { private set; get; } =
-        ImmutableList<ServerNotification>.Empty;
+        public ImmutableList<ServerNotification> Notifications { private set; get; } =
+            ImmutableList<ServerNotification>.Empty;
 
-    public async Task AddNotification(ServerNotification notification)
-    {
-        if (Notifications.Count >= MaxNotifications)
+        public async Task AddNotification(ServerNotification notification)
         {
-            Notifications = Notifications.RemoveRange(0, Notifications.Count - MaxNotifications + 1);
+            if (Notifications.Count >= MaxNotifications)
+            {
+                Notifications = Notifications.RemoveRange(0, Notifications.Count - MaxNotifications + 1);
+            }
+
+            Notifications = Notifications.Add(notification);
+            await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+            NotificationsUpdated?.Invoke();
         }
 
-        Notifications = Notifications.Add(notification);
-        await _localStorage.SetItemAsync(NotificationsKey, Notifications);
-        NotificationsUpdated?.Invoke();
-    }
 
-
-    public async Task LoadLocalNotifications()
-    {
-        if (await _localStorage.ContainKeyAsync(NotificationsKey))
+        public async Task LoadLocalNotifications()
         {
-            var storedNotifications =
-                await _localStorage.GetItemAsync<IEnumerable<ServerNotification>>(NotificationsKey);
-            Notifications = storedNotifications?.ToImmutableList() ?? ImmutableList<ServerNotification>.Empty;
+            if (await _localStorage.ContainKeyAsync(NotificationsKey))
+            {
+                var storedNotifications =
+                    await _localStorage.GetItemAsync<IEnumerable<ServerNotification>>(NotificationsKey);
+                Notifications = storedNotifications?.ToImmutableList() ?? ImmutableList<ServerNotification>.Empty;
+            }
+            else
+            {
+                Notifications = ImmutableList<ServerNotification>.Empty;
+            }
+
+            NotificationsUpdated?.Invoke();
         }
-        else
+
+        public async Task SetNotificationViewed(string id)
+        {
+            var target = Notifications.FirstOrDefault(n => n.Id == id);
+            if (target is not null)
+            {
+                Notifications = Notifications.Replace(target, target with { Read = true });
+                await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+                NotificationsUpdated?.Invoke();
+            }
+        }
+
+        public async Task SetAllNotificationViewed()
+        {
+            Notifications = Notifications.ConvertAll(n => n with { Read = true });
+            await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+            NotificationsUpdated?.Invoke();
+        }
+
+        public async Task RemoveAll()
         {
             Notifications = ImmutableList<ServerNotification>.Empty;
-        }
-
-        NotificationsUpdated?.Invoke();
-    }
-
-    public async Task SetNotificationViewed(string id)
-    {
-        var target = Notifications.FirstOrDefault(n => n.Id == id);
-        if (target is not null)
-        {
-            Notifications = Notifications.Replace(target, target with { Read = true });
-            await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+            await _localStorage.RemoveItemAsync(NotificationsKey);
             NotificationsUpdated?.Invoke();
         }
-    }
 
-    public async Task SetAllNotificationViewed()
-    {
-        Notifications = Notifications.ConvertAll(n => n with { Read = true });
-        await _localStorage.SetItemAsync(NotificationsKey, Notifications);
-        NotificationsUpdated?.Invoke();
-    }
-
-    public async Task RemoveAll()
-    {
-        Notifications = ImmutableList<ServerNotification>.Empty;
-        await _localStorage.RemoveItemAsync(NotificationsKey);
-        NotificationsUpdated?.Invoke();
-    }
-
-    public async Task RemoveAdminNotifications()
-    {
-        if (Notifications.Any())
+        public async Task RemoveAdminNotifications()
         {
-            Notifications = Notifications.Where(n => n.Audience != TargetAudience.Admins).ToImmutableList();
-            await _localStorage.SetItemAsync(NotificationsKey, Notifications);
-            NotificationsUpdated?.Invoke();
+            if (Notifications.Any())
+            {
+                Notifications = Notifications.Where(n => n.Audience != TargetAudience.Admins).ToImmutableList();
+                await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+                NotificationsUpdated?.Invoke();
+            }
         }
     }
 }

@@ -1,40 +1,41 @@
-﻿using AnimeFeedManager.Features.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Maintenance.IO;
-
-public interface IRemoveProcessedTitles
+namespace AnimeFeedManager.Features.Maintenance.IO
 {
-    Task<Either<DomainError, Unit>> Remove(DateTimeOffset time, CancellationToken token);
-}
-
-public class RemoveProcessedTitles : IRemoveProcessedTitles
-{
-    private readonly ITableClientFactory<ProcessedTitlesStorage> _clientFactory;
-
-    public RemoveProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clientFactory)
+    public interface IRemoveProcessedTitles
     {
-        _clientFactory = clientFactory;
+        Task<Either<DomainError, Unit>> Remove(DateTimeOffset time, CancellationToken token);
     }
 
-    public Task<Either<DomainError, Unit>> Remove(DateTimeOffset time, CancellationToken token)
+    public class RemoveProcessedTitles : IRemoveProcessedTitles
     {
-        return _clientFactory.GetClient()
-            .BindAsync(client => GetItems(client, time, token))
-            .BindAsync(param => Remove(param, token));
-    }
+        private readonly ITableClientFactory<ProcessedTitlesStorage> _clientFactory;
 
-    private static Task<Either<DomainError, (TableClient client, ImmutableList<ProcessedTitlesStorage> results)>> GetItems(
-        TableClient client, DateTimeOffset time, CancellationToken token)
-    {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
-                client.QueryAsync<ProcessedTitlesStorage>(title => title.Timestamp <= time, cancellationToken: token))
-            .MapAsync(results => (client, results));
-    }
+        public RemoveProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clientFactory)
+        {
+            _clientFactory = clientFactory;
+        }
 
-    private static Task<Either<DomainError, Unit>> Remove(
-        (TableClient client, ImmutableList<ProcessedTitlesStorage> results) param, CancellationToken token)
-    {
-       return TableUtils.BatchDelete(param.client, param.results, token);
-    } 
+        public Task<Either<DomainError, Unit>> Remove(DateTimeOffset time, CancellationToken token)
+        {
+            return _clientFactory.GetClient()
+                .BindAsync(client => GetItems(client, time, token))
+                .BindAsync(param => Remove(param, token));
+        }
+
+        private static Task<Either<DomainError, (TableClient client, ImmutableList<ProcessedTitlesStorage> results)>> GetItems(
+            TableClient client, DateTimeOffset time, CancellationToken token)
+        {
+            return TableUtils.ExecuteQueryWithEmpty(() =>
+                    client.QueryAsync<ProcessedTitlesStorage>(title => title.Timestamp <= time, cancellationToken: token))
+                .MapAsync(results => (client, results));
+        }
+
+        private static Task<Either<DomainError, Unit>> Remove(
+            (TableClient client, ImmutableList<ProcessedTitlesStorage> results) param, CancellationToken token)
+        {
+            return TableUtils.BatchDelete(param.client, param.results, token);
+        } 
+    }
 }
