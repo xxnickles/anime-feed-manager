@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Types;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Tv.Subscriptions;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;

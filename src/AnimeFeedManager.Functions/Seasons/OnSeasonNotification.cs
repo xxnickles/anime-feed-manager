@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using AnimeFeedManager.Common;
-using AnimeFeedManager.Common.Domain;
 using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Notifications;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.RealTimeNotifications;

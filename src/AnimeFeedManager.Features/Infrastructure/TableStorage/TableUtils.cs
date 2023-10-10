@@ -153,7 +153,12 @@ internal static class TableUtils
                 .Select(entityToDelete => new TableTransactionAction(TableTransactionActionType.Delete, entityToDelete))
                 .ToList();
 
-            await tableClient.SubmitTransactionAsync(deleteEntitiesBatch, token).ConfigureAwait(false);
+            const ushort limit = 99;
+            for (ushort i = 0; i < deleteEntitiesBatch.Count; i += limit)
+            {
+                _ = await tableClient.SubmitTransactionAsync(deleteEntitiesBatch.Skip(i).Take(limit), token)
+                    .ConfigureAwait(false);
+            }
             return unit;
         }
         catch (Exception e)
@@ -167,12 +172,19 @@ internal static class TableUtils
     {
         try
         {
+            if (!entities.Any()) return unit;
             // Create the batch.
             var addEntitiesBatch = new List<TableTransactionAction>();
             addEntitiesBatch.AddRange(
-                entities.Select(tableEntity => new TableTransactionAction(TableTransactionActionType.UpsertMerge, tableEntity)));
+                entities.Select(tableEntity =>
+                    new TableTransactionAction(TableTransactionActionType.UpsertMerge, tableEntity)));
+            const ushort limit = 99;
+            for (ushort i = 0; i < addEntitiesBatch.Count; i += limit)
+            {
+                _ = await tableClient.SubmitTransactionAsync(addEntitiesBatch.Skip(i).Take(limit), token)
+                    .ConfigureAwait(false);
+            }
 
-            _ = await tableClient.SubmitTransactionAsync(addEntitiesBatch, token).ConfigureAwait(false);
             return unit;
         }
         catch (Exception e)

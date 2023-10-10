@@ -48,16 +48,16 @@ public sealed class Scrap
         _logger.LogInformation("Automated Update Library (Manual trigger) for Custom Season");
        
         
-        var result = await req.AllowAdminOnly()
-            .BindAsync(_ => SeasonValidators.Validate(season, year))
-            .MapAsync(param => param.ToSeasonParameter())
-            .BindAsync(param =>
-                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, param, ScrapType.BySeason)));
-
-        // var result = await SeasonValidators.Validate(season, year)
-        //     .Map(param => param.ToSeasonParameter())
+        // var result = await req.AllowAdminOnly()
+        //     .BindAsync(_ => SeasonValidators.Validate(season, year))
+        //     .MapAsync(param => param.ToSeasonParameter())
         //     .BindAsync(param =>
         //         _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, param, ScrapType.BySeason)));
+
+        var result = await SeasonValidators.Validate(season, year)
+            .Map(param => param.ToSeasonParameter())
+            .BindAsync(param =>
+                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Tv, param, ScrapType.BySeason)));
 
         return await result.ToResponse(req, _logger);
 

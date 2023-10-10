@@ -1,4 +1,3 @@
-using AnimeFeedManager.Common.Types;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 using AnimeFeedManager.Functions.ResponseExtensions;

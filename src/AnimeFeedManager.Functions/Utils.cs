@@ -1,6 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Dto;
-using AnimeFeedManager.Common.Types;
 using AnimeFeedManager.Common.Utils;
 
 namespace AnimeFeedManager.Functions;

@@ -1,6 +1,5 @@
 using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Infrastructure.SendGrid;
 using AnimeFeedManager.Features.Notifications.IO;

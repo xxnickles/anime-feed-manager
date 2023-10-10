@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Types;
-using AnimeFeedManager.Common.Utils;
+﻿using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Users.IO;
 using AnimeFeedManager.Functions.ResponseExtensions;
 using Microsoft.Extensions.Logging;

@@ -42,6 +42,7 @@ public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITa
         return type.Name switch
         {
             nameof(AnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
+            nameof(LegacyAnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             nameof(AnimeInfoWithImageStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             nameof(SubscriptionStorage) => AzureTableMap.StoreTo.Subscriptions,
             nameof(SeasonStorage) => AzureTableMap.StoreTo.AvailableSeasons,

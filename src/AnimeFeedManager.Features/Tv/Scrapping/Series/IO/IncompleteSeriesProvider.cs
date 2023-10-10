@@ -23,6 +23,6 @@ public class IncompleteSeriesProvider : IIncompleteSeriesProvider
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<AnimeInfoWithImageStorage>(a =>
-                a.Status == SeriesStatus.Ongoing)));
+                a.Status == SeriesStatus.Ongoing, cancellationToken: token)));
     }
 }
