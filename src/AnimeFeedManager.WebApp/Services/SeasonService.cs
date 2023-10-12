@@ -23,7 +23,7 @@ public sealed class SeasonService : ISeasonFetcherService
     {
         var response = await _httpClient.GetAsync("api/seasons", cancellationToken);
 
-        var value = await response.MapToObject(Array.Empty<SimpleSeasonInfo>());
+        var value = await response.MapToObject(SimpleSeasonInfoContext.Default.SimpleSeasonInfoArray, Array.Empty<SimpleSeasonInfo>());
 
         return value.ToImmutableList();
     }

@@ -66,9 +66,7 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         try
         {
             var response = await _httpClient.PostAsync("api/negotiate", new StringContent(string.Empty));
-            var infoStream = await response.Content.ReadAsStreamAsync();
-
-            var info = await JsonSerializer.DeserializeAsync<ConnectionInfo>(infoStream);
+            var info = await response.Content.ReadFromJsonAsync(ConnectionInfoContext.Default.ConnectionInfo);
 
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(info?.Url ?? string.Empty,

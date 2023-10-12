@@ -21,6 +21,6 @@ public class TvCollectionService : ITvCollectionFetcher
         CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/tv/{season.Year}/{season.Season}", cancellationToken);
-        return await response.MapToObject<SeasonCollection>(new EmptySeasonCollection());
+        return await response.MapToObject(SeasonCollectionContext.Default.SeasonCollection, new EmptySeasonCollection());
     }
 }
