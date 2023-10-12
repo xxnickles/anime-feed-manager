@@ -34,14 +34,16 @@ public class MoviesSubscriberService : IMoviesSubscriberService
         CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("api/Movies/subscriptions",
-            new ShortSeriesSubscription(subscriber, series, notificationDate), cancellationToken: cancellationToken);
+            new ShortSeriesSubscription(subscriber, series, notificationDate),
+            ShortSeriesSubscriptionContext.Default.ShortSeriesSubscription, cancellationToken: cancellationToken);
         await response.CheckForProblemDetails();
     }
 
     public async Task Unsubscribe(string subscriber, string series, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("api/Movies/subscriptions/unsubscribe",
-            new ShortSeriesUnsubscribe(subscriber, series), cancellationToken: cancellationToken);
+            new ShortSeriesUnsubscribe(subscriber, series),
+            ShortSeriesUnsubscribeContext.Default.ShortSeriesUnsubscribe, cancellationToken: cancellationToken);
         await response.CheckForProblemDetails();
     }
 }
