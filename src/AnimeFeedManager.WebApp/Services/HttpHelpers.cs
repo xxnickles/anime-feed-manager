@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using AnimeFeedManager.WebApp.Exceptions;
 
 namespace AnimeFeedManager.WebApp.Services;
@@ -19,26 +20,14 @@ public static class HttpHelpers
         return result?.ToImmutableList() ?? ImmutableList<string>.Empty;
     }
 
-    public static async Task<T> MapToObject<T>(this HttpResponseMessage response, T defaultValue)
+    public static async Task<T> MapToObject<T>(this HttpResponseMessage response, JsonTypeInfo<T> jsonTypeInfo, T defaultValue)
     {
         if (response.StatusCode == HttpStatusCode.NoContent)
             return defaultValue;
-        // var result = await response.Content.ReadFromJsonAsync<T>();
-        var resultStream = await response.Content.ReadAsStreamAsync();
-        var result = await JsonSerializer.DeserializeAsync<T>(resultStream);
-        
+        var result = await response.Content.ReadFromJsonAsync(jsonTypeInfo);
         return result ?? defaultValue;
     }
 
-    // TODO: Check why doesn't work
-    //public static async Task<T> MapToObject<T>(this HttpResponseMessage response, JsonTypeInfo<T> jsonTypeInfo, T defaultValue)
-    //{
-    //    if (response.StatusCode == HttpStatusCode.NoContent)
-    //        return defaultValue;
-    //    var result = await response.Content.ReadFromJsonAsync(jsonTypeInfo);
-    //    return result ?? defaultValue;
-    //}
-    
     public static async Task<string?> MapToString(this HttpResponseMessage response)
     {
         if (response.StatusCode == HttpStatusCode.NoContent)

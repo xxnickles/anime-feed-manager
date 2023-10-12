@@ -21,6 +21,6 @@ public sealed class OvasCollectionService : IOvasCollectionService
         CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync($"api/ovas/{season.Year}/{season.Season}", cancellationToken);
-        return await response.MapToObject<ShortSeasonCollection>(new EmptyShortSeasonCollection());
+        return await response.MapToObject(ShortSeasonCollectionContext.Default.ShortSeasonCollection, new EmptyShortSeasonCollection());
     }
 }

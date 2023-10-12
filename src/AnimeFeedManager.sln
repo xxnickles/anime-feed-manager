@@ -11,17 +11,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{30A1FB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.WebApp.Tests", "AnimeFeedManager.WebApp.Tests\AnimeFeedManager.WebApp.Tests.csproj", "{7F53CF70-0A21-44AC-92B8-1B39817612C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.WebApp.Authentication", "AnimeFeedManager.WebApp.Authentication\AnimeFeedManager.WebApp.Authentication.csproj", "{5813A94D-2F9E-4867-A019-8F0485723904}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.WebApp.Authentication", "AnimeFeedManager.WebApp.Authentication\AnimeFeedManager.WebApp.Authentication.csproj", "{5813A94D-2F9E-4867-A019-8F0485723904}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features", "AnimeFeedManager.Features\AnimeFeedManager.Features.csproj", "{C45FDC33-7E71-46A6-96B7-E949B01AD73E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Features", "AnimeFeedManager.Features\AnimeFeedManager.Features.csproj", "{C45FDC33-7E71-46A6-96B7-E949B01AD73E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Functions", "AnimeFeedManager.Functions\AnimeFeedManager.Functions.csproj", "{01635DED-9DD8-4763-A447-727319B2CF36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Functions", "AnimeFeedManager.Functions\AnimeFeedManager.Functions.csproj", "{01635DED-9DD8-4763-A447-727319B2CF36}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{71417D4D-4455-47E2-874A-B3B835AF46CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features.Tests", "AnimeFeedManager.Features.Tests\AnimeFeedManager.Features.Tests.csproj", "{7FAAF47E-037F-4B0C-8600-0AD6B3DC77D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Features.Tests", "AnimeFeedManager.Features.Tests\AnimeFeedManager.Features.Tests.csproj", "{7FAAF47E-037F-4B0C-8600-0AD6B3DC77D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Common", "AnimeFeedManager.Common\AnimeFeedManager.Common.csproj", "{9B66E1B2-7416-4858-B68A-6763A4C64279}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Common", "AnimeFeedManager.Common\AnimeFeedManager.Common.csproj", "{9B66E1B2-7416-4858-B68A-6763A4C64279}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,8 +69,8 @@ Global
 		{2DB0E578-C9E8-4845-98E3-DFAD1362944D} = {30A1FBA3-75BF-4B00-9614-90A975B6AF2E}
 		{7F53CF70-0A21-44AC-92B8-1B39817612C5} = {30A1FBA3-75BF-4B00-9614-90A975B6AF2E}
 		{5813A94D-2F9E-4867-A019-8F0485723904} = {30A1FBA3-75BF-4B00-9614-90A975B6AF2E}
-		{01635DED-9DD8-4763-A447-727319B2CF36} = {71417D4D-4455-47E2-874A-B3B835AF46CA}
 		{C45FDC33-7E71-46A6-96B7-E949B01AD73E} = {71417D4D-4455-47E2-874A-B3B835AF46CA}
+		{01635DED-9DD8-4763-A447-727319B2CF36} = {71417D4D-4455-47E2-874A-B3B835AF46CA}
 		{7FAAF47E-037F-4B0C-8600-0AD6B3DC77D9} = {71417D4D-4455-47E2-874A-B3B835AF46CA}
 		{9B66E1B2-7416-4858-B68A-6763A4C64279} = {71417D4D-4455-47E2-874A-B3B835AF46CA}
 	EndGlobalSection
