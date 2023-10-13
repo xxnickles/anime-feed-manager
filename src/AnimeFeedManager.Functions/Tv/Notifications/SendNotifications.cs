@@ -48,7 +48,7 @@ public class SendNotifications
             {
                 var result = await _storeNotification.Add(
                         Guid.NewGuid().ToString(),
-                        notification.Subscriber,
+                        notification.SubscriberId,
                         NotificationTarget.Tv,
                         NotificationArea.Feed,
                         new TvFeedUpdateNotification(TargetAudience.User, NotificationType.Update,
@@ -58,7 +58,7 @@ public class SendNotifications
 
                 result.Match(
                     _ => _logger.LogInformation("Sending notification to {NotificationSubscriber}",
-                        notification.Subscriber),
+                        notification.SubscriberId),
                     error => error.LogDomainError(_logger)
                 );
             }
