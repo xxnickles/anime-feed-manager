@@ -18,7 +18,7 @@ public class RemoveMovieSubscription
 
     [Function("RemoveMovieSubscription")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "Movie/subscriptions/unsubscribe")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "movies/subscriptions/unsubscribe")]
         HttpRequestData req)
     {
         var payload =
