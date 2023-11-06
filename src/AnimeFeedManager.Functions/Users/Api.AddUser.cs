@@ -7,16 +7,9 @@ using SimpleUserContext = AnimeFeedManager.Common.Dto.SimpleUserContext;
 
 namespace AnimeFeedManager.Functions.Users;
 
-public sealed class AddUser
+public sealed class AddUser(IUserStore userStore, ILoggerFactory loggerFactory)
 {
-    private readonly IUserStore _userStore;
-    private readonly ILogger<AddUser> _logger;
-
-    public AddUser(IUserStore userStore, ILoggerFactory loggerFactory)
-    {
-        _userStore = userStore;
-        _logger = loggerFactory.CreateLogger<AddUser>();
-    }
+    private readonly ILogger<AddUser> _logger = loggerFactory.CreateLogger<AddUser>();
 
     [Function("AddUser")]
     public async Task<HttpResponseData> Run(
@@ -26,7 +19,7 @@ public sealed class AddUser
         var payload = await JsonSerializer.DeserializeAsync(req.Body, SimpleUserContext.Default.SimpleUser);
         ArgumentNullException.ThrowIfNull(payload);
         return await Validate(payload)
-            .BindAsync(param => _userStore.AddUser(param.UserId, param.Email, default))
+            .BindAsync(param => userStore.AddUser(param.UserId, param.Email, default))
             .ToResponse(req, _logger);
     }
 

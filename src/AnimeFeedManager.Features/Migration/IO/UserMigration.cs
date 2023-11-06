@@ -8,35 +8,21 @@ using AnimeFeedManager.Features.Users.Types;
 
 namespace AnimeFeedManager.Features.Migration.IO;
 
-public class UserMigration
+public class UserMigration(
+    ITableClientFactory<UserStorage> userTableClientFactory,
+    ITableClientFactory<SubscriptionStorage> subscriptionTableClientFactory,
+    ITableClientFactory<MoviesSubscriptionStorage> moviesSubscriptionTableClientFactory,
+    ITableClientFactory<OvasSubscriptionStorage> ovasSubscriptionTableClientFactory,
+    ITableClientFactory<NotificationStorage> notificationTableClientFactory)
 {
-    private readonly ITableClientFactory<UserStorage> _userTableClientFactory;
-    private readonly ITableClientFactory<SubscriptionStorage> _subscriptionTableClientFactory;
-    private readonly ITableClientFactory<MoviesSubscriptionStorage> _moviesSubscriptionTableClientFactory;
-    private readonly ITableClientFactory<OvasSubscriptionStorage> _ovasSubscriptionTableClientFactory;
-    private readonly ITableClientFactory<NotificationStorage> _notificationTableClientFactory;
+    private readonly ITableClientFactory<MoviesSubscriptionStorage> _moviesSubscriptionTableClientFactory = moviesSubscriptionTableClientFactory;
 
     private record SimpleUser(string Id, string Email);
 
 
-    public UserMigration(
-        ITableClientFactory<UserStorage> userTableClientFactory,
-        ITableClientFactory<SubscriptionStorage> subscriptionTableClientFactory,
-        ITableClientFactory<MoviesSubscriptionStorage> moviesSubscriptionTableClientFactory,
-        ITableClientFactory<OvasSubscriptionStorage> ovasSubscriptionTableClientFactory,
-        ITableClientFactory<NotificationStorage> notificationTableClientFactory)
-    {
-        _userTableClientFactory = userTableClientFactory;
-        _subscriptionTableClientFactory = subscriptionTableClientFactory;
-        _moviesSubscriptionTableClientFactory = moviesSubscriptionTableClientFactory;
-        _ovasSubscriptionTableClientFactory = ovasSubscriptionTableClientFactory;
-        _notificationTableClientFactory = notificationTableClientFactory;
-    }
-
-
     public Task<Either<DomainError, Unit>> MigrateUserData(CancellationToken token)
     {
-        return _userTableClientFactory.GetClient()
+        return userTableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() =>
                 client.QueryAsync<UserStorage>(cancellationToken: token)))
             .MapAsync(items =>
@@ -82,7 +68,7 @@ public class UserMigration
 
     private Task<Either<DomainError, Unit>> ProcessSubscriptions(SimpleUser user, CancellationToken token)
     {
-        return _subscriptionTableClientFactory.GetClient()
+        return subscriptionTableClientFactory.GetClient()
             .BindAsync(client => ProcessSubscriptions(client, user, token));
     }
 
@@ -104,7 +90,7 @@ public class UserMigration
 
     private Task<Either<DomainError, Unit>> ProcessOvasSubscriptions(SimpleUser user, CancellationToken token)
     {
-        return _ovasSubscriptionTableClientFactory.GetClient()
+        return ovasSubscriptionTableClientFactory.GetClient()
             .BindAsync(client => ProcessOvasSubscriptions(client, user, token));
     }
 
@@ -125,7 +111,7 @@ public class UserMigration
 
     private Task<Either<DomainError, Unit>> ProcessMovieSubscriptions(SimpleUser user, CancellationToken token)
     {
-        return _ovasSubscriptionTableClientFactory.GetClient()
+        return ovasSubscriptionTableClientFactory.GetClient()
             .BindAsync(client => ProcessMovieSubscriptions(client, user, token));
     }
 
@@ -148,7 +134,7 @@ public class UserMigration
 
     private Task<Either<DomainError, Unit>> ProcessNotifications(SimpleUser user, CancellationToken token)
     {
-        return _notificationTableClientFactory.GetClient()
+        return notificationTableClientFactory.GetClient()
             .BindAsync(client => ProcessNotifications(client, user, token));
     }
 

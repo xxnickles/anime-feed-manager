@@ -1,13 +1,8 @@
 ﻿namespace AnimeFeedManager.Common.Domain.Errors;
 
-public abstract class DomainError
+public abstract class DomainError(string message)
 {
-    public string Message { get; }
-
-    protected DomainError(string message)
-    {
-        Message = message;
-    }
+    public string Message { get; } = message;
 
     public override string ToString()
     {

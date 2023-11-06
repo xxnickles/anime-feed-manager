@@ -17,21 +17,14 @@ public enum NotificationType
     Error
 }
 
-public abstract class Notification
+public abstract class Notification(
+    TargetAudience targetAudience,
+    NotificationType result,
+    string message)
 {
-    protected Notification(
-        TargetAudience targetAudience,
-        NotificationType result,
-        string message)
-    {
-        TargetAudience = targetAudience;
-        Result = result;
-        Message = message;
-    }
-
-    public TargetAudience TargetAudience { get; set; }
-    public NotificationType Result { get; set; }
-    public string Message { get; set; }
+    public TargetAudience TargetAudience { get; set; } = targetAudience;
+    public NotificationType Result { get; set; } = result;
+    public string Message { get; set; } = message;
 
     public void Deconstruct(out TargetAudience targetAudience, out NotificationType result, out string message)
     {

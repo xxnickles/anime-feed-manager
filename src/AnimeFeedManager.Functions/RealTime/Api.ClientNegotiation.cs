@@ -3,14 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.RealTime;
 
-public class ClientNegotiation
+public class ClientNegotiation(ILoggerFactory loggerFactory)
 {
-    private readonly ILogger<ClientNegotiation> _logger;
-
-    public ClientNegotiation(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger<ClientNegotiation>();
-    }
+    private readonly ILogger<ClientNegotiation> _logger = loggerFactory.CreateLogger<ClientNegotiation>();
 
     [Function("Negotiate")]
     public async Task<HttpResponseData> Negotiate(

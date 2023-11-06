@@ -9,28 +9,15 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Tv.Subscriptions;
 
-public sealed class InterestedToSubscribe
+public sealed class InterestedToSubscribe(
+    ICreateState createState,
+    IDomainPostman domainPostman,
+    ITittlesGetter tittlesGetter,
+    IGetInterestedSeries interestedSeriesGetter)
 {
-    private readonly ICreateState _createState;
-    private readonly IDomainPostman _domainPostman;
-    private readonly ITittlesGetter _tittlesGetter;
-    private readonly IGetInterestedSeries _interestedSeriesGetter;
-
-    public InterestedToSubscribe(
-        ICreateState createState,
-        IDomainPostman domainPostman,
-        ITittlesGetter tittlesGetter,
-        IGetInterestedSeries interestedSeriesGetter)
-    {
-        _createState = createState;
-        _domainPostman = domainPostman;
-        _tittlesGetter = tittlesGetter;
-        _interestedSeriesGetter = interestedSeriesGetter;
-    }
-
     public Task<Either<DomainError, int>> ProcessInterested(UserId userId, CancellationToken token)
     {
-        return _interestedSeriesGetter.Get(userId, token)
+        return interestedSeriesGetter.Get(userId, token)
             .BindAsync(interested => GetSeriesToSubscribe(interested, userId, token))
             .BindAsync(events => ProcessEvents(events, token));
     }
@@ -40,7 +27,7 @@ public sealed class InterestedToSubscribe
         UserId userId,
         CancellationToken token)
     {
-        return _tittlesGetter.GetTitles(token)
+        return tittlesGetter.GetTitles(token)
             .MapAsync(titles => interestedSeries.ConvertAll(interested => (
                     new
                     {
@@ -57,7 +44,7 @@ public sealed class InterestedToSubscribe
     private Task<Either<DomainError, int>> ProcessEvents(ImmutableList<InterestedToSubscription> events,
         CancellationToken token)
     {
-        return _createState.Create(NotificationTarget.Tv, events)
+        return createState.Create(NotificationTarget.Tv, events)
             .BindAsync(stateEvents => SendMessages(stateEvents, token));
     }
 
@@ -65,7 +52,7 @@ public sealed class InterestedToSubscribe
         ImmutableList<StateWrap<InterestedToSubscription>> events, CancellationToken token)
     {
         return await Task.WhenAll(events.AsParallel()
-                .Select(stateWrap => _domainPostman.SendMessage(stateWrap, Box.AutoSubscriptionsProcess, token)))
+                .Select(stateWrap => domainPostman.SendMessage(stateWrap, Box.AutoSubscriptionsProcess, token)))
             .Flatten()
             .MapAsync(results => results.Count);
     }

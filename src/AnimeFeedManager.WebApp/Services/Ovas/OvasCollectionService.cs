@@ -8,19 +8,12 @@ public interface IOvasCollectionService
         CancellationToken cancellationToken = default);
 }
 
-public sealed class OvasCollectionService : IOvasCollectionService
+public sealed class OvasCollectionService(HttpClient httpClient) : IOvasCollectionService
 {
-    private readonly HttpClient _httpClient;
-
-    public OvasCollectionService(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task<ShortSeasonCollection> GetSeasonLibrary(SimpleSeasonInfo season,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/ovas/{season.Year}/{season.Season}", cancellationToken);
+        var response = await httpClient.GetAsync($"api/ovas/{season.Year}/{season.Season}", cancellationToken);
         return await response.MapToObject(ShortSeasonCollectionContext.Default.ShortSeasonCollection, new EmptyShortSeasonCollection());
     }
 }

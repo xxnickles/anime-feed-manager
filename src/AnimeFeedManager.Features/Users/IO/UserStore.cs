@@ -8,18 +8,11 @@ public interface IUserStore
     public Task<Either<DomainError, Unit>> AddUser(UserId id, Email email, CancellationToken cancellationToken);
 }
 
-public sealed class UserStore : IUserStore
+public sealed class UserStore(ITableClientFactory<UserStorage> tableClientFactory) : IUserStore
 {
-    private readonly ITableClientFactory<UserStorage> _tableClientFactory;
-
-    public UserStore(ITableClientFactory<UserStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> AddUser(UserId id, Email email, CancellationToken cancellationToken)
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => CheckEmailExits(client, email, cancellationToken))
             .BindAsync(client => Persist(client, id, email, cancellationToken));
     }

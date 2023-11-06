@@ -5,18 +5,11 @@ using SimpleTvSubscriptionContext = AnimeFeedManager.Common.Dto.SimpleTvSubscrip
 
 namespace AnimeFeedManager.Functions.Tv.Subscriptions;
 
-public class AddInterested
+public class AddInterested(
+    IAddInterested addInterested,
+    ILoggerFactory loggerFactory)
 {
-    private readonly IAddInterested _addInterested;
-    private readonly ILogger<AddInterested> _logger;
-
-    public AddInterested(
-        IAddInterested addInterested,
-        ILoggerFactory loggerFactory)
-    {
-        _addInterested = addInterested;
-        _logger = loggerFactory.CreateLogger<AddInterested>();
-    }
+    private readonly ILogger<AddInterested> _logger = loggerFactory.CreateLogger<AddInterested>();
 
     [Function("AddTvInterested")]
     public async Task<HttpResponseData> Run(
@@ -28,7 +21,7 @@ public class AddInterested
         ArgumentNullException.ThrowIfNull(payload);
 
         return await Utils.Validate(payload)
-            .BindAsync(param => _addInterested.Add(param.UserId, param.Series, default))
+            .BindAsync(param => addInterested.Add(param.UserId, param.Series, default))
             .ToResponse(req, _logger);
     }
 }

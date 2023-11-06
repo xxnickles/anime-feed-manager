@@ -10,22 +10,16 @@ using Microsoft.Extensions.Configuration;
 
 namespace AnimeFeedManager.WebApp.Authentication;
 
-public class StaticWebAppsAuthenticationStateProvider : AuthenticationStateProvider
+public class StaticWebAppsAuthenticationStateProvider(IConfiguration config, IWebAssemblyHostEnvironment environment)
+    : AuthenticationStateProvider
 {
-    readonly IConfiguration _config;
-    readonly HttpClient _http;
-
-    public StaticWebAppsAuthenticationStateProvider(IConfiguration config, IWebAssemblyHostEnvironment environment)
-    {
-        _config = config;
-        _http = new HttpClient { BaseAddress = new Uri(environment.BaseAddress) };
-    }
+    readonly HttpClient _http = new() { BaseAddress = new Uri(environment.BaseAddress) };
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try
         {
-            string authDataUrl = _config.GetValue("StaticWebAppsAuthentication:AuthenticationDataUrl", "/.auth/me");
+            string authDataUrl = config.GetValue("StaticWebAppsAuthentication:AuthenticationDataUrl", "/.auth/me");
             string json = await _http.GetStringAsync(authDataUrl);
 
             ClaimsPrincipal user = ParseClaims(json);

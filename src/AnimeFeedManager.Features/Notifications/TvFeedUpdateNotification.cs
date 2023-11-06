@@ -4,22 +4,17 @@ using AnimeFeedManager.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Features.Notifications;
 
-public class TvFeedUpdateNotification : Notification
+[method: JsonConstructor]
+public class TvFeedUpdateNotification(
+    TargetAudience targetAudience,
+    NotificationType result,
+    string message,
+    DateTime time,
+    IEnumerable<SubscribedFeed> feeds)
+    : Notification(targetAudience, result, message)
 {
-    public DateTime Time { get; }
-    public IEnumerable<SubscribedFeed> Feeds { get; }
-
-    [JsonConstructor]
-    public TvFeedUpdateNotification(
-        TargetAudience targetAudience, 
-        NotificationType result,
-        string message,
-        DateTime time, 
-        IEnumerable<SubscribedFeed> feeds) : base(targetAudience, result, message)
-    {
-        Time = time;
-        Feeds = feeds;
-    }
+    public DateTime Time { get; } = time;
+    public IEnumerable<SubscribedFeed> Feeds { get; } = feeds;
 
     public override string GetSerializedPayload()
     {

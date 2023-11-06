@@ -8,18 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Ovas.Series;
 
-public sealed class Scrap
+public sealed class Scrap(
+    IDomainPostman domainPostman,
+    ILoggerFactory loggerFactory)
 {
-    private readonly IDomainPostman _domainPostman;
-    private readonly ILogger _logger;
-    
-    public Scrap(
-        IDomainPostman domainPostman,
-        ILoggerFactory loggerFactory)
-    {
-        _domainPostman = domainPostman;
-        _logger = loggerFactory.CreateLogger<Scrap>();
-    }
+    private readonly ILogger _logger = loggerFactory.CreateLogger<Scrap>();
 
     [Function("ScrapLatestOvasSeason")]
     public async Task<HttpResponseData> RunLatest(
@@ -30,7 +23,7 @@ public sealed class Scrap
 
         var result = await req.AllowAdminOnly()
             .BindAsync(_ =>
-                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest)));
+                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest)));
 
         // var result =
         //     await _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest));
@@ -51,7 +44,7 @@ public sealed class Scrap
             .BindAsync(_ => SeasonValidators.Validate(season, year))
             .MapAsync(param => param.ToSeasonParameter())
             .BindAsync(param =>
-                _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, param, ScrapType.BySeason)));
+                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, param, ScrapType.BySeason)));
 
         // var result = await SeasonValidators.Validate(season, year)
         //     .Map(param => param.ToSeasonParameter())

@@ -13,42 +13,34 @@ using Microsoft.JSInterop;
 
 namespace AnimeFeedManager.WebApp.Authentication;
 
-class AppServiceAuthRemoteAuthenticationService<TAuthenticationState> : AuthenticationStateProvider, IRemoteAuthenticationService<TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
+class AppServiceAuthRemoteAuthenticationService<TAuthenticationState>(
+    IOptions<RemoteAuthenticationOptions<AppServiceAuthOptions>> options,
+    NavigationManager navigationManager,
+    IJSRuntime jsRuntime,
+    AppServiceAuthMemoryStorage memoryStorage)
+    : AuthenticationStateProvider, IRemoteAuthenticationService<TAuthenticationState>
+    where TAuthenticationState : RemoteAuthenticationState
 {
     const string BrowserStorageType = "sessionStorage";
     const string StorageKeyPrefix = "Blazor.AppServiceAuth";
-    readonly AppServiceAuthMemoryStorage _memoryStorage;
 
-    public RemoteAuthenticationOptions<AppServiceAuthOptions> Options { get; }
-    public HttpClient HttpClient { get; }
-    public NavigationManager Navigation { get; }
-    public IJSRuntime JsRuntime { get; }
-
-    public AppServiceAuthRemoteAuthenticationService(
-        IOptions<RemoteAuthenticationOptions<AppServiceAuthOptions>> options,
-        NavigationManager navigationManager,
-        IJSRuntime jsRuntime,
-        AppServiceAuthMemoryStorage memoryStorage)
-    {
-        Options = options.Value;
-        HttpClient = new HttpClient() { BaseAddress = new Uri(navigationManager.BaseUri) };
-        Navigation = navigationManager;
-        JsRuntime = jsRuntime;
-        _memoryStorage = memoryStorage;
-    }
+    public RemoteAuthenticationOptions<AppServiceAuthOptions> Options { get; } = options.Value;
+    public HttpClient HttpClient { get; } = new() { BaseAddress = new Uri(navigationManager.BaseUri) };
+    public NavigationManager Navigation { get; } = navigationManager;
+    public IJSRuntime JsRuntime { get; } = jsRuntime;
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try
         {
-            if (_memoryStorage.AuthenticationData == null)
+            if (memoryStorage.AuthenticationData == null)
             {
                 string authDataUrl = Options.ProviderOptions.AuthenticationDataUrl + "/.auth/me";
                 AuthenticationData data = await HttpClient.GetFromJsonAsync<AuthenticationData>(authDataUrl);
-                _memoryStorage.SetAuthenticationData(data);
+                memoryStorage.SetAuthenticationData(data);
             }
 
-            ClientPrincipal principal = _memoryStorage.AuthenticationData.ClientPrincipal;
+            ClientPrincipal principal = memoryStorage.AuthenticationData.ClientPrincipal;
 
             if (principal == null)
             {
@@ -65,7 +57,7 @@ class AppServiceAuthRemoteAuthenticationService<TAuthenticationState> : Authenti
         }
         catch
         {
-            _memoryStorage.SetAuthenticationData(null);
+            memoryStorage.SetAuthenticationData(null);
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
     }

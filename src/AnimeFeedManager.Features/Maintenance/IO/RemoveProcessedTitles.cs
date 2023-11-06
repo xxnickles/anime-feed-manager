@@ -8,18 +8,11 @@ public interface IRemoveProcessedTitles
     Task<Either<DomainError, Unit>> Remove(DateTimeOffset time, CancellationToken token);
 }
 
-public class RemoveProcessedTitles : IRemoveProcessedTitles
+public class RemoveProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clientFactory) : IRemoveProcessedTitles
 {
-    private readonly ITableClientFactory<ProcessedTitlesStorage> _clientFactory;
-
-    public RemoveProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Remove(DateTimeOffset time, CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(client => GetItems(client, time, token))
             .BindAsync(param => Remove(param, token));
     }

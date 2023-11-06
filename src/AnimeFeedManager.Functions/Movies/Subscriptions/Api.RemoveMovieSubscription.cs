@@ -5,16 +5,9 @@ using ShortSeriesUnsubscribeContext = AnimeFeedManager.Common.Dto.ShortSeriesUns
 
 namespace AnimeFeedManager.Functions.Movies.Subscriptions;
 
-public class RemoveMovieSubscription
+public class RemoveMovieSubscription(IRemoveMovieSubscription movieSubscription, ILoggerFactory loggerFactory)
 {
-    private readonly IRemoveMovieSubscription _movieSubscription;
-    private readonly ILogger<RemoveMovieSubscription> _logger;
-
-    public RemoveMovieSubscription(IRemoveMovieSubscription movieSubscription, ILoggerFactory loggerFactory)
-    {
-        _movieSubscription = movieSubscription;
-        _logger = loggerFactory.CreateLogger<RemoveMovieSubscription>();
-    }
+    private readonly ILogger<RemoveMovieSubscription> _logger = loggerFactory.CreateLogger<RemoveMovieSubscription>();
 
     [Function("RemoveMovieSubscription")]
     public async Task<HttpResponseData> Run(
@@ -27,7 +20,7 @@ public class RemoveMovieSubscription
         return await req
             .CheckAuthorization()
             .BindAsync(_ => Utils.Validate(payload))
-            .BindAsync(param => _movieSubscription.Unsubscribe(param.UserId, param.Series, default))
+            .BindAsync(param => movieSubscription.Unsubscribe(param.UserId, param.Series, default))
             .ToResponse(req, _logger);
     }
 }

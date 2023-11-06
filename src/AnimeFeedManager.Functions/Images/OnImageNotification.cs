@@ -9,18 +9,11 @@ using ImageUpdateNotification = AnimeFeedManager.Common.Domain.Notifications.Ima
 
 namespace AnimeFeedManager.Functions.Images;
 
-public sealed class OnImageNotification
+public sealed class OnImageNotification(
+    IStoreNotification storeNotification,
+    ILoggerFactory loggerFactory)
 {
-    private readonly IStoreNotification _storeNotification;
-    private readonly ILogger<OnImageNotification> _logger;
-
-    public OnImageNotification(
-        IStoreNotification storeNotification,
-        ILoggerFactory loggerFactory)
-    {
-        _storeNotification = storeNotification;
-        _logger = loggerFactory.CreateLogger<OnImageNotification>();
-    }
+    private readonly ILogger<OnImageNotification> _logger = loggerFactory.CreateLogger<OnImageNotification>();
 
     [Function("OnImageNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
@@ -29,7 +22,7 @@ public sealed class OnImageNotification
     {
         
         // Stores notification
-        var result = await _storeNotification.Add(
+        var result = await storeNotification.Add(
             IdHelpers.GetUniqueId(),
             UserRoles.Admin,
             NotificationTarget.Images,

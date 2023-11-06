@@ -11,21 +11,15 @@ public interface IStoreNotification
         NotificationArea area, T payload, CancellationToken token) where T : Notification;
 }
 
-public class StoreNotification : IStoreNotification
+public class StoreNotification(ITableClientFactory<NotificationStorage> tableClientFactory)
+    : IStoreNotification
 {
-    private readonly ITableClientFactory<NotificationStorage> _tableClientFactory;
-
-    public StoreNotification(ITableClientFactory<NotificationStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Add<T>(string id, string userId, NotificationTarget target,
         NotificationArea area,
         T payload,
         CancellationToken token) where T : Notification
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client =>
             {
                 var notificationStorage = new NotificationStorage

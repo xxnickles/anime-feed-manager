@@ -5,19 +5,31 @@ using Microsoft.Extensions.Options;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
-public class AzureImagesBlobStore : IImagesBlobStore
+public class AzureImagesBlobStore : IImagesBlobStore, IDisposable
 {
     private const string Container = "images";
-    private readonly BlobContainerClient _containerClient;
-    public AzureImagesBlobStore(IOptionsSnapshot<AzureBlobStorageOptions> blobStorageOptions)
+    private BlobContainerClient _containerClient;
+    private readonly IDisposable? _optionsReference;
+    public AzureImagesBlobStore(IOptionsMonitor<AzureBlobStorageOptions> blobStorageOptions)
     {
-        var blobStorageOptionsValue = blobStorageOptions.Value;
-        _containerClient = new BlobContainerClient(blobStorageOptionsValue.StorageConnectionString, Container);
-        _containerClient.CreateIfNotExistsAsync().GetAwaiter().GetResult();
-        var current = _containerClient.GetAccessPolicyAsync().GetAwaiter().GetResult().Value;
-        if (current == null || current.BlobPublicAccess == PublicAccessType.None)
+        _containerClient = new BlobContainerClient(blobStorageOptions.CurrentValue.StorageConnectionString, Container);
+        Initialize();
+
+        _optionsReference = blobStorageOptions.OnChange(options =>
         {
-            _containerClient.SetAccessPolicyAsync(PublicAccessType.Blob).GetAwaiter().GetResult();
+            _containerClient = new BlobContainerClient(options.StorageConnectionString, Container);
+            Initialize();
+        });
+
+    }
+
+    private void Initialize()
+    {
+        _containerClient.CreateIfNotExists();
+        var currentAccessPolicy = _containerClient.GetAccessPolicy();
+        if (currentAccessPolicy == null || currentAccessPolicy.Value.BlobPublicAccess == PublicAccessType.None)
+        {
+            _containerClient.SetAccessPolicy(PublicAccessType.Blob);
         }
     }
 
@@ -28,5 +40,11 @@ public class AzureImagesBlobStore : IImagesBlobStore
         var blobHttpHeader = new BlobHttpHeaders {ContentType = "image/jpg"};
         await blob.UploadAsync(data, new BlobUploadOptions {HttpHeaders = blobHttpHeader});
         return blob.Uri;
+    }
+
+
+    public void Dispose()
+    {
+        _optionsReference?.Dispose();
     }
 }

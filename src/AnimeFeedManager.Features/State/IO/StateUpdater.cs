@@ -9,17 +9,8 @@ public interface IStateUpdater
         CancellationToken token = default);
 }
 
-public sealed class StateUpdater : IStateUpdater
+public sealed class StateUpdater(ITableClientFactory<StateUpdateStorage> tableClientFactory) : IStateUpdater
 {
-    private readonly ITableClientFactory<StateUpdateStorage> _tableClientFactory;
-
-    public StateUpdater(
-        ITableClientFactory<StateUpdateStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
-
     private Task<Either<DomainError, CurrentState>> UpdateCompleted(string id, NotificationTarget target, string item,
         CancellationToken token = default)
     {
@@ -30,7 +21,7 @@ public sealed class StateUpdater : IStateUpdater
             return original;
         }
 
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => TryUpdate(client, id, target, Add, token));
     }
 
@@ -43,7 +34,7 @@ public sealed class StateUpdater : IStateUpdater
             return original;
         }
 
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => TryUpdate(client, id, target, Add, token));
     }
 

@@ -30,23 +30,28 @@ public interface IDomainPostman
         CancellationToken cancellationToken = default);
 }
 
-public class AzureQueueMessages : IDomainPostman
+public class AzureQueueMessages : IDomainPostman, IDisposable
 {
+    private AzureBlobStorageOptions _blobStorageOptions;
     private readonly JsonSerializerOptions _jsonOptions;
-    private readonly QueueClientOptions _queueClientOptions;
-
-    private readonly AzureBlobStorageOptions _blobStorageOptions;
+    private readonly QueueClientOptions _queueClientOptions;   
+    private readonly IDisposable? _optionsReference;
 
     public AzureQueueMessages(
-        IOptionsSnapshot<AzureBlobStorageOptions> blobStorageOptions)
+        IOptionsMonitor<AzureBlobStorageOptions> blobStorageOptions)
     {
-        _blobStorageOptions = blobStorageOptions.Value;
+        _blobStorageOptions = blobStorageOptions.CurrentValue;
         _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
             { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         _queueClientOptions = new QueueClientOptions
         {
             MessageEncoding = QueueMessageEncoding.Base64
         };
+        _optionsReference = blobStorageOptions.OnChange(options =>
+        {
+            _blobStorageOptions = options;
+        });
+
     }
 
     public async Task<Either<DomainError, Unit>> SendMessage<T>(T message, Box destiny,
@@ -89,5 +94,10 @@ public class AzureQueueMessages : IDomainPostman
     private BinaryData AsBinary<T>(T data)
     {
         return BinaryData.FromObjectAsJson(data, _jsonOptions);
+    }
+
+    public void Dispose()
+    {
+        _optionsReference?.Dispose();
     }
 }

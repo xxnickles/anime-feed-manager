@@ -15,26 +15,19 @@ public interface IMoviesProvider
     Task<Either<DomainError, MoviesCollection>> GetLibrary(SeasonSelector season, CancellationToken token);
 }
 
-public sealed class MoviesProvider : IMoviesProvider
+public sealed class MoviesProvider(
+    IDomainPostman domainPostman,
+    PuppeteerOptions puppeteerOptions)
+    : IMoviesProvider
 {
-    private readonly IDomainPostman _domainPostman;
-    private readonly PuppeteerOptions _puppeteerOptions;
-
-    public MoviesProvider(IDomainPostman domainPostman,
-        PuppeteerOptions puppeteerOptions)
-    {
-        _domainPostman = domainPostman;
-        _puppeteerOptions = puppeteerOptions;
-    }
-
     public async Task<Either<DomainError, MoviesCollection>> GetLibrary(SeasonSelector season, CancellationToken token)
     {
         try
         {
             var (series, jsonSeason) =
-                await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
+                await AniDbScrapper.Scrap(CreateScrappingLink(season), puppeteerOptions);
 
-            return await _domainPostman.SendMessage(new SeasonProcessNotification(
+            return await domainPostman.SendMessage(new SeasonProcessNotification(
                         TargetAudience.Admins,
                         NotificationType.Information,
                         new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
@@ -50,7 +43,7 @@ public sealed class MoviesProvider : IMoviesProvider
         }
         catch (Exception ex)
         {
-            return await _domainPostman.SendMessage(
+            return await domainPostman.SendMessage(
                     new SeasonProcessNotification(
                         TargetAudience.Admins,
                         NotificationType.Error,

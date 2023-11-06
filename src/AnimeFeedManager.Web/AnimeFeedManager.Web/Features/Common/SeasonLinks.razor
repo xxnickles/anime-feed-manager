@@ -1,0 +1,31 @@
+﻿@using AnimeFeedManager.Features.Seasons.Types
+@using System.Collections.Immutable
+
+@if (!Seasons.IsEmpty || SeriesType == SeriesType.None)
+{
+    <nav>
+        <ul tabindex="0" class="flex justify-center items-center  space-x-4">
+            @foreach (var season in Seasons)
+            {
+                <li class="flex flex-col items-center">
+                    <NavLink class="link link-hover font-bold" href="@GetLink(season)" Match="NavLinkMatch.All">
+                        @season.Season.ToString().ToUpperInvariant()
+                    </NavLink>
+                    <span class="text-xs">@season.Year.ToString()</span>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+
+@code {
+
+    [Parameter]
+    public ImmutableList<SeasonWrapper> Seasons { get; set; } = ImmutableList<SeasonWrapper>.Empty;
+
+    [Parameter]
+    public SeriesType SeriesType { get; set; } = SeriesType.None;
+    
+    private string GetLink(SeasonWrapper season) => $"{season.Season}-{season.Year}/{SeriesType}";
+}

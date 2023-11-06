@@ -14,26 +14,19 @@ public interface IMoviesSubscriberService
     Task Unsubscribe(string subscriber, string series, CancellationToken cancellationToken = default);
 }
 
-public class MoviesSubscriberService : IMoviesSubscriberService
+public class MoviesSubscriberService(HttpClient httpClient) : IMoviesSubscriberService
 {
-    private readonly HttpClient _httpClient;
-
-    public MoviesSubscriberService(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task<ImmutableList<string>> GetSubscriptions(string subscriber,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/Movies/subscriptions/{subscriber}", cancellationToken);
+        var response = await httpClient.GetAsync($"api/Movies/subscriptions/{subscriber}", cancellationToken);
         return await response.MapToListOfStrings();
     }
 
     public async Task Subscribe(string subscriber, string series, DateTime notificationDate,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/Movies/subscriptions",
+        var response = await httpClient.PostAsJsonAsync("api/Movies/subscriptions",
             new ShortSeriesSubscription(subscriber, series, notificationDate),
             ShortSeriesSubscriptionContext.Default.ShortSeriesSubscription, cancellationToken: cancellationToken);
         await response.CheckForProblemDetails();
@@ -41,7 +34,7 @@ public class MoviesSubscriberService : IMoviesSubscriberService
 
     public async Task Unsubscribe(string subscriber, string series, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/Movies/subscriptions/unsubscribe",
+        var response = await httpClient.PostAsJsonAsync("api/Movies/subscriptions/unsubscribe",
             new ShortSeriesUnsubscribe(subscriber, series),
             ShortSeriesUnsubscribeContext.Default.ShortSeriesUnsubscribe, cancellationToken: cancellationToken);
         await response.CheckForProblemDetails();

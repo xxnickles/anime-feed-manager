@@ -10,27 +10,14 @@ using SendGrid.Helpers.Mail;
 
 namespace AnimeFeedManager.Functions.Tv.Notifications;
 
-public class SendNotifications
+public class SendNotifications(
+    ISendGridClient client,
+    SendGridConfiguration sendGridConfiguration,
+    IStoreNotification storeNotification,
+    IAddProcessedTitles addProcessedTitles,
+    ILoggerFactory loggerFactory)
 {
-    private readonly ISendGridClient _client;
-    private readonly SendGridConfiguration _sendGridConfiguration;
-    private readonly IStoreNotification _storeNotification;
-    private readonly IAddProcessedTitles _addProcessedTitles;
-    private readonly ILogger<SendNotifications> _logger;
-
-    public SendNotifications(
-        ISendGridClient client,
-        SendGridConfiguration sendGridConfiguration,
-        IStoreNotification storeNotification,
-        IAddProcessedTitles addProcessedTitles,
-        ILoggerFactory loggerFactory)
-    {
-        _client = client;
-        _sendGridConfiguration = sendGridConfiguration;
-        _storeNotification = storeNotification;
-        _addProcessedTitles = addProcessedTitles;
-        _logger = loggerFactory.CreateLogger<SendNotifications>();
-    }
+    private readonly ILogger<SendNotifications> _logger = loggerFactory.CreateLogger<SendNotifications>();
 
     [Function("SendNotifications")]
     public async Task Run(
@@ -40,13 +27,13 @@ public class SendNotifications
         try
         {
             var message = new SendGridMessage();
-            message.SetFrom(new EmailAddress(_sendGridConfiguration.FromEmail, _sendGridConfiguration.FromName));
-            message.SetSandBoxMode(_sendGridConfiguration.Sandbox);
+            message.SetFrom(new EmailAddress(sendGridConfiguration.FromEmail, sendGridConfiguration.FromName));
+            message.SetSandBoxMode(sendGridConfiguration.Sandbox);
             message.AddInfoFromNotification(notification);
-            var response = await _client.SendEmailAsync(message);
+            var response = await client.SendEmailAsync(message);
             if (response.IsSuccessStatusCode)
             {
-                var result = await _storeNotification.Add(
+                var result = await storeNotification.Add(
                         Guid.NewGuid().ToString(),
                         notification.SubscriberId,
                         NotificationTarget.Tv,
@@ -54,7 +41,7 @@ public class SendNotifications
                         new TvFeedUpdateNotification(TargetAudience.User, NotificationType.Update,
                             "Notification has been sent", DateTime.Now, notification.Feeds),
                         default)
-                    .BindAsync(_ => _addProcessedTitles.Add(GetTitlesForUser(notification), default));
+                    .BindAsync(_ => addProcessedTitles.Add(GetTitlesForUser(notification), default));
 
                 result.Match(
                     _ => _logger.LogInformation("Sending notification to {NotificationSubscriber}",

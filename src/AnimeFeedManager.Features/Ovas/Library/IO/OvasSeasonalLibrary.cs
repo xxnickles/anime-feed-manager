@@ -8,20 +8,13 @@ public interface IOvasSeasonalLibrary
     public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season, Year year, CancellationToken token);
 }
 
-public class OvasSeasonalLibrary : IOvasSeasonalLibrary
+public class OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFactory) : IOvasSeasonalLibrary
 {
-    private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
-
-    public OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season,
         Year year, CancellationToken token)
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, year);
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() =>
                 client.QueryAsync<OvaStorage>(a => a.PartitionKey == partitionKey,
                     cancellationToken: token)));

@@ -1,6 +1,7 @@
 ﻿namespace AnimeFeedManager.Common.Domain.Errors;
 
-public class AggregatedError : DomainError
+public class AggregatedError(ImmutableList<DomainError> errors, AggregatedError.FailureType failureType)
+    : DomainError("Multiple Errors have been collected")
 {
     public enum FailureType
     {
@@ -8,12 +9,6 @@ public class AggregatedError : DomainError
         Partial
     }
     
-    public ImmutableList<DomainError> Errors { get; }
-    public FailureType Type { get; }
-
-    public AggregatedError(ImmutableList<DomainError> errors, FailureType failureType) : base("Multiple Errors have been collected")
-    {
-        Errors = errors;
-        Type = failureType;
-    }
+    public ImmutableList<DomainError> Errors { get; } = errors;
+    public FailureType Type { get; } = failureType;
 }

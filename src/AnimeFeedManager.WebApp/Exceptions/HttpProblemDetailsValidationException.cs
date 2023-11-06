@@ -3,11 +3,11 @@ using System.Net;
 
 namespace AnimeFeedManager.WebApp.Exceptions;
 
-public class HttpProblemDetailsValidationException : HttpRequestException
+public class HttpProblemDetailsValidationException(
+    string message,
+    ImmutableDictionary<string, string[]> errors,
+    HttpStatusCode statusCode)
+    : HttpRequestException(message, null, statusCode)
 {
-    public ImmutableDictionary<string, string[]> Errors { get; }
-    public HttpProblemDetailsValidationException(string message, ImmutableDictionary<string, string[]> errors, HttpStatusCode statusCode) : base(message,null, statusCode)
-    {
-        Errors = errors;
-    }
+    public ImmutableDictionary<string, string[]> Errors { get; } = errors;
 }

@@ -4,23 +4,16 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Maintenance;
 
-public class CleanProcessedTitles
+public class CleanProcessedTitles(
+    IRemoveProcessedTitles processedTitles,
+    ILoggerFactory loggerFactory)
 {
-    private readonly IRemoveProcessedTitles _processedTitles;
-    private readonly ILogger<CleanProcessedTitles> _logger;
-
-    public CleanProcessedTitles(
-        IRemoveProcessedTitles processedTitles,
-        ILoggerFactory loggerFactory)
-    {
-        _processedTitles = processedTitles;
-        _logger = loggerFactory.CreateLogger<CleanProcessedTitles>();
-    }
+    private readonly ILogger<CleanProcessedTitles> _logger = loggerFactory.CreateLogger<CleanProcessedTitles>();
 
     [Function("CleanProcessedTitles")]
     public async Task Run([TimerTrigger("0 30 1 * * *")] TimerInfo timer)
     {
-        var result = await _processedTitles.Remove(DateTimeOffset.Now, default);
+        var result = await processedTitles.Remove(DateTimeOffset.Now, default);
         result.Match(
             _ =>
             {

@@ -8,18 +8,11 @@ public interface IGetProcessedTitles
     Task<Either<DomainError, ImmutableList<string>>> GetForUser(UserId userId, CancellationToken token);
 }
 
-public class GetProcessedTitles : IGetProcessedTitles
+public class GetProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clientFactory) : IGetProcessedTitles
 {
-    private readonly ITableClientFactory<ProcessedTitlesStorage> _clientFactory;
-
-    public GetProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, ImmutableList<string>>> GetForUser(UserId userId, CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQueryWithEmpty(() =>
                 client.QueryAsync<ProcessedTitlesStorage>(item => item.PartitionKey == userId,
                     cancellationToken: token)))

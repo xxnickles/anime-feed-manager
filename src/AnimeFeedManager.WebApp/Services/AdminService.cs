@@ -9,34 +9,27 @@ public interface IAdminService
     Task UpdateMoviesLibrary(string season, ushort year);
 }
 
-public class AdminService : IAdminService
+public class AdminService(HttpClient httpClient) : IAdminService
 {
-    private readonly HttpClient _httpClient;
-
-    public AdminService(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-        
     public Task UpdateTvLibrary()
     {
-        return _httpClient.PostAsync("/api/tv/library", null);
+        return httpClient.PostAsync("/api/tv/library", null);
     }
 
     public Task UpdateTvTitles()
     {
-        return _httpClient.PostAsync("/api/tv/titles", null);
+        return httpClient.PostAsync("/api/tv/titles", null);
     }
 
     public async Task UpdateOvasLibrary(string season, ushort year)
     {
-        var response =await _httpClient.PostAsync($"/api/ovas/library/{year}/{season}", null);
+        var response =await httpClient.PostAsync($"/api/ovas/library/{year}/{season}", null);
         await response.CheckForProblemDetails();
     }
         
     public async Task UpdateMoviesLibrary(string season, ushort year)
     {
-        var response =await _httpClient.PostAsync($"/api/movies/library/{year}/{season}", null);
+        var response =await httpClient.PostAsync($"/api/movies/library/{year}/{season}", null);
         await response.CheckForProblemDetails();
     }
 

@@ -8,29 +8,19 @@ using AnimeInfoStorage = AnimeFeedManager.Features.Tv.Types.AnimeInfoStorage;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
-public class TvImageStorage : ITvImageStorage
+public class TvImageStorage(
+    IStateUpdater stateUpdaterUpdater,
+    IDomainPostman domainPostman,
+    ITableClientFactory<AnimeInfoStorage> tableClientFactory)
+    : ITvImageStorage
 {
-    private readonly IStateUpdater _stateUpdaterUpdater;
-    private readonly IDomainPostman _domainPostman;
-    private readonly ITableClientFactory<AnimeInfoStorage> _tableClientFactory;
-
-    public TvImageStorage(
-        IStateUpdater stateUpdaterUpdater,
-        IDomainPostman domainPostman,
-        ITableClientFactory<AnimeInfoStorage> tableClientFactory)
-    {
-        _stateUpdaterUpdater = stateUpdaterUpdater;
-        _domainPostman = domainPostman;
-        _tableClientFactory = tableClientFactory;
-    }
-
     public async Task<Either<DomainError, Unit>> AddTvImage(StateWrap<DownloadImageEvent> imageStateWrap,
         string imageUrl, CancellationToken token)
     {
-        var storeResult = await _tableClientFactory.GetClient()
+        var storeResult = await tableClientFactory.GetClient()
             .BindAsync(client => Store(client, imageUrl, imageStateWrap, token));
 
-        return await _stateUpdaterUpdater.Update(storeResult,
+        return await stateUpdaterUpdater.Update(storeResult,
                 new StateChange(imageStateWrap.StateId, NotificationTarget.Images, imageStateWrap.Payload.Id), token)
             .BindAsync(currentState => TryToPublishUpdate(currentState, token));
     }
@@ -59,6 +49,6 @@ public class TvImageStorage : ITvImageStorage
             NotificationType.Information,
             SeriesType.Tv,
             $"Images for TV have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
-        return await _domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
+        return await domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
     }
 }

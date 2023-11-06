@@ -26,8 +26,11 @@ internal static class Registration
         services.RegisterImageServices();
         services.RegisterStateServices();
         services.RegisterTvServices();
+        services.RegisterMoviesScrappingServices();
         services.RegisterOvasServices();
+        services.RegisterOvasScrappingServices();
         services.RegisterMoviesServices();
+        services.RegisterMoviesScrappingServices();
         services.RegisterNotificationServices();
         services.RegisterUserServices();
         services.RegisterMaintenanceServices();

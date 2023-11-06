@@ -10,14 +10,21 @@ public static class MoviesRegistration
 {
     public static IServiceCollection RegisterMoviesServices(this IServiceCollection services)
     {
-        services.TryAddSingleton<IMoviesProvider, MoviesProvider>();
         services.TryAddScoped<IMoviesStorage, MoviesStorage>();
         services.TryAddScoped<IMoviesSeasonalLibrary, MoviesSeasonalLibrary>();
         services.TryAddScoped<IAddMovieSubscription, AddMovieSubscription>();
         services.TryAddScoped<IRemoveMovieSubscription, RemoveMovieSubscription>();
         services.TryAddScoped<IGetMovieSubscriptions, GetMovieSubscriptions>();
-        services.TryAddScoped<MoviesLibraryUpdater>();
         services.TryAddScoped<MoviesLibraryGetter>();
         return services;
     }
+    
+    
+    public static IServiceCollection RegisterMoviesScrappingServices(this IServiceCollection services)
+    {
+        services.TryAddSingleton<IMoviesProvider, MoviesProvider>();
+        services.TryAddScoped<MoviesLibraryUpdater>();
+        return services;
+    }
+    
 }

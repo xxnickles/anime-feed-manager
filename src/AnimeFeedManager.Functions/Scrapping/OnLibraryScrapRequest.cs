@@ -11,24 +11,13 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Scrapping;
 
-public sealed class OnLibraryScrapRequest
+public sealed class OnLibraryScrapRequest(
+    TvLibraryUpdater tvLibraryUpdater,
+    OvasLibraryUpdater ovasLibraryUpdater,
+    MoviesLibraryUpdater moviesLibraryUpdater,
+    ILoggerFactory loggerFactory)
 {
-    private readonly TvLibraryUpdater _tvLibraryUpdater;
-    private readonly OvasLibraryUpdater _ovasLibraryUpdater;
-    private readonly MoviesLibraryUpdater _moviesLibraryUpdater;
-    private readonly ILogger<OnLibraryScrapRequest> _logger;
-
-    public OnLibraryScrapRequest(
-        TvLibraryUpdater tvLibraryUpdater,
-        OvasLibraryUpdater ovasLibraryUpdater,
-        MoviesLibraryUpdater moviesLibraryUpdater,
-        ILoggerFactory loggerFactory)
-    {
-        _tvLibraryUpdater = tvLibraryUpdater;
-        _ovasLibraryUpdater = ovasLibraryUpdater;
-        _moviesLibraryUpdater = moviesLibraryUpdater;
-        _logger = loggerFactory.CreateLogger<OnLibraryScrapRequest>();
-    }
+    private readonly ILogger<OnLibraryScrapRequest> _logger = loggerFactory.CreateLogger<OnLibraryScrapRequest>();
 
     [Function("OnLibraryScrapRequest")]
     public async Task Run(
@@ -37,20 +26,20 @@ public sealed class OnLibraryScrapRequest
     {
         var task = notification switch
         {
-            (SeriesType.Tv, _, ScrapType.Latest) => _tvLibraryUpdater.Update(new Latest()),
+            (SeriesType.Tv, _, ScrapType.Latest) => tvLibraryUpdater.Update(new Latest()),
             (SeriesType.Tv, _, ScrapType.BySeason) => SeasonValidators.ValidateSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
-                notification.SeasonParameter?.Year ?? 0).BindAsync(season => _tvLibraryUpdater.Update(season)),
+                notification.SeasonParameter?.Year ?? 0).BindAsync(season => tvLibraryUpdater.Update(season)),
 
-            (SeriesType.Ova, _, ScrapType.Latest) => _ovasLibraryUpdater.Update(new Latest()),
+            (SeriesType.Ova, _, ScrapType.Latest) => ovasLibraryUpdater.Update(new Latest()),
             (SeriesType.Ova, _, ScrapType.BySeason) => SeasonValidators.ValidateSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
-                notification.SeasonParameter?.Year ?? 0).BindAsync(season => _ovasLibraryUpdater.Update(season)),
+                notification.SeasonParameter?.Year ?? 0).BindAsync(season => ovasLibraryUpdater.Update(season)),
 
-            (SeriesType.Movie, _, ScrapType.Latest) => _moviesLibraryUpdater.Update(new Latest()),
+            (SeriesType.Movie, _, ScrapType.Latest) => moviesLibraryUpdater.Update(new Latest()),
             (SeriesType.Movie, _, ScrapType.BySeason) => SeasonValidators.ValidateSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
-                notification.SeasonParameter?.Year ?? 0).BindAsync(season => _moviesLibraryUpdater.Update(season)),
+                notification.SeasonParameter?.Year ?? 0).BindAsync(season => moviesLibraryUpdater.Update(season)),
 
             _ => Task.FromResult(
                 Left<DomainError, Unit>(BasicError.Create($"Scrapping parameters are invalid {notification}"))

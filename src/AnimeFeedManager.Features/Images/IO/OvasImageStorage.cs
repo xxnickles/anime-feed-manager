@@ -8,29 +8,19 @@ using AnimeFeedManager.Features.State.IO;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
-public class OvasImageStorage : IOvasImageStorage
+public class OvasImageStorage(
+    IStateUpdater stateUpdaterUpdater,
+    IDomainPostman domainPostman,
+    ITableClientFactory<OvaStorage> tableClientFactory)
+    : IOvasImageStorage
 {
-    private readonly IStateUpdater _stateUpdaterUpdater;
-    private readonly IDomainPostman _domainPostman;
-    private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
-
-    public OvasImageStorage(
-        IStateUpdater stateUpdaterUpdater,
-        IDomainPostman domainPostman,
-        ITableClientFactory<OvaStorage> tableClientFactory)
-    {
-        _stateUpdaterUpdater = stateUpdaterUpdater;
-        _domainPostman = domainPostman;
-        _tableClientFactory = tableClientFactory;
-    }
-
     public async Task<Either<DomainError, Unit>> AddOvasImage(StateWrap<DownloadImageEvent> imageStateWrap,
         string imageUrl, CancellationToken token)
     {
-        var storeResult = await _tableClientFactory.GetClient()
+        var storeResult = await tableClientFactory.GetClient()
             .BindAsync(client => Store(client, imageUrl, imageStateWrap, token));
 
-        return await _stateUpdaterUpdater.Update(storeResult,
+        return await stateUpdaterUpdater.Update(storeResult,
                 new StateChange(imageStateWrap.StateId, NotificationTarget.Images, imageStateWrap.Payload.Id), token)
             .BindAsync(currentState => TryToPublishUpdate(currentState, token));
     }
@@ -59,6 +49,6 @@ public class OvasImageStorage : IOvasImageStorage
             NotificationType.Information,
             SeriesType.Ova,
             $"Images for OVAS have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
-        return await _domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
+        return await domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
     }
 }

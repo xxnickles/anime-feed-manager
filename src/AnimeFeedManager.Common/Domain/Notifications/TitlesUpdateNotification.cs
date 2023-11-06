@@ -4,16 +4,13 @@ using AnimeFeedManager.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Common.Domain.Notifications;
 
-public class TitlesUpdateNotification : Notification
+[method: JsonConstructor]
+public class TitlesUpdateNotification(
+    TargetAudience targetAudience,
+    NotificationType result,
+    string message)
+    : Notification(targetAudience, result, message)
 {
-    [JsonConstructor]
-    public TitlesUpdateNotification(
-        TargetAudience targetAudience,
-        NotificationType result,
-        string message) : base(targetAudience, result, message)
-    {
-    }
-
     public new void Deconstruct(out TargetAudience targetAudience, out NotificationType result,
         out string message)
     {

@@ -1,9 +1,14 @@
 ﻿namespace AnimeFeedManager.Features.Seasons.Types;
 
-internal record struct SeasonWrapper(Season Season, Year Year, bool IsLatest);
+public record struct SeasonWrapper(Season Season, Year Year, bool IsLatest);
 
-internal static class Extensions
+public static class Extensions
 {
+    public static SeasonInformation ToSeasonInformation(this SeasonWrapper season)
+    {
+        return new SeasonInformation(season.Season, season.Year);
+    }
+    
     internal static SeasonWrapper ToWrapper(this SeasonStorage storage)
     {
         return new SeasonWrapper(

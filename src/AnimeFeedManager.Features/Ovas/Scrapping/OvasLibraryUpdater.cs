@@ -10,26 +10,14 @@ using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping;
 
-public sealed class OvasLibraryUpdater
+public sealed class OvasLibraryUpdater(
+    IMediator mediator,
+    IOvasProvider ovasProvider,
+    IOvasStorage ovasStorage)
 {
-    private readonly IMediator _mediator;
-    private readonly IOvasProvider _ovasProvider;
-    private readonly IOvasStorage _ovasStorage;
-
-    public OvasLibraryUpdater(
-        IMediator mediator,
-        IOvasProvider ovasProvider,
-        IOvasStorage ovasStorage)
-    {
-        _mediator = mediator;
-        _ovasProvider = ovasProvider;
-        _ovasStorage = ovasStorage;
-    }
-
-
     public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
     {
-        return _ovasProvider.GetLibrary(season, token)
+        return ovasProvider.GetLibrary(season, token)
             .BindAsync(series => Persist(series, season, token));
     }
 
@@ -38,7 +26,7 @@ public sealed class OvasLibraryUpdater
         CancellationToken token)
     {
         var reference = series.SeriesList.First();
-        return _ovasStorage.Add(series.SeriesList, token)
+        return ovasStorage.Add(series.SeriesList, token)
             .MapAsync(_ => CreateImageEvents(series.Images, token))
             .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest()));
     }
@@ -47,13 +35,13 @@ public sealed class OvasLibraryUpdater
         CancellationToken token)
     {
         // Publish event to scrap images
-        _mediator.Publish(new ScrapNotificationImages(events), token);
+        mediator.Publish(new ScrapNotificationImages(events), token);
         return unit;
     }
 
     private Unit CreateSeasonEvent(string season, int year, bool isLatest)
     {
-        _mediator.Publish(new AddSeasonNotification(season, year, isLatest));
+        mediator.Publish(new AddSeasonNotification(season, year, isLatest));
         return unit;
     }
 }

@@ -13,14 +13,9 @@ public class RemoveDataOutput
     public HttpResponseData? HttpResponse { get; set; }
 }
 
-public class RemoveGroupData
+public class RemoveGroupData(ILoggerFactory loggerFactory)
 {
-    private readonly ILogger<RemoveGroupData> _logger;
-
-    public RemoveGroupData(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger<RemoveGroupData>();
-    }
+    private readonly ILogger<RemoveGroupData> _logger = loggerFactory.CreateLogger<RemoveGroupData>();
 
     [Function("RemoveGroupData")]
     public async Task<RemoveDataOutput> Add(

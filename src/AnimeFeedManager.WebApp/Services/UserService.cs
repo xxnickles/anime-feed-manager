@@ -11,25 +11,18 @@ public interface IUserService
     public Task<bool> UserExist(string id, CancellationToken cancellationToken = default);
 }
 
-public class UserService : IUserService
+public class UserService(HttpClient httpClient) : IUserService
 {
-    private readonly HttpClient _httpClient;
-
-    public UserService(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task MergeUser(SimpleUser user, CancellationToken cancellationToken = default)
     {
-        var result = await _httpClient.PostAsJsonAsync("api/user", user, SimpleUserContext.Default.SimpleUser,
+        var result = await httpClient.PostAsJsonAsync("api/user", user, SimpleUserContext.Default.SimpleUser,
             cancellationToken: cancellationToken);
         await result.CheckForProblemDetails();
     }
 
     public async Task<bool> UserExist(string id, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync($"api/user/{id}", cancellationToken);
+        var response = await httpClient.GetAsync($"api/user/{id}", cancellationToken);
         return response.StatusCode == HttpStatusCode.Accepted;
     }
 }

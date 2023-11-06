@@ -12,21 +12,14 @@ using AnimeFeedManager.Features.Users.Types;
 
 namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
-public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITableEntity
+public sealed class TableClientFactory<T>(TableServiceClient serviceClient) : ITableClientFactory<T>
+    where T : ITableEntity
 {
-    private readonly TableServiceClient _serviceClient;
-
-    public TableClientFactory(
-        TableServiceClient serviceClient)
-    {
-        _serviceClient = serviceClient;
-    }
-
     public async Task<Either<DomainError,TableClient>> GetClient()
     {
         try
         {
-            var client = _serviceClient.GetTableClient(TableNameFactory(typeof(T)));
+            var client = serviceClient.GetTableClient(TableNameFactory(typeof(T)));
             await client.CreateIfNotExistsAsync();
             return client;
         }

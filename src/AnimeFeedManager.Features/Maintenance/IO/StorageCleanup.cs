@@ -13,23 +13,15 @@ public interface IStorageCleanup
     public Task<Either<DomainError, Unit>> CleanOldNotifications(DateTimeOffset beforeOf, CancellationToken token);
 }
 
-public class StorageCleanup : IStorageCleanup
+public class StorageCleanup(
+    ITableClientFactory<NotificationStorage> notificationsTableClientFactory,
+    ITableClientFactory<StateUpdateStorage> stateTableClientFactory)
+    : IStorageCleanup
 {
-    private readonly ITableClientFactory<NotificationStorage> _notificationsTableClientFactory;
-    private readonly ITableClientFactory<StateUpdateStorage> _stateTableClientFactory;
-
-    public StorageCleanup(
-        ITableClientFactory<NotificationStorage> notificationsTableClientFactory,
-        ITableClientFactory<StateUpdateStorage> stateTableClientFactory)
-    {
-        _notificationsTableClientFactory = notificationsTableClientFactory;
-        _stateTableClientFactory = stateTableClientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> CleanOldState(NotificationTarget target, DateTimeOffset beforeOf,
         CancellationToken token)
     {
-        return _stateTableClientFactory.GetClient()
+        return stateTableClientFactory.GetClient()
             .BindAsync(client => CleanOldState(client, target, beforeOf, token));
     }
 
@@ -50,7 +42,7 @@ public class StorageCleanup : IStorageCleanup
     public Task<Either<DomainError, Unit>> CleanOldNotifications(DateTimeOffset beforeOf, CancellationToken token)
     {
         // Cleaning Admin Notifications Only for now
-        return _notificationsTableClientFactory.GetClient()
+        return notificationsTableClientFactory.GetClient()
             .BindAsync(client => CleanOldNotifications(client, beforeOf, token));
     }
 

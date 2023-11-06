@@ -8,20 +8,12 @@ public interface ISeasonFetcherService
     Task<ImmutableList<SimpleSeasonInfo>> GetAvailableSeasons(CancellationToken cancellationToken = default);
 }
 
-public sealed class SeasonService : ISeasonFetcherService
+public sealed class SeasonService(HttpClient httpClient) : ISeasonFetcherService
 {
-    private readonly HttpClient _httpClient;
-
-    public SeasonService(
-        HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task<ImmutableList<SimpleSeasonInfo>> GetAvailableSeasons(
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.GetAsync("api/seasons", cancellationToken);
+        var response = await httpClient.GetAsync("api/seasons", cancellationToken);
 
         var value = await response.MapToObject(SimpleSeasonInfoContext.Default.SimpleSeasonInfoArray, Array.Empty<SimpleSeasonInfo>());
 

@@ -10,14 +10,19 @@ public static class OvasRegistration
 {
     public static IServiceCollection RegisterOvasServices(this IServiceCollection services)
     {
-        services.TryAddSingleton<IOvasProvider, OvasProvider>();
         services.TryAddScoped<IOvasStorage, OvasStorage>();
         services.TryAddScoped<IOvasSeasonalLibrary, OvasSeasonalLibrary>();
         services.TryAddScoped<IAddOvasSubscription,AddOvasSubscription>();
         services.TryAddScoped<IRemoveOvasSubscription, RemoveOvasSubscription>();
         services.TryAddScoped<IGetOvasSubscriptions, GetOvasSubscriptions>();
-        services.TryAddScoped<OvasLibraryUpdater>();
         services.TryAddScoped<OvasLibraryGetter>();
+        return services;
+    }
+    
+    public static IServiceCollection RegisterOvasScrappingServices(this IServiceCollection services)
+    {
+        services.TryAddScoped<OvasLibraryUpdater>();
+        services.TryAddSingleton<IOvasProvider, OvasProvider>();
         return services;
     }
 }

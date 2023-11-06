@@ -5,20 +5,13 @@ using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
 
 namespace AnimeFeedManager.Features.Movies.Library;
 
-public sealed class MoviesLibraryGetter
+public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
 {
-    private readonly IMoviesSeasonalLibrary _seasonalLibrary;
-
-    public MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
-    {
-        _seasonalLibrary = seasonalLibrary;
-    }
-
     public Task<Either<DomainError, ShortSeasonCollection>> GetForSeason(string season, ushort year,
         CancellationToken token = default)
     {
         return SeasonValidators.Validate(season, year)
-            .BindAsync(param => _seasonalLibrary.GetSeasonalLibrary(param.season, param.year, token))
+            .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.season, param.year, token))
             .MapAsync(movies => Project(year, season, movies));
     }
 

@@ -5,18 +5,11 @@ using AnimeFeedManager.Common.Utils;
 
 namespace AnimeFeedManager.Features.Migration.IO;
 
-public class SeriesMigration
+public class SeriesMigration(ITableClientFactory<LegacyAnimeInfoStorage> tableClientFactory)
 {
-    private readonly ITableClientFactory<LegacyAnimeInfoStorage> _tableClientFactory;
-
-    public SeriesMigration(ITableClientFactory<LegacyAnimeInfoStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> MigrateTvSeries(CancellationToken token)
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => MigrateCompleted(client, token))
             .BindAsync(client => MigrateIncomplete(client, token));
     }

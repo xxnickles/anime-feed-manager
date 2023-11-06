@@ -9,15 +9,8 @@ public interface ICreateState
         ImmutableList<T> entities);
 }
 
-public sealed class CreateState : ICreateState
+public sealed class CreateState(ITableClientFactory<StateUpdateStorage> tableClientFactory) : ICreateState
 {
-    private readonly ITableClientFactory<StateUpdateStorage> _tableClientFactory;
-
-    public CreateState(ITableClientFactory<StateUpdateStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
         ImmutableList<T> entities)
     {
@@ -36,7 +29,7 @@ public sealed class CreateState : ICreateState
             ToUpdate = entities.Count
         };
 
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client =>
                 TableUtils.TryExecute(() => client.UpsertEntityAsync(newState)))
             .MapAsync(_ => entities.ConvertAll(e => new StateWrap<T>(id, e)));

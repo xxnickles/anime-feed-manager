@@ -5,6 +5,26 @@ namespace AnimeFeedManager.Common.Domain.Errors;
 
 public static class ErrorLogger
 {
+    
+    public static async Task<Either<DomainError, T>> LogErrors<T>(this Task<Either<DomainError, T>> result, ILogger logger)
+    {
+        var unwrapped = await result;
+        return unwrapped.MapLeft(error =>
+        {
+            error.LogDomainError(logger);
+            return error;
+        });
+    }
+    
+    public static Either<DomainError, T> LogErrors<T>(this Either<DomainError, T> result, ILogger logger)
+    {
+       return result.MapLeft(error =>
+        {
+            error.LogDomainError(logger);
+            return error;
+        });
+    }
+    
     public static void LogDomainError(this DomainError error, ILogger logger)
     {
         _ = error switch

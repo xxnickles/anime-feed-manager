@@ -4,21 +4,12 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Maintenance;
 
-public class MigrateData
+public class MigrateData(
+    SeriesMigration seriesMigration,
+    UserMigration userMigration,
+    ILoggerFactory loggerFactory)
 {
-    private readonly SeriesMigration _seriesMigration;
-    private readonly UserMigration _userMigration;
-    private readonly ILogger<MigrateData> _logger;
-
-    public MigrateData(
-        SeriesMigration seriesMigration,
-        UserMigration userMigration,
-        ILoggerFactory loggerFactory)
-    {
-        _seriesMigration = seriesMigration;
-        _userMigration = userMigration;
-        _logger = loggerFactory.CreateLogger<MigrateData>();
-    }
+    private readonly ILogger<MigrateData> _logger = loggerFactory.CreateLogger<MigrateData>();
 
     [Function("MigrateTv")]
     public async Task<HttpResponseData> RunTv(
@@ -27,7 +18,7 @@ public class MigrateData
     {
         _logger.LogInformation("Tv Data Migration Process");
 
-        var result = await _seriesMigration.MigrateTvSeries(default);
+        var result = await seriesMigration.MigrateTvSeries(default);
         _logger.LogInformation("Tv Series status has been updated");
         return await result.ToResponse(req, _logger);
     }
@@ -39,7 +30,7 @@ public class MigrateData
     {
         _logger.LogInformation("User Data Migration Process");
 
-        var result = await _userMigration.MigrateUserData(default);
+        var result = await userMigration.MigrateUserData(default);
         _logger.LogInformation("User info has been updated");
         return await result.ToResponse(req, _logger);
     }

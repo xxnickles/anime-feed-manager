@@ -16,17 +16,11 @@ public interface IRealtimeNotificationService
     Task RemoveAdminNotifications();
 }
 
-public class RealTimeRealtimeNotificationService : IRealtimeNotificationService
+public class RealTimeRealtimeNotificationService(ILocalStorageService localStorage) : IRealtimeNotificationService
 {
-    private readonly ILocalStorageService _localStorage;
     private const string NotificationsKey = "notifications";
     private const byte MaxNotifications = 5;
 
-    public RealTimeRealtimeNotificationService(ILocalStorageService localStorage)
-    {
-        _localStorage = localStorage;
-    }
-    
     public event Action? NotificationsUpdated;
 
     public ImmutableList<ServerNotification> Notifications { private set; get; } =
@@ -40,17 +34,17 @@ public class RealTimeRealtimeNotificationService : IRealtimeNotificationService
         }
 
         Notifications = Notifications.Add(notification);
-        await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+        await localStorage.SetItemAsync(NotificationsKey, Notifications);
         NotificationsUpdated?.Invoke();
     }
 
 
     public async Task LoadLocalNotifications()
     {
-        if (await _localStorage.ContainKeyAsync(NotificationsKey))
+        if (await localStorage.ContainKeyAsync(NotificationsKey))
         {
             var storedNotifications =
-                await _localStorage.GetItemAsync<IEnumerable<ServerNotification>>(NotificationsKey);
+                await localStorage.GetItemAsync<IEnumerable<ServerNotification>>(NotificationsKey);
             Notifications = storedNotifications?.ToImmutableList() ?? ImmutableList<ServerNotification>.Empty;
         }
         else
@@ -67,7 +61,7 @@ public class RealTimeRealtimeNotificationService : IRealtimeNotificationService
         if (target is not null)
         {
             Notifications = Notifications.Replace(target, target with { Read = true });
-            await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+            await localStorage.SetItemAsync(NotificationsKey, Notifications);
             NotificationsUpdated?.Invoke();
         }
     }
@@ -75,14 +69,14 @@ public class RealTimeRealtimeNotificationService : IRealtimeNotificationService
     public async Task SetAllNotificationViewed()
     {
         Notifications = Notifications.ConvertAll(n => n with { Read = true });
-        await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+        await localStorage.SetItemAsync(NotificationsKey, Notifications);
         NotificationsUpdated?.Invoke();
     }
 
     public async Task RemoveAll()
     {
         Notifications = ImmutableList<ServerNotification>.Empty;
-        await _localStorage.RemoveItemAsync(NotificationsKey);
+        await localStorage.RemoveItemAsync(NotificationsKey);
         NotificationsUpdated?.Invoke();
     }
 
@@ -91,7 +85,7 @@ public class RealTimeRealtimeNotificationService : IRealtimeNotificationService
         if (Notifications.Any())
         {
             Notifications = Notifications.Where(n => n.Audience != TargetAudience.Admins).ToImmutableList();
-            await _localStorage.SetItemAsync(NotificationsKey, Notifications);
+            await localStorage.SetItemAsync(NotificationsKey, Notifications);
             NotificationsUpdated?.Invoke();
         }
     }

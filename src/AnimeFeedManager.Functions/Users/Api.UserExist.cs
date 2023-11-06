@@ -5,17 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Users;
 
-public class UserExist
+public class UserExist(IUserGetter userGetter, ILoggerFactory loggerFactory)
 {
-    private readonly IUserGetter _userGetter;
-
-    private readonly ILogger<UserExist> _logger;
-
-    public UserExist(IUserGetter userGetter, ILoggerFactory loggerFactory)
-    {
-        _userGetter = userGetter;
-        _logger = loggerFactory.CreateLogger<UserExist>();
-    }
+    private readonly ILogger<UserExist> _logger = loggerFactory.CreateLogger<UserExist>();
 
     [Function("UserExist")]
     public async Task<HttpResponseData> Run(
@@ -25,7 +17,7 @@ public class UserExist
     {
         return await UserIdValidator.Validate(id)
             .ValidationToEither()
-            .BindAsync(userId => _userGetter.UserExist(userId, default))
+            .BindAsync(userId => userGetter.UserExist(userId, default))
             .ToResponse(req, _logger);
     }
 }

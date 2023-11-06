@@ -8,19 +8,13 @@ public interface IRemoveMovieSubscription
     public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series, CancellationToken token);
 }
 
-public sealed class RemoveMovieSubscription : IRemoveMovieSubscription
+public sealed class RemoveMovieSubscription(ITableClientFactory<MoviesSubscriptionStorage> clientFactory)
+    : IRemoveMovieSubscription
 {
-    private readonly ITableClientFactory<MoviesSubscriptionStorage> _clientFactory;
-
-    public RemoveMovieSubscription(ITableClientFactory<MoviesSubscriptionStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series,
         CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(client => Delete(client, userId, series, token));
     }
 

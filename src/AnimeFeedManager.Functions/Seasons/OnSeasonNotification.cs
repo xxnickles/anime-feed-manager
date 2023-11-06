@@ -10,18 +10,11 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Seasons;
 
-public sealed class OnSeasonNotification
+public sealed class OnSeasonNotification(
+    IStoreNotification storeNotification,
+    ILoggerFactory loggerFactory)
 {
-    private readonly IStoreNotification _storeNotification;
-    private readonly ILogger<OnSeasonNotification> _logger;
-
-    public OnSeasonNotification(
-        IStoreNotification storeNotification,
-        ILoggerFactory loggerFactory)
-    {
-        _storeNotification = storeNotification;
-        _logger = loggerFactory.CreateLogger<OnSeasonNotification>();
-    }
+    private readonly ILogger<OnSeasonNotification> _logger = loggerFactory.CreateLogger<OnSeasonNotification>();
 
     [Function("OnSeasonNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
@@ -30,7 +23,7 @@ public sealed class OnSeasonNotification
         SeasonProcessNotification notification)
     {
         // Stores notification
-        var result = await _storeNotification.Add(
+        var result = await storeNotification.Add(
             IdHelpers.GetUniqueId(),
             UserRoles.Admin,
             FromNotification(notification.SeriesType),

@@ -5,22 +5,17 @@ using AnimeFeedManager.Common.Dto;
 
 namespace AnimeFeedManager.Common.Domain.Notifications;
 
-public class SeasonProcessNotification : Notification
+[method: JsonConstructor]
+public class SeasonProcessNotification(
+    TargetAudience targetAudience,
+    NotificationType result,
+    SimpleSeasonInfo simpleSeason,
+    SeriesType seriesType,
+    string message)
+    : Notification(targetAudience, result, message)
 {
-    [JsonConstructor]
-    public SeasonProcessNotification(
-        TargetAudience targetAudience,
-        NotificationType result,
-        SimpleSeasonInfo simpleSeason,
-        SeriesType seriesType,
-        string message) : base(targetAudience, result, message)
-    {
-        SimpleSeason = simpleSeason;
-        SeriesType = seriesType;
-    }
-
-    public SimpleSeasonInfo SimpleSeason { get; set; }
-    public SeriesType SeriesType { get; set; }
+    public SimpleSeasonInfo SimpleSeason { get; set; } = simpleSeason;
+    public SeriesType SeriesType { get; set; } = seriesType;
 
     public void Deconstruct(out TargetAudience targetAudience, out NotificationType result,
         out SimpleSeasonInfo simpleSeason, out SeriesType seriesType, out string message)

@@ -4,19 +4,15 @@ using AnimeFeedManager.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Common.Domain.Notifications;
 
-public class AutomatedSubscriptionProcessNotification : Notification
+[method: JsonConstructor]
+public class AutomatedSubscriptionProcessNotification(
+    TargetAudience targetAudience,
+    NotificationType result,
+    string[] subscribedSeries,
+    string message)
+    : Notification(targetAudience, result, message)
 {
-    public string[] SubscribedSeries { get; }
-
-    [JsonConstructor]
-    public AutomatedSubscriptionProcessNotification(
-        TargetAudience targetAudience,
-        NotificationType result,
-        string[] subscribedSeries,
-        string message) : base(targetAudience, result, message)
-    {
-        SubscribedSeries = subscribedSeries;
-    }
+    public string[] SubscribedSeries { get; } = subscribedSeries;
 
     public override string GetSerializedPayload()
     {

@@ -5,16 +5,9 @@ using ShortSeriesSubscriptionContext = AnimeFeedManager.Common.Dto.ShortSeriesSu
 
 namespace AnimeFeedManager.Functions.Movies.Subscriptions;
 
-public class AddMovieSubscription
+public class AddMovieSubscription(IAddMovieSubscription movieSubscription, ILoggerFactory loggerFactory)
 {
-    private readonly IAddMovieSubscription _movieSubscription;
-    private readonly ILogger<AddMovieSubscription> _logger;
-
-    public AddMovieSubscription(IAddMovieSubscription movieSubscription, ILoggerFactory loggerFactory)
-    {
-        _movieSubscription = movieSubscription;
-        _logger = loggerFactory.CreateLogger<AddMovieSubscription>();
-    }
+    private readonly ILogger<AddMovieSubscription> _logger = loggerFactory.CreateLogger<AddMovieSubscription>();
 
     [Function("AddMovieSubscription")]
     public async Task<HttpResponseData> Run(
@@ -27,7 +20,7 @@ public class AddMovieSubscription
         return await req
             .CheckAuthorization()
             .BindAsync(_ => Utils.Validate(payload))
-            .BindAsync(param => _movieSubscription.Subscribe(param.UserId, param.Series, param.NotificationTime, default))
+            .BindAsync(param => movieSubscription.Subscribe(param.UserId, param.Series, param.NotificationTime, default))
             .ToResponse(req, _logger);
     }
 }

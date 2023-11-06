@@ -8,18 +8,11 @@ public interface IGetOvasSubscriptions
     Task<Either<DomainError, ImmutableList<string>>> GetSubscriptions(UserId userId, CancellationToken token);
 }
 
-public class GetOvasSubscriptions : IGetOvasSubscriptions
+public class GetOvasSubscriptions(ITableClientFactory<OvasSubscriptionStorage> clientFactory) : IGetOvasSubscriptions
 {
-    private readonly ITableClientFactory<OvasSubscriptionStorage> _clientFactory;
-
-    public GetOvasSubscriptions(ITableClientFactory<OvasSubscriptionStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, ImmutableList<string>>> GetSubscriptions(UserId userId, CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() =>
                 client.QueryAsync<OvasSubscriptionStorage>(storage => storage.PartitionKey == userId,
                     cancellationToken: token)))

@@ -9,19 +9,13 @@ public interface IAddMovieSubscription
         CancellationToken token);
 }
 
-public sealed class AddMovieSubscription : IAddMovieSubscription
+public sealed class AddMovieSubscription(ITableClientFactory<MoviesSubscriptionStorage> clientFactory)
+    : IAddMovieSubscription
 {
-    private readonly ITableClientFactory<MoviesSubscriptionStorage> _clientFactory;
-
-    public AddMovieSubscription(ITableClientFactory<MoviesSubscriptionStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Subscribe(UserId userId, NoEmptyString series, DateTime notificationDate,
         CancellationToken token)
     {
-        return _clientFactory.GetClient().BindAsync(client => Persist(client, userId, series, notificationDate, token));
+        return clientFactory.GetClient().BindAsync(client => Persist(client, userId, series, notificationDate, token));
     }
 
     private static Task<Either<DomainError, Unit>> Persist(TableClient client, UserId userId, NoEmptyString series,

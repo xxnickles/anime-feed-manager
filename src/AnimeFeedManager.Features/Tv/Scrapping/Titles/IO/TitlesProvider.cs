@@ -7,15 +7,8 @@ public interface ITitlesProvider
 {
     Task<Either<DomainError, ImmutableList<string>>> GetTitles();
 }
-public class TitlesProvider : ITitlesProvider
+public class TitlesProvider(PuppeteerOptions puppeteerOptions) : ITitlesProvider
 {
-    private readonly PuppeteerOptions _puppeteerOptions;
-
-    public TitlesProvider(PuppeteerOptions puppeteerOptions)
-    {
-        _puppeteerOptions = puppeteerOptions;
-    }
-
     public async Task<Either<DomainError, ImmutableList<string>>> GetTitles()
     {
         try
@@ -25,7 +18,7 @@ public class TitlesProvider : ITitlesProvider
                 Browser = SupportedBrowser.Chrome,
                 Headless = true,
                 DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
-                ExecutablePath = _puppeteerOptions.Path
+                ExecutablePath = puppeteerOptions.Path
             });
 
             await using var page = await browser.NewPageAsync();

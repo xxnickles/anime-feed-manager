@@ -8,19 +8,13 @@ public interface IRemoveOvasSubscription
     public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series, CancellationToken token);
 }
 
-public sealed class RemoveOvasSubscription : IRemoveOvasSubscription
+public sealed class RemoveOvasSubscription(ITableClientFactory<OvasSubscriptionStorage> clientFactory)
+    : IRemoveOvasSubscription
 {
-    private readonly ITableClientFactory<OvasSubscriptionStorage> _clientFactory;
-
-    public RemoveOvasSubscription(ITableClientFactory<OvasSubscriptionStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series,
         CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(client => Delete(client, userId, series, token));
     }
 

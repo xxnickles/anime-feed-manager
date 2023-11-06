@@ -9,18 +9,11 @@ public interface IUserEmailGetter
     public Task<Either<DomainError, Email>> GetEmail(string id, CancellationToken cancellationToken);
 }
 
-public sealed class UserEmailGetter : IUserEmailGetter
+public sealed class UserEmailGetter(ITableClientFactory<UserStorage> tableClientFactory) : IUserEmailGetter
 {
-    private readonly ITableClientFactory<UserStorage> _tableClientFactory;
-
-    public UserEmailGetter(ITableClientFactory<UserStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, Email>> GetEmail(string id, CancellationToken cancellationToken)
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.TryExecute(() =>
                 client.GetEntityAsync<UserStorage>(Constants.UserPartitionKey, id, new[] { "Email" },
                     cancellationToken)))

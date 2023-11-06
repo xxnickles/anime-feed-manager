@@ -8,18 +8,11 @@ public interface IMoviesStorage
     Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token);
 }
 
-public sealed class MoviesStorage : IMoviesStorage
+public sealed class MoviesStorage(ITableClientFactory<MovieStorage> tableClientFactory) : IMoviesStorage
 {
-    private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
-
-    public MoviesStorage(ITableClientFactory<MovieStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token)
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.BatchAdd(client, series, token))
             .MapAsync(_ => unit);
     }

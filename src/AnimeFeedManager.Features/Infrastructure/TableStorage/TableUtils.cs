@@ -81,8 +81,9 @@ internal static class TableUtils
             {
                 resultList = resultList.Add(qEntity);
             }
-
-            return resultList;
+            return !resultList.IsEmpty
+                ? resultList
+                : NotFoundError.Create($"Query for the entity '{typeof(T).Name}' returned no results");
         }
         catch (Exception e)
         {

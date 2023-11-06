@@ -3,16 +3,8 @@ using AnimeFeedManager.WebApp.Services;
 
 namespace AnimeFeedManager.WebApp.State;
 
-public sealed class SeasonSideEffects
+public sealed class SeasonSideEffects(ISeasonFetcherService seasonFetcherService)
 {
-    private readonly ISeasonFetcherService _seasonFetcherService;
-
-    public SeasonSideEffects(
-        ISeasonFetcherService seasonFetcherService)
-    {
-        _seasonFetcherService = seasonFetcherService;
-    }
-
     public async Task LoadAvailableSeasons(ApplicationState state, bool forceRefresh = false,
         CancellationToken token = default)
     {
@@ -22,7 +14,7 @@ public sealed class SeasonSideEffects
             try
             {
                 state.AddLoadingItem(key, "Loading Season");
-                var seasons = await _seasonFetcherService.GetAvailableSeasons(token);
+                var seasons = await seasonFetcherService.GetAvailableSeasons(token);
                 if (seasons.Count > 0)
                 {
                     var latest = seasons[0];

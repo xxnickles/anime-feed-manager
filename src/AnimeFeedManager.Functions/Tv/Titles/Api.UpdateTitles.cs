@@ -4,17 +4,10 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Tv.Titles;
 
-public sealed class UpdateTitles
+public sealed class UpdateTitles(ScrapSeasonTitles titlesScrapper, ILoggerFactory loggerFactory)
 {
-    private readonly ScrapSeasonTitles _titlesScrapper;
-    private readonly ILogger _logger;
-    
-    public UpdateTitles(ScrapSeasonTitles titlesScrapper,  ILoggerFactory loggerFactory )
-    {
-        _titlesScrapper = titlesScrapper;
-        _logger = loggerFactory.CreateLogger<UpdateTitles>();
-    }
-    
+    private readonly ILogger _logger = loggerFactory.CreateLogger<UpdateTitles>();
+
     [Function("UpdateTitles")]
     public async Task<HttpResponseData> RunSeason(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/titles")]
@@ -22,7 +15,7 @@ public sealed class UpdateTitles
     {
         _logger.LogInformation("Automated Update of Titles (Manual trigger)");
 
-        var result = await req.AllowAdminOnly().BindAsync(_ => _titlesScrapper.Scrap());
+        var result = await req.AllowAdminOnly().BindAsync(_ => titlesScrapper.Scrap());
         return await result.ToResponse(req, _logger);
     }
 }

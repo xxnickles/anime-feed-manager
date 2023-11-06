@@ -9,19 +9,11 @@ public interface IUserGetter
     Task<Either<DomainError, Unit>> UserExist(UserId userId, CancellationToken token);
 }
 
-public class UserGetter : IUserGetter
+public class UserGetter(ITableClientFactory<UserStorage> tableClientFactory) : IUserGetter
 {
-    private readonly ITableClientFactory<UserStorage> _tableClientFactory;
-
-    public UserGetter(
-        ITableClientFactory<UserStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, ImmutableList<string>>> GetAvailableUsers(CancellationToken token)
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client =>
                 TableUtils.ExecuteQuery(() =>
                     client.QueryAsync<UserStorage>(u => u.PartitionKey == Constants.UserPartitionKey,
@@ -31,7 +23,7 @@ public class UserGetter : IUserGetter
 
     public Task<Either<DomainError, Unit>> UserExist(UserId userId, CancellationToken token)
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client =>
                 TableUtils.ExecuteQueryWithNotFound(() =>
                     client.QueryAsync<UserStorage>(

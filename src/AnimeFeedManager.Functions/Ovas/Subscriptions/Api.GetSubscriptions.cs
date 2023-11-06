@@ -5,16 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Ovas.Subscriptions;
 
-public class GetSubscriptions
+public class GetSubscriptions(IGetOvasSubscriptions ovasSubscriptions, ILoggerFactory loggerFactory)
 {
-    private readonly IGetOvasSubscriptions _ovasSubscriptions;
-    private readonly ILogger<GetSubscriptions> _logger;
-
-    public GetSubscriptions(IGetOvasSubscriptions ovasSubscriptions, ILoggerFactory loggerFactory)
-    {
-        _ovasSubscriptions = ovasSubscriptions;
-        _logger = loggerFactory.CreateLogger<GetSubscriptions>();
-    }
+    private readonly ILogger<GetSubscriptions> _logger = loggerFactory.CreateLogger<GetSubscriptions>();
 
     [Function("GetOvasSubscriptions")]
     public async Task<HttpResponseData> Run(
@@ -23,7 +16,7 @@ public class GetSubscriptions
         string subscriber)
     {
         return await UserIdValidator.Validate(subscriber).ValidationToEither()
-            .BindAsync(id => _ovasSubscriptions.GetSubscriptions(id, default))
+            .BindAsync(id => ovasSubscriptions.GetSubscriptions(id, default))
             .ToResponse(req, _logger);
     }
 }

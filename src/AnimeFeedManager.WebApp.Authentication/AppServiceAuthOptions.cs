@@ -13,14 +13,8 @@ public class AppServiceAuthOptions
     public string AuthenticationDataUrl { get; set; } = "";
 }
 
-public class ExternalProvider
+public class ExternalProvider(string id, string name)
 {
-    public ExternalProvider(string id, string name)
-    {
-        Id = id;
-        DisplayName = name;
-    }
-
-    public string Id { get; set; }
-    public string DisplayName { get; set; }
+    public string Id { get; set; } = id;
+    public string DisplayName { get; set; } = name;
 }

@@ -9,19 +9,12 @@ public interface IAddProcessedTitles
         CancellationToken token);
 }
 
-public class AddProcessedTitles : IAddProcessedTitles
+public class AddProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clientFactory) : IAddProcessedTitles
 {
-    private readonly ITableClientFactory<ProcessedTitlesStorage> _clientFactory;
-
-    public AddProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Add(IEnumerable<(string User, string Title)> data,
         CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(
                 client => TableUtils.BatchAdd(
                     client,

@@ -2,14 +2,9 @@
 
 namespace AnimeFeedManager.Common.Domain.Errors;
 
-public sealed class ValidationError
+public sealed class ValidationError(string field, string[] errors)
 {
-    public KeyValuePair<string, string[]> Error { get; }
-
-    public ValidationError(string field, string[] errors)
-    {
-        Error = new KeyValuePair<string, string[]>(field, errors);
-    }
+    public KeyValuePair<string, string[]> Error { get; } = new(field, errors);
 
     public static ValidationError Create(string field, string[] errors) => new(field, errors);
     public static ValidationError Create(string field, string error) => new(field, new[] { error });

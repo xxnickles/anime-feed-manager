@@ -8,18 +8,11 @@ public interface ITitlesStore
     public Task<Either<DomainError, Unit>> UpdateTitles(IEnumerable<string> titles, CancellationToken token);
 }
 
-public sealed class TitlesStore : ITitlesStore
+public sealed class TitlesStore(ITableClientFactory<TitlesStorage> tableClientFactory) : ITitlesStore
 {
-    private readonly ITableClientFactory<TitlesStorage> _tableClientFactory;
-
-    public TitlesStore(ITableClientFactory<TitlesStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-    
     public Task<Either<DomainError, Unit>> UpdateTitles(IEnumerable<string> titles, CancellationToken token )
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client =>
                 TableUtils.TryExecute(() => client.UpsertEntityAsync(GetEntity(titles), cancellationToken: token)))
             .MapAsync(x => unit);

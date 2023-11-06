@@ -30,6 +30,21 @@ public static class SeasonValidators
             .ValidationToEither();
     }
 
+    /// <summary>
+    /// Parses a valid season string in "Season-Year" format 
+    /// </summary>
+    /// <param name="seasonString">String in format "Season-Year"</param>
+    /// <returns></returns>
+    public static Either<DomainError, (Season season, Year year)> Parse(string seasonString)
+    {
+        var parts = seasonString.Split('-');
+        if (parts.Length != 2)
+            return ValidationErrors.Create(new[]
+                {ValidationError.Create("Season", "Season string is an invalid string")});
+        var parsingResult = ushort.TryParse(parts[1], out var year);
+        return Validate(parts[0], parsingResult ? year : (ushort) 0);
+    }
+
     private static Validation<ValidationError, Season> ValidateSeason(string season) =>
         Season.TryCreateFromString(season).ToValidation(
             ValidationError.Create("Season",

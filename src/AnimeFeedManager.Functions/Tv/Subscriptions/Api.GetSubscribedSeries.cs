@@ -5,16 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Tv.Subscriptions;
 
-public class GetSubscribedSeries
+public class GetSubscribedSeries(IGetTvSubscriptions tvSubscriptions, ILoggerFactory loggerFactory)
 {
-    private readonly IGetTvSubscriptions _tvSubscriptions;
-    private readonly ILogger<GetInterestedSeries> _logger;
-
-    public GetSubscribedSeries(IGetTvSubscriptions tvSubscriptions, ILoggerFactory loggerFactory)
-    {
-        _tvSubscriptions = tvSubscriptions;
-        _logger = loggerFactory.CreateLogger<GetInterestedSeries>();
-    }
+    private readonly ILogger<GetInterestedSeries> _logger = loggerFactory.CreateLogger<GetInterestedSeries>();
 
     [Function("GetSubscribedSeries")]
     public async Task<HttpResponseData> Run(
@@ -25,7 +18,7 @@ public class GetSubscribedSeries
         return await req
             .CheckAuthorization()
             .BindAsync(_ => UserIdValidator.Validate(subscriber).ValidationToEither())
-            .BindAsync(userId => _tvSubscriptions.GetUserSubscriptions(userId, default))
+            .BindAsync(userId => tvSubscriptions.GetUserSubscriptions(userId, default))
             .MapAsync(collection => collection.Series.Select(s => s.ToString()))
             .ToResponse(req, _logger);
     }

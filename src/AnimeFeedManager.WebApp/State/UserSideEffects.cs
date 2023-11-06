@@ -16,7 +16,11 @@ public readonly record struct UserInformation(
     bool IsAdmin
 );
 
-public sealed class UserSideEffects
+public sealed class UserSideEffects(
+    ITvSubscriberService tvSubscriberService,
+    IOvasSubscriberService ovasSubscriberService,
+    IMoviesSubscriberService moviesSubscriberService,
+    IUserService userService)
 {
     private record SystemUser(string UserId);
 
@@ -25,23 +29,6 @@ public sealed class UserSideEffects
     private record FromInput(string UserId, string Email) : SystemUser(UserId);
 
     private record FromUserName(string UserId, string Email) : SystemUser(UserId);
-
-    private readonly ITvSubscriberService _tvSubscriberService;
-    private readonly IOvasSubscriberService _ovasSubscriberService;
-    private readonly IMoviesSubscriberService _moviesSubscriberService;
-    private readonly IUserService _userService;
-
-    public UserSideEffects(
-        ITvSubscriberService tvSubscriberService,
-        IOvasSubscriberService ovasSubscriberService,
-        IMoviesSubscriberService moviesSubscriberService,
-        IUserService userService)
-    {
-        _tvSubscriberService = tvSubscriberService;
-        _ovasSubscriberService = ovasSubscriberService;
-        _moviesSubscriberService = moviesSubscriberService;
-        _userService = userService;
-    }
 
 
     public static void CompleteDefaultProfile(ApplicationState state, User user)
@@ -90,7 +77,7 @@ public sealed class UserSideEffects
         state.AddLoadingItem(key, "Loading user Email");
         try
         {
-            if ( await _userService.UserExist(userId, token))
+            if ( await userService.UserExist(userId, token))
             {
                 return new SystemUser(userId);
             }
@@ -140,7 +127,7 @@ public sealed class UserSideEffects
         state.AddLoadingItem(key, "Storing User");
         try
         {
-            await _userService.MergeUser(new SimpleUser(userId, email), token);
+            await userService.MergeUser(new SimpleUser(userId, email), token);
             state.ReportNotification(new AppNotification("Email has been stored", Severity.Info));
             state.RemoveLoadingItem(key);
             return isAdmin ? new AdminUser(email) : new ApplicationUser(email);
@@ -172,7 +159,7 @@ public sealed class UserSideEffects
     {
         try
         {
-            var interested = await _tvSubscriberService.GetInterested(emailValue, token);
+            var interested = await tvSubscriberService.GetInterested(emailValue, token);
             state.SetInterested(interested);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -189,7 +176,7 @@ public sealed class UserSideEffects
     {
         try
         {
-            var subscriptions = await _tvSubscriberService.GetSubscriptions(emailValue, token);
+            var subscriptions = await tvSubscriberService.GetSubscriptions(emailValue, token);
             state.SetSubscriptions(subscriptions);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound) 
@@ -206,7 +193,7 @@ public sealed class UserSideEffects
     {
         try
         {
-            var subscriptions = await _ovasSubscriberService.GetSubscriptions(emailValue, token);
+            var subscriptions = await ovasSubscriberService.GetSubscriptions(emailValue, token);
             state.SetOvasSubscriptions(subscriptions);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -224,7 +211,7 @@ public sealed class UserSideEffects
     {
         try
         {
-            var subscriptions = await _moviesSubscriberService.GetSubscriptions(emailValue, token);
+            var subscriptions = await moviesSubscriberService.GetSubscriptions(emailValue, token);
             state.SetMoviesSubscriptions(subscriptions);
         }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)

@@ -9,19 +9,12 @@ public interface ISeasonStore
         CancellationToken token);
 }
 
-public sealed class SeasonStore : ISeasonStore
+public sealed class SeasonStore(ITableClientFactory<SeasonStorage> tableClientFactory) : ISeasonStore
 {
-    private readonly ITableClientFactory<SeasonStorage> _tableClientFactory;
-
-    public SeasonStore(ITableClientFactory<SeasonStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> AddSeason(SeasonStorage season, SeasonType seasonType,
         CancellationToken token)
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => CheckIfExist(client, season, token))
             .BindAsync(client => CleanLatest(client, seasonType, token))
             .BindAsync(

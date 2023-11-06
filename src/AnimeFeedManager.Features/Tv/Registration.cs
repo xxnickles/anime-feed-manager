@@ -17,9 +17,6 @@ public static class TvRegistration
 {
     public static IServiceCollection RegisterTvServices(this IServiceCollection services)
     {
-        services.TryAddSingleton<IFeedProvider, FeedProvider>();
-        services.TryAddScoped<ISeriesProvider, SeriesProvider>();
-        services.TryAddScoped<ITitlesProvider, TitlesProvider>();
         services.TryAddScoped<IIncompleteSeriesProvider, IncompleteSeriesProvider>();
         services.TryAddScoped<ITvSeriesStore, TvSeriesStore>();
         services.TryAddScoped<ITittlesGetter, TittlesGetter>();
@@ -33,14 +30,22 @@ public static class TvRegistration
         services.TryAddScoped<ITvSeasonalLibrary, TvSeasonalLibrary>();
         services.TryAddScoped<IGetTvSubscriptions, GetTvSubscriptions>();
         services.TryAddScoped<IGetProcessedTitles, GetProcessedTitles>();
-        services.TryAddScoped<TvLibraryUpdater>();
         services.TryAddScoped<TvLibraryGetter>();
-        services.TryAddScoped<ScrapSeasonTitles>();
         services.TryAddScoped<InterestedToSubscribe>();
         services.TryAddScoped<AutomatedSubscriptionProcessor>();
-        services.TryAddScoped<UserNotificationsCollector>();
         services.TryAddScoped<SeasonTitlesUpdater>();
 
+        return services;
+    }
+    
+    public static IServiceCollection RegisterTvScrappingServices(this IServiceCollection services)
+    {
+        services.TryAddSingleton<IFeedProvider, FeedProvider>();
+        services.TryAddScoped<ISeriesProvider, SeriesProvider>();
+        services.TryAddScoped<ITitlesProvider, TitlesProvider>();
+        services.TryAddScoped<TvLibraryUpdater>();
+        services.TryAddScoped<ScrapSeasonTitles>();
+        services.TryAddScoped<UserNotificationsCollector>();
         return services;
     }
 

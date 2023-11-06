@@ -8,23 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Tv.Notifications;
 
-public class EnqueueNotifications
+public class EnqueueNotifications(
+    UserNotificationsCollector notificationsCollector,
+    IUserGetter userGetter,
+    ILoggerFactory loggerFactory)
 {
-    private readonly UserNotificationsCollector _notificationsCollector;
-    private readonly IUserGetter _userGetter;
-
-
-    private readonly ILogger<EnqueueNotifications> _logger;
-
-    public EnqueueNotifications(
-        UserNotificationsCollector notificationsCollector,
-        IUserGetter userGetter,
-        ILoggerFactory loggerFactory)
-    {
-        _notificationsCollector = notificationsCollector;
-        _userGetter = userGetter;
-        _logger = loggerFactory.CreateLogger<EnqueueNotifications>();
-    }
+    private readonly ILogger<EnqueueNotifications> _logger = loggerFactory.CreateLogger<EnqueueNotifications>();
 
     [Function("EnqueueNotifications")]
     public async Task Run(
@@ -32,7 +21,7 @@ public class EnqueueNotifications
         // [TimerTrigger("0 0/1 * * * *")] TimerInfo timer
     )
     {
-        var users = await _userGetter.GetAvailableUsers(default);
+        var users = await userGetter.GetAvailableUsers(default);
 
         await users.Match(
             ProcessUsers,
@@ -63,6 +52,6 @@ public class EnqueueNotifications
     {
         return UserIdValidator.Validate(userId)
             .ValidationToEither()
-            .BindAsync(user => _notificationsCollector.Get(user));
+            .BindAsync(user => notificationsCollector.Get(user));
     }
 }

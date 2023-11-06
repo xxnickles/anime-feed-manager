@@ -8,18 +8,11 @@ public interface IAddInterested
     public Task<Either<DomainError, Unit>> Add(UserId userId, NoEmptyString series, CancellationToken token);
 }
 
-public sealed class AddInterested : IAddInterested
+public sealed class AddInterested(ITableClientFactory<InterestedStorage> clientFactory) : IAddInterested
 {
-    private readonly ITableClientFactory<InterestedStorage> _clientFactory;
-
-    public AddInterested(ITableClientFactory<InterestedStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Add(UserId userId, NoEmptyString series, CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(client => Persist(client, userId, series, token));
     }
 

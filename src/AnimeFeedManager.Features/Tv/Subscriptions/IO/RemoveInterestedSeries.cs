@@ -8,18 +8,12 @@ public interface IRemoveInterestedSeries
     public Task<Either<DomainError, Unit>> Remove(UserId userId, NoEmptyString series, CancellationToken token);
 }
 
-public sealed class RemoveInterestedSeries : IRemoveInterestedSeries
+public sealed class RemoveInterestedSeries(ITableClientFactory<InterestedStorage> clientFactory)
+    : IRemoveInterestedSeries
 {
-    private readonly ITableClientFactory<InterestedStorage> _clientFactory;
-
-    public RemoveInterestedSeries(ITableClientFactory<InterestedStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-
     public Task<Either<DomainError, Unit>> Remove(UserId userId, NoEmptyString series, CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(client => Delete(client, userId, series, token));
     }
 

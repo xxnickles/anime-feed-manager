@@ -5,16 +5,9 @@ using SimpleTvSubscriptionContext = AnimeFeedManager.Common.Dto.SimpleTvSubscrip
 
 namespace AnimeFeedManager.Functions.Tv.Subscriptions;
 
-public class Unsubscribe
+public class Unsubscribe(IRemoveTvSubscription tvUnsubscriber, ILoggerFactory loggerFactory)
 {
-    private readonly IRemoveTvSubscription _tvUnsubscriber;
-    private readonly ILogger<Unsubscribe> _logger;
-
-    public Unsubscribe(IRemoveTvSubscription tvUnsubscriber, ILoggerFactory loggerFactory)
-    {
-        _tvUnsubscriber = tvUnsubscriber;
-        _logger = loggerFactory.CreateLogger<Unsubscribe>();
-    }
+    private readonly ILogger<Unsubscribe> _logger = loggerFactory.CreateLogger<Unsubscribe>();
 
     [Function("RemoveTvSubscription")]
     public async Task<HttpResponseData> Run(
@@ -26,7 +19,7 @@ public class Unsubscribe
         ArgumentNullException.ThrowIfNull(payload);
         return await req.CheckAuthorization()
             .BindAsync(_ => Utils.Validate(payload))
-            .BindAsync(param => _tvUnsubscriber.Unsubscribe(param.UserId, param.Series, default))
+            .BindAsync(param => tvUnsubscriber.Unsubscribe(param.UserId, param.Series, default))
             .ToResponse(req, _logger);
     }
 }

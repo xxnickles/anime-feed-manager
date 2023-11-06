@@ -5,14 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.RealTime;
 
-public class NotificationSender
+public class NotificationSender(ILoggerFactory loggerFactory)
 {
-    private readonly ILogger<NotificationSender> _logger;
-
-    public NotificationSender(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger<NotificationSender>();
-    }
+    private readonly ILogger<NotificationSender> _logger = loggerFactory.CreateLogger<NotificationSender>();
 
     [Function("LibraryNotificationSender")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]

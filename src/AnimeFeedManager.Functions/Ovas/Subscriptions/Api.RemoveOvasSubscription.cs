@@ -5,16 +5,9 @@ using ShortSeriesUnsubscribeContext = AnimeFeedManager.Common.Dto.ShortSeriesUns
 
 namespace AnimeFeedManager.Functions.Ovas.Subscriptions;
 
-public class RemoveOvasSubscription
+public class RemoveOvasSubscription(IRemoveOvasSubscription ovasSubscription, ILoggerFactory loggerFactory)
 {
-    private readonly IRemoveOvasSubscription _ovasSubscription;
-    private readonly ILogger<RemoveOvasSubscription> _logger;
-
-    public RemoveOvasSubscription(IRemoveOvasSubscription ovasSubscription, ILoggerFactory loggerFactory)
-    {
-        _ovasSubscription = ovasSubscription;
-        _logger = loggerFactory.CreateLogger<RemoveOvasSubscription>();
-    }
+    private readonly ILogger<RemoveOvasSubscription> _logger = loggerFactory.CreateLogger<RemoveOvasSubscription>();
 
     [Function("RemoveOvasSubscription")]
     public async Task<HttpResponseData> Run(
@@ -27,7 +20,7 @@ public class RemoveOvasSubscription
         return await req
             .CheckAuthorization()
             .BindAsync(_ => Utils.Validate(payload))
-            .BindAsync(param => _ovasSubscription.Unsubscribe(param.UserId, param.Series, default))
+            .BindAsync(param => ovasSubscription.Unsubscribe(param.UserId, param.Series, default))
             .ToResponse(req, _logger);
     }
 }

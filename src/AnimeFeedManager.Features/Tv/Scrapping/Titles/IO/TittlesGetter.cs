@@ -8,18 +8,11 @@ public interface ITittlesGetter
     public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token);
 }
 
-public class TittlesGetter : ITittlesGetter
+public class TittlesGetter(ITableClientFactory<TitlesStorage> tableClientFactory) : ITittlesGetter
 {
-    private readonly ITableClientFactory<TitlesStorage> _tableClientFactory;
-
-    public TittlesGetter(ITableClientFactory<TitlesStorage> tableClientFactory)
-    {
-        _tableClientFactory = tableClientFactory;
-    }
-
     public Task<Either<DomainError, ImmutableList<string>>> GetTitles(CancellationToken token)
     {
-        return _tableClientFactory.GetClient()
+        return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() =>
                 client.QueryAsync<TitlesStorage>(t => t.PartitionKey == Utils.TitlesPartitionKey,
                     cancellationToken: token)))

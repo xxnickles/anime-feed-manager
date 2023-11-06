@@ -16,14 +16,9 @@ public class GroupDataOutput
     public HttpResponseData? HttpResponse { get; set; }
 }
 
-public class SetupGroupData
+public class SetupGroupData(ILoggerFactory loggerFactory)
 {
-    private readonly ILogger<SetupGroupData> _logger;
-
-    public SetupGroupData(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger<SetupGroupData>();
-    }
+    private readonly ILogger<SetupGroupData> _logger = loggerFactory.CreateLogger<SetupGroupData>();
 
     [Function("SetupGroupData")]
     public async Task<GroupDataOutput> Add(

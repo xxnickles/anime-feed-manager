@@ -16,27 +16,19 @@ public interface ISeriesProvider
     Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token);
 }
 
-public sealed class SeriesProvider : ISeriesProvider
+public sealed class SeriesProvider(
+    IDomainPostman domainPostman,
+    PuppeteerOptions puppeteerOptions)
+    : ISeriesProvider
 {
-    private readonly IDomainPostman _domainPostman;
-    private readonly PuppeteerOptions _puppeteerOptions;
-
-    public SeriesProvider(
-        IDomainPostman domainPostman,
-        PuppeteerOptions puppeteerOptions)
-    {
-        _domainPostman = domainPostman;
-        _puppeteerOptions = puppeteerOptions;
-    }
-
     public async Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token)
     {
         try
         {
             var (series, jsonSeason) =
-                await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
+                await AniDbScrapper.Scrap(CreateScrappingLink(season), puppeteerOptions);
 
-            return await _domainPostman.SendMessage(new SeasonProcessNotification(
+            return await domainPostman.SendMessage(new SeasonProcessNotification(
                         TargetAudience.Admins,
                         NotificationType.Information,
                         new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
@@ -52,7 +44,7 @@ public sealed class SeriesProvider : ISeriesProvider
         }
         catch (Exception ex)
         {
-            return await _domainPostman.SendMessage(
+            return await domainPostman.SendMessage(
                     new SeasonProcessNotification(
                         TargetAudience.Admins,
                         NotificationType.Error,

@@ -5,18 +5,11 @@ using SimpleTvSubscriptionContext = AnimeFeedManager.Common.Dto.SimpleTvSubscrip
 
 namespace AnimeFeedManager.Functions.Tv.Subscriptions;
 
-public class RemoveInterested
+public class RemoveInterested(
+    IRemoveInterestedSeries interestedSeriesRemover,
+    ILoggerFactory loggerFactory)
 {
-    private readonly IRemoveInterestedSeries _interestedSeriesRemover;
-    private readonly ILogger<RemoveInterested> _logger;
-
-    public RemoveInterested(
-        IRemoveInterestedSeries interestedSeriesRemover,
-        ILoggerFactory loggerFactory)
-    {
-        _interestedSeriesRemover = interestedSeriesRemover;
-        _logger = loggerFactory.CreateLogger<RemoveInterested>();
-    }
+    private readonly ILogger<RemoveInterested> _logger = loggerFactory.CreateLogger<RemoveInterested>();
 
     [Function("RemoveTvInterested")]
     public async Task<HttpResponseData> Run(
@@ -28,7 +21,7 @@ public class RemoveInterested
         ArgumentNullException.ThrowIfNull(payload);
 
         return await Utils.Validate(payload)
-            .BindAsync(param => _interestedSeriesRemover.Remove(param.UserId, param.Series, default))
+            .BindAsync(param => interestedSeriesRemover.Remove(param.UserId, param.Series, default))
             .ToResponse(req, _logger);
     }
 }

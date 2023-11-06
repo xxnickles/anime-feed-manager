@@ -8,18 +8,11 @@ public interface IRemoveTvSubscription
     public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series, CancellationToken token);
 }
 
-public sealed class RemoveTvSubscription : IRemoveTvSubscription
+public sealed class RemoveTvSubscription(ITableClientFactory<SubscriptionStorage> clientFactory) : IRemoveTvSubscription
 {
-    private readonly ITableClientFactory<SubscriptionStorage> _clientFactory;
-
-    public RemoveTvSubscription(ITableClientFactory<SubscriptionStorage> clientFactory)
-    {
-        _clientFactory = clientFactory;
-    }
-    
     public Task<Either<DomainError, Unit>> Unsubscribe(UserId userId, NoEmptyString series, CancellationToken token)
     {
-        return _clientFactory.GetClient()
+        return clientFactory.GetClient()
             .BindAsync(client => Delete(client, userId, series, token));
     }
     

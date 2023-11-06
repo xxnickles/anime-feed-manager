@@ -6,19 +6,12 @@ using AnimeFeedManager.Features.Tv.Types;
 
 namespace AnimeFeedManager.Features.Tv.Library;
 
-public sealed class TvLibraryGetter
+public sealed class TvLibraryGetter(ITvSeasonalLibrary seasonalLibrary)
 {
-    private readonly ITvSeasonalLibrary _seasonalLibrary;
-
-    public TvLibraryGetter(ITvSeasonalLibrary seasonalLibrary)
-    {
-        _seasonalLibrary = seasonalLibrary;
-    }
-
     public Task<Either<DomainError, SeasonCollection>> GetForSeason(string season, ushort year, CancellationToken token = default)
     {
         return SeasonValidators.Validate(season, year)
-            .BindAsync(param => _seasonalLibrary.GetSeasonalLibrary(param.season, param.year, token))
+            .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.season, param.year, token))
             .MapAsync(animes => Project(year, season, animes));
     }
 

@@ -7,18 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Tv.Subscriptions;
 
-public sealed class OnProcessAutoSubscription
+public sealed class OnProcessAutoSubscription(
+    AutomatedSubscriptionProcessor subscriptionProcessor,
+    ILoggerFactory loggerFactory)
 {
-    private readonly AutomatedSubscriptionProcessor _subscriptionProcessor;
-    private readonly ILogger<OnProcessAutoSubscription> _logger;
-
-    public OnProcessAutoSubscription(
-        AutomatedSubscriptionProcessor subscriptionProcessor,
-        ILoggerFactory loggerFactory)
-    {
-        _subscriptionProcessor = subscriptionProcessor;
-        _logger = loggerFactory.CreateLogger<OnProcessAutoSubscription>();
-    }
+    private readonly ILogger<OnProcessAutoSubscription> _logger = loggerFactory.CreateLogger<OnProcessAutoSubscription>();
 
     [Function("OnProcessAutoSubscription")]
     public async Task Run(
@@ -26,7 +19,7 @@ public sealed class OnProcessAutoSubscription
         StateWrap<InterestedToSubscription> notification)
     {
 
-        var result = await _subscriptionProcessor.Process(notification, default);
+        var result = await subscriptionProcessor.Process(notification, default);
 
         result.Match(
             count => _logger.LogInformation("Automated subscriptions for {User}",

@@ -7,28 +7,15 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Tv.Subscriptions;
 
-public class UserNotificationsCollector
+public class UserNotificationsCollector(
+    IFeedProvider feedProvider,
+    IGetTvSubscriptions subscriptionsGetter,
+    IGetProcessedTitles processedTitlesGetter,
+    IDomainPostman domainPostman)
 {
-    private readonly IFeedProvider _feedProvider;
-    private readonly IGetTvSubscriptions _subscriptionsGetter;
-    private readonly IGetProcessedTitles _processedTitlesGetter;
-    private readonly IDomainPostman _domainPostman;
-
-    public UserNotificationsCollector(
-        IFeedProvider feedProvider,
-        IGetTvSubscriptions subscriptionsGetter,
-        IGetProcessedTitles processedTitlesGetter,
-        IDomainPostman domainPostman)
-    {
-        _feedProvider = feedProvider;
-        _subscriptionsGetter = subscriptionsGetter;
-        _processedTitlesGetter = processedTitlesGetter;
-        _domainPostman = domainPostman;
-    }
-
     public Task<Either<DomainError, CollectedNotificationResult>> Get(UserId userId, CancellationToken token = default)
     {
-        return _subscriptionsGetter.GetUserSubscriptions(userId, token)
+        return subscriptionsGetter.GetUserSubscriptions(userId, token)
             .BindAsync(collection => FilterProcessed(userId, collection, token))
             .BindAsync(collection => GetNotifications(userId, collection))
             .BindAsync(notification => CreateNotificationEvent(notification, token));
@@ -39,7 +26,7 @@ public class UserNotificationsCollector
         SubscriptionCollection collection,
         CancellationToken token)
     {
-        return _processedTitlesGetter.GetForUser(userId, token)
+        return processedTitlesGetter.GetForUser(userId, token)
             .MapAsync(titles => collection with
             {
                 Series = collection.Series.Where(title => !titles.Contains(title)).ToImmutableList()
@@ -49,7 +36,7 @@ public class UserNotificationsCollector
     private Either<DomainError, SubscriberTvNotification> GetNotifications(UserId userId,
         SubscriptionCollection collection)
     {
-        return _feedProvider.GetFeed(Resolution.Hd)
+        return feedProvider.GetFeed(Resolution.Hd)
             .Map(feed => CreateNotification(userId, collection, feed));
     }
 
@@ -79,7 +66,7 @@ public class UserNotificationsCollector
         }
 
 
-        return _domainPostman.SendMessage(tvNotification, Box.TvNotifications, token)
+        return domainPostman.SendMessage(tvNotification, Box.TvNotifications, token)
             .MapAsync(_ =>
                 new CollectedNotificationResult((byte) tvNotification.Feeds.Length, tvNotification.Subscriber));
     }

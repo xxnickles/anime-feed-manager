@@ -1,0 +1,68 @@
+﻿@page "/{Season}/tv"
+
+@using AnimeFeedManager.Features.Tv.Library
+@using AnimeFeedManager.Features.Seasons.Types
+@using AnimeFeedManager.Features.Seasons
+@using System.Collections.Immutable
+@inject TvLibraryGetter LibraryGetter;
+@inject ILogger<TvGrid> Logger;
+@inject SeasonsGetter SeasonGetter
+@attribute [StreamRendering]
+
+<SeasonLinks Seasons="_lastSeasons" SeriesType="SeriesType.Tv"></SeasonLinks>
+<h3>TvGrid</h3>
+
+<pre>
+ Selected Season = @_selectedSeason.ToString()
+</pre>
+
+
+@if (_seasonCollection is EmptySeasonCollection)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <pre>
+    @foreach (var item in _seasonCollection.Animes)
+    {
+        @item.ToString()
+    }
+    </pre>
+}
+
+@code {
+
+    [Parameter]
+    public string Season { get; set; }
+
+    private SeasonInformation _selectedSeason = new DefaultSeasonInformation();
+
+    private SeasonCollection _seasonCollection = new EmptySeasonCollection();
+    
+    private ImmutableList<SeasonWrapper> _lastSeasons = ImmutableList<SeasonWrapper>.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {   
+        _selectedSeason = SeasonValidators.Parse(Season)
+            .Match(
+                values => new SeasonInformation(values.season, values.year),
+                _ => new DefaultSeasonInformation()
+            );
+        
+        var seasonResults = await SeasonGetter.GetLastSeasons();
+        _lastSeasons = seasonResults
+            .LogErrors(Logger)
+            .Match(
+                seasons => seasons,
+                _ => ImmutableList<SeasonWrapper>.Empty
+            );
+
+        var results = await LibraryGetter.GetForSeason(_selectedSeason.Season, _selectedSeason.Year).LogErrors(Logger);
+        _seasonCollection = results.Match(
+            collection => collection,
+            _ => new EmptySeasonCollection()
+            );
+    }
+
+}

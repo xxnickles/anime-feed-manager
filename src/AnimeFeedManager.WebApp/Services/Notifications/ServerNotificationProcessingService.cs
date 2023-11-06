@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Json;
-using System.Text.Json;
 using AnimeFeedManager.Common.Domain.Notifications;
 using AnimeFeedManager.Common.RealTimeNotifications;
 using AnimeFeedManager.WebApp.State;
@@ -21,7 +20,12 @@ public interface IServerNotificationProcessingService
     Task SubscribeToNotifications();
 }
 
-public class ServerNotificationProcessingService : IServerNotificationProcessingService
+public class ServerNotificationProcessingService(
+    ApplicationState state,
+    SeasonSideEffects seasonSideEffects,
+    HttpClient httpClient,
+    ILogger<ServerNotificationProcessingService> logger)
+    : IServerNotificationProcessingService
 {
     private enum DelayedActions
     {
@@ -30,11 +34,6 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     }
 
     private HubConnection? _hubConnection;
-
-    private readonly ApplicationState _state;
-    private readonly SeasonSideEffects _seasonSideEffects;
-    private readonly HttpClient _httpClient;
-    private readonly ILogger<ServerNotificationProcessingService> _logger;
 
     public event Func<ImageUpdateNotification, Task>? ImagesUpdateNotification;
     public event Func<TitlesUpdateNotification, Task>? TitlesUpdateNotification;
@@ -47,25 +46,13 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     private const string AddToGroupEndpoint = "api/notifications/setup";
     private const string RemoveFromGroupEndpoint = "api/notifications/remove";
 
-    public ServerNotificationProcessingService(
-        ApplicationState state,
-        SeasonSideEffects seasonSideEffects,
-        HttpClient httpClient,
-        ILogger<ServerNotificationProcessingService> logger)
-    {
-        _state = state;
-        _seasonSideEffects = seasonSideEffects;
-        _httpClient = httpClient;
-        _logger = logger;
-    }
-
     public async Task SubscribeToNotifications()
     {
         ConnectionStatus += OnConnectionStatus;
 
         try
         {
-            var response = await _httpClient.PostAsync("api/negotiate", new StringContent(string.Empty));
+            var response = await httpClient.PostAsync("api/negotiate", new StringContent(string.Empty));
             var info = await response.Content.ReadFromJsonAsync(ConnectionInfoContext.Default.ConnectionInfo);
 
             _hubConnection = new HubConnectionBuilder()
@@ -77,12 +64,12 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
             SubscribeToHubStatus(_hubConnection);
             SubscribeToNotifications(_hubConnection);
             await _hubConnection.StartAsync();
-            _logger.LogInformation("Connection to notification hub has been completed successfully");
+            logger.LogInformation("Connection to notification hub has been completed successfully");
             await RiseStatusChange(HubConnectionStatus.Connected);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "GHub connection bootstrapping failed");
+            logger.LogError(ex, "GHub connection bootstrapping failed");
             ExceptionRisen?.Invoke(ex);
         }
     }
@@ -119,9 +106,9 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
         hubConnection.On<SeasonProcessNotification>(ServerNotifications.SeasonProcess, async notification =>
         {
             SeasonProcessNotification?.Invoke(notification);
-            if (!_state.Value.AvailableSeasons.Contains(notification.SimpleSeason))
+            if (!state.Value.AvailableSeasons.Contains(notification.SimpleSeason))
             {
-                await _seasonSideEffects.LoadAvailableSeasons(_state, true);
+                await seasonSideEffects.LoadAvailableSeasons(state, true);
             }
         });
 
@@ -140,13 +127,13 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
 
     private async Task ConnectionRecovered(string? arg)
     {
-        _logger.LogInformation("Connection to the hub has recovered {Id}", arg);
+        logger.LogInformation("Connection to the hub has recovered {Id}", arg);
         await RiseStatusChange(HubConnectionStatus.Connected);
     }
 
     private async Task ConnectionLost(Exception? arg)
     {
-        _logger.LogError(arg, "Connection to the hub has been lost");
+        logger.LogError(arg, "Connection to the hub has been lost");
         await RiseStatusChange(HubConnectionStatus.Disconnected);
     }
 
@@ -174,7 +161,7 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "An error has occurred when executing delayed {Action}", action);
+                    logger.LogError(e, "An error has occurred when executing delayed {Action}", action);
                 }
             }
         }
@@ -184,13 +171,13 @@ public class ServerNotificationProcessingService : IServerNotificationProcessing
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(endpoint,
+            var response = await httpClient.PostAsJsonAsync(endpoint,
                 new HubInfo(_hubConnection?.ConnectionId ?? string.Empty), HubInfoContext.Default.HubInfo);
             await response.CheckForProblemDetails();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Group action execution failed");
+            logger.LogError(ex, "Group action execution failed");
             ExceptionRisen?.Invoke(ex);
         }
     }

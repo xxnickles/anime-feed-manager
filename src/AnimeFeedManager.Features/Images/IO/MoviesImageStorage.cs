@@ -8,29 +8,19 @@ using AnimeFeedManager.Features.State.IO;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
-public class MoviesImageStorage : IMoviesImageStorage
+public class MoviesImageStorage(
+    IStateUpdater stateUpdaterUpdater,
+    IDomainPostman domainPostman,
+    ITableClientFactory<MovieStorage> tableClientFactory)
+    : IMoviesImageStorage
 {
-    private readonly IStateUpdater _stateUpdaterUpdater;
-    private readonly IDomainPostman _domainPostman;
-    private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
-
-    public MoviesImageStorage(
-        IStateUpdater stateUpdaterUpdater,
-        IDomainPostman domainPostman,
-        ITableClientFactory<MovieStorage> tableClientFactory)
-    {
-        _stateUpdaterUpdater = stateUpdaterUpdater;
-        _domainPostman = domainPostman;
-        _tableClientFactory = tableClientFactory;
-    }
-
     public async Task<Either<DomainError, Unit>> AddMoviesImage(StateWrap<DownloadImageEvent> imageStateWrap,
         string imageUrl, CancellationToken token)
     {
-        var storeResult = await _tableClientFactory.GetClient()
+        var storeResult = await tableClientFactory.GetClient()
             .BindAsync(client => Store(client, imageUrl, imageStateWrap, token));
 
-        return await _stateUpdaterUpdater.Update(storeResult,
+        return await stateUpdaterUpdater.Update(storeResult,
                 new StateChange(imageStateWrap.StateId, NotificationTarget.Images, imageStateWrap.Payload.Id), token)
             .BindAsync(currentState => TryToPublishUpdate(currentState, token));
     }
@@ -60,6 +50,6 @@ public class MoviesImageStorage : IMoviesImageStorage
             SeriesType.Ova,
             $"Images for Movies have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
         
-        return await _domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
+        return await domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
     }
 }
