@@ -1,0 +1,45 @@
+﻿@using Array = System.Array
+@using AnimeFeedManager.Features.Seasons.Types
+@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Seasons
+
+@inject ILogger<SeriesGrid> Logger;
+@inject SeasonsGetter SeasonGetter
+@attribute [StreamRendering]
+
+<SeasonLinks Seasons="_lastSeasons"></SeasonLinks>
+<h1 class="text-bold text-2xl my-4 ml-10">@SeriesType.AsPluralText().ToUpperInvariant()</h1>
+@if (Series.Length < 1)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <section class="grid grid-cols-1 md:max-xl:grid-cols-2 xl:grid-cols-3 min-[2300px]:grid-cols-4 grid-flow-row gap-10 px-10 py-4">
+        @foreach (var item in Series)
+        {
+            <SeriesCard Anime="item"></SeriesCard>
+        }
+    </section>
+}
+
+@code {
+    [Parameter] public BaseAnime[] Series { get; set; } = Array.Empty<BaseAnime>();
+    [Parameter] public SeriesType SeriesType { get; set; } = SeriesType.None;
+    
+    private ImmutableList<SeasonWrapper> _lastSeasons = ImmutableList<SeasonWrapper>.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var seasonResults = await SeasonGetter.GetLastSeasons();
+        _lastSeasons = seasonResults
+            .LogErrors(Logger)
+            .Match(
+                seasons => seasons,
+                _ => ImmutableList<SeasonWrapper>.Empty
+            );
+    }
+
+}

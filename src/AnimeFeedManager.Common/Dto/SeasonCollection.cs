@@ -6,10 +6,11 @@ public sealed record Feed(bool Available, string Status, string? Title);
 
 public abstract record BaseAnime(string Id, string Title, string Synopsis, string? Url);
 
-public sealed record SimpleAnime(string Id, string Title, string Synopsis, string? Url, DateTime? AirDate);
+public record NullAnime() : BaseAnime(string.Empty, string.Empty, string.Empty, null);
 
-public sealed record FeedAnime(string Id, string Title, string Synopsis, string? Url, Feed FeedInformation);
+public sealed record SimpleAnime(string Id, string Title, string Synopsis, string? Url, DateTime? AirDate): BaseAnime(Id, Title, Synopsis, Url);
 
+public sealed record FeedAnime(string Id, string Title, string Synopsis, string? Url, Feed FeedInformation): BaseAnime(Id, Title, Synopsis, Url);
 
 public record SeasonCollection(ushort Year, string Season, FeedAnime[] Animes);
 

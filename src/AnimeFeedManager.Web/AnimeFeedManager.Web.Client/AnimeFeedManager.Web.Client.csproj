@@ -12,4 +12,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0-rc.2.23480.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
+  </ItemGroup>
+
 </Project>

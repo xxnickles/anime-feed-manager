@@ -1,6 +1,8 @@
 ﻿namespace AnimeFeedManager.Features.Seasons.Types;
 
-public record struct SeasonWrapper(Season Season, Year Year, bool IsLatest);
+public record SeasonWrapper(Season Season, Year Year, bool IsLatest);
+
+public record DefaultSeasonWrapper() : SeasonWrapper(Season.Fall, Year.FromNumber(2000), false);
 
 public static class Extensions
 {

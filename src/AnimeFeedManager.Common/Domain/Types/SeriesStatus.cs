@@ -2,9 +2,9 @@
 
 public readonly struct SeriesStatus : IEquatable<SeriesStatus>
 {
-    private const string CompletedValue = "COMPLETED";
-    private const string NotAvailableValue = "NOTAVAILABLE";
-    private const string OngoingValue = "ONGOING";
+    public const string CompletedValue = "COMPLETED";
+    public const string NotAvailableValue = "NOTAVAILABLE";
+    public const string OngoingValue = "ONGOING";
     
     private readonly string _value;
 

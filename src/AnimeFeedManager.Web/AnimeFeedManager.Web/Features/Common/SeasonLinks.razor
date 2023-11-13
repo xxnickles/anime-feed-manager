@@ -1,17 +1,26 @@
 ﻿@using AnimeFeedManager.Features.Seasons.Types
 @using System.Collections.Immutable
 
-@if (!Seasons.IsEmpty || SeriesType == SeriesType.None)
+@if (!Seasons.IsEmpty)
 {
     <nav>
-        <ul tabindex="0" class="flex justify-center items-center  space-x-4">
+        <ul tabindex="0" class="flex justify-center items-center space-x-5">
             @foreach (var season in Seasons)
             {
                 <li class="flex flex-col items-center">
-                    <NavLink class="link link-hover font-bold" href="@GetLink(season)" Match="NavLinkMatch.All">
-                        @season.Season.ToString().ToUpperInvariant()
-                    </NavLink>
-                    <span class="text-xs">@season.Year.ToString()</span>
+                    <h3 class="text-base">@season.Season.ToString().ToUpperInvariant() @season.Year.ToString()</h3>
+                    <span class="flex flex-nowrap space-x-1">
+                        <NavLink class="link link-hover text-xs" ActiveClass="font-bold text-secondary-focus" href="@GetLink(season, SeriesType.Tv)" Match="NavLinkMatch.All">
+                            TV
+                        </NavLink>
+                        <NavLink class="link link-hover text-xs" ActiveClass="font-bold text-secondary-focus" href="@GetLink(season, SeriesType.Ova)" Match="NavLinkMatch.All">
+                            OVAS
+                        </NavLink>
+                        <NavLink class="link link-hover text-xs" ActiveClass="font-bold text-secondary-focus" href="@GetLink(season, SeriesType.Movie)" Match="NavLinkMatch.All">
+                            MOVIES
+                        </NavLink>
+                    </span>
+
                 </li>
             }
         </ul>
@@ -21,11 +30,8 @@
 
 @code {
 
-    [Parameter]
-    public ImmutableList<SeasonWrapper> Seasons { get; set; } = ImmutableList<SeasonWrapper>.Empty;
+    [Parameter] public ImmutableList<SeasonWrapper> Seasons { get; set; } = ImmutableList<SeasonWrapper>.Empty;
 
-    [Parameter]
-    public SeriesType SeriesType { get; set; } = SeriesType.None;
-    
-    private string GetLink(SeasonWrapper season) => $"{season.Season}-{season.Year}/{SeriesType}";
+    private string GetLink(SeasonWrapper season, SeriesType seriesType) => $"{season.Season}-{season.Year}/{seriesType.AsPlural()}";
+
 }
