@@ -99,7 +99,7 @@
     private Error? Error { get; set; }
 
     [Parameter]
-    public FeedAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new Feed(false, SeriesStatus.NotAvailable, string.Empty));
+    public FeedAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new FeedData(false, SeriesStatus.NotAvailable, string.Empty));
 
     protected override void OnInitialized()
     {

@@ -26,7 +26,7 @@ public sealed class TvLibraryGetter(ITvSeasonalLibrary seasonalLibrary)
                         a?.Title ?? "Not Available",
                         a?.Synopsis ?? "Not Available",
                         a?.ImageUrl,
-                        new AnimeFeedManager.Common.Dto.Feed(!string.IsNullOrEmpty(a?.FeedTitle), a?.Status ?? SeriesStatus.NotAvailable,
+                        new FeedData(!string.IsNullOrEmpty(a?.FeedTitle), a?.Status ?? SeriesStatus.NotAvailable,
                             a?.FeedTitle ?? string.Empty)
                     ))
                 .ToArray());

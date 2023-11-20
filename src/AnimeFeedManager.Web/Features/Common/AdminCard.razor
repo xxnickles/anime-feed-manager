@@ -1,0 +1,71 @@
+﻿<article class="card bg-accent text-primary-content">
+    <div class="card-actions justify-evenly items-center">
+        <label class="label flex flex-col">
+            <span class="label-text">@Label</span>
+            <InputCheckbox class="toggle toggle-accent" Value="Checked" ValueChanged="OnSelectionChanged" ValueExpression="() => Checked"></InputCheckbox>
+        </label>
+    </div>
+    @if (!Checked)
+    {
+        <div class="card-body">
+            <h2 class="card-title">@Title</h2>
+            <div class="card-actions justify-evenly items-center">
+                <button class="btn">Update Latest</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <h2 class="card-title">@Title</h2>
+            <div class="card-actions justify-items-start flex-col">
+                <label class="label text-primary-content">
+                    Season
+                    <InputSelect class="select" @bind-Value="SelectedSeason">
+                        <option value="@Season.Spring.ToString()">Spring</option>
+                        <option value="@Season.Summer.ToString()">Summer</option>
+                        <option value="@Season.Fall.ToString()">Fall</option>
+                        <option value="@Season.Winter.ToString()">Winter</option>
+                    </InputSelect>
+                </label>
+                <label>
+                    Year
+                    <InputNumber class="input" @bind-Value="Year" />
+                </label>
+            </div>
+            <div class="card-actions justify-evenly items-center">
+                <button class="btn">Update Season</button>
+            </div>
+        </div>
+    }
+    
+
+</article>
+
+
+@code {
+
+    private int Year { get; set; } = 2000;
+    private string SelectedSeason { get; set; } = Season.Spring.ToString();
+
+    const string BySeason = "By season";
+    const string Latest = "Latest";
+
+    const string SetBySeason = "Update season";
+    const string SetLatest = "Update latest";
+
+
+    private string Title { get; set; } = Latest;
+
+    private string Label { get; set; } = SetBySeason;
+
+    private bool Checked { get; set; } = false;
+
+    private void OnSelectionChanged(bool value)
+    {
+        Title = value ? BySeason : Latest;
+        Label = value ? SetLatest : SetBySeason;
+        Checked = value;
+    }
+
+}

@@ -8,9 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
-    <ProjectReference Include="..\AnimeFeedManager.Web.Client\AnimeFeedManager.Web.Client.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0-rc.2.23480.2" />
+    <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
   </ItemGroup> 
 
 </Project>
