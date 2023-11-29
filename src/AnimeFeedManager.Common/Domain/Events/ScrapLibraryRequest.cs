@@ -10,6 +10,8 @@ public record SeasonParameter(string Season, ushort Year);
 
 public record ScrapLibraryRequest(SeriesType Type, SeasonParameter? SeasonParameter, ScrapType ScrapType);
 
+public record ScrapTvTilesRequest;
+
 public static class Extensions
 {
     public static SeasonParameter ToSeasonParameter(this (Season season, Year year) param) =>

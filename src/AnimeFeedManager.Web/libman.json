@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "alpinejs@3.13.3",
+      "destination": "wwwroot\\lib\\alpinejs"
+    },
+    {
+      "library": "htmx@1.9.9",
+      "destination": "wwwroot\\lib\\htmx"
+    }
+  ]
+}

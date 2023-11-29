@@ -1,13 +1,26 @@
 ﻿@page "/admin"
-<section class="mt-4 mx-4 flex flex-wrap gap-10 justify-evenly">
-    @for (int i = 0; i < 19; i++)
-    {
-        <AdminCard ></AdminCard>
+<div class="grid grid-cols-12 gap-4 mx-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
+    <section class="col-span-12 px-5 pt-7.5 pb-5  sm:px-7.5 lg:col-span-4">
+        <header class="mb-4">
+            <h2>Update TV Library</h2>
+        </header>
+        <AdminCard SeriesType="SeriesType.Tv"></AdminCard>
+    </section>
+    <section class="col-span-12 px-5 pt-7.5 pb-5  sm:px-7.5 lg:col-span-4">
+        <header class="mb-4">
+            <h2>Update OVAs Library</h2>
+        </header>
+        <AdminCard SeriesType="SeriesType.Ova"></AdminCard>
+    </section>
+    <section class="col-span-12 px-5 pt-7.5 pb-5  sm:px-7.5 lg:col-span-4">
+        <header class="mb-4">
+            <h2>Update Movies Library</h2>
+        </header>
+        <AdminCard SeriesType="SeriesType.Movie"></AdminCard>
+    </section>
+</div>
 
-    }
- 
-</section>
 
 @code {
-    
+
 }

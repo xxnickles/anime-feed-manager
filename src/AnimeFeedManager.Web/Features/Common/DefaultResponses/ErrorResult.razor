@@ -1,0 +1,46 @@
+﻿<div role="alert" class="alert @GetAlertType()" x-data="{ open: true }" x-show="open" x-transition.duration.500ms>
+    <div>
+        @switch (Error)
+        {
+            case BasicError error:
+                <span>@error</span>
+                break;
+            case NotFoundError error:
+                <span>@error.Message</span>
+                break;
+            case NoContentError error:
+                <span>@error.Message</span>
+                break;
+            case ValidationErrors errors:
+                <ValidationResult ValidationErrors="errors"/>
+                break;
+            case ForbiddenError error:
+                <span>@error</span>
+                break;
+            default:
+                <span>An error has occured</span>
+                break;
+        }
+        <button class="btn btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public DomainError Error { get; set; } = new BasicError(string.Empty);
+
+    private string GetAlertType()
+    {
+        return Error switch
+        {
+            NoContentError => "alert-warning",
+            NotFoundError => "alert-warning",
+            ForbiddenError => "alert-warning",
+            _ => "alert-error"
+        };
+    }
+
+}

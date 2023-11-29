@@ -2,7 +2,6 @@
 @using AnimeFeedManager.Features.Movies.Library
 @inject MoviesLibraryGetter LibraryGetter;
 @inject ILogger<MoviesGrid> Logger;
-@attribute [StreamRendering]
 
 <SeriesGrid Series="_seasonCollection.Animes" SeriesType="SeriesType.Movie"></SeriesGrid>
 

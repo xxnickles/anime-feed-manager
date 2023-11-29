@@ -8,7 +8,7 @@ public interface ISeasonsGetter
     Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons(CancellationToken token);
 
     Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetLastFourSeasons(CancellationToken token);
-    
+
     Task<Either<DomainError, SeasonStorage>> GetCurrentSeason(CancellationToken token);
 }
 
@@ -38,6 +38,13 @@ public sealed class SeasonsGetter(ITableClientFactory<SeasonStorage> tableClient
                 () => client.QueryAsync<SeasonStorage>(season =>
                         season.PartitionKey == SeasonType.Season || season.PartitionKey == SeasonType.Latest, 1,
                     cancellationToken: token), 1))
-            .MapAsync(items => items.First());
+            .BindAsync(GetLatest);
+    }
+
+    private Either<DomainError, SeasonStorage> GetLatest(ImmutableList<SeasonStorage> availableSeasons)
+    {
+        return availableSeasons.Count > 0
+            ? availableSeasons.First()
+            : NotFoundError.Create("No season information has been found");
     }
 }

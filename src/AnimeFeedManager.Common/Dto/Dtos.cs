@@ -1,6 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 namespace AnimeFeedManager.Common.Dto;
 
+public record BasicSeason(string Season, ushort Year);
+
 public record SimpleSeasonInfo(string Season, int Year, bool IsLatest);
 
 [JsonSerializable(typeof(SimpleSeasonInfo[]))]

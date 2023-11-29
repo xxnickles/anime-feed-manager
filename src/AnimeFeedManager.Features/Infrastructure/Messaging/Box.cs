@@ -5,10 +5,11 @@ public readonly struct Box
     public readonly struct Available
     {
         public const string SeasonProcessNotificationsBox = "season-process-notifications";
-        public const string TitleUpdatesNotificationsBox = "title-updtates-notifications";
+        public const string TitleUpdatesNotificationsBox = "title-update-notifications";
         public const string ImageUpdateNotificationsBox = "image-update-notifications";
         public const string ImageProcessBox = "image-process";
         public const string LibraryScrapEventsBox = "library-scrap-events";
+        public const string TvTitlesScrapEventsBox = "tv-titles-scrap-events";
         public const string UserAutoSubscriptionBox = "user-auto-subscription";
         public const string AutoSubscriptionsProcessBox = "auto-subscriptions-process";
         public const string TvNotificationsBox = "tv-notifications";
@@ -34,6 +35,9 @@ public readonly struct Box
     public static Box ImageUpdateNotifications => new (Available.ImageUpdateNotificationsBox);
     public static Box ImageProcess => new (Available.ImageProcessBox);
     public static Box LibraryScrapEvents => new(Available.LibraryScrapEventsBox);
+
+    public static Box TvTitlesScrapEvents => new(Available.TvTitlesScrapEventsBox);
+    
     public static Box UserAutoSubscription => new(Available.UserAutoSubscriptionBox);
     public static Box AutoSubscriptionsProcess => new(Available.AutoSubscriptionsProcessBox);
     public static Box TvNotifications => new(Available.TvNotificationsBox);

@@ -1,0 +1,16 @@
+﻿<div class="alert alert-info">
+    <span>Following validation issues where found</span>
+    @foreach (var errors in ValidationErrors.Errors)
+    {
+        <ul>@errors.Key</ul>
+        foreach (var details in errors.Value)
+        {
+            <li>@details</li>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ValidationErrors ValidationErrors { get; set; } = ValidationErrors.Create([]);
+}
+

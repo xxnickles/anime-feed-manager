@@ -2,6 +2,7 @@ using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
 using Microsoft.AspNetCore.Components.Web;
 using TvEndpoints = AnimeFeedManager.Web.Features.Tv.Endpoints; 
+using AdminEndpoints = AnimeFeedManager.Web.Features.Admin.Endpoints; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,5 +35,6 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>();
 
 TvEndpoints.Map(app);
+AdminEndpoints.Map(app);
 
 app.Run();
