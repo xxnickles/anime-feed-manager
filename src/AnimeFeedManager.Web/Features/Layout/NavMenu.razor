@@ -12,22 +12,34 @@
                         Home
                     </NavLink>
                 </li>
-                <li>
-                    <NavLink class="nav-link" href="admin">
-                        Admin
-                    </NavLink>
-                </li>
-
-                <li>
-                    <NavLink class="nav-link" href="login">
-                        Login
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink class="nav-link" href="register">
-                        Register
-                    </NavLink>
-                </li>
+                <AuthorizeView Roles="Admin">
+                    <li>
+                        <NavLink class="nav-link" href="admin">
+                            Admin
+                        </NavLink>
+                    </li>
+                </AuthorizeView>
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <li>
+                            <NavLink class="nav-link" href="login">
+                                Login
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="register">
+                                Register
+                            </NavLink>
+                        </li>
+                    </NotAuthorized>
+                    <Authorized>
+                        <li>
+                            <NavLink class="nav-link" href="logout">
+                                Logout
+                            </NavLink>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
             </ul>
         </nav>
     </div>

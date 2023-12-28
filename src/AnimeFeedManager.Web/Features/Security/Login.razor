@@ -97,7 +97,7 @@
 
     private async Task CompleteLogin(ClaimsPrincipal principal)
     {
-        await HttpContext.SignInAsync(principal);
+        await HttpContext.SignInAsync(principal, new AuthenticationProperties { IsPersistent = true});
         NavigationManager.NavigateTo("/");
     }
 
@@ -110,7 +110,7 @@
     
     private ClaimsPrincipal CreatePrincipal(string user, Role role)
     {
-        var claims = new List<Claim> {new(ClaimTypes.Email, user)};
+        var claims = new List<Claim> {new(ClaimTypes.Name, user), new(ClaimTypes.Email, user)};
         if (role is Role.Admin)
             claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
 
