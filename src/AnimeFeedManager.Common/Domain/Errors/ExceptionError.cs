@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.Contracts;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Common.Domain.Errors;
 
@@ -25,6 +26,11 @@ public sealed class ExceptionError : DomainError
         }
 
         return builder.ToString();
+    }
+
+    public override void LogError(ILogger logger)
+    {
+        logger.LogError(Exception, "{Error}", Exception.Message);
     }
 
     [Pure]

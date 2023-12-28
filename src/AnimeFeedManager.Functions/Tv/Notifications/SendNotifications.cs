@@ -46,7 +46,7 @@ public class SendNotifications(
                 result.Match(
                     _ => _logger.LogInformation("Sending notification to {NotificationSubscriber}",
                         notification.SubscriberId),
-                    error => error.LogDomainError(_logger)
+                    error => error.LogError(_logger)
                 );
             }
             else

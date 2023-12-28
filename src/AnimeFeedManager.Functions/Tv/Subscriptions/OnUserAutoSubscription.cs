@@ -25,6 +25,6 @@ public sealed class OnUserAutoSubscription(
         result.Match(
             count => _logger.LogInformation("{Count} automated subscriptions will be processed for {User}", count,
                 notification.UserId),
-            error => error.LogDomainError(_logger));
+            error => error.LogError(_logger));
     }
 }

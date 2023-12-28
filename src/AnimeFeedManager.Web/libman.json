@@ -7,7 +7,7 @@
       "destination": "wwwroot\\lib\\alpinejs"
     },
     {
-      "library": "htmx@1.9.9",
+      "library": "htmx@1.9.10",
       "destination": "wwwroot\\lib\\htmx"
     }
   ]

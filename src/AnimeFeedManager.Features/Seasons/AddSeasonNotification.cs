@@ -26,6 +26,6 @@ public sealed class AddSeasonHandler(ISeasonStore seasonStore, ILogger<AddSeason
         
         result.Match(
             _ => logger.LogInformation("Entry for {Season} updated successfully", $"{notification.Year}-{notification.Season}"),
-            e =>  e.LogDomainError(logger));
+            e =>  e.LogError(logger));
     }
 }

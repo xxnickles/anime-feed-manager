@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Domain.Errors;
+﻿using Microsoft.Extensions.Logging;
+
+namespace AnimeFeedManager.Common.Domain.Errors;
 
 public abstract class DomainError(string message)
 {
@@ -8,5 +10,7 @@ public abstract class DomainError(string message)
     {
         return Message;
     }
+    
+    public abstract void LogError(ILogger logger);
 
 }

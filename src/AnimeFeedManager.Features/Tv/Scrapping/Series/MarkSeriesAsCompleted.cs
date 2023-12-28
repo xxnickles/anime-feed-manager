@@ -25,7 +25,7 @@ public class MarkSeriesAsCompletedHandler(
 
         result.Match(
             count => logger.LogInformation("({Count}) series have been marked as completed", count),
-            e => e.LogDomainError(logger));
+            e => e.LogError(logger));
     }
 
     private static AnimeInfoStorage MarkAsCompleted(AnimeInfoStorage original)

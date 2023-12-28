@@ -21,7 +21,7 @@ public sealed class OnLibraryScrapRequest(
         var result = await titlesScrapper.Scrap();
         result.Match(
             _ => _logger.LogInformation("Scrapping process for tv has started"),
-            e => e.LogDomainError(_logger)
+            e => e.LogError(_logger)
         );
     }
 }

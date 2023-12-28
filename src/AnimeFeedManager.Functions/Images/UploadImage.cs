@@ -47,6 +47,6 @@ public sealed class UploadImage
 
         result.Match(
             _ => _logger.LogInformation(""),
-            e => e.LogDomainError(_logger));
+            e => e.LogError(_logger));
     }
 }

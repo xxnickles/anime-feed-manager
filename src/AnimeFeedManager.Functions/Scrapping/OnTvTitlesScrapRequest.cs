@@ -50,7 +50,7 @@ public sealed class OnTvTitlesScrapRequest(
         result.Match(
             _ => _logger.LogInformation("Scrapping process for @{Parameters} has been completed successfully",
                 notification),
-            e => e.LogDomainError(_logger)
+            e => e.LogError(_logger)
         );
     }
 }

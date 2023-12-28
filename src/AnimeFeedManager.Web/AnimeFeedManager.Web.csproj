@@ -9,6 +9,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Passwordless" Version="1.0.2" />
   </ItemGroup> 
 
 </Project>

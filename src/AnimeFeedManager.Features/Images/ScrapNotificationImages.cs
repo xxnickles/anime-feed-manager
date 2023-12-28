@@ -22,7 +22,7 @@ public sealed class ScrapImagesNotificationHandler(
             .MapAsync(r => SendMessages(r, cancellationToken));
 
         results.Match(async r => await r,
-            e => e.LogDomainError(logger));
+            e => e.LogError(logger));
     }
 
     private async Task SendMessages(ImmutableList<StateWrap<DownloadImageEvent>> events, CancellationToken token)
@@ -36,7 +36,7 @@ public sealed class ScrapImagesNotificationHandler(
         {
             processResult.Match(
                 _ => { },
-                error => error.LogDomainError(logger)
+                error => error.LogError(logger)
             );
         }
     }

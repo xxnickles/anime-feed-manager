@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Common.Domain.Errors;
 
@@ -35,5 +36,13 @@ public class ValidationErrors : DomainError
         }
 
         return builder.ToString();
+    }
+
+    public override void LogError(ILogger logger)
+    {
+        logger.LogWarning("{Error}", Message);
+        foreach (var validationError in Errors)
+            logger.LogWarning("Field: {Field} Messages: {Messages}", validationError.Key,
+                string.Join(". ", validationError.Value));
     }
 }

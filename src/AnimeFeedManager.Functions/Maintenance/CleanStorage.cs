@@ -15,7 +15,7 @@ public class CleanStorage(IStorageCleanup storageCleanup, ILoggerFactory loggerF
         var result = await storageCleanup.CleanOldNotifications(DateTime.Now.AddDays(-30), default);
         result.Match(
             _ => { _logger.LogInformation("Old notifications have been cleaned"); },
-            e => e.LogDomainError(_logger)
+            e => e.LogError(_logger)
         );
     }
 
@@ -36,7 +36,7 @@ public class CleanStorage(IStorageCleanup storageCleanup, ILoggerFactory loggerF
             var result = await storageCleanup.CleanOldState(type, DateTime.Now.AddDays(-7), default);
             result.Match(
                 _ => { _logger.LogInformation("Old state has been cleaned"); },
-                e => e.LogDomainError(_logger)
+                e => e.LogError(_logger)
             );
         }
     }

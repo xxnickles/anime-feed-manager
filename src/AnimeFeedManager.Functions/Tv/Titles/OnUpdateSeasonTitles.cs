@@ -22,7 +22,7 @@ public sealed class OnUpdateSeasonTitles(
         result.Match(
             _ => _logger.LogInformation("Titles ({Count}) have been updated successfully",
                 notification.Titles.Count.ToString()),
-            e => e.LogDomainError(_logger));
+            e => e.LogError(_logger));
     }
 
 }

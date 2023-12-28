@@ -19,7 +19,7 @@ public class CleanProcessedTitles(
             {
                 _logger.LogInformation("Processed titles store has been cleaned");
             },
-            e => e.LogDomainError(_logger)
+            e => e.LogError(_logger)
         );
     }
 }

@@ -1,0 +1,123 @@
+﻿@page "/Login"
+@using System.Security.Claims
+@using AnimeFeedManager.Common.Utils
+@using AnimeFeedManager.Features.Users.IO
+@using AnimeFeedManager.Features.Users.Types
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+
+@inject IPasswordlessLogin PasswordlessLogin;
+@inject NavigationManager NavigationManager;
+@inject ILogger<Login> Logger;
+
+<section class="hero min-h-[95vh] bg-base-200">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+        <div class="text-center lg:text-left">
+            <h1 class="text-5xl font-bold">Login</h1>
+            <p class="py-6">Use your username (email) to access the system using no password!</p>
+        </div>
+        <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <form
+                method="post"
+                class="card-body"
+                x-data="login()"
+                x-on:submit.prevent="$event.target.checkValidity() ? login($event) : $event.target.reportValidity()"
+                @onsubmit="Submit"
+                @formname="login">
+                <AntiforgeryToken/>
+                <fieldset class="form-control">
+                    <label for="user-alias" class="label">
+                        <span class="label-text">Please provide an email</span>
+                    </label>
+
+                    <input
+                        @bind-value="Alias"
+                        type="email"
+                        id="user-alias"
+                        name="alias"
+                        required
+                        x-model="alias"
+                        x-on:input.debounce="valid = $event.target.validity.valid"
+                        x-ref="alias"
+                        placeholder="Enter your Email"
+                        class="input input-bordered" :class="valid || 'input-error'"/>
+                    <input @bind-value="Id" name="id" type="hidden" id="id-value"/>
+                </fieldset>
+                <div class="form-control">
+                    <button class="btn btn-primary mt-4">Login</button>
+                </div>
+                <template x-if="result && !result.success && !result.unauthorized">
+                    <div class="bg-error text-error-content rounded-box p-4 mt-2">
+                        <ul>
+                            <template x-for=" error in Object.values(result.errors)">
+                                <li x-text="error"></li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+                <template x-if="result && result.unauthorized">
+                    <div class="bg-error text-error-content rounded-box p-4 mt-2">
+                        <p>Your account is not registered. <NavLink class="link" href="register">Register</NavLink></p>
+                    </div>
+                </template>
+            </form>
+            @if (ServerError)
+            {
+                <div class="bg-error text-error-content rounded-box p-4 mt-2">
+                    <p>An error has occurred. Please Try again</p>
+                </div>
+            }
+
+        </div>
+    </div>
+</section>
+
+
+@code {
+    [SupplyParameterFromForm] public string? Id { get; set; }
+    [SupplyParameterFromForm] public string? Alias { get; set; }
+
+    [CascadingParameter] public HttpContext HttpContext { get; set; } = default!;
+
+    private bool ServerError { get; set; }
+
+    private async Task Submit()
+    {
+        var result = await UserIdValidator.Validate(Id ?? string.Empty)
+            .ValidationToEither()
+            .BindAsync(userId => PasswordlessLogin.GetUserRole(userId, default))
+            .MapAsync(role => CreatePrincipal(Alias ?? string.Empty, role));
+
+
+        await result.Match(
+            CompleteLogin,
+            ShowError
+        );
+    }
+
+    private async Task CompleteLogin(ClaimsPrincipal principal)
+    {
+        await HttpContext.SignInAsync(principal);
+        NavigationManager.NavigateTo("/");
+    }
+
+    private Task ShowError(DomainError error)
+    {
+        error.LogError(Logger);
+        ServerError = true;
+        return Task.CompletedTask;
+    }
+    
+    private ClaimsPrincipal CreatePrincipal(string user, Role role)
+    {
+        var claims = new List<Claim> {new(ClaimTypes.Email, user)};
+        if (role is Role.Admin)
+            claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+
+        return
+            new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+    }
+
+}
+
+<script src="./Features/Security/Login.razor.js" type="text/javascript"></script>

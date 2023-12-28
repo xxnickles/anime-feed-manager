@@ -7,7 +7,7 @@ public static class ErrorToActionResults
 {
     public static Task<HttpResponseData> ToResponse(this DomainError error, HttpRequestData request, ILogger log)
     {
-        error.LogDomainError(log);
+        error.LogError(log);
         return error switch
         {
             ExceptionError eError => eError.ToResponse(request),

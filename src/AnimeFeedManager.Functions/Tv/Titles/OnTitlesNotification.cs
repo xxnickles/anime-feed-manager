@@ -34,7 +34,7 @@ public sealed class OnTitlesNotification(
             _ => CreateMessage(notification),
             e =>
             {
-                e.LogDomainError(_logger);
+                e.LogError(_logger);
                 return CreateMessage(notification);
             }
         );

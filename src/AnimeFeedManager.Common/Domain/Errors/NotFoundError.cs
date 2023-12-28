@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Domain.Errors;
+﻿using Microsoft.Extensions.Logging;
+
+namespace AnimeFeedManager.Common.Domain.Errors;
 
 public sealed class NotFoundError : DomainError
 {
@@ -7,4 +9,8 @@ public sealed class NotFoundError : DomainError
     }
 
     public static NotFoundError Create(string message) => new(message);
+    public override void LogError(ILogger logger)
+    {
+        logger.LogError("{Message}", Message);
+    }
 }

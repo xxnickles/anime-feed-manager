@@ -35,7 +35,7 @@ public sealed class OnImageNotification(
             _ => CreateMessage(notification),
             e =>
             {
-                e.LogDomainError(_logger);
+                e.LogError(_logger);
                 return CreateMessage(notification);
             }
         );

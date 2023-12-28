@@ -25,7 +25,7 @@ public sealed class AutomatedSubscriptionHandler(
 
         results.Match(
             _ => logger.LogInformation("Automated subscriptions will be processed for available users"),
-            error => error.LogDomainError(logger));
+            error => error.LogError(logger));
     }
 
     private async Task<Either<DomainError, Unit>> SendMessages(

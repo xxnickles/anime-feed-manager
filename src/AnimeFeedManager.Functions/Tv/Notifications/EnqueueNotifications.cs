@@ -27,7 +27,7 @@ public class EnqueueNotifications(
             ProcessUsers,
             error =>
             {
-                error.LogDomainError(_logger);
+                error.LogError(_logger);
                 return Task.CompletedTask;
             });
     }
@@ -43,7 +43,7 @@ public class EnqueueNotifications(
                 notificationResult =>
                     _logger.LogInformation("A notification with {Count} series will be sent to {UserId}",
                         notificationResult.SeriesCount.ToString(), notificationResult.Subscriber),
-                error => error.LogDomainError(_logger)
+                error => error.LogError(_logger)
             );
         }
     }

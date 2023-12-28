@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Domain.Errors;
+﻿using Microsoft.Extensions.Logging;
+
+namespace AnimeFeedManager.Common.Domain.Errors;
 
 public sealed class NoContentError : DomainError
 {
@@ -7,4 +9,9 @@ public sealed class NoContentError : DomainError
     }
 
     public static NoContentError Create(string message) => new(message);
+
+    public override void LogError(ILogger logger)
+    {
+        logger.LogWarning("{Error}", Message);
+    }
 }

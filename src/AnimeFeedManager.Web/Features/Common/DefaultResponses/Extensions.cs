@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
-using LanguageExt;
 
 namespace AnimeFeedManager.Web.Features.Common.DefaultResponses;
 
@@ -32,7 +31,7 @@ internal static class Extensions
 
     private static Task<string> RenderError(BlazorRenderer renderer, ILogger logger, DomainError error)
     {
-        error.LogDomainError(logger);
+        error.LogError(logger);
         
         var parameters = new Dictionary<string, object?>
         {
