@@ -1,4 +1,5 @@
-﻿using Passwordless.Net;
+﻿using AnimeFeedManager.Common.Domain.Types;
+using Passwordless.Net;
 
 namespace AnimeFeedManager.Features.Users.Types;
 

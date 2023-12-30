@@ -25,7 +25,7 @@ public sealed class OnSeasonNotification(
         // Stores notification
         var result = await storeNotification.Add(
             IdHelpers.GetUniqueId(),
-            UserRoles.Admin,
+            RoleNames.Admin,
             FromNotification(notification.SeriesType),
             NotificationArea.Update,
             notification,

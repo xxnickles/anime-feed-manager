@@ -53,7 +53,7 @@ public class StorageCleanup(
     {
         return TableUtils.ExecuteQueryWithEmpty(
                 () => client.QueryAsync<NotificationStorage>(s =>
-                    s.PartitionKey == UserRoles.Admin && s.Timestamp <= beforeOf))
+                    s.PartitionKey == RoleNames.Admin && s.Timestamp <= beforeOf))
             .BindAsync(entities =>
                 TableUtils.BatchDelete(client, entities, token))
             .MapAsync(r => new Unit());

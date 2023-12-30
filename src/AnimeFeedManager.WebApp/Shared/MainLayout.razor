@@ -4,6 +4,7 @@
 @using Toolbelt.Blazor.PWA.Updater
 @using ApplicationException = AnimeFeedManager.WebApp.State.AppException
 @using AnimeFeedManager.Common.Domain.Types
+@using AdminUser = AnimeFeedManager.WebApp.State.AdminUser
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject ApplicationState State
@@ -121,7 +122,7 @@
         else
         {
             var userId = state.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier"))?.Value ?? string.Empty;
-            var isAdmin = state.User.IsInRole(UserRoles.Admin);
+            var isAdmin = state.User.IsInRole(RoleNames.Admin);
             var name = state.User.Identity?.Name ?? string.Empty;
             await UserSideEffects.CompleteUserProfile(State, new UserInformation(userId, name, isAdmin), GetEmailFromUser, _cts.Token);
         }

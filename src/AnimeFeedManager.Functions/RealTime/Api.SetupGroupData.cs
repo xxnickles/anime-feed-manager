@@ -42,7 +42,7 @@ public class SetupGroupData(ILoggerFactory loggerFactory)
 
         ArgumentNullException.ThrowIfNull(payload);
 
-        var groupAction = parameters.principal.IsInRole(UserRoles.Admin)
+        var groupAction = parameters.principal.IsInRole(RoleNames.Admin)
             ? new SignalRGroupAction(SignalRGroupActionType.Add)
             {
                 UserId = parameters.principal.Identity?.Name ?? string.Empty,

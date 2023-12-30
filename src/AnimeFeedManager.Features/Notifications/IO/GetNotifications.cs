@@ -28,6 +28,6 @@ public class GetNotifications(ITableClientFactory<NotificationStorage> tableClie
         return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteLimitedQuery(() =>
                 client.QueryAsync<NotificationStorage>(
-                    n => n.PartitionKey == userId || n.PartitionKey == UserRoles.Admin, cancellationToken: token)));
+                    n => n.PartitionKey == userId || n.PartitionKey == RoleNames.Admin, cancellationToken: token)));
     }
 }

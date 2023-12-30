@@ -1,3 +1,4 @@
+using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
 using AnimeFeedManager.Web.Features.Security;
@@ -15,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents();
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 
@@ -25,6 +27,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
     });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(Policies.AdminRequired, policy => policy.RequireRole(RoleNames.Admin));
 
 // bind section Passwordless to the object PassworlessOptions
 builder.Services.Configure<PasswordlessOptions>(builder.Configuration.GetSection("Passwordless"));
@@ -58,8 +63,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-app.UseAuthentication();
-app.UseAuthorization();
+
 app.MapRazorComponents<App>();
 
 SecurityEndpoints.Map(app);

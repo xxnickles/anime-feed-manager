@@ -23,7 +23,7 @@ public sealed class OnTitlesNotification(
         // Stores notification
         var result = await storeNotification.Add(
             IdHelpers.GetUniqueId(),
-            UserRoles.Admin,
+            RoleNames.Admin,
             NotificationTarget.Tv,
             NotificationArea.Update,
             notification,

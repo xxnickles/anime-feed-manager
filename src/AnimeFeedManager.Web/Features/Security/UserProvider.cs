@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Users.Types;
 
@@ -34,8 +35,8 @@ public class UserProvider : IUserProvider
 
         return (email, userId, role) switch
         {
-            (not null, not null, "User") => GetUser(email, userId),
-            (not null, not null, "Admin") => GetAdmin(email, userId),
+            (not null, not null, RoleNames.User) => GetUser(email, userId),
+            (not null, not null, RoleNames.Admin) => GetAdmin(email, userId),
             _ => new Anonymous()
         };
     }

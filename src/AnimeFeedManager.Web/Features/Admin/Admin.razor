@@ -1,6 +1,6 @@
 ﻿@page "/admin"
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = RoleNames.Admin)]
 <div class="grid grid-cols-12 gap-4 mx-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
     <section class="col-span-12 px-5 pt-7.5 pb-5  sm:px-7.5 lg:col-span-4">
         <header class="mb-4">

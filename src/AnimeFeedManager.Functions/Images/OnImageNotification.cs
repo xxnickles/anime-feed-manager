@@ -24,7 +24,7 @@ public sealed class OnImageNotification(
         // Stores notification
         var result = await storeNotification.Add(
             IdHelpers.GetUniqueId(),
-            UserRoles.Admin,
+            RoleNames.Admin,
             NotificationTarget.Images,
             NotificationArea.Update,
             notification,

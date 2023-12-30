@@ -1,10 +1,8 @@
-﻿namespace AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
 
-public enum Role
-{
-    User,
-    Admin
-}
+namespace AnimeFeedManager.Features.Users.Types;
+
+
 
 public sealed class UserStorage : ITableEntity
 {

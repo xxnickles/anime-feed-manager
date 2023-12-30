@@ -1,4 +1,5 @@
-﻿<div class="navbar bg-base-100">
+﻿@using AnimeFeedManager.Features.Users.Types
+<div class="navbar bg-base-100">
     <div class="navbar-start">
         <nav class="dropdown">
             <label tabindex="0" class="btn btn-ghost btn-circle">
@@ -12,7 +13,7 @@
                         Home
                     </NavLink>
                 </li>
-                <AuthorizeView Roles="Admin">
+                <AuthorizeView Roles="@RoleNames.Admin">
                     <li>
                         <NavLink class="nav-link" href="admin">
                             Admin

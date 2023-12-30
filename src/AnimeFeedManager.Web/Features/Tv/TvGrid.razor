@@ -5,11 +5,6 @@
 @inject ILogger<TvGrid> Logger;
 @* @attribute [StreamRendering] *@
 
-<AuthorizeView>
-    <Authorized>
-        <p>Hello, @context.User.Identity?.Name!</p>
-    </Authorized>
-</AuthorizeView>
 <SeriesGrid Series="_seasonCollection.Animes" SeriesType="SeriesType.Tv"></SeriesGrid>
 
 @code {
@@ -24,7 +19,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var t = context.User;
         _selectedSeason = SeasonValidators.Parse(Season)
             .Match(
                 values => new SeasonInformation(values.season, values.year),

@@ -94,7 +94,7 @@ public static class HttpRequestDataExtensions
 
     public static Task<Either<DomainError, Unit>> AllowAdminOnly(this HttpRequestData request)
     {
-        return request.WithRoleCheck(UserRoles.Admin);
+        return request.WithRoleCheck(RoleNames.Admin);
     }
 
     public static async Task<Either<DomainError, (ClaimsPrincipal principal, HttpRequestData request)>> CheckAuthorization(this HttpRequestData request)
