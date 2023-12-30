@@ -85,8 +85,8 @@
     {
         var result = await UserIdValidator.Validate(Id ?? string.Empty)
             .ValidationToEither()
-            .BindAsync(userId => PasswordlessLogin.GetUserRole(userId, default))
-            .MapAsync(role => CreatePrincipal(Alias ?? string.Empty, role));
+            .BindAsync(userId => PasswordlessLogin.GetUserInfo(userId, default))
+            .MapAsync(role => CreatePrincipal(Id ?? string.Empty, Alias ?? string.Empty, role));
 
 
         await result.Match(
@@ -108,9 +108,14 @@
         return Task.CompletedTask;
     }
     
-    private ClaimsPrincipal CreatePrincipal(string user, Role role)
+    private ClaimsPrincipal CreatePrincipal(string id, string user, Role role)
     {
-        var claims = new List<Claim> {new(ClaimTypes.Name, user), new(ClaimTypes.Email, user)};
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, user), 
+            new(ClaimTypes.Email, user),
+            new (CustomClaimTypes.Sub, id)
+        };
         if (role is Role.Admin)
             claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
 

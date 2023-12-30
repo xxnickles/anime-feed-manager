@@ -6,9 +6,9 @@ namespace AnimeFeedManager.WebApp.Authentication;
 public class AppServiceAuthOptions
 {
     public IList<ExternalProvider> Providers { get; set; } = new List<ExternalProvider> {
-        new ExternalProvider("github", "GitHub"),
-        new ExternalProvider("twitter", "Twitter"),
-        new ExternalProvider("aad", "Azure Active Directory")
+        new("github", "GitHub"),
+        new("twitter", "Twitter"),
+        new("aad", "Azure Active Directory")
     };
     public string AuthenticationDataUrl { get; set; } = "";
 }

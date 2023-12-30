@@ -34,8 +34,7 @@ builder.Services.AddPasswordlessSdk(options =>
     builder.Configuration.GetRequiredSection("Passwordless").Bind(options);
 });
 
-// builder.Services.AddHttpContextAccessor();
-// builder.Services.AddScoped<AuthenticationStateProvider, AppAuthenticationStateProvider>();
+builder.Services.AddScoped<IUserProvider, UserProvider>();
 
 // Add the renderer and wrapper to services
 builder.Services.AddScoped<HtmlRenderer>();

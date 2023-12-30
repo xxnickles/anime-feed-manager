@@ -9,7 +9,7 @@ public interface IPasswordlessLogin
     Task<Either<DomainError, VerifiedUser>> GetLoginInformation(string token,
         CancellationToken cancellationToken);
     
-    Task<Either<DomainError, Role>> GetUserRole(UserId userId,
+    Task<Either<DomainError, Role>> GetUserInfo(UserId userId,
         CancellationToken cancellationToken);
 }
 
@@ -32,7 +32,7 @@ public class PasswordlessLogin : IPasswordlessLogin
         return GetUser(token, cancellationToken);
     }
 
-    public Task<Either<DomainError, Role>> GetUserRole(UserId userId, CancellationToken cancellationToken)
+    public Task<Either<DomainError, Role>> GetUserInfo(UserId userId, CancellationToken cancellationToken)
     {
         return _userRoleGetter.GetUserRole(userId, cancellationToken);
     }
