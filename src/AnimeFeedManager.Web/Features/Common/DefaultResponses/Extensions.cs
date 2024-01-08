@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-
-namespace AnimeFeedManager.Web.Features.Common.DefaultResponses;
+﻿namespace AnimeFeedManager.Web.Features.Common.DefaultResponses;
 
 internal static class Extensions
 {

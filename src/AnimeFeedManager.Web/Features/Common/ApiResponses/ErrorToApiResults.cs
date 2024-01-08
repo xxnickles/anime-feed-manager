@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using AnimeFeedManager.Features.Users.Types;
-using Passwordless.Net;
 
 namespace AnimeFeedManager.Web.Features.Common.ApiResponses;
 

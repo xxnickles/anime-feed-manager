@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Immutable;
+using System.Security.Claims;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Users.Types;
+using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 
 namespace AnimeFeedManager.Web.Features.Security;
 
@@ -12,59 +13,72 @@ internal static class CustomClaimTypes
 
 public interface IUserProvider
 {
-    AppUser GetCurrentUser();
+    Task<AppUser> GetCurrentUser(CancellationToken token);
 }
 
 public class UserProvider : IUserProvider
 {
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly IGetTvSubscriptions _getTvSubscriptions;
 
-    public UserProvider(IHttpContextAccessor contextAccessor)
+    public UserProvider(
+        IHttpContextAccessor contextAccessor,
+        IGetTvSubscriptions getTvSubscriptions)
     {
         _contextAccessor = contextAccessor;
+        _getTvSubscriptions = getTvSubscriptions;
     }
 
-
-    public AppUser GetCurrentUser()
+    public Task<AppUser> GetCurrentUser(CancellationToken token)
     {
-        if (_contextAccessor.HttpContext?.User.Identity?.IsAuthenticated is null or false) return new Anonymous();
-
-        var email = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
+        if (_contextAccessor.HttpContext?.User.Identity?.IsAuthenticated is null or false)
+            return Task.FromResult<AppUser>(new Anonymous());
+        
         var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(CustomClaimTypes.Sub);
         var role = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
 
-        return (email, userId, role) switch
+        return (userId, role) switch
         {
-            (not null, not null, RoleNames.User) => GetUser(email, userId),
-            (not null, not null, RoleNames.Admin) => GetAdmin(email, userId),
-            _ => new Anonymous()
+            (not null, RoleNames.User) => GetUser(userId, token),
+            (not null, RoleNames.Admin) => GetAdmin(userId, token),
+            _ => Task.FromResult<AppUser>(new Anonymous())
         };
     }
 
-    private AppUser GetUser(string email, string userId)
+    private async Task<AppUser> GetUser(string userId, CancellationToken token)
     {
-        return Validate(email, userId)
-            .Map(data => new User(data.Email, data.UserId))
-            .MatchUnsafe<AppUser>(
-                user => user, 
-                _ => new Anonymous(), 
-                () => new Anonymous());
-    }
-    
-    private AppUser GetAdmin(string email, string userId)
-    {
-        return Validate(email, userId)
-            .Map(data => new AdminUser(data.Email, data.UserId))
-            .MatchUnsafe<AppUser>(
-                user => user, 
-                _ => new Anonymous(), 
-                () => new Anonymous());
+        var process = await Validate(userId)
+            .BindAsync(id => AddSubscriptions(id, token))
+            .MapAsync(data => new AdminUser(data.Email, data.UserId, data.Subscriptions));
+
+        return process.MatchUnsafe<AppUser>(
+            user => user,
+            _ => new Anonymous(),
+            () => new Anonymous());
     }
 
-    private static Either<DomainError, (Email Email, UserId UserId)> Validate(string email, string userId)
+    private async Task<AppUser> GetAdmin(string userId, CancellationToken token)
     {
-        return (EmailValidator.Validate(email), UserIdValidator.Validate(userId))
-            .Apply((e, userid) => (email: e, userid))
+        var process = await Validate(userId)
+            .BindAsync(id => AddSubscriptions(id, token))
+            .MapAsync(data => new AdminUser(data.Email, data.UserId, data.Subscriptions));
+
+        return process.MatchUnsafe<AppUser>(
+            user => user,
+            _ => new Anonymous(),
+            () => new Anonymous());
+    }
+
+    private Task<Either<DomainError, (Email Email, UserId UserId, ImmutableList<NoEmptyString> Subscriptions)>>
+        AddSubscriptions(UserId userId, CancellationToken token)
+    {
+        return _getTvSubscriptions.GetUserSubscriptions(userId, token)
+            .MapAsync(subscriptions => (subscriptions.SubscriberEmail, userId, subscriptions.Series));
+    }
+
+    private static Either<DomainError, UserId> Validate(string userId)
+    {
+        return UserIdValidator.Validate(userId)
             .ValidationToEither();
     }
 }

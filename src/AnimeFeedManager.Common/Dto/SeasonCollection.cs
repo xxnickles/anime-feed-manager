@@ -15,14 +15,7 @@ public sealed record FeedAnime(string Id, string Title, string Synopsis, string?
 
 public record SeasonCollection(ushort Year, string Season, FeedAnime[] Animes);
 
-
-public sealed record SimpleAnime(string Id, string Title, string Synopsis, string? Url, DateTime? AirDate) : BaseAnime(Id, Title, Synopsis, Url);
-
-public record ShortSeasonCollection(ushort Year, string Season, SimpleAnime[] Animes);
-
 public record EmptySeasonCollection() : SeasonCollection(0, string.Empty, System.Array.Empty<FeedAnime>());
-
-public record EmptyShortSeasonCollection() : ShortSeasonCollection(0, string.Empty, System.Array.Empty<SimpleAnime>());
 
 [JsonSerializable(typeof(SeasonCollection))]
 [JsonSerializable(typeof(FeedAnime[]))]
@@ -31,6 +24,15 @@ public record EmptyShortSeasonCollection() : ShortSeasonCollection(0, string.Emp
 public partial class SeasonCollectionContext : JsonSerializerContext
 {
 }
+
+
+
+public sealed record SimpleAnime(string Id, string Title, string Synopsis, string? Url, DateTime? AirDate) : BaseAnime(Id, Title, Synopsis, Url);
+
+public record ShortSeasonCollection(ushort Year, string Season, SimpleAnime[] Animes);
+
+public record EmptyShortSeasonCollection() : ShortSeasonCollection(0, string.Empty, System.Array.Empty<SimpleAnime>());
+
 
 [JsonSerializable(typeof(ShortSeasonCollection))]
 [JsonSerializable(typeof(SimpleAnime[]))]

@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Common.Types;
-
-namespace AnimeFeedManager.Web.Features.Common;
+﻿namespace AnimeFeedManager.Web.Features.Common;
 
 internal static class Utils
 {

@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Dto;
-using AnimeFeedManager.Common.Types;
 using AnimeFeedManager.Features.Tv.Library;
 
 namespace AnimeFeedManager.Web.Features.Tv;

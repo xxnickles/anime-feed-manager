@@ -15,8 +15,8 @@ public enum Role
 public abstract record AppUser;
 public record Anonymous() : AppUser;
 
-public abstract record AuthenticatedUser(Email Email, UserId UserId) : AppUser;
+public abstract record AuthenticatedUser(Email Email, UserId UserId, ImmutableList<NoEmptyString> TvSubscriptions) : AppUser;
 
-public record User(Email Email, UserId UserId) : AuthenticatedUser(Email,UserId);
+public record User(Email Email, UserId UserId, ImmutableList<NoEmptyString> TvSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions);
 
-public record AdminUser(Email Email, UserId UserId) : AuthenticatedUser(Email,UserId);
+public record AdminUser(Email Email, UserId UserId, ImmutableList<NoEmptyString> TvSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions);

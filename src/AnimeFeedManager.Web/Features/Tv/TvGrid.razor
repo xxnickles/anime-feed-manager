@@ -25,12 +25,10 @@
                 _ => new DefaultSeasonInformation()
             );
 
-
         var results = await LibraryGetter.GetForSeason(_selectedSeason.Season, _selectedSeason.Year).LogErrors(Logger);
         _seasonCollection = results.Match(
             collection => collection,
             _ => new EmptySeasonCollection()
         );
     }
-
 }

@@ -1,7 +1,5 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Events;
+﻿using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using LanguageExt;
 
 namespace AnimeFeedManager.Web.Features.Common;
 
