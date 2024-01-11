@@ -21,7 +21,7 @@ public class NotificationSender(ILoggerFactory loggerFactory)
         return new SignalRMessageAction(ServerNotifications.SeasonProcess)
         {
             GroupName = notification.TargetAudience == TargetAudience.Admins ? HubGroups.AdminGroup : null,
-            Arguments = new object[] { notification }
+            Arguments = [notification]
         };
     }
 
@@ -37,7 +37,7 @@ public class NotificationSender(ILoggerFactory loggerFactory)
         return new SignalRMessageAction(ServerNotifications.SeasonProcess)
         {
             GroupName = notification.TargetAudience == TargetAudience.Admins ? HubGroups.AdminGroup : null,
-            Arguments = new object[] { notification }
+            Arguments = [notification]
         };
     }
 
@@ -54,7 +54,7 @@ public class NotificationSender(ILoggerFactory loggerFactory)
         return new SignalRMessageAction(ServerNotifications.ImageUpdate)
         {
             GroupName = HubGroups.AdminGroup,
-            Arguments = new object[] { notification }
+            Arguments = [notification]
         };
     }
 }

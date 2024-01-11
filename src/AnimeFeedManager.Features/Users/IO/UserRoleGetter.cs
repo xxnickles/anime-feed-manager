@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.Users.IO;
 
 public interface IUserRoleGetter
 {
-    Task<Either<DomainError, Role>> GetUserRole(UserId id, CancellationToken cancellationToken);
+    Task<Either<DomainError, string>> GetUserRole(UserId id, CancellationToken cancellationToken);
 }
 
 public class UserRoleGetter : IUserRoleGetter
@@ -18,19 +18,19 @@ public class UserRoleGetter : IUserRoleGetter
         _tableClientFactory = tableClientFactory;
     }
 
-    public Task<Either<DomainError, Role>> GetUserRole(UserId id, CancellationToken cancellationToken)
+    public Task<Either<DomainError, string>> GetUserRole(UserId id, CancellationToken cancellationToken)
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.TryExecute(() =>
-                client.GetEntityAsync<UserStorage>(Constants.UserPartitionKey, id, new[] {"Email"},
+                client.GetEntityAsync<UserStorage>(Constants.UserPartitionKey, id, new[] {"Role"},
                     cancellationToken)))
             .BindAsync(response => GetStoredRole(response, id));
     }
 
-    private static Either<DomainError, Role> GetStoredRole(NullableResponse<UserStorage> storage, string id)
+    private static Either<DomainError, string> GetStoredRole(NullableResponse<UserStorage> storage, string id)
     {
         return storage is {HasValue: true, Value: not null}
-            ? storage.Value.Role
+            ? storage.Value.Role ?? RoleNames.User
             : NotFoundError.Create($"User with '{id}' has not been found");
     }
 }

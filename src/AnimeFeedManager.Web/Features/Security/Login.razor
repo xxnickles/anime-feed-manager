@@ -96,7 +96,7 @@
 
     private async Task CompleteLogin(ClaimsPrincipal principal)
     {
-        await HttpContext.SignInAsync(principal, new AuthenticationProperties { IsPersistent = true});
+        await HttpContext.SignInAsync(principal, new AuthenticationProperties {IsPersistent = true});
         NavigationManager.NavigateTo("/");
     }
 
@@ -106,17 +106,16 @@
         ServerError = true;
         return Task.CompletedTask;
     }
-    
-    private ClaimsPrincipal CreatePrincipal(string id, string user, Role role)
+
+    private ClaimsPrincipal CreatePrincipal(string id, string user, string role)
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user), 
+            new(ClaimTypes.Name, user),
             new(ClaimTypes.Email, user),
-            new (CustomClaimTypes.Sub, id)
+            new(CustomClaimTypes.Sub, id),
+            new (ClaimTypes.Role, role)
         };
-        if (role is Role.Admin)
-            claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
 
         return
             new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));

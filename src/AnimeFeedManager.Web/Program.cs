@@ -1,6 +1,7 @@
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
+using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;

@@ -19,7 +19,7 @@ public sealed class OnTvTitlesScrapRequest(
 {
     private readonly ILogger<OnLibraryScrapRequest> _logger = loggerFactory.CreateLogger<OnLibraryScrapRequest>();
 
-    [Function("OnLibraryScrapRequest")]
+    [Function("OnTitlesScrapRequest")]
     public async Task Run(
         [QueueTrigger(Box.Available.LibraryScrapEventsBox, Connection = "AzureWebJobsStorage")]
         ScrapLibraryRequest notification)

@@ -6,17 +6,14 @@ public static class RoleNames
     public const string Admin = "Admin";
 }
 
-public enum Role
-{
-    User,
-    Admin
-}
 
 public abstract record AppUser;
 public record Anonymous() : AppUser;
 
-public abstract record AuthenticatedUser(Email Email, UserId UserId, ImmutableList<NoEmptyString> TvSubscriptions) : AppUser;
+public record TvSubscriptions(ImmutableList<string> Subscriptions, ImmutableList<string> Insterested);
 
-public record User(Email Email, UserId UserId, ImmutableList<NoEmptyString> TvSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions);
+public abstract record AuthenticatedUser(Email Email, UserId UserId, TvSubscriptions TvSubscriptions) : AppUser;
 
-public record AdminUser(Email Email, UserId UserId, ImmutableList<NoEmptyString> TvSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions);
+public record User(Email Email, UserId UserId, TvSubscriptions TvSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions);
+
+public record AdminUser(Email Email, UserId UserId, TvSubscriptions TvSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions);

@@ -1,0 +1,28 @@
+﻿@if (Anime is not null)
+{
+    <form >
+        <AntiforgeryToken/>
+        @switch (Anime)
+        {
+            case InterestedAnime interestedAnime:
+                <InterestedAnimeControls ControlData="@interestedAnime"></InterestedAnimeControls>
+                break;
+            case NotAvailableAnime notAvailableAnime:
+                <NotAvailableAnimeControls ControlData="@notAvailableAnime"></NotAvailableAnimeControls>
+                break;
+            case SubscribedAnime subscribedAnime:
+                <SubscribedAnimeControls ControlData="@subscribedAnime"></SubscribedAnimeControls>
+                break;
+            case UnSubscribedAnime unSubscribedAnime:
+                <UnsubscribedAnimeControls ControlData="@unSubscribedAnime"></UnsubscribedAnimeControls>
+                break;
+            default:
+                <div class="badge badge-error gap-2">Nothing yet!</div>
+                break;
+        }
+    </form>
+}
+
+@code {
+    [Parameter, EditorRequired] public AnimeForUser? Anime { get; set; }
+}

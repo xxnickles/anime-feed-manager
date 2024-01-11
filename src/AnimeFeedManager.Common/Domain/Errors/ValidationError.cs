@@ -8,7 +8,7 @@ public sealed class ValidationError(string field, string[] errors)
     public KeyValuePair<string, string[]> Error { get; } = new(field, errors);
 
     public static ValidationError Create(string field, string[] errors) => new(field, errors);
-    public static ValidationError Create(string field, string error) => new(field, new[] { error });
+    public static ValidationError Create(string field, string error) => new(field, [error]);
 }
 
 public class ValidationErrors : DomainError

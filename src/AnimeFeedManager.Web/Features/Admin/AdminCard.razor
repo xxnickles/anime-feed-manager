@@ -2,9 +2,7 @@
     <article class="bg-base-300 transition-all p-8 border border-neutral w-full">
         <h3 class="card-title">Update Latest</h3>
         <form class="card-actions form-control"
-              hx-put="@GetLatestPath()"
-              hx-target="#toast-panel"
-              hx-swap="afterbegin">
+              hx-put="@GetLatestPath()">
             <AntiforgeryToken/>
             <button type="submit" class="btn btn-primary mt-4">
                 Update Latest
@@ -18,9 +16,7 @@
                valid: true ,              
                get isValid() { return this.valid }
                }"
-              hx-put="@GetSeasonPath()"
-              hx-target="#toast-panel"
-              hx-swap="afterbegin">
+              hx-put="@GetSeasonPath()">
             <AntiforgeryToken/>
 
             <fieldset class="form-control">
@@ -58,9 +54,7 @@
         <article class="bg-base-300 transition-all p-8 border border-neutral w-full">
             <h3 class="card-title">Update Titles</h3>
             <form class="card-actions form-control"
-                  hx-put="@GetTitlesPath()"
-                  hx-target="#toast-panel"
-                  hx-swap="afterbegin">
+                  hx-put="@GetTitlesPath()">
                 <AntiforgeryToken/>
                 <button type="submit" class="btn btn-primary mt-4">
                     Update Titles

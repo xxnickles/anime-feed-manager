@@ -1,11 +1,13 @@
 ﻿@page "/{Season}/tv"
 
 @using AnimeFeedManager.Features.Tv.Library
+@using AnimeFeedManager.Web.Features.Security
 @inject TvLibraryGetter LibraryGetter;
+@inject IUserProvider UserProvider;
 @inject ILogger<TvGrid> Logger;
 @* @attribute [StreamRendering] *@
 
-<SeriesGrid Series="_seasonCollection.Animes" SeriesType="SeriesType.Tv"></SeriesGrid>
+<SeriesGrid Series="_animes" SeriesType="SeriesType.Tv"></SeriesGrid>
 
 @code {
 
@@ -15,7 +17,7 @@
 
     private SeasonInformation _selectedSeason = new DefaultSeasonInformation();
 
-    private SeasonCollection _seasonCollection = new EmptySeasonCollection();
+    private BaseAnime[] _animes = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -24,11 +26,39 @@
                 values => new SeasonInformation(values.season, values.year),
                 _ => new DefaultSeasonInformation()
             );
-
-        var results = await LibraryGetter.GetForSeason(_selectedSeason.Season, _selectedSeason.Year).LogErrors(Logger);
-        _seasonCollection = results.Match(
+        var user = await UserProvider.GetCurrentUser(default);
+        var results = await LibraryGetter.GetForSeason(_selectedSeason.Season, _selectedSeason.Year)
+            .MapAsync(lib => MapForUser(lib, user))
+            .LogErrors(Logger);
+        
+        _animes = results.Match(
             collection => collection,
-            _ => new EmptySeasonCollection()
+            _ => []
         );
     }
+
+    private BaseAnime[] MapForUser(SeasonCollection seasonCollection, AppUser user)
+    {
+        return user switch
+        {
+            AuthenticatedUser u => seasonCollection.Animes.Select(a => MapForAuthenticatedUser(a, u)).ToArray(),
+            _ => seasonCollection.Animes.ToArray<BaseAnime>()
+        };
+    }
+
+    private BaseAnime MapForAuthenticatedUser(FeedAnime anime, AuthenticatedUser user)
+    {
+        return anime.FeedInformation.Status switch
+        {
+            SeriesStatus.NotAvailableValue => user.TvSubscriptions.Insterested.Select(x => x.ToString()).Contains(anime.Title)
+                ? new InterestedAnime(anime.Id, anime.Title, anime.Synopsis, anime.Url, anime.Title, user.UserId)
+                : new NotAvailableAnime(anime.Id, anime.Title, anime.Synopsis, anime.Url, anime.Title, user.UserId),
+            SeriesStatus.CompletedValue => new CompletedAnime(anime.Id, anime.Title, anime.Synopsis, anime.Url),
+            SeriesStatus.OngoingValue => user.TvSubscriptions.Subscriptions.Select(x => x.ToString()).Contains(anime.FeedInformation.Title ?? string.Empty)
+                ? new SubscribedAnime(anime.Id, anime.Title, anime.Synopsis, anime.Url, anime.FeedInformation.Title ?? string.Empty, user.UserId)
+                : new UnSubscribedAnime(anime.Id, anime.Title, anime.Synopsis, anime.Url, anime.FeedInformation.Title ?? string.Empty, user.UserId),
+            _ => anime
+        };
+    }
+
 }

@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Users.Types;
 
 namespace AnimeFeedManager.Features.Users.IO;
@@ -47,7 +48,8 @@ public sealed class UserStore(ITableClientFactory<UserStorage> tableClientFactor
         {
             Email = email,
             RowKey = id,
-            PartitionKey = Constants.UserPartitionKey
+            PartitionKey = Constants.UserPartitionKey,
+            Role = RoleNames.User
         };
 
         return TableUtils.TryExecute(() => client.UpsertEntityAsync(user, TableUpdateMode.Merge, token))

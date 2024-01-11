@@ -48,7 +48,7 @@ public static class Endpoints
                         .Map(param => param.ToSeasonParameter())
                         .BindAsync(seasonParameter =>
                             domainPostman.CreateScrapingEvent(
-                                new ScrapLibraryRequest(SeriesType.Tv, seasonParameter, ScrapType.Latest),
+                                new ScrapLibraryRequest(SeriesType.Tv, seasonParameter, ScrapType.BySeason),
                                 token: token))
                         .ToComponentResult(renderer, logger,
                             $"Tv library for {season.Season}-{season.Year} will be scrapped in the background"))
@@ -77,7 +77,7 @@ public static class Endpoints
                         .Map(param => param.ToSeasonParameter())
                         .BindAsync(seasonParameter =>
                             domainPostman.CreateScrapingEvent(
-                                new ScrapLibraryRequest(SeriesType.Ova, seasonParameter, ScrapType.Latest),
+                                new ScrapLibraryRequest(SeriesType.Ova, seasonParameter, ScrapType.BySeason),
                                 token: token))
                         .ToComponentResult(renderer, logger,
                             $"Ovas library for {season.Season}-{season.Year} will be scrapped in the background"))
@@ -107,7 +107,7 @@ public static class Endpoints
                         .Map(param => param.ToSeasonParameter())
                         .BindAsync(seasonParameter =>
                             domainPostman.CreateScrapingEvent(
-                                new ScrapLibraryRequest(SeriesType.Movie, seasonParameter, ScrapType.Latest),
+                                new ScrapLibraryRequest(SeriesType.Movie, seasonParameter, ScrapType.BySeason),
                                 token: token))
                         .ToComponentResult(renderer, logger,
                             $"Movies library for {season.Season}-{season.Year} will be scrapped in the background"))
@@ -120,8 +120,8 @@ public static class Endpoints
             {
                 {nameof(ErrorResult.Error), BasicError.Create("You have tried to do something that is not here")}
             };
-
-            return Results.Content(await renderer.RenderComponent<ErrorResult>(parameters), "text/html");
+            var content = await renderer.RenderComponent<ErrorResult>(parameters);
+            return Results.Content(content.Html, "text/html");
         });
     }
 }

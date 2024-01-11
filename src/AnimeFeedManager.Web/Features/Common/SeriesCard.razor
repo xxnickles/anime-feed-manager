@@ -1,5 +1,5 @@
 ﻿<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60">
-    <img width="167" class="object-cover w-44" src="@Anime.Url" alt="@Anime.Title" />
+    <img width="167" class="object-cover w-44" src="@Anime.Url" alt="@Anime.Title"/>
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
         <h2 class="basis-[5%] mx-4 mt-2 text-base font-bold ">@Anime.Title</h2>
         <p class="basis-[80%] mx-4 my-2 text-sm text-justify  max-h-full overflow-y-auto scrollbar pr-3">
@@ -12,12 +12,21 @@
                 <span class="text-warning">Synopsis Not Available</span>
             }
         </p>
-        <footer class="basis-[15%] bg-neutral pl-4 flex flex-nowrap items-center">
+        <footer class="basis-[15%] bg-neutral px-4">
             @switch (Anime)
             {
-                case FeedAnime feedAnime:
-                    <TvControls FeedInformation="feedAnime.FeedInformation"></TvControls>
+                case AnimeForUser anime:
+                    <AnimeForUserControls Anime="@anime"></AnimeForUserControls>
                     break;
+
+                case FeedAnime feedAnime:
+                    <AnimeFeedControls FeedInformation="feedAnime.FeedInformation"></AnimeFeedControls>
+                    break;
+
+                case CompletedAnime:
+                    <CompletedAnimeControls></CompletedAnimeControls>
+                    break;
+
                 default:
                     <div class="badge badge-error gap-2">Nothing yet!</div>
                     break;

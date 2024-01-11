@@ -45,10 +45,10 @@ public sealed class OnImageNotification(
         return new SignalRMessageAction(ServerNotifications.ImageUpdate)
         {
             GroupName = HubGroups.AdminGroup,
-            Arguments = new object[]
-            {
+            Arguments =
+            [
                 notification
-            }
+            ]
         };
     }
 }

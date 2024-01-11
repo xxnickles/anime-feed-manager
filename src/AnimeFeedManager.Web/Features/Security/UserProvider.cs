@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
@@ -20,20 +19,23 @@ public class UserProvider : IUserProvider
 {
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IGetTvSubscriptions _getTvSubscriptions;
+    private readonly IGetInterestedSeries _getInterestedSeries;
 
     public UserProvider(
         IHttpContextAccessor contextAccessor,
-        IGetTvSubscriptions getTvSubscriptions)
+        IGetTvSubscriptions getTvSubscriptions,
+        IGetInterestedSeries getInterestedSeries)
     {
         _contextAccessor = contextAccessor;
         _getTvSubscriptions = getTvSubscriptions;
+        _getInterestedSeries = getInterestedSeries;
     }
 
     public Task<AppUser> GetCurrentUser(CancellationToken token)
     {
         if (_contextAccessor.HttpContext?.User.Identity?.IsAuthenticated is null or false)
             return Task.FromResult<AppUser>(new Anonymous());
-        
+
         var userId = _contextAccessor.HttpContext?.User?.FindFirstValue(CustomClaimTypes.Sub);
         var role = _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
 
@@ -49,7 +51,7 @@ public class UserProvider : IUserProvider
     {
         var process = await Validate(userId)
             .BindAsync(id => AddSubscriptions(id, token))
-            .MapAsync(data => new AdminUser(data.Email, data.UserId, data.Subscriptions));
+            .MapAsync(data => new User(data.Email, data.UserId, data.TvSubscriptions));
 
         return process.MatchUnsafe<AppUser>(
             user => user,
@@ -61,7 +63,7 @@ public class UserProvider : IUserProvider
     {
         var process = await Validate(userId)
             .BindAsync(id => AddSubscriptions(id, token))
-            .MapAsync(data => new AdminUser(data.Email, data.UserId, data.Subscriptions));
+            .MapAsync(data => new AdminUser(data.Email, data.UserId, data.TvSubscriptions));
 
         return process.MatchUnsafe<AppUser>(
             user => user,
@@ -69,11 +71,15 @@ public class UserProvider : IUserProvider
             () => new Anonymous());
     }
 
-    private Task<Either<DomainError, (Email Email, UserId UserId, ImmutableList<NoEmptyString> Subscriptions)>>
-        AddSubscriptions(UserId userId, CancellationToken token)
+    private Task<Either<DomainError, (Email Email, UserId UserId, TvSubscriptions TvSubscriptions)>> AddSubscriptions(
+        UserId userId, CancellationToken token)
     {
         return _getTvSubscriptions.GetUserSubscriptions(userId, token)
-            .MapAsync(subscriptions => (subscriptions.SubscriberEmail, userId, subscriptions.Series));
+            .BindAsync(subscriptions => _getInterestedSeries.Get(userId, token)
+                .MapAsync(interested => 
+                    (TvSubscriptions: new TvSubscriptions(subscriptions.Series.ConvertAll(x => x.ToString()),
+                        interested.ConvertAll(x => x.RowKey ?? string.Empty)), subscriptions.SubscriberEmail)))
+            .MapAsync(data => (data.SubscriberEmail, userId,  data.TvSubscriptions));
     }
 
     private static Either<DomainError, UserId> Validate(string userId)

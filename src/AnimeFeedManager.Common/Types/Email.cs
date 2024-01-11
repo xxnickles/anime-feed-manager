@@ -37,7 +37,7 @@ public static class EmailValidator
     public static Validation<ValidationError, Email> Validate(string emailValue)
     {
         return Email.FromString(emailValue).ToValidation(
-            ValidationError.Create("Email", new[] { "A valid email address must be provided" }));
+            ValidationError.Create("Email", ["A valid email address must be provided"]));
     }
 
 }

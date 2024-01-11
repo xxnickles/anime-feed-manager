@@ -1,0 +1,15 @@
+﻿@if (ControlData is not null)
+{
+    <fieldset class="flex flex-nowrap items-center justify-between">
+        <div class="badge badge-warning gap-2">Not Available</div>
+        <div class="gap-2">
+            <input type="hidden" name="@nameof(AvailableTvSeriesControlData.Title)" @bind="ControlData.Title"/>
+            <input type="hidden" name="@nameof(AvailableTvSeriesControlData.UserId)" @bind="ControlData.UserId"/>
+            <button class="btn btn-primary btn-xs" hx-post="tv/add-interested" hx-target="closest fieldset" hx-swap="outerHTML">Add to Interested</button>
+        </div>
+    </fieldset>
+}
+
+@code {
+    [Parameter, EditorRequired] public NotAvailableControlData? ControlData { get; set; }
+}

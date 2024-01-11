@@ -41,7 +41,7 @@ public class ServerNotificationProcessingService(
     public event Action<Exception>? ExceptionRisen;
     public event Func<SeasonProcessNotification, Task>? SeasonProcessNotification;
 
-    private readonly HashSet<DelayedActions> _delayedActions = new();
+    private readonly HashSet<DelayedActions> _delayedActions = [];
 
     private const string AddToGroupEndpoint = "api/notifications/setup";
     private const string RemoveFromGroupEndpoint = "api/notifications/remove";

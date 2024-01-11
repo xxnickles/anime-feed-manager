@@ -1,0 +1,17 @@
+﻿@if (ControlData is not null)
+{
+    <fieldset class="flex flex-nowrap items-center justify-between">
+        <div class="badge badge-secondary gap-2">Subscribed</div>
+        <div class="gap-2">
+            <input type="hidden" name="@nameof(AvailableTvSeriesControlData.Title)" @bind="ControlData.Title"/>
+            <input type="hidden" name="@nameof(AvailableTvSeriesControlData.FeedId)" @bind="ControlData.FeedId"/>
+            <input type="hidden" name="@nameof(AvailableTvSeriesControlData.UserId)" @bind="ControlData.UserId"/>
+            <button class="btn btn-primary btn-xs" hx-post="tv/unsubscribe" hx-target="closest fieldset" hx-swap="outerHTML">Unsubscribe</button>
+        </div>
+    </fieldset>
+}
+
+
+@code {
+    [Parameter, EditorRequired] public AvailableTvSeriesControlData? ControlData { get; set; }
+}

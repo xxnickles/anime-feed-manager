@@ -10,7 +10,7 @@ internal static class Utils
         return (
                 UserIdValidator.Validate(payload.UserId),
                 NoEmptyString.FromString(payload.Series)
-                    .ToValidation(ValidationError.Create("Series", new[] { "Series cannot be en empty string" }))
+                    .ToValidation(ValidationError.Create("Series", ["Series cannot be en empty string"]))
             ).Apply((userid, series) => (userid, series))
             .ValidationToEither();
     }
@@ -20,7 +20,7 @@ internal static class Utils
         return (
                 UserIdValidator.Validate(payload.UserId),
                 NoEmptyString.FromString(payload.Series)
-                    .ToValidation(ValidationError.Create("Series", new[] { "Series cannot be en empty string" }))
+                    .ToValidation(ValidationError.Create("Series", ["Series cannot be en empty string"]))
             ).Apply((userid, series) => (userid, series, payload.NotificationDate))
             .ValidationToEither();
     }
@@ -30,7 +30,7 @@ internal static class Utils
         return (
                 UserIdValidator.Validate(payload.UserId),
                 NoEmptyString.FromString(payload.Series)
-                    .ToValidation(ValidationError.Create("Series", new[] { "Series cannot be en empty string" }))
+                    .ToValidation(ValidationError.Create("Series", ["Series cannot be en empty string"]))
             ).Apply((userid, series) => (userid, series))
             .ValidationToEither();
     }

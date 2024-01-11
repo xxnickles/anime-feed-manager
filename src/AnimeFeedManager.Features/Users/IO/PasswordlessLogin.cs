@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Users.Types;
 using Passwordless.Net;
 
@@ -10,7 +9,7 @@ public interface IPasswordlessLogin
     Task<Either<DomainError, VerifiedUser>> GetLoginInformation(string token,
         CancellationToken cancellationToken);
     
-    Task<Either<DomainError, Role>> GetUserInfo(UserId userId,
+    Task<Either<DomainError, string>> GetUserInfo(UserId userId,
         CancellationToken cancellationToken);
 }
 
@@ -33,7 +32,7 @@ public class PasswordlessLogin : IPasswordlessLogin
         return GetUser(token, cancellationToken);
     }
 
-    public Task<Either<DomainError, Role>> GetUserInfo(UserId userId, CancellationToken cancellationToken)
+    public Task<Either<DomainError, string>> GetUserInfo(UserId userId, CancellationToken cancellationToken)
     {
         return _userRoleGetter.GetUserRole(userId, cancellationToken);
     }

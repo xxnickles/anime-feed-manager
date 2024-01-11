@@ -18,6 +18,11 @@ public record UserId
     };
 
     public static implicit operator string(UserId userId) => userId.Value;
+
+    public override string ToString()
+    {
+        return Value;
+    }
 }
 
 public static class UserIdValidator
@@ -25,6 +30,6 @@ public static class UserIdValidator
     public static Validation<ValidationError, UserId> Validate(string userId)
     {
         return UserId.FromString(userId).ToValidation(
-            ValidationError.Create("UserId", new[] { "User Id cannot be en empty string" }));
+            ValidationError.Create("UserId", ["User Id cannot be en empty string"]));
     }
 }

@@ -1,17 +1,24 @@
 ﻿using System.Text.Json.Serialization;
 namespace AnimeFeedManager.Common.Dto;
 
-
-
-public record BaseAnime(string Id, string Title, string Synopsis, string? Url);
+public abstract record BaseAnime(string Id, string Title, string Synopsis, string? Url);
 
 public record NullAnime() : BaseAnime(string.Empty, string.Empty, string.Empty, null);
-
 
 
 public sealed record FeedData(bool Available, string Status, string? Title);
 
 public sealed record FeedAnime(string Id, string Title, string Synopsis, string? Url, FeedData FeedInformation): BaseAnime(Id, Title, Synopsis, Url);
+
+
+public sealed record CompletedAnime(string Id, string Title, string Synopsis, string? Url): BaseAnime(Id, Title, Synopsis, Url);
+public abstract record AnimeForUser(string Id, string Title, string Synopsis, string? Url): BaseAnime(Id, Title, Synopsis, Url);
+public sealed record NotAvailableAnime(string Id, string Title, string Synopsis, string? Url, string AnimeTitle, UserId UserId): AnimeForUser(Id, Title, Synopsis, Url);
+public sealed record InterestedAnime(string Id, string Title, string Synopsis, string? Url, string AnimeTitle, UserId UserId): AnimeForUser(Id, Title, Synopsis, Url);
+
+public sealed record UnSubscribedAnime(string Id, string Title, string Synopsis, string? Url, string FeedId, UserId UserId): AnimeForUser(Id, Title, Synopsis, Url);
+
+public sealed record SubscribedAnime(string Id, string Title, string Synopsis, string? Url, string FeedId, UserId UserId): AnimeForUser(Id, Title, Synopsis, Url);
 
 public record SeasonCollection(ushort Year, string Season, FeedAnime[] Animes);
 

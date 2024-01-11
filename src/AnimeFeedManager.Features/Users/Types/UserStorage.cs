@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-
-namespace AnimeFeedManager.Features.Users.Types;
+﻿namespace AnimeFeedManager.Features.Users.Types;
 
 
 
@@ -11,5 +9,5 @@ public sealed class UserStorage : ITableEntity
     public string? RowKey { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
-    public Role Role { get; set; } = Role.User;
+    public string? Role { get; set; }
 }
