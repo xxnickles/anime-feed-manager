@@ -1,11 +1,17 @@
 ﻿@if (ControlData is not null)
 {
     <fieldset class="flex flex-nowrap items-center justify-between">
-        <div class="badge badge-info gap-2">Interested</div>
-        <div class="gap-2">
+        <div class="badge badge-info">Interested</div>
+        <div>
             <input type="hidden" name="@nameof(AvailableTvSeriesControlData.Title)" @bind="ControlData.Title"/>
             <input type="hidden" name="@nameof(AvailableTvSeriesControlData.UserId)" @bind="ControlData.UserId"/>
-            <button class="btn btn-primary btn-xs" hx-post="tv/remove-interested" hx-target="closest fieldset" hx-swap="outerHTML">Remove from Interested</button>
+            <button class="btn btn-primary btn-xs"
+                    hx-post="tv/remove-interested"
+                    hx-target="closest fieldset"
+                    hx-swap="outerHTML"
+                    hx-confirm="@($"Do you want remove {ControlData.Title} from your interested list?")">
+                Remove from Interested
+            </button>
         </div>
     </fieldset>
 }

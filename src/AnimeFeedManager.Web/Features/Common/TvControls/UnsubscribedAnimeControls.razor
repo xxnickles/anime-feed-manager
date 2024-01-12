@@ -1,12 +1,16 @@
 ﻿@if (ControlData is not null)
 {
     <fieldset class="flex flex-nowrap items-center justify-between">
-        <div class="badge badge-success gap-2">Available</div>
-        <div class="gap-2">
+        <div class="badge badge-success ">Available</div>
+        <div >
             <input type="hidden" name="@nameof(AvailableTvSeriesControlData.Title)" @bind="ControlData.Title"/>
             <input type="hidden" name="@nameof(AvailableTvSeriesControlData.FeedId)" @bind="ControlData.FeedId"/>
             <input type="hidden" name="@nameof(AvailableTvSeriesControlData.UserId)" @bind="ControlData.UserId"/>
-            <button class="btn btn-primary btn-xs" hx-post="tv/subscribe" hx-target="closest fieldset" hx-swap="outerHTML">Subscribe</button>
+            <button class="btn btn-primary btn-xs" 
+                    hx-post="tv/subscribe"
+                    hx-target="closest fieldset" 
+                    hx-swap="outerHTML" 
+                    hx-confirm="@($"Do you want to subscribe to {ControlData.Title}?")">Subscribe</button>
         </div>
     </fieldset>
 }

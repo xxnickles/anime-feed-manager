@@ -19,8 +19,9 @@ public static class Endpoints
                 CancellationToken token) =>
             Validate(data)
                 .BindAsync(info => tvSubscriber.Subscribe(info.UserId, info.Series, token))
-                .MapAsync(_ => RenderFragments.RenderSubscribedControls(renderer, data))
-                .ToComponentResult(renderer, logger, $"Subscription to {data.Title} has been created")
+                .MapAsync(_ => renderer.RenderSubscribedControls(data))
+                .ToComponentResult(renderer, logger, $"Subscription to {data.Title} has been created",
+                    renderer.RenderUnSubscribedControls(data))
         ).RequireAuthorization();
 
 
@@ -32,11 +33,12 @@ public static class Endpoints
                 CancellationToken token) =>
             Validate(data)
                 .BindAsync(info => tvUnSubscriber.Unsubscribe(info.UserId, info.Series, token))
-                .MapAsync(_ => RenderFragments.RenderUnSubscribedControls(renderer, data))
-                .ToComponentResult(renderer, logger, $"Subscription to {data.Title} has been removed")
+                .MapAsync(_ => renderer.RenderUnSubscribedControls(data))
+                .ToComponentResult(renderer, logger, $"Subscription to {data.Title} has been removed",
+                    renderer.RenderSubscribedControls(data))
         ).RequireAuthorization();
-        
-        
+
+
         app.MapPost("/tv/add-interested", (
                 [FromForm] NotAvailableControlData data,
                 [FromServices] BlazorRenderer renderer,
@@ -45,11 +47,12 @@ public static class Endpoints
                 CancellationToken token) =>
             Validate(data)
                 .BindAsync(info => tvInterestedSubscriber.Add(info.UserId, info.Series, token))
-                .MapAsync(_ => RenderFragments.RenderInterestedControls(renderer, data))
-                .ToComponentResult(renderer, logger, $"{data.Title} has been added to your interest list")
+                .MapAsync(_ => renderer.RenderInterestedControls(data))
+                .ToComponentResult(renderer, logger, $"{data.Title} has been added to your interest list",
+                    renderer.RenderNotAvailableControls(data))
         ).RequireAuthorization();
-        
-        
+
+
         app.MapPost("/tv/remove-interested", (
                 [FromForm] NotAvailableControlData data,
                 [FromServices] BlazorRenderer renderer,
@@ -58,8 +61,9 @@ public static class Endpoints
                 CancellationToken token) =>
             Validate(data)
                 .BindAsync(info => tvInterestedRemover.Remove(info.UserId, info.Series, token))
-                .MapAsync(_ => RenderFragments.RenderNotAvailableControls(renderer, data))
-                .ToComponentResult(renderer, logger, $"{data.Title} has been added to your interest list")
+                .MapAsync(_ => renderer.RenderNotAvailableControls(data))
+                .ToComponentResult(renderer, logger, $"{data.Title} has been added to your interest list",
+                    renderer.RenderInterestedControls(data))
         ).RequireAuthorization();
     }
 
@@ -73,7 +77,7 @@ public static class Endpoints
             ).Apply((userid, series) => (userid, series))
             .ValidationToEither();
     }
-    
+
     private static Either<DomainError, (UserId UserId, NoEmptyString Series)> Validate(
         NotAvailableControlData payload)
     {

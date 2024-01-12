@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Web.Features.Tv;
 
 internal static class RenderFragments
 {
-    internal static Task<RenderedComponent> RenderSubscribedControls(BlazorRenderer renderer, AvailableTvSeriesControlData data)
+    internal static Task<RenderedComponent> RenderSubscribedControls(this BlazorRenderer renderer, AvailableTvSeriesControlData data)
     {
         var parameters = new Dictionary<string, object?>
         {
@@ -15,7 +15,7 @@ internal static class RenderFragments
         return renderer.RenderComponent<SubscribedAnimeControls>(parameters);
     }
     
-    internal static Task<RenderedComponent> RenderUnSubscribedControls(BlazorRenderer renderer, AvailableTvSeriesControlData data)
+    internal static Task<RenderedComponent> RenderUnSubscribedControls(this BlazorRenderer renderer, AvailableTvSeriesControlData data)
     {
         var parameters = new Dictionary<string, object?>
         {
@@ -25,7 +25,7 @@ internal static class RenderFragments
         return renderer.RenderComponent<UnsubscribedAnimeControls>(parameters);
     }
     
-    internal static Task<RenderedComponent> RenderInterestedControls(BlazorRenderer renderer, NotAvailableControlData data)
+    internal static Task<RenderedComponent> RenderInterestedControls(this BlazorRenderer renderer, NotAvailableControlData data)
     {
         var parameters = new Dictionary<string, object?>
         {
@@ -35,7 +35,7 @@ internal static class RenderFragments
         return renderer.RenderComponent<InterestedAnimeControls>(parameters);
     }
     
-    internal static Task<RenderedComponent> RenderNotAvailableControls(BlazorRenderer renderer, NotAvailableControlData data)
+    internal static Task<RenderedComponent> RenderNotAvailableControls(this BlazorRenderer renderer, NotAvailableControlData data)
     {
         var parameters = new Dictionary<string, object?>
         {

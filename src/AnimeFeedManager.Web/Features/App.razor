@@ -18,13 +18,14 @@
 </head>
 
 <body>
+
 <Routes/>
 
 <div id="toast-panel" class="toast">
 </div>
 
+<HtmxConfirm></HtmxConfirm>
 @* <script src="_framework/blazor.web.js"></script> *@
-
 <script>
     const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
     const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
