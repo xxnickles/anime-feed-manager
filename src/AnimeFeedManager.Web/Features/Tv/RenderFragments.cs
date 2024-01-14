@@ -1,5 +1,5 @@
 ﻿using AnimeFeedManager.Web.Features.Common;
-using AnimeFeedManager.Web.Features.Common.TvControls;
+using AnimeFeedManager.Web.Features.Tv.Controls;
 
 namespace AnimeFeedManager.Web.Features.Tv;
 

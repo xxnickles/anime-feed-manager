@@ -1,6 +1,6 @@
 ﻿using AnimeFeedManager.Common.Dto;
 
-namespace AnimeFeedManager.Web.Features.Common.TvControls;
+namespace AnimeFeedManager.Web.Features.Tv.Controls;
 
 public class AvailableTvSeriesControlData
 {

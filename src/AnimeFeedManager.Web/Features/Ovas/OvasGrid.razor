@@ -4,6 +4,8 @@
 @inject OvasLibraryGetter LibraryGetter;
 @inject ILogger<OvasGrid> Logger;
 
+<PageTitle>@PageTitleForSeason(SeriesType.Ova, _selectedSeason)</PageTitle>
+
 <SeriesGrid Series="_seasonCollection.Animes" SeriesType="SeriesType.Ova"></SeriesGrid>
 
 @code {

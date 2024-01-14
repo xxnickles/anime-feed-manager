@@ -2,7 +2,7 @@
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
-using AnimeFeedManager.Web.Features.Common.TvControls;
+using AnimeFeedManager.Web.Features.Tv.Controls;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeFeedManager.Web.Features.Tv;
@@ -62,7 +62,7 @@ public static class Endpoints
             Validate(data)
                 .BindAsync(info => tvInterestedRemover.Remove(info.UserId, info.Series, token))
                 .MapAsync(_ => renderer.RenderNotAvailableControls(data))
-                .ToComponentResult(renderer, logger, $"{data.Title} has been added to your interest list",
+                .ToComponentResult(renderer, logger, $"{data.Title} has been removed to your interest list",
                     renderer.RenderInterestedControls(data))
         ).RequireAuthorization();
     }

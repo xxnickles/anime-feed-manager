@@ -2,7 +2,8 @@
     <article class="bg-base-300 transition-all p-8 border border-neutral w-full">
         <h3 class="card-title">Update Latest</h3>
         <form class="card-actions form-control"
-              hx-put="@GetLatestPath()">
+              hx-put="@GetLatestPath()"
+              hx-swap="none">
             <AntiforgeryToken/>
             <button type="submit" class="btn btn-primary mt-4">
                 Update Latest
@@ -16,7 +17,8 @@
                valid: true ,              
                get isValid() { return this.valid }
                }"
-              hx-put="@GetSeasonPath()">
+              hx-put="@GetSeasonPath()"
+              hx-swap="none">
             <AntiforgeryToken/>
 
             <fieldset class="form-control">
@@ -54,7 +56,8 @@
         <article class="bg-base-300 transition-all p-8 border border-neutral w-full">
             <h3 class="card-title">Update Titles</h3>
             <form class="card-actions form-control"
-                  hx-put="@GetTitlesPath()">
+                  hx-put="@GetTitlesPath()"
+                  hx-swap="none">
                 <AntiforgeryToken/>
                 <button type="submit" class="btn btn-primary mt-4">
                     Update Titles
@@ -94,7 +97,7 @@
             _ => "/admin/noop"
         };
     }
-    
+
     private string GetTitlesPath()
     {
         return SeriesType switch

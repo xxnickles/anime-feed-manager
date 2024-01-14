@@ -1,11 +1,12 @@
 ﻿@page "/{Season}/tv"
 
 @using AnimeFeedManager.Features.Tv.Library
-@using AnimeFeedManager.Web.Features.Security
 @inject TvLibraryGetter LibraryGetter;
 @inject IUserProvider UserProvider;
 @inject ILogger<TvGrid> Logger;
 @* @attribute [StreamRendering] *@
+
+<PageTitle>@PageTitleForSeason(SeriesType.Tv, _selectedSeason)</PageTitle>
 
 <SeriesGrid Series="_animes" SeriesType="SeriesType.Tv"></SeriesGrid>
 

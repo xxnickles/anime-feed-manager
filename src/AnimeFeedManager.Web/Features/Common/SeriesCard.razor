@@ -1,8 +1,8 @@
 ﻿<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60">
-    <img width="167" class="object-cover w-44" src="@Anime.Url" alt="@Anime.Title"/>
+    <img class="object-cover w-44" src="@Anime.Url" alt="@Anime.Title"/>
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
         <h2 class="basis-[5%] mx-4 mt-2 text-base font-bold ">@Anime.Title</h2>
-        <p class="basis-[80%] mx-4 my-2 text-sm text-justify  max-h-full overflow-y-auto scrollbar pr-3">
+        <p class="basis-[78%] mx-4 my-2 text-sm text-justify max-h-full overflow-y-auto scrollbar pr-3 break-all">
             @if (!string.IsNullOrEmpty(Anime.Synopsis))
             {
                 @Anime.Synopsis
@@ -12,7 +12,7 @@
                 <span class="text-warning">Synopsis Not Available</span>
             }
         </p>
-        <footer class="basis-[15%] bg-neutral px-4">
+        <footer class="basis-[17%] bg-neutral px-4 pt-1">
             @switch (Anime)
             {
                 case AnimeForUser anime:
@@ -28,7 +28,9 @@
                     break;
 
                 default:
-                    <div class="badge badge-error gap-2">Nothing yet!</div>
+                        <div class="badge badge-error gap-2">
+                            <span >Nothing Yet!</span>
+                        </div>
                     break;
             }
 
