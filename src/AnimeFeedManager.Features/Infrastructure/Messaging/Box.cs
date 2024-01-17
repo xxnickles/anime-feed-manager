@@ -14,8 +14,9 @@ public readonly struct Box
         public const string AutoSubscriptionsProcessBox = "auto-subscriptions-process";
         public const string TvNotificationsBox = "tv-notifications";
         public const string SeasonTitlesProcessBox = "season-titles-process";
+        public const string LatestSeasonsBox = "latest-seasons-process";
     }
-    
+
     private readonly string _boxValue;
 
     private Box(string boxValue)
@@ -29,18 +30,20 @@ public readonly struct Box
     }
 
     public static implicit operator string(Box box) => box._boxValue;
-    
-    public static Box SeasonProcessNotifications => new (Available.SeasonProcessNotificationsBox);
-    public static Box TitleUpdatesNotifications => new (Available.TitleUpdatesNotificationsBox);
-    public static Box ImageUpdateNotifications => new (Available.ImageUpdateNotificationsBox);
-    public static Box ImageProcess => new (Available.ImageProcessBox);
+
+    public static Box SeasonProcessNotifications => new(Available.SeasonProcessNotificationsBox);
+    public static Box TitleUpdatesNotifications => new(Available.TitleUpdatesNotificationsBox);
+    public static Box ImageUpdateNotifications => new(Available.ImageUpdateNotificationsBox);
+    public static Box ImageProcess => new(Available.ImageProcessBox);
     public static Box LibraryScrapEvents => new(Available.LibraryScrapEventsBox);
 
     public static Box TvTitlesScrapEvents => new(Available.TvTitlesScrapEventsBox);
-    
+
     public static Box UserAutoSubscription => new(Available.UserAutoSubscriptionBox);
     public static Box AutoSubscriptionsProcess => new(Available.AutoSubscriptionsProcessBox);
     public static Box TvNotifications => new(Available.TvNotificationsBox);
-    
-    public static Box SeasonTitlesProcess=> new(Available.SeasonTitlesProcessBox);
+
+    public static Box SeasonTitlesProcess => new(Available.SeasonTitlesProcessBox);
+
+    public static Box LatestSeason => new(Available.LatestSeasonsBox);
 }

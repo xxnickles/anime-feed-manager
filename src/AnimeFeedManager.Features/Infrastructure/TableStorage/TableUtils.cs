@@ -148,7 +148,7 @@ internal static class TableUtils
     {
         try
         {
-            if (!entities.Any()) return unit;
+            if (entities.IsEmpty) return unit;
             var deleteEntitiesBatch = entities
                 .Select(entityToDelete => new TableTransactionAction(TableTransactionActionType.Delete, entityToDelete))
                 .ToList();
@@ -168,7 +168,7 @@ internal static class TableUtils
     }
 
     internal static async Task<Either<DomainError, Unit>> BatchAdd<T>(TableClient tableClient,
-        IEnumerable<T> entities, CancellationToken token) where T : ITableEntity
+        IEnumerable<T> entities, CancellationToken token, TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge) where T : ITableEntity
     {
         try
         {
@@ -177,7 +177,7 @@ internal static class TableUtils
             var addEntitiesBatch = new List<TableTransactionAction>();
             addEntitiesBatch.AddRange(
                 entities.Select(tableEntity =>
-                    new TableTransactionAction(TableTransactionActionType.UpsertMerge, tableEntity)));
+                    new TableTransactionAction(actionType, tableEntity)));
             const ushort limit = 99;
             for (ushort i = 0; i < addEntitiesBatch.Count; i += limit)
             {

@@ -21,7 +21,7 @@ public sealed class OnSeasonNotification(
         [QueueTrigger(Box.Available.SeasonProcessNotificationsBox, Connection = "AzureWebJobsStorage")]
         SeasonProcessNotification notification)
     {
-        // Stores notification
+        // Stores notification and create event to update latest seasons
         var result = await storeNotification.Add(
             IdHelpers.GetUniqueId(),
             RoleNames.Admin,
@@ -59,6 +59,6 @@ public sealed class OnSeasonNotification(
         SeriesType.Movie => NotificationTarget.Movie,
         SeriesType.Ova => NotificationTarget.Ova,
         SeriesType.None => NotificationTarget.None,
-        _ =>  throw new UnreachableException("Value not expected")
+        _ => throw new UnreachableException("Value not expected")
     };
 }

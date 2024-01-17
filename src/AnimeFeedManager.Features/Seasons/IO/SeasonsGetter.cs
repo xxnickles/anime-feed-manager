@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Seasons.Types;
 
 namespace AnimeFeedManager.Features.Seasons.IO;
 
@@ -7,7 +6,7 @@ public interface ISeasonsGetter
 {
     Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons(CancellationToken token);
 
-    Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetLastFourSeasons(CancellationToken token);
+    Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetSeasons(byte count, CancellationToken token);
 
     Task<Either<DomainError, SeasonStorage>> GetCurrentSeason(CancellationToken token);
 }
@@ -22,13 +21,13 @@ public sealed class SeasonsGetter(ITableClientFactory<SeasonStorage> tableClient
                 cancellationToken: token)));
     }
 
-    public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetLastFourSeasons(CancellationToken token)
+    public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetSeasons(byte count, CancellationToken token)
     {
         return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteLimitedQuery(
                 () => client.QueryAsync<SeasonStorage>(season =>
-                        season.PartitionKey == SeasonType.Season || season.PartitionKey == SeasonType.Latest, 4,
-                    cancellationToken: token), 4));
+                        season.PartitionKey == SeasonType.Season || season.PartitionKey == SeasonType.Latest,
+                    cancellationToken: token), count));
     }
 
     public Task<Either<DomainError, SeasonStorage>> GetCurrentSeason(CancellationToken token)

@@ -17,7 +17,7 @@
         <PackageReference Include="MediatR" Version="12.2.0" />
         <PackageReference Include="Passwordless" Version="1.0.2" />
         <PackageReference Include="PuppeteerSharp" Version="13.0.2" />
-        <PackageReference Include="SendGrid" Version="9.28.1" />
+        <PackageReference Include="SendGrid" Version="9.29.1" />
         <PackageReference Include="SendGrid.Extensions.DependencyInjection" Version="1.0.1" />
     </ItemGroup>
 

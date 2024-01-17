@@ -1,7 +1,8 @@
 ﻿@using AnimeFeedManager.Features.Seasons.Types
 @using System.Collections.Immutable
+@using System.Collections.Frozen
 
-@if (!Seasons.IsEmpty)
+@if (Seasons.Count > 0)
 {
     <nav>
         <ul tabindex="0" class="flex justify-center items-center space-x-5 ">
@@ -30,7 +31,7 @@
 
 @code {
 
-    [Parameter] public ImmutableList<SeasonWrapper> Seasons { get; set; } = ImmutableList<SeasonWrapper>.Empty;
+    [Parameter] public FrozenSet<SeasonWrapper> Seasons { get; set; } = FrozenSet<SeasonWrapper>.Empty;
 
     private string GetLink(SeasonWrapper season, SeriesType seriesType) => $"{season.Season}-{season.Year}/{seriesType.AsPlural()}";
 

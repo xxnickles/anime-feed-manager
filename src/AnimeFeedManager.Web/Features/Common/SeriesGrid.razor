@@ -2,6 +2,7 @@
 @using AnimeFeedManager.Features.Seasons.Types
 @using System.Collections.Immutable
 @using AnimeFeedManager.Features.Seasons
+@using System.Collections.Frozen
 
 @inject ILogger<SeriesGrid> Logger;
 @inject SeasonsGetter SeasonGetter
@@ -19,7 +20,7 @@
     [Parameter] public BaseAnime[] Series { get; set; } = Array.Empty<BaseAnime>();
     [Parameter] public SeriesType SeriesType { get; set; } = SeriesType.None;
 
-    private ImmutableList<SeasonWrapper> _lastSeasons = ImmutableList<SeasonWrapper>.Empty;
+    private FrozenSet<SeasonWrapper> _lastSeasons = FrozenSet<SeasonWrapper>.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -28,7 +29,7 @@
             .LogErrors(Logger)
             .Match(
                 seasons => seasons,
-                _ => ImmutableList<SeasonWrapper>.Empty
+                _ => FrozenSet<SeasonWrapper>.Empty
             );
     }
 

@@ -1,0 +1,107 @@
+﻿<div class="flex flex-wrap gap-3">
+    <AdminCard Title="Update Latest">
+        <form class="card-actions form-control"
+              hx-put="@GetLatestPath()"
+              hx-swap="none">
+            <AntiforgeryToken/>
+            <button type="submit" class="btn btn-primary mt-4">
+                Update Latest
+            </button>
+        </form>
+    </AdminCard>
+
+    <AdminCard Title="Update by Season">
+        <form x-data="{ 
+                          valid: true ,              
+                          get isValid() { return this.valid }
+                          }"
+              hx-put="@GetSeasonPath()"
+              hx-swap="none">
+            <AntiforgeryToken/>
+
+            <fieldset class="form-control">
+                <label class="label">
+                    <span class="label-text">Season</span>
+                </label>
+
+                <select name="season" class="select" title="Season Selection" @bind="SelectedSeason">
+                    <option value="@Season.Spring.ToString()">Spring</option>
+                    <option value="@Season.Summer.ToString()">Summer</option>
+                    <option value="@Season.Fall.ToString()">Fall</option>
+                    <option value="@Season.Winter.ToString()">Winter</option>
+                </select>
+
+                <label class="label">
+                    <span class="label-text">Year</span>
+                </label>
+
+                <input name="year"
+                       type="number"
+                       class="input" :class="isValid || 'input-bordered input-error'"
+                       placeholder="Input year"
+                       x-on:input.debounce="valid = $event.target.validity.valid"
+                       required
+                       min="@_minYear.ToString()"
+                       max="@_maxYear.ToString()"
+                       @bind="Year"/>
+            </fieldset>
+            <button type="submit" class="btn btn-primary mt-4">Update Season</button>
+        </form>
+    </AdminCard>
+
+    @if (SeriesType is SeriesType.Tv)
+    {
+        <AdminCard Title="Update Titles">
+            <form class="card-actions form-control"
+                  hx-put="@GetTitlesPath()"
+                  hx-swap="none">
+                <AntiforgeryToken/>
+                <button type="submit" class="btn btn-primary mt-4">
+                    Update Titles
+                </button>
+            </form>
+        </AdminCard>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public SeriesType SeriesType { get; set; } = SeriesType.None;
+
+
+    private readonly int _maxYear = DateTimeOffset.UtcNow.Year + 1;
+    private const int _minYear = 2000;
+    private int Year { get; set; } = DateTimeOffset.UtcNow.Year;
+    private string SelectedSeason { get; set; } = Season.Spring.ToString();
+
+    private string GetLatestPath()
+    {
+        return SeriesType switch
+        {
+            SeriesType.Tv => "/admin/tv",
+            SeriesType.Ova => "/admin/ovas",
+            SeriesType.Movie => "/admin/movies",
+            _ => "/admin/noop"
+        };
+    }
+
+    private string GetSeasonPath()
+    {
+        return SeriesType switch
+        {
+            SeriesType.Tv => "/admin/tv/season",
+            SeriesType.Ova => "/admin/ovas/season",
+            SeriesType.Movie => "/admin/movies/season",
+            _ => "/admin/noop"
+        };
+    }
+
+    private string GetTitlesPath()
+    {
+        return SeriesType switch
+        {
+            SeriesType.Tv => "/admin/tv/titles",
+            _ => "/admin/noop"
+        };
+    }
+
+}

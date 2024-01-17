@@ -25,7 +25,6 @@ public static class Endpoints
                         .ToComponentResult(renderer, logger, "Latest tv library will be scrapped in the background"))
             .RequireAuthorization(Policies.AdminRequired);
 
-
         app.MapPut("/admin/tv/titles",
                 ([FromForm] string? noop,
                         [FromServices] BlazorRenderer renderer,
@@ -35,8 +34,6 @@ public static class Endpoints
                     domainPostman.CreateScrapingEvent(new ScrapTvTilesRequest(), token: token)
                         .ToComponentResult(renderer, logger, "Tv Titles will be scrapped in the background"))
             .RequireAuthorization(Policies.AdminRequired);
-        ;
-
 
         app.MapPut("/admin/tv/season",
                 ([FromForm] BasicSeason season,
@@ -53,7 +50,6 @@ public static class Endpoints
                         .ToComponentResult(renderer, logger,
                             $"Tv library for {season.Season}-{season.Year} will be scrapped in the background"))
             .RequireAuthorization(Policies.AdminRequired);
-        ;
 
         app.MapPut("/admin/ovas",
                 ([FromForm] string? noop,
@@ -65,7 +61,6 @@ public static class Endpoints
                             token: token)
                         .ToComponentResult(renderer, logger, "Latest Ovas library will be scrapped in the background"))
             .RequireAuthorization(Policies.AdminRequired);
-        ;
 
         app.MapPut("/admin/ovas/season",
                 ([FromForm] BasicSeason season,
@@ -82,7 +77,6 @@ public static class Endpoints
                         .ToComponentResult(renderer, logger,
                             $"Ovas library for {season.Season}-{season.Year} will be scrapped in the background"))
             .RequireAuthorization(Policies.AdminRequired);
-        ;
 
         app.MapPut("/admin/movies",
                 ([FromForm] string? noop,
@@ -95,7 +89,6 @@ public static class Endpoints
                         .ToComponentResult(renderer, logger,
                             "Latest movies library will be scrapped in the background"))
             .RequireAuthorization(Policies.AdminRequired);
-        ;
 
         app.MapPut("/admin/movies/season",
                 ([FromForm] BasicSeason season,
@@ -112,7 +105,18 @@ public static class Endpoints
                         .ToComponentResult(renderer, logger,
                             $"Movies library for {season.Season}-{season.Year} will be scrapped in the background"))
             .RequireAuthorization(Policies.AdminRequired);
-        ;
+
+
+        app.MapPut("/admin/seasons",
+                ([FromForm] string? noop,
+                        [FromServices] BlazorRenderer renderer,
+                        [FromServices] IDomainPostman domainPostman,
+                        [FromServices] ILogger<Admin> logger,
+                        CancellationToken token) =>
+                    domainPostman.SendMessage(new UpdateLatestSeasonsRequest(), Box.LatestSeason, token)
+                        .ToComponentResult(renderer, logger,
+                            "Latest Titles will be processed in the background"))
+            .RequireAuthorization(Policies.AdminRequired);
 
         app.MapPut("/admin/noop", async (BlazorRenderer renderer) =>
         {

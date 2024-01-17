@@ -9,23 +9,36 @@
         <header class="mb-4">
             <h2>Update TV Library</h2>
         </header>
-        <AdminCard SeriesType="SeriesType.Tv"></AdminCard>
+        <AdminSeriesCard SeriesType="SeriesType.Tv"></AdminSeriesCard>
     </section>
     <section class="col-span-12 px-5 pt-7.5 pb-5  sm:px-7.5 lg:col-span-4">
         <header class="mb-4">
             <h2>Update OVAs Library</h2>
         </header>
-        <AdminCard SeriesType="SeriesType.Ova"></AdminCard>
+        <AdminSeriesCard SeriesType="SeriesType.Ova"></AdminSeriesCard>
     </section>
     <section class="col-span-12 px-5 pt-7.5 pb-5  sm:px-7.5 lg:col-span-4">
         <header class="mb-4">
             <h2>Update Movies Library</h2>
         </header>
-        <AdminCard SeriesType="SeriesType.Movie"></AdminCard>
+        <AdminSeriesCard SeriesType="SeriesType.Movie"></AdminSeriesCard>
+    </section>
+
+
+    <section class="col-span-12 px-5 pt-7.5 pb-5  sm:px-7.5 lg:col-span-4">
+        <header class="mb-4">
+            <h2>Other</h2>
+        </header>
+        <AdminCard Title="Update Latest Seasons">
+            <form class="card-actions form-control"
+                  hx-put="/admin/seasons"
+                  hx-swap="none"
+                  hx-confirm="Do you want to trigger update of latest seasons?">
+                <AntiforgeryToken/>
+                <button type="submit" class="btn btn-primary mt-4">
+                    Update Latest Seasons
+                </button>
+            </form>
+        </AdminCard>
     </section>
 </div>
-
-
-@code {
-
-}

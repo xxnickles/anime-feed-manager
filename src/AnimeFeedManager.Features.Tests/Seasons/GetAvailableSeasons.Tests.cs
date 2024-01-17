@@ -16,7 +16,9 @@ public class GetAvailableSeasonsTests
         var mock = Substitute.For<ISeasonsGetter>();
         mock.GetAvailableSeasons(Arg.Any<CancellationToken>()).Returns(Right<DomainError, ImmutableList<SeasonStorage>>(TestData()));
 
-        var sut = new SeasonsGetter(mock);
+        var latestSeasonMock = Substitute.For<ILatestSeasonsGetter>();
+        
+        var sut = new SeasonsGetter(mock,latestSeasonMock);
         var result = await sut.GetAvailable();
 
         result.Match(

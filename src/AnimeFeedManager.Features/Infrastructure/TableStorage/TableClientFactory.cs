@@ -4,7 +4,6 @@ using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 using AnimeFeedManager.Features.Notifications.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
 using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
-using AnimeFeedManager.Features.Seasons.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 using AnimeFeedManager.Features.Tv.Types;
@@ -49,6 +48,7 @@ public sealed class TableClientFactory<T>(TableServiceClient serviceClient) : IT
             nameof(MoviesSubscriptionStorage) => AzureTableMap.StoreTo.MovieSubscriptions,
             nameof(NotificationStorage) => AzureTableMap.StoreTo.Notifications,
             nameof(StateUpdateStorage) => AzureTableMap.StoreTo.StateUpdates,
+            nameof(LatestSeasonsStorage) => AzureTableMap.StoreTo.JsonStorage,
             _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}")
         };
     }
