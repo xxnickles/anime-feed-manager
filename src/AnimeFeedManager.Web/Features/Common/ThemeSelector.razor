@@ -1,6 +1,6 @@
 ﻿<label class="swap swap-rotate" x-data="themeDetector()" x-int="init()">
     <!-- this hidden checkbox controls the state -->
-    <input type="checkbox" class="theme-controller" :value="theme"/>
+    <input type="checkbox" class="theme-controller" :value="targetTheme" @change="themeChanged($event)" />
     
     <!-- sun icon -->
     <svg class="fill-current w-6 md:w-8 h-6 md:h-8" xmlns="http://www.w3.org/2000/svg" :class="isDark ? 'swap-on':'swap-off'" viewBox="0 0 24 24">
