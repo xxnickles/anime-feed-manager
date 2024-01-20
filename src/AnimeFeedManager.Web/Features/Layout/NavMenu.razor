@@ -13,6 +13,11 @@
                         Home
                     </NavLink>
                 </li>
+                <li>
+                    <NavLink class="nav-link" href="seasons" Match="NavLinkMatch.All">
+                        Seasons
+                    </NavLink>
+                </li>
                 <AuthorizeView Roles="@RoleNames.Admin">
                     <li>
                         <NavLink class="nav-link" href="admin">
@@ -48,6 +53,6 @@
         <a class="btn btn-ghost normal-case text-xl">Anime Feed Manager</a>
     </div>
     <div class="navbar-end">
-       <ThemeSelector></ThemeSelector>
+        <ThemeSelector></ThemeSelector>
     </div>
 </div>

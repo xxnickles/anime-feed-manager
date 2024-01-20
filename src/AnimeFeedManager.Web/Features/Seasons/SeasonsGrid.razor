@@ -1,0 +1,64 @@
+﻿@page "/seasons"
+@using AnimeFeedManager.Features.Seasons
+@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Seasons.Types
+@inject SeasonsGetter SeasonGetter
+
+<div class="md:container md:mx-auto mt-8">
+    <h1 class="text-bold text-2xl mb-4">All Available Seasons</h1>
+    <table class="table table-xs sm:table-md md:table-lg">
+        <!-- head -->
+        <thead>
+        <tr>
+            <th>Year</th>
+            <th class="text-center align-middle">Winter</th>
+            <th class="text-center align-middle">Spring</th>
+            <th class="text-center align-middle">Summer</th>
+            <th class="text-center align-middle">Fall</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var group in _seasons)
+        {
+            <tr class="@(group.HasLatest ? "bg-base-200 font-bold" : string.Empty)">
+                <th>@group.Year</th>
+                @foreach (var season in group.Seasons)
+                {
+                    @switch (season)
+                    {
+                        case RegularSeason regular:
+                            <td class="text-center align-middle">
+                                <SeasonGridLinks Year="@group.Year" Season="@regular.Season"/>
+                            </td>
+                            break;
+                        case LatestSeason latestSeason:
+                            <td class="text-center align-middle">
+                                <SeasonGridLinks Year="@group.Year" Season="@latestSeason.Season" IsLatest="true"/>
+                            </td>
+                            break;
+                        default:
+                            <td class="text-center align-middle">---</td>
+                            break;
+                    }
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@code {
+
+    ImmutableList<SeasonGroup> _seasons = ImmutableList<SeasonGroup>.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var seasons = await SeasonGetter.GetGroupedAvailable();
+
+        _seasons = seasons.Match(
+            s => s,
+            _ => ImmutableList<SeasonGroup>.Empty);
+    }
+
+
+}

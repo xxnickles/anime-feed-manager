@@ -1,6 +1,17 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Frozen;
+using System.Text.Json.Serialization;
 
 namespace AnimeFeedManager.Features.Seasons.Types;
+
+public abstract record SeasonInfo(Season Season);
+
+public record NotAvailableSeason(Season Season) : SeasonInfo(Season);
+
+public record LatestSeason(Season Season) : SeasonInfo(Season);
+
+public record RegularSeason(Season Season) : SeasonInfo(Season);
+
+public record SeasonGroup(Year Year, ImmutableList<SeasonInfo> Seasons, bool HasLatest);
 
 public record SeasonWrapper(Season Season, Year Year, bool IsLatest);
 
@@ -15,6 +26,31 @@ public partial class SimpleSeasonWrapperContext : JsonSerializerContext
 
 public static class Extensions
 {
+    private static FrozenSet<Season> _yearSeasons =
+        new[] {Season.Winter, Season.Spring, Season.Summer, Season.Fall}.ToFrozenSet();
+
+    public static SeasonGroup ToGroup(
+        this IEnumerable<SeasonWrapper> seasonWrappers, Year year)
+    {
+        var values = _yearSeasons.Aggregate((Seasons: new List<SeasonInfo>(), HasLatest: false), (acc, next) =>
+        {
+            SeasonInfo seasonInfo = seasonWrappers.FirstOrDefault(s => s.Season == next) switch
+            {
+                {IsLatest: true} => new LatestSeason(next),
+                not null => new RegularSeason(next),
+                _ => new NotAvailableSeason(next)
+            };
+
+            acc.Seasons.Add(seasonInfo);
+            if (seasonInfo is LatestSeason)
+                acc.HasLatest = true;
+
+            return acc;
+        });
+
+        return new SeasonGroup(year, values.Seasons.ToImmutableList(), values.HasLatest);
+    }
+
     public static SimpleSeasonWrapper ToSimple(this SeasonWrapper season) =>
         new(season.Season, season.Year, season.IsLatest);
 

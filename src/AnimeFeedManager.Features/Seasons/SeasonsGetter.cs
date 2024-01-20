@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using AnimeFeedManager.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Seasons.IO;
 
 namespace AnimeFeedManager.Features.Seasons;
@@ -17,11 +16,22 @@ public sealed class SeasonsGetter(ISeasonsGetter seasonsGetter, ILatestSeasonsGe
                     .ToImmutableList());
     }
 
-    public Task<Either<DomainError, FrozenSet<SeasonWrapper>>> GetLastSeasons(CancellationToken token = default)
+    public Task<Either<DomainError, ImmutableList<SeasonGroup>>> GetGroupedAvailable(CancellationToken token = default)
+    {
+       return seasonsGetter.GetAvailableSeasons(token)
+            .MapAsync(seasons =>
+                seasons.ConvertAll(s => s.ToWrapper())
+                    .OrderByDescending(s => s.Year)
+                    .ThenByDescending(s => s.Season)
+                    .GroupBy(s => s.Year)
+                    .Select(group => group.ToGroup(group.Key))
+                    .ToImmutableList());
+    }
+
+    public Task<Either<DomainError, ImmutableList<SeasonWrapper>>> GetLastSeasons(CancellationToken token = default)
     {
         return latestSeasonsGetter.Get(token);
     }
-
     public Task<Either<DomainError, SeasonWrapper>> GetCurrentSeason(CancellationToken token = default)
     {
         return seasonsGetter.GetCurrentSeason(token).MapAsync(season => season.ToWrapper());

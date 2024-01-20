@@ -31,7 +31,7 @@
 
 @code {
 
-    [Parameter] public FrozenSet<SeasonWrapper> Seasons { get; set; } = FrozenSet<SeasonWrapper>.Empty;
+    [Parameter] public ImmutableList<SeasonWrapper> Seasons { get; set; } = ImmutableList<SeasonWrapper>.Empty;
 
     private string GetLink(SeasonWrapper season, SeriesType seriesType) => $"{season.Season}-{season.Year}/{seriesType.AsPlural()}";
 

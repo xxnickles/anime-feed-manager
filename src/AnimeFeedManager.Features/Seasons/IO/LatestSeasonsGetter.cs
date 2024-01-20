@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.Seasons.IO;
 
 public interface ILatestSeasonsGetter
 {
-    Task<Either<DomainError, FrozenSet<SeasonWrapper>>> Get(CancellationToken token);
+    Task<Either<DomainError, ImmutableList<SeasonWrapper>>> Get(CancellationToken token);
 }
 
 public class LatestSeasonsGetter : ILatestSeasonsGetter
@@ -18,7 +18,7 @@ public class LatestSeasonsGetter : ILatestSeasonsGetter
         _tableClientFactory = tableClientFactory;
     }
 
-    public Task<Either<DomainError, FrozenSet<SeasonWrapper>>> Get(CancellationToken token)
+    public Task<Either<DomainError, ImmutableList<SeasonWrapper>>> Get(CancellationToken token)
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() => client.QueryAsync<LatestSeasonsStorage>(season =>
@@ -27,6 +27,6 @@ public class LatestSeasonsGetter : ILatestSeasonsGetter
             .MapAsync(items => items.First())
             .MapAsync(item => JsonSerializer.Deserialize(item.Payload ?? string.Empty,
                 SimpleSeasonWrapperContext.Default.SimpleSeasonWrapperArray) ?? [])
-            .MapAsync(items => items.Select(i => i.ToWrapper()).ToFrozenSet());
+            .MapAsync(items => items.Select(i => i.ToWrapper()).ToImmutableList());
     }
 }

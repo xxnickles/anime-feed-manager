@@ -20,7 +20,7 @@
     [Parameter] public BaseAnime[] Series { get; set; } = Array.Empty<BaseAnime>();
     [Parameter] public SeriesType SeriesType { get; set; } = SeriesType.None;
 
-    private FrozenSet<SeasonWrapper> _lastSeasons = FrozenSet<SeasonWrapper>.Empty;
+    private ImmutableList<SeasonWrapper> _lastSeasons = ImmutableList<SeasonWrapper>.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -29,7 +29,7 @@
             .LogErrors(Logger)
             .Match(
                 seasons => seasons,
-                _ => FrozenSet<SeasonWrapper>.Empty
+                _ => ImmutableList<SeasonWrapper>.Empty
             );
     }
 
