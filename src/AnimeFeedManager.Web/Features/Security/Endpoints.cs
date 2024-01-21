@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Users.IO;
+using AnimeFeedManager.Features.Users.Types;
 using AnimeFeedManager.Web.Features.Common.ApiResponses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +12,15 @@ internal static class Endpoints
     {
         app.MapGet("/create-token", (
             [FromQuery] string alias,
+            [FromQuery] string displayName,
             [FromServices] IPasswordlessRegistration passwordlessRegistration,
             [FromServices] IUserStore userStore,
             [FromServices] ILogger<Register> logger,
             CancellationToken token) =>
         {
-            return (EmailValidator.Validate(alias), UserIdValidator.Validate(Guid.NewGuid().ToString("N")))
-                .Apply((email, userid) => (email, userid))
+            return (EmailValidator.Validate(alias), UserIdValidator.Validate(Guid.NewGuid().ToString("N")),
+                    ValidateDisplayName(displayName))
+                .Apply((email, userid, display) => new UserRegistration(email, userid, display))
                 .ValidationToEither()
                 .BindAsync(options => passwordlessRegistration.Register(options, token))
                 .ToResponse(logger);
@@ -31,4 +34,8 @@ internal static class Endpoints
             passwordlessLogin.GetLoginInformation(token, cancellationToken)
                 .ToResponse(logger));
     }
+
+    private static Validation<ValidationError, NoEmptyString> ValidateDisplayName(string displayName) =>
+        NoEmptyString.FromString(displayName)
+            .ToValidation(ValidationError.Create("Display Name", "Display Name is Empty"));
 }

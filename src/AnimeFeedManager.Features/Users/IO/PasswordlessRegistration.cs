@@ -7,7 +7,7 @@ namespace AnimeFeedManager.Features.Users.IO;
 
 public interface IPasswordlessRegistration
 {
-    Task<Either<DomainError, RegisterTokenResponse>> Register((Email Email, UserId UserId) userData,
+    Task<Either<DomainError, RegisterTokenResponse>> Register(UserRegistration userData,
         CancellationToken token);
 }
 
@@ -24,7 +24,7 @@ public class PasswordlessRegistration : IPasswordlessRegistration
         _userStore = userStore;
     }
 
-    public Task<Either<DomainError, RegisterTokenResponse>> Register((Email Email, UserId UserId) userData,
+    public Task<Either<DomainError, RegisterTokenResponse>> Register(UserRegistration userData,
         CancellationToken token)
     {
         return CheckUser(userData, token)
@@ -49,12 +49,13 @@ public class PasswordlessRegistration : IPasswordlessRegistration
         }
     }
 
-    private Task<Either<DomainError, RegisterOptions>> CheckUser((Email Email, UserId UserId) data,
+    private Task<Either<DomainError, RegisterOptions>> CheckUser(UserRegistration data,
         CancellationToken token)
     {
         return _userStore.CheckEmailExits(data.Email, token)
             .MapAsync(_ => new RegisterOptions(data.UserId, data.Email)
             {
+                DisplayName = data.DisplayName,
                 Aliases = [data.Email]
             });
     }

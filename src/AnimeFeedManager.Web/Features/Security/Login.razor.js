@@ -1,7 +1,6 @@
 ﻿function login() {
     return {
         alias: '',
-        valid: true,
         result: {success: true, unauthorized: false, errors: {}},
         async login(event) {
             const Client = Passwordless.Client;

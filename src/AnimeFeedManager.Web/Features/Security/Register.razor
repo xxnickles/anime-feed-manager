@@ -13,7 +13,7 @@
             <form
                 class="card-body"
                 x-data="registerUser()"
-                x-on:submit.prevent="$event.target.checkValidity() ? register(userId) : $event.target.reportValidity()">
+                x-on:submit.prevent="$event.target.checkValidity() ? register() : $event.target.reportValidity()">
                 <fieldset class="form-control">
                     <label for="register-email" class="label">
                         <span class="label-text">Please provide an email</span>
@@ -24,10 +24,24 @@
                         name="alias"
                         required
                         x-model="userId"
-                        x-on:input.debounce="valid = $event.target.validity.valid"
                         x-ref="userId"
                         placeholder="Enter your Email"
-                        class="input input-bordered" :class="valid || 'input-error'"/>
+                        class="input input-bordered invalid:input-error required:!input-bordered"/>
+                </fieldset>
+
+                <fieldset class="form-control">
+                    <label for="register-display" class="label">
+                        <span class="label-text">Please provide an display name</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="register-display"
+                        name="display"
+                        required
+                        x-model="display"
+                        x-ref="display"
+                        placeholder="Enter your Display Name"
+                        class="input input-bordered invalid:input-error required:!input-bordered"/>
                 </fieldset>
                 <div class="form-control">
                     <button class="btn btn-primary mt-4">Register</button>
