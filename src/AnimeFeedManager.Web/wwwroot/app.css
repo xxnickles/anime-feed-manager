@@ -806,40 +806,6 @@ html {
   --tw-backdrop-sepia:  ;
 }
 
-.container {
-  width: 100%;
-}
-
-@media (min-width: 640px) {
-  .container {
-    max-width: 640px;
-  }
-}
-
-@media (min-width: 768px) {
-  .container {
-    max-width: 768px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    max-width: 1024px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .container {
-    max-width: 1280px;
-  }
-}
-
-@media (min-width: 1536px) {
-  .container {
-    max-width: 1536px;
-  }
-}
-
 .alert {
   display: grid;
   width: 100%;
@@ -903,7 +869,38 @@ html {
   color: var(--fallback-bc,oklch(var(--bc)/var(--tw-text-opacity)));
 }
 
+.breadcrumbs {
+  max-width: 100%;
+  overflow-x: auto;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.breadcrumbs > ul,
+  .breadcrumbs > ol {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  min-height: -moz-min-content;
+  min-height: min-content;
+}
+
+.breadcrumbs > ul > li, .breadcrumbs > ol > li {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumbs > ul > li > a, .breadcrumbs > ol > li > a {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+}
+
 @media (hover:hover) {
+  .breadcrumbs > ul > li > a:hover, .breadcrumbs > ol > li > a:hover {
+    text-decoration-line: underline;
+  }
+
   .link-hover:hover {
     text-decoration-line: underline;
   }
@@ -926,12 +923,6 @@ html {
   .table tr.hover:nth-child(even):hover {
     --tw-bg-opacity: 1;
     background-color: var(--fallback-b2,oklch(var(--b2)/var(--tw-bg-opacity)));
-  }
-
-  .table-zebra tr.hover:hover,
-  .table-zebra tr.hover:nth-child(even):hover {
-    --tw-bg-opacity: 1;
-    background-color: var(--fallback-b3,oklch(var(--b3)/var(--tw-bg-opacity)));
   }
 }
 
@@ -1756,6 +1747,36 @@ html {
   line-height: 1.5rem;
 }
 
+.breadcrumbs > ul > li > a:focus, .breadcrumbs > ol > li > a:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.breadcrumbs > ul > li > a:focus-visible, .breadcrumbs > ol > li > a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.breadcrumbs > ul > li + *:before, .breadcrumbs > ol > li + *:before {
+  content: "";
+  margin-left: 0.5rem;
+  margin-right: 0.75rem;
+  display: block;
+  height: 0.375rem;
+  width: 0.375rem;
+  --tw-rotate: 45deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  opacity: 0.4;
+  border-top: 1px solid;
+  border-right: 1px solid;
+  background-color: transparent;
+}
+
+[dir="rtl"] .breadcrumbs > ul > li + *:before,
+[dir="rtl"] .breadcrumbs > ol > li + *:before {
+  --tw-rotate: -135deg;
+}
+
 .btn:active:hover,
   .btn:active:focus {
   animation: button-pop 0s ease-out;
@@ -2528,6 +2549,15 @@ html {
   padding: 0px;
 }
 
+.menu-horizontal {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.menu-horizontal > li:not(.menu-title) > details > ul {
+  position: absolute;
+}
+
 :where(.toast) {
   bottom: 0px;
   inset-inline-end: 0px;
@@ -2625,6 +2655,27 @@ html {
 
 .card-normal .card-title {
   margin-bottom: 0.75rem;
+}
+
+.menu-horizontal > li:not(.menu-title) > details > ul {
+  margin-inline-start: 0px;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-inline-end: 0.5rem;
+}
+
+.menu-horizontal > li > details > ul:before {
+  content: none;
+}
+
+:where(.menu-horizontal > li:not(.menu-title) > details > ul) {
+  border-radius: var(--rounded-box, 1rem);
+  --tw-bg-opacity: 1;
+  background-color: var(--fallback-b1,oklch(var(--b1)/var(--tw-bg-opacity)));
+  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
 .menu-sm :where(li:not(.menu-title) > *:not(ul):not(details):not(.menu-title)),
@@ -2851,6 +2902,14 @@ html {
 
 .mt-8 {
   margin-top: 2rem;
+}
+
+.ml-4 {
+  margin-left: 1rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
 }
 
 .flex {
@@ -3121,6 +3180,11 @@ html {
   padding-bottom: 1.5rem;
 }
 
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
 .pb-5 {
   padding-bottom: 1.25rem;
 }
@@ -3289,32 +3353,6 @@ html {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
   }
-
-  .sm\:table-lg :not(thead):not(tfoot) tr {
-    font-size: 1rem;
-    line-height: 1.5rem;
-  }
-
-  .sm\:table-lg :where(th, td) {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
-  @media not all and (min-width: 1024px) {
-    .sm\:max-lg\:table-md :not(thead):not(tfoot) tr {
-      font-size: 0.875rem;
-      line-height: 1.25rem;
-    }
-
-    .sm\:max-lg\:table-md :where(th, td) {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      padding-top: 0.75rem;
-      padding-bottom: 0.75rem;
-    }
-  }
 }
 
 @media (min-width: 768px) {
@@ -3352,18 +3390,6 @@ html {
     }
   }
 
-  .md\:table-md :not(thead):not(tfoot) tr {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
-
-  .md\:table-md :where(th, td) {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-  }
-
   .md\:table-lg :not(thead):not(tfoot) tr {
     font-size: 1rem;
     line-height: 1.5rem;
@@ -3378,16 +3404,13 @@ html {
 }
 
 @media (min-width: 1024px) {
-  .lg\:table-lg :not(thead):not(tfoot) tr {
-    font-size: 1rem;
-    line-height: 1.5rem;
+  .lg\:navbar-start {
+    width: 50%;
+    justify-content: flex-start;
   }
 
-  .lg\:table-lg :where(th, td) {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+  .lg\:navbar-center {
+    flex-shrink: 0;
   }
 }
 
@@ -3406,6 +3429,18 @@ html {
 
   .md\:mt-6 {
     margin-top: 1.5rem;
+  }
+
+  .md\:ml-10 {
+    margin-left: 2.5rem;
+  }
+
+  .md\:flex {
+    display: flex;
+  }
+
+  .md\:hidden {
+    display: none;
   }
 
   .md\:h-8 {
@@ -3459,6 +3494,18 @@ html {
 @media (min-width: 1024px) {
   .lg\:col-span-4 {
     grid-column: span 4 / span 4;
+  }
+
+  .lg\:flex {
+    display: flex;
+  }
+
+  .lg\:hidden {
+    display: none;
+  }
+
+  .lg\:flex-1 {
+    flex: 1 1 0%;
   }
 
   .lg\:flex-row-reverse {

@@ -13,6 +13,7 @@
                 const {token, error} = await p.signinWithAlias(this.alias);
 
                 if (error) {
+
                     if (error.status && error.status === 401 || error.status === 403) {
                         this.result = {
                             errors: error,
@@ -30,12 +31,22 @@
                         }
                         return;
                     }
+
+                    if (error.errorCode && error.errorCode === 'unknown') {
+                        this.result = {
+                            errors: {
+                                "client": "Authentication flow was not completed. Please try again"
+                            },
+                            unauthorized: false,
+                            success: false
+                        }
+                        return;
+                    }
                 }
 
 
                 // Call your backend to verify the token.
                 const verifiedUser = await fetch('/verify-signin?token=' + token).then((r) => r.json());
-                console.log('verified user', verifiedUser)
                 if (verifiedUser.success === true) {
                     document.getElementById('id-value').value = verifiedUser.userId;
                     event.target.submit();

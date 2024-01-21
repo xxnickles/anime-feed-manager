@@ -1,18 +1,13 @@
 ﻿@using AnimeFeedManager.Features.Users.Types
 <div class="navbar bg-base-100">
-    <div class="navbar-start">
-        <nav class="dropdown">
+    <div class="navbar-start lg:hidden">
+        <nav class="dropdown ">
             <label tabindex="0" class="btn btn-ghost btn-circle">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
                 </svg>
             </label>
             <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                <li>
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                        Home
-                    </NavLink>
-                </li>
                 <li>
                     <NavLink class="nav-link" href="seasons" Match="NavLinkMatch.All">
                         Seasons
@@ -49,10 +44,47 @@
             </ul>
         </nav>
     </div>
-    <div class="navbar-center">
-        <a class="btn btn-ghost normal-case text-xl">Anime Feed Manager</a>
+    <div class="navbar-end lg:navbar-start">
+        <a href="/" class="btn btn-ghost normal-case text-xl">Anime Feed Manager</a>
+        <ul class="menu menu-horizontal px-1 hidden lg:flex">
+
+            <li>
+                <NavLink class="nav-link" href="seasons" Match="NavLinkMatch.All">
+                    Seasons
+                </NavLink>
+            </li>
+            <AuthorizeView Roles="@RoleNames.Admin">
+                <li>
+                    <NavLink class="nav-link" href="admin">
+                        Admin
+                    </NavLink>
+                </li>
+            </AuthorizeView>
+            <AuthorizeView>
+                <NotAuthorized>
+                    <li>
+                        <NavLink class="nav-link" href="login">
+                            Login
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink class="nav-link" href="register">
+                            Register
+                        </NavLink>
+                    </li>
+                </NotAuthorized>
+                <Authorized>
+                    <li>
+                        <NavLink class="nav-link" href="logout">
+                            Logout
+                        </NavLink>
+                    </li>
+                </Authorized>
+            </AuthorizeView>
+        </ul>
     </div>
-    <div class="navbar-end">
+
+    <div class="navbar-end lg:hidden">
         @* <ThemeSelector></ThemeSelector> *@
     </div>
 </div>
