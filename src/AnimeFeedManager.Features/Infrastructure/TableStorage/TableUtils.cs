@@ -125,6 +125,31 @@ internal static class TableUtils
         }
     }
 
+    /// <summary>
+    /// Run a request, but it doesn't fail in case of the given entity/item is not found in the storage
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="fallbackValue"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    internal static async Task<Either<DomainError, T>> ExecuteWithFallback<T>(Func<Task<T>> action, T fallbackValue)
+    {
+        try
+        {
+            return await action();
+        }
+        catch (RequestFailedException)
+        {
+            return fallbackValue;
+        }
+        catch (Exception e)
+        {
+            return e.Message == "Not Found"
+                ? fallbackValue
+                : ExceptionError.FromException(e);
+        }
+    }
+
     internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action)
     {
         try

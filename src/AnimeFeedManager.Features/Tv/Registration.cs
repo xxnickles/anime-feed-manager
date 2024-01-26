@@ -31,6 +31,8 @@ public static class TvRegistration
         services.TryAddScoped<IGetTvSubscriptions, GetTvSubscriptions>();
         services.TryAddScoped<IGetProcessedTitles, GetProcessedTitles>();
         services.TryAddScoped<IRemoveTvSubscription, RemoveTvSubscription>();
+        services.TryAddScoped<IRemoveAllTvSubscriptions, RemoveAllTvSubscriptions>();
+        services.TryAddScoped<IRemoveAllInterested, RemoveAllInterested>();
         services.TryAddScoped<TvLibraryGetter>();
         services.TryAddScoped<InterestedToSubscribe>();
         services.TryAddScoped<AutomatedSubscriptionProcessor>();
@@ -38,7 +40,7 @@ public static class TvRegistration
 
         return services;
     }
-    
+
     public static IServiceCollection RegisterTvScrappingServices(this IServiceCollection services)
     {
         services.TryAddSingleton<IFeedProvider, FeedProvider>();
