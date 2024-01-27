@@ -14,7 +14,10 @@ public static class UsersRegistration
         services.TryAddScoped<IUserDelete, UserDelete>();
         services.TryAddScoped<IPasswordlessRegistration, PasswordlessRegistration>();
         services.TryAddScoped<IPasswordlessLogin, PasswordlessLogin>();
+        services.TryAddScoped<IUserVerification, UserVerification>();
         services.TryAddScoped<CleanAllSubscriptions>();
+        services.TryAddScoped<CopyAllSubscriptions>();
+        services.TryAddScoped<SubscriptionCopierSetter>();
 
         return services;
     }

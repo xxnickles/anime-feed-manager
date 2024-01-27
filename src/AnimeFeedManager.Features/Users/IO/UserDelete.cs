@@ -64,6 +64,6 @@ public class UserDelete : IUserDelete
 
     private Task<Either<DomainError, Unit>> SendEvents(UserId userId, CancellationToken token)
     {
-        return _domainPostman.SendMessage(new RemoveSubscriptionsRequest(userId), Box.SubscriptionRemoval, token);
+        return _domainPostman.SendMessage(new RemoveSubscriptionsRequest(userId), Box.SubscriptionsRemoval, token);
     }
 }

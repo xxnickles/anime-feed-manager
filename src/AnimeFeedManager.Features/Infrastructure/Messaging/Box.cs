@@ -15,7 +15,8 @@ public readonly struct Box
         public const string TvNotificationsBox = "tv-notifications";
         public const string SeasonTitlesProcessBox = "season-titles-process";
         public const string LatestSeasonsBox = "latest-seasons-process";
-        public const string SubscriptionRemovalBox = "subscription-removal";
+        public const string SubscriptionsRemovalBox = "subscriptions-removal";
+        public const string SubscriptionsCopyBox = "subscriptions-copy";
     }
 
     private readonly string _boxValue;
@@ -43,5 +44,6 @@ public readonly struct Box
     public static Box TvNotifications => new(Available.TvNotificationsBox);
     public static Box SeasonTitlesProcess => new(Available.SeasonTitlesProcessBox);
     public static Box LatestSeason => new(Available.LatestSeasonsBox);
-    public static Box SubscriptionRemoval => new(Available.SubscriptionRemovalBox);
+    public static Box SubscriptionsRemoval => new(Available.SubscriptionsRemovalBox);
+    public static Box SubscriptionsCopy => new(Available.SubscriptionsCopyBox);
 }

@@ -3,6 +3,7 @@ using AnimeFeedManager.Features.Movies.Library.IO;
 using AnimeFeedManager.Features.Movies.Scrapping;
 using AnimeFeedManager.Features.Movies.Scrapping.IO;
 using AnimeFeedManager.Features.Movies.Subscriptions.IO;
+using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 
 namespace AnimeFeedManager.Features.Movies;
 
@@ -15,6 +16,7 @@ public static class MoviesRegistration
         services.TryAddScoped<IAddMovieSubscription, AddMovieSubscription>();
         services.TryAddScoped<IRemoveMovieSubscription, RemoveMovieSubscription>();
         services.TryAddScoped<IRemoveAllMoviesSubscriptions, RemoveAllMoviesSubscriptions>();
+        services.TryAddScoped<ICopyMoviesSubscriptions, CopyMoviesSubscriptions>();
         services.TryAddScoped<IGetMovieSubscriptions, GetMovieSubscriptions>();
         services.TryAddScoped<MoviesLibraryGetter>();
         return services;

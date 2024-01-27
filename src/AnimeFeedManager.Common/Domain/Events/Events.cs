@@ -13,3 +13,5 @@ public record UpdateSeasonTitlesRequest(ImmutableList<string> Titles);
 public record UpdateLatestSeasonsRequest(bool Update = true);
 
 public record RemoveSubscriptionsRequest(string userId);
+
+public record CopySubscriptionRequest(string sourceId, string targetId);

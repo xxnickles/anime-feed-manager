@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Users;
 
-public class UserExist(IUserGetter userGetter, ILoggerFactory loggerFactory)
+public class UserExist(IUserVerification userGetter, ILoggerFactory loggerFactory)
 {
     private readonly ILogger<UserExist> _logger = loggerFactory.CreateLogger<UserExist>();
 

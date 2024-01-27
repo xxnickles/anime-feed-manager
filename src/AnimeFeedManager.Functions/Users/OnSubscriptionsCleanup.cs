@@ -21,18 +21,18 @@ public sealed class OnSubscriptionsCleanup
 
     [Function("OnSubscriptionsCleanup")]
     public async Task Run(
-        [QueueTrigger(Box.Available.SubscriptionRemovalBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(Box.Available.SubscriptionsRemovalBox, Connection = "AzureWebJobsStorage")]
         RemoveSubscriptionsRequest notification)
     {
         var result = await UserIdValidator.Validate(notification.userId)
             .ValidationToEither()
             .BindAsync(userId => _subscriptionsCleaner.CleanAll(userId, default));
 
-        result.Match(results => LogResults(results, _logger),
+        result.Match(LogResults,
             error => error.LogError(_logger));
     }
 
-    private void LogResults(ImmutableList<ProcessResult> results, ILogger logger)
+    private void LogResults(ImmutableList<ProcessResult> results)
     {
         foreach (var result in results)
         {

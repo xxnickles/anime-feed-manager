@@ -33,6 +33,8 @@ public static class TvRegistration
         services.TryAddScoped<IRemoveTvSubscription, RemoveTvSubscription>();
         services.TryAddScoped<IRemoveAllTvSubscriptions, RemoveAllTvSubscriptions>();
         services.TryAddScoped<IRemoveAllInterested, RemoveAllInterested>();
+        services.TryAddScoped<ICopyTvSubscriptions, CopyTvSubscriptions>();
+        services.TryAddScoped<ICopyInterested, CopyInterested>();
         services.TryAddScoped<TvLibraryGetter>();
         services.TryAddScoped<InterestedToSubscribe>();
         services.TryAddScoped<AutomatedSubscriptionProcessor>();
