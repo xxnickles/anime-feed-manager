@@ -3,7 +3,7 @@ name: AMF Azure Static App
 on:
   push:
     paths:
-      - "src/AnimeFeedManager.WebApp**"
+      - "src/AnimeFeedManager.Web**"
       - "src/AnimeFeedManager.Features.Common/**"
       - "!deployment/**"
       - "!**/*.md"
@@ -11,7 +11,7 @@ on:
       - main
   pull_request:
     paths:
-      - "src/AnimeFeedManager.WebApp**"
+      - "src/AnimeFeedManager.Web**"
       - "src/AnimeFeedManager.Features.Common/**"
       - "!deployment/**"
       - "!**/*.md"
@@ -20,7 +20,7 @@ on:
       - main
 env:
   TEST_PROJECT_PATH: "./src/AnimeFeedManager.WebApp.Tests"
-  DOTNET_VERSION: "7.0.x" # set this to the dotnet version to use
+  DOTNET_VERSION: "8.0.x" # set this to the dotnet version to use
 
 jobs:
   build_and_deploy_job:
