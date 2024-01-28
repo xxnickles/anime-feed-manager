@@ -2,7 +2,10 @@
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Dto;
+using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Users;
+using AnimeFeedManager.Features.Users.IO;
 using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
 using AnimeFeedManager.Web.Features.Security;
@@ -117,6 +120,27 @@ public static class Endpoints
                         .ToComponentResult(renderer, logger,
                             "Latest Titles will be processed in the background"))
             .RequireAuthorization(Policies.AdminRequired);
+
+        app.MapPut("admin/user/copy",
+            ([FromForm] CopyUserPayload payload,
+                [FromServices] BlazorRenderer renderer,
+                [FromServices] SubscriptionCopierSetter subscriptionsCopier,
+                [FromServices] ILogger<Admin> logger,
+                CancellationToken token) => payload.Parse()
+                .BindAsync(data => subscriptionsCopier.StartCopyProcess(data.Source, data.Target, token))
+                .ToComponentResult(renderer, logger, "Copy of subscription will be processed in the background")
+        ).RequireAuthorization(Policies.AdminRequired);
+
+        app.MapPut("admin/user/delete",
+            ([FromForm] string source,
+                [FromServices] BlazorRenderer renderer,
+                [FromServices] IUserDelete userDeleter,
+                [FromServices] ILogger<Admin> logger,
+                CancellationToken token) => UserIdValidator.Validate(source)
+                .ValidationToEither()
+                .BindAsync(userId => userDeleter.Delete(userId, token))
+                .ToComponentResult(renderer, logger, "User has been deleted from the system. Subscriptions will be processed in the background")
+        ).RequireAuthorization(Policies.AdminRequired);
 
         app.MapPut("/admin/noop", async (BlazorRenderer renderer) =>
         {

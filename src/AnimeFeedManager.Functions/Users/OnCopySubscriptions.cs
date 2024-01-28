@@ -24,8 +24,8 @@ public sealed class OnCopySubscriptions
         [QueueTrigger(Box.Available.SubscriptionsCopyBox, Connection = "AzureWebJobsStorage")]
         CopySubscriptionRequest notification)
     {
-        
-        _logger.LogInformation("Trying to copy subscriptions from {Source} to {Target}", notification.sourceId, notification.targetId);
+        _logger.LogInformation("Trying to copy subscriptions from {Source} to {Target}", notification.sourceId,
+            notification.targetId);
         var result =
             await (UserIdValidator.Validate(notification.sourceId), UserIdValidator.Validate(notification.targetId))
                 .Apply((source, target) => (source, target))
@@ -40,8 +40,8 @@ public sealed class OnCopySubscriptions
     {
         foreach (var result in results)
         {
-            _logger.LogError("[{Type}]: {Count} entries have been copied", result.Completed.ToString(),
-                result.Scope.ToString());
+            _logger.LogInformation("[{Type}]: {Count} entries have been copied", result.Scope.ToString(),
+                result.Completed.ToString());
         }
     }
 }

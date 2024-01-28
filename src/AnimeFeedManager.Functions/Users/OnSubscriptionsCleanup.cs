@@ -36,8 +36,9 @@ public sealed class OnSubscriptionsCleanup
     {
         foreach (var result in results)
         {
-            _logger.LogError("[{Type}]: {Count} entries have been removed", result.Completed.ToString(),
-                result.Scope.ToString());
+            _logger.LogInformation("[{Type}]: {Count} entries have been removed", result.Scope.ToString(),
+                result.Completed.ToString()
+            );
         }
     }
 }

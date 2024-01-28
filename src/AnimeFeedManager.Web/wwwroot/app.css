@@ -1228,6 +1228,18 @@ html {
     }
   }
 
+  .btn-outline.btn-error:hover {
+    --tw-text-opacity: 1;
+    color: var(--fallback-erc,oklch(var(--erc)/var(--tw-text-opacity)));
+  }
+
+  @supports (color: color-mix(in oklab, black, black)) {
+    .btn-outline.btn-error:hover {
+      background-color: color-mix(in oklab, var(--fallback-er,oklch(var(--er)/1)) 90%, black);
+      border-color: color-mix(in oklab, var(--fallback-er,oklch(var(--er)/1)) 90%, black);
+    }
+  }
+
   .btn-disabled:hover,
     .btn[disabled]:hover,
     .btn:disabled:hover {
@@ -1792,6 +1804,10 @@ html {
   .btn-secondary {
     --btn-color: var(--fallback-s);
   }
+
+  .btn-error {
+    --btn-color: var(--fallback-er);
+  }
 }
 
 @supports (color: color-mix(in oklab, black, black)) {
@@ -1803,6 +1819,11 @@ html {
   .btn-outline.btn-secondary.btn-active {
     background-color: color-mix(in oklab, var(--fallback-s,oklch(var(--s)/1)) 90%, black);
     border-color: color-mix(in oklab, var(--fallback-s,oklch(var(--s)/1)) 90%, black);
+  }
+
+  .btn-outline.btn-error.btn-active {
+    background-color: color-mix(in oklab, var(--fallback-er,oklch(var(--er)/1)) 90%, black);
+    border-color: color-mix(in oklab, var(--fallback-er,oklch(var(--er)/1)) 90%, black);
   }
 }
 
@@ -1826,12 +1847,22 @@ html {
   .btn-secondary {
     --btn-color: var(--s);
   }
+
+  .btn-error {
+    --btn-color: var(--er);
+  }
 }
 
 .btn-secondary {
   --tw-text-opacity: 1;
   color: var(--fallback-sc,oklch(var(--sc)/var(--tw-text-opacity)));
   outline-color: var(--fallback-s,oklch(var(--s)/1));
+}
+
+.btn-error {
+  --tw-text-opacity: 1;
+  color: var(--fallback-erc,oklch(var(--erc)/var(--tw-text-opacity)));
+  outline-color: var(--fallback-er,oklch(var(--er)/1));
 }
 
 .btn.glass {
@@ -1880,6 +1911,16 @@ html {
 .btn-outline.btn-secondary.btn-active {
   --tw-text-opacity: 1;
   color: var(--fallback-sc,oklch(var(--sc)/var(--tw-text-opacity)));
+}
+
+.btn-outline.btn-error {
+  --tw-text-opacity: 1;
+  color: var(--fallback-er,oklch(var(--er)/var(--tw-text-opacity)));
+}
+
+.btn-outline.btn-error.btn-active {
+  --tw-text-opacity: 1;
+  color: var(--fallback-erc,oklch(var(--erc)/var(--tw-text-opacity)));
 }
 
 .btn.btn-disabled,
@@ -2065,18 +2106,6 @@ html {
   outline-width: 2px;
   outline-offset: 2px;
   outline-color: var(--fallback-bc,oklch(var(--bc)/0.2));
-}
-
-.input-error {
-  --tw-border-opacity: 1;
-  border-color: var(--fallback-er,oklch(var(--er)/var(--tw-border-opacity)));
-}
-
-.input-error:focus,
-    .input-error:focus-within {
-  --tw-border-opacity: 1;
-  border-color: var(--fallback-er,oklch(var(--er)/var(--tw-border-opacity)));
-  outline-color: var(--fallback-er,oklch(var(--er)/1));
 }
 
 .input-disabled,
@@ -3311,147 +3340,8 @@ html {
   content: "An error has occurred."
 }
 
-.required\:\!input:required {
-  flex-shrink: 1 !important;
-  -webkit-appearance: none !important;
-     -moz-appearance: none !important;
-          appearance: none !important;
-  height: 3rem !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-  font-size: 1rem !important;
-  line-height: 2 !important;
-  line-height: 1.5rem !important;
-  border-radius: var(--rounded-btn, 0.5rem) !important;
-  border-width: 1px !important;
-  border-color: transparent !important;
-  --tw-bg-opacity: 1 !important;
-  background-color: var(--fallback-b1,oklch(var(--b1)/var(--tw-bg-opacity))) !important;
-}
-
-.required\:\!input:required input:focus {
-  outline: 2px solid transparent !important;
-  outline-offset: 2px !important;
-}
-
-.required\:\!input:required[list]::-webkit-calendar-picker-indicator {
-  line-height: 1em !important;
-}
-
 .required\:\!input-bordered:required {
   border-color: var(--fallback-bc,oklch(var(--bc)/0.2)) !important;
-}
-
-.required\:\!input:required:focus,.required\:\!input:required:focus-within {
-  box-shadow: none !important;
-  border-color: var(--fallback-bc,oklch(var(--bc)/0.2)) !important;
-  outline-style: solid !important;
-  outline-width: 2px !important;
-  outline-offset: 2px !important;
-  outline-color: var(--fallback-bc,oklch(var(--bc)/0.2)) !important;
-}
-
-.required\:input-info:required {
-  --tw-border-opacity: 1;
-  border-color: var(--fallback-in,oklch(var(--in)/var(--tw-border-opacity)));
-}
-
-.required\:\!input-info:required {
-  --tw-border-opacity: 1 !important;
-  border-color: var(--fallback-in,oklch(var(--in)/var(--tw-border-opacity))) !important;
-}
-
-.required\:input-info:required:focus,.required\:input-info:required:focus-within {
-  --tw-border-opacity: 1;
-  border-color: var(--fallback-in,oklch(var(--in)/var(--tw-border-opacity)));
-  outline-color: var(--fallback-in,oklch(var(--in)/1));
-}
-
-.required\:\!input-info:required:focus,.required\:\!input-info:required:focus-within {
-  --tw-border-opacity: 1 !important;
-  border-color: var(--fallback-in,oklch(var(--in)/var(--tw-border-opacity))) !important;
-  outline-color: var(--fallback-in,oklch(var(--in)/1)) !important;
-}
-
-.required\:input-info:required:focus,.required\:input-info:required:focus-within {
-  --tw-border-opacity: 1;
-  border-color: var(--fallback-in,oklch(var(--in)/var(--tw-border-opacity)));
-  outline-color: var(--fallback-in,oklch(var(--in)/1));
-}
-
-.required\:\!input-info:required:focus,.required\:\!input-info:required:focus-within {
-  --tw-border-opacity: 1 !important;
-  border-color: var(--fallback-in,oklch(var(--in)/var(--tw-border-opacity))) !important;
-  outline-color: var(--fallback-in,oklch(var(--in)/1)) !important;
-}
-
-.required\:\!input:required:disabled,.required\:\!input:required[disabled] {
-  cursor: not-allowed !important;
-  --tw-border-opacity: 1 !important;
-  border-color: var(--fallback-b2,oklch(var(--b2)/var(--tw-border-opacity))) !important;
-  --tw-bg-opacity: 1 !important;
-  background-color: var(--fallback-b2,oklch(var(--b2)/var(--tw-bg-opacity))) !important;
-  color: var(--fallback-bc,oklch(var(--bc)/0.4)) !important;
-}
-
-.required\:\!input:required:disabled::-moz-placeholder, .required\:\!input:required[disabled]::-moz-placeholder {
-  color: var(--fallback-bc,oklch(var(--bc)/var(--tw-placeholder-opacity))) !important;
-  --tw-placeholder-opacity: 0.2 !important;
-}
-
-.required\:\!input:required:disabled::placeholder,.required\:\!input:required[disabled]::placeholder {
-  color: var(--fallback-bc,oklch(var(--bc)/var(--tw-placeholder-opacity))) !important;
-  --tw-placeholder-opacity: 0.2 !important;
-}
-
-.required\:\!input:required::-webkit-date-and-time-value {
-  text-align: inherit !important;
-}
-
-.mockup-browser .mockup-browser-toolbar .required\:\!input:required {
-  position: relative !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  display: block !important;
-  height: 1.75rem !important;
-  width: 24rem !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  --tw-bg-opacity: 1 !important;
-  background-color: var(--fallback-b2,oklch(var(--b2)/var(--tw-bg-opacity))) !important;
-  padding-left: 2rem !important;
-  direction: ltr !important;
-}
-
-.mockup-browser .mockup-browser-toolbar .required\:\!input:required:before {
-  content: "" !important;
-  position: absolute !important;
-  left: 0.5rem !important;
-  top: 50% !important;
-  aspect-ratio: 1 / 1 !important;
-  height: 0.75rem !important;
-  --tw-translate-y: -50% !important;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)) !important;
-  border-radius: 9999px !important;
-  border-width: 2px !important;
-  border-color: currentColor !important;
-  opacity: 0.6 !important;
-}
-
-.mockup-browser .mockup-browser-toolbar .required\:\!input:required:after {
-  content: "" !important;
-  position: absolute !important;
-  left: 1.25rem !important;
-  top: 50% !important;
-  height: 0.5rem !important;
-  --tw-translate-y: 25% !important;
-  --tw-rotate: -45deg !important;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)) !important;
-  border-radius: 9999px !important;
-  border-width: 1px !important;
-  border-color: currentColor !important;
-  opacity: 0.6 !important;
 }
 
 .invalid\:input-error:invalid {

@@ -41,7 +41,7 @@ internal static class Extensions
         return messageComponent.Combine(additionalComponents);
     }
 
-    private static Task<RenderedComponent> RenderOk(BlazorRenderer renderer, string message)
+    internal static Task<RenderedComponent> RenderOk(BlazorRenderer renderer, string message)
     {
         var parameters = new Dictionary<string, object?>
         {
@@ -51,7 +51,7 @@ internal static class Extensions
         return renderer.RenderComponent<OkResult>(parameters);
     }
 
-    private static Task<RenderedComponent> RenderError(BlazorRenderer renderer, ILogger logger, DomainError error)
+    internal static Task<RenderedComponent> RenderError(BlazorRenderer renderer, ILogger logger, DomainError error)
     {
         error.LogError(logger);
 

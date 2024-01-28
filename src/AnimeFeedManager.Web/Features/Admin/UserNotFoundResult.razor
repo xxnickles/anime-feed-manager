@@ -1,0 +1,18 @@
+﻿@using AnimeFeedManager.Features.Users.Types
+@using System.Collections.Immutable
+<div hx-swap-oob="afterbegin:#toast-panel">
+    <div role="alert" class="alert alert-error" x-data="{ open: true }" x-show="open" x-transition.duration.500ms>
+        <p class="text-sm whitespace-normal">
+            Following users are not registered in the system: @string.Join(", ", Condition.NotFoundUsers)
+        </p>
+        <button type="button" class="btn btn-circle btn-ghost btn-xs" x-on:click="open = false">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>`
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public SomeNotFound Condition { get; set; } = new(ImmutableList<string>.Empty);
+}

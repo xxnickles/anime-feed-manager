@@ -36,16 +36,22 @@ public class UserVerification : IUserVerification
             .BindAsync(client =>
                 TableUtils.ExecuteQueryWithNotFound(() =>
                     client.QueryAsync<UserStorage>(
-                        u => u.PartitionKey == Constants.UserPartitionKey && usersString.Contains(u.RowKey),
+                        GetUserFilter(usersString),
                         cancellationToken: token)))
             .MapAsync(matches => ExtractResults(matches, usersString));
     }
 
-    private UsersCheck ExtractResults(ImmutableList<UserStorage> matches, IEnumerable<string> targets)
+    private static UsersCheck ExtractResults(ImmutableList<UserStorage> matches, IEnumerable<string> targets)
     {
         if (matches.Count == targets.Count()) return new AllMatched();
 
         // At this  point we guarantee there is at least a match
-        return new SomeNotFound(targets.Except(matches.Select(m => m.PartitionKey)).ToImmutableList());
+        return new SomeNotFound(targets.Except(matches.Select(m => m.RowKey)).ToImmutableList());
+    }
+
+    private static string GetUserFilter(IEnumerable<string> users)
+    {
+        return users.Aggregate(TableClient.CreateQueryFilter($"PartitionKey eq {Constants.UserPartitionKey}"),
+            (current, user) => current + TableClient.CreateQueryFilter($" or RowKey eq {user}"));
     }
 }
