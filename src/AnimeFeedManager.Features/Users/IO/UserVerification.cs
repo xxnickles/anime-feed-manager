@@ -44,9 +44,9 @@ public class UserVerification : IUserVerification
     private static UsersCheck ExtractResults(ImmutableList<UserStorage> matches, IEnumerable<string> targets)
     {
         if (matches.Count == targets.Count()) return new AllMatched();
-
+       
         // At this  point we guarantee there is at least a match
-        return new SomeNotFound(targets.Except(matches.Select(m => m.RowKey)).ToImmutableList());
+        return new SomeNotFound(targets.Except(matches.Select(m => m.RowKey ?? string.Empty)).ToImmutableList());
     }
 
     private static string GetUserFilter(IEnumerable<string> users)
