@@ -72,7 +72,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource hostingPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
+resource hostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: hostingPlanName
   location: location
   kind: 'functionapp,linux'
@@ -95,7 +95,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
+resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
   name: functionAppName
   location: location
   kind: 'functionapp'
@@ -155,7 +155,7 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
           value: 'America/New_York'
         }
       ]
-      linuxFxVersion: 'DOTNET-ISOLATED|7.0'
+      linuxFxVersion: 'DOTNET-ISOLATED|8.0'
       use32BitWorkerProcess: false
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'
