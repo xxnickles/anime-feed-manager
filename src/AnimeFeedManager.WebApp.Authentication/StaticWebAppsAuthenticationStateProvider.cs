@@ -13,7 +13,7 @@ namespace AnimeFeedManager.WebApp.Authentication;
 public class StaticWebAppsAuthenticationStateProvider(IConfiguration config, IWebAssemblyHostEnvironment environment)
     : AuthenticationStateProvider
 {
-    readonly HttpClient _http = new() { BaseAddress = new Uri(environment.BaseAddress) };
+    private readonly HttpClient _http = new() { BaseAddress = new Uri(environment.BaseAddress) };
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {

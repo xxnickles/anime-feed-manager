@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using AnimeFeedManager.Common.Domain.Errors;
+using Azure.Identity;
 using Azure.Storage.Queues;
-using Microsoft.Extensions.Options;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
@@ -30,28 +30,21 @@ public interface IDomainPostman
         CancellationToken cancellationToken = default);
 }
 
-public class AzureQueueMessages : IDomainPostman, IDisposable
+public class AzureQueueMessages : IDomainPostman
 {
-    private AzureBlobStorageOptions _blobStorageOptions;
+    private AzureStorageSettings _azureSettings;
     private readonly JsonSerializerOptions _jsonOptions;
-    private readonly QueueClientOptions _queueClientOptions;   
-    private readonly IDisposable? _optionsReference;
+    private readonly QueueClientOptions _queueClientOptions;
 
-    public AzureQueueMessages(
-        IOptionsMonitor<AzureBlobStorageOptions> blobStorageOptions)
+    public AzureQueueMessages(AzureStorageSettings tableStorageSettings)
     {
-        _blobStorageOptions = blobStorageOptions.CurrentValue;
+        _azureSettings = tableStorageSettings;
         _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
-            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
         _queueClientOptions = new QueueClientOptions
         {
             MessageEncoding = QueueMessageEncoding.Base64
         };
-        _optionsReference = blobStorageOptions.OnChange(options =>
-        {
-            _blobStorageOptions = options;
-        });
-
     }
 
     public async Task<Either<DomainError, Unit>> SendMessage<T>(T message, Box destiny,
@@ -85,19 +78,28 @@ public class AzureQueueMessages : IDomainPostman, IDisposable
     private async Task SendMessage<T>(T message, string destiny, TimeSpan? delay = default,
         CancellationToken cancellationToken = default)
     {
-        var queue = new QueueClient(_blobStorageOptions?.StorageConnectionString ?? string.Empty, destiny,
-            _queueClientOptions);
+        var queue = GetClient(destiny);
         await queue.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         await queue.SendMessageAsync(AsBinary(message), cancellationToken: cancellationToken, visibilityTimeout: delay);
+    }
+
+    private QueueClient GetClient(string destiny)
+    {
+        return _azureSettings switch
+        {
+            ConnectionStringSettings connectionStringOptions => new QueueClient(
+                connectionStringOptions.StorageConnectionString, destiny,
+                _queueClientOptions),
+            TokenCredentialSettings tokenCredentialOptions => new QueueClient(
+                tokenCredentialOptions.QueueUri, new DefaultAzureCredential(), _queueClientOptions),
+            _ => throw new ArgumentException(
+                "Provided Table Storage configuration is not valid. Make sure Configurations for Azure table Storage is correct for either connection string or managed identities",
+                nameof(TableClientOptions))
+        };
     }
 
     private BinaryData AsBinary<T>(T data)
     {
         return BinaryData.FromObjectAsJson(data, _jsonOptions);
-    }
-
-    public void Dispose()
-    {
-        _optionsReference?.Dispose();
     }
 }

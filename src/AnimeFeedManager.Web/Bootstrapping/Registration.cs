@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Images;
+﻿using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Features.Images;
 using AnimeFeedManager.Features.Infrastructure;
 using AnimeFeedManager.Features.Maintenance;
 using AnimeFeedManager.Features.Migration;
@@ -9,18 +10,63 @@ using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.State;
 using AnimeFeedManager.Features.Tv;
 using AnimeFeedManager.Features.Users;
+using AnimeFeedManager.Web.Features.Security;
+using Azure.Identity;
 using MediatR.NotificationPublishers;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
+using Passwordless.Net;
 
 namespace AnimeFeedManager.Web.Bootstrapping;
 
 internal static class Registration
 {
-    internal static IServiceCollection RegisterAppDependencies(this IServiceCollection services, IConfigurationManager configuration)
+    internal static void TryAddVault(this IConfigurationManager configuration)
+    {
+        if (Uri.TryCreate(configuration["VaultUri"], UriKind.Absolute, out var vaultUri))
+        {
+            configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
+        }
+    }
+
+    internal static IServiceCollection RegisterSecurityServices(this IServiceCollection services,
+        IConfigurationManager configuration)
+    {
+        services.AddCascadingAuthenticationState();
+        services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+        services.AddAuthorization();
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/login";
+                options.LogoutPath = "/logout";
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                options.Cookie.MaxAge = options.ExpireTimeSpan;
+                options.SlidingExpiration = true;
+            });
+
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy(Policies.AdminRequired, policy => policy.RequireRole(RoleNames.Admin));
+
+        // bind section Passwordless to the object PassworlessOptions
+        services.Configure<PasswordlessOptions>(configuration.GetSection("Passwordless"));
+        // Add Passworless
+        services.AddPasswordlessSdk(options => { configuration.GetRequiredSection("Passwordless").Bind(options); });
+
+        services.AddScoped<IUserProvider, UserProvider>();
+
+        return services;
+    }
+
+    internal static IServiceCollection RegisterAppDependencies(this IServiceCollection services,
+        IConfigurationManager configuration)
     {
         // MediatR
         services.RegisterMediatR();
         // Storage
-        services.RegisterStorage(configuration.GetConnectionString("AzureStorage") ?? string.Empty);
+        services.RegisterStorage(configuration);
         // App
         services.RegisterSeasonsServices();
         services.RegisterImageServices();
@@ -47,5 +93,4 @@ internal static class Registration
 
         return services;
     }
-    
 }

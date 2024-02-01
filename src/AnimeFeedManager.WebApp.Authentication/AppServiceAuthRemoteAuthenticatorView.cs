@@ -18,15 +18,15 @@ public class
     AppServiceAuthRemoteAuthenticatorViewCore<TAuthenticationState> : RemoteAuthenticatorViewCore<
         TAuthenticationState> where TAuthenticationState : RemoteAuthenticationState
 {
-    string _message;
+    private string _message;
 
     [Parameter] public string SelectedOption { get; set; }
 
-    [Inject] NavigationManager Navigation { get; set; }
+    [Inject] private NavigationManager Navigation { get; set; }
 
-    [Inject] IJSRuntime Js { get; set; }
+    [Inject] private IJSRuntime Js { get; set; }
 
-    [Inject] IRemoteAuthenticationService<TAuthenticationState> AuthenticationService { get; set; }
+    [Inject] private IRemoteAuthenticationService<TAuthenticationState> AuthenticationService { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -88,7 +88,7 @@ public class
         }
     }
 
-    async Task ProcessLogin(string returnUrl)
+    private async Task ProcessLogin(string returnUrl)
     {
         AuthenticationState.ReturnUrl = returnUrl;
         RemoteAuthenticationResult<TAuthenticationState> result =
@@ -118,12 +118,12 @@ public class
         }
     }
 
-    ValueTask NavigateToReturnUrl(string returnUrl)
+    private ValueTask NavigateToReturnUrl(string returnUrl)
     {
         return Js.InvokeVoidAsync("Blazor.navigateTo", returnUrl, false, true);
     }
 
-    string GetReturnUrl(RemoteAuthenticationState state, string defaultReturnUrl = null)
+    private string GetReturnUrl(RemoteAuthenticationState state, string defaultReturnUrl = null)
     {
         if (state?.ReturnUrl != null)
         {

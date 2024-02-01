@@ -1,26 +1,33 @@
 ﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Microsoft.Extensions.Options;
 
 namespace AnimeFeedManager.Features.Images.IO;
 
-public class AzureImagesBlobStore : IImagesBlobStore, IDisposable
+public class AzureImagesBlobStore : IImagesBlobStore
 {
     private const string Container = "images";
     private BlobContainerClient _containerClient;
-    private readonly IDisposable? _optionsReference;
-    public AzureImagesBlobStore(IOptionsMonitor<AzureBlobStorageOptions> blobStorageOptions)
+
+    public AzureImagesBlobStore(AzureStorageSettings storageOptions)
     {
-        _containerClient = new BlobContainerClient(blobStorageOptions.CurrentValue.StorageConnectionString, Container);
+        _containerClient = GetClient(storageOptions);
         Initialize();
+    }
 
-        _optionsReference = blobStorageOptions.OnChange(options =>
+    private static BlobContainerClient GetClient(AzureStorageSettings azureSettings)
+    {
+        return azureSettings switch
         {
-            _containerClient = new BlobContainerClient(options.StorageConnectionString, Container);
-            Initialize();
-        });
-
+            ConnectionStringSettings connectionStringOptions => new BlobContainerClient(
+                connectionStringOptions.StorageConnectionString, Container),
+            TokenCredentialSettings tokenCredentialOptions => new BlobContainerClient(
+                new Uri(tokenCredentialOptions.BlobUri, Container), new DefaultAzureCredential()),
+            _ => throw new ArgumentException(
+                "Provided Table Storage configuration is not valid. Make sure Configurations for Azure table Storage is correct for either connection string or managed identities",
+                nameof(TableClientOptions))
+        };
     }
 
     private void Initialize()
@@ -40,11 +47,5 @@ public class AzureImagesBlobStore : IImagesBlobStore, IDisposable
         var blobHttpHeader = new BlobHttpHeaders {ContentType = "image/jpg"};
         await blob.UploadAsync(data, new BlobUploadOptions {HttpHeaders = blobHttpHeader});
         return blob.Uri;
-    }
-
-
-    public void Dispose()
-    {
-        _optionsReference?.Dispose();
     }
 }

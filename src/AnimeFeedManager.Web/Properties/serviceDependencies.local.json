@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "appInsights": {
+      "type": "appInsights.sdk",
+      "dynamicId": null
+    }
+  }
+}

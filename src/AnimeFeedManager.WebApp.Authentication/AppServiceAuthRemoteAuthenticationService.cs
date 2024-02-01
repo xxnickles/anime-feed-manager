@@ -13,7 +13,7 @@ using Microsoft.JSInterop;
 
 namespace AnimeFeedManager.WebApp.Authentication;
 
-class AppServiceAuthRemoteAuthenticationService<TAuthenticationState>(
+internal class AppServiceAuthRemoteAuthenticationService<TAuthenticationState>(
     IOptions<RemoteAuthenticationOptions<AppServiceAuthOptions>> options,
     NavigationManager navigationManager,
     IJSRuntime jsRuntime,
@@ -21,8 +21,8 @@ class AppServiceAuthRemoteAuthenticationService<TAuthenticationState>(
     : AuthenticationStateProvider, IRemoteAuthenticationService<TAuthenticationState>
     where TAuthenticationState : RemoteAuthenticationState
 {
-    const string BrowserStorageType = "sessionStorage";
-    const string StorageKeyPrefix = "Blazor.AppServiceAuth";
+    private const string BrowserStorageType = "sessionStorage";
+    private const string StorageKeyPrefix = "Blazor.AppServiceAuth";
 
     public RemoteAuthenticationOptions<AppServiceAuthOptions> Options { get; } = options.Value;
     public HttpClient HttpClient { get; } = new() { BaseAddress = new Uri(navigationManager.BaseUri) };
@@ -105,7 +105,7 @@ class AppServiceAuthRemoteAuthenticationService<TAuthenticationState>(
         return Task.FromResult(new RemoteAuthenticationResult<TAuthenticationState> { Status = RemoteAuthenticationStatus.Redirect });
     }
 
-    string BuildRedirectUri(string path)
+    private string BuildRedirectUri(string path)
     {
         return new Uri(new Uri(Navigation.BaseUri), path).ToString();
     }
