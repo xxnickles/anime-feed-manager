@@ -25,8 +25,8 @@ module blazor './blazor-app.bicep' = {
   name: 'functionDeploy'
   params: {
     location: location  
+    storageAccountName: common.outputs.storageAccountName    
     instrumentationKey: common.outputs.instrumentationKey
-    storageAccountName: common.outputs.storageAccountName
     passwordlessApiKey: passwordlessApiKey
     passwordlessApiSecret: passwordlessApiSecret
     repoUrl: repoUrl

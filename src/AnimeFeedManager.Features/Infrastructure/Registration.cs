@@ -7,9 +7,9 @@ namespace AnimeFeedManager.Features.Infrastructure;
 
 public static class InfrastructureRegistration
 {
-    private const string TableBaseUrl = "https://{0}.table.core.windows.net";
-    private const string QueueBaseUrl = "https://{0}.queue.core.windows.net";
-    private const string BlobBaseUrl = "https://{0}.blob.core.windows.net";
+    private const string TableBaseUrl = "https://{0}.table.core.windows.net/";
+    private const string QueueBaseUrl = "https://{0}.queue.core.windows.net/";
+    private const string BlobBaseUrl = "https://{0}.blob.core.windows.net/";
 
 
     public static IServiceCollection RegisterStorage(this IServiceCollection services,
@@ -68,6 +68,6 @@ public static class InfrastructureRegistration
 
     private static bool CreateUri(string baseUrl, string storageAccountName, [NotNullWhen(true)] out Uri? tableUri)
     {
-        return Uri.TryCreate($"{baseUrl}{storageAccountName}", UriKind.Absolute, out tableUri);
+        return Uri.TryCreate(string.Format(baseUrl,storageAccountName), UriKind.Absolute, out tableUri);
     }
 }
