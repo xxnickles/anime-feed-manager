@@ -4,18 +4,30 @@ param appName string = 'anime-manager'
 @description('SendGrid Key')
 param sendgridKey string
 
-@description('Deafult Email Sender')
+@description('Default Email Sender')
 param email string
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-var storageAccountType = 'Standard_LRS'
+@description('Storage Account Name')
+param storageAccountName string
+
+@description('Instrumentation Key')
+param instrumentationKey string
+
+
+
 var functionAppName = appName
 var hostingPlanName = 'afm-hosting-plan'
-var applicationInsightsName = appName
-var storageAccountName = 'animefeedmanagerstorage'
 var functionWorkerRuntime = 'dotnet-isolated'
+
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+  name: storageAccountName
+  scope: resourceGroup()
+}
+
 
 resource signalR 'Microsoft.SignalRService/signalR@2023-02-01' = {
   name: 'afm-web-events'
@@ -60,19 +72,9 @@ resource signalR 'Microsoft.SignalRService/signalR@2023-02-01' = {
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storageAccountName
-  location: location
-  sku: {
-    name: storageAccountType
-  }
-  kind: 'StorageV2'
-  properties: {
-    supportsHttpsTrafficOnly: true
-  }
-}
+// Functions App
 
-resource hostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
+resource functionsHostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: hostingPlanName
   location: location
   kind: 'functionapp,linux'
@@ -85,16 +87,6 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   }
 }
 
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: applicationInsightsName
-  location: location
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    Request_Source: 'rest'
-  }
-}
-
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
   name: functionAppName
   location: location
@@ -103,16 +95,16 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
     type: 'SystemAssigned'
   }
   properties: {
-    serverFarmId: hostingPlan.id
+    serverFarmId: functionsHostingPlan.id
     siteConfig: {
       appSettings: [
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccountName};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
         }
         {
           name: 'SignalRConnectionString'
@@ -128,7 +120,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: applicationInsights.properties.InstrumentationKey
+          value: instrumentationKey
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
