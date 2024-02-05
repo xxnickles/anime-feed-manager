@@ -11,6 +11,7 @@ using AnimeFeedManager.Features.State;
 using AnimeFeedManager.Features.Tv;
 using AnimeFeedManager.Features.Users;
 using AnimeFeedManager.Web.Features.Security;
+using Azure.Core;
 using Azure.Identity;
 using MediatR.NotificationPublishers;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -61,12 +62,12 @@ internal static class Registration
     }
 
     internal static IServiceCollection RegisterAppDependencies(this IServiceCollection services,
-        IConfigurationManager configuration)
+        IConfigurationManager configuration, Func<TokenCredential> defaultTokenCredential)
     {
         // MediatR
         services.RegisterMediatR();
         // Storage
-        services.RegisterStorage(configuration);
+        services.RegisterStorage(configuration, defaultTokenCredential);
         // App
         services.RegisterSeasonsServices();
         services.RegisterImageServices();

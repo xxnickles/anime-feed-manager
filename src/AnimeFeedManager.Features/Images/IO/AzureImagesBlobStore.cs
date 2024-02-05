@@ -23,7 +23,7 @@ public class AzureImagesBlobStore : IImagesBlobStore
             ConnectionStringSettings connectionStringOptions => new BlobContainerClient(
                 connectionStringOptions.StorageConnectionString, Container),
             TokenCredentialSettings tokenCredentialOptions => new BlobContainerClient(
-                new Uri(tokenCredentialOptions.BlobUri, Container), new DefaultAzureCredential()),
+                new Uri(tokenCredentialOptions.BlobUri, Container), tokenCredentialOptions.DefaultTokenCredential()),
             _ => throw new ArgumentException(
                 "Provided Table Storage configuration is not valid. Make sure Configurations for Azure table Storage is correct for either connection string or managed identities",
                 nameof(TableClientOptions))

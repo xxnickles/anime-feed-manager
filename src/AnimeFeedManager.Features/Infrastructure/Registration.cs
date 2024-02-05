@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -21,12 +22,12 @@ public static class InfrastructureRegistration
     }
 
     public static IServiceCollection RegisterStorage(this IServiceCollection services,
-        IConfigurationManager configuration)
+        IConfigurationManager configuration, Func<TokenCredential> defaultCredential)
     {
         var storageAccountName = configuration["StorageAccountName"];
         if (!string.IsNullOrEmpty(storageAccountName))
         {
-            RegisterWithAzureIdentity(services, storageAccountName);
+            RegisterWithAzureIdentity(services, storageAccountName,defaultCredential);
         }
         else
         {
@@ -44,15 +45,15 @@ public static class InfrastructureRegistration
         services.TryAddSingleton(typeof(ITableClientFactory<>), typeof(TableClientFactory<>));
     }
 
-    private static void RegisterWithAzureIdentity(IServiceCollection services, string storageAccountName)
+    private static void RegisterWithAzureIdentity(IServiceCollection services, string storageAccountName, Func<TokenCredential> defaultTokenCredential)
     {
         if (CreateUri(TableBaseUrl, storageAccountName, out var tableUri) &&
             CreateUri(QueueBaseUrl, storageAccountName, out var queueUri) &&
             CreateUri(BlobBaseUrl, storageAccountName, out var blobUri))
         {
             services.TryAddSingleton<AzureStorageSettings>(
-                new TokenCredentialSettings(new QueueUri(queueUri), new BlobUri(blobUri)));
-            services.TryAddSingleton(new TableServiceClient(tableUri, new DefaultAzureCredential()));
+                new TokenCredentialSettings(new QueueUri(queueUri), new BlobUri(blobUri), defaultTokenCredential));
+            services.TryAddSingleton(new TableServiceClient(tableUri, defaultTokenCredential()));
         }
         else
         {
@@ -70,4 +71,6 @@ public static class InfrastructureRegistration
     {
         return Uri.TryCreate(string.Format(baseUrl,storageAccountName), UriKind.Absolute, out tableUri);
     }
+
+    
 }

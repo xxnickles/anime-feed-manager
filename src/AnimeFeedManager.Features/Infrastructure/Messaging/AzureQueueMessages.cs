@@ -40,7 +40,7 @@ public class AzureQueueMessages : IDomainPostman
     {
         _azureSettings = tableStorageSettings;
         _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
-            {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         _queueClientOptions = new QueueClientOptions
         {
             MessageEncoding = QueueMessageEncoding.Base64
@@ -91,7 +91,7 @@ public class AzureQueueMessages : IDomainPostman
                 connectionStringOptions.StorageConnectionString, destiny,
                 _queueClientOptions),
             TokenCredentialSettings tokenCredentialOptions => new QueueClient(
-                tokenCredentialOptions.QueueUri, new DefaultAzureCredential(), _queueClientOptions),
+                new Uri(tokenCredentialOptions.QueueUri, destiny), tokenCredentialOptions.DefaultTokenCredential(), _queueClientOptions),
             _ => throw new ArgumentException(
                 "Provided Table Storage configuration is not valid. Make sure Configurations for Azure table Storage is correct for either connection string or managed identities",
                 nameof(TableClientOptions))

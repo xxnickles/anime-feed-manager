@@ -1,6 +1,8 @@
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
 using AnimeFeedManager.Web.Features.Common;
+using Azure.Core;
+using Azure.Identity;
 using Microsoft.AspNetCore.Components.Web;
 using TvEndpoints = AnimeFeedManager.Web.Features.Tv.Endpoints;
 using AdminEndpoints = AnimeFeedManager.Web.Features.Admin.Endpoints;
@@ -23,7 +25,7 @@ builder.Services.AddScoped<HtmlRenderer>();
 builder.Services.AddScoped<BlazorRenderer>();
 
 // Application dependencies
-builder.Services.RegisterAppDependencies(builder.Configuration);
+builder.Services.RegisterAppDependencies(builder.Configuration, GetDefaultCredential(builder.Environment));
 builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
@@ -49,3 +51,7 @@ TvEndpoints.Map(app);
 AdminEndpoints.Map(app);
 
 app.Run();
+return;
+
+static Func<TokenCredential> GetDefaultCredential(IWebHostEnvironment environment) => () =>
+    !environment.IsDevelopment() ? new EnvironmentCredential() : new AzureCliCredential();

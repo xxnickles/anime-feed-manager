@@ -1,10 +1,12 @@
-﻿namespace AnimeFeedManager.Features.Infrastructure.Messaging;
+﻿using Azure.Core;
+
+namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
 public abstract record AzureStorageSettings;
 
 public sealed record ConnectionStringSettings(string StorageConnectionString) : AzureStorageSettings;
 
-public sealed record TokenCredentialSettings(QueueUri QueueUri, BlobUri BlobUri) : AzureStorageSettings;
+public sealed record TokenCredentialSettings(QueueUri QueueUri, BlobUri BlobUri, Func<TokenCredential> DefaultTokenCredential) : AzureStorageSettings;
 
 public readonly record struct QueueUri(Uri Uri)
 {
