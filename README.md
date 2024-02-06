@@ -1,18 +1,22 @@
 |Project| Branch |Status|
 |---|--------|---|
-|back-end| main   |[![AMF Azure Static App](https://github.com/xxnickles/anime-feed-manager/actions/workflows/azure-static-web-apps-delightful-smoke-0eded0c0f.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/azure-static-web-apps-delightful-smoke-0eded0c0f.yml)|
-|client| main   |[![Functions Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-functions.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-functions.yml)
+|back-end (Function + Blazor SSR)| main   |[![AFM Backend Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-backend.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-backend.yml)|
+|client (Blazor SPA)| main   |[![AFM Azure Static App](https://github.com/xxnickles/anime-feed-manager/actions/workflows/azure-static-web-apps-delightful-smoke-0eded0c0f.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/azure-static-web-apps-delightful-smoke-0eded0c0f.yml)
 
 Anime Feed Manager
 =================
 
-Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/)*  as data sources. Simple API using [azure functions isolated](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide), [swa cli](https://azure.github.io/static-web-apps-cli/) , Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The client app uses [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor)
+Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/)*  as data sources. Simple API using [azure functions isolated](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide), [swa cli](https://azure.github.io/static-web-apps-cli/) , Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The are a couple of clients app based on Blazor [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor):
+
+- **Blazor SPA (AnimeFeedManager.WebApp):** Webassembly Blazor
+- **Blazor SSR (AnimeFeedManager.Web):** Using The SSR part of Blazor with [HTMX](https://htmx.org/) and [AlpineJS](https://alpinejs.dev/) for client interaction
+
 
 _(*) This project used to use [HorribleSubs](https://horriblesubs.info/), but it closed. Then [Erai-Raws](https://spa.erai-raws.info/) was used, but their site has had multiple stability problems recently. [LiveChart](https://www.livechart.me/) has been replaced because of they moved behind to Cloudflare, which is not scrapping friendly_
 
 ## Projects
 
-- src: Azure Functions base back-end and Blazor client
+- src: Azure Functions base back-end and Blazor clients
 
 ## Dev Requirements
 

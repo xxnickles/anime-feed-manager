@@ -54,4 +54,4 @@ app.Run();
 return;
 
 static Func<TokenCredential> GetDefaultCredential(IWebHostEnvironment environment) => () =>
-    !environment.IsDevelopment() ? new EnvironmentCredential() : new AzureCliCredential();
+    !environment.IsDevelopment() ? new ManagedIdentityCredential() : new AzureCliCredential();

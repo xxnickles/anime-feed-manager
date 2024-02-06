@@ -16,34 +16,40 @@ param passwordlessApiSecret string
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-var webAppName = 'afm-blazor-ssr'
-var webAppHostingPlanName = 'afm-blazor-hosting-plan'
-var keyVaultName = 'afm-key-vault'
-var managedIdentityName = 'afm-managed-identity'
+var webAppName = 'anime-feed-manager'
+var webAppHostingPlanName = 'afm-blazor-hosting'
+var keyVaultName = 'afm-vault'
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
-  name: managedIdentityName
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+  name: storageAccountName
+  scope: resourceGroup()
 }
 
-// Create the role assignments for Azure Storage. Doesn't work as you will need to have some werid permisions 
 
-// var roleDefinitionIds = [
-//   '974c5e8b-45b9-4653-ba55-5f855dd0fb88'  //Storage Queue Data Contributor
-//   '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa'   //Storage Table Data Contributor
-//   'ba92f5b4-2d11-453d-a403-e96b0029c9fe'  //Storage Blob Data Contributor
-// ]
+resource blazorHostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
+  name: webAppHostingPlanName
+  location: location
+  kind: 'linux'
+  properties: {
+    reserved: true
+  }
+  sku: {
+    name: 'F1'
+  }
+}
 
-// resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for roleDefinitionId in roleDefinitionIds: {
-//   scope: storageAccount
-//   name: guid(storageAccount.id, managedIdentity.id, roleDefinitionId)
-//   properties: {
-//     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
-//     principalId: managedIdentity.id
-//     principalType: managedIdentity.type
-//   }
-// }]
-
-
+resource blazorAppService 'Microsoft.Web/sites@2023-01-01' = {
+  name: webAppName
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    serverFarmId: blazorHostingPlan.id  
+    httpsOnly: true
+    
+  }
+}
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
@@ -57,11 +63,10 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
     accessPolicies: [
       {
         tenantId: subscription().tenantId
-        objectId: managedIdentity.properties.principalId
+        objectId: blazorAppService.identity.principalId
         permissions: {
           secrets: [
-            'get'
-            'list'
+            'get'          
           ]
         }
       }
@@ -90,55 +95,43 @@ resource passworlessSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   }
 }
 
-resource blazorHostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
-  name: webAppHostingPlanName
-  location: location
-  kind: 'linux'
+resource siteConfig 'Microsoft.Web/sites/config@2023-01-01' = {
+  name:'web'
+  parent: blazorAppService
   properties: {
-    reserved: true
-  }
-  sku: {
-    name: 'F1'
+    appSettings: [
+          {
+            name: 'VaultUri'
+            value: 'https://${keyVault.id}.${environment().suffixes.keyvaultDns}'
+          }
+          {
+            name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+            value: instrumentationKey
+          }
+          {
+            name: 'StorageAccountName'
+            value: storageAccountName
+          }       
+        ]
+        linuxFxVersion: 'DOTNETCORE|8.0'
   }
 }
 
-resource blazorAppService 'Microsoft.Web/sites@2023-01-01' = {
-  name: webAppName
-  location: location
-  identity: {
-    type:'UserAssigned'
-    userAssignedIdentities: {
-      '${managedIdentity.id}': {}
-    }
-  }
+var roleDefinitionIds = [
+  '974c5e8b-45b9-4653-ba55-5f855dd0fb88'  //Storage Queue Data Contributor
+  '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'   //Storage Table Data Contributor
+  'ba92f5b4-2d11-453d-a403-e96b0029c9fe'  //Storage Blob Data Contributor
+]
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for roleDefinitionId in roleDefinitionIds: {
+  scope: storageAccount
+  name: guid(storageAccount.id, 'amf-blazor-identity', roleDefinitionId)
   properties: {
-    serverFarmId: blazorHostingPlan.id
-    siteConfig: {
-      appSettings: [
-        {
-          name: 'VaultUri'
-          value: 'https://${keyVault.name}.vault.azure.net/'
-        }
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: instrumentationKey
-        }
-        {
-          name: 'StorageAccountName'
-          value: storageAccountName
-        }
-        {
-          name: 'AZURE_CLIENT_ID'
-          value: managedIdentity.properties.clientId
-        }
-      ]
-      linuxFxVersion: 'DOTNETCORE|8.0'
-    }
-    keyVaultReferenceIdentity: managedIdentity.id
-    httpsOnly: true
-    
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
+    principalId: blazorAppService.identity.principalId 
   }
-}
+}]
+
 
 resource webAppSourceControl 'Microsoft.Web/sites/sourcecontrols@2023-01-01' = if(contains(repoUrl,'http')){
   name: 'web'

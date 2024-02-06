@@ -1,4 +1,4 @@
-name: AMF Azure Static App
+name: AFM Azure Static App
 
 on:
   push:
