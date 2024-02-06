@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using Azure.Core;
-using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 
 namespace AnimeFeedManager.Features.Infrastructure;

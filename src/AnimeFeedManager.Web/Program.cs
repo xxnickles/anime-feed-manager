@@ -10,8 +10,6 @@ using SecurityEndpoints = AnimeFeedManager.Web.Features.Security.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.TryAddVault();
-
 // Add services to the container.
 builder.Services.AddRazorComponents();
 builder.Services.AddHttpContextAccessor();

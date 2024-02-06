@@ -12,7 +12,6 @@ using AnimeFeedManager.Features.Tv;
 using AnimeFeedManager.Features.Users;
 using AnimeFeedManager.Web.Features.Security;
 using Azure.Core;
-using Azure.Identity;
 using MediatR.NotificationPublishers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -23,14 +22,6 @@ namespace AnimeFeedManager.Web.Bootstrapping;
 
 internal static class Registration
 {
-    internal static void TryAddVault(this IConfigurationManager configuration)
-    {
-        if (Uri.TryCreate(configuration["VaultUri"], UriKind.Absolute, out var vaultUri))
-        {
-            configuration.AddAzureKeyVault(vaultUri, new DefaultAzureCredential());
-        }
-    }
-
     internal static IServiceCollection RegisterSecurityServices(this IServiceCollection services,
         IConfigurationManager configuration)
     {

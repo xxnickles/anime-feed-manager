@@ -109,9 +109,6 @@ jobs:
           parameters: passwordlessApiKey=${{ secrets.PASSWORDLESS_APIKEY }} passwordlessApiSecret=${{ secrets.PASSWORDLESS_APISECRET }}
           failOnStdErr: false
 
-      - name: "Set Output as Env Var"
-        run: echo "AZURE_WEBAPP_NAME=${{ steps.infrastructure.outputs.appname }}" >> $GITHUB_ENV
-
         # Setup node.js for tailwind
       - name: Setup Node lts
         uses: actions/setup-node@v4
@@ -144,7 +141,7 @@ jobs:
       - name: "Run Azure webapp deploy action using publish profile credentials"
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: ${{ steps.infrastructure.outputs.appname }}
           package: "${{ env.APP_PATH }}/output"          
 
       - name: logout

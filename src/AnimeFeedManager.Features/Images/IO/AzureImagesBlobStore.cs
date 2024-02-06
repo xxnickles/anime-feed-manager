@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
-using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 

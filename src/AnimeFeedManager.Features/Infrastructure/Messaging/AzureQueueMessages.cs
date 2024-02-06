@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using AnimeFeedManager.Common.Domain.Errors;
-using Azure.Identity;
 using Azure.Storage.Queues;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
