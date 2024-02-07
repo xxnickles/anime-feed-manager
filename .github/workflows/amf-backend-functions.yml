@@ -1,17 +1,21 @@
-name: AFM Backend Deployment
+name: AFM Backend Functions Deployment
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the 'main' branch
   push:
     paths-ignore:
-      - "src/AnimeFeedManager.WebApp**"
+      - "src/AnimeFeedManager.Web**"
+      - 'deployment/*'
+      - '!deployment/main-functions.bicep'
       - "**/*.md"
     branches:
       - main
   pull_request:
     paths-ignore:
-      - "src/AnimeFeedManager.WebApp**"
+      - "src/AnimeFeedManager.Web**"
+      - 'deployment/*'
+      - '!deployment/main-main-functions.bicep'
       - "**/*.md"
     types: [opened, synchronize, reopened, closed]
     branches:
@@ -24,11 +28,9 @@ env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "./src/AnimeFeedManager.Functions" # set this to the path to your web app project, defaults to the repository root
   TEST_PROJECT_PATH: "./src/AnimeFeedManager.Features.Tests"
   DOTNET_VERSION: "8.0.x" # set this to the dotnet version to use
-  APP_PATH: "./src/AnimeFeedManager.Web"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # Updates Azure Infraestructure
   build-and-deploy-functions:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -48,8 +50,8 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
 
-      # Deploys infrastructure
-      - name: Deploy Azure Infrastructure
+      # Get variables from infrastructure
+      - name: Get variables from infrastructure
         uses: Azure/arm-deploy@v1
         id: infrastructure
         with:
@@ -57,7 +59,6 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./deployment/main-functions.bicep
-          parameters: sendgridKey=${{ secrets.SENDGRID_KEY }} email=${{ secrets.SENDER_EMAIL }}
           failOnStdErr: false
 
       # Builds and Deploys functions
@@ -85,66 +86,3 @@ jobs:
           slot-name: "Production"
           app-name: ${{ steps.infrastructure.outputs.appname }}
           package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
-
-  build-and-deploy-blazor-ssr-app:
-
-    needs: build-and-deploy-functions
-    runs-on: ubuntu-latest
-    steps:
-      # Checkout the repo
-      - uses: actions/checkout@main
-      - uses: azure/login@v1.6.1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Deploys infrastructure
-      - name: Deploy Azure Infrastructure
-        uses: Azure/arm-deploy@v1
-        id: infrastructure
-        with:
-          scope: resourcegroup
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-          resourceGroupName: ${{ secrets.AZURE_RG }}
-          template: ./deployment/main-blazor.bicep
-          parameters: passwordlessApiKey=${{ secrets.PASSWORDLESS_APIKEY }} passwordlessApiSecret=${{ secrets.PASSWORDLESS_APISECRET }}
-          failOnStdErr: false
-
-        # Setup node.js for tailwind
-      - name: Setup Node lts
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-
-      - name: "npm install, build, and test"
-        run: |
-          npm install
-          npx tailwindcss -i ./Styles/app.css -o ./wwwroot/app.css --minify
-        working-directory: ${{ env.APP_PATH }}
-
-      # Setup .NET Core SDK
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      # Run dotnet build and publish
-      - name: dotnet build and publish
-        shell: bash
-        run: |
-          pushd '${{ env.APP_PATH }}'
-          dotnet restore
-          dotnet build --configuration Release
-          dotnet publish -c Release --output ./output
-          popd
-
-      # Deploy to Azure Web apps
-      - name: "Run Azure webapp deploy action using publish profile credentials"
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ steps.infrastructure.outputs.appname }}
-          package: "${{ env.APP_PATH }}/output"          
-
-      - name: logout
-        run: |
-          az logout   
-

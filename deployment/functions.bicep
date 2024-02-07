@@ -1,6 +1,3 @@
-@description('The name of the function app that you wish to create.')
-param appName string = 'anime-manager'
-
 @description('SendGrid Key')
 param sendgridKey string
 
@@ -16,9 +13,8 @@ param storageAccountName string
 @description('Instrumentation Key')
 param instrumentationKey string
 
+var sharedVariables = loadJsonContent('./shared-variables.json')
 
-
-var functionAppName = appName
 var hostingPlanName = 'afm-hosting-plan'
 var functionWorkerRuntime = 'dotnet-isolated'
 
@@ -88,7 +84,7 @@ resource functionsHostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
 }
 
 resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: functionAppName
+  name: sharedVariables.functionAppName
   location: location
   kind: 'functionapp'
   identity: {
@@ -112,7 +108,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         }
         {
           name: 'WEBSITE_CONTENTSHARE'
-          value: toLower(functionAppName)
+          value: toLower(sharedVariables.functionAppName)
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
@@ -157,5 +153,3 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
   }
 }
 
-output endpoint string = '${functionApp.name}.azurewebsites.net'
-output appname string = functionApp.name

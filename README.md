@@ -1,7 +1,9 @@
 |Project| Branch |Status|
 |---|--------|---|
-|back-end (Function + Blazor SSR)| main   |[![AFM Backend Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-backend.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-backend.yml)|
-|client (Blazor SPA)| main   |[![AFM Azure Static App](https://github.com/xxnickles/anime-feed-manager/actions/workflows/azure-static-web-apps-delightful-smoke-0eded0c0f.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/azure-static-web-apps-delightful-smoke-0eded0c0f.yml)
+|Infrastructure | main | [![AFM Infrastructure Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-infrastructure.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-infrastructure.yml) |
+|Functions | main | [![AFM Backend Functions Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-backend-functions.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-backend-functions.yml) |
+|Blazor SSR | main | [![AFM Blazor SSR Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-blazor-ssr.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-blazor-ssr.yml) |
+|client (Blazor SPA)| main   | [![AFM Azure Static App](https://github.com/xxnickles/anime-feed-manager/actions/workflows/azure-static-web-apps-delightful-smoke-0eded0c0f.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/azure-static-web-apps-delightful-smoke-0eded0c0f.yml)
 
 Anime Feed Manager
 =================

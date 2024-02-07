@@ -1,0 +1,58 @@
+# If there is no infrastructure created, you want to run this action or associated bicep first to avoid issues with the app deployments
+
+name: AFM Infrastructure Deployment
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the 'main' branch
+  push:
+    paths:
+      - "deployment/*"
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "deployment/*"
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  deploy-infrastructure:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout GitHub Action
+        uses: actions/checkout@v4.1.1
+        with:
+          submodules: true
+          clean: true
+
+      - name: Azure Login
+        uses: azure/login@v1.6.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+
+      # Deploys infrastructure
+      - name: Deploy Azure Infrastructure
+        uses: Azure/arm-deploy@v1
+        id: infrastructure
+        with:
+          scope: resourcegroup
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.AZURE_RG }}
+          template: ./deployment/main.bicep
+          parameters: sendgridKey=${{ secrets.SENDGRID_KEY }} email=${{ secrets.SENDER_EMAIL }} passwordlessApiKey=${{ secrets.PASSWORDLESS_APIKEY }} passwordlessApiSecret=${{ secrets.PASSWORDLESS_APISECRET }}
+          failOnStdErr: false
+
+      - name: logout
+        run: |
+          az logout

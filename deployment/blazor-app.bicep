@@ -16,7 +16,7 @@ param passwordlessApiSecret string
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-var webAppName = 'anime-feed-manager'
+var sharedVariables = loadJsonContent('./shared-variables.json')
 var webAppHostingPlanName = 'afm-blazor-hosting'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
@@ -37,7 +37,7 @@ resource blazorHostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
 }
 
 resource blazorAppService 'Microsoft.Web/sites@2023-01-01' = {
-  name: webAppName
+  name: sharedVariables.webAppname
   location: location
   identity: {
     type: 'SystemAssigned'
@@ -99,5 +99,3 @@ resource webAppSourceControl 'Microsoft.Web/sites/sourcecontrols@2023-01-01' = i
     isManualIntegration: true
   }
 }
-
-output appname string = blazorAppService.name
