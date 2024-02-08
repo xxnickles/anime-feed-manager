@@ -25,6 +25,7 @@ public static class InfrastructureRegistration
     {
         var storageAccountName = configuration["StorageAccountName"];
         if (!string.IsNullOrEmpty(storageAccountName))
+
         {
             RegisterWithAzureIdentity(services, storageAccountName,defaultCredential);
         }
