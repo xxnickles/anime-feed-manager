@@ -1,4 +1,4 @@
-var sharedVariables = loadJsonContent('./shared-variables.json')
+var sharedVariables = loadJsonContent('./modules/shared-variables.json')
 resource functionApp 'Microsoft.Web/sites@2023-01-01' existing = {
   name: sharedVariables.functionAppName
 }

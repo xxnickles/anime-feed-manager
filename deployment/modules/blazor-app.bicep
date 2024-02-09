@@ -72,6 +72,7 @@ resource siteConfig 'Microsoft.Web/sites/config@2023-01-01' = {
       }
     ]
     linuxFxVersion: 'DOTNETCORE|8.0'
+    http20Enabled: true    
   }
 }
 

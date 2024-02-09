@@ -19,14 +19,14 @@ param passwordlessApiSecret string
 param repoUrl string = ' '
 
 
-module common './common.bicep' = {
+module common './modules/common.bicep' = {
   name: 'common-deploy'
   params: {
     location: location
   }
 }
 
-module functions './functions.bicep' = {
+module functions './modules/functions.bicep' = {
   name: 'functionDeploy'
   params: {
     location: location
@@ -37,7 +37,7 @@ module functions './functions.bicep' = {
   }
 }
 
-module blazor './blazor-app.bicep' = {
+module blazor './modules/blazor-app.bicep' = {
   name: 'blazorDeploy'
   params: {
     location: location  

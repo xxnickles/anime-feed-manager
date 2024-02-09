@@ -14,7 +14,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   kind: 'StorageV2'
   properties: {
     supportsHttpsTrafficOnly: true
-  }
+    }
+
 }
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
