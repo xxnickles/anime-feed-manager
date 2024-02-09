@@ -1,24 +1,25 @@
-﻿@if (ControlData is not null)
-{
-    <fieldset class="flex flex-nowrap items-center justify-between">
-        <div class="tooltip tooltip-success" data-tip="Available">
-            <div class="badge badge-success"></div>
-        </div>
-        <div>
-            <input type="hidden" name="@nameof(AvailableTvSeriesControlData.Title)" @bind="ControlData.Title"/>
-            <input type="hidden" name="@nameof(AvailableTvSeriesControlData.FeedId)" @bind="ControlData.FeedId"/>
-            <input type="hidden" name="@nameof(AvailableTvSeriesControlData.UserId)" @bind="ControlData.UserId"/>
-            <button class="btn btn-primary btn-xs"
-                    hx-post="tv/subscribe"
-                    hx-target="closest fieldset"
-                    hx-swap="outerHTML"
-                    hx-confirm="@($"Do you want to subscribe to {ControlData.Title}?")">
-                Subscribe
-            </button>
-        </div>
-    </fieldset>
-}
+﻿@inherits AvailableSeriesBase
 
-@code {
-    [Parameter, EditorRequired] public AvailableTvSeriesControlData? ControlData { get; set; }
+@if (ControlData is not null)
+{
+    <WithMessage Message="@Message" DomainError="@DomainError">
+        <Content>
+            <form hx-post="tv/subscribe"
+                  hx-swap="outerHTML"
+                  hx-confirm="@($"Do you want to subscribe to {ControlData.Title}?")">
+                <AntiforgeryToken/>
+                <fieldset class="flex flex-nowrap items-center justify-between">
+                    <div class="tooltip tooltip-success" data-tip="Available">
+                        <div class="badge badge-success"></div>
+                    </div>
+                    <div>
+                        <input type="hidden" name="@nameof(AvailableTvSeriesControlData.Title)" @bind="ControlData.Title"/>
+                        <input type="hidden" name="@nameof(AvailableTvSeriesControlData.FeedId)" @bind="ControlData.FeedId"/>
+                        <input type="hidden" name="@nameof(AvailableTvSeriesControlData.UserId)" @bind="ControlData.UserId"/>
+                        <button class="btn btn-primary btn-xs">Subscribe</button>
+                    </div>
+                </fieldset>
+            </form>
+        </Content>
+    </WithMessage>
 }

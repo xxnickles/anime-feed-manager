@@ -1,9 +1,7 @@
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
-using AnimeFeedManager.Web.Features.Common;
 using Azure.Core;
 using Azure.Identity;
-using Microsoft.AspNetCore.Components.Web;
 using TvEndpoints = AnimeFeedManager.Web.Features.Tv.Endpoints;
 using AdminEndpoints = AnimeFeedManager.Web.Features.Admin.Endpoints;
 using SecurityEndpoints = AnimeFeedManager.Web.Features.Security.Endpoints;
@@ -16,11 +14,6 @@ builder.Services.AddHttpContextAccessor();
 
 // Register Authentication and Authorization services
 builder.Services.RegisterSecurityServices(builder.Configuration);
-
-
-// Add the renderer and wrapper to services
-builder.Services.AddScoped<HtmlRenderer>();
-builder.Services.AddScoped<BlazorRenderer>();
 
 // Application dependencies
 builder.Services.RegisterAppDependencies(builder.Configuration, GetDefaultCredential(builder.Environment));

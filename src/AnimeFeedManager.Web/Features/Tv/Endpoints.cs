@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
-using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
 using AnimeFeedManager.Web.Features.Tv.Controls;
 using Microsoft.AspNetCore.Mvc;
@@ -13,57 +12,60 @@ public static class Endpoints
     {
         app.MapPost("/tv/subscribe", (
                 [FromForm] AvailableTvSeriesControlData data,
-                [FromServices] BlazorRenderer renderer,
                 [FromServices] IAddTvSubscription tvSubscriber,
                 [FromServices] ILogger<TvGrid> logger,
                 CancellationToken token) =>
             Validate(data)
                 .BindAsync(info => tvSubscriber.Subscribe(info.UserId, info.Series, token))
-                .MapAsync(_ => renderer.RenderSubscribedControls(data))
-                .ToComponentResult(renderer, logger, $"Subscription to {data.Title} has been created",
-                    renderer.RenderUnSubscribedControls(data))
+                .ToComponentResult(
+                    _ => ComponentResponses.OkResponse<SubscribedAnimeControls>(data,
+                        $"Subscription to {data.Title} has been created"),
+                    e => ComponentResponses.ErrorResponse<UnsubscribedAnimeControls>(data, e, logger))
         ).RequireAuthorization();
 
 
         app.MapPost("/tv/unsubscribe", (
                 [FromForm] AvailableTvSeriesControlData data,
-                [FromServices] BlazorRenderer renderer,
                 [FromServices] IRemoveTvSubscription tvUnSubscriber,
                 [FromServices] ILogger<TvGrid> logger,
                 CancellationToken token) =>
             Validate(data)
                 .BindAsync(info => tvUnSubscriber.Unsubscribe(info.UserId, info.Series, token))
-                .MapAsync(_ => renderer.RenderUnSubscribedControls(data))
-                .ToComponentResult(renderer, logger, $"Subscription to {data.Title} has been removed",
-                    renderer.RenderSubscribedControls(data))
+                .ToComponentResult(
+                    _ => ComponentResponses.OkResponse<UnsubscribedAnimeControls>(data,
+                        $"Subscription to {data.Title} has been removed"),
+                    e => ComponentResponses.ErrorResponse<SubscribedAnimeControls>(data, e, logger)
+                )
         ).RequireAuthorization();
 
 
         app.MapPost("/tv/add-interested", (
                 [FromForm] NotAvailableControlData data,
-                [FromServices] BlazorRenderer renderer,
                 [FromServices] IAddInterested tvInterestedSubscriber,
                 [FromServices] ILogger<TvGrid> logger,
                 CancellationToken token) =>
             Validate(data)
                 .BindAsync(info => tvInterestedSubscriber.Add(info.UserId, info.Series, token))
-                .MapAsync(_ => renderer.RenderInterestedControls(data))
-                .ToComponentResult(renderer, logger, $"{data.Title} has been added to your interest list",
-                    renderer.RenderNotAvailableControls(data))
+                .ToComponentResult(
+                    _ => ComponentResponses.OkResponse<InterestedAnimeControls>(data,
+                        $"{data.Title} has been added to your interest list"),
+                    e => ComponentResponses.ErrorResponse<NotAvailableAnimeControls>(data, e, logger)
+                )
         ).RequireAuthorization();
 
 
         app.MapPost("/tv/remove-interested", (
                 [FromForm] NotAvailableControlData data,
-                [FromServices] BlazorRenderer renderer,
                 [FromServices] IRemoveInterestedSeries tvInterestedRemover,
                 [FromServices] ILogger<TvGrid> logger,
                 CancellationToken token) =>
             Validate(data)
                 .BindAsync(info => tvInterestedRemover.Remove(info.UserId, info.Series, token))
-                .MapAsync(_ => renderer.RenderNotAvailableControls(data))
-                .ToComponentResult(renderer, logger, $"{data.Title} has been removed to your interest list",
-                    renderer.RenderInterestedControls(data))
+                .ToComponentResult(
+                    _ => ComponentResponses.OkResponse<NotAvailableAnimeControls>(data,
+                        $"{data.Title} has been removed to your interest list"),
+                    e => ComponentResponses.ErrorResponse<InterestedAnimeControls>(data, e, logger)
+                )
         ).RequireAuthorization();
     }
 
