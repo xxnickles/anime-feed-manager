@@ -4,11 +4,12 @@
 @inject TvLibraryGetter LibraryGetter;
 @inject IUserProvider UserProvider;
 @inject ILogger<TvGrid> Logger;
-@* @attribute [StreamRendering] *@
+@* @attribute [StreamRendering(true)] *@
 
 <PageTitle>@PageTitleForSeason(SeriesType.Tv, _selectedSeason)</PageTitle>
 
 <SeriesGrid Series="_animes" SeriesType="SeriesType.Tv" CurrentSeason="_selectedSeason"></SeriesGrid>
+
 
 @code {
 
@@ -31,7 +32,7 @@
         var results = await LibraryGetter.GetForSeason(_selectedSeason.Season, _selectedSeason.Year)
             .MapAsync(lib => MapForUser(lib, user))
             .LogErrors(Logger);
-        
+
         _animes = results.Match(
             collection => collection,
             _ => []
@@ -63,3 +64,4 @@
     }
 
 }
+

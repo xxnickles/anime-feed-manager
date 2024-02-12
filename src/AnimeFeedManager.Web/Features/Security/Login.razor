@@ -4,10 +4,13 @@
 @using AnimeFeedManager.Features.Users.IO
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.Extensions.Options
+@using Passwordless.Net
 
 @inject IPasswordlessLogin PasswordlessLogin;
 @inject NavigationManager NavigationManager;
 @inject ILogger<Login> Logger;
+@inject IOptions<PasswordlessOptions> PasswordlessOptions
 
 <PageTitle>@PageTitle("Login")</PageTitle>
 
@@ -72,6 +75,19 @@
     </div>
 </section>
 
+<SectionContent SectionName="additional-scripts">
+    <script defer>    
+        const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
+        const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
+    </script>
+    <script
+        defer
+        src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.min.js"
+        crossorigin="anonymous"></script>
+    <script defer src="scripts/client-signin.js" type="module"></script>
+    <script src="./Features/Security/Login.razor.js" type="text/javascript"></script>
+</SectionContent>
+
 
 @code {
     [SupplyParameterFromForm] public string? Id { get; set; }
@@ -97,7 +113,7 @@
 
     private async Task CompleteLogin(ClaimsPrincipal principal)
     {
-        await HttpContext.SignInAsync(principal, new AuthenticationProperties {IsPersistent = true});
+        await HttpContext.SignInAsync(principal, new AuthenticationProperties { IsPersistent = true });
         NavigationManager.NavigateTo("/");
     }
 
@@ -115,7 +131,7 @@
             new(ClaimTypes.Name, user),
             new(ClaimTypes.Email, user),
             new(CustomClaimTypes.Sub, id),
-            new (ClaimTypes.Role, role)
+            new(ClaimTypes.Role, role)
         };
 
         return
@@ -124,4 +140,3 @@
 
 }
 
-<script src="./Features/Security/Login.razor.js" type="text/javascript"></script>
