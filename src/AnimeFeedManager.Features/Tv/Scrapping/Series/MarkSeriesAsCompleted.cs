@@ -17,6 +17,7 @@ public class MarkSeriesAsCompletedHandler(
 {
     public async Task Handle(MarkSeriesAsComplete notification, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Starting process to complete series in library");
         var result = await incompleteSeriesProvider.GetIncompleteSeries(cancellationToken)
             .MapAsync(series =>
                 series.Where(anime => anime.FeedTitle != null && !notification.Titles.Contains(anime.FeedTitle)))

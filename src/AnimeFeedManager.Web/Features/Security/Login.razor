@@ -18,7 +18,7 @@
     <div class="hero-content flex-col lg:flex-row-reverse">
         <div class="text-center lg:text-left">
             <h1 class="text-5xl font-bold">Login</h1>
-            <p class="py-6">Use your username (email) to access the system using no password!</p>
+            <p class="py-6">Use your username (email) to access the system using your passkey</p>
         </div>
         <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form
@@ -77,9 +77,9 @@
 
 <SectionContent SectionName="additional-scripts">
     <script defer>    
-        const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
-        const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
-    </script>
+           const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
+           const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
+       </script>
     <script
         defer
         src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.min.js"
@@ -113,7 +113,7 @@
 
     private async Task CompleteLogin(ClaimsPrincipal principal)
     {
-        await HttpContext.SignInAsync(principal, new AuthenticationProperties { IsPersistent = true });
+        await HttpContext.SignInAsync(principal, new AuthenticationProperties {IsPersistent = true});
         NavigationManager.NavigateTo("/");
     }
 
@@ -139,4 +139,3 @@
     }
 
 }
-

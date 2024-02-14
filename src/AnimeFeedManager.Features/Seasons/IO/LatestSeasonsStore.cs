@@ -3,17 +3,17 @@ using AnimeFeedManager.Common.Domain.Errors;
 
 namespace AnimeFeedManager.Features.Seasons.IO;
 
-public interface ISortedSeasons
+public interface ILatestSeasonStore
 {
     Task<Either<DomainError, Unit>> Update(CancellationToken token);
 }
 
-public class SortedSortedSeasons : ISortedSeasons
+public class LastedSeasonsStore : ILatestSeasonStore
 {
     private readonly ISeasonsGetter _seasonsGetter;
     private readonly ITableClientFactory<LatestSeasonsStorage> _tableClientFactory;
 
-    public SortedSortedSeasons(
+    public LastedSeasonsStore(
         ISeasonsGetter seasonsGetter,
         ITableClientFactory<LatestSeasonsStorage> tableClientFactory)
     {

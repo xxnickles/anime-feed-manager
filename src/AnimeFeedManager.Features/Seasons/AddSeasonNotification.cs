@@ -26,7 +26,8 @@ public sealed class AddSeasonHandler(
                 Latest = seasonType.IsLatest()
             }, seasonType, cancellationToken)
             .BindAsync(_ =>
-                domainPostman.SendMessage(new UpdateLatestSeasonsRequest(), Box.LatestSeason, cancellationToken));
+                domainPostman.SendMessage(new 
+                    UpdateLatestSeasonsRequest(), Box.LatestSeason, cancellationToken));
 
         result.Match(
             _ => logger.LogInformation("Entry for {Season} updated successfully",

@@ -7,12 +7,12 @@ namespace AnimeFeedManager.Functions.Seasons;
 
 public sealed class OnLatestSeasonsUpdate
 {
-    private readonly ISortedSeasons _sortedSeasons;
+    private readonly ILatestSeasonStore _latestSeasonStore;
     private readonly ILogger<OnLatestSeasonsUpdate> _logger;
     
-    public OnLatestSeasonsUpdate(ISortedSeasons sortedSeasons, ILoggerFactory loggerFactory)
+    public OnLatestSeasonsUpdate(ILatestSeasonStore latestSeasonStore, ILoggerFactory loggerFactory)
     {
-        _sortedSeasons = sortedSeasons;
+        _latestSeasonStore = latestSeasonStore;
         _logger = loggerFactory.CreateLogger<OnLatestSeasonsUpdate>();
     }
 
@@ -21,7 +21,8 @@ public sealed class OnLatestSeasonsUpdate
         [QueueTrigger(Box.Available.LatestSeasonsBox, Connection = "AzureWebJobsStorage")]
         UpdateLatestSeasonsRequest notification)
     {
-        var result = await _sortedSeasons.Update(default);
+        _logger.LogInformation("Updating latest seasons information");
+        var result = await _latestSeasonStore.Update(default);
         result.Match(
             _ => _logger.LogInformation("Latest Season have been stored"),
             e => e.LogError(_logger)
