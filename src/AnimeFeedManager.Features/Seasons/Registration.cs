@@ -11,6 +11,7 @@ public static class Registration
         services.TryAddScoped<ILatestSeasonStore, LastedSeasonsStore>();
         services.TryAddScoped<ILatestSeasonsGetter, LatestSeasonsGetter>();
         services.TryAddScoped<SeasonsGetter>();
+        services.TryAddScoped<AddSeasonNotificationHandler>();
         return services;
     }
 }

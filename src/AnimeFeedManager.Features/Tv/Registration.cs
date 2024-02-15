@@ -39,6 +39,8 @@ public static class TvRegistration
         services.TryAddScoped<InterestedToSubscribe>();
         services.TryAddScoped<AutomatedSubscriptionProcessor>();
         services.TryAddScoped<SeasonTitlesUpdater>();
+        services.TryAddScoped<MarkSeriesAsCompletedHandler>();
+        services.TryAddScoped<AutomatedSubscriptionHandler>();
 
         return services;
     }

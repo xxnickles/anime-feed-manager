@@ -1,19 +1,16 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Types;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series;
-
-public readonly record struct MarkSeriesAsComplete(ImmutableList<string> Titles) : INotification;
 
 public class MarkSeriesAsCompletedHandler(
     IIncompleteSeriesProvider incompleteSeriesProvider,
     ITvSeriesStore seriesStore,
     ILogger<MarkSeriesAsCompletedHandler> logger)
-    : INotificationHandler<MarkSeriesAsComplete>
 {
     public async Task Handle(MarkSeriesAsComplete notification, CancellationToken cancellationToken)
     {

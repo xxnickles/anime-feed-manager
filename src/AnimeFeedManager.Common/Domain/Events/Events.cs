@@ -12,6 +12,15 @@ public record UpdateSeasonTitlesRequest(ImmutableList<string> Titles);
 
 public record UpdateLatestSeasonsRequest(bool Update = true);
 
-public record RemoveSubscriptionsRequest(string userId);
+public record RemoveSubscriptionsRequest(string UserId);
 
-public record CopySubscriptionRequest(string sourceId, string targetId);
+public record CopySubscriptionRequest(string SourceId, string TargetId);
+
+public record ScrapImagesRequest(ImmutableList<DownloadImageEvent> Events);
+
+public record AddSeasonNotification(string Season, int Year, bool IsLatest);
+
+public record MarkSeriesAsComplete(ImmutableList<string> Titles);
+
+public record AutomatedSubscription(bool Value = true);
+

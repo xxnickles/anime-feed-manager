@@ -12,7 +12,6 @@ using AnimeFeedManager.Features.Tv;
 using AnimeFeedManager.Features.Users;
 using AnimeFeedManager.Web.Features.Security;
 using Azure.Core;
-using MediatR.NotificationPublishers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
@@ -55,8 +54,6 @@ internal static class Registration
     internal static IServiceCollection RegisterAppDependencies(this IServiceCollection services,
         IConfigurationManager configuration, Func<TokenCredential> defaultTokenCredential)
     {
-        // MediatR
-        services.RegisterMediatR();
         // Storage
         services.RegisterStorage(configuration, defaultTokenCredential);
         // App
@@ -70,18 +67,6 @@ internal static class Registration
         services.RegisterUserServices();
         services.RegisterMaintenanceServices();
         services.RegisterMigration();
-
-        return services;
-    }
-
-    private static IServiceCollection RegisterMediatR(this IServiceCollection services)
-    {
-        // Registers MediatR
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssemblyContaining<ScrapNotificationImages>();
-            cfg.NotificationPublisher = new TaskWhenAllPublisher();
-        });
 
         return services;
     }

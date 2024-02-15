@@ -1,18 +1,14 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Seasons.IO;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Seasons;
 
-public readonly record struct AddSeasonNotification(string Season, int Year, bool IsLatest) : INotification;
-
-public sealed class AddSeasonHandler(
+public sealed class AddSeasonNotificationHandler(
     ISeasonStore seasonStore,
     IDomainPostman domainPostman,
-    ILogger<AddSeasonHandler> logger)
-    : INotificationHandler<AddSeasonNotification>
+    ILogger<AddSeasonNotification> logger)
 {
     public async Task Handle(AddSeasonNotification notification, CancellationToken cancellationToken)
     {

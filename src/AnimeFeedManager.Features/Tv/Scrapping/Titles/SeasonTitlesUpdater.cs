@@ -5,23 +5,21 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 using AnimeFeedManager.Features.Tv.Subscriptions;
-using MediatR;
 using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Titles;
 
 public sealed class SeasonTitlesUpdater(
     ITitlesStore titlesStore,
-    IDomainPostman domainPostman,
-    IMediator mediator)
+    IDomainPostman domainPostman)
 {
     public Task<Either<DomainError, Unit>> Process(UpdateSeasonTitlesRequest notification,
         CancellationToken cancellationToken)
     {
         return titlesStore.UpdateTitles(notification.Titles, cancellationToken)
             .BindAsync(_ => SendNotification(cancellationToken))
-            .MapAsync(_ => mediator.Publish(new MarkSeriesAsComplete(notification.Titles), cancellationToken))
-            .MapAsync(_ => mediator.Publish(new AutomatedSubscription(), cancellationToken))
+            .BindAsync(_ => domainPostman.SendMessage(new MarkSeriesAsComplete(notification.Titles), Box.SeriesCompleter, cancellationToken))
+            .BindAsync(_ => domainPostman.SendMessage(new AutomatedSubscription(), Box.AutomatedSubscription, cancellationToken))
             .MapAsync(_ => unit);
     }
 

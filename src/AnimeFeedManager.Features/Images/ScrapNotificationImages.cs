@@ -2,20 +2,16 @@
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Images;
-
-public readonly record struct ScrapNotificationImages(ImmutableList<DownloadImageEvent> Events) : INotification;
 
 public sealed class ScrapImagesNotificationHandler(
     ICreateState stateCreator,
     IDomainPostman domainPostman,
     ILogger<ScrapImagesNotificationHandler> logger)
-    : INotificationHandler<ScrapNotificationImages>
 {
-    public async Task Handle(ScrapNotificationImages notification, CancellationToken cancellationToken)
+    public async Task Handle(ScrapImagesRequest notification, CancellationToken cancellationToken)
     {
         var results = await stateCreator.Create(NotificationTarget.Images, notification.Events)
             .MapAsync(r => SendMessages(r, cancellationToken));

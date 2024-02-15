@@ -1,22 +1,18 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 using AnimeFeedManager.Features.Users.IO;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Tv.Subscriptions;
 
-public record AutomatedSubscription : INotification;
-
 public sealed class AutomatedSubscriptionHandler(
     IDomainPostman domainPostman,
     IUserGetter userGetter,
-    ILogger<AutomatedSubscriptionHandler> logger)
-    : INotificationHandler<AutomatedSubscription>
-{
+    ILogger<AutomatedSubscriptionHandler> logger) {
     public async Task Handle(AutomatedSubscription _, CancellationToken cancellationToken)
     {
         var results = await userGetter.GetAvailableUsers(cancellationToken)

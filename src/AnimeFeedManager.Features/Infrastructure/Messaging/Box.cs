@@ -17,6 +17,10 @@ public readonly struct Box
         public const string LatestSeasonsBox = "latest-seasons-process";
         public const string SubscriptionsRemovalBox = "subscriptions-removal";
         public const string SubscriptionsCopyBox = "subscriptions-copy";
+        public const string ImageToScrapBox = "image-to-scrap";
+        public const string AddSeasonBox = "add-seasson";
+        public const string SeriesCompleterBox = "series-completer";
+        public const string AutomatedSubscriptionBox = "automated-subscription";
     }
 
     private readonly string _boxValue;
@@ -46,4 +50,8 @@ public readonly struct Box
     public static Box LatestSeason => new(Available.LatestSeasonsBox);
     public static Box SubscriptionsRemoval => new(Available.SubscriptionsRemovalBox);
     public static Box SubscriptionsCopy => new(Available.SubscriptionsCopyBox);
+    public static Box ImageToScrap => new(Available.ImageToScrapBox);
+    public static Box AddSeason => new(Available.AddSeasonBox);
+    public static Box SeriesCompleter => new(Available.SeriesCompleterBox);
+    public static Box AutomatedSubscription => new(Available.AutomatedSubscriptionBox);
 }

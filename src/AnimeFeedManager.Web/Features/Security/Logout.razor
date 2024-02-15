@@ -5,7 +5,7 @@
 @inject NavigationManager NavigationManager;
 @attribute [Authorize]
 
-
+<PageTitle>@PageTitle("Logout")</PageTitle>
 @code {
     [CascadingParameter] public HttpContext HttpContext { get; set; } = default!;
 

@@ -11,6 +11,7 @@ public static class ImageRegistration
         services.TryAddScoped<IOvasImageStorage, OvasImageStorage>();
         services.TryAddScoped<IMoviesImageStorage, MoviesImageStorage>();
         services.TryAddScoped<ImageAdder>();
+        services.TryAddScoped<ScrapImagesNotificationHandler>();
         return services;
     }
 }

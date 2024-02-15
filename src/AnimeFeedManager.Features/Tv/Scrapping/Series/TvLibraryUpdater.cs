@@ -1,19 +1,15 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Images;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-using MediatR;
 using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series;
 
 public sealed class TvLibraryUpdater(
-    IMediator mediator,
     IDomainPostman domainPostman,
     ISeriesProvider seriesProvider,
     ITitlesProvider titlesProvider,
@@ -58,21 +54,13 @@ public sealed class TvLibraryUpdater(
     {
         var reference = series.SeriesList.First();
         return seriesStore.Add(series.SeriesList, token)
-            .MapAsync(_ => CreateImageEvents(series.Images, token))
-            .MapAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest()));
+            .BindAsync(_ => domainPostman.SendMessage(new ScrapImagesRequest(series.Images), Box.ImageToScrap, token))
+            .BindAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest(), token));
     }
-
-    private Unit CreateImageEvents(ImmutableList<DownloadImageEvent> events,
+    
+    private Task<Either<DomainError, Unit>> CreateSeasonEvent(string season, int year, bool isLatest,
         CancellationToken token)
     {
-        // Publish event to scrap images
-        mediator.Publish(new ScrapNotificationImages(events), token);
-        return unit;
-    }
-
-    private Unit CreateSeasonEvent(string season, int year, bool isLatest)
-    {
-        mediator.Publish(new AddSeasonNotification(season, year, isLatest));
-        return unit;
+        return domainPostman.SendMessage(new AddSeasonNotification(season, year, isLatest), Box.AddSeason, token);
     }
 }
