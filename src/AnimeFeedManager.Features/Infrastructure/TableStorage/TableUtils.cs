@@ -174,16 +174,22 @@ internal static class TableUtils
         try
         {
             if (entities.IsEmpty) return unit;
-            var deleteEntitiesBatch = entities
-                .Select(entityToDelete => new TableTransactionAction(TableTransactionActionType.Delete, entityToDelete))
-                .ToList();
-
-            const ushort limit = 99;
-            for (ushort i = 0; i < deleteEntitiesBatch.Count; i += limit)
+            // Create batches based on partition keys, as this is a restriction in azure tables
+            foreach (var groupedEntities in entities.GroupBy(e => e.PartitionKey))
             {
-                _ = await tableClient.SubmitTransactionAsync(deleteEntitiesBatch.Skip(i).Take(limit), token)
-                    .ConfigureAwait(false);
+                var deleteEntitiesBatch = groupedEntities
+                    .Select(entityToDelete =>
+                        new TableTransactionAction(TableTransactionActionType.Delete, entityToDelete))
+                    .ToList();
+
+                const ushort limit = 99;
+                for (ushort i = 0; i < deleteEntitiesBatch.Count; i += limit)
+                {
+                    _ = await tableClient.SubmitTransactionAsync(deleteEntitiesBatch.Skip(i).Take(limit), token)
+                        .ConfigureAwait(false);
+                }
             }
+
             return unit;
         }
         catch (Exception e)
@@ -193,22 +199,30 @@ internal static class TableUtils
     }
 
     internal static async Task<Either<DomainError, Unit>> BatchAdd<T>(TableClient tableClient,
-        IEnumerable<T> entities, CancellationToken token, TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge) where T : ITableEntity
+        IEnumerable<T> entities, CancellationToken token,
+        TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge) where T : ITableEntity
     {
         try
         {
             if (!entities.Any()) return unit;
-            // Create the batch.
-            var addEntitiesBatch = new List<TableTransactionAction>();
-            addEntitiesBatch.AddRange(
-                entities.Select(tableEntity =>
-                    new TableTransactionAction(actionType, tableEntity)));
-            const ushort limit = 99;
-            for (ushort i = 0; i < addEntitiesBatch.Count; i += limit)
+
+            // Create batches based on partition keys, as this is a restriction in azure tables
+            foreach (var groupedEntities in entities.GroupBy(e => e.PartitionKey))
             {
-                _ = await tableClient.SubmitTransactionAsync(addEntitiesBatch.Skip(i).Take(limit), token)
-                    .ConfigureAwait(false);
+                var addEntitiesBatch = new List<TableTransactionAction>();
+                addEntitiesBatch.AddRange(
+                    groupedEntities.Select(tableEntity =>
+                        new TableTransactionAction(actionType, tableEntity)));
+                const ushort limit = 99;
+                for (ushort i = 0; i < addEntitiesBatch.Count; i += limit)
+                {
+                    _ = await tableClient.SubmitTransactionAsync(addEntitiesBatch.Skip(i).Take(limit), token)
+                        .ConfigureAwait(false);
+                }
             }
+
+            // Create the batch.
+
 
             return unit;
         }
