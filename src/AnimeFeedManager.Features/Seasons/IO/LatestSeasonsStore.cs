@@ -29,13 +29,13 @@ public class LastedSeasonsStore : ILatestSeasonStore
 
     private Task<Either<DomainError, Unit>> Process(TableClient client, CancellationToken token)
     {
-        return _seasonsGetter.GetSeasons(10, token)
-            .MapAsync(seasons =>
-                seasons.ConvertAll(s => s.ToWrapper())
-                    .OrderByDescending(s => s.Year)
-                    .ThenByDescending(s => s.Season)
-                    .Take(4)
-                    .Reverse()
+        // Unfortunately, Azure Table Storage doesn't support server side sorting, for which basically we have to load all the available season to extract the last 4 sorted client side
+        return _seasonsGetter.GetAvailableSeasons(token)
+            .MapAsync(seasons => seasons.ConvertAll(s => s.ToWrapper())
+                        .OrderByDescending(s => s.Year)
+                        .ThenByDescending(s => s.Season)
+                        .Take(4)
+                        .Reverse()
             )
             .BindAsync(items => Store(client, items, token));
     }

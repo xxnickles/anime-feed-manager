@@ -31,7 +31,7 @@ public sealed class SeasonStore(ITableClientFactory<SeasonStorage> tableClientFa
         Either<DomainError, TableClient> CreateResult(ImmutableList<SeasonStorage> items) =>
             items.IsEmpty
                 ? Right<DomainError, TableClient>(client)
-                : BasicError.Create($"'{season.Year}-{season.Season}' already exist");
+                : SeasonExistError.Create(season);
     }
 
     private static Task<Either<DomainError, TableClient>> CleanLatest(TableClient client, SeasonType seasonType,

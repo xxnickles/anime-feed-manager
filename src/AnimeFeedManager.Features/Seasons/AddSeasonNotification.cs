@@ -14,20 +14,23 @@ public sealed class AddSeasonNotificationHandler(
     {
         var seasonType = notification.IsLatest ? SeasonType.Latest : SeasonType.Season;
         var result = await seasonStore.AddSeason(new SeasonStorage
-            {
-                PartitionKey = seasonType,
-                RowKey = $"{notification.Year}-{notification.Season}",
-                Season = notification.Season,
-                Year = notification.Year,
-                Latest = seasonType.IsLatest()
-            }, seasonType, cancellationToken)
-            .BindAsync(_ =>
-                domainPostman.SendMessage(new 
-                    UpdateLatestSeasonsRequest(), Box.LatestSeason, cancellationToken));
+        {
+            PartitionKey = seasonType,
+            RowKey = $"{notification.Year}-{notification.Season}",
+            Season = notification.Season,
+            Year = notification.Year,
+            Latest = seasonType.IsLatest()
+        }, seasonType, cancellationToken);
 
         result.Match(
             _ => logger.LogInformation("Entry for {Season} updated successfully",
                 $"{notification.Year}-{notification.Season}"),
+            e => e.LogError(logger));
+
+        var eventResult = await domainPostman.SendMessage(new
+            UpdateLatestSeasonsRequest(), Box.LatestSeason, cancellationToken);
+        
+        eventResult.Match(_ => logger.LogInformation("{Event} event sent successfully", nameof(UpdateLatestSeasonsRequest)),
             e => e.LogError(logger));
     }
 }
