@@ -21,6 +21,7 @@ public readonly struct Box
         public const string AddSeasonBox = "add-seasson";
         public const string SeriesCompleterBox = "series-completer";
         public const string AutomatedSubscriptionBox = "automated-subscription";
+        public const string AlternativeTitleUpdateBox = "alternative-title-update-box";
     }
 
     private readonly string _boxValue;
@@ -54,4 +55,6 @@ public readonly struct Box
     public static Box AddSeason => new(Available.AddSeasonBox);
     public static Box SeriesCompleter => new(Available.SeriesCompleterBox);
     public static Box AutomatedSubscription => new(Available.AutomatedSubscriptionBox);
+    
+    public static Box AlternativeTitleUpdate => new(Available.AlternativeTitleUpdateBox);
 }

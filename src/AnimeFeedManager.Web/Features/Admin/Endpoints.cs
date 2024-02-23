@@ -124,13 +124,14 @@ public static class Endpoints
 
         app.MapPut("admin/user/delete",
             ([FromForm] string source,
-                [FromServices] IUserDelete userDeleter,
-                [FromServices] ILogger<Admin> logger,
-                CancellationToken token) => UserIdValidator.Validate(source)
-                .ValidationToEither()
-                .BindAsync(userId => userDeleter.Delete(userId, token))
-                .ToComponentResult(
-                    "User has been deleted from the system. Subscriptions will be processed in the background", logger)
+                    [FromServices] IUserDelete userDeleter,
+                    [FromServices] ILogger<Admin> logger,
+                    CancellationToken token) =>
+                UserId.Parse(source)
+                    .BindAsync(userId => userDeleter.Delete(userId, token))
+                    .ToComponentResult(
+                        "User has been deleted from the system. Subscriptions will be processed in the background",
+                        logger)
         ).RequireAuthorization(Policies.AdminRequired);
 
         app.MapPut("/admin/noop",

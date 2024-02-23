@@ -27,7 +27,7 @@ public sealed class OnCopySubscriptions
         _logger.LogInformation("Trying to copy subscriptions from {Source} to {Target}", notification.SourceId,
             notification.TargetId);
         var result =
-            await (UserIdValidator.Validate(notification.SourceId), UserIdValidator.Validate(notification.TargetId))
+            await (UserId.Validate(notification.SourceId), UserId.Validate(notification.TargetId))
                 .Apply((source, target) => (source, target))
                 .ValidationToEither()
                 .BindAsync(users => _subscriptionsCopier.CopyAll(users.source, users.target, default));

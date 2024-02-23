@@ -100,7 +100,7 @@ internal static class TableUtils
     /// <typeparam name="T">Table Entity<</typeparam>
     /// <returns></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteLimitedQuery<T>(
-        Func<AsyncPageable<T>> query, byte items = 1) where T : notnull
+        Func<AsyncPageable<T>> query, byte items = 1) where T : ITableEntity
     {
         var enumerator = query().GetAsyncEnumerator();
         var counter = 0;
@@ -220,10 +220,7 @@ internal static class TableUtils
                         .ConfigureAwait(false);
                 }
             }
-
-            // Create the batch.
-
-
+            
             return unit;
         }
         catch (Exception e)

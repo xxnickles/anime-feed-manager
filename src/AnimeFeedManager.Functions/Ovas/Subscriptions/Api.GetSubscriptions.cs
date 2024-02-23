@@ -15,7 +15,7 @@ public class GetSubscriptions(IGetOvasSubscriptions ovasSubscriptions, ILoggerFa
         HttpRequestData req,
         string subscriber)
     {
-        return await UserIdValidator.Validate(subscriber).ValidationToEither()
+        return await UserId.Parse(subscriber)
             .BindAsync(id => ovasSubscriptions.GetSubscriptions(id, default))
             .ToResponse(req, _logger);
     }

@@ -17,7 +17,7 @@ public sealed class OnUserAutoSubscription(
         [QueueTrigger(Box.Available.UserAutoSubscriptionBox, Connection = "AzureWebJobsStorage")]
         UserAutoSubscription notification)
     {
-        var result = await UserIdValidator.Validate(notification.UserId)
+        var result = await UserId.Validate(notification.UserId)
             .ValidationToEither()
             .BindAsync(user => interestedToSubscribe.ProcessInterested(user, default));
 

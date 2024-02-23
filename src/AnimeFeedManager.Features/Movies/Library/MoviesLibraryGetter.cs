@@ -22,6 +22,7 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
             movies.Select(a =>
                     new SimpleAnime(
                         a.RowKey ?? string.Empty,
+                        a.PartitionKey ?? string.Empty,
                         a?.Title ?? "Not Available",
                         a?.Synopsis ?? "Not Available",
                         a?.ImageUrl,

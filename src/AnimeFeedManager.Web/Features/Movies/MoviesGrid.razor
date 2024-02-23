@@ -4,8 +4,8 @@
 @inject ILogger<MoviesGrid> Logger;
 
 <PageTitle>@PageTitleForSeason(SeriesType.Movie, _selectedSeason)</PageTitle>
-
-<SeriesGrid Series="_seasonCollection.Animes" SeriesType="SeriesType.Movie" CurrentSeason="_selectedSeason"></SeriesGrid>
+<SeasonsSelector SeriesType="SeriesType.Tv" CurrentSeason="_selectedSeason"></SeasonsSelector>
+<SeriesGrid Series="_seasonCollection.Animes"></SeriesGrid>
 
 @code {
 

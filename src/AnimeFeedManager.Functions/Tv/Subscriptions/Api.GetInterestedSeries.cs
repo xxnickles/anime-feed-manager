@@ -17,7 +17,7 @@ public class GetInterestedSeries(IGetInterestedSeries getInterestedSeries, ILogg
     )
     {
         return await req.CheckAuthorization()
-            .BindAsync(_ => UserIdValidator.Validate(subscriber).ValidationToEither())
+            .BindAsync(_ => UserId.Parse(subscriber))
             .BindAsync(user => getInterestedSeries.Get(user, default))
             .MapAsync(items => items.ConvertAll(i => i.RowKey))
             .ToResponse(req, _logger);

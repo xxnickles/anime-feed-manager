@@ -1,6 +1,10 @@
-﻿using AnimeFeedManager.Common.Utils;
+﻿using AnimeFeedManager.Common.Domain.Events;
+using AnimeFeedManager.Common.Utils;
+using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
+using AnimeFeedManager.Web.Features.Security;
 using AnimeFeedManager.Web.Features.Tv.Controls;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,6 +57,31 @@ public static class Endpoints
                 )
         ).RequireAuthorization();
 
+        app.MapPut("/tv/alternative-title", (
+                    [FromForm] AlternativeTitleUpdate updateInfo,
+                    [FromServices] IDomainPostman domainPostman,
+                    [FromServices] ILogger<TvGrid> logger,
+                    CancellationToken token) =>
+                domainPostman.SendMessage(
+                        new UpdateAlternativeTitle(updateInfo.Id, updateInfo.Season, updateInfo.Title),
+                        Box.AlternativeTitleUpdate, token)
+                    .ToComponentResult("Alternative title update will be processed in the background", logger))
+            .RequireAuthorization(Policies.AdminRequired);
+
+
+        app.MapPost("/tv/remove", (
+                    [FromForm] SeriesToRemove removeInfo,
+                    [FromServices] ITvSeriesStore tvSeriesStore,
+                    [FromServices] ILogger<TvGrid> logger,
+                    CancellationToken token) =>
+                (PartitionKey.Validate(removeInfo.Season), RowKey.Validate(removeInfo.Id))
+                .Apply((key, rowKey) => new {PartitionKey = key, RowKey = rowKey})
+                .ValidationToEither()
+                .BindAsync(safeData =>
+                    tvSeriesStore.RemoveSeries(safeData.RowKey, safeData.PartitionKey, token))
+                .ToComponentResult("Series has been removed", logger))
+            .RequireAuthorization(Policies.AdminRequired);
+
 
         app.MapPost("/tv/remove-interested", (
                 [FromForm] NotAvailableControlData data,
@@ -73,7 +102,7 @@ public static class Endpoints
         AvailableTvSeriesControlData payload)
     {
         return (
-                UserIdValidator.Validate(payload.UserId),
+                UserId.Validate(payload.UserId),
                 NoEmptyString.FromString(payload.FeedId)
                     .ToValidation(ValidationError.Create("FeedId", ["Series cannot be en empty string"]))
             ).Apply((userid, series) => (userid, series))
@@ -84,7 +113,7 @@ public static class Endpoints
         NotAvailableControlData payload)
     {
         return (
-                UserIdValidator.Validate(payload.UserId),
+                UserId.Validate(payload.UserId),
                 NoEmptyString.FromString(payload.Title)
                     .ToValidation(ValidationError.Create("FeedId", ["Series cannot be en empty string"]))
             ).Apply((userid, series) => (userid, series))

@@ -50,8 +50,7 @@ public class EnqueueNotifications(
 
     private Task<Either<DomainError, CollectedNotificationResult>> Process(string userId)
     {
-        return UserIdValidator.Validate(userId)
-            .ValidationToEither()
+        return UserId.Parse(userId)
             .BindAsync(user => notificationsCollector.Get(user));
     }
 }

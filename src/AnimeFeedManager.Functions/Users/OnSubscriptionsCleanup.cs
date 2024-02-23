@@ -24,7 +24,7 @@ public sealed class OnSubscriptionsCleanup
         [QueueTrigger(Box.Available.SubscriptionsRemovalBox, Connection = "AzureWebJobsStorage")]
         RemoveSubscriptionsRequest notification)
     {
-        var result = await UserIdValidator.Validate(notification.UserId)
+        var result = await UserId.Validate(notification.UserId)
             .ValidationToEither()
             .BindAsync(userId => _subscriptionsCleaner.CleanAll(userId, default));
 

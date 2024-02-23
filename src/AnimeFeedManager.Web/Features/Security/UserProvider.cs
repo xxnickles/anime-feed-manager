@@ -49,7 +49,7 @@ public class UserProvider : IUserProvider
 
     private async Task<AppUser> GetUser(string userId, CancellationToken token)
     {
-        var process = await Validate(userId)
+        var process = await UserId.Parse(userId)
             .BindAsync(id => AddSubscriptions(id, token))
             .MapAsync(data => new User(data.Email, data.UserId, data.TvSubscriptions));
 
@@ -61,7 +61,7 @@ public class UserProvider : IUserProvider
 
     private async Task<AppUser> GetAdmin(string userId, CancellationToken token)
     {
-        var process = await Validate(userId)
+        var process = await UserId.Parse(userId)
             .BindAsync(id => AddSubscriptions(id, token))
             .MapAsync(data => new AdminUser(data.Email, data.UserId, data.TvSubscriptions));
 
@@ -76,15 +76,9 @@ public class UserProvider : IUserProvider
     {
         return _getTvSubscriptions.GetUserSubscriptions(userId, token)
             .BindAsync(subscriptions => _getInterestedSeries.Get(userId, token)
-                .MapAsync(interested => 
+                .MapAsync(interested =>
                     (TvSubscriptions: new TvSubscriptions(subscriptions.Series.ConvertAll(x => x.ToString()),
                         interested.ConvertAll(x => x.RowKey ?? string.Empty)), subscriptions.SubscriberEmail)))
-            .MapAsync(data => (data.SubscriberEmail, userId,  data.TvSubscriptions));
-    }
-
-    private static Either<DomainError, UserId> Validate(string userId)
-    {
-        return UserIdValidator.Validate(userId)
-            .ValidationToEither();
+            .MapAsync(data => (data.SubscriberEmail, userId, data.TvSubscriptions));
     }
 }

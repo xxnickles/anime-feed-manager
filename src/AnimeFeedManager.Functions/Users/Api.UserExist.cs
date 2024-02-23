@@ -15,7 +15,7 @@ public class UserExist(IUserVerification userGetter, ILoggerFactory loggerFactor
         HttpRequestData req,
         string id)
     {
-        return await UserIdValidator.Validate(id)
+        return await UserId.Validate(id)
             .ValidationToEither()
             .BindAsync(userId => userGetter.UserExist(userId, default))
             .ToResponse(req, _logger);

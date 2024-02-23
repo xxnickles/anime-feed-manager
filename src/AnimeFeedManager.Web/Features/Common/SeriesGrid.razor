@@ -1,41 +1,4 @@
 ﻿@using Array = System.Array
-@using AnimeFeedManager.Features.Seasons.Types
-@using System.Collections.Immutable
-@using AnimeFeedManager.Features.Seasons
-@using System.Collections.Frozen
-
-@inject ILogger<SeriesGrid> Logger;
-@inject SeasonsGetter SeasonGetter
-
-<SeasonLinks Seasons="_lastSeasons"></SeasonLinks>
-<h1 class="text-bold text-2xl my-2 ml-2 md:ml-10">@SeriesType.AsPluralText().ToUpperInvariant()</h1>
-@if (CurrentSeason is not DefaultSeasonInformation)
-{
-    <div class="text-sm breadcrumbs ml-2 md:ml-10">
-        <ul>
-            <li>
-                <span>@CurrentSeason.Season.ToString().ToUpperInvariant() @CurrentSeason.Year.ToString()</span>
-            </li>
-            <li>
-                <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Tv)" Match="NavLinkMatch.All">
-                    TV
-                </NavLink>
-            </li>
-            <li>
-                <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Ova)" Match="NavLinkMatch.All">
-                    Ovas
-                </NavLink>
-            </li>
-            <li>
-                <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Movie)" Match="NavLinkMatch.All">
-                    Movies
-                </NavLink>
-            </li>
-
-        </ul>
-    </div>
-}
-
 <section class="grid grid-cols-1 md:max-xl:grid-cols-2 xl:grid-cols-3 min-[2300px]:grid-cols-4 grid-flow-row gap-10 px-2 md:px-10 py-2 md:py-4">
     @foreach (var item in Series)
     {
@@ -45,22 +8,4 @@
 
 @code {
     [Parameter, EditorRequired] public BaseAnime[] Series { get; set; } = Array.Empty<BaseAnime>();
-    [Parameter, EditorRequired] public SeriesType SeriesType { get; set; } = SeriesType.None;
-    [Parameter, EditorRequired] public SeasonInformation CurrentSeason { get; set; } = new DefaultSeasonInformation();
-
-    private ImmutableList<SeasonWrapper> _lastSeasons = ImmutableList<SeasonWrapper>.Empty;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var seasonResults = await SeasonGetter.GetLastSeasons();
-        _lastSeasons = seasonResults
-            .LogErrors(Logger)
-            .Match(
-                seasons => seasons,
-                _ => ImmutableList<SeasonWrapper>.Empty
-            );
-    }
-
-    private string GetLink(SeriesType seriesType) => $"{CurrentSeason.Season.ToString()}-{CurrentSeason.Year.ToString()}/{seriesType.AsPlural()}";
-
 }

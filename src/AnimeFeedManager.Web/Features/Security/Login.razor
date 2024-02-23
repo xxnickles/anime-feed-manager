@@ -99,8 +99,7 @@
 
     private async Task Submit()
     {
-        var result = await UserIdValidator.Validate(Id ?? string.Empty)
-            .ValidationToEither()
+        var result = await UserId.Parse(Id ?? string.Empty)
             .BindAsync(userId => PasswordlessLogin.GetUserInfo(userId, default))
             .MapAsync(role => CreatePrincipal(Id ?? string.Empty, Alias ?? string.Empty, role));
 

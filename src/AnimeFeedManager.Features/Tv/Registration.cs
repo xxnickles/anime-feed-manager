@@ -3,6 +3,7 @@ using AnimeFeedManager.Features.Maintenance.IO;
 using AnimeFeedManager.Features.Tv.Feed.IO;
 using AnimeFeedManager.Features.Tv.Library;
 using AnimeFeedManager.Features.Tv.Library.IO;
+using AnimeFeedManager.Features.Tv.Scrapping;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
@@ -41,6 +42,7 @@ public static class TvRegistration
         services.TryAddScoped<SeasonTitlesUpdater>();
         services.TryAddScoped<MarkSeriesAsCompletedHandler>();
         services.TryAddScoped<AutomatedSubscriptionHandler>();
+        services.TryAddScoped<AlternativeTitleUpdater>();
 
         return services;
     }

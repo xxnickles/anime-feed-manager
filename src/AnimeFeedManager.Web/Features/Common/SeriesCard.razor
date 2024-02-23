@@ -1,4 +1,12 @@
-﻿<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60">
+﻿<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative">
+    <div class="absolute top-0 left-0">
+        @switch (Anime)
+        {
+            case AnimeForUser {IsAdmin: true} anime:
+                <AdminTvControls TvAnimeInfo="anime" />
+                break;
+        }
+    </div>
     <img class="object-cover w-44" src="@Anime.Url" alt="@Anime.Title"/>
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
         <h2 class="basis-[5%] mx-4 mt-2 text-base font-bold ">@Anime.Title</h2>
@@ -28,9 +36,9 @@
                     break;
 
                 default:
-                        <div class="badge badge-error gap-2">
-                            <span >Nothing Yet!</span>
-                        </div>
+                    <div class="badge badge-error gap-2">
+                        <span >Nothing Yet!</span>
+                    </div>
                     break;
             }
 
@@ -39,5 +47,10 @@
 </article>
 
 @code {
-    [Parameter] public BaseAnime Anime { get; set; } = new NullAnime();
+    [Parameter, EditorRequired] public BaseAnime Anime { get; set; } = new NullAnime();
+    [Parameter] public bool ForAdmin { get; set; }
+
+    [Parameter]
+    public RenderFragment AdminContent { get; set; } = @<span>No content here!</span>;
+
 }

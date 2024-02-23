@@ -95,11 +95,9 @@
 
 @code {
 
-    [CascadingParameter]
-    private Error? Error { get; set; }
+    [CascadingParameter] private Error? Error { get; set; }
 
-    [Parameter]
-    public FeedAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, new FeedData(false, SeriesStatus.NotAvailable, string.Empty));
+    [Parameter] public FeedAnime Anime { get; set; } = new(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, new FeedData(false, SeriesStatus.NotAvailable, string.Empty));
 
     protected override void OnInitialized()
     {
@@ -196,4 +194,5 @@
             }
         }
     }
+
 }

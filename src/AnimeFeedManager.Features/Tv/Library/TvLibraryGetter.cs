@@ -23,6 +23,7 @@ public sealed class TvLibraryGetter(ITvSeasonalLibrary seasonalLibrary)
             animeInfos.Select(a =>
                     new FeedAnime(
                         a.RowKey ?? string.Empty,
+                        a.PartitionKey ?? string.Empty,
                         a?.Title ?? "Not Available",
                         a?.Synopsis ?? "Not Available",
                         a?.ImageUrl,

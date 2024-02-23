@@ -8,7 +8,7 @@ public static class Extensions
 {
     public static Either<DomainError, (UserId Source, UserId Target)> Parse(this CopyUserPayload payload)
     {
-        return (UserIdValidator.Validate(payload.Source), UserIdValidator.Validate(payload.Target))
+        return (UserId.Validate(payload.Source), UserId.Validate(payload.Target))
             .Apply((s, t) => (s, t)).ValidationToEither();
     }
 }

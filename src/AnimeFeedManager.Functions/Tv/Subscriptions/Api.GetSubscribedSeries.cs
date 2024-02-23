@@ -17,7 +17,7 @@ public class GetSubscribedSeries(IGetTvSubscriptions tvSubscriptions, ILoggerFac
     {
         return await req
             .CheckAuthorization()
-            .BindAsync(_ => UserIdValidator.Validate(subscriber).ValidationToEither())
+            .BindAsync(_ => UserId.Parse(subscriber))
             .BindAsync(userId => tvSubscriptions.GetUserSubscriptions(userId, default))
             .MapAsync(collection => collection.Series.Select(s => s.ToString()))
             .ToResponse(req, _logger);

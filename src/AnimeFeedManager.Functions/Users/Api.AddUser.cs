@@ -26,7 +26,7 @@ public sealed class AddUser(IUserStore userStore, ILoggerFactory loggerFactory)
 
     private Either<DomainError, (Email Email, UserId UserId)> Validate(SimpleUser payload)
     {
-        return (EmailValidator.Validate(payload.Email), UserIdValidator.Validate(payload.UserId))
+        return (EmailValidator.Validate(payload.Email), UserId.Validate(payload.UserId))
             .Apply((email, userid) => (email, userid))
             .ValidationToEither();
     }

@@ -40,7 +40,7 @@ public class AutomatedSubscriptionProcessor(
 
     private static Either<DomainError, Payload> Parse(InterestedToSubscription subscription)
     {
-        return (UserIdValidator.Validate(subscription.UserId),
+        return (UserId.Validate(subscription.UserId),
                 NoEmptyString.FromString(subscription.FeedTitle)
                     .ToValidation(ValidationError.Create("Feed Title", "Feed title is empty")),
                 NoEmptyString.FromString(subscription.InterestedTitle)

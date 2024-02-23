@@ -18,7 +18,7 @@ internal static class Endpoints
             [FromServices] ILogger<Register> logger,
             CancellationToken token) =>
         {
-            return (EmailValidator.Validate(alias), UserIdValidator.Validate(Guid.NewGuid().ToString("N")),
+            return (EmailValidator.Validate(alias), UserId.Validate(Guid.NewGuid().ToString("N")),
                     ValidateDisplayName(displayName))
                 .Apply((email, userid, display) => new UserRegistration(email, userid, display))
                 .ValidationToEither()
