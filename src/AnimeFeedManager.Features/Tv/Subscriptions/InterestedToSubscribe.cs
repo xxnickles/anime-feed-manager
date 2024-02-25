@@ -3,6 +3,8 @@ using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.IO;
+using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
@@ -13,6 +15,7 @@ public sealed class InterestedToSubscribe(
     ICreateState createState,
     IDomainPostman domainPostman,
     ITittlesGetter tittlesGetter,
+    IAlternativeTitlesGetter alternativeTitlesGetter,
     IGetInterestedSeries interestedSeriesGetter)
 {
     public Task<Either<DomainError, int>> ProcessInterested(UserId userId, CancellationToken token)
@@ -28,17 +31,38 @@ public sealed class InterestedToSubscribe(
         CancellationToken token)
     {
         return tittlesGetter.GetTitles(token)
-            .MapAsync(titles => interestedSeries.ConvertAll(interested => (
-                    new
+            .BindAsync(titles => alternativeTitlesGetter
+                .ByOriginalTitles(interestedSeries.ConvertAll(i => i.RowKey ?? string.Empty), token).MapAsync(
+                    alternativeTitlesMap => new
                     {
-                        FeedTitle = Utils.TryGetFeedTitle(titles, interested.RowKey ?? string.Empty),
-                        InterestedTitle = interested.RowKey ?? string.Empty
+                        titles,
+                        alternativeTitlesMap
                     }))
+            .MapAsync(data => interestedSeries.ConvertAll(interested => new
+                {
+                    FeedTitle = TryToGetFeedTitle(interested.RowKey ?? string.Empty, data.titles,
+                        data.alternativeTitlesMap),
+                    InterestedTitle = interested.RowKey ?? string.Empty
+                })
                 .Where(x => !string.IsNullOrEmpty(x.FeedTitle))
                 .ToImmutableList()
             )
             .MapAsync(data => data.ConvertAll(item =>
                 new InterestedToSubscription(userId, item.FeedTitle, item.InterestedTitle)));
+    }
+
+    private string TryToGetFeedTitle(string interestedTitle, ImmutableList<string> titles,
+        ImmutableList<TilesMap> alternativeTitlesMap)
+    {
+        var feedTitle = Utils.TryGetFeedTitle(titles, interestedTitle);
+        if (string.IsNullOrEmpty(feedTitle))
+        {
+            var alternative = alternativeTitlesMap.FirstOrDefault(at => at.Original == interestedTitle).Alternative;
+            if (alternative is not null)
+                return Utils.TryGetFeedTitle(titles, alternative);
+        }
+
+        return feedTitle;
     }
 
     private Task<Either<DomainError, int>> ProcessEvents(ImmutableList<InterestedToSubscription> events,

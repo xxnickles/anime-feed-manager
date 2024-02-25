@@ -14,7 +14,7 @@ public sealed class GetInterestedSeries(ITableClientFactory<InterestedStorage> c
     {
         return clientFactory.GetClient()
             .BindAsync(client =>
-                TableUtils.ExecuteQueryWithEmpty(() =>
+                TableUtils.ExecuteQueryWithEmptyResult(() =>
                     client.QueryAsync<InterestedStorage>(i => i.PartitionKey == userId, cancellationToken: token)));
     }
 }

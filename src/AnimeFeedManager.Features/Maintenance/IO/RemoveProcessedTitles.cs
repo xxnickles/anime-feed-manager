@@ -20,7 +20,7 @@ public class RemoveProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> c
     private static Task<Either<DomainError, (TableClient client, ImmutableList<ProcessedTitlesStorage> results)>> GetItems(
         TableClient client, DateTimeOffset time, CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<ProcessedTitlesStorage>(title => title.Timestamp <= time, cancellationToken: token))
             .MapAsync(results => (client, results));
     }

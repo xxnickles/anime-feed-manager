@@ -22,7 +22,7 @@ public class UserVerification : IUserVerification
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client =>
-                TableUtils.ExecuteQueryWithNotFound(() =>
+                TableUtils.ExecuteQueryWithNotFoundResult(() =>
                     client.QueryAsync<UserStorage>(
                         u => u.PartitionKey == Constants.UserPartitionKey && u.RowKey == userId,
                         cancellationToken: token)))
@@ -34,7 +34,7 @@ public class UserVerification : IUserVerification
         var usersString = users.Select(u => u.ToString());
         return _tableClientFactory.GetClient()
             .BindAsync(client =>
-                TableUtils.ExecuteQueryWithNotFound(() =>
+                TableUtils.ExecuteQueryWithNotFoundResult(() =>
                     client.QueryAsync<UserStorage>(
                         GetUserFilter(usersString),
                         cancellationToken: token)))

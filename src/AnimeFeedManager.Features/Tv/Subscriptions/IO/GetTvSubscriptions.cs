@@ -27,7 +27,7 @@ public class GetTvSubscriptions(
     {
         return tableClientFactory.GetClient()
             .BindAsync(client =>
-                TableUtils.ExecuteQueryWithEmpty(() =>
+                TableUtils.ExecuteQueryWithEmptyResult(() =>
                     client.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == userId, cancellationToken: token)))
             .MapAsync(subscriptions =>
                 subscriptions.ConvertAll(subscription => NoEmptyString.FromString(subscription.RowKey ?? string.Empty)))

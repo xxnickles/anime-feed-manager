@@ -5,6 +5,7 @@ internal static class AzureTableMap
     internal readonly struct StoreTo
     {
         internal const string AnimeLibrary = "AnimeLibrary";
+        internal const string AlternativeTitles = "AlternativeTitles";
         internal const string Subscriptions = "Subscriptions";
         internal const string AvailableSeasons = "AvailableSeasons";
         internal const string InterestedSeries = "InterestedSeries";

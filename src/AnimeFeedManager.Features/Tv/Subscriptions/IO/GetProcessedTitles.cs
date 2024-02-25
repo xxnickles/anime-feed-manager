@@ -13,7 +13,7 @@ public class GetProcessedTitles(ITableClientFactory<ProcessedTitlesStorage> clie
     public Task<Either<DomainError, ImmutableList<string>>> GetForUser(UserId userId, CancellationToken token)
     {
         return clientFactory.GetClient()
-            .BindAsync(client => TableUtils.ExecuteQueryWithEmpty(() =>
+            .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<ProcessedTitlesStorage>(item => item.PartitionKey == userId,
                     cancellationToken: token)))
             .MapAsync(storageList => storageList.ConvertAll(ExtractTitle));

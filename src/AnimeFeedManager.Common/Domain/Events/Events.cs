@@ -24,5 +24,5 @@ public record MarkSeriesAsComplete(ImmutableList<string> Titles);
 
 public record AutomatedSubscription(bool Value = true);
 
-public record UpdateAlternativeTitle(string Id, string Season, string Title);
+public record UpdateAlternativeTitle(string Id, string Season, string Title, string Original);
 

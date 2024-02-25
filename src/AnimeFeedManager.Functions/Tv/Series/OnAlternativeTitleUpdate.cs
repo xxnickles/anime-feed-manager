@@ -1,7 +1,6 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Scrapping;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using Microsoft.Extensions.Logging;
 
@@ -29,12 +28,31 @@ public class OnAlternativeTitleUpdate
             .Apply((key, rowKey) => new {PartitionKey = key, RowKey = rowKey})
             .ValidationToEither()
             .BindAsync(safeData =>
-                _alternativeTitleUpdater.AddAlternativeTitle(safeData.RowKey, safeData.PartitionKey, message.Title,
+                _alternativeTitleUpdater.AddAlternativeTitle(safeData.RowKey, safeData.PartitionKey, message.Original,
+                    message.Title,
                     default));
 
         result.Match(
-            _ => _logger.LogInformation("'{Title}' has been added as alternative title for {Id}", message.Title,
-                message.Id),
+            r => LogResult(r, message),
             error => error.LogError(_logger));
+    }
+
+    private void LogResult(AlternativeTitleUpdateResult result, UpdateAlternativeTitle message)
+    {
+        switch (result)
+        {
+            case AlternativeTitleUpdateResult.ProcessComplete:
+                _logger.LogInformation(
+                    "'{Title}' has been added as alternative title for {Id} and feed information has been updated for it",
+                    message.Title,
+                    message.Id);
+                break;
+            case AlternativeTitleUpdateResult.TitleAddedNotFeedFound:
+                _logger.LogInformation(
+                    "'{Title}' has been added as alternative title for {Id} but not feed information matched this alternative title",
+                    message.Title,
+                    message.Id);
+                break;
+        }
     }
 }

@@ -48,8 +48,8 @@ public static class Endpoints
                 [FromServices] IAddInterested tvInterestedSubscriber,
                 [FromServices] ILogger<TvGrid> logger,
                 CancellationToken token) =>
-            Validate(data)
-                .BindAsync(info => tvInterestedSubscriber.Add(info.UserId, info.Series, token))
+            ValidateSubscription(data)
+                .BindAsync(info => tvInterestedSubscriber.Add(info.UserId, info.SeriesId, info.Series, token))
                 .ToComponentResult(
                     _ => ComponentResponses.OkResponse<InterestedAnimeControls>(data,
                         $"{data.Title} has been added to your interest list"),
@@ -63,7 +63,7 @@ public static class Endpoints
                     [FromServices] ILogger<TvGrid> logger,
                     CancellationToken token) =>
                 domainPostman.SendMessage(
-                        new UpdateAlternativeTitle(updateInfo.Id, updateInfo.Season, updateInfo.Title),
+                        new UpdateAlternativeTitle(updateInfo.Id, updateInfo.Season, updateInfo.Title, updateInfo.OriginalTitle),
                         Box.AlternativeTitleUpdate, token)
                     .ToComponentResult("Alternative title update will be processed in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
@@ -109,14 +109,25 @@ public static class Endpoints
             .ValidationToEither();
     }
 
-    private static Either<DomainError, (UserId UserId, NoEmptyString Series)> Validate(
-        NotAvailableControlData payload)
+    private static Either<DomainError, (UserId UserId, NoEmptyString Series)> Validate(NotAvailableControlData payload)
     {
         return (
                 UserId.Validate(payload.UserId),
                 NoEmptyString.FromString(payload.Title)
                     .ToValidation(ValidationError.Create("FeedId", ["Series cannot be en empty string"]))
             ).Apply((userid, series) => (userid, series))
+            .ValidationToEither();
+    }
+
+    private static Either<DomainError, (UserId UserId, RowKey SeriesId, NoEmptyString Series)> ValidateSubscription(
+        NotAvailableControlData payload)
+    {
+        return (
+                UserId.Validate(payload.UserId),
+                RowKey.Validate(payload.SeriesId),
+                NoEmptyString.FromString(payload.Title)
+                    .ToValidation(ValidationError.Create("FeedId", ["Series cannot be en empty string"]))
+            ).Apply((userid, seriesId, series) => (userid, seriesId, series))
             .ValidationToEither();
     }
 }

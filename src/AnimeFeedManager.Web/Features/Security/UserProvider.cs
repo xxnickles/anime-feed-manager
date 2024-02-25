@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 
 namespace AnimeFeedManager.Web.Features.Security;

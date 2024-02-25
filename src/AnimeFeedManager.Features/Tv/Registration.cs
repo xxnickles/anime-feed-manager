@@ -3,7 +3,6 @@ using AnimeFeedManager.Features.Maintenance.IO;
 using AnimeFeedManager.Features.Tv.Feed.IO;
 using AnimeFeedManager.Features.Tv.Library;
 using AnimeFeedManager.Features.Tv.Library.IO;
-using AnimeFeedManager.Features.Tv.Scrapping;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
@@ -36,6 +35,9 @@ public static class TvRegistration
         services.TryAddScoped<IRemoveAllInterested, RemoveAllInterested>();
         services.TryAddScoped<ICopyTvSubscriptions, CopyTvSubscriptions>();
         services.TryAddScoped<ICopyInterested, CopyInterested>();
+        services.TryAddScoped<IAlternativeTitlesStore, AlternativeTitlesStore>();
+        services.TryAddScoped<IAlternativeTitlesGetter, AlternativeTitlesGetter>();
+        services.TryAddScoped<ITvSeriesUpdates, TvSeriesUpdates>();
         services.TryAddScoped<TvLibraryGetter>();
         services.TryAddScoped<InterestedToSubscribe>();
         services.TryAddScoped<AutomatedSubscriptionProcessor>();

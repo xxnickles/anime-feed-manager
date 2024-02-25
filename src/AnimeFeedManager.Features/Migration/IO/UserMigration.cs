@@ -76,7 +76,7 @@ public class UserMigration(
     private Task<Either<DomainError, Unit>> ProcessSubscriptions(TableClient client, SimpleUser user,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == user.Email, cancellationToken: token))
             .BindAsync(items =>
                 TableUtils.BatchDelete(client, items, token)
@@ -98,7 +98,7 @@ public class UserMigration(
     private Task<Either<DomainError, Unit>> ProcessOvasSubscriptions(TableClient client, SimpleUser user,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<OvasSubscriptionStorage>(s => s.PartitionKey == user.Email, cancellationToken: token))
             .BindAsync(items =>
                 TableUtils.BatchDelete(client, items, token)
@@ -119,7 +119,7 @@ public class UserMigration(
     private Task<Either<DomainError, Unit>> ProcessMovieSubscriptions(TableClient client, SimpleUser user,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<MoviesSubscriptionStorage>(s => s.PartitionKey == user.Email,
                     cancellationToken: token))
             .BindAsync(items =>
@@ -141,7 +141,7 @@ public class UserMigration(
     private Task<Either<DomainError, Unit>> ProcessNotifications(TableClient client, SimpleUser user,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<NotificationStorage>(s => s.PartitionKey == user.Email, cancellationToken: token))
             .BindAsync(items =>
                 TableUtils.BatchDelete(client, items, token)

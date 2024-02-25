@@ -24,7 +24,7 @@ public sealed class SeasonStore(ITableClientFactory<SeasonStorage> tableClientFa
     private static Task<Either<DomainError, TableClient>> CheckIfExist(TableClient client, SeasonStorage season,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<SeasonStorage>(s => s.Season == season.Season && s.Year == season.Year))
             .BindAsync((Func<ImmutableList<SeasonStorage>, Either<DomainError, TableClient>>?) CreateResult);
 
@@ -39,7 +39,7 @@ public sealed class SeasonStore(ITableClientFactory<SeasonStorage> tableClientFa
     {
         if (!seasonType.IsLatest()) return Task.FromResult(Right<DomainError, TableClient>(client));
 
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<SeasonStorage>(s => s.PartitionKey == SeasonType.Latest))
             .BindAsync(i => RemoveLatest(client, i, token));
     }

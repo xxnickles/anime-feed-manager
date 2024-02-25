@@ -11,6 +11,14 @@ public partial class SimpleTvSubscriptionContext : JsonSerializerContext
 {
 }
 
+public record InterestedTvSubscription(string UserId, string SeriesId, string Series);
+
+[JsonSerializable(typeof(InterestedTvSubscription))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+public partial class InterestedTvSubscriptionContext : JsonSerializerContext
+{
+}
 
 public record ShortSeriesSubscription(string UserId, string Series, DateTime NotificationDate);
 

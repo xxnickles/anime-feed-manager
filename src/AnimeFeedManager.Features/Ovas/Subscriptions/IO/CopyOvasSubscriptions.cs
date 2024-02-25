@@ -27,7 +27,7 @@ public class CopyOvasSubscriptions : ICopyOvasSubscriptions
     private Task<Either<DomainError, ProcessResult>> CopySubscription(TableClient client, UserId source, UserId target,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<OvasSubscriptionStorage>(s => s.PartitionKey == source, cancellationToken: token))
             .BindAsync(items => StoreAll(client, items.ConvertAll(i => ReMap(i, target)), token));
     }

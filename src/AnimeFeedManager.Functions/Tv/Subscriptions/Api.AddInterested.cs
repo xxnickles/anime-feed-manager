@@ -1,7 +1,6 @@
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 using AnimeFeedManager.Functions.ResponseExtensions;
 using Microsoft.Extensions.Logging;
-using SimpleTvSubscriptionContext = AnimeFeedManager.Common.Dto.SimpleTvSubscriptionContext;
 
 namespace AnimeFeedManager.Functions.Tv.Subscriptions;
 
@@ -17,11 +16,12 @@ public class AddInterested(
         HttpRequestData req)
     {
         var payload =
-            await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription);
+            await JsonSerializer.DeserializeAsync(req.Body,
+                InterestedTvSubscriptionContext.Default.InterestedTvSubscription);
         ArgumentNullException.ThrowIfNull(payload);
 
         return await Utils.Validate(payload)
-            .BindAsync(param => addInterested.Add(param.UserId, param.Series, default))
+            .BindAsync(param => addInterested.Add(param.UserId, param.SeriesId, param.Series, default))
             .ToResponse(req, _logger);
     }
 }

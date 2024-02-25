@@ -26,7 +26,7 @@ public class RemoveAllInterested : IRemoveAllInterested
     private Task<Either<DomainError, ProcessResult>> RemoveAllSubscription(TableClient client, UserId userId,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(() =>
+        return TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<InterestedStorage>(s => s.PartitionKey == userId, cancellationToken: token))
             .BindAsync(items => RemoveAll(client, items, token));
     }

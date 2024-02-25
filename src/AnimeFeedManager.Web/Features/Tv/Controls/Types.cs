@@ -37,12 +37,15 @@ public class NotAvailableControlData
 
     public string UserId { get; set; } = string.Empty;
 
+    public string SeriesId { get; set; } = string.Empty;
+
     public static implicit operator NotAvailableControlData(InterestedAnime anime)
     {
         return new NotAvailableControlData
         {
             Title = anime.AnimeTitle,
-            UserId = anime.UserId.ToString()
+            UserId = anime.UserId.ToString(),
+            SeriesId = anime.Id
         };
     }
 
@@ -67,5 +70,5 @@ public record AdminTvControlParams(string Id, string Title, string Season)
 
 public record DefaultAdminTvControlParams() : AdminTvControlParams(string.Empty, string.Empty, string.Empty);
 
-public record AlternativeTitleUpdate(string Id, string Season, string Title);
+public record AlternativeTitleUpdate(string Id, string Season, string Title, string OriginalTitle);
 public record SeriesToRemove(string Id, string Season);

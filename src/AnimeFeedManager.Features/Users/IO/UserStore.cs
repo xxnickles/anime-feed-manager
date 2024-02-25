@@ -23,7 +23,7 @@ public sealed class UserStore(ITableClientFactory<UserStorage> tableClientFactor
     public Task<Either<DomainError, Unit>> CheckEmailExits(Email email,
         CancellationToken token)
     {
-        return tableClientFactory.GetClient().BindAsync(client => TableUtils.ExecuteQueryWithEmpty(() =>
+        return tableClientFactory.GetClient().BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<UserStorage>(user => user.Email == email, cancellationToken: token)))
             .BindAsync(CheckMatches);
 

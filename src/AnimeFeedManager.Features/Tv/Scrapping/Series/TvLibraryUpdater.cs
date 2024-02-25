@@ -13,6 +13,7 @@ public sealed class TvLibraryUpdater(
     IDomainPostman domainPostman,
     ISeriesProvider seriesProvider,
     ITitlesProvider titlesProvider,
+    IAlternativeTitlesGetter alternativeTitlesGetter,
     ITvSeriesStore seriesStore)
 {
     public Task<Either<DomainError, Unit>> Update(SeasonSelector season, CancellationToken token = default)
@@ -25,12 +26,26 @@ public sealed class TvLibraryUpdater(
     private Task<Either<DomainError, TvSeries>> TryAddFeedTitles(TvSeries series, CancellationToken token)
     {
         return titlesProvider.GetTitles()
-            .MapAsync(titles =>
+            .BindAsync(titles => alternativeTitlesGetter.GetForSeason(series.SeriesList.First().PartitionKey, token)
+                .MapAsync(alternativeTitles => new {titles, alternativeTitles}))
+            .MapAsync(data =>
             {
                 var updatedSeries =
                     series.SeriesList.ConvertAll(s =>
                     {
-                        var feedTitle = Utils.TryGetFeedTitle(titles, s.Title ?? string.Empty);
+                        var feedTitle = Utils.TryGetFeedTitle(data.titles, s.Title ?? string.Empty);
+                        // When feed title is empty, try to check an alternative title
+                        if (string.IsNullOrEmpty(feedTitle))
+                        {
+                            var alternativeTitleStorage =
+                                data.alternativeTitles.FirstOrDefault(a => a.RowKey == s.RowKey);
+                            if (alternativeTitleStorage is not null)
+                            {
+                                feedTitle = Utils.TryGetFeedTitle(data.titles,
+                                    alternativeTitleStorage.AlternativeTitle ?? string.Empty);
+                            }
+                        }
+
                         s.FeedTitle = feedTitle;
                         // If there is an available feed, it is an ongoing series
                         if (!string.IsNullOrEmpty(feedTitle))
@@ -38,7 +53,7 @@ public sealed class TvLibraryUpdater(
                         return s;
                     });
 
-                return (Series: series with {SeriesList = updatedSeries}, Titles: titles);
+                return (Series: series with {SeriesList = updatedSeries}, Titles: data.titles);
             }).MapAsync(param => UpdateTitles(param.Titles, param.Series, token));
     }
 
@@ -57,7 +72,7 @@ public sealed class TvLibraryUpdater(
             .BindAsync(_ => domainPostman.SendMessage(new ScrapImagesRequest(series.Images), Box.ImageToScrap, token))
             .BindAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest(), token));
     }
-    
+
     private Task<Either<DomainError, Unit>> CreateSeasonEvent(string season, int year, bool isLatest,
         CancellationToken token)
     {

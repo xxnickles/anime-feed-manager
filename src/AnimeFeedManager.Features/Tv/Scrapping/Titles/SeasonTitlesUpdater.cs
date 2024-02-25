@@ -2,9 +2,7 @@
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions;
 using Unit = LanguageExt.Unit;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Titles;

@@ -31,7 +31,7 @@ public class StorageCleanup(
         DateTimeOffset beforeOf,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(
+        return TableUtils.ExecuteQueryWithEmptyResult(
                 () => client.QueryAsync<StateUpdateStorage>(s =>
                     s.PartitionKey == target.Value && s.Timestamp <= beforeOf))
             .BindAsync(entities => TableUtils.BatchDelete(client, entities, token))
@@ -51,7 +51,7 @@ public class StorageCleanup(
         DateTimeOffset beforeOf,
         CancellationToken token)
     {
-        return TableUtils.ExecuteQueryWithEmpty(
+        return TableUtils.ExecuteQueryWithEmptyResult(
                 () => client.QueryAsync<NotificationStorage>(s =>
                     s.PartitionKey == RoleNames.Admin && s.Timestamp <= beforeOf))
             .BindAsync(entities =>

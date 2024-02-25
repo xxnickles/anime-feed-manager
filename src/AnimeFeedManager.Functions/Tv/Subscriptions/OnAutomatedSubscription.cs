@@ -3,7 +3,7 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Subscriptions;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Functions.Tv.Series;
+namespace AnimeFeedManager.Functions.Tv.Subscriptions;
 
 public sealed class OnAutomatedSubscription
 {
@@ -20,7 +20,7 @@ public sealed class OnAutomatedSubscription
 
     [Function("OnAutomatedSubscription")]
     public async Task Run(
-        [QueueTrigger(Box.Available.UserAutoSubscriptionBox, Connection = "AzureWebJobsStorage")] AutomatedSubscription notification)
+        [QueueTrigger(Box.Available.AutomatedSubscriptionBox, Connection = "AzureWebJobsStorage")] AutomatedSubscription notification)
     {
         _logger.LogInformation("Starting automated subscription");
         await _automatedSubscriptionHandler.Handle(notification, default);

@@ -7,24 +7,15 @@ public interface ITvSeriesStore
 {
     Task<Either<DomainError, Unit>> Add(ImmutableList<AnimeInfoStorage> series, CancellationToken token);
 
-    Task<Either<DomainError, Unit>> Add(AnimeInfoStorage series, CancellationToken token);
-
     Task<Either<DomainError, Unit>> RemoveSeries(RowKey rowKey, PartitionKey key, CancellationToken token);
 }
 
-public class TvSeriesStore(ITableClientFactory<AnimeInfoStorage> tableClientFactory) : ITvSeriesStore
+public sealed class TvSeriesStore(ITableClientFactory<AnimeInfoStorage> tableClientFactory) : ITvSeriesStore
 {
     public Task<Either<DomainError, Unit>> Add(ImmutableList<AnimeInfoStorage> series, CancellationToken token)
     {
         return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.BatchAdd(client, series, token))
-            .MapAsync(_ => unit);
-    }
-
-    public Task<Either<DomainError, Unit>> Add(AnimeInfoStorage series, CancellationToken token)
-    {
-        return tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.TryExecute(() => client.UpsertEntityAsync(series, cancellationToken: token)))
             .MapAsync(_ => unit);
     }
     

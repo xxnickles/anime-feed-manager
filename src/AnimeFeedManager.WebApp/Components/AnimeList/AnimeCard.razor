@@ -161,7 +161,7 @@
             try
             {
                 State.AddLoadingItem(key, $"Adding {Anime.Title} to interest");
-                await TvSubscriberService.AddToInterest(userEmail, Anime.Title);
+                await TvSubscriberService.AddToInterest(userEmail, Anime.Id, Anime.Title);
                 State.AddInterested(Anime.Title);
                 Snackbar.Add($"{Anime.Title} has been added to you interested list", Severity.Success);
                 State.RemoveLoadingItem(key);

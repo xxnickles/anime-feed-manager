@@ -2,7 +2,6 @@
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Dto;
-using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Users;
 using AnimeFeedManager.Features.Users.IO;

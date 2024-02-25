@@ -40,7 +40,7 @@ internal static class TableUtils
     /// <param name="typeName">Parameter name</param>
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns>Error or Immutable list of <typeparamref name="T"/></returns>
-    internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithNotFound<T>(
+    internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithNotFoundResult<T>(
         Func<AsyncPageable<T>> query) where T : ITableEntity
     {
         try
@@ -70,7 +70,7 @@ internal static class TableUtils
     /// <param name="typeName">Parameter name</param>
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns>Error or Immutable list of <typeparamref name="T"/></returns>
-    internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithEmpty<T>(
+    internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithEmptyResult<T>(
         Func<AsyncPageable<T>> query) where T : ITableEntity
     {
         try
@@ -97,7 +97,7 @@ internal static class TableUtils
     /// <param name="query">Query</param>
     /// <param name="typeName">Parameter Name</param>
     /// <param name="items">Maximum items</param>
-    /// <typeparam name="T">Table Entity<</typeparam>
+    /// <typeparam name="T">Table Entity</typeparam>
     /// <returns></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteLimitedQuery<T>(
         Func<AsyncPageable<T>> query, byte items = 1) where T : ITableEntity
