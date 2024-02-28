@@ -17,16 +17,22 @@ public static class SeasonValidators
     //     };
     // }
 
-    public static Either<DomainError, BySeason> ValidateSeasonValues(string season, ushort year)
+    public static Either<DomainError, BySeason> ParseSeasonValues(string season, ushort year)
     {
         return (ValidateSeason(season), ValidateYear(year))
             .Apply((seasonType, yearType) => new BySeason(seasonType, yearType)).ValidationToEither();
     }
 
-    public static Either<DomainError, (Season season, Year year)> Validate(string season, ushort year)
+    private static Validation<ValidationError, (Season season, Year year)> Validate(string season, ushort year)
     {
         return (ValidateSeason(season), ValidateYear(year))
-            .Apply((s, y) => (s, y))
+            .Apply((s, y) => (s, y));
+    }
+
+
+    public static Either<DomainError, (Season season, Year year)> Parse(string season, ushort year)
+    {
+        return Validate(season, year)
             .ValidationToEither();
     }
 
@@ -37,12 +43,35 @@ public static class SeasonValidators
     /// <returns></returns>
     public static Either<DomainError, (Season season, Year year)> Parse(string seasonString)
     {
+        return ValidateSeasonString(seasonString).ValidationToEither();
+    }
+
+    /// <summary>
+    /// Validates season string in "Season-Year" format 
+    /// </summary>
+    /// <param name="seasonString">String in format "Season-Year"</param>
+    /// <returns></returns>
+    public static Validation<ValidationError, (Season season, Year year)> ValidateSeasonString(string seasonString)
+    {
         var parts = seasonString.Split('-');
         if (parts.Length != 2)
-            return ValidationErrors.Create(new[]
-                {ValidationError.Create("Season", "Season string is an invalid string")});
+            return ValidationError.Create("Season", "Season string is an invalid string");
         var parsingResult = ushort.TryParse(parts[1], out var year);
         return Validate(parts[0], parsingResult ? year : (ushort) 0);
+    }
+    
+    /// <summary>
+    /// Validates season string in "Year-Season" format 
+    /// </summary>
+    /// <param name="seasonString">String in format "Season-Year"</param>
+    /// <returns></returns>
+    public static Validation<ValidationError, (Season season, Year year)> ValidateSeasonPartitionString(string seasonString)
+    {
+        var parts = seasonString.Split('-');
+        if (parts.Length != 2)
+            return ValidationError.Create("Season", "Season string is an invalid string");
+        var parsingResult = ushort.TryParse(parts[0], out var year);
+        return Validate(parts[1], parsingResult ? year : (ushort) 0);
     }
 
     private static Validation<ValidationError, Season> ValidateSeason(string season) =>

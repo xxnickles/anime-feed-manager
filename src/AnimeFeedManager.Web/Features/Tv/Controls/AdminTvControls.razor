@@ -1,16 +1,20 @@
 ﻿@if (TvAnimeInfo is not DefaultAdminTvControlParams)
 {
-    <form hx-post="tv/remove" hx-confirm="@($"Do you want remove {TvAnimeInfo.Title} from the library?")">
+    <form hx-post="tv/remove"
+          hx-confirm="@($"Do you want remove {TvAnimeInfo.Title} from the library?")"
+          hx-swap="none">
+        <AntiforgeryToken/>
         <input type="hidden" name="@nameof(SeriesToRemove.Id)" value="@TvAnimeInfo.Id"/>
         <input type="hidden" name="@nameof(SeriesToRemove.Season)" value="@TvAnimeInfo.Season"/>
-        <button class="btn btn-error btn-xs btn-circle">
+        <input type="hidden" name="@nameof(SeriesToRemove.Title)" value="@TvAnimeInfo.Title"/>
+        <button title="@($"Remove {TvAnimeInfo.Title}")" type="submit" class="btn btn-error btn-xs btn-circle">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
         </button>
     </form>
     <div x-data class="mt-0.5">
-        <button class="btn btn-primary btn-xs btn-circle" @click="$refs.modal.showModal()">
+        <button title="@($"Add alternative title for {TvAnimeInfo.Title}")" class="btn btn-primary btn-xs btn-circle" @click="$refs.modal.showModal()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3 3m0 0 3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75"/>
             </svg>

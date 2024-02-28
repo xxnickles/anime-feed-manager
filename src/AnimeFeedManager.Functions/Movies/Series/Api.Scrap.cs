@@ -41,7 +41,7 @@ public sealed class Scrap(
         _logger.LogInformation("Automated Update Movies Library (Manual trigger) for Custom Season");
 
         var result = await req.AllowAdminOnly()
-            .BindAsync(_ => SeasonValidators.Validate(season, year))
+            .BindAsync(_ => SeasonValidators.Parse(season, year))
             .MapAsync(param => param.ToSeasonParameter())
             .BindAsync(param =>
                 domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Movie, param, ScrapType.BySeason)));

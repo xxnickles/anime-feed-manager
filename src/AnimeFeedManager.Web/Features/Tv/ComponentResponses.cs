@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Web.Features.Tv.Controls;
+﻿using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Web.Features.Tv.Controls;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Tv;
@@ -49,5 +50,26 @@ internal static class ComponentResponses
             {nameof(NotAvailableSeriesBase.DomainError), domainError}
         };
         return new RazorComponentResult<T>(parameters);
+    }
+
+    internal static RazorComponentResult OkResponse(SeasonInformation seasonInformation, string message)
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            {nameof(TvGridComponent.SeasonInfo), seasonInformation},
+            {nameof(TvGridComponent.Message), message},
+        };
+        return new RazorComponentResult<TvGridComponent>(parameters);
+    }
+    
+    internal static RazorComponentResult ErrorResponse(SeasonInformation seasonInformation, DomainError error, ILogger logger)
+    {
+        error.LogError(logger);
+        var parameters = new Dictionary<string, object?>
+        {
+            {nameof(TvGridComponent.SeasonInfo), seasonInformation},
+            {nameof(TvGridComponent.DomainError), error},
+        };
+        return new RazorComponentResult<TvGridComponent>(parameters);
     }
 }

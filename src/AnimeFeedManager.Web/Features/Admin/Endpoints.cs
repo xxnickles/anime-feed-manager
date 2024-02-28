@@ -40,7 +40,7 @@ public static class Endpoints
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
-                    SeasonValidators.Validate(season.Season, season.Year)
+                    SeasonValidators.Parse(season.Season, season.Year)
                         .Map(param => param.ToSeasonParameter())
                         .BindAsync(seasonParameter =>
                             domainPostman.CreateScrapingEvent(
@@ -65,7 +65,7 @@ public static class Endpoints
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
-                    SeasonValidators.Validate(season.Season, season.Year)
+                    SeasonValidators.Parse(season.Season, season.Year)
                         .Map(param => param.ToSeasonParameter())
                         .BindAsync(seasonParameter =>
                             domainPostman.CreateScrapingEvent(
@@ -91,7 +91,7 @@ public static class Endpoints
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
-                    SeasonValidators.Validate(season.Season, season.Year)
+                    SeasonValidators.Parse(season.Season, season.Year)
                         .Map(param => param.ToSeasonParameter())
                         .BindAsync(seasonParameter =>
                             domainPostman.CreateScrapingEvent(

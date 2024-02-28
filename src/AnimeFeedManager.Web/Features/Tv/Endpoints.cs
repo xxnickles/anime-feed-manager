@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
+using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
@@ -63,7 +64,8 @@ public static class Endpoints
                     [FromServices] ILogger<TvGrid> logger,
                     CancellationToken token) =>
                 domainPostman.SendMessage(
-                        new UpdateAlternativeTitle(updateInfo.Id, updateInfo.Season, updateInfo.Title, updateInfo.OriginalTitle),
+                        new UpdateAlternativeTitle(updateInfo.Id, updateInfo.Season, updateInfo.Title,
+                            updateInfo.OriginalTitle),
                         Box.AlternativeTitleUpdate, token)
                     .ToComponentResult("Alternative title update will be processed in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
@@ -74,12 +76,18 @@ public static class Endpoints
                     [FromServices] ITvSeriesStore tvSeriesStore,
                     [FromServices] ILogger<TvGrid> logger,
                     CancellationToken token) =>
-                (PartitionKey.Validate(removeInfo.Season), RowKey.Validate(removeInfo.Id))
-                .Apply((key, rowKey) => new {PartitionKey = key, RowKey = rowKey})
+                (PartitionKey.Validate(removeInfo.Season), RowKey.Validate(removeInfo.Id),
+                    SeasonValidators.ValidateSeasonPartitionString(removeInfo.Season))
+                .Apply((key, rowKey, season) => new {PartitionKey = key, RowKey = rowKey, Season = season})
                 .ValidationToEither()
                 .BindAsync(safeData =>
-                    tvSeriesStore.RemoveSeries(safeData.RowKey, safeData.PartitionKey, token))
-                .ToComponentResult("Series has been removed", logger))
+                    tvSeriesStore.RemoveSeries(safeData.RowKey, safeData.PartitionKey, token)
+                        .MapAsync(_ => new
+                            {SeasonInfo = new SeasonInformation(safeData.Season.season, safeData.Season.year)}))
+                .ToComponentResult(
+                    data => ComponentResponses.OkResponse(data.SeasonInfo,
+                        $"{removeInfo.Title} has been removed from the library"),
+                    error => CommonComponentResponses.ErrorComponentResult(error, logger)))
             .RequireAuthorization(Policies.AdminRequired);
 
 

@@ -34,7 +34,7 @@ public sealed class AlternativeTitlesGetter : IAlternativeTitlesGetter
     public Task<Either<DomainError, ImmutableList<TilesMap>>> ByOriginalTitles(IEnumerable<string> originalTitles,
         CancellationToken token)
     {
-       return _tableClientFactory.GetClient()
+        return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<AlternativeTitleStorage>(GetTitlesFilter(originalTitles), cancellationToken: token)))
             .MapAsync(items =>
@@ -44,8 +44,8 @@ public sealed class AlternativeTitlesGetter : IAlternativeTitlesGetter
 
     private static string GetTitlesFilter(IEnumerable<string> originalTitles)
     {
-        var filterClauses = originalTitles.Select(title => $"{nameof(AlternativeTitleStorage.OriginalTitle)} eq '{title}'").ToArray();
-        var t = string.Join(" or ", filterClauses);
-        return t;
+        var filterClauses = originalTitles
+            .Select(title =>  TableClient.CreateQueryFilter($"{nameof(AlternativeTitleStorage.OriginalTitle)} eq {title}")).ToArray();
+        return string.Join(" or ", filterClauses);
     }
 }

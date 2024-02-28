@@ -27,17 +27,17 @@ public sealed class OnTvTitlesScrapRequest(
         var task = notification switch
         {
             (SeriesType.Tv, _, ScrapType.Latest) => tvLibraryUpdater.Update(new Latest()),
-            (SeriesType.Tv, _, ScrapType.BySeason) => SeasonValidators.ValidateSeasonValues(
+            (SeriesType.Tv, _, ScrapType.BySeason) => SeasonValidators.ParseSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
                 notification.SeasonParameter?.Year ?? 0).BindAsync(season => tvLibraryUpdater.Update(season)),
 
             (SeriesType.Ova, _, ScrapType.Latest) => ovasLibraryUpdater.Update(new Latest()),
-            (SeriesType.Ova, _, ScrapType.BySeason) => SeasonValidators.ValidateSeasonValues(
+            (SeriesType.Ova, _, ScrapType.BySeason) => SeasonValidators.ParseSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
                 notification.SeasonParameter?.Year ?? 0).BindAsync(season => ovasLibraryUpdater.Update(season)),
 
             (SeriesType.Movie, _, ScrapType.Latest) => moviesLibraryUpdater.Update(new Latest()),
-            (SeriesType.Movie, _, ScrapType.BySeason) => SeasonValidators.ValidateSeasonValues(
+            (SeriesType.Movie, _, ScrapType.BySeason) => SeasonValidators.ParseSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
                 notification.SeasonParameter?.Year ?? 0).BindAsync(season => moviesLibraryUpdater.Update(season)),
 

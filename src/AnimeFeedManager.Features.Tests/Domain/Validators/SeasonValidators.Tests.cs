@@ -15,7 +15,7 @@ public class SeasonValidatorsTests
     [InlineData("bad", 10, new []{ "Season", "Year" })]
     public void Should_Invalidate_Wrong_Inputs(string season, ushort year, string[] expectedErrorFields)
     {
-        var sut = SeasonValidators.Validate(season, year);
+        var sut = SeasonValidators.Parse(season, year);
         sut.Match(
             _ => Assert.Fail("Should not be a positive result"),
             e =>
@@ -30,7 +30,7 @@ public class SeasonValidatorsTests
     public void Season_Validator_Should_Respect_Lower_Boundary()
     {
         // Cannot ve lower than 2000
-        var sut = SeasonValidators.Validate("Spring", 1999);
+        var sut = SeasonValidators.Parse("Spring", 1999);
         sut.Match(
             _ => Assert.Fail("Should not be a positive result"),
             e =>
@@ -45,7 +45,7 @@ public class SeasonValidatorsTests
     public void Season_Validator_Should_Respect_Upper_Boundary()
     {
         // Cannot ve lower than 20009
-        var sut = SeasonValidators.Validate("Summer", (ushort)(DateTime.Now.Year + 2));
+        var sut = SeasonValidators.Parse("Summer", (ushort)(DateTime.Now.Year + 2));
         // or larger than the next year
         sut.Match(
             _ => Assert.Fail("Should not be a positive result"),

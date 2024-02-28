@@ -10,7 +10,7 @@ public sealed class OvasLibraryGetter(IOvasSeasonalLibrary seasonalLibrary)
     public Task<Either<DomainError, ShortSeasonCollection>> GetForSeason(string season, ushort year,
         CancellationToken token = default)
     {
-        return SeasonValidators.Validate(season, year)
+        return SeasonValidators.Parse(season, year)
             .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.season, param.year, token))
             .MapAsync(ovas => Project(year, season, ovas));
     }
