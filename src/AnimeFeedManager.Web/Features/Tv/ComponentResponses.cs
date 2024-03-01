@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Web.Features.Tv.Controls;
+﻿using AnimeFeedManager.Web.Features.Tv.Controls;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Tv;

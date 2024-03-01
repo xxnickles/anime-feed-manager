@@ -45,8 +45,8 @@
         return anime.FeedInformation.Status switch
         {
             SeriesStatus.NotAvailableValue => user.TvSubscriptions.Insterested.Select(x => x.ToString()).Contains(anime.Title)
-                ? new InterestedAnime(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.Url, anime.Title, user.UserId, user is AdminUser)
-                : new NotAvailableAnime(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.Url, anime.Title, user.UserId, user is AdminUser),
+                ? new InterestedAnime(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.Url, user.UserId, user is AdminUser)
+                : new NotAvailableAnime(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.Url, user.UserId, user is AdminUser),
             SeriesStatus.CompletedValue => new CompletedAnime(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.Url),
             SeriesStatus.OngoingValue => user.TvSubscriptions.Subscriptions.Select(x => x.ToString()).Contains(anime.FeedInformation.Title ?? string.Empty)
                 ? new SubscribedAnime(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.Url, anime.FeedInformation.Title ?? string.Empty, user.UserId, user is AdminUser)

@@ -6,7 +6,6 @@ public class AvailableTvSeriesControlData
 {
     public string Title { get; set; } = string.Empty;
     public string FeedId { get; set; } = string.Empty;
-
     public string UserId { get; set; } = string.Empty;
 
 
@@ -15,7 +14,7 @@ public class AvailableTvSeriesControlData
         return new AvailableTvSeriesControlData
         {
             Title = anime.Title,
-            UserId = anime.UserId.ToString(),
+            UserId = anime.UserId,
             FeedId = anime.FeedId
         };
     }
@@ -25,7 +24,7 @@ public class AvailableTvSeriesControlData
         return new AvailableTvSeriesControlData
         {
             Title = anime.Title,
-            UserId = anime.UserId.ToString(),
+            UserId = anime.UserId,
             FeedId = anime.FeedId
         };
     }
@@ -43,8 +42,8 @@ public class NotAvailableControlData
     {
         return new NotAvailableControlData
         {
-            Title = anime.AnimeTitle,
-            UserId = anime.UserId.ToString(),
+            Title = anime.Title,
+            UserId = anime.UserId,
             SeriesId = anime.Id
         };
     }
@@ -53,8 +52,9 @@ public class NotAvailableControlData
     {
         return new NotAvailableControlData
         {
-            Title = anime.AnimeTitle,
-            UserId = anime.UserId.ToString()
+            Title = anime.Title,
+            UserId = anime.UserId,
+            SeriesId = anime.Id,
         };
     }
 }

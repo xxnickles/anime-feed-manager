@@ -35,7 +35,6 @@ public sealed record NotAvailableAnime(
     string Title,
     string Synopsis,
     string? Url,
-    string AnimeTitle,
     UserId UserId,
     bool IsAdmin) : AnimeForUser(Id, Season, Title, Synopsis, Url, UserId, IsAdmin);
 
@@ -45,7 +44,6 @@ public sealed record InterestedAnime(
     string Title,
     string Synopsis,
     string? Url,
-    string AnimeTitle,
     UserId UserId,
     bool IsAdmin) : AnimeForUser(Id, Season, Title, Synopsis, Url, UserId, IsAdmin);
 

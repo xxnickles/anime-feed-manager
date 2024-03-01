@@ -13,8 +13,9 @@
                         <div class="badge badge-warning"></div>
                     </div>
                     <div>
-                        <input type="hidden" name="@nameof(AvailableTvSeriesControlData.Title)" @bind="ControlData.Title"/>
-                        <input type="hidden" name="@nameof(AvailableTvSeriesControlData.UserId)" @bind="ControlData.UserId"/>
+                        <input type="hidden" name="@nameof(NotAvailableControlData.Title)" @bind="ControlData.Title"/>
+                        <input type="hidden" name="@nameof(NotAvailableControlData.UserId)" @bind="ControlData.UserId"/>
+                        <input type="hidden" name="@nameof(NotAvailableControlData.SeriesId)" @bind="ControlData.SeriesId"/>
                         <button type="submit" class="btn btn-primary btn-xs">Add to Interested</button>
                     </div>
                 </fieldset>

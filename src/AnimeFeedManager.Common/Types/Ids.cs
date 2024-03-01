@@ -43,6 +43,11 @@ public record UserId : DomainId
         return Validate(id)
             .ValidationToEither();
     }
+
+    public override string ToString()
+    {
+        return base.ToString();
+    }
 }
 
 public record PartitionKey : DomainId
@@ -68,6 +73,11 @@ public record PartitionKey : DomainId
         return Validate(id)
             .ValidationToEither();
     }
+    
+    public override string ToString()
+    {
+        return base.ToString();
+    }
 }
 
 public record RowKey : DomainId
@@ -92,5 +102,10 @@ public record RowKey : DomainId
     {
         return Validate(id)
             .ValidationToEither();
+    }
+    
+    public override string ToString()
+    {
+        return base.ToString();
     }
 }
