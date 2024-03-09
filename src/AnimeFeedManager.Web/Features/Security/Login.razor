@@ -20,30 +20,28 @@
             <p class="py-6">Use your username (email) to access the system using your passkey</p>
         </div>
         <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-            <form
-                method="post"
-                class="card-body"
-                x-data="login()"
-                x-on:submit.prevent="$event.target.checkValidity() ? login($event) : $event.target.reportValidity()"
-                @onsubmit="Submit"
-                @formname="login">
-                <AntiforgeryToken/>
+            <form method="post"
+                  class="card-body"
+                  x-data="login()"
+                  x-on:submit.prevent="$event.target.checkValidity() ? login($event) : $event.target.reportValidity()"
+                  @onsubmit="Submit"
+                  @formname="login">
+                <AntiforgeryToken />
                 <fieldset class="form-control">
                     <label for="user-alias" class="label">
                         <span class="label-text">Please provide an email</span>
                     </label>
 
-                    <input
-                        @bind-value="Alias"
-                        type="email"
-                        id="user-alias"
-                        name="alias"
-                        required
-                        x-model="alias"
-                        x-ref="alias"
-                        placeholder="Enter your Email"
-                        class="input input-bordered invalid:input-error required:!input-bordered"/>
-                    <input @bind-value="Id" name="id" type="hidden" id="id-value"/>
+                    <input @bind-value="Alias"
+                           type="email"
+                           id="user-alias"
+                           name="alias"
+                           required
+                           x-model="alias"
+                           x-ref="alias"
+                           placeholder="Enter your Email"
+                           class="input input-bordered invalid:input-error required:!input-bordered" />
+                    <input @bind-value="Id" name="id" type="hidden" id="id-value" />
                 </fieldset>
                 <div class="form-control">
                     <button class="btn btn-primary mt-4">Login</button>
@@ -75,14 +73,11 @@
 </section>
 
 <SectionContent SectionName="additional-scripts">
-    <script defer>    
-           const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
-           const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
-       </script>
-    <script
-        defer
-        src="https://cdn.passwordless.dev/dist/1.1.0/umd/passwordless.umd.min.js"
-        crossorigin="anonymous"></script>
+    <script defer>
+        const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
+        const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
+    </script>
+    <script defer src="lib/passwordlessdev/passwordless-client/dist/umd/passwordless.umd.min.js"></script>
     <script defer src="scripts/client-signin.js" type="module"></script>
     <script src="./Features/Security/Login.razor.js" type="text/javascript"></script>
 </SectionContent>
@@ -111,7 +106,7 @@
 
     private async Task CompleteLogin(ClaimsPrincipal principal)
     {
-        await HttpContext.SignInAsync(principal, new AuthenticationProperties {IsPersistent = true});
+        await HttpContext.SignInAsync(principal, new AuthenticationProperties { IsPersistent = true });
         NavigationManager.NavigateTo("/");
     }
 

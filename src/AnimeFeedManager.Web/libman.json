@@ -3,12 +3,38 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "alpinejs@3.13.5",
-      "destination": "wwwroot\\lib\\alpinejs"
+      "provider": "cdnjs",
+      "library": "htmx@1.9.10",
+      "destination": "wwwroot/lib/htmx/",
+      "files": [
+        "htmx.min.js",
+        "htmx.js",
+        "ext/ws.min.js",
+        "ext/sse.min.js"
+      ]
     },
     {
-      "library": "htmx@1.9.10",
-      "destination": "wwwroot\\lib\\htmx"
+      "provider": "cdnjs",
+      "library": "alpinejs@3.13.7",
+      "destination": "wwwroot/lib/alpinejs/",
+      "files": [
+        "cdn.js",
+        "cdn.min.js",
+        "module.cjs.js",
+        "module.cjs.min.js",
+        "module.esm.js",
+        "module.esm.min.js"
+      ]
     }
+  ,
+{
+  "provider": "unpkg",
+  "library": "@passwordlessdev/passwordless-client@1.1.2",
+  "destination": "wwwroot/lib/passwordlessdev/passwordless-client/",
+  "files": [
+    "dist/umd/passwordless.umd.js",
+    "dist/umd/passwordless.umd.min.js"
   ]
+}
+]
 }
