@@ -25,16 +25,15 @@
         "module.esm.js",
         "module.esm.min.js"
       ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "@passwordlessdev/passwordless-client@1.1.2",
+      "destination": "wwwroot/lib/passwordlessdev/passwordless-client/",
+      "files": [
+        "dist/umd/passwordless.umd.js",
+        "dist/umd/passwordless.umd.min.js"
+      ]
     }
-  ,
-{
-  "provider": "unpkg",
-  "library": "@passwordlessdev/passwordless-client@1.1.2",
-  "destination": "wwwroot/lib/passwordlessdev/passwordless-client/",
-  "files": [
-    "dist/umd/passwordless.umd.js",
-    "dist/umd/passwordless.umd.min.js"
   ]
-}
-]
 }
