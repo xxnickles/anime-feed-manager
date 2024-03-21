@@ -1,0 +1,27 @@
+﻿@if (Anime is not NullTvAnime)
+{
+    @switch (Anime)
+    {
+        case AnimeForUser anime:
+            <AnimeForUserControls Anime="@anime"></AnimeForUserControls>
+            break;
+
+        case FeedAnime feedAnime:
+            <AnimeFeedControls FeedInformation="feedAnime.FeedInformation"></AnimeFeedControls>
+            break;
+
+        case CompletedAnime:
+            <CompletedAnimeControls></CompletedAnimeControls>
+            break;
+            
+        default:
+            <div class="badge badge-error gap-2">
+                <span>Nothing Yet!</span>
+            </div>
+            break;
+    }
+}
+
+@code {
+    [Parameter, EditorRequired] public BaseTvAnime Anime { get; set; } = new NullTvAnime();
+}

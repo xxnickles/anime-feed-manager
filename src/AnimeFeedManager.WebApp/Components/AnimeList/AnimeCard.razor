@@ -11,11 +11,11 @@
 
 @implements IDisposable
 <MudCard>
-    <MudCardMedia Image="@Anime.Url" Height="250" Title="@Anime.Title"/>
+    <MudCardMedia Image="@Anime.ImageUrl" Height="250" Title="@Anime.Title"/>
     <div>
         <MudCardContent>
             <MudText Typo="Typo.h2">@Anime.Title</MudText>
-            @if (!string.IsNullOrEmpty(@Anime.Synopsis))
+            @if (!string.IsNullOrEmpty(Anime.Synopsis))
             {
                 <MudText Typo="Typo.body2">@Anime.Synopsis</MudText>
             }

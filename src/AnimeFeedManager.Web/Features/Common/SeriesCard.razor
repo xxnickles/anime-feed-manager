@@ -7,7 +7,7 @@
                 break;
         }
     </div>
-    <img class="object-cover w-44" src="@Anime.Url" alt="@Anime.Title"/>
+    <img class="object-cover w-44" src="@Anime.ImageUrl" alt="@Anime.Title"/>
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
         <h2 class="basis-[5%] mx-4 mt-2 text-base font-bold ">@Anime.Title</h2>
         <p class="basis-[78%] mx-4 my-2 text-sm text-justify max-h-full overflow-y-auto scrollbar pr-3 break-all">
@@ -23,18 +23,9 @@
         <footer class="basis-[17%] bg-neutral px-4 pt-1">
             @switch (Anime)
             {
-                case AnimeForUser anime:
-                    <AnimeForUserControls Anime="@anime"></AnimeForUserControls>
+                case BaseTvAnime anime:
+                    <TvControls Anime="@anime"></TvControls>
                     break;
-
-                case FeedAnime feedAnime:
-                    <AnimeFeedControls FeedInformation="feedAnime.FeedInformation"></AnimeFeedControls>
-                    break;
-
-                case CompletedAnime:
-                    <CompletedAnimeControls></CompletedAnimeControls>
-                    break;
-
                 default:
                     <div class="badge badge-error gap-2">
                         <span >Nothing Yet!</span>

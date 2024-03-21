@@ -2960,6 +2960,10 @@ html {
   margin-bottom: 0.5rem;
 }
 
+.-mt-3 {
+  margin-top: -0.75rem;
+}
+
 .mb-3 {
   margin-bottom: 0.75rem;
 }
@@ -2996,6 +3000,10 @@ html {
   margin-top: 2rem;
 }
 
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
 .flex {
   display: flex;
 }
@@ -3006,6 +3014,10 @@ html {
 
 .grid {
   display: grid;
+}
+
+.list-item {
+  display: list-item;
 }
 
 .hidden {
@@ -3078,6 +3090,10 @@ html {
 
 .max-w-md {
   max-width: 28rem;
+}
+
+.max-w-screen-md {
+  max-width: 768px;
 }
 
 .max-w-sm {
@@ -3223,6 +3239,18 @@ html {
 
 .stroke-current {
   stroke: currentColor;
+}
+
+.stroke-info {
+  stroke: var(--fallback-in,oklch(var(--in)/1));
+}
+
+.stroke-error {
+  stroke: var(--fallback-er,oklch(var(--er)/1));
+}
+
+.stroke-warning {
+  stroke: var(--fallback-wa,oklch(var(--wa)/1));
 }
 
 .object-cover {
@@ -3372,6 +3400,12 @@ html {
 .shadow-2xl {
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow-lg {
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
@@ -3551,8 +3585,16 @@ html {
     margin-left: 2.5rem;
   }
 
+  .md\:mt-0 {
+    margin-top: 0px;
+  }
+
   .md\:mt-6 {
     margin-top: 1.5rem;
+  }
+
+  .md\:block {
+    display: block;
   }
 
   .md\:h-8 {

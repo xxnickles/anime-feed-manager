@@ -89,7 +89,7 @@ return (function () {
                 sock.binaryType = htmx.config.wsBinaryType;
                 return sock;
             },
-            version: "1.9.10"
+            version: "1.9.11"
         };
 
         /** @type {import("./htmx").HtmxInternalApi} */
@@ -309,10 +309,26 @@ return (function () {
                 content = content.replace(HEAD_TAG_REGEX, '');
             }
             if (htmx.config.useTemplateFragments && partialResponse) {
-                var documentFragment = parseHTML("<body><template>" + content + "</template></body>", 0);
+                var fragment = parseHTML("<body><template>" + content + "</template></body>", 0);
                 // @ts-ignore type mismatch between DocumentFragment and Element.
                 // TODO: Are these close enough for htmx to use interchangeably?
-                return documentFragment.querySelector('template').content;
+                var fragmentContent = fragment.querySelector('template').content;
+                if (htmx.config.allowScriptTags) {
+                    // if there is a nonce set up, set it on the new script tags
+                    forEach(fragmentContent.querySelectorAll("script"), function (script) {
+                        if (htmx.config.inlineScriptNonce) {
+                            script.nonce = htmx.config.inlineScriptNonce;
+                        }
+                        // mark as executed due to template insertion semantics on all browsers except firefox fml
+                        script.htmxExecuted = navigator.userAgent.indexOf("Firefox") === -1;
+                    })
+                } else {
+                    forEach(fragmentContent.querySelectorAll("script"), function (script) {
+                        // remove all script tags if scripts are disabled
+                        removeElement(script);
+                    })
+                }
+                return fragmentContent;
             }
             switch (startTag) {
                 case "thead":
@@ -1892,7 +1908,8 @@ return (function () {
         }
 
         function evalScript(script) {
-            if (htmx.config.allowScriptTags && (script.type === "text/javascript" || script.type === "module" || script.type === "") ) {
+            if (!script.htmxExecuted && htmx.config.allowScriptTags &&
+                (script.type === "text/javascript" || script.type === "module" || script.type === "") ) {
                 var newScript = getDocument().createElement("script");
                 forEach(script.attributes, function (attr) {
                     newScript.setAttribute(attr.name, attr.value);

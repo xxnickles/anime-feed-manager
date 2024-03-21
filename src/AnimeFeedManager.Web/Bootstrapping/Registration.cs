@@ -52,7 +52,8 @@ internal static class Registration
     }
 
     internal static IServiceCollection RegisterAppDependencies(this IServiceCollection services,
-        IConfigurationManager configuration, Func<TokenCredential> defaultTokenCredential)
+        IConfigurationManager configuration,
+       Func<TokenCredential> defaultTokenCredential)
     {
         // Storage
         services.RegisterStorage(configuration, defaultTokenCredential);

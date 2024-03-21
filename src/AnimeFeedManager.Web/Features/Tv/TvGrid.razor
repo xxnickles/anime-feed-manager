@@ -6,14 +6,13 @@
 
 @code {
 
-    [CascadingParameter] public HttpContext context { get; set; } = default!;
+    [CascadingParameter] public HttpContext Context { get; set; } = default!;
 
     [Parameter] public string Season { get; set; } = string.Empty;
 
     private SeasonInformation _selectedSeason = new DefaultSeasonInformation();
 
    
-
     protected override void OnInitialized()
     {
         _selectedSeason = SeasonValidators.Parse(Season)
