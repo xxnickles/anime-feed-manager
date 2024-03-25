@@ -14,7 +14,7 @@ public class GetMovieSubscriptions(ITableClientFactory<MoviesSubscriptionStorage
     public Task<Either<DomainError, ImmutableList<string>>> GetSubscriptions(UserId userId, CancellationToken token)
     {
         return clientFactory.GetClient()
-            .BindAsync(client => TableUtils.ExecuteQuery(() =>
+            .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<MoviesSubscriptionStorage>(storage => storage.PartitionKey == userId,
                     cancellationToken: token)))
             .MapAsync(subscriptions => subscriptions.ConvertAll(s => s.RowKey ?? string.Empty));

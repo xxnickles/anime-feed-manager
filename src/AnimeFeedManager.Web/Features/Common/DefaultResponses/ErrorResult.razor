@@ -1,9 +1,6 @@
 ﻿<div hx-swap-oob="afterbegin:#toast-panel">
-    <div role="alert" class="alert shadow-lg max-w-screen-md" x-data="{ open: true }" x-show="open" x-transition.duration.500ms>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="hidden md:block @LogoClass() shrink-0 w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <div>
+    <ClosableNotification Type="@GetToastType()">
+        <Content>
             @switch (Error)
             {
                 case BasicError error:
@@ -31,23 +28,21 @@
                     <p class="text-sm whitespace-normal">Unexpected condition has occured</p>
                     break;
             }
-        </div>
-        <button type="button" class="btn btn-primary btn-sm -mt-3 md:mt-0" x-on:click="open = false">Ok</button>
-    </div>
+        </Content>
+    </ClosableNotification>
 </div>
 
 @code {
     [Parameter, EditorRequired] public DomainError Error { get; set; } = new BasicError(string.Empty);
 
-    private string LogoClass()
+    private ToastType GetToastType()
     {
         return Error switch
         {
-            NoContentError => "stroke-warning",
-            NotFoundError => "stroke-warning",
-            ForbiddenError => "stroke-warning",
-            _ => "stroke-error"
+            NoContentError => ToastType.Warning,
+            NotFoundError => ToastType.Warning,
+            ForbiddenError => ToastType.Warning,
+            _ => ToastType.Error
         };
     }
-
 }

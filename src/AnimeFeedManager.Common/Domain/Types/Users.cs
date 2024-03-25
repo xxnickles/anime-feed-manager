@@ -8,12 +8,16 @@ public static class RoleNames
 
 
 public abstract record AppUser;
-public record Anonymous() : AppUser;
+public record Anonymous : AppUser;
 
-public record TvSubscriptions(ImmutableList<string> Subscriptions, ImmutableList<string> Insterested);
+public sealed record TvSubscriptions(ImmutableList<string> Subscriptions, ImmutableList<string> Insterested);
 
-public abstract record AuthenticatedUser(Email Email, UserId UserId, TvSubscriptions TvSubscriptions) : AppUser;
+public sealed record OvaSubscriptions(ImmutableList<string> Subscriptions);
 
-public record User(Email Email, UserId UserId, TvSubscriptions TvSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions);
+public sealed record MovieSubscriptions(ImmutableList<string> Subscriptions);
 
-public record AdminUser(Email Email, UserId UserId, TvSubscriptions TvSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions);
+public abstract record AuthenticatedUser(Email Email, UserId UserId, TvSubscriptions TvSubscriptions, OvaSubscriptions OvaSubscriptions, MovieSubscriptions MovieSubscriptions) : AppUser;
+
+public record User(Email Email, UserId UserId, TvSubscriptions TvSubscriptions, OvaSubscriptions OvaSubscriptions, MovieSubscriptions MovieSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions, OvaSubscriptions, MovieSubscriptions);
+
+public record AdminUser(Email Email, UserId UserId, TvSubscriptions TvSubscriptions, OvaSubscriptions OvaSubscriptions, MovieSubscriptions MovieSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions, OvaSubscriptions, MovieSubscriptions);

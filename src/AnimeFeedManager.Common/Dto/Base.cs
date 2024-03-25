@@ -9,3 +9,6 @@ public abstract record BaseTvAnime(string Id, string Season, string Title, strin
     
 public abstract record BaseOva(string Id, string Season, string Title, string Synopsis, string? ImageUrl)
     : BaseAnime(Id, Season, Title, Synopsis, ImageUrl);
+
+public abstract record BaseMovie(string Id, string Season, string Title, string Synopsis, string? ImageUrl)
+    : BaseAnime(Id, Season, Title, Synopsis, ImageUrl);    

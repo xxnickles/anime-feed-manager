@@ -23,9 +23,9 @@ public sealed class OvasLibraryGetter(IOvasSeasonalLibrary seasonalLibrary)
                     new SimpleAnime(
                         a.RowKey ?? string.Empty,
                         a.PartitionKey ?? string.Empty,
-                        a?.Title ?? "Not Available",
-                        a?.Synopsis ?? "Not Available",
-                        a?.ImageUrl,
+                        a.Title ?? "Not Available",
+                        a.Synopsis ?? "Not Available",
+                        a.ImageUrl,
                         a?.Date))
                 .ToArray());
     }

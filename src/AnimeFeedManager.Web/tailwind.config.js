@@ -10,5 +10,11 @@ module.exports = {
         require('@tailwindcss/typography'),
         require("daisyui"),
     ],
+    safelist: [
+        'stroke-success',
+        'stroke-error',
+        'stroke-warning',
+        'stroke-info'
+    ]
 }
 

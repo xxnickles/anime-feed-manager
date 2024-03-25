@@ -1670,14 +1670,6 @@ html {
   padding: 1rem;
 }
 
-.alert-success {
-  border-color: var(--fallback-su,oklch(var(--su)/0.2));
-  --tw-text-opacity: 1;
-  color: var(--fallback-suc,oklch(var(--suc)/var(--tw-text-opacity)));
-  --alert-bg: var(--fallback-su,oklch(var(--su)/1));
-  --alert-bg-mix: var(--fallback-b1,oklch(var(--b1)/1));
-}
-
 .alert-warning {
   border-color: var(--fallback-wa,oklch(var(--wa)/0.2));
   --tw-text-opacity: 1;
@@ -2964,10 +2956,6 @@ html {
   margin-top: -0.75rem;
 }
 
-.mb-3 {
-  margin-bottom: 0.75rem;
-}
-
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -3000,10 +2988,6 @@ html {
   margin-top: 2rem;
 }
 
-.mt-1 {
-  margin-top: 0.25rem;
-}
-
 .flex {
   display: flex;
 }
@@ -3014,10 +2998,6 @@ html {
 
 .grid {
   display: grid;
-}
-
-.list-item {
-  display: list-item;
 }
 
 .hidden {
@@ -3241,12 +3221,16 @@ html {
   stroke: currentColor;
 }
 
+.stroke-error {
+  stroke: var(--fallback-er,oklch(var(--er)/1));
+}
+
 .stroke-info {
   stroke: var(--fallback-in,oklch(var(--in)/1));
 }
 
-.stroke-error {
-  stroke: var(--fallback-er,oklch(var(--er)/1));
+.stroke-success {
+  stroke: var(--fallback-su,oklch(var(--su)/1));
 }
 
 .stroke-warning {
