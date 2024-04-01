@@ -60,4 +60,5 @@ public sealed record SubscribedAnime(
     string Synopsis,
     string? ImageUrl,
     string FeedId,
-    UserId UserId, bool IsAdmin) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin);
+    UserId UserId,
+    bool IsAdmin) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin);

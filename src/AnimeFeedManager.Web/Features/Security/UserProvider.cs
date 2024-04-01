@@ -18,6 +18,8 @@ public interface IUserProvider
 
 public class UserProvider : IUserProvider
 {
+    private AppUser? CachedUser; 
+    
     private readonly record struct UserData(
         Email Email,
         UserId UserId,
@@ -45,20 +47,25 @@ public class UserProvider : IUserProvider
         _movieSubscriptions = movieSubscriptions;
     }
 
-    public Task<AppUser> GetCurrentUser(CancellationToken token)
+    public async Task<AppUser> GetCurrentUser(CancellationToken token)
     {
+        if (CachedUser is not null) return CachedUser;
+        
         if (_contextAccessor.HttpContext?.User.Identity?.IsAuthenticated is null or false)
-            return Task.FromResult<AppUser>(new Anonymous());
+            return new Anonymous();
 
         var userId = _contextAccessor.HttpContext?.User.FindFirstValue(CustomClaimTypes.Sub);
         var role = _contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Role);
 
-        return (userId, role) switch
+        var result = (userId, role) switch
         {
             (not null, RoleNames.User) => GetUser(userId, token),
             (not null, RoleNames.Admin) => GetAdmin(userId, token),
             _ => Task.FromResult<AppUser>(new Anonymous())
         };
+        
+        CachedUser = await result;
+        return CachedUser;
     }
 
     private async Task<AppUser> GetUser(string userId, CancellationToken token)

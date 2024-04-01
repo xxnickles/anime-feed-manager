@@ -43,7 +43,7 @@ internal static class Registration
 
         // bind section Passwordless to the object PassworlessOptions
         services.Configure<PasswordlessOptions>(configuration.GetSection("Passwordless"));
-        // Add Passworless
+        // Add Passwordless
         services.AddPasswordlessSdk(options => { configuration.GetRequiredSection("Passwordless").Bind(options); });
 
         services.AddScoped<IUserProvider, UserProvider>();

@@ -1,0 +1,31 @@
+﻿@if (ControlData is not null)
+{
+    <WithMessage Message="@Message" DomainError="@DomainError">
+        <Content>
+            <form hx-post="ovas/subscribe"
+                  hx-swap="outerHTML"
+                  hx-confirm="@($"Do you want to add {ControlData.Title} for notifications?")">
+                <AntiforgeryToken/>
+                <fieldset class="flex flex-nowrap items-center justify-between">
+                    <div class="tooltip tooltip-success" data-tip="Available">
+                        <div class="badge badge-success"></div>
+                    </div>
+                    <div>
+                        <input type="hidden" name="@nameof(OvaControlData.Title)" @bind="ControlData.Title"/>
+                        <input type="hidden" name="@nameof(OvaControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
+                        <input type="hidden" name="@nameof(OvaControlData.UserId)" @bind="ControlData.UserId"/>
+                        <button type="submit" class="btn btn-primary btn-xs">Add for Notifications</button>
+                    </div>
+                </fieldset>
+            </form>
+        </Content>
+    </WithMessage>
+}
+
+@code {
+
+    [Parameter, EditorRequired] public OvaControlData? ControlData { get; set; }
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public DomainError? DomainError { get; set; }
+
+}

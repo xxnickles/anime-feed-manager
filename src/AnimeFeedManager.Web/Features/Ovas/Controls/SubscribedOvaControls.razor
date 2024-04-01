@@ -1,0 +1,32 @@
+﻿@if (ControlData is not null)
+{
+    <WithMessage Message="@Message" DomainError="@DomainError">
+        <Content>
+            <form hx-post="ovas/unsubscribe"
+                  hx-swap="outerHTML"
+                  hx-confirm="@($"Do you want to stop notifications for {ControlData.Title}?")">
+                <AntiforgeryToken/>
+                <fieldset class="flex flex-nowrap items-center justify-between">
+                    <div class="tooltip tooltip-accent" data-tip="Subscribed">
+                        <div class="badge badge-accent"></div>
+                    </div>
+                    <div>
+                        <input type="hidden" name="@nameof(OvaControlData.Title)" @bind="ControlData.Title"/>
+                        <input type="hidden" name="@nameof(OvaControlData.UserId)" @bind="ControlData.UserId"/>
+                         <input type="hidden" name="@nameof(OvaControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
+                        <button type="submit" class="btn btn-secondary btn-xs">Remove for Notifications</button>
+                    </div>
+                </fieldset>
+            </form>
+        </Content>
+    </WithMessage>
+}
+
+@code {
+
+    [Parameter, EditorRequired] public OvaControlData? ControlData { get; set; }
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public DomainError? DomainError { get; set; }
+
+}
+

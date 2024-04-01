@@ -19,7 +19,7 @@ public class RemoveOvasSubscription(IRemoveOvasSubscription ovasSubscription, IL
         ArgumentNullException.ThrowIfNull(payload);
         return await req
             .CheckAuthorization()
-            .BindAsync(_ => Utils.Validate(payload))
+            .BindAsync(_ => Utils.ValidateOvaUnsubscription(payload))
             .BindAsync(param => ovasSubscription.Unsubscribe(param.UserId, param.Series, default))
             .ToResponse(req, _logger);
     }

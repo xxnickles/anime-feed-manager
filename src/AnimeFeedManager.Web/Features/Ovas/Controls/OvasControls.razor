@@ -1,4 +1,27 @@
-﻿
+﻿@if (Ova is not NullOva)
+{
+    @switch (Ova)
+    {
+        case NotAvailableOva:
+            <NotAvailableOvaControls/>
+            break;
+        case AvailableOva:
+            <AvailableOvaControls/>
+            break;
+        case SubscribedOva ova:
+            <SubscribedOvaControls ControlData="@ova" />
+            break;
+        case UnsubscribedOva ova:
+            <UnsubscribedOvaControls ControlData="@ova" />
+            break;
+        default:
+            <div class="badge badge-error gap-2">
+                <span>Nothing Yet!</span>
+            </div>
+            break;
+    }
+}
+
 @code {
-    [Parameter, EditorRequired] public BaseOva Anime { get; set; } = new NullOva();
+    [Parameter, EditorRequired] public BaseOva Ova { get; set; } = new NullOva();
 }

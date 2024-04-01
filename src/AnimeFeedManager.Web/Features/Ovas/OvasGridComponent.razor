@@ -1,0 +1,61 @@
+﻿@using AnimeFeedManager.Features.Ovas.Library
+@inject ILogger<OvasGridComponent> Logger;
+@inject OvasLibraryGetter LibraryGetter;
+@inject IUserProvider UserProvider;
+
+<WithMessage Message="@Message" DomainError="@DomainError">
+    <Content>
+        <SeriesGrid Series="_ovas"></SeriesGrid>
+    </Content>
+</WithMessage>
+
+@code {
+    [Parameter, EditorRequired] public SeasonInformation SeasonInfo { get; set; } = new DefaultSeasonInformation();
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public DomainError? DomainError { get; set; }
+    private BaseAnime[] _ovas = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await UserProvider.GetCurrentUser(default);
+
+        var results = await LibraryGetter.GetForSeason(SeasonInfo.Season, SeasonInfo.Year)
+            .MapAsync(lib => Map(lib, user))
+            .LogErrors(Logger);
+
+        _ovas = results.Match(
+            collection => collection,
+            _ => []
+        );
+    }
+
+    private BaseAnime[] Map(ShortSeasonCollection seasonCollection, AppUser user)
+    {
+        return user switch
+        {
+            AuthenticatedUser u => seasonCollection.Animes.Select(a => MapForAuthenticatedUser(a, u)).ToArray(),
+            _ => seasonCollection.Animes.Select(MapForAnonymous).ToArray()
+        };
+    }
+
+    private BaseAnime MapForAnonymous(SimpleAnime anime)
+    {
+        return anime.AirDate switch
+        {
+            not null => new AvailableOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default),
+            _ => new NotAvailableOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl)
+        };
+    }
+
+    private BaseAnime MapForAuthenticatedUser(SimpleAnime anime, AuthenticatedUser user)
+    {
+        return anime.AirDate switch
+        {
+            not null => user.OvaSubscriptions.Subscriptions.Contains(anime.Title)
+                ? new SubscribedOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser)
+                : new UnsubscribedOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser),
+            _ => new NotAvailableOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl)
+        };
+    }
+
+}
