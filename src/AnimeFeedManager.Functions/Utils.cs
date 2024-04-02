@@ -27,18 +27,7 @@ internal static class Utils
             .ValidationToEither();
     }
 
-    internal static Either<DomainError, (UserId UserId, NoEmptyString Series, DateTime NotificationTime)> Validate(
-        ShortSeriesSubscription payload)
-    {
-        return (
-                UserId.Validate(payload.UserId),
-                NoEmptyString.FromString(payload.Series)
-                    .ToValidation(ValidationError.Create("Series", ["Series cannot be en empty string"]))
-            ).Apply((userid, series) => (userid, series, payload.NotificationDate))
-            .ValidationToEither();
-    }
-
-    internal static Either<DomainError, (UserId UserId, RowKey Series, DateTime NotificationTime)> ValidateOva(
+    internal static Either<DomainError, (UserId UserId, RowKey Series, DateTime NotificationTime)> Validate(
         ShortSeriesSubscription payload)
     {
         return (
@@ -48,17 +37,7 @@ internal static class Utils
             .ValidationToEither();
     }
 
-    internal static Either<DomainError, (UserId UserId, NoEmptyString Series)> Validate(ShortSeriesUnsubscribe payload)
-    {
-        return (
-                UserId.Validate(payload.UserId),
-                NoEmptyString.FromString(payload.Series)
-                    .ToValidation(ValidationError.Create("Series", ["Series cannot be en empty string"]))
-            ).Apply((userid, series) => (userid, series))
-            .ValidationToEither();
-    }
-
-    internal static Either<DomainError, (UserId UserId, RowKey Series)> ValidateOvaUnsubscription(
+    internal static Either<DomainError, (UserId UserId, RowKey Series)> Validate(
         ShortSeriesUnsubscribe payload)
     {
         return (

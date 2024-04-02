@@ -15,6 +15,14 @@
     <PackageReference Include="Azure.Identity" Version="1.10.4" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageReference Include="Passwordless" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Features\Movies\Controls\AvailableOvaControls.razor" />
+    <AdditionalFiles Include="Features\Movies\Controls\NotAvailableOvaControls.razor" />
+    <AdditionalFiles Include="Features\Movies\Controls\OvasControls.razor" />
+    <AdditionalFiles Include="Features\Movies\Controls\SubscribedOvaControls.razor" />
+    <AdditionalFiles Include="Features\Movies\Controls\UnsubscribedOvaControls.razor" />
   </ItemGroup> 
 
 </Project>

@@ -1,0 +1,27 @@
+﻿@if (Movie is not NullMovie)
+{
+    @switch (Movie)
+    {
+        case NotAvailableMovie:
+            <NotAvailableMovieControls/>
+            break;
+        case AvailableMovie:
+            <AvailableMovieControls/>
+            break;
+        case SubscribedMovie movie:
+            <SubscribedMovieControls ControlData="@movie"/>
+            break;
+        case UnsubscribedMovie movie:
+            <UnsubscribedMovieControls ControlData="@movie"/>
+            break;
+        default:
+            <div class="badge badge-error gap-2">
+                <span>Nothing Yet!</span>
+            </div>
+            break;
+    }
+}
+
+@code {
+    [Parameter, EditorRequired] public BaseMovie Movie { get; set; } = new NullMovie();
+}

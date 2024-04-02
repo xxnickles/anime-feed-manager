@@ -4,6 +4,7 @@ using Azure.Core;
 using Azure.Identity;
 using TvEndpoints = AnimeFeedManager.Web.Features.Tv.Endpoints;
 using OvaEndpoints = AnimeFeedManager.Web.Features.Ovas.Endpoints;
+using MovieEndpoints = AnimeFeedManager.Web.Features.Movies.Endpoints;
 using AdminEndpoints = AnimeFeedManager.Web.Features.Admin.Endpoints;
 using SecurityEndpoints = AnimeFeedManager.Web.Features.Security.Endpoints;
 
@@ -41,6 +42,7 @@ app.MapRazorComponents<App>();
 SecurityEndpoints.Map(app);
 TvEndpoints.Map(app);
 OvaEndpoints.Map(app);
+MovieEndpoints.Map(app);
 AdminEndpoints.Map(app);
 
 app.Run();

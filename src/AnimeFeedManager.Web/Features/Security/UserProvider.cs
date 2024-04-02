@@ -18,7 +18,7 @@ public interface IUserProvider
 
 public class UserProvider : IUserProvider
 {
-    private AppUser? CachedUser; 
+    private AppUser? _cachedUser; 
     
     private readonly record struct UserData(
         Email Email,
@@ -49,7 +49,7 @@ public class UserProvider : IUserProvider
 
     public async Task<AppUser> GetCurrentUser(CancellationToken token)
     {
-        if (CachedUser is not null) return CachedUser;
+        if (_cachedUser is not null) return _cachedUser;
         
         if (_contextAccessor.HttpContext?.User.Identity?.IsAuthenticated is null or false)
             return new Anonymous();
@@ -64,8 +64,8 @@ public class UserProvider : IUserProvider
             _ => Task.FromResult<AppUser>(new Anonymous())
         };
         
-        CachedUser = await result;
-        return CachedUser;
+        _cachedUser = await result;
+        return _cachedUser;
     }
 
     private async Task<AppUser> GetUser(string userId, CancellationToken token)

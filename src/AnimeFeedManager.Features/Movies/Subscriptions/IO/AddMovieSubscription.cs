@@ -5,20 +5,20 @@ namespace AnimeFeedManager.Features.Movies.Subscriptions.IO;
 
 public interface IAddMovieSubscription
 {
-    public Task<Either<DomainError, Unit>> Subscribe(UserId userId, NoEmptyString series, DateTime notificationDate,
+    public Task<Either<DomainError, Unit>> Subscribe(UserId userId, RowKey series, DateTime notificationDate,
         CancellationToken token);
 }
 
 public sealed class AddMovieSubscription(ITableClientFactory<MoviesSubscriptionStorage> clientFactory)
     : IAddMovieSubscription
 {
-    public Task<Either<DomainError, Unit>> Subscribe(UserId userId, NoEmptyString series, DateTime notificationDate,
+    public Task<Either<DomainError, Unit>> Subscribe(UserId userId, RowKey series, DateTime notificationDate,
         CancellationToken token)
     {
         return clientFactory.GetClient().BindAsync(client => Persist(client, userId, series, notificationDate, token));
     }
 
-    private static Task<Either<DomainError, Unit>> Persist(TableClient client, UserId userId, NoEmptyString series,
+    private static Task<Either<DomainError, Unit>> Persist(TableClient client, UserId userId, RowKey series,
         DateTime notificationDate,
         CancellationToken token)
     {

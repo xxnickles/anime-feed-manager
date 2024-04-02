@@ -1,11 +1,8 @@
 ﻿@page "/{Season}/movies"
-@using AnimeFeedManager.Features.Movies.Library
-@inject MoviesLibraryGetter LibraryGetter;
-@inject ILogger<MoviesGrid> Logger;
 
 <PageTitle>@PageTitleForSeason(SeriesType.Movie, _selectedSeason)</PageTitle>
-<SeasonsSelector SeriesType="SeriesType.Tv" CurrentSeason="_selectedSeason"></SeasonsSelector>
-<SeriesGrid Series="_seasonCollection.Animes"></SeriesGrid>
+<SeasonsSelector SeriesType="SeriesType.Movie" CurrentSeason="_selectedSeason"></SeasonsSelector>
+<MoviesGridComponent SeasonInfo="@_selectedSeason"></MoviesGridComponent>
 
 @code {
 
@@ -13,22 +10,13 @@
 
     private SeasonInformation _selectedSeason = new DefaultSeasonInformation();
 
-    private ShortSeasonCollection _seasonCollection = new EmptyShortSeasonCollection();
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _selectedSeason = SeasonValidators.Parse(Season)
             .Match(
                 values => new SeasonInformation(values.season, values.year),
                 _ => new DefaultSeasonInformation()
             );
-
-
-        var results = await LibraryGetter.GetForSeason(_selectedSeason.Season, _selectedSeason.Year).LogErrors(Logger);
-        _seasonCollection = results.Match(
-            collection => collection,
-            _ => new EmptyShortSeasonCollection()
-        );
     }
 
 }

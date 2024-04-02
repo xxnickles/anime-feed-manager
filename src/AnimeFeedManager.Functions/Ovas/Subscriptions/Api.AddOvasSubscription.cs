@@ -19,7 +19,7 @@ public class AddOvasSubscription(IAddOvasSubscription ovasSubscription, ILoggerF
         ArgumentNullException.ThrowIfNull(payload);
         return await req
             .CheckAuthorization()
-            .BindAsync(_ => Utils.ValidateOva(payload))
+            .BindAsync(_ => Utils.Validate(payload))
             .BindAsync(param => ovasSubscription.Subscribe(param.UserId, param.Series, param.NotificationTime, default))
             .ToResponse(req, _logger);
     }

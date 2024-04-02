@@ -2,8 +2,8 @@
     <div class="absolute top-0 left-0">
         @switch (Anime)
         {
-            case AnimeForUser {IsAdmin: true} anime:
-                <AdminTvControls TvAnimeInfo="anime" />
+            case AnimeForUser { IsAdmin: true } anime:
+                <AdminTvControls TvAnimeInfo="anime"/>
                 break;
         }
     </div>
@@ -26,9 +26,11 @@
                 case BaseTvAnime anime:
                     <TvControls Anime="@anime"></TvControls>
                     break;
-                    
-                case BaseOva ova: 
-                    <OvasControls Ova="ova" />
+                case BaseOva ova:
+                    <OvasControls Ova="@ova"/>
+                    break;
+                case BaseMovie movie:
+                    <MovieControls Movie="@movie"/>
                     break;
                 default:
                     <div class="badge badge-error gap-2">
