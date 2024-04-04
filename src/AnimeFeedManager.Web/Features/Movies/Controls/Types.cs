@@ -29,3 +29,14 @@ public class MovieControlData
         };
     }
 }
+
+public record AdminMovieControlParams(string Id, string Title, string Season)
+{
+    public static implicit operator AdminMovieControlParams(MovieForUser animeForUser) => animeForUser switch
+    {
+        {IsAdmin: true} => new AdminMovieControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season),
+        _ => new DefaultAdminMovieControlParams()
+    };
+}
+
+public record DefaultAdminMovieControlParams() : AdminMovieControlParams(string.Empty, string.Empty, string.Empty);

@@ -38,4 +38,14 @@ public static class ComponentResponses
         };
         return new RazorComponentResult<UnsubscribedMovieControls>(parameters);
     }
+    
+    internal static RazorComponentResult OkResponse(SeasonInformation seasonInformation, string message)
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            {nameof(MoviesGridComponent.SeasonInfo), seasonInformation},
+            {nameof(MoviesGridComponent.Message), message},
+        };
+        return new RazorComponentResult<MoviesGridComponent>(parameters);
+    }
 }

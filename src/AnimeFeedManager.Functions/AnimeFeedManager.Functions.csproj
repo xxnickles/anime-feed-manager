@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />    
-    <PackageReference Include="SendGrid" Version="9.29.2" />    
+    <PackageReference Include="SendGrid" Version="9.29.3" />    
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

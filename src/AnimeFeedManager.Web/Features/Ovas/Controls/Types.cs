@@ -29,3 +29,14 @@ public class OvaControlData
         };
     }
 }
+
+public record AdminOvaControlParams(string Id, string Title, string Season)
+{
+    public static implicit operator AdminOvaControlParams(OvaForUser animeForUser) => animeForUser switch
+    {
+        {IsAdmin: true} => new AdminOvaControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season),
+        _ => new DefaultAdminOvaControlParams()
+    };
+}
+
+public record DefaultAdminOvaControlParams() : AdminOvaControlParams(string.Empty, string.Empty, string.Empty);

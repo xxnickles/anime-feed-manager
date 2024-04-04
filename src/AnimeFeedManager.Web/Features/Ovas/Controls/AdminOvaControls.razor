@@ -1,0 +1,20 @@
+﻿@if (OvaInfo is not DefaultAdminOvaControlParams)
+{
+    <form hx-post="ovas/remove"
+          hx-confirm="@($"Do you want remove {OvaInfo.Title} from the Ovas library?")"
+          hx-swap="none">
+        <AntiforgeryToken/>
+        <input type="hidden" name="@nameof(SeriesToRemove.Id)" value="@OvaInfo.Id"/>
+        <input type="hidden" name="@nameof(SeriesToRemove.Season)" value="@OvaInfo.Season"/>
+        <input type="hidden" name="@nameof(SeriesToRemove.Title)" value="@OvaInfo.Title"/>
+        <button title="@($"Remove {OvaInfo.Title}")" type="submit" class="btn btn-error btn-xs btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </form>
+}
+
+@code {
+    [Parameter, EditorRequired] public AdminOvaControlParams OvaInfo { get; set; } = new DefaultAdminOvaControlParams();
+}

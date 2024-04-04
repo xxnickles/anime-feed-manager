@@ -1,7 +1,11 @@
-﻿using AnimeFeedManager.Common.Utils;
+﻿using AnimeFeedManager.Common.Domain.Validators;
+using AnimeFeedManager.Common.Utils;
+using AnimeFeedManager.Features.Ovas.Scrapping.IO;
 using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
+using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
 using AnimeFeedManager.Web.Features.Ovas.Controls;
+using AnimeFeedManager.Web.Features.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeFeedManager.Web.Features.Ovas;
@@ -20,7 +24,8 @@ public static class Endpoints
                 .BindAsync(validatedData => ovaSubscriber.Subscribe(validatedData.UserId,
                     validatedData.SeriesId, validatedData.NotificationDate, token))
                 .ToComponentResult(
-                    _ => ComponentResponses.OkSubscribedResponse(data, $"{data.Title} has been added to your Ova subscriptions"),
+                    _ => ComponentResponses.OkSubscribedResponse(data,
+                        $"{data.Title} has been added to your Ova subscriptions"),
                     e => ComponentResponses.ErrorResponse(data, e, logger))
         );
 
@@ -38,6 +43,25 @@ public static class Endpoints
                         $"{data.Title} has been removed from your Ova subscriptions"),
                     e => ComponentResponses.ErrorResponse(data, e, logger))
         );
+
+        app.MapPost("/ovas/remove", (
+                    [FromForm] SeriesToRemove removeInfo,
+                    [FromServices] IOvasStorage ovasStorage,
+                    [FromServices] ILogger<OvasGrid> logger,
+                    CancellationToken token) =>
+                (PartitionKey.Validate(removeInfo.Season), RowKey.Validate(removeInfo.Id),
+                    SeasonValidators.ValidateSeasonPartitionString(removeInfo.Season))
+                .Apply((key, rowKey, season) => new { PartitionKey = key, RowKey = rowKey, Season = season })
+                .ValidationToEither()
+                .BindAsync(safeData =>
+                    ovasStorage.RemoveOva(safeData.RowKey, safeData.PartitionKey, token)
+                        .MapAsync(_ => new
+                            { SeasonInfo = new SeasonInformation(safeData.Season.season, safeData.Season.year) }))
+                .ToComponentResult(
+                    data => ComponentResponses.OkResponse(data.SeasonInfo,
+                        $"{removeInfo.Title} has been removed from the ovas library"),
+                    error => CommonComponentResponses.ErrorComponentResult(error, logger)))
+            .RequireAuthorization(Policies.AdminRequired);
     }
 
 

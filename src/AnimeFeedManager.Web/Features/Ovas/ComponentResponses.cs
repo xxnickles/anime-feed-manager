@@ -38,4 +38,14 @@ public static class ComponentResponses
         };
         return new RazorComponentResult<UnsubscribedOvaControls>(parameters);
     }
+    
+    internal static RazorComponentResult OkResponse(SeasonInformation seasonInformation, string message)
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            {nameof(OvasGridComponent.SeasonInfo), seasonInformation},
+            {nameof(OvasGridComponent.Message), message},
+        };
+        return new RazorComponentResult<OvasGridComponent>(parameters);
+    }
 }

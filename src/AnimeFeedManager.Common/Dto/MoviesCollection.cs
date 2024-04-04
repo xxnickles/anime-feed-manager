@@ -14,7 +14,7 @@ public sealed record AvailableMovie(
     DateTime AirDate)
     : BaseMovie(Id, Season, Title, Synopsis, ImageUrl);
 
-public abstract record MoviesForUser(
+public abstract record MovieForUser(
     string Id,
     string Season,
     string Title,
@@ -33,7 +33,7 @@ public record UnsubscribedMovie(
     string? ImageUrl,
     DateTime AirDate,
     UserId UserId,
-    bool IsAdmin) : MoviesForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin);
+    bool IsAdmin) : MovieForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin);
     
 public record SubscribedMovie(
     string Id,
@@ -43,4 +43,4 @@ public record SubscribedMovie(
     string? ImageUrl,
     DateTime AirDate,
     UserId UserId,
-    bool IsAdmin) : MoviesForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin);
+    bool IsAdmin) : MovieForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin);

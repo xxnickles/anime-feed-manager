@@ -71,4 +71,3 @@ public record AdminTvControlParams(string Id, string Title, string Season)
 public record DefaultAdminTvControlParams() : AdminTvControlParams(string.Empty, string.Empty, string.Empty);
 
 public record AlternativeTitleUpdate(string Id, string Season, string Title, string OriginalTitle);
-public record SeriesToRemove(string Id, string Season, string Title);

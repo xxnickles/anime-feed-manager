@@ -55,7 +55,7 @@ public sealed class MoviesProvider(
                 .BindAsync(_ => Left<DomainError, MoviesCollection>(ExceptionError.FromException(ex)));
         }
     }
-
+    
     private static string CreateScrappingLink(SeasonSelector season)
     {
         return season switch
@@ -66,7 +66,6 @@ public sealed class MoviesProvider(
             _ => throw new UnreachableException()
         };
     }
-
 
     private static MovieStorage MapInfo(SeriesContainer container)
     {

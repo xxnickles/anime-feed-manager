@@ -6,6 +6,8 @@ namespace AnimeFeedManager.Features.Movies.Scrapping.IO;
 public interface IMoviesStorage
 {
     Task<Either<DomainError, Unit>> Add(ImmutableList<MovieStorage> series, CancellationToken token);
+    
+    Task<Either<DomainError, Unit>> RemoveMovie(RowKey rowKey, PartitionKey key, CancellationToken token);
 }
 
 public sealed class MoviesStorage(ITableClientFactory<MovieStorage> tableClientFactory) : IMoviesStorage
@@ -14,6 +16,14 @@ public sealed class MoviesStorage(ITableClientFactory<MovieStorage> tableClientF
     {
         return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.BatchAdd(client, series, token))
+            .MapAsync(_ => unit);
+    }
+    
+    public Task<Either<DomainError, Unit>> RemoveMovie(RowKey rowKey, PartitionKey key, CancellationToken token)
+    {
+        return tableClientFactory.GetClient()
+            .BindAsync(client => TableUtils.TryExecute(() =>
+                client.DeleteEntityAsync(key, rowKey, cancellationToken: token)))
             .MapAsync(_ => unit);
     }
 }

@@ -10,8 +10,8 @@ internal static class ComponentResponses
     {
         var parameters = new Dictionary<string, object?>
         {
-            {nameof(AvailableSeriesBase.ControlData), data},
-            {nameof(AvailableSeriesBase.Message), message}
+            { nameof(AvailableSeriesBase.ControlData), data },
+            { nameof(AvailableSeriesBase.Message), message }
         };
         return new RazorComponentResult<T>(parameters);
     }
@@ -22,8 +22,8 @@ internal static class ComponentResponses
         domainError.LogError(logger);
         var parameters = new Dictionary<string, object?>
         {
-            {nameof(AvailableSeriesBase.ControlData), data},
-            {nameof(AvailableSeriesBase.DomainError), domainError}
+            { nameof(AvailableSeriesBase.ControlData), data },
+            { nameof(AvailableSeriesBase.DomainError), domainError }
         };
         return new RazorComponentResult<T>(parameters);
     }
@@ -33,8 +33,8 @@ internal static class ComponentResponses
     {
         var parameters = new Dictionary<string, object?>
         {
-            {nameof(NotAvailableSeriesBase.ControlData), data},
-            {nameof(NotAvailableSeriesBase.Message), message}
+            { nameof(NotAvailableSeriesBase.ControlData), data },
+            { nameof(NotAvailableSeriesBase.Message), message }
         };
         return new RazorComponentResult<T>(parameters);
     }
@@ -45,8 +45,8 @@ internal static class ComponentResponses
         domainError.LogError(logger);
         var parameters = new Dictionary<string, object?>
         {
-            {nameof(NotAvailableSeriesBase.ControlData), data},
-            {nameof(NotAvailableSeriesBase.DomainError), domainError}
+            { nameof(NotAvailableSeriesBase.ControlData), data },
+            { nameof(NotAvailableSeriesBase.DomainError), domainError }
         };
         return new RazorComponentResult<T>(parameters);
     }
@@ -55,19 +55,8 @@ internal static class ComponentResponses
     {
         var parameters = new Dictionary<string, object?>
         {
-            {nameof(TvGridComponent.SeasonInfo), seasonInformation},
-            {nameof(TvGridComponent.Message), message},
-        };
-        return new RazorComponentResult<TvGridComponent>(parameters);
-    }
-    
-    internal static RazorComponentResult ErrorResponse(SeasonInformation seasonInformation, DomainError error, ILogger logger)
-    {
-        error.LogError(logger);
-        var parameters = new Dictionary<string, object?>
-        {
-            {nameof(TvGridComponent.SeasonInfo), seasonInformation},
-            {nameof(TvGridComponent.DomainError), error},
+            { nameof(TvGridComponent.SeasonInfo), seasonInformation },
+            { nameof(TvGridComponent.Message), message },
         };
         return new RazorComponentResult<TvGridComponent>(parameters);
     }

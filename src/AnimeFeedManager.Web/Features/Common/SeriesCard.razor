@@ -5,6 +5,12 @@
             case AnimeForUser { IsAdmin: true } anime:
                 <AdminTvControls TvAnimeInfo="anime"/>
                 break;
+            case OvaForUser { IsAdmin: true } ova:
+                <AdminOvaControls OvaInfo="ova"/>
+                break;
+            case MovieForUser { IsAdmin: true } movie:
+                <AdminMovieControls MovieInfo="movie"/>
+                break;
         }
     </div>
     <img class="object-cover w-44" src="@Anime.ImageUrl" alt="@Anime.Title"/>

@@ -1,7 +1,11 @@
-﻿using AnimeFeedManager.Common.Utils;
+﻿using AnimeFeedManager.Common.Domain.Validators;
+using AnimeFeedManager.Common.Utils;
+using AnimeFeedManager.Features.Movies.Scrapping.IO;
 using AnimeFeedManager.Features.Movies.Subscriptions.IO;
+using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
 using AnimeFeedManager.Web.Features.Movies.Controls;
+using AnimeFeedManager.Web.Features.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeFeedManager.Web.Features.Movies;
@@ -20,7 +24,8 @@ public static class Endpoints
                 .BindAsync(validatedData => movieSubscriber.Subscribe(validatedData.UserId,
                     validatedData.SeriesId, validatedData.NotificationDate, token))
                 .ToComponentResult(
-                    _ => ComponentResponses.OkSubscribedResponse(data, $"{data.Title} has been added to your Movie subscriptions"),
+                    _ => ComponentResponses.OkSubscribedResponse(data,
+                        $"{data.Title} has been added to your Movie subscriptions"),
                     e => ComponentResponses.ErrorResponse(data, e, logger))
         );
 
@@ -38,6 +43,25 @@ public static class Endpoints
                         $"{data.Title} has been removed from your Movie subscriptions"),
                     e => ComponentResponses.ErrorResponse(data, e, logger))
         );
+
+        app.MapPost("/movies/remove", (
+                    [FromForm] SeriesToRemove removeInfo,
+                    [FromServices] IMoviesStorage moviesStorage,
+                    [FromServices] ILogger<MoviesGrid> logger,
+                    CancellationToken token) =>
+                (PartitionKey.Validate(removeInfo.Season), RowKey.Validate(removeInfo.Id),
+                    SeasonValidators.ValidateSeasonPartitionString(removeInfo.Season))
+                .Apply((key, rowKey, season) => new { PartitionKey = key, RowKey = rowKey, Season = season })
+                .ValidationToEither()
+                .BindAsync(safeData =>
+                    moviesStorage.RemoveMovie(safeData.RowKey, safeData.PartitionKey, token)
+                        .MapAsync(_ => new
+                            { SeasonInfo = new SeasonInformation(safeData.Season.season, safeData.Season.year) }))
+                .ToComponentResult(
+                    data => ComponentResponses.OkResponse(data.SeasonInfo,
+                        $"{removeInfo.Title} has been removed from the movie library"),
+                    error => CommonComponentResponses.ErrorComponentResult(error, logger)))
+            .RequireAuthorization(Policies.AdminRequired);
     }
 
 
