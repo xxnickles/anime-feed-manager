@@ -4,8 +4,8 @@
 
 @if (Seasons.Count > 0)
 {
-    <nav>
-        <ul tabindex="0" class="flex justify-center items-center space-x-5 ">
+    <nav class="text-center">
+        <ul tabindex="0" class="justify-center items-center space-x-5 hidden md:flex">
             @foreach (var season in Seasons)
             {
                 <li class="flex flex-col items-center">
@@ -25,6 +25,7 @@
                 </li>
             }
         </ul>
+        <NavLink class="link link-hover text-base text-accent md:hidden" href="seasons" Match="NavLinkMatch.All">Available seasons</NavLink>
     </nav>
 }
 

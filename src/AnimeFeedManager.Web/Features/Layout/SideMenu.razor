@@ -1,0 +1,43 @@
+﻿<div class="drawer-side">
+    <label for="drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+    <ul class="menu p-4 w-80 min-h-full bg-base-200">
+        <li>
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                Home
+            </NavLink>
+        </li>
+        <li>
+            <NavLink class="nav-link" href="seasons" Match="NavLinkMatch.All">
+                Seasons
+            </NavLink>
+        </li>
+        <AuthorizeView Roles="@RoleNames.Admin">
+            <li>
+                <NavLink class="nav-link" href="admin">
+                    Admin
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView>
+            <NotAuthorized>
+                <li>
+                    <NavLink class="nav-link" href="login">
+                        Login
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="nav-link" href="register">
+                        Register
+                    </NavLink>
+                </li>
+            </NotAuthorized>
+            <Authorized>
+                <li>
+                    <NavLink class="nav-link" href="logout">
+                        Logout
+                    </NavLink>
+                </li>
+            </Authorized>
+        </AuthorizeView>
+    </ul>
+</div>
