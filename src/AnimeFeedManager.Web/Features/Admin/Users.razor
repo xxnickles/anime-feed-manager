@@ -3,6 +3,7 @@
         <form class="card-actions form-control"
               hx-put="/admin/user/copy"
               hx-swap="none"
+              hx-indicator="#loader-indicator"
               :hx-confirm="confirmationMessage"
               x-data="{ source:'', target:'', 
                        get confirmationMessage() { return `Do you want to copy series from ${this.source} to ${this.target}?`}
@@ -42,6 +43,7 @@
         <form class="card-actions form-control"
               hx-put="/admin/user/delete"
               hx-swap="none"
+              hx-indicator="#loader-indicator"
               :hx-confirm="confirmationMessage"
               x-data="{ source:'', 
                         get confirmationMessage() { return `Do you want to delete ${this.source} and its associated data?`}

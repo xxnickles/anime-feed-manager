@@ -4,6 +4,7 @@
         <Content>
             <form hx-post="movies/subscribe"
                   hx-swap="outerHTML"
+                  hx-indicator="#loader-indicator"
                   hx-confirm="@($"Do you want to add {ControlData.Title} for notifications?")">
                 <AntiforgeryToken/>
                 <fieldset class="flex flex-nowrap items-center justify-between">

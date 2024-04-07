@@ -6,6 +6,7 @@
         <Content>
             <form hx-post="tv/subscribe"
                   hx-swap="outerHTML"
+                  hx-indicator="#loader-indicator"
                   hx-confirm="@($"Do you want to subscribe to {ControlData.Title}?")">
                 <AntiforgeryToken/>
                 <fieldset class="flex flex-nowrap items-center justify-between">

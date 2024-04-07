@@ -39,6 +39,7 @@
             <form class="card-actions form-control"
                   hx-put="/admin/seasons"
                   hx-swap="none"
+                  hx-indicator="#loader-indicator"
                   hx-confirm="Do you want to trigger update of latest seasons?">
                 <AntiforgeryToken/>
                 <button type="submit" class="btn btn-primary mt-4">

@@ -16,6 +16,18 @@
     <img class="object-cover w-44" src="@Anime.ImageUrl" alt="@Anime.Title"/>
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
         <h2 class="basis-[5%] mx-4 mt-2 text-base font-bold ">@Anime.Title</h2>
+
+        @switch (Anime)
+        {
+            case AvailableOva availableOva:
+                <span class="prose prose-sm text-accent mx-4">@availableOva.AirDate.ToLongDateString()</span>
+                break;
+            case AvailableMovie availableMovie:
+                <span class="prose prose-sm text-accent mx-4">@availableMovie.AirDate.ToLongDateString()</span>
+                break;
+        }
+
+
         <p class="basis-[78%] mx-4 my-2 text-sm text-justify max-h-full overflow-y-auto scrollbar pr-3 break-all">
             @if (!string.IsNullOrEmpty(Anime.Synopsis))
             {

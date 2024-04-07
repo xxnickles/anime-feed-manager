@@ -2,6 +2,7 @@
     <AdminCard Title="Update Latest">
         <form class="card-actions form-control"
               hx-put="@GetLatestPath()"
+              hx-indicator="#loader-indicator"
               hx-swap="none">
             <AntiforgeryToken/>
             <button type="submit" class="btn btn-primary mt-4">
@@ -12,6 +13,7 @@
 
     <AdminCard Title="Update by Season">
         <form hx-put="@GetSeasonPath()"
+              hx-indicator="#loader-indicator"
               hx-swap="none">
             <AntiforgeryToken/>
 
@@ -49,6 +51,7 @@
         <AdminCard Title="Update Titles">
             <form class="card-actions form-control"
                   hx-put="@GetTitlesPath()"
+                  hx-indicator="#loader-indicator"
                   hx-swap="none">
                 <AntiforgeryToken/>
                 <button type="submit" class="btn btn-primary mt-4">

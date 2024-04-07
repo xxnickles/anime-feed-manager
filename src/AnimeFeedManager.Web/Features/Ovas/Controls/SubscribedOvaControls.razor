@@ -4,6 +4,7 @@
         <Content>
             <form hx-post="ovas/unsubscribe"
                   hx-swap="outerHTML"
+                  hx-indicator="#loader-indicator"
                   hx-confirm="@($"Do you want to stop notifications for {ControlData.Title}?")">
                 <AntiforgeryToken/>
                 <fieldset class="flex flex-nowrap items-center justify-between">
@@ -13,7 +14,7 @@
                     <div>
                         <input type="hidden" name="@nameof(OvaControlData.Title)" @bind="ControlData.Title"/>
                         <input type="hidden" name="@nameof(OvaControlData.UserId)" @bind="ControlData.UserId"/>
-                         <input type="hidden" name="@nameof(OvaControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
+                        <input type="hidden" name="@nameof(OvaControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
                         <button type="submit" class="btn btn-secondary btn-xs">Remove for Notifications</button>
                     </div>
                 </fieldset>
@@ -29,4 +30,3 @@
     [Parameter] public DomainError? DomainError { get; set; }
 
 }
-

@@ -6,6 +6,7 @@
         <Content>
             <form hx-post="tv/remove-interested"
                   hx-swap="outerHTML"
+                  hx-indicator="#loader-indicator"
                   hx-confirm="@($"Do you want remove {ControlData.Title} from your interested list?")">
                 <AntiforgeryToken/>
                 <fieldset class="flex flex-nowrap items-center  justify-between">

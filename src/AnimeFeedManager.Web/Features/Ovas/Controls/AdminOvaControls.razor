@@ -1,6 +1,7 @@
 ﻿@if (OvaInfo is not DefaultAdminOvaControlParams)
 {
     <form hx-post="ovas/remove"
+          hx-indicator="#loader-indicator"
           hx-confirm="@($"Do you want remove {OvaInfo.Title} from the Ovas library?")"
           hx-swap="none">
         <AntiforgeryToken/>

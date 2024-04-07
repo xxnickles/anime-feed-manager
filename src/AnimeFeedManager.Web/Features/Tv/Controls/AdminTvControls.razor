@@ -2,6 +2,7 @@
 {
     <form hx-post="tv/remove"
           hx-confirm="@($"Do you want remove {TvAnimeInfo.Title} from the library?")"
+          hx-indicator="#loader-indicator"
           hx-swap="none">
         <AntiforgeryToken/>
         <input type="hidden" name="@nameof(SeriesToRemove.Id)" value="@TvAnimeInfo.Id"/>
@@ -20,7 +21,9 @@
             </svg>
         </button>
         <dialog class="modal modal-bottom sm:modal-middle" x-ref="modal">
-            <form class="modal-box" x-ref="modalForm" hx-put="tv/alternative-title">
+            <form class="modal-box" x-ref="modalForm"
+                  hx-put="tv/alternative-title"
+                  hx-indicator="#loader-indicator">
                 <AntiforgeryToken/>
                 <h3 class="font-bold text-lg">Alternative title for @TvAnimeInfo.Title</h3>
                 <fieldset class="mt-4">

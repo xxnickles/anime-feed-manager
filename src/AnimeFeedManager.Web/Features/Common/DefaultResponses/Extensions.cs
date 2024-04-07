@@ -26,4 +26,5 @@ internal static class Extensions
             _ => CommonComponentResponses.OkComponentResult(okMessage),
             error => CommonComponentResponses.ErrorComponentResult(error, logger));
     }
+
 }
