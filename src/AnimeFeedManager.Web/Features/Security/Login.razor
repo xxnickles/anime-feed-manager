@@ -86,6 +86,7 @@
 @code {
     [SupplyParameterFromForm] public string? Id { get; set; }
     [SupplyParameterFromForm] public string? Alias { get; set; }
+    [SupplyParameterFromQuery(Name = "returnUrl")] public string ReturnUrl { get; set; } = "";
 
     [CascadingParameter] public HttpContext HttpContext { get; set; } = default!;
 
@@ -107,7 +108,7 @@
     private async Task CompleteLogin(ClaimsPrincipal principal)
     {
         await HttpContext.SignInAsync(principal, new AuthenticationProperties { IsPersistent = true });
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo(!string.IsNullOrWhiteSpace(ReturnUrl) ? ReturnUrl : "/");
     }
 
     private Task ShowError(DomainError error)

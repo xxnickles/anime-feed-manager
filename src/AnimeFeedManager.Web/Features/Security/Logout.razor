@@ -8,11 +8,12 @@
 <PageTitle>@PageTitle("Logout")</PageTitle>
 @code {
     [CascadingParameter] public HttpContext HttpContext { get; set; } = default!;
+    [SupplyParameterFromQuery(Name = "returnUrl")] public string ReturnUrl { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo(!string.IsNullOrWhiteSpace(ReturnUrl) ? ReturnUrl : "/");
         
     }
 

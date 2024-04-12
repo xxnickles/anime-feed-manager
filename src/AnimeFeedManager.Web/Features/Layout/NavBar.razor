@@ -1,4 +1,5 @@
-﻿@using AnimeFeedManager.Features.Users.Types
+﻿@using System.Web
+@inject NavigationManager NavigationManager;
 <div class="navbar bg-base-100">
     <div class="lg:hidden">
         <label for="drawer" aria-label="open sidebar" class="btn btn-square btn-ghost mr-2">
@@ -25,7 +26,7 @@
             <AuthorizeView>
                 <NotAuthorized>
                     <li>
-                        <NavLink class="nav-link" href="login">
+                        <NavLink class="nav-link" href="@GetLoginPath()">
                             Login
                         </NavLink>
                     </li>
@@ -37,7 +38,7 @@
                 </NotAuthorized>
                 <Authorized>
                     <li>
-                        <NavLink class="nav-link" href="logout">
+                        <NavLink class="nav-link" href="@GetLogoutPath()">
                             Logout
                         </NavLink>
                     </li>
@@ -51,3 +52,25 @@
     </div>
 </div>
 
+@code
+{
+    private const string? ReturnUrlKey = "returnUrl";
+
+    private string GetLoginPath()
+    {
+        return GetWithReturn("login");
+    }
+
+    private string GetLogoutPath()
+    {
+        return GetWithReturn("logout");
+    }
+
+    private string GetWithReturn(string basePath)
+    {
+        var currentUri = new Uri(NavigationManager.Uri);
+        var returnValue = HttpUtility.ParseQueryString(currentUri.Query).Get(ReturnUrlKey);
+        var returnPath = !string.IsNullOrEmpty(returnValue) ? returnValue : currentUri.AbsolutePath;
+        return $"{basePath}?returnUrl={HttpUtility.UrlEncode(returnPath)}";
+    }
+}
