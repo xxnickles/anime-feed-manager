@@ -1,9 +1,10 @@
-﻿<div class="flex flex-wrap gap-3">
-    <AdminCard Title="Copy Subscriptions">
+﻿@using AnimeFeedManager.Common.Domain
+<div class="flex flex-wrap gap-3">
+    <AdminCard Title="Copy Subscriptions" LoaderId="@_copyUserLoader">
         <form class="card-actions form-control"
               hx-put="/admin/user/copy"
               hx-swap="none"
-              hx-indicator="#loader-indicator"
+              hx-indicator="@($"#{_copyUserLoader}")"
               :hx-confirm="confirmationMessage"
               x-data="{ source:'', target:'', 
                        get confirmationMessage() { return `Do you want to copy series from ${this.source} to ${this.target}?`}
@@ -39,11 +40,11 @@
         </form>
     </AdminCard>
 
-    <AdminCard Title="Delete User">
+    <AdminCard Title="Delete User" LoaderId="@_deleteUserLoader">
         <form class="card-actions form-control"
               hx-put="/admin/user/delete"
               hx-swap="none"
-              hx-indicator="#loader-indicator"
+              hx-indicator="@($"#{_deleteUserLoader}")"
               :hx-confirm="confirmationMessage"
               x-data="{ source:'', 
                         get confirmationMessage() { return `Do you want to delete ${this.source} and its associated data?`}
@@ -65,3 +66,9 @@
         </form>
     </AdminCard>
 </div>
+
+@code
+{
+    private readonly string _copyUserLoader = IdHelpers.GetUniqueName("admin-card-loader");
+    private readonly string _deleteUserLoader = IdHelpers.GetUniqueName("admin-card-loader");
+}

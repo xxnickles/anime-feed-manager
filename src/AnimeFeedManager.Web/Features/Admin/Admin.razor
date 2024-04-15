@@ -1,4 +1,5 @@
 ﻿@page "/admin"
+@using AnimeFeedManager.Common.Domain
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = RoleNames.Admin)]
 
@@ -35,11 +36,11 @@
         <header class="mb-4">
             <h2>Other</h2>
         </header>
-        <AdminCard Title="Update Latest Seasons">
+        <AdminCard Title="Update Latest Seasons" LoaderId="@_updateTitlesLoader">
             <form class="card-actions form-control"
                   hx-put="/admin/seasons"
                   hx-swap="none"
-                  hx-indicator="#loader-indicator"
+                  hx-indicator="@($"#{_updateTitlesLoader}")"
                   hx-confirm="Do you want to trigger update of latest seasons?">
                 <AntiforgeryToken/>
                 <button type="submit" class="btn btn-primary mt-4">
@@ -49,3 +50,9 @@
         </AdminCard>
     </section>
 </div>
+
+@code {
+
+    private readonly string _updateTitlesLoader = IdHelpers.GetUniqueName("admin-card-loader");
+
+}

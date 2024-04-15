@@ -1,8 +1,9 @@
-﻿<div class="flex flex-wrap gap-3">
-    <AdminCard Title="Update Latest">
+﻿@using AnimeFeedManager.Common.Domain
+<div class="flex flex-wrap gap-3">
+    <AdminCard Title="Update Latest" LoaderId="@_latestSeasonLoader">
         <form class="card-actions form-control"
               hx-put="@GetLatestPath()"
-              hx-indicator="#loader-indicator"
+              hx-indicator="@($"#{_latestSeasonLoader}")"
               hx-swap="none">
             <AntiforgeryToken/>
             <button type="submit" class="btn btn-primary mt-4">
@@ -11,9 +12,9 @@
         </form>
     </AdminCard>
 
-    <AdminCard Title="Update by Season">
+    <AdminCard Title="Update by Season" LoaderId="@_bySeasonLoader">
         <form hx-put="@GetSeasonPath()"
-              hx-indicator="#loader-indicator"
+              hx-indicator="@($"#{_bySeasonLoader}")"
               hx-swap="none">
             <AntiforgeryToken/>
 
@@ -48,10 +49,10 @@
 
     @if (SeriesType is SeriesType.Tv)
     {
-        <AdminCard Title="Update Titles">
+        <AdminCard Title="Update Titles" LoaderId="@_titlesLoader">
             <form class="card-actions form-control"
                   hx-put="@GetTitlesPath()"
-                  hx-indicator="#loader-indicator"
+                  hx-indicator="@($"#{_titlesLoader}")"
                   hx-swap="none">
                 <AntiforgeryToken/>
                 <button type="submit" class="btn btn-primary mt-4">
@@ -65,7 +66,10 @@
 @code {
     [Parameter, EditorRequired] public SeriesType SeriesType { get; set; } = SeriesType.None;
 
-
+    private readonly string _latestSeasonLoader = IdHelpers.GetUniqueName("admin-card-loader");
+    private readonly string _bySeasonLoader = IdHelpers.GetUniqueName("admin-card-loader");
+    private readonly string _titlesLoader = IdHelpers.GetUniqueName("admin-card-loader");
+    
     private readonly int _maxYear = DateTimeOffset.UtcNow.Year + 1;
     private const int _minYear = 2000;
     private int Year { get; set; } = DateTimeOffset.UtcNow.Year;
