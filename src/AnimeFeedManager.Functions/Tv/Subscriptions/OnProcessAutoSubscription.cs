@@ -21,7 +21,8 @@ public sealed class OnProcessAutoSubscription(
         var result = await subscriptionProcessor.Process(notification, default);
 
         result.Match(
-            count => _logger.LogInformation("Automated subscriptions for {User}",
+            _ => _logger.LogInformation("Processing {Title} Automated subscription for {User}",
+                notification.Payload.InterestedTitle,
                 notification.Payload.UserId),
             error => error.LogError(_logger));
     }

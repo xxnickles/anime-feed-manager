@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
+﻿using System.Linq.Expressions;
+using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Types;
 
@@ -36,16 +37,23 @@ public sealed class AlternativeTitlesGetter : IAlternativeTitlesGetter
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
-                client.QueryAsync<AlternativeTitleStorage>(GetTitlesFilter(originalTitles), cancellationToken: token)))
+                client.QueryAsync(GetTitlesFilter(originalTitles), cancellationToken: token)))
             .MapAsync(items =>
                 items.ConvertAll(i =>
                     new TilesMap(i.OriginalTitle ?? string.Empty, i.AlternativeTitle ?? string.Empty)));
     }
 
-    private static string GetTitlesFilter(IEnumerable<string> originalTitles)
+    private static Expression<Func<AlternativeTitleStorage, bool>> GetTitlesFilter(IEnumerable<string> originalTitles)
     {
-        var filterClauses = originalTitles
-            .Select(title =>  TableClient.CreateQueryFilter($"{nameof(AlternativeTitleStorage.OriginalTitle)} eq {title}")).ToArray();
-        return string.Join(" or ", filterClauses);
+        var param = Expression.Parameter(typeof(AlternativeTitleStorage), "x");
+        Expression body = Expression.Constant(false);
+        body = originalTitles.Aggregate(body,
+            (current, title) => Expression.OrElse(current,
+                Expression.Equal(
+                    Expression.Property(param, typeof(AlternativeTitleStorage),
+                        nameof(AlternativeTitleStorage.OriginalTitle)),
+                    Expression.Constant(title))));
+
+        return Expression.Lambda<Func<AlternativeTitleStorage, bool>>(body, param);
     }
 }
