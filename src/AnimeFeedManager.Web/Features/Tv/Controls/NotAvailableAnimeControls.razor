@@ -6,7 +6,7 @@
         <Content>
             <form hx-post="tv/add-interested"
                   hx-swap="outerHTML"
-                  hx-indicator="#loader-indicator"
+                  hx-indicator="@ControlData.LoaderSelector"
                   hx-confirm="@($"Do you want to add {ControlData.Title} to your interested list?")">
                 <AntiforgeryToken/>
                 <fieldset class="flex flex-nowrap items-center justify-between">
@@ -17,6 +17,7 @@
                         <input type="hidden" name="@nameof(NotAvailableControlData.Title)" @bind="ControlData.Title"/>
                         <input type="hidden" name="@nameof(NotAvailableControlData.UserId)" @bind="ControlData.UserId"/>
                         <input type="hidden" name="@nameof(NotAvailableControlData.SeriesId)" @bind="ControlData.SeriesId"/>
+                        <input type="hidden" name="@nameof(NotAvailableControlData.LoaderSelector)" @bind="ControlData.LoaderSelector"/>
                         <button type="submit" class="btn btn-primary btn-xs">Add to Interested</button>
                     </div>
                 </fieldset>

@@ -14,9 +14,9 @@ namespace AnimeFeedManager.Web.Features.Tv;
 
 public static class Endpoints
 {
-    public static void Map(WebApplication app)
+    public static void MapTvEndpoints(this RouteGroupBuilder group)
     {
-        app.MapPost("/tv/subscribe", (
+        group.MapPost("/tv/subscribe", (
                 [FromForm] AvailableTvSeriesControlData data,
                 [FromServices] IAddTvSubscription tvSubscriber,
                 [FromServices] ILogger<TvGrid> logger,
@@ -30,7 +30,7 @@ public static class Endpoints
         ).RequireAuthorization();
 
 
-        app.MapPost("/tv/unsubscribe", (
+        group.MapPost("/tv/unsubscribe", (
                 [FromForm] AvailableTvSeriesControlData data,
                 [FromServices] IRemoveTvSubscription tvUnSubscriber,
                 [FromServices] ILogger<TvGrid> logger,
@@ -45,7 +45,7 @@ public static class Endpoints
         ).RequireAuthorization();
 
 
-        app.MapPost("/tv/add-interested", (
+        group.MapPost("/tv/add-interested", (
                 [FromForm] NotAvailableControlData data,
                 [FromServices] IAddInterested tvInterestedSubscriber,
                 [FromServices] ILogger<TvGrid> logger,
@@ -59,7 +59,7 @@ public static class Endpoints
                 )
         ).RequireAuthorization();
 
-        app.MapPut("/tv/alternative-title", (
+        group.MapPut("/tv/alternative-title", (
                     [FromForm] AlternativeTitleUpdate updateInfo,
                     [FromServices] IDomainPostman domainPostman,
                     [FromServices] ILogger<TvGrid> logger,
@@ -72,7 +72,7 @@ public static class Endpoints
             .RequireAuthorization(Policies.AdminRequired);
 
 
-        app.MapPost("/tv/remove", (
+        group.MapPost("/tv/remove", (
                     [FromForm] SeriesToRemove removeInfo,
                     [FromServices] ITvSeriesStore tvSeriesStore,
                     [FromServices] ILogger<TvGrid> logger,
@@ -92,7 +92,7 @@ public static class Endpoints
             .RequireAuthorization(Policies.AdminRequired);
 
 
-        app.MapPost("/tv/remove-interested", (
+        group.MapPost("/tv/remove-interested", (
                 [FromForm] NotAvailableControlData data,
                 [FromServices] IRemoveInterestedSeries tvInterestedRemover,
                 [FromServices] ILogger<TvGrid> logger,

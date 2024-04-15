@@ -12,9 +12,9 @@ namespace AnimeFeedManager.Web.Features.Ovas;
 
 public static class Endpoints
 {
-    public static void Map(WebApplication app)
+    public static void MapOvaEndpoints(this RouteGroupBuilder group)
     {
-        app.MapPost("/ovas/subscribe", (
+        group.MapPost("/ovas/subscribe", (
                 [FromForm] OvaControlData data,
                 [FromServices] IAddOvasSubscription ovaSubscriber,
                 [FromServices] ILogger<OvasGrid> logger,
@@ -29,7 +29,7 @@ public static class Endpoints
                     e => ComponentResponses.ErrorResponse(data, e, logger))
         );
 
-        app.MapPost("/ovas/unsubscribe", (
+        group.MapPost("/ovas/unsubscribe", (
                 [FromForm] OvaControlData data,
                 [FromServices] IRemoveOvasSubscription ovaUnSubscriber,
                 [FromServices] ILogger<OvasGrid> logger,
@@ -44,7 +44,7 @@ public static class Endpoints
                     e => ComponentResponses.ErrorResponse(data, e, logger))
         );
 
-        app.MapPost("/ovas/remove", (
+        group.MapPost("/ovas/remove", (
                     [FromForm] SeriesToRemove removeInfo,
                     [FromServices] IOvasStorage ovasStorage,
                     [FromServices] ILogger<OvasGrid> logger,

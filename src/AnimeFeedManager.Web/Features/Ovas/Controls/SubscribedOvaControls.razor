@@ -4,7 +4,7 @@
         <Content>
             <form hx-post="ovas/unsubscribe"
                   hx-swap="outerHTML"
-                  hx-indicator="#loader-indicator"
+                  hx-indicator="@ControlData.LoaderSelector"
                   hx-confirm="@($"Do you want to stop notifications for {ControlData.Title}?")">
                 <AntiforgeryToken/>
                 <fieldset class="flex flex-nowrap items-center justify-between">
@@ -15,6 +15,7 @@
                         <input type="hidden" name="@nameof(OvaControlData.Title)" @bind="ControlData.Title"/>
                         <input type="hidden" name="@nameof(OvaControlData.UserId)" @bind="ControlData.UserId"/>
                         <input type="hidden" name="@nameof(OvaControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
+                        <input type="hidden" name="@nameof(OvaControlData.LoaderSelector)" @bind="ControlData.LoaderSelector"/>
                         <button type="submit" class="btn btn-secondary btn-xs">Remove for Notifications</button>
                     </div>
                 </fieldset>
@@ -28,5 +29,4 @@
     [Parameter, EditorRequired] public OvaControlData? ControlData { get; set; }
     [Parameter] public string Message { get; set; } = string.Empty;
     [Parameter] public DomainError? DomainError { get; set; }
-
 }

@@ -3,7 +3,7 @@
     @switch (Anime)
     {
         case AnimeForUser anime:
-            <AnimeForUserControls Anime="@anime"></AnimeForUserControls>
+            <AnimeForUserControls Anime="@anime" LoaderSelector="@LoaderSelector"></AnimeForUserControls>
             break;
 
         case FeedAnime feedAnime:
@@ -24,4 +24,5 @@
 
 @code {
     [Parameter, EditorRequired] public BaseTvAnime Anime { get; set; } = new NullTvAnime();
+    [Parameter, EditorRequired] public string LoaderSelector { get; set; } = string.Empty;
 }

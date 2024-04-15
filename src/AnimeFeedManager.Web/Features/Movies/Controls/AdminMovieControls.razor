@@ -2,7 +2,7 @@
 {
     <form hx-post="movies/remove"
           hx-confirm="@($"Do you want remove {MovieInfo.Title} from the Movies library?")"
-          hx-indicator="#loader-indicator"
+          hx-indicator="@LoaderSelector"
           hx-swap="none">
         <AntiforgeryToken/>
         <input type="hidden" name="@nameof(SeriesToRemove.Id)" value="@MovieInfo.Id"/>
@@ -19,4 +19,5 @@
 
 @code {
     [Parameter, EditorRequired] public AdminMovieControlParams MovieInfo { get; set; } = new DefaultAdminMovieControlParams();
+    [Parameter, EditorRequired] public string LoaderSelector { get; set; } = string.Empty;
 }

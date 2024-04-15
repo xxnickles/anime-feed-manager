@@ -7,25 +7,27 @@ public class OvaControlData
     public string Title { get; set; } = string.Empty;
     public DateTime NotificationTime { get; set; } = default;
     public string UserId { get; set; } = string.Empty;
- 
-    
-    public static implicit operator OvaControlData(UnsubscribedOva ova)
+    public string LoaderSelector { get; set; } = string.Empty;
+
+    public static OvaControlData MapFrom(UnsubscribedOva ova, string loaderSelector)
     {
         return new OvaControlData
         {
             Title = ova.Title,
             UserId = ova.UserId,
-            NotificationTime = ova.AirDate
+            NotificationTime = ova.AirDate,
+            LoaderSelector = loaderSelector
         };
     }
-    
-    public static implicit operator OvaControlData(SubscribedOva ova)
+
+    public static OvaControlData MapFrom(SubscribedOva ova, string loaderSelector)
     {
         return new OvaControlData
         {
             Title = ova.Title,
             UserId = ova.UserId,
-            NotificationTime = ova.AirDate
+            NotificationTime = ova.AirDate,
+            LoaderSelector = loaderSelector
         };
     }
 }

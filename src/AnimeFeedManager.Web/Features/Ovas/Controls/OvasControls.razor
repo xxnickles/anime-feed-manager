@@ -9,10 +9,10 @@
             <AvailableOvaControls/>
             break;
         case SubscribedOva ova:
-            <SubscribedOvaControls ControlData="@ova" />
+            <SubscribedOvaControls ControlData="@OvaControlData.MapFrom(ova, LoaderSelector)"/>
             break;
         case UnsubscribedOva ova:
-            <UnsubscribedOvaControls ControlData="@ova" />
+            <UnsubscribedOvaControls ControlData="@OvaControlData.MapFrom(ova, LoaderSelector)"/>
             break;
         default:
             <div class="badge badge-error gap-2">
@@ -24,4 +24,6 @@
 
 @code {
     [Parameter, EditorRequired] public BaseOva Ova { get; set; } = new NullOva();
+    [Parameter, EditorRequired] public string LoaderSelector { get; set; } = string.Empty;
+
 }

@@ -22,4 +22,6 @@ public static class IdHelpers
             .Replace(" ", "_")
             .Replace("__", "_");
     }
+
+    public static string GetUniqueName(string baseName) => $"{baseName}-{Guid.NewGuid().ToString("N")[..5]}";
 }

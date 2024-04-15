@@ -4,7 +4,7 @@
         <Content>
             <form hx-post="movies/unsubscribe"
                   hx-swap="outerHTML"
-                  hx-indicator="#loader-indicator"
+                  hx-indicator="@ControlData.LoaderSelector"
                   hx-confirm="@($"Do you want to stop notifications for {ControlData.Title}?")">
                 <AntiforgeryToken/>
                 <fieldset class="flex flex-nowrap items-center justify-between">
@@ -15,6 +15,7 @@
                         <input type="hidden" name="@nameof(MovieControlData.Title)" @bind="ControlData.Title"/>
                         <input type="hidden" name="@nameof(MovieControlData.UserId)" @bind="ControlData.UserId"/>
                         <input type="hidden" name="@nameof(MovieControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
+                        <input type="hidden" name="@nameof(MovieControlData.LoaderSelector)" @bind="ControlData.LoaderSelector"/>
                         <button type="submit" class="btn btn-secondary btn-xs">Remove for Notifications</button>
                     </div>
                 </fieldset>
@@ -28,5 +29,4 @@
     [Parameter, EditorRequired] public MovieControlData? ControlData { get; set; }
     [Parameter] public string Message { get; set; } = string.Empty;
     [Parameter] public DomainError? DomainError { get; set; }
-
 }

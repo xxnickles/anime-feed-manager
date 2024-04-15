@@ -12,9 +12,9 @@ namespace AnimeFeedManager.Web.Features.Movies;
 
 public static class Endpoints
 {
-    public static void Map(WebApplication app)
+    public static void MapMovieEndpoints(this RouteGroupBuilder group)
     {
-        app.MapPost("/movies/subscribe", (
+        group.MapPost("/movies/subscribe", (
                 [FromForm] MovieControlData data,
                 [FromServices] IAddMovieSubscription movieSubscriber,
                 [FromServices] ILogger<MoviesGrid> logger,
@@ -29,7 +29,7 @@ public static class Endpoints
                     e => ComponentResponses.ErrorResponse(data, e, logger))
         );
 
-        app.MapPost("/movies/unsubscribe", (
+        group.MapPost("/movies/unsubscribe", (
                 [FromForm] MovieControlData data,
                 [FromServices] IRemoveMovieSubscription movieUnSubscriber,
                 [FromServices] ILogger<MoviesGrid> logger,
@@ -44,7 +44,7 @@ public static class Endpoints
                     e => ComponentResponses.ErrorResponse(data, e, logger))
         );
 
-        app.MapPost("/movies/remove", (
+        group.MapPost("/movies/remove", (
                     [FromForm] SeriesToRemove removeInfo,
                     [FromServices] IMoviesStorage moviesStorage,
                     [FromServices] ILogger<MoviesGrid> logger,

@@ -9,10 +9,10 @@
             <AvailableMovieControls/>
             break;
         case SubscribedMovie movie:
-            <SubscribedMovieControls ControlData="@movie"/>
+            <SubscribedMovieControls ControlData="@MovieControlData.MapFrom(movie, LoaderSelector)"/>
             break;
         case UnsubscribedMovie movie:
-            <UnsubscribedMovieControls ControlData="@movie"/>
+            <UnsubscribedMovieControls ControlData="@MovieControlData.MapFrom(movie, LoaderSelector)"/>
             break;
         default:
             <div class="badge badge-error gap-2">
@@ -24,4 +24,5 @@
 
 @code {
     [Parameter, EditorRequired] public BaseMovie Movie { get; set; } = new NullMovie();
+    [Parameter, EditorRequired] public string LoaderSelector { get; set; } = string.Empty;
 }

@@ -7,25 +7,27 @@ public class AvailableTvSeriesControlData
     public string Title { get; set; } = string.Empty;
     public string FeedId { get; set; } = string.Empty;
     public string UserId { get; set; } = string.Empty;
+    public string LoaderSelector { get; set; } = string.Empty;
 
-
-    public static implicit operator AvailableTvSeriesControlData(SubscribedAnime anime)
+    public static AvailableTvSeriesControlData MapFrom(SubscribedAnime anime, string loaderSelector)
     {
         return new AvailableTvSeriesControlData
         {
             Title = anime.Title,
             UserId = anime.UserId,
-            FeedId = anime.FeedId
+            FeedId = anime.FeedId,
+            LoaderSelector = loaderSelector
         };
     }
 
-    public static implicit operator AvailableTvSeriesControlData(UnSubscribedAnime anime)
+    public static AvailableTvSeriesControlData MapFrom(UnSubscribedAnime anime, string loaderSelector)
     {
         return new AvailableTvSeriesControlData
         {
             Title = anime.Title,
             UserId = anime.UserId,
-            FeedId = anime.FeedId
+            FeedId = anime.FeedId,
+            LoaderSelector = loaderSelector
         };
     }
 }
@@ -38,23 +40,27 @@ public class NotAvailableControlData
 
     public string SeriesId { get; set; } = string.Empty;
 
-    public static implicit operator NotAvailableControlData(InterestedAnime anime)
-    {
-        return new NotAvailableControlData
-        {
-            Title = anime.Title,
-            UserId = anime.UserId,
-            SeriesId = anime.Id
-        };
-    }
+    public string LoaderSelector { get; set; } = string.Empty;
 
-    public static implicit operator NotAvailableControlData(NotAvailableAnime anime)
+    public static  NotAvailableControlData MapFrom(InterestedAnime anime, string loaderSelector)
     {
         return new NotAvailableControlData
         {
             Title = anime.Title,
             UserId = anime.UserId,
             SeriesId = anime.Id,
+            LoaderSelector = loaderSelector
+        };
+    }
+
+    public static NotAvailableControlData MapFrom(NotAvailableAnime anime, string loaderSelector)
+    {
+        return new NotAvailableControlData
+        {
+            Title = anime.Title,
+            UserId = anime.UserId,
+            SeriesId = anime.Id,
+            LoaderSelector = loaderSelector
         };
     }
 }

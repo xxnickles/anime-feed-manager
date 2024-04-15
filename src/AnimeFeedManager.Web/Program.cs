@@ -1,12 +1,14 @@
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
+using AnimeFeedManager.Web.Features.Admin;
+using AnimeFeedManager.Web.Features.Common.Filters;
+using AnimeFeedManager.Web.Features.Movies;
+using AnimeFeedManager.Web.Features.Ovas;
+using AnimeFeedManager.Web.Features.Security;
+using AnimeFeedManager.Web.Features.Tv;
 using Azure.Core;
 using Azure.Identity;
-using TvEndpoints = AnimeFeedManager.Web.Features.Tv.Endpoints;
-using OvaEndpoints = AnimeFeedManager.Web.Features.Ovas.Endpoints;
-using MovieEndpoints = AnimeFeedManager.Web.Features.Movies.Endpoints;
-using AdminEndpoints = AnimeFeedManager.Web.Features.Admin.Endpoints;
-using SecurityEndpoints = AnimeFeedManager.Web.Features.Security.Endpoints;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,14 +41,21 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>();
 
-SecurityEndpoints.Map(app);
-TvEndpoints.Map(app);
-OvaEndpoints.Map(app);
-MovieEndpoints.Map(app);
-AdminEndpoints.Map(app);
+var endpointsGroup = app
+        .MapGroup(string.Empty)
+#if DEBUG
+        .AddEndpointFilter<DelayFilter>()
+#endif
+    ;
+
+endpointsGroup.MapSecurityEndpoints();
+endpointsGroup.MapTvEndpoints();
+endpointsGroup.MapOvaEndpoints();
+endpointsGroup.MapMovieEndpoints();
+endpointsGroup.MapAdminEndpoints();
+
 
 app.Run();
-return;
 
 static Func<TokenCredential> GetDefaultCredential(IWebHostEnvironment environment) => () =>
     !environment.IsDevelopment() ? new ManagedIdentityCredential() : new AzureCliCredential();

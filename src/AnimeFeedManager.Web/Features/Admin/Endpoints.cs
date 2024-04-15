@@ -14,9 +14,9 @@ namespace AnimeFeedManager.Web.Features.Admin;
 
 public static class Endpoints
 {
-    public static void Map(WebApplication app)
+    public static void MapAdminEndpoints(this RouteGroupBuilder group)
     {
-        app.MapPut("/admin/tv",
+        group.MapPut("/admin/tv",
                 ([FromForm] string? noop,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
@@ -26,7 +26,7 @@ public static class Endpoints
                         .ToComponentResult("Latest tv library will be scrapped in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("/admin/tv/titles",
+        group.MapPut("/admin/tv/titles",
                 ([FromForm] string? noop,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
@@ -35,7 +35,7 @@ public static class Endpoints
                         .ToComponentResult("Tv Titles will be scrapped in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("/admin/tv/season",
+        group.MapPut("/admin/tv/season",
                 ([FromForm] BasicSeason season,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
@@ -50,7 +50,7 @@ public static class Endpoints
                             $"Tv library for {season.Season}-{season.Year} will be scrapped in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("/admin/ovas",
+        group.MapPut("/admin/ovas",
                 ([FromForm] string? noop,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
@@ -60,7 +60,7 @@ public static class Endpoints
                         .ToComponentResult("Latest Ovas library will be scrapped in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("/admin/ovas/season",
+        group.MapPut("/admin/ovas/season",
                 ([FromForm] BasicSeason season,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
@@ -76,7 +76,7 @@ public static class Endpoints
                             logger))
             .RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("/admin/movies",
+        group.MapPut("/admin/movies",
                 ([FromForm] string? noop,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
@@ -86,7 +86,7 @@ public static class Endpoints
                         .ToComponentResult("Latest movies library will be scrapped in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("/admin/movies/season",
+        group.MapPut("/admin/movies/season",
                 ([FromForm] BasicSeason season,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
@@ -103,7 +103,7 @@ public static class Endpoints
             .RequireAuthorization(Policies.AdminRequired);
 
 
-        app.MapPut("/admin/seasons",
+        group.MapPut("/admin/seasons",
                 ([FromForm] string? noop,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
@@ -112,7 +112,7 @@ public static class Endpoints
                         .ToComponentResult("Latest Titles will be processed in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("admin/user/copy",
+        group.MapPut("admin/user/copy",
             ([FromForm] CopyUserPayload payload,
                 [FromServices] SubscriptionCopierSetter subscriptionsCopier,
                 [FromServices] ILogger<Admin> logger,
@@ -121,7 +121,7 @@ public static class Endpoints
                 .ToComponentResult("Copy of subscription will be processed in the background", logger)
         ).RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("admin/user/delete",
+        group.MapPut("admin/user/delete",
             ([FromForm] string source,
                     [FromServices] IUserDelete userDeleter,
                     [FromServices] ILogger<Admin> logger,
@@ -133,7 +133,7 @@ public static class Endpoints
                         logger)
         ).RequireAuthorization(Policies.AdminRequired);
 
-        app.MapPut("/admin/noop",
+        group.MapPut("/admin/noop",
             ([FromServices] ILogger<Admin> logger) => Task.FromResult(
                 CommonComponentResponses.ErrorComponentResult(
                     BasicError.Create("You have tried to do something that is not here"), logger)));

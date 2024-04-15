@@ -8,9 +8,9 @@ namespace AnimeFeedManager.Web.Features.Security;
 
 internal static class Endpoints
 {
-    internal static void Map(WebApplication app)
+    internal static void MapSecurityEndpoints(this RouteGroupBuilder group)
     {
-        app.MapGet("/create-token", (
+        group.MapGet("/create-token", (
             [FromQuery] string alias,
             [FromQuery] string displayName,
             [FromServices] IPasswordlessRegistration passwordlessRegistration,
@@ -26,7 +26,7 @@ internal static class Endpoints
                 .ToResponse(logger);
         });
 
-        app.MapGet("/verify-signin", (
+        group.MapGet("/verify-signin", (
                 [FromQuery] string token,
                 [FromServices] IPasswordlessLogin passwordlessLogin,
                 [FromServices] ILogger<Login> logger,
