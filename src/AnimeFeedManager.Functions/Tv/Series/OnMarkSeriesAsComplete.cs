@@ -14,7 +14,7 @@ public sealed class OnMarkSeriesAsComplete
 
     [Function("OnMarkSeriesAsComplete")]
     public async Task Run(
-        [QueueTrigger(MarkSeriesAsComplete.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(MarkSeriesAsComplete.TargetQueue, Connection = Constants.AzureConnectionName)]
         MarkSeriesAsComplete notification)
     {
         await _markSeriesAsCompletedHandler.Handle(notification, default);

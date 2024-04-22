@@ -13,7 +13,7 @@ public sealed class OnProcessAutoSubscription(
 
     [Function("OnProcessAutoSubscription")]
     public async Task Run(
-        [QueueTrigger(InterestedToSubscription.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(InterestedToSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
         StateWrap<InterestedToSubscription> notification)
     {
 

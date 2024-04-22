@@ -20,7 +20,7 @@ public sealed class OnCopySubscriptions
 
     [Function("OnCopySubscriptions")]
     public async Task Run(
-        [QueueTrigger(CopySubscriptionRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(CopySubscriptionRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         CopySubscriptionRequest notification)
     {
         _logger.LogInformation("Trying to copy subscriptions from {Source} to {Target}", notification.SourceId,

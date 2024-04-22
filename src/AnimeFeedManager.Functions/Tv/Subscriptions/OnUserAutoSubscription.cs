@@ -13,7 +13,7 @@ public sealed class OnUserAutoSubscription(
 
     [Function("OnUserAutoSubscription")]
     public async Task Run(
-        [QueueTrigger(UserAutoSubscription.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(UserAutoSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
         UserAutoSubscription notification)
     {
         var result = await UserId.Validate(notification.UserId)

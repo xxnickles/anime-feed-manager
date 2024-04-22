@@ -17,7 +17,7 @@ public sealed class OnLatestSeasonsUpdate
 
     [Function("OnLatestSeasonsUpdate")]
     public async Task Run(
-        [QueueTrigger(UpdateLatestSeasonsRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(UpdateLatestSeasonsRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         UpdateLatestSeasonsRequest notification)
     {
         _logger.LogInformation("Updating latest seasons information");

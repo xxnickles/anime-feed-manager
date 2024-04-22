@@ -19,7 +19,7 @@ public class SendNotifications(
 
     [Function("SendNotifications")]
     public async Task Run(
-        [QueueTrigger(SubscriberTvNotification.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(SubscriberTvNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
         SubscriberTvNotification notification)
     {
         try

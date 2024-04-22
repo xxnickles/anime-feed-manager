@@ -18,7 +18,7 @@ public sealed class OnAddSeasonNotification
 
     [Function("OnAddSeasonNotification")]
     public async Task Run(
-        [QueueTrigger(AddSeasonNotification.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(AddSeasonNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
         AddSeasonNotification notification)
     {
         _logger.LogInformation("Updating Seasons with {Season}-{Year}", notification.Season, notification.Year.ToString());

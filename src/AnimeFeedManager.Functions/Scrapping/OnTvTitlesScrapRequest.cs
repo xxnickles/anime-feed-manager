@@ -20,7 +20,7 @@ public sealed class OnTvTitlesScrapRequest(
 
     [Function("OnTitlesScrapRequest")]
     public async Task Run(
-        [QueueTrigger(ScrapLibraryRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(ScrapLibraryRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         ScrapLibraryRequest notification)
     {
         var task = notification switch

@@ -12,7 +12,7 @@ public sealed class OnLibraryScrapRequest(
 
     [Function("OnLibraryScrapRequest")]
     public async Task Run(
-        [QueueTrigger(ScrapTvTilesRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(ScrapTvTilesRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         ScrapTvTilesRequest notification)
     {
         

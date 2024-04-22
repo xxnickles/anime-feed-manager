@@ -20,7 +20,7 @@ public sealed class OnSubscriptionsCleanup
 
     [Function("OnSubscriptionsCleanup")]
     public async Task Run(
-        [QueueTrigger(RemoveSubscriptionsRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(RemoveSubscriptionsRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         RemoveSubscriptionsRequest notification)
     {
         var result = await UserId.Validate(notification.UserId)

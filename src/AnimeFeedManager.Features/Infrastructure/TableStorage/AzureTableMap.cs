@@ -19,5 +19,6 @@ internal static class AzureTableMap
         internal const string Notifications = "Notifications";
         internal const string StateUpdates = "StateUpdates";
         internal const string JsonStorage = "JsonTable";
+        internal const string OvasFeed = "OvasFeed";
     }
 }

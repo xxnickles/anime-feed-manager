@@ -20,7 +20,7 @@ public class OnAlternativeTitleUpdate
 
     [Function(nameof(OnAlternativeTitleUpdate))]
     public async Task Run(
-        [QueueTrigger(UpdateAlternativeTitle.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(UpdateAlternativeTitle.TargetQueue, Connection = Constants.AzureConnectionName)]
         UpdateAlternativeTitle message)
     {
         var result = await (PartitionKey.Validate(message.Season), RowKey.Validate(message.Id))

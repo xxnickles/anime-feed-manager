@@ -12,7 +12,7 @@ public sealed class OnUpdateSeasonTitles(
 
     [Function("OnUpdateSeasonTitles")]
     public async Task Run(
-        [QueueTrigger(UpdateSeasonTitlesRequest.TargetQueue, Connection = "AzureWebJobsStorage")] UpdateSeasonTitlesRequest notification)
+        [QueueTrigger(UpdateSeasonTitlesRequest.TargetQueue, Connection = Constants.AzureConnectionName)] UpdateSeasonTitlesRequest notification)
     {
         
         // Stores notification

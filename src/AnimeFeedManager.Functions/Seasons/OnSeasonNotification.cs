@@ -17,7 +17,7 @@ public sealed class OnSeasonNotification(
     [Function("OnSeasonNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(SeasonProcessNotification.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(SeasonProcessNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
         SeasonProcessNotification notification)
     {
         // Stores notification and create event to update latest seasons

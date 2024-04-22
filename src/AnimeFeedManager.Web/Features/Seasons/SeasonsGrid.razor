@@ -53,7 +53,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var seasons = await SeasonGetter.GetGroupedAvailable();
+        var seasons = await SeasonGetter.GroupAvailable();
 
         _seasons = seasons.Match(
             s => s,

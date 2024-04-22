@@ -15,7 +15,7 @@ public sealed class OnTitlesNotification(
     [Function("OnTitlesNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(TitlesUpdateNotification.TargetQueue, Connection = "AzureWebJobsStorage")] 
+        [QueueTrigger(TitlesUpdateNotification.TargetQueue, Connection = Constants.AzureConnectionName)] 
         TitlesUpdateNotification notification)
     {
         

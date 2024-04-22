@@ -16,7 +16,7 @@ public sealed class SeasonsGetter(ISeasonsGetter seasonsGetter, ILatestSeasonsGe
                     .ToImmutableList());
     }
 
-    public Task<Either<DomainError, ImmutableList<SeasonGroup>>> GetGroupedAvailable(CancellationToken token = default)
+    public Task<Either<DomainError, ImmutableList<SeasonGroup>>> GroupAvailable(CancellationToken token = default)
     {
        return seasonsGetter.GetAvailableSeasons(token)
             .MapAsync(seasons =>

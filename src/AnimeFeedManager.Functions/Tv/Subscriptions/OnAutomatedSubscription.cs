@@ -19,7 +19,7 @@ public sealed class OnAutomatedSubscription
 
     [Function("OnAutomatedSubscription")]
     public async Task Run(
-        [QueueTrigger(AutomatedSubscription.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(AutomatedSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
         AutomatedSubscription notification)
     {
         _logger.LogInformation("Starting automated subscription");

@@ -29,7 +29,7 @@ public sealed class UploadImage
 
     [Function("UploadImage")]
     public async Task Run(
-        [QueueTrigger(DownloadImageEvent.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(DownloadImageEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
         StateWrap<DownloadImageEvent> imageScrapEvent)
     {
         _logger.LogInformation("Getting image for {Name} from {RemoteUrl}", imageScrapEvent.Payload.BlobName,

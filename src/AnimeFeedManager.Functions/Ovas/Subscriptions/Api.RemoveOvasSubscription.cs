@@ -9,7 +9,7 @@ public class RemoveOvasSubscription(IRemoveOvasSubscription ovasSubscription, IL
 {
     private readonly ILogger<RemoveOvasSubscription> _logger = loggerFactory.CreateLogger<RemoveOvasSubscription>();
 
-    [Function("RemoveOvasSubscription")]
+    [Function(nameof(RemoveOvasSubscription))]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "ovas/subscriptions/unsubscribe")]
         HttpRequestData req)

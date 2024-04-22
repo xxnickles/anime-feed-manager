@@ -7,6 +7,12 @@ public enum LinkType
     Magnet
 }
 
+public enum FeedType
+{
+    Last4,
+    Complete
+}
+
 public readonly record struct TorrentLink(LinkType Type, string Link);
 
 public readonly record struct FeedInfo(string AnimeTitle,

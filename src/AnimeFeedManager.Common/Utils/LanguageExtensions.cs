@@ -27,7 +27,7 @@ public static class LanguageExtensions
         this Task<Either<DomainError, T>[]> results) => (await results).FlattenResults();
 
 
-    public static ImmutableList<T> Flattern<T>(this ImmutableList<Option<T>> options)
+    public static ImmutableList<T> Flatten<T>(this ImmutableList<Option<T>> options)
     {
         var results = new List<T>();
         foreach (var option in options)

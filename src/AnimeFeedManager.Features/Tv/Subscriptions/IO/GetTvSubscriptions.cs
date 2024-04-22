@@ -31,6 +31,6 @@ public class GetTvSubscriptions(
                     client.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == userId, cancellationToken: token)))
             .MapAsync(subscriptions =>
                 subscriptions.ConvertAll(subscription => NoEmptyString.FromString(subscription.RowKey ?? string.Empty)))
-            .MapAsync(titles => new SubscriptionCollection(email, titles.Flattern()));
+            .MapAsync(titles => new SubscriptionCollection(email, titles.Flatten()));
     }
 }

@@ -18,7 +18,7 @@ public sealed class OnImagesToScrapRequest
 
     [Function("OnImagesToScrapRequest")]
     public async Task Run(
-        [QueueTrigger(ScrapImagesRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(ScrapImagesRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         ScrapImagesRequest notification)
     {
         _logger.LogInformation("Images scrapping process for {Count} will be enqueue", notification.Events.Count);
