@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Seasons.IO;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +17,7 @@ public sealed class OnLatestSeasonsUpdate
 
     [Function("OnLatestSeasonsUpdate")]
     public async Task Run(
-        [QueueTrigger(Box.Available.LatestSeasonsBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(UpdateLatestSeasonsRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
         UpdateLatestSeasonsRequest notification)
     {
         _logger.LogInformation("Updating latest seasons information");

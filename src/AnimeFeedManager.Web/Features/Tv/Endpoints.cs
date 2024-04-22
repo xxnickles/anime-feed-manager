@@ -66,8 +66,7 @@ public static class Endpoints
                     CancellationToken token) =>
                 domainPostman.SendMessage(
                         new UpdateAlternativeTitle(updateInfo.Id, updateInfo.Season, updateInfo.Title,
-                            updateInfo.OriginalTitle),
-                        Box.AlternativeTitleUpdate, token)
+                            updateInfo.OriginalTitle), token)
                     .ToComponentResult("Alternative title update will be processed in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 

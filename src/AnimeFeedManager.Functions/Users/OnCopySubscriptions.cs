@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Users;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +20,7 @@ public sealed class OnCopySubscriptions
 
     [Function("OnCopySubscriptions")]
     public async Task Run(
-        [QueueTrigger(Box.Available.SubscriptionsCopyBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(CopySubscriptionRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
         CopySubscriptionRequest notification)
     {
         _logger.LogInformation("Trying to copy subscriptions from {Source} to {Target}", notification.SourceId,

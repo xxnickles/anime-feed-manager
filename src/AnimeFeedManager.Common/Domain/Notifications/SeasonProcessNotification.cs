@@ -1,31 +1,23 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Dto;
 
 namespace AnimeFeedManager.Common.Domain.Notifications;
 
 [method: JsonConstructor]
-public class SeasonProcessNotification(
-    TargetAudience targetAudience,
-    NotificationType result,
-    SimpleSeasonInfo simpleSeason,
-    SeriesType seriesType,
-    string message)
-    : Notification(targetAudience, result, message)
+public record SeasonProcessNotification(
+    TargetAudience TargetAudience,
+    NotificationType Result,
+    SimpleSeasonInfo SimpleSeason,
+    SeriesType SeriesType,
+    string Message)
+    : Notification(TargetAudience, Result, Message, new Box(TargetQueue))
 {
-    public SimpleSeasonInfo SimpleSeason { get; set; } = simpleSeason;
-    public SeriesType SeriesType { get; set; } = seriesType;
-
-    public void Deconstruct(out TargetAudience targetAudience, out NotificationType result,
-        out SimpleSeasonInfo simpleSeason, out SeriesType seriesType, out string message)
-    {
-        targetAudience = TargetAudience;
-        result = Result;
-        simpleSeason = SimpleSeason;
-        seriesType = SeriesType;
-        message = Message;
-    }
+    public const string TargetQueue = "season-process-notifications";
+    public SimpleSeasonInfo SimpleSeason { get; set; } = SimpleSeason;
+    public SeriesType SeriesType { get; set; } = SeriesType;
 
     public override string GetSerializedPayload()
     {

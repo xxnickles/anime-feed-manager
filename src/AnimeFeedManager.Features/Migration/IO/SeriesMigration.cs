@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Tv.Types;
 using AnimeFeedManager.Common.Utils;
+using AnimeFeedManager.Features.Tv.Types;
 
 namespace AnimeFeedManager.Features.Migration.IO;
 
@@ -47,6 +47,6 @@ public class SeriesMigration(ITableClientFactory<LegacyAnimeInfoStorage> tableCl
             .AsParallel()
             .Select(group => TableUtils.BatchAdd(client, group, token)).ToArray();
         var results = await Task.WhenAll(tasks);
-       return results.Flatten();
+       return results.FlattenResults();
     }
 }

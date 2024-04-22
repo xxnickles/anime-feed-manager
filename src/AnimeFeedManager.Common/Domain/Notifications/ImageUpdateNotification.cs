@@ -1,14 +1,17 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Common.Domain.Notifications;
 
 [method: JsonConstructor]
-public class ImageUpdateNotification(NotificationType result, SeriesType seriesType, string message)
-    : Notification(TargetAudience.Admins, result, message)
+public record ImageUpdateNotification(NotificationType Result, SeriesType SeriesType, string Message)
+    : Notification(TargetAudience.Admins, Result, Message, new Box(TargetQueue))
 {
-    public SeriesType SeriesType { get; set; } = seriesType;
+    public const string TargetQueue = "image-update-notifications";
+    
+    public SeriesType SeriesType { get; set; } = SeriesType;
 
     public override string GetSerializedPayload()
     {

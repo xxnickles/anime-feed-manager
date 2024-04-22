@@ -8,7 +8,7 @@ public static class LanguageExtensions
         validation.ToEither().MapLeft(errors => (DomainError)ValidationErrors.Create(errors));
 
 
-    public static Either<DomainError, ImmutableList<T>> Flatten<T>(this Either<DomainError, T>[] results)
+    public static Either<DomainError, ImmutableList<T>> FlattenResults<T>(this Either<DomainError, T>[] results)
     {
         var oks = results.Rights().ToImmutableList();
         if (oks.Count == results.Length)
@@ -23,8 +23,8 @@ public static class LanguageExtensions
         return new AggregatedError(results.Lefts().ToImmutableList(), errorType);
     }
 
-    public static async Task<Either<DomainError, ImmutableList<T>>> Flatten<T>(
-        this Task<Either<DomainError, T>[]> results) => (await results).Flatten();
+    public static async Task<Either<DomainError, ImmutableList<T>>> FlattenResults<T>(
+        this Task<Either<DomainError, T>[]> results) => (await results).FlattenResults();
 
 
     public static ImmutableList<T> Flattern<T>(this ImmutableList<Option<T>> options)

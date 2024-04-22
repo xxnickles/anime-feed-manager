@@ -36,7 +36,7 @@ public sealed class SeasonsGetter(ITableClientFactory<SeasonStorage> tableClient
             .BindAsync(client => TableUtils.ExecuteLimitedQuery(
                 () => client.QueryAsync<SeasonStorage>(season =>
                         season.PartitionKey == SeasonType.Season || season.PartitionKey == SeasonType.Latest, 1,
-                    cancellationToken: token), 1))
+                    cancellationToken: token)))
             .BindAsync(GetLatest);
     }
 

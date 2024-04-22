@@ -34,6 +34,6 @@ public class CopyAllSubscriptions
         var ovasSubscriptionsTask = _ovasSubscriptionsCopier.CopyAll(source,target, token);
         var results = await Task.WhenAll(interestedTask, tvSubscriptionsTask, moviesSubscriptionsTask,
             ovasSubscriptionsTask);
-        return results.Flatten();
+        return results.FlattenResults();
     }
 }

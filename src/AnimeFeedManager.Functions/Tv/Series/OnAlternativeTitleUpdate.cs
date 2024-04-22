@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +20,7 @@ public class OnAlternativeTitleUpdate
 
     [Function(nameof(OnAlternativeTitleUpdate))]
     public async Task Run(
-        [QueueTrigger(Box.Available.AlternativeTitleUpdateBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(UpdateAlternativeTitle.TargetQueue, Connection = "AzureWebJobsStorage")]
         UpdateAlternativeTitle message)
     {
         var result = await (PartitionKey.Validate(message.Season), RowKey.Validate(message.Id))

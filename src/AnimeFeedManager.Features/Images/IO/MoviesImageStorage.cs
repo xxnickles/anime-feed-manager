@@ -50,6 +50,6 @@ public class MoviesImageStorage(
             SeriesType.Ova,
             $"Images for Movies have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
         
-        return await domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
+        return await domainPostman.SendMessage(notification, token);
     }
 }

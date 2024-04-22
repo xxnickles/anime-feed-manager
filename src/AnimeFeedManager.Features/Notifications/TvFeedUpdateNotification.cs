@@ -1,20 +1,21 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Features.Notifications;
 
 [method: JsonConstructor]
-public class TvFeedUpdateNotification(
-    TargetAudience targetAudience,
-    NotificationType result,
-    string message,
-    DateTime time,
-    IEnumerable<SubscribedFeed> feeds)
-    : Notification(targetAudience, result, message)
+public record TvFeedUpdateNotification(
+    TargetAudience TargetAudience,
+    NotificationType Result,
+    string Message,
+    DateTime Time,
+    IEnumerable<SubscribedFeed> Feeds)
+    : Notification(TargetAudience, Result, Message, Box.Empty())
 {
-    public DateTime Time { get; } = time;
-    public IEnumerable<SubscribedFeed> Feeds { get; } = feeds;
+    public DateTime Time { get; } = Time;
+    public IEnumerable<SubscribedFeed> Feeds { get; } = Feeds;
 
     public override string GetSerializedPayload()
     {

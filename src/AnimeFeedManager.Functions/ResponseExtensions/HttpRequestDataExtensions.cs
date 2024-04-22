@@ -85,7 +85,7 @@ public static class HttpRequestDataExtensions
 
     public static Task<Either<DomainError, Unit>> WithRoleCheck(this HttpRequestData request, string role)
     {
-        return request.CheckAuthorization().BindAsync((p) =>
+        return request.CheckAuthorization().BindAsync(p =>
         {
             var (principal, r) = p;
             return principal.IsInRole(role) ? Right<DomainError, Unit>(unit) : Left<DomainError, Unit>(ForbiddenError.Create(request.Url.AbsoluteUri));

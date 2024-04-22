@@ -23,7 +23,7 @@ public sealed class ScrapImagesNotificationHandler(
     private async Task SendMessages(ImmutableList<StateWrap<DownloadImageEvent>> events, CancellationToken token)
     {
         var results = events.AsParallel()
-            .Select(imageEvent => domainPostman.SendMessage(imageEvent, Box.ImageProcess, token));
+            .Select(imageEvent => domainPostman.SendMessage(imageEvent, token));
 
         var processResults = await Task.WhenAll(results);
 

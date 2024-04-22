@@ -1,12 +1,12 @@
-﻿@using AnimeFeedManager.WebApp.State
-@using AnimeFeedManager.WebApp.Services
-@using AnimeFeedManager.WebApp.Services.Tv
-@using AnimeFeedManager.Common.Domain.Types
-@inject ApplicationState State
+﻿@inject ApplicationState State
 @inject IConfirmationMessage ConfirmationMessage
 @inject ITvSubscriberService TvSubscriberService
 @inject ISnackbar Snackbar
 
+@using AnimeFeedManager.Common.Domain.Types
+@using AnimeFeedManager.WebApp.Services
+@using AnimeFeedManager.WebApp.Services.Tv
+@using AnimeFeedManager.WebApp.State
 @implements IDisposable
 <MudCard>
     <MudCardMedia Image="@Anime.ImageUrl" Height="250" Title="@Anime.Title"/>

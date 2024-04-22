@@ -31,7 +31,7 @@ public class SubscriptionCopierSetter
         CancellationToken token)
     {
         return result is AllMatched
-            ? _domainPostman.SendMessage(new CopySubscriptionRequest(source, target), Box.SubscriptionsCopy, token)
+            ? _domainPostman.SendMessage(new CopySubscriptionRequest(source, target), token)
                 .MapAsync(_ => result)
             : Task.FromResult(Right<DomainError, UsersCheck>(result));
     }

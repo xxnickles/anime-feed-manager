@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Common.Domain.Events;
 
 namespace AnimeFeedManager.Common.Domain.Notifications.Base;
 
@@ -17,21 +18,15 @@ public enum NotificationType
     Error
 }
 
-public abstract class Notification(
-    TargetAudience targetAudience,
-    NotificationType result,
-    string message)
+public abstract record Notification(
+    TargetAudience TargetAudience,
+    NotificationType Result,
+    string Message, 
+    Box MessageBox) : DomainMessage(MessageBox)
 {
-    public TargetAudience TargetAudience { get; set; } = targetAudience;
-    public NotificationType Result { get; set; } = result;
-    public string Message { get; set; } = message;
-
-    public void Deconstruct(out TargetAudience targetAudience, out NotificationType result, out string message)
-    {
-        targetAudience = TargetAudience;
-        result = Result;
-        message = Message;
-    }
+    public TargetAudience TargetAudience { get; set; } = TargetAudience;
+    public NotificationType Result { get; set; } = Result;
+    public string Message { get; set; } = Message;
 
     public virtual string GetSerializedPayload()
     {

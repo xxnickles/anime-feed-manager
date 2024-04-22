@@ -113,8 +113,6 @@ public class
                 break;
             case RemoteAuthenticationStatus.OperationCompleted:
                 break;
-            default:
-                break;
         }
     }
 

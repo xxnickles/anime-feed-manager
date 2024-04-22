@@ -66,7 +66,7 @@ public class UserNotificationsCollector(
         }
 
 
-        return domainPostman.SendMessage(tvNotification, Box.TvNotifications, token)
+        return domainPostman.SendMessage(tvNotification, token)
             .MapAsync(_ =>
                 new CollectedNotificationResult((byte) tvNotification.Feeds.Length, tvNotification.Subscriber));
     }

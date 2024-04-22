@@ -8,9 +8,16 @@ public enum ScrapType
 
 public record SeasonParameter(string Season, ushort Year);
 
-public record ScrapLibraryRequest(SeriesType Type, SeasonParameter? SeasonParameter, ScrapType ScrapType);
+public record ScrapLibraryRequest(SeriesType Type, SeasonParameter? SeasonParameter, ScrapType ScrapType)
+    : DomainMessage(new Box(TargetQueue))
+{
+    public const string TargetQueue = "library-scrap-events";
+}
 
-public record ScrapTvTilesRequest;
+public record ScrapTvTilesRequest() : DomainMessage(new Box(TargetQueue))
+{
+    public const string TargetQueue = "tv-titles-scrap-events";
+}
 
 public static class Extensions
 {

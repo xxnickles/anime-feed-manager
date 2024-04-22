@@ -28,7 +28,7 @@ public sealed class AddSeasonNotificationHandler(
             e => e.LogError(logger));
 
         var eventResult = await domainPostman.SendMessage(new
-            UpdateLatestSeasonsRequest(), Box.LatestSeason, cancellationToken);
+            UpdateLatestSeasonsRequest(), cancellationToken);
         
         eventResult.Match(_ => logger.LogInformation("{Event} event sent successfully", nameof(UpdateLatestSeasonsRequest)),
             e => e.LogError(logger));

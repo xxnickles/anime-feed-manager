@@ -1,6 +1,7 @@
 ﻿using AnimeFeedManager.Common;
 using AnimeFeedManager.Features.Nyaa;
 using PuppeteerSharp;
+using PuppeteerSharp.BrowserData;
 
 namespace AnimeFeedManager.Features.Tests.Scrapping;
 
@@ -14,7 +15,7 @@ public class NyaaScrapperTests
 
 
         var browserFetcher = new BrowserFetcher(fetcherOptions);
-        browserFetcher.DownloadAsync(PuppeteerSharp.BrowserData.Chrome.DefaultBuildId).GetAwaiter().GetResult();
+        browserFetcher.DownloadAsync(Chrome.DefaultBuildId).GetAwaiter().GetResult();
         var executablePath = browserFetcher.GetInstalledBrowsers().Last(b => b.Browser is SupportedBrowser.Chrome)
             .GetExecutablePath();
 

@@ -8,12 +8,12 @@ internal static class ScrappingUtils
     internal static Task<Either<DomainError, Unit>> CreateScrapingEvent(this IDomainPostman domainPostman,
         ScrapLibraryRequest request, CancellationToken token = default)
     {
-        return domainPostman.SendMessage(request, Box.LibraryScrapEvents, token);
+        return domainPostman.SendMessage(request, token);
     }
 
     internal static Task<Either<DomainError, Unit>> CreateScrapingEvent(this IDomainPostman domainPostman,
         ScrapTvTilesRequest request, CancellationToken token)
     {
-        return domainPostman.SendMessage(request, Box.TvTitlesScrapEvents, token);
+        return domainPostman.SendMessage(request, token);
     }
 }

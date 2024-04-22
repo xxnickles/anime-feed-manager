@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Users;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +20,7 @@ public sealed class OnSubscriptionsCleanup
 
     [Function("OnSubscriptionsCleanup")]
     public async Task Run(
-        [QueueTrigger(Box.Available.SubscriptionsRemovalBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(RemoveSubscriptionsRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
         RemoveSubscriptionsRequest notification)
     {
         var result = await UserId.Validate(notification.UserId)

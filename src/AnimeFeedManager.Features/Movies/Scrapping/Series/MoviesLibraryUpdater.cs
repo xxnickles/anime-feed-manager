@@ -33,12 +33,12 @@ public sealed class MoviesLibraryUpdater(
         CancellationToken token)
     {
         // Publish event to scrap images
-        return domainPostman.SendMessage(new ScrapImagesRequest(events), Box.ImageToScrap, token);
+        return domainPostman.SendMessage(new ScrapImagesRequest(events), token);
     }
 
     private Task<Either<DomainError, Unit>> CreateSeasonEvent(string season, int year, bool isLatest,
         CancellationToken token)
     {
-        return domainPostman.SendMessage(new AddSeasonNotification(season, year, isLatest), Box.AddSeason, token);
+        return domainPostman.SendMessage(new AddSeasonNotification(season, year, isLatest), token);
     }
 }

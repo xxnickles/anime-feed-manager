@@ -12,7 +12,7 @@ public sealed record SimpleAnime(
 
 public record ShortSeasonCollection(ushort Year, string Season, SimpleAnime[] Animes);
 
-public record EmptyShortSeasonCollection() : ShortSeasonCollection(0, string.Empty, System.Array.Empty<SimpleAnime>());
+public record EmptyShortSeasonCollection() : ShortSeasonCollection(0, string.Empty, []);
 
 [JsonSerializable(typeof(ShortSeasonCollection))]
 [JsonSerializable(typeof(SimpleAnime[]))]

@@ -29,8 +29,8 @@ public sealed class AutomatedSubscriptionHandler(
     {
         return await Task.WhenAll(events.AsParallel()
                 .Select(autoSubscriptionEvent =>
-                    domainPostman.SendMessage(autoSubscriptionEvent, Box.UserAutoSubscription, token)))
-            .Flatten()
+                    domainPostman.SendMessage(autoSubscriptionEvent, token)))
+            .FlattenResults()
             .MapAsync(_ => unit);
     }
 }

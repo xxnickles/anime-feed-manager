@@ -3,7 +3,6 @@ using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.RealTimeNotifications;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +17,7 @@ public sealed class OnSeasonNotification(
     [Function("OnSeasonNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(Box.Available.SeasonProcessNotificationsBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(SeasonProcessNotification.TargetQueue, Connection = "AzureWebJobsStorage")]
         SeasonProcessNotification notification)
     {
         // Stores notification and create event to update latest seasons

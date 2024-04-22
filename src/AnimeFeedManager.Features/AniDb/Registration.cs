@@ -1,4 +1,5 @@
 ﻿using PuppeteerSharp;
+using PuppeteerSharp.BrowserData;
 
 namespace AnimeFeedManager.Features.AniDb;
 
@@ -15,7 +16,7 @@ public static class AniDbRegistration
         }
 
         var browserFetcher = new BrowserFetcher(fetcherOptions);
-        browserFetcher.DownloadAsync(PuppeteerSharp.BrowserData.Chrome.DefaultBuildId).GetAwaiter().GetResult();
+        browserFetcher.DownloadAsync(Chrome.DefaultBuildId).GetAwaiter().GetResult();
         var executablePath = browserFetcher.GetInstalledBrowsers().Last(b => b.Browser is SupportedBrowser.Chrome)
             .GetExecutablePath();
         serviceCollection.AddSingleton(

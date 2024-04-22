@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Web.Features.Ovas.Controls;
 public class OvaControlData
 {
     public string Title { get; set; } = string.Empty;
-    public DateTime NotificationTime { get; set; } = default;
+    public DateTime NotificationTime { get; set; }
     public string UserId { get; set; } = string.Empty;
     public string LoaderSelector { get; set; } = string.Empty;
 

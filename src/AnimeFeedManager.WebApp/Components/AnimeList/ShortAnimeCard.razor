@@ -1,7 +1,6 @@
-﻿@using AnimeFeedManager.WebApp.State
+﻿@inject ApplicationState State
 
-@inject ApplicationState State
-
+@using AnimeFeedManager.WebApp.State
 @implements IDisposable
 <MudCard>
     <MudCardMedia Image="@Anime.ImageUrl" Height="250" Title="@Anime.Title"/>
@@ -13,7 +12,7 @@
             }
             <MudText Typo="Typo.h2">@Anime.Title</MudText>
 
-            @if (!string.IsNullOrEmpty(@Anime.Synopsis))
+            @if (!string.IsNullOrEmpty(Anime.Synopsis))
             {
                 <MudText Typo="Typo.body2">@Anime.Synopsis</MudText>
             }

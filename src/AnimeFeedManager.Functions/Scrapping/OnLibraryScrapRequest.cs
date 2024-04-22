@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +12,7 @@ public sealed class OnLibraryScrapRequest(
 
     [Function("OnLibraryScrapRequest")]
     public async Task Run(
-        [QueueTrigger(Box.Available.TvTitlesScrapEventsBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(ScrapTvTilesRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
         ScrapTvTilesRequest notification)
     {
         

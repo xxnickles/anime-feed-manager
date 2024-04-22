@@ -81,7 +81,7 @@ public class YearSelectorComponentTests : MudBlazorBaseTestContext
         
         var cut = RenderComponent<SeasonSelector>(param =>
             param.Add(p => p.AvailableSeasons, seasons)
-                .Add(p => p.SelectedSeasonChanged, (Action<SimpleSeasonInfo>) SelectionHandler)
+                .Add(p => p.SelectedSeasonChanged, SelectionHandler)
             
         );
         

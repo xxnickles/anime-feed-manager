@@ -47,7 +47,7 @@ internal class AppServiceAuthRemoteAuthenticationService<TAuthenticationState>(
                 return new AuthenticationState(new ClaimsPrincipal());
             }
 
-            principal.UserRoles = principal.UserRoles.Except(new string[] { "anonymous" }, StringComparer.CurrentCultureIgnoreCase);
+            principal.UserRoles = principal.UserRoles.Except(new[] { "anonymous" }, StringComparer.CurrentCultureIgnoreCase);
 
             var identity = new ClaimsIdentity(principal.IdentityProvider);
             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, principal.UserId));

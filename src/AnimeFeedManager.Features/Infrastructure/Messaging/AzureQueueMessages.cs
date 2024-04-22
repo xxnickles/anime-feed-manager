@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Events;
 using Azure.Storage.Queues;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
@@ -22,11 +23,10 @@ public readonly record struct MinutesDelay()
 
 public interface IDomainPostman
 {
-    Task<Either<DomainError, Unit>> SendMessage<T>(T message, Box destiny,
-        CancellationToken cancellationToken = default);
+    Task<Either<DomainError, Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;
 
-    Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, Box destiny, MinutesDelay delay,
-        CancellationToken cancellationToken = default);
+    Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, MinutesDelay delay,
+        CancellationToken cancellationToken = default) where T : DomainMessage;
 }
 
 public class AzureQueueMessages : IDomainPostman
@@ -46,12 +46,13 @@ public class AzureQueueMessages : IDomainPostman
         };
     }
 
-    public async Task<Either<DomainError, Unit>> SendMessage<T>(T message, Box destiny,
-        CancellationToken cancellationToken = default)
+    public async Task<Either<DomainError, Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage
     {
+        if (message.MessageBox.HasNoTarget()) return new BasicError($"{typeof(T).FullName} has not a target box");
+        
         try
         {
-            await SendMessage(message, destiny, null, cancellationToken);
+            await SendMessage(message, message.MessageBox, null, cancellationToken);
             return unit;
         }
         catch (Exception e)
@@ -60,12 +61,14 @@ public class AzureQueueMessages : IDomainPostman
         }
     }
 
-    public async Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, Box destiny, MinutesDelay delay,
-        CancellationToken cancellationToken = default)
+    public async Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, MinutesDelay delay,
+        CancellationToken cancellationToken = default) where T : DomainMessage
     {
+        if (message.MessageBox.HasNoTarget()) return new BasicError($"{typeof(T).FullName} has not a target box");
+        
         try
         {
-            await SendMessage(message, destiny, TimeSpan.FromMinutes(delay.Value), cancellationToken);
+            await SendMessage(message, message.MessageBox, TimeSpan.FromMinutes(delay.Value), cancellationToken);
             return unit;
         }
         catch (Exception e)

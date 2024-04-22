@@ -16,8 +16,8 @@ public sealed class SeasonTitlesUpdater(
     {
         return titlesStore.UpdateTitles(notification.Titles, cancellationToken)
             .BindAsync(_ => SendNotification(cancellationToken))
-            .BindAsync(_ => domainPostman.SendMessage(new MarkSeriesAsComplete(notification.Titles), Box.SeriesCompleter, cancellationToken))
-            .BindAsync(_ => domainPostman.SendMessage(new AutomatedSubscription(), Box.AutomatedSubscription, cancellationToken))
+            .BindAsync(_ => domainPostman.SendMessage(new MarkSeriesAsComplete(notification.Titles), cancellationToken))
+            .BindAsync(_ => domainPostman.SendMessage(new AutomatedSubscription(), cancellationToken))
             .MapAsync(_ => unit);
     }
 
@@ -27,7 +27,7 @@ public sealed class SeasonTitlesUpdater(
                 TargetAudience.Admins,
                 NotificationType.Information,
                 "Latest feed titles have been updated"
-            ), Box.TitleUpdatesNotifications,
+            ),
             cancellationToken);
     }
 }

@@ -1,18 +1,19 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Common.Domain.Notifications;
 
 [method: JsonConstructor]
-public class AutomatedSubscriptionProcessNotification(
-    TargetAudience targetAudience,
-    NotificationType result,
-    string[] subscribedSeries,
-    string message)
-    : Notification(targetAudience, result, message)
+public record AutomatedSubscriptionProcessNotification(
+    TargetAudience TargetAudience,
+    NotificationType Result,
+    string[] SubscribedSeries,
+    string Message)
+    : Notification(TargetAudience, Result, Message, Box.Empty())
 {
-    public string[] SubscribedSeries { get; } = subscribedSeries;
+    public string[] SubscribedSeries { get; } = SubscribedSeries;
 
     public override string GetSerializedPayload()
     {

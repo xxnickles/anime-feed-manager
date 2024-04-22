@@ -1,5 +1,4 @@
 using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Infrastructure.SendGrid;
 using AnimeFeedManager.Features.Notifications.IO;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
@@ -20,7 +19,7 @@ public class SendNotifications(
 
     [Function("SendNotifications")]
     public async Task Run(
-        [QueueTrigger(Box.Available.TvNotificationsBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(SubscriberTvNotification.TargetQueue, Connection = "AzureWebJobsStorage")]
         SubscriberTvNotification notification)
     {
         try

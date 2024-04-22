@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Subscriptions;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +19,8 @@ public sealed class OnAutomatedSubscription
 
     [Function("OnAutomatedSubscription")]
     public async Task Run(
-        [QueueTrigger(Box.Available.AutomatedSubscriptionBox, Connection = "AzureWebJobsStorage")] AutomatedSubscription notification)
+        [QueueTrigger(AutomatedSubscription.TargetQueue, Connection = "AzureWebJobsStorage")]
+        AutomatedSubscription notification)
     {
         _logger.LogInformation("Starting automated subscription");
         await _automatedSubscriptionHandler.Handle(notification, default);

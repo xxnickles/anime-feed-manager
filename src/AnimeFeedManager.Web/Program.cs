@@ -9,7 +9,6 @@ using AnimeFeedManager.Web.Features.Tv;
 using Azure.Core;
 using Azure.Identity;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

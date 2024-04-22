@@ -34,7 +34,6 @@ public sealed class SeriesProvider(
                         new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
                         SeriesType.Tv,
                         $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
-                    Box.SeasonProcessNotifications,
                     token)
                 .MapAsync(_ => new TvSeries(series.Select(MapInfo)
                         .ToImmutableList(),
@@ -51,7 +50,6 @@ public sealed class SeriesProvider(
                         new NullSimpleSeasonInfo(),
                         SeriesType.Tv,
                         "AniDb season scrapping failed"),
-                    Box.SeasonProcessNotifications,
                     token)
                 .BindAsync(_ => Left<DomainError, TvSeries>(ExceptionError.FromException(ex)));
         }

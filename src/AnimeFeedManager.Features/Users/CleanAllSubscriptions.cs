@@ -34,6 +34,6 @@ public class CleanAllSubscriptions
         var ovasSubscriptionsTask = _ovasSubscriptionsRemover.UnsubscribeAll(userId, token);
         var results = await Task.WhenAll(interestedTask, tvSubscriptionsTask, moviesSubscriptionsTask,
             ovasSubscriptionsTask);
-        return results.Flatten();
+        return results.FlattenResults();
     }
 }

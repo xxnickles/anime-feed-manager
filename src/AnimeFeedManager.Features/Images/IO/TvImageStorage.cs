@@ -49,6 +49,6 @@ public class TvImageStorage(
             NotificationType.Information,
             SeriesType.Tv,
             $"Images for TV have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
-        return await domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
+        return await domainPostman.SendMessage(notification, token);
     }
 }

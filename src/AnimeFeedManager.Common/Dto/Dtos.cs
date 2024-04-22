@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+
 namespace AnimeFeedManager.Common.Dto;
 
 public record BasicSeason(string Season, ushort Year);

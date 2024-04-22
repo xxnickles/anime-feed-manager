@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Common.Dto;
 
 public record SeasonCollection(ushort Year, string Season, FeedAnime[] Animes);
 
-public record EmptySeasonCollection() : SeasonCollection(0, string.Empty, System.Array.Empty<FeedAnime>());
+public record EmptySeasonCollection() : SeasonCollection(0, string.Empty, []);
 
 [JsonSerializable(typeof(SeasonCollection))]
 [JsonSerializable(typeof(FeedAnime[]))]

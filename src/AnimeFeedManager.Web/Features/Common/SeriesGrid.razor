@@ -1,7 +1,4 @@
-﻿@using Array = System.Array
-
-
-<section id="main-grid" class="grid grid-cols-1 md:max-xl:grid-cols-2 xl:grid-cols-3 min-[2300px]:grid-cols-4 grid-flow-row gap-10 px-2 md:px-10 py-2 md:py-4" hx-swap-oob="outerHTML:section#main-grid">
+﻿<section id="main-grid" class="grid grid-cols-1 md:max-xl:grid-cols-2 xl:grid-cols-3 min-[2300px]:grid-cols-4 grid-flow-row gap-10 px-2 md:px-10 py-2 md:py-4" hx-swap-oob="outerHTML:section#main-grid">
     @foreach (var item in Series)
     {
         <SeriesCard Anime="item"></SeriesCard>
@@ -9,5 +6,5 @@
 </section>
 
 @code {
-    [Parameter, EditorRequired] public BaseAnime[] Series { get; set; } = Array.Empty<BaseAnime>();
+    [Parameter, EditorRequired] public BaseAnime[] Series { get; set; } = [];
 }

@@ -49,6 +49,6 @@ public class OvasImageStorage(
             NotificationType.Information,
             SeriesType.Ova,
             $"Images for OVAS have been scrapped. Completed: {currentState.Completed} Errors: {currentState.Errors}");
-        return await domainPostman.SendMessage(notification, Box.ImageUpdateNotifications, token);
+        return await domainPostman.SendMessage(notification, token);
     }
 }

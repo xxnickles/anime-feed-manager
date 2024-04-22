@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Features.State.IO;
@@ -6,13 +7,13 @@ namespace AnimeFeedManager.Features.State.IO;
 public interface ICreateState
 {
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
-        ImmutableList<T> entities);
+        ImmutableList<T> entities) where T: DomainMessage;
 }
 
 public sealed class CreateState(ITableClientFactory<StateUpdateStorage> tableClientFactory) : ICreateState
 {
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
-        ImmutableList<T> entities)
+        ImmutableList<T> entities) where T: DomainMessage
     {
         if (!entities.Any())
             return Task.FromResult(

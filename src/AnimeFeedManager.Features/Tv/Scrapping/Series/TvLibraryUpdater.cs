@@ -60,7 +60,7 @@ public sealed class TvLibraryUpdater(
     private TvSeries UpdateTitles(ImmutableList<string> titles, TvSeries series, CancellationToken token)
     {
         // Publish event to update titles
-        domainPostman.SendMessage(new UpdateSeasonTitlesRequest(titles), Box.SeasonTitlesProcess, token);
+        domainPostman.SendMessage(new UpdateSeasonTitlesRequest(titles), token);
         return series;
     }
 
@@ -69,13 +69,13 @@ public sealed class TvLibraryUpdater(
     {
         var reference = series.SeriesList.First();
         return seriesStore.Add(series.SeriesList, token)
-            .BindAsync(_ => domainPostman.SendMessage(new ScrapImagesRequest(series.Images), Box.ImageToScrap, token))
+            .BindAsync(_ => domainPostman.SendMessage(new ScrapImagesRequest(series.Images), token))
             .BindAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest(), token));
     }
 
     private Task<Either<DomainError, Unit>> CreateSeasonEvent(string season, int year, bool isLatest,
         CancellationToken token)
     {
-        return domainPostman.SendMessage(new AddSeasonNotification(season, year, isLatest), Box.AddSeason, token);
+        return domainPostman.SendMessage(new AddSeasonNotification(season, year, isLatest), token);
     }
 }

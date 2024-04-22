@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Subscriptions;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 using Microsoft.Extensions.Logging;
@@ -14,7 +13,7 @@ public sealed class OnUserAutoSubscription(
 
     [Function("OnUserAutoSubscription")]
     public async Task Run(
-        [QueueTrigger(Box.Available.UserAutoSubscriptionBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(UserAutoSubscription.TargetQueue, Connection = "AzureWebJobsStorage")]
         UserAutoSubscription notification)
     {
         var result = await UserId.Validate(notification.UserId)

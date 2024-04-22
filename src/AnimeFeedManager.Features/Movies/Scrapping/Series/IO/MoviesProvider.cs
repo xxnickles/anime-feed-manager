@@ -33,7 +33,6 @@ public sealed class MoviesProvider(
                         new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
                         SeriesType.Movie,
                         $"{series.Count()} movies have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
-                    Box.SeasonProcessNotifications,
                     token)
                 .MapAsync(_ => new MoviesCollection(series.Select(MapInfo)
                         .ToImmutableList(),
@@ -50,7 +49,6 @@ public sealed class MoviesProvider(
                         new NullSimpleSeasonInfo(),
                         SeriesType.Tv,
                         "AniDb movies season scrapping failed"),
-                    Box.SeasonProcessNotifications,
                     token)
                 .BindAsync(_ => Left<DomainError, MoviesCollection>(ExceptionError.FromException(ex)));
         }

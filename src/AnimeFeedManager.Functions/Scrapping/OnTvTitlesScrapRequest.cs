@@ -3,7 +3,6 @@ using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Movies.Scrapping.Series;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
@@ -21,7 +20,7 @@ public sealed class OnTvTitlesScrapRequest(
 
     [Function("OnTitlesScrapRequest")]
     public async Task Run(
-        [QueueTrigger(Box.Available.LibraryScrapEventsBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(ScrapLibraryRequest.TargetQueue, Connection = "AzureWebJobsStorage")]
         ScrapLibraryRequest notification)
     {
         var task = notification switch

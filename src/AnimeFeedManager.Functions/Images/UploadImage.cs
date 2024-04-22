@@ -1,5 +1,4 @@
 using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.State.Types;
 using Microsoft.Extensions.Logging;
 
@@ -30,9 +29,8 @@ public sealed class UploadImage
 
     [Function("UploadImage")]
     public async Task Run(
-        [QueueTrigger(Box.Available.ImageProcessBox, Connection = "AzureWebJobsStorage")]
-        StateWrap<DownloadImageEvent> imageScrapEvent
-    )
+        [QueueTrigger(DownloadImageEvent.TargetQueue, Connection = "AzureWebJobsStorage")]
+        StateWrap<DownloadImageEvent> imageScrapEvent)
     {
         _logger.LogInformation("Getting image for {Name} from {RemoteUrl}", imageScrapEvent.Payload.BlobName,
             imageScrapEvent.Payload.RemoteUrl);

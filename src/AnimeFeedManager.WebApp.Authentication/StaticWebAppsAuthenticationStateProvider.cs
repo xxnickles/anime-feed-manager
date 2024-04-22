@@ -36,7 +36,7 @@ public class StaticWebAppsAuthenticationStateProvider(IConfiguration config, IWe
         AuthenticationData data = JsonSerializer.Deserialize<AuthenticationData>(json);
 
         ClientPrincipal principal = data.ClientPrincipal;
-        principal.UserRoles = principal.UserRoles.Except(new string[] { "anonymous" }, StringComparer.CurrentCultureIgnoreCase);
+        principal.UserRoles = principal.UserRoles.Except(new[] { "anonymous" }, StringComparer.CurrentCultureIgnoreCase);
 
         if (!principal.UserRoles.Any())
         {

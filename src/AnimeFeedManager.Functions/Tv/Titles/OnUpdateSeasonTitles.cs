@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +12,7 @@ public sealed class OnUpdateSeasonTitles(
 
     [Function("OnUpdateSeasonTitles")]
     public async Task Run(
-        [QueueTrigger(Box.Available.SeasonTitlesProcessBox, Connection = "AzureWebJobsStorage")] UpdateSeasonTitlesRequest notification)
+        [QueueTrigger(UpdateSeasonTitlesRequest.TargetQueue, Connection = "AzureWebJobsStorage")] UpdateSeasonTitlesRequest notification)
     {
         
         // Stores notification

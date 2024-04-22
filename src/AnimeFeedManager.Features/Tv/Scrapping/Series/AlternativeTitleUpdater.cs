@@ -57,7 +57,7 @@ public class AlternativeTitleUpdater
                 Right<DomainError, AlternativeTitleUpdateResult>(AlternativeTitleUpdateResult.TitleAddedNotFeedFound));
 
         return _tvSeriesUpdates.Update(rowKey, key, feedTitle, token)
-            .BindAsync(_ => _domainPostman.SendMessage(new AutomatedSubscription(), Box.AutomatedSubscription, token))
+            .BindAsync(_ => _domainPostman.SendMessage(new AutomatedSubscription(), token))
             .MapAsync(_ => AlternativeTitleUpdateResult.ProcessComplete);
     }
 

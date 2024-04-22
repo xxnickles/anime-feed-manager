@@ -1,11 +1,16 @@
 ﻿using System.Text.Json.Serialization;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Types;
 
 namespace AnimeFeedManager.Common.Dto;
 
 public record SubscribedFeed(string Title, TorrentLink[] Links, string EpisodeInfo, DateTime PublicationDate);
 
-public record SubscriberTvNotification(string Subscriber, string SubscriberId, SubscribedFeed[] Feeds);
+public record SubscriberTvNotification(string Subscriber, string SubscriberId, SubscribedFeed[] Feeds)
+    : DomainMessage(new Box(TargetQueue))
+{
+    public const string TargetQueue = "tv-notifications";
+}
 
 
 [JsonSerializable(typeof(SubscribedFeed))]
@@ -28,8 +33,8 @@ public record UiNotifications(
     UiNotification[] AdminNotifications);
 
 public record EmptyUiNotifications() : UiNotifications(
-    System.Array.Empty<UiNotification>(),
-    System.Array.Empty<UiNotification>(),
-    System.Array.Empty<UiNotification>(),
-    System.Array.Empty<UiNotification>(),
-    System.Array.Empty<UiNotification>());
+    [],
+    [],
+    [],
+    [],
+    []);

@@ -1,7 +1,6 @@
 ﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.RealTimeNotifications;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;
 using ImageUpdateNotification = AnimeFeedManager.Common.Domain.Notifications.ImageUpdateNotification;
@@ -17,7 +16,7 @@ public sealed class OnImageNotification(
     [Function("OnImageNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(Box.Available.ImageUpdateNotificationsBox, Connection = "AzureWebJobsStorage")] ImageUpdateNotification notification)
+        [QueueTrigger(ImageUpdateNotification.TargetQueue, Connection = "AzureWebJobsStorage")] ImageUpdateNotification notification)
     {
         
         // Stores notification

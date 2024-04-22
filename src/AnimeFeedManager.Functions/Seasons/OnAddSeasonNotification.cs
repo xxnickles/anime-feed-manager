@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Seasons;
@@ -19,7 +18,7 @@ public sealed class OnAddSeasonNotification
 
     [Function("OnAddSeasonNotification")]
     public async Task Run(
-        [QueueTrigger(Box.Available.AddSeasonBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(AddSeasonNotification.TargetQueue, Connection = "AzureWebJobsStorage")]
         AddSeasonNotification notification)
     {
         _logger.LogInformation("Updating Seasons with {Season}-{Year}", notification.Season, notification.Year.ToString());

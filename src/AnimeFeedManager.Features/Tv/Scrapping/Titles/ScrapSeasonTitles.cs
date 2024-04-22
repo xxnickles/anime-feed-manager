@@ -11,6 +11,6 @@ public class ScrapSeasonTitles(ITitlesProvider titlesProvider, IDomainPostman do
     public Task<Either<DomainError, Unit>> Scrap(CancellationToken token = default)
     {
         return titlesProvider.GetTitles()
-            .BindAsync(titles => domainPostman.SendMessage(new UpdateSeasonTitlesRequest(titles), Box.SeasonTitlesProcess,  token));
+            .BindAsync(titles => domainPostman.SendMessage(new UpdateSeasonTitlesRequest(titles),   token));
     }
 }

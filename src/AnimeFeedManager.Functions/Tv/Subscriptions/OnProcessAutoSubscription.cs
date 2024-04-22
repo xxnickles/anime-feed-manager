@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.State.Types;
+﻿using AnimeFeedManager.Features.State.Types;
 using AnimeFeedManager.Features.Tv.Subscriptions;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 using Microsoft.Extensions.Logging;
@@ -14,7 +13,7 @@ public sealed class OnProcessAutoSubscription(
 
     [Function("OnProcessAutoSubscription")]
     public async Task Run(
-        [QueueTrigger(Box.Available.AutoSubscriptionsProcessBox, Connection = "AzureWebJobsStorage")]
+        [QueueTrigger(InterestedToSubscription.TargetQueue, Connection = "AzureWebJobsStorage")]
         StateWrap<InterestedToSubscription> notification)
     {
 

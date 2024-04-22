@@ -108,7 +108,7 @@ public static class Endpoints
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
-                    domainPostman.SendMessage(new UpdateLatestSeasonsRequest(), Box.LatestSeason, token)
+                    domainPostman.SendMessage(new UpdateLatestSeasonsRequest(), token)
                         .ToComponentResult("Latest Titles will be processed in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 

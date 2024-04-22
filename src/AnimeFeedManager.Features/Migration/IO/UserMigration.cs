@@ -59,10 +59,10 @@ public class UserMigration(
         var notificationResults = await Task.WhenAll(notificationTasks);
 
 
-        return subsResults.Flatten()
-            .Bind(_ => ovasResults.Flatten())
-            .Bind(_ => moviesResults.Flatten())
-            .Bind(_ => notificationResults.Flatten());
+        return subsResults.FlattenResults()
+            .Bind(_ => ovasResults.FlattenResults())
+            .Bind(_ => moviesResults.FlattenResults())
+            .Bind(_ => notificationResults.FlattenResults());
     }
 
 
