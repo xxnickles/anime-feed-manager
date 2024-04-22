@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Features.Movies.Library;
 using AnimeFeedManager.Features.Movies.Library.IO;
-using AnimeFeedManager.Features.Movies.Scrapping;
-using AnimeFeedManager.Features.Movies.Scrapping.IO;
+using AnimeFeedManager.Features.Movies.Scrapping.Series;
+using AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Movies.Subscriptions.IO;
 
 namespace AnimeFeedManager.Features.Movies;

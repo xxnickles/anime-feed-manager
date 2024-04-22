@@ -2,11 +2,11 @@
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Movies.Scrapping.IO;
-using AnimeFeedManager.Features.Movies.Scrapping.Types;
+using AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
+using AnimeFeedManager.Features.Movies.Scrapping.Series.Types;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Features.Movies.Scrapping;
+namespace AnimeFeedManager.Features.Movies.Scrapping.Series;
 
 public sealed class MoviesLibraryUpdater(
     IDomainPostman domainPostman,

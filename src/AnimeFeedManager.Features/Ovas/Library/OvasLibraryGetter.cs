@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Features.Ovas.Library.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 
 namespace AnimeFeedManager.Features.Ovas.Library;
 

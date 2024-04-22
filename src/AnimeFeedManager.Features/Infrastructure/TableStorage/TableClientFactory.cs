@@ -1,8 +1,8 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 using AnimeFeedManager.Features.Notifications.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;

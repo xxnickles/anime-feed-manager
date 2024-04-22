@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Features.Ovas.Library;
 using AnimeFeedManager.Features.Ovas.Library.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping;
-using AnimeFeedManager.Features.Ovas.Scrapping.IO;
+using AnimeFeedManager.Features.Ovas.Scrapping.Series;
+using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
 
 namespace AnimeFeedManager.Features.Ovas;

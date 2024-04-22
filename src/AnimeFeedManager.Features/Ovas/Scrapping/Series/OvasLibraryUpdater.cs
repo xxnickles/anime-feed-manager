@@ -2,11 +2,11 @@
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Ovas.Scrapping.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Types;
+using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
+using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping;
+namespace AnimeFeedManager.Features.Ovas.Scrapping.Series;
 
 public sealed class OvasLibraryUpdater(
     IDomainPostman domainPostman,

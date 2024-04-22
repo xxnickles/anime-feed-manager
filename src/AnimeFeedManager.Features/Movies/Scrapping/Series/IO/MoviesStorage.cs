@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 
-namespace AnimeFeedManager.Features.Movies.Scrapping.IO;
+namespace AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
 
 public interface IMoviesStorage
 {

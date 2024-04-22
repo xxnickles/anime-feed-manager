@@ -1,6 +1,6 @@
 ﻿using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Movies.Scrapping.IO;
+using AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Movies.Subscriptions.IO;
 using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;

@@ -4,8 +4,8 @@ using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Movies.Scrapping;
-using AnimeFeedManager.Features.Ovas.Scrapping;
+using AnimeFeedManager.Features.Movies.Scrapping.Series;
+using AnimeFeedManager.Features.Ovas.Scrapping.Series;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using Microsoft.Extensions.Logging;
 

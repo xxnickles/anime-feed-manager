@@ -3,7 +3,7 @@ using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Images.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Movies.Scrapping.Types.Storage;
+using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 using AnimeFeedManager.Features.State.IO;
 
 namespace AnimeFeedManager.Features.Images.IO;

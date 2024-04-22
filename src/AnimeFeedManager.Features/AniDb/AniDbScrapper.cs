@@ -8,7 +8,7 @@ internal static class AniDbScrapper
     {
         await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
         {
-            Headless = true,
+            Headless = puppeteerOptions.RunHeadless,
             DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
             ExecutablePath = puppeteerOptions.Path,
             

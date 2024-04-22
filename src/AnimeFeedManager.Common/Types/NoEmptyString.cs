@@ -23,15 +23,28 @@ public record NoEmptyString
     public static implicit operator string(NoEmptyString value) => value._value;
 }
 
-public record AnimeTitle : NoEmptyString
+public record SeriesTitle : NoEmptyString
 {
-    protected AnimeTitle(string value) : base(value)
+    protected SeriesTitle(string value) : base(value)
     {
     }
 
-    public new static Option<AnimeTitle> FromString(string value) => !string.IsNullOrWhiteSpace(value) switch
+    public new static Option<SeriesTitle> FromString(string value) => !string.IsNullOrWhiteSpace(value) switch
     {
-        true => Some(new AnimeTitle(value)),
+        true => Some(new SeriesTitle(value)),
+        false => None
+    };
+}
+
+public record SeriesLink : NoEmptyString
+{
+    protected SeriesLink(string value) : base(value)
+    {
+    }
+
+    public new static Option<SeriesLink> FromString(string value) => !string.IsNullOrWhiteSpace(value) switch
+    {
+        true => Some(new SeriesLink(value)),
         false => None
     };
 }

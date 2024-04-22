@@ -1,6 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Ovas.Scrapping.Types.Storage;
+﻿namespace AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 
-public sealed class OvaStorage : ITableEntity
+public sealed class MovieStorage : ITableEntity
 {
     public string? Title { get; set; }
     public string? Synopsis { get; set; }
