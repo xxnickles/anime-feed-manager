@@ -3,14 +3,20 @@ using AnimeFeedManager.Common.Domain.Types;
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
 
-public record OvasLink(LinkType Type, string Link, string LinkTitle, string Size);
+public enum OvaFeedScrapResult
+{
+    NotFound,
+    FoundAndUpdated
+}
 
-public record OvasFeed(NoEmptyString Series, ShortSeriesLink[] Links);
+public record OvasLink(LinkType Type, string Link);
+
+public record OvaFeedLinks(string LinkTitle, string Size, OvasLink[] Links);
 
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-[JsonSerializable(typeof(OvasFeed))]
-public partial class OvasFeedContext : JsonSerializerContext
+[JsonSerializable(typeof(OvaFeedLinks))]
+public partial class OvasFeedLinksContext : JsonSerializerContext
 {
 }

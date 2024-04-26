@@ -11,7 +11,7 @@ public static class ComponentResponses
         var parameters = new Dictionary<string, object?>
         {
             {nameof(SubscribedOvaControls.ControlData), data},
-            {nameof(SubscribedOvaControls.Message), message},
+            {nameof(SubscribedOvaControls.Message), message}
         };
         return new RazorComponentResult<SubscribedOvaControls>(parameters);
     }
@@ -22,7 +22,7 @@ public static class ComponentResponses
         var parameters = new Dictionary<string, object?>
         {
             {nameof(UnsubscribedOvaControls.ControlData), data},
-            {nameof(UnsubscribedOvaControls.Message), message},
+            {nameof(UnsubscribedOvaControls.Message), message}
         };
         return new RazorComponentResult<UnsubscribedOvaControls>(parameters);
     }
@@ -44,7 +44,7 @@ public static class ComponentResponses
         var parameters = new Dictionary<string, object?>
         {
             {nameof(OvasGridComponent.SeasonInfo), seasonInformation},
-            {nameof(OvasGridComponent.Message), message},
+            {nameof(OvasGridComponent.Message), message}
         };
         return new RazorComponentResult<OvasGridComponent>(parameters);
     }

@@ -23,8 +23,8 @@ public readonly struct SeriesStatus : IEquatable<SeriesStatus>
     {
         CompletedValue => Completed,
         OngoingValue => Ongoing,
-        _ => NotAvailable,
-        
+        _ => NotAvailable
+
     };
 
     public static SeriesStatus Completed = new(CompletedValue);

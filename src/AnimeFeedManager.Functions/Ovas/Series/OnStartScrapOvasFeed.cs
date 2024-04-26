@@ -47,7 +47,7 @@ public class OnStartScrapOvasFeed
             FeedType.Complete => _seasonsGetter.GetAvailableSeasons(token)
                 .MapAsync(seasons => seasons.Select(s => new BasicSeason(s.Season ?? string.Empty, (ushort) s.Year))),
             _ => _latestSeasonsGetter.Get(token)
-                .MapAsync(seasons => seasons.Select(s => new BasicSeason(s.Season, s.Year))),
+                .MapAsync(seasons => seasons.Select(s => new BasicSeason(s.Season, s.Year)))
         };
     }
 

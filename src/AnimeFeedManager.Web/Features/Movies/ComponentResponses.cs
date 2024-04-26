@@ -11,7 +11,7 @@ public static class ComponentResponses
         var parameters = new Dictionary<string, object?>
         {
             {nameof(SubscribedMovieControls.ControlData), data},
-            {nameof(SubscribedMovieControls.Message), message},
+            {nameof(SubscribedMovieControls.Message), message}
         };
         return new RazorComponentResult<SubscribedMovieControls>(parameters);
     }
@@ -22,7 +22,7 @@ public static class ComponentResponses
         var parameters = new Dictionary<string, object?>
         {
             {nameof(UnsubscribedMovieControls.ControlData), data},
-            {nameof(UnsubscribedMovieControls.Message), message},
+            {nameof(UnsubscribedMovieControls.Message), message}
         };
         return new RazorComponentResult<UnsubscribedMovieControls>(parameters);
     }
@@ -44,7 +44,7 @@ public static class ComponentResponses
         var parameters = new Dictionary<string, object?>
         {
             {nameof(MoviesGridComponent.SeasonInfo), seasonInformation},
-            {nameof(MoviesGridComponent.Message), message},
+            {nameof(MoviesGridComponent.Message), message}
         };
         return new RazorComponentResult<MoviesGridComponent>(parameters);
     }

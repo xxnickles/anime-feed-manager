@@ -26,7 +26,7 @@ public sealed class AddInterested(ITableClientFactory<InterestedStorage> clientF
         {
             SeriesId = seriesId,
             PartitionKey = userId,
-            RowKey = series,
+            RowKey = series
         };
 
         return TableUtils.TryExecute(() => client.UpsertEntityAsync(storage, cancellationToken: token))

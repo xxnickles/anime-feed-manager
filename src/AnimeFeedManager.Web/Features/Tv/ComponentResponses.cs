@@ -56,7 +56,7 @@ internal static class ComponentResponses
         var parameters = new Dictionary<string, object?>
         {
             { nameof(TvGridComponent.SeasonInfo), seasonInformation },
-            { nameof(TvGridComponent.Message), message },
+            { nameof(TvGridComponent.Message), message }
         };
         return new RazorComponentResult<TvGridComponent>(parameters);
     }

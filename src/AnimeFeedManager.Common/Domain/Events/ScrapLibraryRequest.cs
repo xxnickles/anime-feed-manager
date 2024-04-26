@@ -21,6 +21,6 @@ public record ScrapTvTilesRequest() : DomainMessage(new Box(TargetQueue))
 
 public static class Extensions
 {
-    public static SeasonParameter ToSeasonParameter(this (Season season, Year year) param) =>
-        new(param.season, param.year);
+    public static SeasonParameter ToSeasonParameter(this (Season Season, Year Year) param) =>
+        new(param.Season, param.Year);
 }

@@ -1,5 +1,7 @@
 ﻿using AnimeFeedManager.Features.Ovas.Library;
 using AnimeFeedManager.Features.Ovas.Library.IO;
+using AnimeFeedManager.Features.Ovas.Scrapping.Feed;
+using AnimeFeedManager.Features.Ovas.Scrapping.Feed.IO;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
@@ -17,6 +19,7 @@ public static class OvasRegistration
         services.TryAddScoped<IRemoveAllOvasSubscriptions, RemoveAllOvasSubscriptions>();
         services.TryAddScoped<ICopyOvasSubscriptions, CopyOvasSubscriptions>();
         services.TryAddScoped<IGetOvasSubscriptions, GetOvasSubscriptions>();
+        services.TryAddScoped<IOvaFeedStore, OvaFeedStore>();
         services.TryAddScoped<OvasLibraryGetter>();
         return services;
     }
@@ -24,7 +27,9 @@ public static class OvasRegistration
     public static IServiceCollection RegisterOvasScrappingServices(this IServiceCollection services)
     {
         services.TryAddScoped<OvasLibraryUpdater>();
+        services.TryAddScoped<OvaFeedUpdater>();
         services.TryAddSingleton<IOvasProvider, OvasProvider>();
+        services.TryAddSingleton<IOvaFeedScrapper, OvumFeedScrapper>();
         return services;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
 
-public class OvasFeedStorage : ITableEntity
+public class OvaFeedStorage : ITableEntity
 {
     public string? PartitionKey { get; set; }
     public string? RowKey { get; set; }

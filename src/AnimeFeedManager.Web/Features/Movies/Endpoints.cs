@@ -56,7 +56,7 @@ public static class Endpoints
                 .BindAsync(safeData =>
                     moviesStorage.RemoveMovie(safeData.RowKey, safeData.PartitionKey, token)
                         .MapAsync(_ => new
-                            { SeasonInfo = new SeasonInformation(safeData.Season.season, safeData.Season.year) }))
+                            { SeasonInfo = new SeasonInformation(safeData.Season.Season, safeData.Season.Year) }))
                 .ToComponentResult(
                     data => ComponentResponses.OkResponse(data.SeasonInfo,
                         $"{removeInfo.Title} has been removed from the movie library"),

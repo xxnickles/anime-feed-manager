@@ -11,7 +11,7 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
         CancellationToken token = default)
     {
         return SeasonValidators.Parse(season, year)
-            .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.season, param.year, token))
+            .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.Season, param.Year, token))
             .MapAsync(movies => Project(year, season, movies));
     }
 

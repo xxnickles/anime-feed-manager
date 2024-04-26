@@ -15,7 +15,7 @@
     {
         _selectedSeason = SeasonValidators.Parse(Season)
             .Match(
-                values => new SeasonInformation(values.season, values.year),
+                values => new SeasonInformation(values.Season, values.Year),
                 _ => new DefaultSeasonInformation()
             );
     }

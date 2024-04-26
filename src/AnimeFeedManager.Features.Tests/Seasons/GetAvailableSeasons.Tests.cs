@@ -54,7 +54,7 @@ public class GetAvailableSeasonsTests
             new(Season.Spring, 2023, false),
             new(Season.Winter, 2023, false),
             new(Season.Fall, 2022, false),
-            new(Season.Summer, 2022, false),
+            new(Season.Summer, 2022, false)
         };
 
         return list.ToImmutableList();

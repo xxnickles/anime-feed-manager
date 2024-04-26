@@ -11,7 +11,7 @@ public sealed class TvLibraryGetter(ITvSeasonalLibrary seasonalLibrary)
     public Task<Either<DomainError, SeasonCollection>> GetForSeason(string season, ushort year, CancellationToken token = default)
     {
         return SeasonValidators.Parse(season, year)
-            .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.season, param.year, token))
+            .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.Season, param.Year, token))
             .MapAsync(animes => Project(year, season, animes));
     }
 

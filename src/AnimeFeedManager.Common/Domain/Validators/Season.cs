@@ -23,14 +23,14 @@ public static class SeasonValidators
             .Apply((seasonType, yearType) => new BySeason(seasonType, yearType)).ValidationToEither();
     }
 
-    private static Validation<ValidationError, (Season season, Year year)> Validate(string season, ushort year)
+    private static Validation<ValidationError, (Season Season, Year Year)> Validate(string season, ushort year)
     {
         return (ValidateSeason(season), ValidateYear(year))
             .Apply((s, y) => (s, y));
     }
 
 
-    public static Either<DomainError, (Season season, Year year)> Parse(string season, ushort year)
+    public static Either<DomainError, (Season Season, Year Year)> Parse(string season, ushort year)
     {
         return Validate(season, year)
             .ValidationToEither();
@@ -41,7 +41,7 @@ public static class SeasonValidators
     /// </summary>
     /// <param name="seasonString">String in format "Season-Year"</param>
     /// <returns></returns>
-    public static Either<DomainError, (Season season, Year year)> Parse(string seasonString)
+    public static Either<DomainError, (Season Season, Year Year)> Parse(string seasonString)
     {
         return ValidateSeasonString(seasonString).ValidationToEither();
     }
@@ -51,7 +51,7 @@ public static class SeasonValidators
     /// </summary>
     /// <param name="seasonString">String in format "Season-Year"</param>
     /// <returns></returns>
-    public static Validation<ValidationError, (Season season, Year year)> ValidateSeasonString(string seasonString)
+    public static Validation<ValidationError, (Season Season, Year Year)> ValidateSeasonString(string seasonString)
     {
         var parts = seasonString.Split('-');
         if (parts.Length != 2)
@@ -65,7 +65,7 @@ public static class SeasonValidators
     /// </summary>
     /// <param name="seasonString">String in format "Season-Year"</param>
     /// <returns></returns>
-    public static Validation<ValidationError, (Season season, Year year)> ValidateSeasonPartitionString(string seasonString)
+    public static Validation<ValidationError, (Season Season, Year Year)> ValidateSeasonPartitionString(string seasonString)
     {
         var parts = seasonString.Split('-');
         if (parts.Length != 2)

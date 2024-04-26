@@ -6,6 +6,7 @@ public sealed class OvaStorage : ITableEntity
     public string? Synopsis { get; set; }
     public int Year { get; set; } // Azure tables only works with Int and Int64
     public string? Season { get; set; }
+    public string? Status { get; set; }
     public DateTime? Date { get; set; }
     public string? ImageUrl { get; set; }
     public string? PartitionKey { get; set; }
