@@ -51,7 +51,7 @@ public sealed class OvaFeedUpdater
             {
                 PartitionKey = storage.PartitionKey,
                 RowKey = storage.RowKey,
-                Payload = JsonSerializer.Serialize(links.ToArray(), OvasFeedLinksContext.Default.OvasLinkArray)
+                Payload = JsonSerializer.Serialize(links.ToArray(), OvasFeedLinksContext.Default.OvaFeedLinksArray)
             }, token)
             .BindAsync(_ => _ovasStorage.Update(storage, token))
             .MapAsync(_ => OvaFeedScrapResult.FoundAndUpdated);

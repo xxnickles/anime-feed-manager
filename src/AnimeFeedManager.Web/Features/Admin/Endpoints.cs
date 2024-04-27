@@ -1,8 +1,10 @@
 ﻿using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Domain.Events;
+using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
 using AnimeFeedManager.Features.Users;
 using AnimeFeedManager.Features.Users.IO;
 using AnimeFeedManager.Web.Features.Common;
@@ -74,6 +76,15 @@ public static class Endpoints
                         .ToComponentResult(
                             $"Ovas library for {season.Season}-{season.Year} will be scrapped in the background",
                             logger))
+            .RequireAuthorization(Policies.AdminRequired);
+
+        group.MapPut("/admin/ovas/feed",
+                ([FromForm] string? noop,
+                        [FromServices] IDomainPostman domainPostman,
+                        [FromServices] ILogger<Admin> logger,
+                        CancellationToken token) =>
+                    domainPostman.SendMessage(new StartScrapOvasFeed(FeedType.Complete), token)
+                        .ToComponentResult("Ovas feed will be updated in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
         group.MapPut("/admin/movies",

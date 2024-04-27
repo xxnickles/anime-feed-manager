@@ -35,6 +35,6 @@ public sealed class OvumFeedScrapper : IOvaFeedScrapper
     private static OvaFeedLinks Map(ShortSeriesTorrent info)
     {
         return new OvaFeedLinks(info.Title, info.Size,
-            [new OvasLink(LinkType.TorrentFile, info.Links[0]), new OvasLink(LinkType.TorrentFile, info.Links[0])]);
+            [new OvaLink(LinkType.TorrentFile, info.Links[0]), new OvaLink(LinkType.TorrentFile, info.Links[0])]);
     }
 }

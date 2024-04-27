@@ -36,7 +36,7 @@ public class OnStartScrapOvasFeed
             .BindAsync(seasons => SendMessages(seasons, token));
         
         results.Match(
-            _ => _logger.LogInformation("Automated subscriptions will be processed for available users"),
+            count => _logger.LogInformation("Automated ovas feed will be processed for {Count} seasons", count),
             error => error.LogError(_logger));
     }
 
@@ -51,11 +51,11 @@ public class OnStartScrapOvasFeed
         };
     }
 
-    private Task<Either<DomainError, Unit>> SendMessages(IEnumerable<BasicSeason> seasons, CancellationToken token)
+    private Task<Either<DomainError, int>> SendMessages(IEnumerable<BasicSeason> seasons, CancellationToken token)
     {
         return Task.WhenAll(seasons.Select(season => _domainPostman.SendMessage(new ScrapOvasSeasonFeed(season), token)))
             .FlattenResults()
-            .MapAsync(_ => unit);
+            .MapAsync(_ => seasons.Count());
 
     }
 }

@@ -47,19 +47,36 @@
         </form>
     </AdminCard>
 
-    @if (SeriesType is SeriesType.Tv)
+    @switch (SeriesType)
     {
-        <AdminCard Title="Update Titles" LoaderId="@_titlesLoader">
-            <form class="card-actions form-control"
-                  hx-put="@GetTitlesPath()"
-                  hx-indicator="@($"#{_titlesLoader}")"
-                  hx-swap="none">
-                <AntiforgeryToken/>
-                <button type="submit" class="btn btn-primary mt-4">
-                    Update Titles
-                </button>
-            </form>
-        </AdminCard>
+        case SeriesType.Tv:
+            <AdminCard Title="Update Titles" LoaderId="@_titlesLoader">
+                <form class="card-actions form-control"
+                      hx-put="@GetAdditionalPath()"
+                      hx-indicator="@($"#{_titlesLoader}")"
+                      hx-swap="none">
+                    <AntiforgeryToken/>
+                    <button type="submit" class="btn btn-primary mt-4">
+                        Update Titles
+                    </button>
+                </form>
+            </AdminCard>
+            break;
+        case SeriesType.Ova:
+            <AdminCard Title="Update Feed" LoaderId="@_ovasFeedLoader">
+                <form class="card-actions form-control"
+                      hx-put="@GetAdditionalPath()"
+                      hx-indicator="@($"#{_ovasFeedLoader}")"
+                      hx-swap="none">
+                    <AntiforgeryToken/>
+                    <button type="submit" class="btn btn-primary mt-4">
+                        Update Ovas Feed
+                    </button>
+                </form>
+            </AdminCard>
+            break;
+        case SeriesType.Movie:
+            break;
     }
 </div>
 
@@ -69,7 +86,8 @@
     private readonly string _latestSeasonLoader = IdHelpers.GetUniqueName("admin-card-loader");
     private readonly string _bySeasonLoader = IdHelpers.GetUniqueName("admin-card-loader");
     private readonly string _titlesLoader = IdHelpers.GetUniqueName("admin-card-loader");
-    
+    private readonly string _ovasFeedLoader = IdHelpers.GetUniqueName("admin-card-loader");
+
     private readonly int _maxYear = DateTimeOffset.UtcNow.Year + 1;
     private const int _minYear = 2000;
     private int Year { get; set; } = DateTimeOffset.UtcNow.Year;
@@ -97,11 +115,12 @@
         };
     }
 
-    private string GetTitlesPath()
+    private string GetAdditionalPath()
     {
         return SeriesType switch
         {
             SeriesType.Tv => "/admin/tv/titles",
+            SeriesType.Ova => "/admin/ovas/feed",
             _ => "/admin/noop"
         };
     }

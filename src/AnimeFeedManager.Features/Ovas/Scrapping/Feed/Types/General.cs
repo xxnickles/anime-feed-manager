@@ -9,14 +9,15 @@ public enum OvaFeedScrapResult
     FoundAndUpdated
 }
 
-public record OvasLink(LinkType Type, string Link);
+public record OvaLink(LinkType Type, string Link);
 
-public record OvaFeedLinks(string LinkTitle, string Size, OvasLink[] Links);
+public record OvaFeedLinks(string LinkTitle, string Size, OvaLink[] Links);
 
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-[JsonSerializable(typeof(OvaFeedLinks))]
+[JsonSerializable(typeof(OvaLink[]))]
+[JsonSerializable(typeof(OvaFeedLinks[]))]
 public partial class OvasFeedLinksContext : JsonSerializerContext
 {
 }

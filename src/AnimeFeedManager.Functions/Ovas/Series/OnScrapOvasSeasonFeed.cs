@@ -30,6 +30,9 @@ public class OnScrapOvasSeasonFeed
         [QueueTrigger(ScrapOvasSeasonFeed.TargetQueue, Connection = Constants.AzureConnectionName)]
         ScrapOvasSeasonFeed message, CancellationToken token)
     {
+        _logger.LogInformation("Processing ovas feed for season {Year}-{Season}", message.SeasonInformation.Year,
+            message.SeasonInformation.Season);
+        
         var results = await SeasonValidators.Parse(message.SeasonInformation.Season, message.SeasonInformation.Year)
             .BindAsync(parsedSeason =>
                 _ovasProvider.GetOvasForFeedProcess(parsedSeason.Season, parsedSeason.Year, token))
