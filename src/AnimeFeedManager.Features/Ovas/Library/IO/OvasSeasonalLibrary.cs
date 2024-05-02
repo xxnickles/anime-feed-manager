@@ -52,7 +52,10 @@ public class OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFact
         return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() =>
                 client.QueryAsync<OvaStorage>(
-                    storage => storage.PartitionKey == partitionKey && storage.Status != ShortSeriesStatus.Processed &&
+                    storage => storage.PartitionKey == partitionKey &&
+                               storage.Date <= DateTime.UtcNow &&
+                               storage.Status != ShortSeriesStatus.SkipFromProcess &&
+                               storage.Status != ShortSeriesStatus.Processed &&
                                storage.Status != ShortSeriesStatus.NotAvailable,
                     cancellationToken: token)));
     }

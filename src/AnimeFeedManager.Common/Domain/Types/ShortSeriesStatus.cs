@@ -2,10 +2,11 @@
 
 public readonly struct ShortSeriesStatus : IEquatable<ShortSeriesStatus>
 {
-    public const string ProcessedValue = "PROCESSED";
-    public const string NotProcessedValue = "NOTPROCESSED";
-    public const string NoFeedFoundValue = "NOFEEDFOUND";
-    public const string NotAvailableValue = "NOTAVAILABLE";
+    private const string ProcessedValue = "PROCESSED";
+    private const string NotProcessedValue = "NOTPROCESSED";
+    private const string NoFeedFoundValue = "NOFEEDFOUND";
+    private const string NotAvailableValue = "NOTAVAILABLE";
+    private const string SkipFromProcessValue = "SKIPFROMPROCESS";
     
     private readonly string _value;
 
@@ -20,11 +21,13 @@ public readonly struct ShortSeriesStatus : IEquatable<ShortSeriesStatus>
     }
 
     public static implicit operator string(ShortSeriesStatus status) => status._value;
-    public static explicit operator ShortSeriesStatus(string status) => status switch
+    
+    public static explicit operator ShortSeriesStatus(string? status) => status switch
     {
         ProcessedValue => Processed,
         NoFeedFoundValue => NotFeedFound,
         NotAvailableValue => NotAvailable,
+        SkipFromProcessValue => SkipFromProcess,
         _ => NotProcessed
     };
 
@@ -32,6 +35,7 @@ public readonly struct ShortSeriesStatus : IEquatable<ShortSeriesStatus>
     public static ShortSeriesStatus NotProcessed = new(NotProcessedValue);
     public static ShortSeriesStatus NotFeedFound = new(NoFeedFoundValue);
     public static ShortSeriesStatus NotAvailable = new(NotAvailableValue);
+    public static ShortSeriesStatus SkipFromProcess = new(SkipFromProcessValue);
 
     public bool Equals(ShortSeriesStatus other)
     {

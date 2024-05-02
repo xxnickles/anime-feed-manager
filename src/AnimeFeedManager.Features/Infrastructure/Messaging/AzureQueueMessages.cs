@@ -5,13 +5,13 @@ using Azure.Storage.Queues;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
-public readonly record struct MinutesDelay()
+public readonly record struct Delay
 {
-    public ushort Value { get; } = 0;
+    public TimeSpan Value { get; } = TimeSpan.Zero;
 
-    public MinutesDelay(ushort value) : this()
+    public Delay(TimeSpan value) 
     {
-        if (value > 10000)
+        if (value.Days >= 7)
         {
             throw new ArgumentException(
                 "Value cannot exceed 10,000 minutes (~7 days) as per infrastructure limitations");
@@ -25,7 +25,7 @@ public interface IDomainPostman
 {
     Task<Either<DomainError, Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;
 
-    Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, MinutesDelay delay,
+    Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage;
 }
 
@@ -61,14 +61,14 @@ public class AzureQueueMessages : IDomainPostman
         }
     }
 
-    public async Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, MinutesDelay delay,
+    public async Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget()) return new BasicError($"{typeof(T).FullName} has not a target box");
         
         try
         {
-            await SendMessage(message, message.MessageBox, TimeSpan.FromMinutes(delay.Value), cancellationToken);
+            await SendMessage(message, message.MessageBox, delay.Value, cancellationToken);
             return unit;
         }
         catch (Exception e)

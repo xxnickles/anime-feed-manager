@@ -2,6 +2,7 @@
 using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
@@ -28,16 +29,19 @@ public sealed class OvasProvider(
                 await AniDbScrapper.Scrap(CreateScrappingLink(season), puppeteerOptions);
 
             return await domainPostman.SendMessage(new SeasonProcessNotification(
-                    TargetAudience.Admins,
-                    NotificationType.Information,
-                    new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
-                    SeriesType.Ova,
-                    $"{series.Count()} ovas have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
-                token).MapAsync(_ => new OvasCollection(series.Select(MapInfo)
-                    .ToImmutableList(),
-                series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
-                    .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Ova))
-                    .ToImmutableList()));
+                        TargetAudience.Admins,
+                        NotificationType.Information,
+                        new SimpleSeasonInfo(jsonSeason.Season, jsonSeason.Year, season.IsLatest()),
+                        SeriesType.Ova,
+                        $"{series.Count()} ovas have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
+                    token)
+                .BindAsync(_ => GetSeasonInformation(jsonSeason))
+                .MapAsync(seasonInfo => new OvasCollection(
+                    seasonInfo,
+                    series.Select(MapInfo).ToImmutableList(),
+                    series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
+                        .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Ova))
+                        .ToImmutableList()));
         }
         catch (Exception ex)
         {
@@ -51,6 +55,12 @@ public sealed class OvasProvider(
                     token)
                 .BindAsync(_ => Left<DomainError, OvasCollection>(ExceptionError.FromException(ex)));
         }
+    }
+
+    private Either<DomainError, SeasonInformation> GetSeasonInformation(JsonSeasonInfo jsonSeasonInfo)
+    {
+        return SeasonValidators.Parse(jsonSeasonInfo.Season, (ushort)jsonSeasonInfo.Year)
+            .Map(data => new SeasonInformation(data.Season, data.Year));
     }
 
     private static string CreateScrappingLink(SeasonSelector season)

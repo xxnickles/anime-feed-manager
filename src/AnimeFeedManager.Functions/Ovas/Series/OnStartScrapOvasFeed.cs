@@ -53,9 +53,8 @@ public class OnStartScrapOvasFeed
 
     private Task<Either<DomainError, int>> SendMessages(IEnumerable<BasicSeason> seasons, CancellationToken token)
     {
-        return Task.WhenAll(seasons.Select(season => _domainPostman.SendMessage(new ScrapOvasSeasonFeed(season), token)))
+        return Task.WhenAll(seasons.Select((season, index) => _domainPostman.SendDelayedMessage(new ScrapOvasSeasonFeed(season), new Delay(TimeSpan.FromSeconds(index * 10)), token)))
             .FlattenResults()
             .MapAsync(_ => seasons.Count());
-
     }
 }

@@ -1,9 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Ovas.Library.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed;
+﻿using AnimeFeedManager.Features.Ovas.Scrapping.Feed;
 using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 using Microsoft.Extensions.Logging;
@@ -12,23 +7,23 @@ namespace AnimeFeedManager.Functions.Ovas.Series;
 
 public class OnUpdateOvaFeed
 {
-    private readonly OvaFeedUpdater _updater;
+    private readonly OvaFeedUpdateStore _feedUpdateStore;
     private readonly ILogger<OnUpdateOvaFeed> _logger;
 
     public OnUpdateOvaFeed(
-        OvaFeedUpdater updater,
+        OvaFeedUpdateStore feedUpdateStore,
         ILogger<OnUpdateOvaFeed> logger)
     {
-        _updater = updater;
+        _feedUpdateStore = feedUpdateStore;
         _logger = logger;
     }
 
     [Function(nameof(OnUpdateOvaFeed))]
     public async Task Run(
-        [QueueTrigger(ScrapOvaFeed.TargetQueue, Connection = Constants.AzureConnectionName)]
-        ScrapOvaFeed message, CancellationToken token)
+        [QueueTrigger(UpdateOvaFeed.TargetQueue, Connection = Constants.AzureConnectionName)]
+        UpdateOvaFeed message, CancellationToken token)
     {
-        var results = await _updater.TryGetFeed(message.Series, token);
+        var results = await _feedUpdateStore.StoreFeedUpdates(message.Series, message.Links, token);
 
         results.Match(
             result => LogMessage(result, message.Series),

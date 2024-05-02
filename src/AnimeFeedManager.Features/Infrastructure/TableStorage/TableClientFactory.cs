@@ -52,7 +52,6 @@ public sealed class TableClientFactory<T>(TableServiceClient serviceClient) : IT
             nameof(NotificationStorage) => AzureTableMap.StoreTo.Notifications,
             nameof(StateUpdateStorage) => AzureTableMap.StoreTo.StateUpdates,
             nameof(LatestSeasonsStorage) => AzureTableMap.StoreTo.JsonStorage,
-            nameof(OvaFeedStorage) => AzureTableMap.StoreTo.OvasFeed,
             _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}")
         };
     }

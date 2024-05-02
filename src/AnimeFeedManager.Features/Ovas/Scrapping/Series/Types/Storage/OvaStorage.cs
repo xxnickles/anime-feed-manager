@@ -11,6 +11,9 @@ public sealed class OvaStorage : ITableEntity
     public string? ImageUrl { get; set; }
     public string? PartitionKey { get; set; }
     public string? RowKey { get; set; }
+    
+    public string? FeedInfo { get; set; }
+    
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
 }

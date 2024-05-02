@@ -14,16 +14,17 @@ public static class OvasRegistration
     {
         services.TryAddScoped<IOvasStorage, OvasStorage>();
         services.TryAddScoped<IOvasSeasonalLibrary, OvasSeasonalLibrary>();
-        services.TryAddScoped<IAddOvasSubscription,AddOvasSubscription>();
+        services.TryAddScoped<IAddOvasSubscription, AddOvasSubscription>();
         services.TryAddScoped<IRemoveOvasSubscription, RemoveOvasSubscription>();
         services.TryAddScoped<IRemoveAllOvasSubscriptions, RemoveAllOvasSubscriptions>();
         services.TryAddScoped<ICopyOvasSubscriptions, CopyOvasSubscriptions>();
         services.TryAddScoped<IGetOvasSubscriptions, GetOvasSubscriptions>();
-        services.TryAddScoped<IOvaFeedStore, OvaFeedStore>();
+        services.TryAddScoped<IOvasStatusProvider, OvasStatusProvider>();
+        services.TryAddScoped<OvaFeedUpdateStore>();
         services.TryAddScoped<OvasLibraryGetter>();
         return services;
     }
-    
+
     public static IServiceCollection RegisterOvasScrappingServices(this IServiceCollection services)
     {
         services.TryAddScoped<OvasLibraryUpdater>();

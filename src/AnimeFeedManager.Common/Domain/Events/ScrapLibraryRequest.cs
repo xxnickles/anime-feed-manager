@@ -8,7 +8,7 @@ public enum ScrapType
 
 public record SeasonParameter(string Season, ushort Year);
 
-public record ScrapLibraryRequest(SeriesType Type, SeasonParameter? SeasonParameter, ScrapType ScrapType)
+public record ScrapLibraryRequest(SeriesType Type, SeasonParameter? SeasonParameter, ScrapType ScrapType, bool KeepFeed = false)
     : DomainMessage(new Box(TargetQueue))
 {
     public const string TargetQueue = "library-scrap-events";

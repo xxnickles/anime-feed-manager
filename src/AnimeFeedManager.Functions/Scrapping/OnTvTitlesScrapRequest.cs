@@ -25,18 +25,18 @@ public sealed class OnTvTitlesScrapRequest(
     {
         var task = notification switch
         {
-            (SeriesType.Tv, _, ScrapType.Latest) => tvLibraryUpdater.Update(new Latest()),
-            (SeriesType.Tv, _, ScrapType.BySeason) => SeasonValidators.ParseSeasonValues(
+            (SeriesType.Tv, _, ScrapType.Latest, _) => tvLibraryUpdater.Update(new Latest()),
+            (SeriesType.Tv, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
                 notification.SeasonParameter?.Year ?? 0).BindAsync(season => tvLibraryUpdater.Update(season)),
 
-            (SeriesType.Ova, _, ScrapType.Latest) => ovasLibraryUpdater.Update(new Latest()),
-            (SeriesType.Ova, _, ScrapType.BySeason) => SeasonValidators.ParseSeasonValues(
+            (SeriesType.Ova, _, ScrapType.Latest, _) => ovasLibraryUpdater.Update(new Latest(), notification.KeepFeed),
+            (SeriesType.Ova, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
-                notification.SeasonParameter?.Year ?? 0).BindAsync(season => ovasLibraryUpdater.Update(season)),
+                notification.SeasonParameter?.Year ?? 0).BindAsync(season => ovasLibraryUpdater.Update(season, notification.KeepFeed)),
 
-            (SeriesType.Movie, _, ScrapType.Latest) => moviesLibraryUpdater.Update(new Latest()),
-            (SeriesType.Movie, _, ScrapType.BySeason) => SeasonValidators.ParseSeasonValues(
+            (SeriesType.Movie, _, ScrapType.Latest, _) => moviesLibraryUpdater.Update(new Latest()),
+            (SeriesType.Movie, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
                 notification.SeasonParameter?.Year ?? 0).BindAsync(season => moviesLibraryUpdater.Update(season)),
 

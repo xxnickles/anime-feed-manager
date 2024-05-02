@@ -20,6 +20,6 @@ public static class AniDbRegistration
         var executablePath = browserFetcher.GetInstalledBrowsers().Last(b => b.Browser is SupportedBrowser.Chrome)
             .GetExecutablePath();
         serviceCollection.AddSingleton(
-            new PuppeteerOptions(executablePath));
+            new PuppeteerOptions(executablePath, false));
     }
 }
