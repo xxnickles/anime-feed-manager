@@ -16,7 +16,11 @@ internal static class Registration
         // Puppeteer
         _ = bool.TryParse(Environment.GetEnvironmentVariable("DownloadChromiumToProjectFolder"),
             out var downloadChromiumToProjectFolder);
-        services.RegisterPuppeteer(downloadChromiumToProjectFolder);
+
+        _ = bool.TryParse(Environment.GetEnvironmentVariable("RunHeadless"),
+            out var runHeadless);
+
+        services.RegisterPuppeteer(downloadChromiumToProjectFolder, runHeadless);
 
         // App
         services.RegisterSeasonsServices();

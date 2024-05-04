@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.AniDb;
 public static class AniDbRegistration
 {
     public static void RegisterPuppeteer(this IServiceCollection serviceCollection,
-        bool downloadToProjectFolder = false)
+        bool downloadToProjectFolder = false, bool runHeadless = true)
     {
         var fetcherOptions = new BrowserFetcherOptions();
 
@@ -20,6 +20,6 @@ public static class AniDbRegistration
         var executablePath = browserFetcher.GetInstalledBrowsers().Last(b => b.Browser is SupportedBrowser.Chrome)
             .GetExecutablePath();
         serviceCollection.AddSingleton(
-            new PuppeteerOptions(executablePath, false));
+            new PuppeteerOptions(executablePath, runHeadless));
     }
 }

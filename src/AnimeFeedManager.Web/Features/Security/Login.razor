@@ -26,7 +26,7 @@
                   x-on:submit.prevent="$event.target.checkValidity() ? login($event) : $event.target.reportValidity()"
                   @onsubmit="Submit"
                   @formname="login">
-                <AntiforgeryToken />
+                <AntiforgeryToken/>
                 <fieldset class="form-control">
                     <label for="user-alias" class="label">
                         <span class="label-text">Please provide an email</span>
@@ -40,8 +40,8 @@
                            x-model="alias"
                            x-ref="alias"
                            placeholder="Enter your Email"
-                           class="input input-bordered invalid:input-error required:!input-bordered" />
-                    <input @bind-value="Id" name="id" type="hidden" id="id-value" />
+                           class="input input-bordered invalid:input-error required:!input-bordered"/>
+                    <input @bind-value="Id" name="id" type="hidden" id="id-value"/>
                 </fieldset>
                 <div class="form-control">
                     <button class="btn btn-primary mt-4">Login</button>
@@ -86,7 +86,9 @@
 @code {
     [SupplyParameterFromForm] public string? Id { get; set; }
     [SupplyParameterFromForm] public string? Alias { get; set; }
-    [SupplyParameterFromQuery(Name = "returnUrl")] public string ReturnUrl { get; set; } = "";
+
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string ReturnUrl { get; set; } = "";
 
     [CascadingParameter] public HttpContext HttpContext { get; set; } = default!;
 

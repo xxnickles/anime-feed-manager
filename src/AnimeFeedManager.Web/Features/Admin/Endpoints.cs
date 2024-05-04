@@ -53,17 +53,17 @@ public static class Endpoints
             .RequireAuthorization(Policies.AdminRequired);
 
         group.MapPut("/admin/ovas",
-                ([FromForm] string? noop,
+                ([FromForm] ShorSeriesLatestSeason payload,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
-                    domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest),
+                    domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest, payload.KeeepFeed),
                             token: token)
                         .ToComponentResult("Latest Ovas library will be scrapped in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
         group.MapPut("/admin/ovas/season",
-                ([FromForm] BasicSeason season,
+                ([FromForm] ShorSeriesSeason season,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
@@ -71,7 +71,7 @@ public static class Endpoints
                         .Map(param => param.ToSeasonParameter())
                         .BindAsync(seasonParameter =>
                             domainPostman.CreateScrapingEvent(
-                                new ScrapLibraryRequest(SeriesType.Ova, seasonParameter, ScrapType.BySeason),
+                                new ScrapLibraryRequest(SeriesType.Ova, seasonParameter, ScrapType.BySeason, season.KeeepFeed),
                                 token: token))
                         .ToComponentResult(
                             $"Ovas library for {season.Season}-{season.Year} will be scrapped in the background",

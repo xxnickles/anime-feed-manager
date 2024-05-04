@@ -3,6 +3,9 @@
 namespace AnimeFeedManager.Common.Dto;
 
 public record BasicSeason(string Season, ushort Year);
+public record ShorSeriesLatestSeason(bool KeeepFeed);
+
+public record ShorSeriesSeason(string Season, ushort Year, bool KeeepFeed);
 
 public record SimpleSeasonInfo(string Season, int Year, bool IsLatest);
 
