@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Domain.Types;
+﻿using System.Text.Json.Serialization;
+
+namespace AnimeFeedManager.Common.Domain.Types;
 
 public enum LinkType
 {
@@ -20,8 +22,15 @@ public readonly record struct FeedInfo(string AnimeTitle,
     DateTime PublicationDate,
     IImmutableList<TorrentLink> Links,
     string EpisodeInfo);
-    
-    
-public readonly record struct ShortSeriesLink(LinkType Type, SeriesLink Link, SeriesTitle LinkTitle, NoEmptyString Size);
 
-public readonly record struct ShortSeriesFeed(NoEmptyString Series, IImmutableList<ShortSeriesLink> Links);
+public record SeriesLink(LinkType Type, string Link);
+
+public record SeriesFeedLinks(string LinkTitle, string Size, SeriesLink[] Links);
+
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSerializable(typeof(SeriesLink[]))]
+[JsonSerializable(typeof(SeriesFeedLinks[]))]
+public partial class SeriesFeedLinksContext : JsonSerializerContext
+{
+}

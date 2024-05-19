@@ -15,7 +15,7 @@ public record ScrapOvasSeasonFeed(BasicSeason SeasonInformation) : DomainMessage
 }
 
 
-public record UpdateOvaFeed(OvaStorage Series, ImmutableList<OvaFeedLinks> Links) : DomainMessage(new Box(TargetQueue))
+public record UpdateOvaFeed(OvaStorage Series, ImmutableList<SeriesFeedLinks> Links) : DomainMessage(new Box(TargetQueue))
 {
     public const string TargetQueue = "ovas-season-feed-update";
 }

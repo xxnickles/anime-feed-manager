@@ -1,3 +1,8 @@
-﻿<div class="badge badge-success">
-    <span>Available for Notifications</span>
+﻿<div class="badge badge-success flex gap-2">
+    <span>Available for notifications</span>
+    <LinksPresenter Links="@Links"></LinksPresenter>
 </div>
+
+@code{
+    [Parameter, EditorRequired] public SeriesFeedLinks[] Links { get; set; } = [];
+}

@@ -17,7 +17,7 @@ public class OvaFeedUpdateStore
     }
 
     public Task<Either<DomainError, OvaFeedScrapResult>> StoreFeedUpdates(OvaStorage storage,
-        ImmutableList<OvaFeedLinks> links, CancellationToken token)
+        ImmutableList<SeriesFeedLinks> links, CancellationToken token)
     {
         return links.IsEmpty
             ? HandleEmptyLinks(storage, token)
@@ -31,10 +31,10 @@ public class OvaFeedUpdateStore
     }
 
     private Task<Either<DomainError, OvaFeedScrapResult>> ProcessLinks(OvaStorage storage,
-        ImmutableList<OvaFeedLinks> links, CancellationToken token)
+        ImmutableList<SeriesFeedLinks> links, CancellationToken token)
     {
         storage.Status = ShortSeriesStatus.Processed;
-        storage.FeedInfo = JsonSerializer.Serialize(links.ToArray(), OvasFeedLinksContext.Default.OvaFeedLinksArray);
+        storage.FeedInfo = JsonSerializer.Serialize(links.ToArray(), SeriesFeedLinksContext.Default.SeriesFeedLinksArray);
         return _ovasStorage.Update(storage, token)
             .MapAsync(_ => OvaFeedScrapResult.FoundAndUpdated);
     }

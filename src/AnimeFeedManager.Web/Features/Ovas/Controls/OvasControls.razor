@@ -5,14 +5,14 @@
         case NotAvailableOva:
             <NotAvailableOvaControls/>
             break;
-        case AvailableOva:
-            <AvailableOvaControls/>
+        case AvailableOva ova:
+            <AvailableOvaControls Links="ova.Links"/>
             break;
         case SubscribedOva ova:
-            <SubscribedOvaControls ControlData="@OvaControlData.MapFrom(ova, LoaderSelector)"/>
+            <SubscribedOvaControls ControlData="@OvaControlData.MapFrom(ova, LoaderSelector)" Links="ova.Links"/>
             break;
         case UnsubscribedOva ova:
-            <UnsubscribedOvaControls ControlData="@OvaControlData.MapFrom(ova, LoaderSelector)"/>
+            <UnsubscribedOvaControls ControlData="@OvaControlData.MapFrom(ova, LoaderSelector)" Links="ova.Links"/>
             break;
         default:
             <div class="badge badge-error gap-2">

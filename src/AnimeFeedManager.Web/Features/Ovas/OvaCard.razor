@@ -1,28 +1,30 @@
 ﻿@using AnimeFeedManager.Common.Domain
 <article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative">
     <div class="absolute top-0 left-0">
-        @switch (Anime)
+        @switch (Ova)
         {
-            case AnimeForUser {IsAdmin: true} anime:
-                <AdminTvControls TvAnimeInfo="anime" LoaderSelector="@LoaderSelector"/>
-                break;
-            case OvaForUser {IsAdmin: true} ova:
+            case OvaForUser { IsAdmin: true } ova:
                 <AdminOvaControls OvaInfo="ova" LoaderSelector="@LoaderSelector"/>
-                break;
-            case MovieForUser {IsAdmin: true} movie:
-                <AdminMovieControls MovieInfo="movie" LoaderSelector="@LoaderSelector"/>
                 break;
         }
     </div>
-    <img class="object-cover w-44" src="@Anime.ImageUrl" alt="@Anime.Title"/>
+    @if (Ova.ImageUrl is not null)
+    {
+        <img class="object-cover w-44" src="@Ova.ImageUrl" alt="@Ova.Title"/>
+    }
+    else
+    {
+        <ImageNotAvailable/>
+    }
+
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
 
-        <h2 class="basis-[5%] w-[87%] mx-4 mt-2 mr-2 text-base font-bold ">@Anime.Title</h2>
+        <h2 class="basis-[5%] w-[87%] mx-4 mt-2 mr-2 text-base font-bold ">@Ova.Title</h2>
         @* Loader *@
         <div class="absolute top-0 right-0 mr-2 mt-2 htmx-indicator" id="@_loaderId">
             <span class="loading loading-spinner loading-xs "></span>
         </div>
-        @switch (Anime)
+        @switch (Ova)
         {
             case AvailableOva availableOva:
                 <ShortSeriesDate AirDate="availableOva.AirDate"></ShortSeriesDate>
@@ -30,19 +32,13 @@
             case OvaForUser ovaForUser:
                 <ShortSeriesDate AirDate="ovaForUser.AirDate"></ShortSeriesDate>
                 break;
-            case AvailableMovie availableMovie:
-                <ShortSeriesDate AirDate="availableMovie.AirDate"></ShortSeriesDate>
-                break;
-            case MovieForUser movieForUser:
-                <ShortSeriesDate AirDate="movieForUser.AirDate"></ShortSeriesDate>
-                break;
         }
 
 
         <p class="basis-[78%] mx-4 my-2 text-sm text-justify max-h-full overflow-y-auto scrollbar pr-3 break-all">
-            @if (!string.IsNullOrEmpty(Anime.Synopsis))
+            @if (!string.IsNullOrEmpty(Ova.Synopsis))
             {
-                @Anime.Synopsis
+                @Ova.Synopsis
             }
             else
             {
@@ -55,30 +51,14 @@
             }
         </p>
         <footer class="basis-[17%] bg-neutral px-4 pt-1">
-            @switch (Anime)
-            {
-                case BaseTvAnime anime:
-                    <TvControls Anime="@anime" LoaderSelector="@LoaderSelector"></TvControls>
-                    break;
-                case BaseOva ova:
-                    <OvasControls Ova="@ova" LoaderSelector="@LoaderSelector"/>
-                    break;
-                case BaseMovie movie:
-                    <MovieControls Movie="@movie" LoaderSelector="@LoaderSelector"/>
-                    break;
-                default:
-                    <div class="badge badge-error gap-2">
-                        <span >Nothing Yet!</span>
-                    </div>
-                    break;
-            }
-
+            <OvasControls Ova="@Ova" LoaderSelector="@LoaderSelector"/>
         </footer>
     </div>
 </article>
 
 @code {
-    [Parameter, EditorRequired] public BaseAnime Anime { get; set; } = new NullAnime();
+
+    [Parameter, EditorRequired] public BaseOva Ova { get; set; } = new NullOva();
 
     [Parameter]
     public RenderFragment AdminContent { get; set; } = @<span>No content here!</span>;

@@ -1,0 +1,13 @@
+﻿<section
+    id="main-grid"
+    class="grid grid-cols-1 md:max-xl:grid-cols-2 xl:grid-cols-3 min-[2300px]:grid-cols-4 grid-flow-row gap-10 px-2 md:px-10 py-2 md:py-4"
+    hx-swap-oob="outerHTML:section#main-grid">
+    @GridContent
+</section>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public RenderFragment GridContent { get; set; } = @<span>No content here!</span>;
+
+}

@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Dto;
+﻿using AnimeFeedManager.Common.Domain.Types;
+
+namespace AnimeFeedManager.Common.Dto;
 
 public record NullOva() : BaseOva(string.Empty, string.Empty, string.Empty, string.Empty, null);
 
@@ -11,7 +13,8 @@ public sealed record AvailableOva(
     string Title,
     string Synopsis,
     string? ImageUrl,
-    DateTime AirDate)
+    DateTime AirDate,
+    SeriesFeedLinks[] Links)
     : BaseOva(Id, Season, Title, Synopsis, ImageUrl);
 
 public abstract record OvaForUser(
@@ -22,7 +25,8 @@ public abstract record OvaForUser(
     string? ImageUrl,
     DateTime AirDate,
     UserId UserId,
-    bool IsAdmin)
+    bool IsAdmin,
+    SeriesFeedLinks[] Links)
     : BaseOva(Id, Season, Title, Synopsis, ImageUrl);
 
 public record UnsubscribedOva(
@@ -33,8 +37,9 @@ public record UnsubscribedOva(
     string? ImageUrl,
     DateTime AirDate,
     UserId UserId,
-    bool IsAdmin) : OvaForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin);
-    
+    bool IsAdmin,
+    SeriesFeedLinks[] Links) : OvaForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin, Links);
+
 public record SubscribedOva(
     string Id,
     string Season,
@@ -43,4 +48,5 @@ public record SubscribedOva(
     string? ImageUrl,
     DateTime AirDate,
     UserId UserId,
-    bool IsAdmin) : OvaForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin);
+    bool IsAdmin,
+    SeriesFeedLinks[] Links) : OvaForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin,Links);

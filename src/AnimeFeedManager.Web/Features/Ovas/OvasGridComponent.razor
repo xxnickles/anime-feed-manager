@@ -1,11 +1,25 @@
-﻿@using AnimeFeedManager.Features.Ovas.Library
+﻿@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Ovas.Library
+@using AnimeFeedManager.Features.Ovas.Library.Types
 @inject ILogger<OvasGridComponent> Logger;
 @inject OvasLibraryGetter LibraryGetter;
 @inject IUserProvider UserProvider;
 
 <WithMessage Message="@Message" DomainError="@DomainError">
     <Content>
-        <SeriesGrid Series="_ovas"></SeriesGrid>
+        <GridSection>
+            <GridContent>
+
+                @foreach (var item in _ovas)
+                {
+                    <OvaCard Ova="item"></OvaCard>
+                }
+
+            </GridContent>
+
+        </GridSection>
+
+
     </Content>
 </WithMessage>
 
@@ -13,13 +27,13 @@
     [Parameter, EditorRequired] public SeasonInformation SeasonInfo { get; set; } = new DefaultSeasonInformation();
     [Parameter] public string Message { get; set; } = string.Empty;
     [Parameter] public DomainError? DomainError { get; set; }
-    private BaseAnime[] _ovas = [];
+    private BaseOva[] _ovas = [];
 
     protected override async Task OnInitializedAsync()
     {
         var user = await UserProvider.GetCurrentUser(default);
 
-        var results = await LibraryGetter.GetForSeason(SeasonInfo.Season, SeasonInfo.Year)
+        var results = await LibraryGetter.GetFeedForSeason(SeasonInfo.Season, SeasonInfo.Year)
             .MapAsync(lib => Map(lib, user))
             .LogErrors(Logger);
 
@@ -29,31 +43,31 @@
         );
     }
 
-    private BaseAnime[] Map(ShortSeasonCollection seasonCollection, AppUser user)
+    private BaseOva[] Map(ImmutableList<OvaLibrary> seasonCollection, AppUser user)
     {
         return user switch
         {
-            AuthenticatedUser u => seasonCollection.Animes.Select(a => MapForAuthenticatedUser(a, u)).ToArray(),
-            _ => seasonCollection.Animes.Select(MapForAnonymous).ToArray()
+            AuthenticatedUser u => seasonCollection.Select(a => MapForAuthenticatedUser(a, u)).ToArray(),
+            _ => seasonCollection.Select(MapForAnonymous).ToArray()
         };
     }
 
-    private BaseAnime MapForAnonymous(SimpleAnime anime)
+    private BaseOva MapForAnonymous(OvaLibrary anime)
     {
         return anime.AirDate switch
         {
-            not null => new AvailableOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default),
+            not null => new AvailableOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, anime.Links),
             _ => new NotAvailableOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl)
         };
     }
 
-    private BaseAnime MapForAuthenticatedUser(SimpleAnime anime, AuthenticatedUser user)
+    private BaseOva MapForAuthenticatedUser(OvaLibrary anime, AuthenticatedUser user)
     {
         return anime.AirDate switch
         {
             not null => user.OvaSubscriptions.Subscriptions.Contains(anime.Title)
-                ? new SubscribedOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser)
-                : new UnsubscribedOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser),
+                ? new SubscribedOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser, anime.Links)
+                : new UnsubscribedOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser, anime.Links),
             _ => new NotAvailableOva(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl)
         };
     }

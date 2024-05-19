@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Ovas.Scrapping.Feed.IO;
@@ -27,7 +28,7 @@ public sealed class OvaFeedUpdater
             .BindAsync(data => SendMessages(data, token));
     }
 
-    private Task<Either<DomainError, int>> SendMessages(ImmutableList<(OvaStorage Ova,ImmutableList<OvaFeedLinks> Links)> data, CancellationToken token)
+    private Task<Either<DomainError, int>> SendMessages(ImmutableList<(OvaStorage Ova,ImmutableList<SeriesFeedLinks> Links)> data, CancellationToken token)
     {
         return Task.WhenAll(
                 data.Select(info => _domainPostman.SendMessage(new UpdateOvaFeed(info.Ova, info.Links), token)))
