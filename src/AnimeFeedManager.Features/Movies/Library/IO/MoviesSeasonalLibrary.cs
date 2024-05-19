@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 
 namespace AnimeFeedManager.Features.Movies.Library.IO;
@@ -6,6 +7,9 @@ namespace AnimeFeedManager.Features.Movies.Library.IO;
 public interface IMoviesSeasonalLibrary
 {
     public Task<Either<DomainError, ImmutableList<MovieStorage>>> GetSeasonalLibrary(Season season, Year year, CancellationToken token);
+    
+    public Task<Either<DomainError, ImmutableList<MovieStorage>>> GetMoviesForFeedProcess(Season season, Year year,
+        CancellationToken token);
 }
 
 public class MoviesSeasonalLibrary(ITableClientFactory<MovieStorage> tableClientFactory) : IMoviesSeasonalLibrary
@@ -17,6 +21,21 @@ public class MoviesSeasonalLibrary(ITableClientFactory<MovieStorage> tableClient
         return tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQuery(() =>
                 client.QueryAsync<MovieStorage>(a => a.PartitionKey == partitionKey,
+                    cancellationToken: token)));
+    }
+    
+    public Task<Either<DomainError, ImmutableList<MovieStorage>>> GetMoviesForFeedProcess(Season season, Year year,
+        CancellationToken token)
+    {
+        var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, year);
+        return tableClientFactory.GetClient()
+            .BindAsync(client => TableUtils.ExecuteQuery(() =>
+                client.QueryAsync<MovieStorage>(
+                    storage => storage.PartitionKey == partitionKey &&
+                               storage.Date <= DateTime.UtcNow &&
+                               storage.Status != ShortSeriesStatus.SkipFromProcess &&
+                               storage.Status != ShortSeriesStatus.Processed &&
+                               storage.Status != ShortSeriesStatus.NotAvailable,
                     cancellationToken: token)));
     }
 }

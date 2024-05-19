@@ -1,27 +1,30 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 using AnimeFeedManager.Features.Nyaa;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 using PuppeteerSharp;
 using SeriesLink = AnimeFeedManager.Common.Domain.Types.SeriesLink;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.IO;
+namespace AnimeFeedManager.Features.Movies.Scrapping.Feed.IO;
 
-public interface IOvaFeedScrapper
+public interface IMovieFeedScrapper
 {
-    public Task<Either<DomainError, ImmutableList<(OvaStorage OvaStorage, ImmutableList<SeriesFeedLinks> Links)>>> GetFeed(ImmutableList<OvaStorage> ovas, CancellationToken token);
+    public Task<Either<DomainError, ImmutableList<(MovieStorage MovieStorage, ImmutableList<SeriesFeedLinks> Links)>>>
+        GetFeed(ImmutableList<MovieStorage> movies, CancellationToken token);
 }
 
-public sealed class OvumFeedScrapper : IOvaFeedScrapper
+public sealed class MovieFeedScrapper : IMovieFeedScrapper
 {
     private readonly PuppeteerOptions _puppeteerOptions;
 
-    public OvumFeedScrapper(PuppeteerOptions puppeteerOptions)
+    public MovieFeedScrapper(PuppeteerOptions puppeteerOptions)
     {
         _puppeteerOptions = puppeteerOptions;
     }
 
-    public async Task<Either<DomainError, ImmutableList<(OvaStorage OvaStorage, ImmutableList<SeriesFeedLinks> Links)>>> GetFeed(ImmutableList<OvaStorage> ovas, CancellationToken token)
+    public async
+        Task<Either<DomainError, ImmutableList<(MovieStorage MovieStorage, ImmutableList<SeriesFeedLinks> Links)>>>
+        GetFeed(ImmutableList<MovieStorage> movies, CancellationToken token)
     {
         try
         {
@@ -32,16 +35,15 @@ public sealed class OvumFeedScrapper : IOvaFeedScrapper
                 ExecutablePath = _puppeteerOptions.Path
             });
 
-            var resultList = new List<(OvaStorage OvaFeedStorage, ImmutableList<SeriesFeedLinks> Links)>();
-            foreach (var ova in ovas)
+            var resultList = new List<(MovieStorage MovieFeedStorage, ImmutableList<SeriesFeedLinks> Links)>();
+            foreach (var movie in movies)
             {
-                var links = await NyaaScrapper.ScrapHelper(ova.Title ?? "nope", browser);
-                resultList.Add((ova, links.Select(Map).ToImmutableList()));
+                var links = await NyaaScrapper.ScrapHelper(movie.Title ?? "nope", browser);
+                resultList.Add((movie, links.Select(Map).ToImmutableList()));
             }
 
             await browser.CloseAsync();
             return resultList.ToImmutableList();
-
         }
         catch (Exception e)
         {
