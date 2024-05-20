@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
@@ -68,7 +69,7 @@ public sealed class InterestedToSubscribe(
     private Task<Either<DomainError, int>> ProcessEvents(ImmutableList<InterestedToSubscription> events,
         CancellationToken token)
     {
-        return createState.Create(NotificationTarget.Tv, events)
+        return createState.Create(NotificationTarget.Tv, events, new Box(InterestedToSubscription.TargetQueue))
             .BindAsync(stateEvents => SendMessages(stateEvents, token));
     }
 

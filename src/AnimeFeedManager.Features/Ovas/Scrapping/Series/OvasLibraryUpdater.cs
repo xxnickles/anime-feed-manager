@@ -28,11 +28,12 @@ public sealed class OvasLibraryUpdater(
         CancellationToken token)
     {
         var reference = series.SeriesList.First();
-        return keepStatus
+        var result = keepStatus
             ? PersistUsingExistentStatus(series.SeriesList, series.SeasonInformation, token)
-            : ovasStorage.Add(series.SeriesList, token)
-                .BindAsync(_ => CreateImageEvents(series.Images, token))
-                .BindAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest(), token));
+            : ovasStorage.Add(series.SeriesList, token);
+
+        return result.BindAsync(_ => CreateImageEvents(series.Images, token))
+            .BindAsync(_ => CreateSeasonEvent(reference.Season!, reference.Year, seasonSelector.IsLatest(), token));
     }
 
     private Task<Either<DomainError, Unit>> PersistUsingExistentStatus(
@@ -44,7 +45,6 @@ public sealed class OvasLibraryUpdater(
             .MapAsync(statuses => ovas.ConvertAll(s => ApplyExistentStatus(s, statuses)))
             .BindAsync(series => ovasStorage.Add(series, token));
     }
-
 
     private OvaStorage ApplyExistentStatus(OvaStorage ova, ImmutableList<OvaFeedStatus> statusList)
     {

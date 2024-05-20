@@ -15,7 +15,7 @@ public class ImageAdder(
 {
     public async Task<Either<DomainError, Unit>> Add(
         Stream image,
-        StateWrap<DownloadImageEvent> stateWrap, 
+        StateWrap<DownloadImageEvent> stateWrap,
         CancellationToken token = default)
     {
         try
@@ -31,16 +31,16 @@ public class ImageAdder(
         {
             return ExceptionError.FromException(e);
         }
-       
     }
 
-    private  Task<Either<DomainError, Unit>> Store( StateWrap<DownloadImageEvent> stateWrap, string imageUrl, CancellationToken token)
+    private Task<Either<DomainError, Unit>> Store(StateWrap<DownloadImageEvent> stateWrap, string imageUrl,
+        CancellationToken token)
     {
         return stateWrap.Payload.SeriesType switch
         {
             SeriesType.Tv => tvImageStorage.AddTvImage(stateWrap, imageUrl, token),
-            SeriesType.Movie => moviesImageStorage.AddMoviesImage(stateWrap,imageUrl,token),
-            SeriesType.Ova =>  ovasImageStorage.AddOvasImage(stateWrap,imageUrl,token),
+            SeriesType.Movie => moviesImageStorage.AddMoviesImage(stateWrap, imageUrl, token),
+            SeriesType.Ova => ovasImageStorage.AddOvasImage(stateWrap, imageUrl, token),
             SeriesType.None => throw new UnreachableException(),
             _ => throw new UnreachableException()
         };

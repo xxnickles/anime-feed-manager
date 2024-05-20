@@ -3,4 +3,7 @@ using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 
 namespace AnimeFeedManager.Features.Movies.Scrapping.Series.Types;
 
-public readonly record struct MoviesCollection(ImmutableList<MovieStorage> SeriesList, ImmutableList<DownloadImageEvent> Images);
+public readonly record struct MoviesCollection(
+    SeasonInformation SeasonInformation,
+    ImmutableList<MovieStorage> SeriesList, 
+    ImmutableList<DownloadImageEvent> Images);

@@ -3,18 +3,24 @@
 @inject ILogger<TvGridComponent> Logger;
 @inject IUserProvider UserProvider;
 
-<WithMessage Message="@Message" DomainError="@DomainError" >
+<WithMessage Message="@Message" DomainError="@DomainError">
     <Content>
-        <SeriesGrid Series="_animes"></SeriesGrid>
+        <GridSection>
+            <GridContent>
+                @foreach (var item in _animes)
+                {
+                    <TvCard Anime="item"></TvCard>
+                }
+            </GridContent>
+        </GridSection>
     </Content>
 </WithMessage>
-
 
 @code {
     [Parameter, EditorRequired] public SeasonInformation SeasonInfo { get; set; } = new DefaultSeasonInformation();
     [Parameter] public string Message { get; set; } = string.Empty;
     [Parameter] public DomainError? DomainError { get; set; }
-    private BaseAnime[] _animes = [];
+    private BaseTvAnime[] _animes = [];
 
 
     protected override async Task OnInitializedAsync()
@@ -31,16 +37,16 @@
         );
     }
 
-    private BaseAnime[] MapForUser(SeasonCollection seasonCollection, AppUser user)
+    private BaseTvAnime[] MapForUser(SeasonCollection seasonCollection, AppUser user)
     {
         return user switch
         {
             AuthenticatedUser u => seasonCollection.Animes.Select(a => MapForAuthenticatedUser(a, u)).ToArray(),
-            _ => seasonCollection.Animes.ToArray<BaseAnime>()
+            _ => seasonCollection.Animes.ToArray<BaseTvAnime>()
         };
     }
 
-    private BaseAnime MapForAuthenticatedUser(FeedAnime anime, AuthenticatedUser user)
+    private BaseTvAnime MapForAuthenticatedUser(FeedAnime anime, AuthenticatedUser user)
     {
         return anime.FeedInformation.Status switch
         {

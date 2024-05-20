@@ -2,7 +2,7 @@
 
 namespace AnimeFeedManager.Features.Movies.Library.Types;
 
-public record MoviesLibrary(
+public record MovieLibrary(
     string Id,
     string Season,
     string Title,

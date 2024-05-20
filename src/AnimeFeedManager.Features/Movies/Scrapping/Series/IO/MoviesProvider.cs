@@ -2,6 +2,7 @@
 using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
@@ -34,8 +35,10 @@ public sealed class MoviesProvider(
                         SeriesType.Movie,
                         $"{series.Count()} movies have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
                     token)
-                .MapAsync(_ => new MoviesCollection(series.Select(MapInfo)
-                        .ToImmutableList(),
+                .BindAsync(_ => GetSeasonInformation(jsonSeason))
+                .MapAsync(seasonInfo => new MoviesCollection(
+                    seasonInfo,
+                    series.Select(MapInfo).ToImmutableList(),
                     series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
                         .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Movie))
                         .ToImmutableList()));
@@ -52,6 +55,12 @@ public sealed class MoviesProvider(
                     token)
                 .BindAsync(_ => Left<DomainError, MoviesCollection>(ExceptionError.FromException(ex)));
         }
+    }
+    
+    private Either<DomainError, SeasonInformation> GetSeasonInformation(JsonSeasonInfo jsonSeasonInfo)
+    {
+        return SeasonValidators.Parse(jsonSeasonInfo.Season, (ushort)jsonSeasonInfo.Year)
+            .Map(data => new SeasonInformation(data.Season, data.Year));
     }
     
     private static string CreateScrappingLink(SeasonSelector season)

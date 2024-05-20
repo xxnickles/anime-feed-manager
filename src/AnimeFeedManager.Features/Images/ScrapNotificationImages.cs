@@ -13,7 +13,7 @@ public sealed class ScrapImagesNotificationHandler(
 {
     public async Task Handle(ScrapImagesRequest notification, CancellationToken cancellationToken)
     {
-        var results = await stateCreator.Create(NotificationTarget.Images, notification.Events)
+        var results = await stateCreator.Create(NotificationTarget.Images, notification.Events, new Box(DownloadImageEvent.TargetQueue))
             .MapAsync(r => SendMessages(r, cancellationToken));
 
         results.Match(async r => await r,

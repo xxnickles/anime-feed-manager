@@ -14,7 +14,6 @@ public record ScrapMoviesSeasonFeed(BasicSeason SeasonInformation) : DomainMessa
     public const string TargetQueue = "movies-season-feed-process";
 }
 
-
 public record UpdateMovieFeed(MovieStorage Series, ImmutableList<SeriesFeedLinks> Links) : DomainMessage(new Box(TargetQueue))
 {
     public const string TargetQueue = "movies-season-feed-update";

@@ -4,6 +4,7 @@ using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Dto;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Movies.Scrapping.Feed.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
 using AnimeFeedManager.Features.Users;
 using AnimeFeedManager.Features.Users.IO;
@@ -88,17 +89,17 @@ public static class Endpoints
             .RequireAuthorization(Policies.AdminRequired);
 
         group.MapPut("/admin/movies",
-                ([FromForm] string? noop,
+                ([FromForm] ShorSeriesLatestSeason payload,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
-                    domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Movie, null, ScrapType.Latest),
+                    domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Movie, null, ScrapType.Latest, payload.KeeepFeed),
                             token: token)
                         .ToComponentResult("Latest movies library will be scrapped in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
         group.MapPut("/admin/movies/season",
-                ([FromForm] BasicSeason season,
+                ([FromForm] ShorSeriesSeason season,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
@@ -106,11 +107,20 @@ public static class Endpoints
                         .Map(param => param.ToSeasonParameter())
                         .BindAsync(seasonParameter =>
                             domainPostman.CreateScrapingEvent(
-                                new ScrapLibraryRequest(SeriesType.Movie, seasonParameter, ScrapType.BySeason),
+                                new ScrapLibraryRequest(SeriesType.Movie, seasonParameter, ScrapType.BySeason, season.KeeepFeed),
                                 token: token))
                         .ToComponentResult(
                             $"Movies library for {season.Season}-{season.Year} will be scrapped in the background",
                             logger))
+            .RequireAuthorization(Policies.AdminRequired);
+        
+        group.MapPut("/admin/movies/feed",
+                ([FromForm] string? noop,
+                        [FromServices] IDomainPostman domainPostman,
+                        [FromServices] ILogger<Admin> logger,
+                        CancellationToken token) =>
+                    domainPostman.SendMessage(new StartScrapMoviesFeed(FeedType.Complete), token)
+                        .ToComponentResult("Movies feed will be updated in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
 

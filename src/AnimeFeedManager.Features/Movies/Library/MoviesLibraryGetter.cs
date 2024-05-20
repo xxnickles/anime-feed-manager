@@ -18,7 +18,7 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
             .MapAsync(movies => Project(year, season, movies));
     }
 
-    public Task<Either<DomainError, ImmutableList<MoviesLibrary>>> GetFeedForSeason(string season, ushort year,
+    public Task<Either<DomainError, ImmutableList<MovieLibrary>>> GetFeedForSeason(string season, ushort year,
         CancellationToken token = default)
     {
         return SeasonValidators.Parse(season, year)
@@ -41,7 +41,7 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
                 .ToArray());
     }
 
-    private static MoviesLibrary Project(MovieStorage movieStorage)
+    private static MovieLibrary Project(MovieStorage movieStorage)
     {
         var id = movieStorage.RowKey ?? string.Empty;
         var season = movieStorage.PartitionKey ?? string.Empty;
@@ -50,8 +50,7 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
         var imageUrl = movieStorage.ImageUrl;
         var airDate = movieStorage?.Date;
 
-
-        return new MoviesLibrary(
+        return new MovieLibrary(
             id,
             season,
             title,

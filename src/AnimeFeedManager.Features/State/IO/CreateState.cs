@@ -7,13 +7,13 @@ namespace AnimeFeedManager.Features.State.IO;
 public interface ICreateState
 {
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
-        ImmutableList<T> entities) where T: DomainMessage;
+        ImmutableList<T> entities, Box MessageBox) where T : DomainMessage;
 }
 
 public sealed class CreateState(ITableClientFactory<StateUpdateStorage> tableClientFactory) : ICreateState
 {
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
-        ImmutableList<T> entities) where T: DomainMessage
+        ImmutableList<T> entities, Box MessageBox) where T : DomainMessage
     {
         if (!entities.Any())
             return Task.FromResult(
@@ -33,6 +33,6 @@ public sealed class CreateState(ITableClientFactory<StateUpdateStorage> tableCli
         return tableClientFactory.GetClient()
             .BindAsync(client =>
                 TableUtils.TryExecute(() => client.UpsertEntityAsync(newState)))
-            .MapAsync(_ => entities.ConvertAll(e => new StateWrap<T>(id, e)));
+            .MapAsync(_ => entities.ConvertAll(e => new StateWrap<T>(id, e, MessageBox)));
     }
 }

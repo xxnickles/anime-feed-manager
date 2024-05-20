@@ -20,5 +20,5 @@ public readonly struct Box
 
     public static implicit operator string(Box box) => box._boxValue;
 
-    public static Box Empty() => new Box(EmptyBox);
+    public static Box Empty() => new(EmptyBox);
 }

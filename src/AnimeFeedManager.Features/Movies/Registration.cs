@@ -1,6 +1,7 @@
 ﻿using AnimeFeedManager.Features.Movies.Library;
 using AnimeFeedManager.Features.Movies.Library.IO;
 using AnimeFeedManager.Features.Movies.Scrapping.Feed;
+using AnimeFeedManager.Features.Movies.Scrapping.Feed.IO;
 using AnimeFeedManager.Features.Movies.Scrapping.Series;
 using AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Movies.Subscriptions.IO;
@@ -30,7 +31,7 @@ public static class MoviesRegistration
         services.TryAddScoped<MoviesLibraryUpdater>();
         services.TryAddScoped<MovieFeedUpdater>();
         services.TryAddSingleton<IMoviesProvider, MoviesProvider>();
-        services.TryAddScoped<MoviesLibraryUpdater>();
+        services.TryAddSingleton<IMovieFeedScrapper, MovieFeedScrapper>();
         return services;
     }
     

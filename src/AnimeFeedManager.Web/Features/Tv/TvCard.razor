@@ -1,0 +1,60 @@
+﻿@using AnimeFeedManager.Common.Domain
+<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative">
+    <div class="absolute top-0 left-0">
+        @switch (Anime)
+        {
+            case AnimeForUser { IsAdmin: true } anime:
+                <AdminTvControls TvAnimeInfo="anime" LoaderSelector="@LoaderSelector"/>
+                break;
+        }
+    </div>
+    @if (Anime.ImageUrl is not null)
+    {
+        <img class="object-cover w-44" src="@Anime.ImageUrl" alt="@Anime.Title"/>
+    }
+    else
+    {
+        <ImageNotAvailable/>
+    }
+
+    <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
+
+        <h2 class="basis-[5%] w-[87%] mx-4 mt-2 mr-2 text-base font-bold ">@Anime.Title</h2>
+        @* Loader *@
+        <div class="absolute top-0 right-0 mr-2 mt-2 htmx-indicator" id="@_loaderId">
+            <span class="loading loading-spinner loading-xs "></span>
+        </div>
+
+
+        <p class="basis-[78%] mx-4 my-2 text-sm text-justify max-h-full overflow-y-auto scrollbar pr-3 break-all">
+            @if (!string.IsNullOrEmpty(Anime.Synopsis))
+            {
+                @Anime.Synopsis
+            }
+            else
+            {
+                <span class="text-warning flex gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+                    </svg>
+                    Synopsis Not Available
+                </span>
+            }
+        </p>
+        <footer class="basis-[17%] bg-neutral px-4 pt-1">
+            <TvControls Anime="@Anime" LoaderSelector="@LoaderSelector"></TvControls>
+        </footer>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public BaseTvAnime Anime { get; set; } = new NullTvAnime();
+
+    [Parameter]
+    public RenderFragment AdminContent { get; set; } = @<span>No content here!</span>;
+
+    private readonly string _loaderId = IdHelpers.GetUniqueName("card-loader");
+
+    private string LoaderSelector => $"#{_loaderId}";
+
+}

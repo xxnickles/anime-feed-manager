@@ -1,7 +1,6 @@
 ﻿@using AnimeFeedManager.Common.Domain
 @inherits AdminSeriesCardBase
 <div class="flex flex-wrap gap-3">
-
     <AdminCard Title="Update Latest" LoaderId="@LatestSeasonLoader">
         <form class="card-actions form-control"
               hx-put="/admin/ovas"
@@ -92,7 +91,6 @@
             </button>
         </form>
     </AdminCard>
-
 </div>
 
 @code {
