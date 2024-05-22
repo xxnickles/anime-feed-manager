@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
+﻿using System.Runtime.CompilerServices;
+using AnimeFeedManager.Common.Domain.Errors;
 
 namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
@@ -9,10 +10,14 @@ internal static class TableUtils
     /// </summary>
     /// <param name="query">Query</param>
     /// <param name="typeName">Parameter name</param>
+    /// <param name="callerPath">Caller Path</param>
+    /// <param name="callerName">Caller Name</param>
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns>Error or Immutable list of <typeparamref name="T"/> (only when there are results)</returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQuery<T>(
-        Func<AsyncPageable<T>> query) where T : ITableEntity
+        Func<AsyncPageable<T>> query,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "") where T : ITableEntity
     {
         try
         {
@@ -25,11 +30,12 @@ internal static class TableUtils
 
             return !resultList.IsEmpty
                 ? resultList
-                : NoContentError.Create($"Query for the entity '{typeof(T).Name}' returned no results");
+                : NoContentError.Create(
+                    $"Query for the entity '{typeof(T).Name}' returned no results. {CallerInfo(callerPath, callerName)}");
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e);
+            return ExceptionError.FromException(e,CallerInfo(callerPath, callerName));
         }
     }
 
@@ -38,10 +44,14 @@ internal static class TableUtils
     /// </summary>
     /// <param name="query">Query</param>
     /// <param name="typeName">Parameter name</param>
+    /// <param name="callerPath">Caller Path</param>
+    /// <param name="callerName">Caller Name</param>
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns>Error or Immutable list of <typeparamref name="T"/></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithNotFoundResult<T>(
-        Func<AsyncPageable<T>> query) where T : ITableEntity
+        Func<AsyncPageable<T>> query,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "") where T : ITableEntity
     {
         try
         {
@@ -54,11 +64,12 @@ internal static class TableUtils
 
             return !resultList.IsEmpty
                 ? resultList
-                : NotFoundError.Create($"Query for the entity '{typeof(T).Name}' returned no results");
+                : NotFoundError.Create(
+                    $"Query for the entity '{typeof(T).Name}' returned no results. {CallerInfo(callerPath, callerName)}");
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e);
+            return ExceptionError.FromException(e,CallerInfo(callerPath, callerName));
         }
     }
 
@@ -68,10 +79,14 @@ internal static class TableUtils
     /// </summary>
     /// <param name="query">Query</param>
     /// <param name="typeName">Parameter name</param>
+    /// <param name="callerPath">Caller Path</param>
+    /// <param name="callerName">Caller Name</param>
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns>Error or Immutable list of <typeparamref name="T"/></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteQueryWithEmptyResult<T>(
-        Func<AsyncPageable<T>> query) where T : ITableEntity
+        Func<AsyncPageable<T>> query,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "") where T : ITableEntity
     {
         try
         {
@@ -86,7 +101,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e);
+            return ExceptionError.FromException(e,CallerInfo(callerPath, callerName));
         }
     }
 
@@ -97,10 +112,14 @@ internal static class TableUtils
     /// <param name="query">Query</param>
     /// <param name="typeName">Parameter Name</param>
     /// <param name="items">Maximum items</param>
+    ///  <param name="callerPath">Caller Path</param>
+    /// <param name="callerName">Caller Name</param>
     /// <typeparam name="T">Table Entity</typeparam>
     /// <returns></returns>
     internal static async Task<Either<DomainError, ImmutableList<T>>> ExecuteLimitedQuery<T>(
-        Func<AsyncPageable<T>> query, byte items = 1) where T : ITableEntity
+        Func<AsyncPageable<T>> query, byte items = 1,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "") where T : ITableEntity
     {
         var enumerator = query().GetAsyncEnumerator();
         var counter = 0;
@@ -117,7 +136,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e);
+            return ExceptionError.FromException(e,CallerInfo(callerPath, callerName));
         }
         finally
         {
@@ -130,9 +149,13 @@ internal static class TableUtils
     /// </summary>
     /// <param name="action"></param>
     /// <param name="fallbackValue"></param>
+    /// <param name="callerPath"></param>
+    /// <param name="callerName"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    internal static async Task<Either<DomainError, T>> ExecuteWithFallback<T>(Func<Task<T>> action, T fallbackValue)
+    internal static async Task<Either<DomainError, T>> ExecuteWithFallback<T>(Func<Task<T>> action, T fallbackValue,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "")
     {
         try
         {
@@ -146,11 +169,13 @@ internal static class TableUtils
         {
             return e.Message == "Not Found"
                 ? fallbackValue
-                : ExceptionError.FromException(e);
+                : ExceptionError.FromException(e, CallerInfo(callerPath, callerName));
         }
     }
 
-    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action)
+    internal static async Task<Either<DomainError, T>> TryExecute<T>(Func<Task<T>> action,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "")
     {
         try
         {
@@ -158,18 +183,22 @@ internal static class TableUtils
         }
         catch (RequestFailedException)
         {
-            return NotFoundError.Create($"The entity of type {typeof(T).Name} was not found");
+            return NotFoundError.Create(
+                $"The entity of type {typeof(T).Name} was not found. {CallerInfo(callerPath, callerName)}");
         }
         catch (Exception e)
         {
             return e.Message == "Not Found"
-                ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found")
-                : ExceptionError.FromException(e);
+                ? NotFoundError.Create(
+                    $"The entity of type {typeof(T).Name} was not found. {CallerInfo(callerPath, callerName)}")
+                : ExceptionError.FromException(e, CallerInfo(callerPath, callerName));
         }
     }
 
     internal static async Task<Either<DomainError, Unit>> BatchDelete<T>(TableClient tableClient,
-        ImmutableList<T> entities, CancellationToken token) where T : ITableEntity
+        ImmutableList<T> entities, CancellationToken token,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "") where T : ITableEntity
     {
         try
         {
@@ -194,13 +223,15 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e);
+            return ExceptionError.FromException(e, CallerInfo(callerPath, callerName));
         }
     }
 
     internal static async Task<Either<DomainError, Unit>> BatchAdd<T>(TableClient tableClient,
         IEnumerable<T> entities, CancellationToken token,
-        TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge) where T : ITableEntity
+        TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "") where T : ITableEntity
     {
         try
         {
@@ -220,12 +251,15 @@ internal static class TableUtils
                         .ConfigureAwait(false);
                 }
             }
-            
+
             return unit;
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e);
+            return ExceptionError.FromException(e, CallerInfo(callerPath, callerName));
         }
     }
+
+    private static string CallerInfo(string callerPath, string callerName) =>
+        $"Called from {callerPath} by {callerName}";
 }

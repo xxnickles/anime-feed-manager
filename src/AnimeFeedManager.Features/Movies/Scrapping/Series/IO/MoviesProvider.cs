@@ -78,16 +78,17 @@ public sealed class MoviesProvider(
     {
         var seasonInfo = MapSeasonInfo(container.SeasonInfo);
         var year = seasonInfo.Year;
-
+        var date = MappingUtils.ParseDate(container.Date, container.SeasonInfo.Year)?.ToUniversalTime();
         return new MovieStorage
         {
             RowKey = container.Id,
             PartitionKey = IdHelpers.GenerateAnimePartitionKey(seasonInfo.Season, year),
             Title = container.Title,
             Synopsis = container.Synopsys,
-            Date = MappingUtils.ParseDate(container.Date, container.SeasonInfo.Year)?.ToUniversalTime(),
+            Date = date,
             Season = seasonInfo.Season.Value,
-            Year = year
+            Year = year,
+            Status = date is not null ? ShortSeriesStatus.NotProcessed : ShortSeriesStatus.NotAvailable
         };
     }
 

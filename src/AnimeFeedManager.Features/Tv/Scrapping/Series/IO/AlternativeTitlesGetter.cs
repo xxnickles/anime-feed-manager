@@ -35,9 +35,12 @@ public sealed class AlternativeTitlesGetter : IAlternativeTitlesGetter
     public Task<Either<DomainError, ImmutableList<TilesMap>>> ByOriginalTitles(IEnumerable<string> originalTitles,
         CancellationToken token)
     {
+        // TODO: refactor to add status to the alternatiive tile
         return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
-                client.QueryAsync(GetTitlesFilter(originalTitles), cancellationToken: token)))
+                client.QueryAsync<AlternativeTitleStorage>(x => x.Timestamp > DateTimeOffset.UtcNow.AddMonths(-8),
+                    cancellationToken: token)))
+            .MapAsync(items => items.Where(i => originalTitles.Contains(i.OriginalTitle)).ToImmutableList())
             .MapAsync(items =>
                 items.ConvertAll(i =>
                     new TilesMap(i.OriginalTitle ?? string.Empty, i.AlternativeTitle ?? string.Empty)));

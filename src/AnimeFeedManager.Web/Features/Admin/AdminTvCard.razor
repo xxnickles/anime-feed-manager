@@ -51,7 +51,7 @@
 
     <AdminCard Title="Update Titles" LoaderId="@_titlesLoader">
         <form class="card-actions form-control"
-              hx-put="/admin/ovas/feed"
+              hx-put="/admin/tv/titles"
               hx-indicator="@($"#{_titlesLoader}")"
               hx-swap="none">
             <AntiforgeryToken/>

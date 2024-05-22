@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Dto;
+﻿using AnimeFeedManager.Common.Domain.Types;
+
+namespace AnimeFeedManager.Common.Dto;
 
 public record NullMovie() : BaseMovie(string.Empty, string.Empty, string.Empty, string.Empty, null);
 
@@ -11,7 +13,8 @@ public sealed record AvailableMovie(
     string Title,
     string Synopsis,
     string? ImageUrl,
-    DateTime AirDate)
+    DateTime AirDate,
+    SeriesFeedLinks[] Links)
     : BaseMovie(Id, Season, Title, Synopsis, ImageUrl);
 
 public abstract record MovieForUser(
@@ -22,7 +25,8 @@ public abstract record MovieForUser(
     string? ImageUrl,
     DateTime AirDate,
     UserId UserId,
-    bool IsAdmin)
+    bool IsAdmin,
+    SeriesFeedLinks[] Links)
     : BaseMovie(Id, Season, Title, Synopsis, ImageUrl);
 
 public record UnsubscribedMovie(
@@ -33,7 +37,8 @@ public record UnsubscribedMovie(
     string? ImageUrl,
     DateTime AirDate,
     UserId UserId,
-    bool IsAdmin) : MovieForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin);
+    bool IsAdmin,
+    SeriesFeedLinks[] Links) : MovieForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin, Links);
     
 public record SubscribedMovie(
     string Id,
@@ -43,4 +48,5 @@ public record SubscribedMovie(
     string? ImageUrl,
     DateTime AirDate,
     UserId UserId,
-    bool IsAdmin) : MovieForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin);
+    bool IsAdmin,
+    SeriesFeedLinks[] Links) : MovieForUser(Id, Season, Title, Synopsis, ImageUrl, AirDate, UserId, IsAdmin, Links);

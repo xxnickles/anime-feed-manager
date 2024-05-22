@@ -26,7 +26,7 @@ public class MovieStatusProvider : IMoviesStatusProvider
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, year);
         return _tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.ExecuteQuery(() =>
+            .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<MovieStorage>(a => a.PartitionKey == partitionKey,
                     select: [nameof(MovieStorage.RowKey), nameof(MovieStorage.Status)],
                     cancellationToken: token)))

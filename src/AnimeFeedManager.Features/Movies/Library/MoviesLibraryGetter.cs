@@ -34,10 +34,10 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
                     new SimpleAnime(
                         a.RowKey ?? string.Empty,
                         a.PartitionKey ?? string.Empty,
-                        a?.Title ?? "Not Available",
-                        a?.Synopsis ?? "Not Available",
-                        a?.ImageUrl,
-                        a?.Date))
+                        a.Title ?? "Not Available",
+                        a.Synopsis ?? "Not Available",
+                        a.ImageUrl,
+                        a.Date))
                 .ToArray());
     }
 
@@ -48,7 +48,7 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
         var title = movieStorage.Title ?? "Not Available";
         var synopsis = movieStorage.Synopsis ?? "Not Available";
         var imageUrl = movieStorage.ImageUrl;
-        var airDate = movieStorage?.Date;
+        var airDate = movieStorage.Date;
 
         return new MovieLibrary(
             id,
@@ -57,7 +57,7 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
             synopsis,
             imageUrl,
             airDate,
-            movieStorage?.FeedInfo is not null
+            movieStorage.FeedInfo is not null
                 ? JsonSerializer.Deserialize(movieStorage.FeedInfo,
                     SeriesFeedLinksContext.Default.SeriesFeedLinksArray) ?? []
                 : []);

@@ -46,15 +46,15 @@ public sealed class MoviesLibraryUpdater(
     }
 
 
-    private MovieStorage ApplyExistentStatus(MovieStorage ova, ImmutableList<MovieFeedStatus> statusList)
+    private MovieStorage ApplyExistentStatus(MovieStorage movie, ImmutableList<MovieFeedStatus> statusList)
     {
-        MovieFeedStatus? oldStatus = statusList.FirstOrDefault(sl => sl.Id == ova.RowKey);
+        MovieFeedStatus? oldStatus = statusList.FirstOrDefault(sl => sl.Id == movie.RowKey);
         if (oldStatus != null)
         {
-            ova.Status = oldStatus?.Status;
+            movie.Status = oldStatus?.Status;
         }
 
-        return ova;
+        return movie;
     }
 
     private Task<Either<DomainError, Unit>> CreateImageEvents(ImmutableList<DownloadImageEvent> events,

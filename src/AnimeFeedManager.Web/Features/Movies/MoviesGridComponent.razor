@@ -11,7 +11,7 @@
             <GridContent>
                 @foreach (var item in _movies)
                 {
-                <MovieCard Movie="item"></MovieCard>
+                    <MovieCard Movie="item"></MovieCard>
                 }
             </GridContent>
         </GridSection>
@@ -51,7 +51,7 @@
     {
         return anime.AirDate switch
         {
-            not null => new AvailableMovie(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default),
+            not null => new AvailableMovie(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, anime.Links),
             _ => new NotAvailableMovie(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl)
         };
     }
@@ -61,9 +61,10 @@
         return anime.AirDate switch
         {
             not null => user.MovieSubscriptions.Subscriptions.Contains(anime.Title)
-                ? new SubscribedMovie(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser)
-                : new UnsubscribedMovie(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser),
+                ? new SubscribedMovie(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser, anime.Links)
+                : new UnsubscribedMovie(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl, anime.AirDate ?? default, user.UserId, user is AdminUser, anime.Links),
             _ => new NotAvailableMovie(anime.Id, anime.Season, anime.Title, anime.Synopsis, anime.ImageUrl)
         };
     }
+
 }

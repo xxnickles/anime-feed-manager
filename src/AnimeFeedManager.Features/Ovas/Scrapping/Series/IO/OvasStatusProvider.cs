@@ -26,7 +26,7 @@ public class OvasStatusProvider : IOvasStatusProvider
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season, year);
         return _tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.ExecuteQuery(() =>
+            .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<OvaStorage>(a => a.PartitionKey == partitionKey,
                     select: [nameof(OvaStorage.RowKey), nameof(OvaStorage.Status)],
                     cancellationToken: token)))
