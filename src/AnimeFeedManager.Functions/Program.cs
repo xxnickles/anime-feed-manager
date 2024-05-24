@@ -11,6 +11,7 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddHttpClient();
+        services.AddSingleton(TimeProvider.System);
         services.RegisterAppDependencies();
         services.RegisterSendGrid();
     })

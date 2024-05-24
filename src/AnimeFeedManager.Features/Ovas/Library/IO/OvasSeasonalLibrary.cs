@@ -18,7 +18,7 @@ public interface IOvasSeasonalLibrary
         CancellationToken token);
 }
 
-public class OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFactory) : IOvasSeasonalLibrary
+public class OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFactory, TimeProvider timeProvider) : IOvasSeasonalLibrary
 {
     public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season,
         Year year, CancellationToken token)
@@ -53,7 +53,7 @@ public class OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFact
             .BindAsync(client => TableUtils.ExecuteQuery(() =>
                 client.QueryAsync<OvaStorage>(
                     storage => storage.PartitionKey == partitionKey &&
-                               storage.Date <= DateTime.UtcNow &&
+                               storage.Date <= timeProvider.GetUtcNow() &&
                                storage.Status != ShortSeriesStatus.SkipFromProcess &&
                                storage.Status != ShortSeriesStatus.Processed &&
                                storage.Status != ShortSeriesStatus.NotAvailable,

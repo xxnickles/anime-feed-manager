@@ -53,7 +53,7 @@ public sealed class MovieFeedScrapper : IMovieFeedScrapper
 
     private static SeriesFeedLinks Map(ShortSeriesTorrent info)
     {
-        return new SeriesFeedLinks(info.Title, info.Size,
+        return new SeriesFeedLinks(NyaaScrapper.CleanTitle(info.Title), info.Size,
             [new SeriesLink(LinkType.TorrentFile, info.Links[0]), new SeriesLink(LinkType.Magnet, info.Links[1])]);
     }
 }

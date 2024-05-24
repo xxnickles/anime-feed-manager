@@ -38,6 +38,7 @@ public static class TvRegistration
         services.TryAddScoped<IAlternativeTitlesStore, AlternativeTitlesStore>();
         services.TryAddScoped<IAlternativeTitlesGetter, AlternativeTitlesGetter>();
         services.TryAddScoped<ITvSeriesUpdates, TvSeriesUpdates>();
+        services.TryAddScoped<ITvSeriesStatusProvider, TvSeriesStatusProvider>();
         services.TryAddScoped<TvLibraryGetter>();
         services.TryAddScoped<InterestedToSubscribe>();
         services.TryAddScoped<AutomatedSubscriptionProcessor>();

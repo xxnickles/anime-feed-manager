@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.AniDb;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
@@ -18,9 +19,16 @@ public interface ISeriesProvider
 
 public sealed class SeriesProvider(
     IDomainPostman domainPostman,
-    PuppeteerOptions puppeteerOptions)
+    PuppeteerOptions puppeteerOptions,
+    ITvSeriesStatusProvider seriesStatusProvider,
+    TimeProvider timeProvider)
     : ISeriesProvider
 {
+    private readonly record struct ProcessData(
+        ImmutableList<TvSeriesStatus> CompletedSeries,
+        SeasonInformation SeasonInfo,
+        bool isOldSeason);
+
     public async Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token)
     {
         try
@@ -35,7 +43,11 @@ public sealed class SeriesProvider(
                         SeriesType.Tv,
                         $"{series.Count()} series have been scrapped for {jsonSeason.Season}-{jsonSeason.Year}"),
                     token)
-                .MapAsync(_ => new TvSeries(series.Select(MapInfo)
+                .BindAsync(_ => SeasonValidators.Parse(jsonSeason.Season, (ushort)jsonSeason.Year))
+                .BindAsync(seasonInfo => PrepareSeriesData(seasonInfo.Season, seasonInfo.Year, token))
+                .MapAsync(processData => new TvSeries(series
+                        .Select(s => MapInfo(s, processData.CompletedSeries, processData.SeasonInfo,
+                            processData.isOldSeason))
                         .ToImmutableList(),
                     series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
                         .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Tv))
@@ -55,6 +67,13 @@ public sealed class SeriesProvider(
         }
     }
 
+    private Task<Either<DomainError, ProcessData>> PrepareSeriesData(Season season, Year year, CancellationToken token)
+    {
+        var seasonInfo = new SeasonInformation(season, year);
+        return seriesStatusProvider.GetSeasonSeriesCurrentStatus(seasonInfo.Season, seasonInfo.Year, token)
+            .MapAsync(s => new ProcessData(s, seasonInfo, IsOldSeason(seasonInfo)));
+    }
+
     private static string CreateScrappingLink(SeasonSelector season)
     {
         return season switch
@@ -66,27 +85,61 @@ public sealed class SeriesProvider(
         };
     }
 
-    private static AnimeInfoStorage MapInfo(SeriesContainer container)
+    private static AnimeInfoStorage MapInfo(
+        SeriesContainer container,
+        ImmutableList<TvSeriesStatus> statusList,
+        SeasonInformation seasonInformation,
+        bool isOldSeason)
     {
-        var seasonInfo = MapSeasonInfo(container.SeasonInfo);
-        var year = seasonInfo.Year.Value;
+        var year = seasonInformation.Year.Value;
+        var currentStatus = statusList.FirstOrDefault(s => container.Title == s.Title);
+
+        var status = SeriesStatus.NotAvailable;
+
+        if (currentStatus != default)
+        {
+            status = currentStatus.Status;
+        }
+        else if (isOldSeason)
+        {
+            status = SeriesStatus.Completed;
+        }
 
         return new AnimeInfoStorage
         {
             RowKey = container.Id,
-            PartitionKey = IdHelpers.GenerateAnimePartitionKey(seasonInfo.Season, year),
+            PartitionKey = IdHelpers.GenerateAnimePartitionKey(seasonInformation.Season, year),
             Title = container.Title,
             Synopsis = container.Synopsys,
             FeedTitle = string.Empty,
             Date = MappingUtils.ParseDate(container.Date, container.SeasonInfo.Year)?.ToUniversalTime(),
-            Status = SeriesStatus.NotAvailable,
-            Season = seasonInfo.Season.Value,
+            Status = status,
+            Season = seasonInformation.Season.Value,
             Year = year
         };
     }
 
-    private static SeasonInformation MapSeasonInfo(JsonSeasonInfo jsonSeasonInfo)
+    private bool IsOldSeason(SeasonInformation seasonInformation)
     {
-        return new SeasonInformation(Season.FromString(jsonSeasonInfo.Season), Year.FromNumber(jsonSeasonInfo.Year));
+        var reference = timeProvider.GetUtcNow().AddMonths(-6);
+        var referenceSeason = reference.Month switch
+        {
+            < 4 => Season.Winter,
+            < 7 => Season.Spring,
+            < 10 => Season.Summer,
+            _ => Season.Fall
+        };
+
+        var referenceYear = Year.FromNumber(reference.Year);
+        if (seasonInformation.Year > referenceYear)
+        {
+            return false;
+        }
+
+        if (seasonInformation.Year == referenceYear)
+        {
+            return referenceSeason > seasonInformation.Season;
+        }
+        return true;
     }
 }

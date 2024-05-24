@@ -12,7 +12,7 @@ public interface IMoviesSeasonalLibrary
         CancellationToken token);
 }
 
-public class MoviesSeasonalLibrary(ITableClientFactory<MovieStorage> tableClientFactory) : IMoviesSeasonalLibrary
+public class MoviesSeasonalLibrary(ITableClientFactory<MovieStorage> tableClientFactory, TimeProvider timeProvider) : IMoviesSeasonalLibrary
 {
     public Task<Either<DomainError, ImmutableList<MovieStorage>>> GetSeasonalLibrary(Season season,
         Year year, CancellationToken token)
@@ -32,7 +32,7 @@ public class MoviesSeasonalLibrary(ITableClientFactory<MovieStorage> tableClient
             .BindAsync(client => TableUtils.ExecuteQuery(() =>
                 client.QueryAsync<MovieStorage>(
                     storage => storage.PartitionKey == partitionKey &&
-                               storage.Date <= DateTime.UtcNow &&
+                               storage.Date <= timeProvider.GetUtcNow() &&
                                storage.Status != ShortSeriesStatus.SkipFromProcess &&
                                storage.Status != ShortSeriesStatus.Processed &&
                                storage.Status != ShortSeriesStatus.NotAvailable,
