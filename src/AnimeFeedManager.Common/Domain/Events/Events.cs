@@ -52,7 +52,7 @@ public record AutomatedSubscription(bool Value = true) : DomainMessage(new Box(T
     public const string TargetQueue = "automated-subscription";
 }
 
-public record UpdateAlternativeTitle(string Id, string Season, string Title, string Original): DomainMessage(new Box(TargetQueue))
+public record UpdateAlternativeTitle(string Id, string Season, string Title, string Original, string Status): DomainMessage(new Box(TargetQueue))
 {
     public const string TargetQueue = "alternative-title-update-box";
 }

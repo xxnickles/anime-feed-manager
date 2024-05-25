@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
 
 public interface IAlternativeTitlesStore
 {
-    Task<Either<DomainError, Unit>> Add(AlternativeTitleStorage series, CancellationToken token);
+    Task<Either<DomainError, Unit>> Upsert(AlternativeTitleStorage series, CancellationToken token);
 }
 
 public sealed class AlternativeTitlesStore : IAlternativeTitlesStore
@@ -16,7 +16,7 @@ public sealed class AlternativeTitlesStore : IAlternativeTitlesStore
     {
         _tableClientFactory = tableClientFactory;
     }
-    public Task<Either<DomainError, Unit>> Add(AlternativeTitleStorage series, CancellationToken token)
+    public Task<Either<DomainError, Unit>> Upsert(AlternativeTitleStorage series, CancellationToken token)
     {
         return _tableClientFactory.GetClient()
             .BindAsync(

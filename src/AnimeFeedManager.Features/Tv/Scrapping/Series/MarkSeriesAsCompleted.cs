@@ -1,7 +1,10 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Common.Utils;
+using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Types;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +12,7 @@ namespace AnimeFeedManager.Features.Tv.Scrapping.Series;
 
 public class MarkSeriesAsCompletedHandler(
     IIncompleteSeriesProvider incompleteSeriesProvider,
+    IDomainPostman domainPostman,
     ITvSeriesStore seriesStore,
     ILogger<MarkSeriesAsCompletedHandler> logger)
 {
@@ -35,6 +39,18 @@ public class MarkSeriesAsCompletedHandler(
     private Task<Either<DomainError, int>> Persist(ImmutableList<AnimeInfoStorage> series, CancellationToken token)
     {
         return seriesStore.Add(series, token)
-            .MapAsync(_ => series.Count);
+            .BindAsync(_ => SendAlternativeTitlesEvents(series, token));
+    }
+
+    private async Task<Either<DomainError, int>> SendAlternativeTitlesEvents(ImmutableList<AnimeInfoStorage> series,
+        CancellationToken token)
+    {
+        var tasks = series.Where(s => s.Status == SeriesStatus.Completed)
+            .Select(s =>
+                domainPostman.SendMessage(
+                    new CompleteAlternativeTitle(s.RowKey ?? string.Empty, s.PartitionKey ?? string.Empty), token));
+
+        var results = await Task.WhenAll(tasks);
+        return results.FlattenResults().Map(_ => series.Count);
     }
 }

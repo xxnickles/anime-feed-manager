@@ -5,7 +5,7 @@ public readonly struct SeriesStatus : IEquatable<SeriesStatus>
     public const string CompletedValue = "COMPLETED";
     public const string NotAvailableValue = "NOTAVAILABLE";
     public const string OngoingValue = "ONGOING";
-    
+
     private readonly string _value;
 
     private SeriesStatus(string value)
@@ -19,18 +19,17 @@ public readonly struct SeriesStatus : IEquatable<SeriesStatus>
     }
 
     public static implicit operator string(SeriesStatus status) => status._value;
+
     public static explicit operator SeriesStatus(string status) => status switch
     {
         CompletedValue => Completed,
         OngoingValue => Ongoing,
         _ => NotAvailable
-
     };
 
     public static SeriesStatus Completed = new(CompletedValue);
     public static SeriesStatus NotAvailable = new(NotAvailableValue);
     public static SeriesStatus Ongoing = new(OngoingValue);
-
 
     public bool Equals(SeriesStatus other)
     {

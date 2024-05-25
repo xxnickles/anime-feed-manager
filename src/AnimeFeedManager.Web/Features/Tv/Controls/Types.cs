@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Common.Dto;
+﻿using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Common.Dto;
 
 namespace AnimeFeedManager.Web.Features.Tv.Controls;
 
@@ -65,15 +66,14 @@ public class NotAvailableControlData
     }
 }
 
-public record AdminTvControlParams(string Id, string Title, string Season)
+public record AdminTvControlParams(string Id, string Title, string Season, SeriesStatus Status)
 {
     public static implicit operator AdminTvControlParams(AnimeForUser animeForUser) => animeForUser switch
     {
-        {IsAdmin: true} => new AdminTvControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season),
+        {IsAdmin: true} => new AdminTvControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season, animeForUser.SeriesStatus),
         _ => new DefaultAdminTvControlParams()
     };
 }
 
-public record DefaultAdminTvControlParams() : AdminTvControlParams(string.Empty, string.Empty, string.Empty);
-
-public record AlternativeTitleUpdate(string Id, string Season, string Title, string OriginalTitle);
+public record DefaultAdminTvControlParams() : AdminTvControlParams(string.Empty, string.Empty, string.Empty, SeriesStatus.NotAvailable);
+public record AlternativeTitleUpdate(string Id, string Season, string Title, string OriginalTitle, string Status);

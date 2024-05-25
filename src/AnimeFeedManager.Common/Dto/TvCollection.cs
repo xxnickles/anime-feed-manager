@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Dto;
+﻿using AnimeFeedManager.Common.Domain.Types;
+
+namespace AnimeFeedManager.Common.Dto;
 
 public record NullTvAnime() : BaseTvAnime(string.Empty, string.Empty, string.Empty, string.Empty, null);
 
@@ -10,6 +12,7 @@ public sealed record FeedAnime(
     string Title,
     string Synopsis,
     string? ImageUrl,
+    SeriesStatus SeriesStatus,
     FeedData FeedInformation) : BaseTvAnime(Id, Season, Title, Synopsis, ImageUrl);
 
 public sealed record CompletedAnime(string Id, string Season, string Title, string Synopsis, string? ImageUrl)
@@ -22,7 +25,8 @@ public abstract record AnimeForUser(
     string Synopsis,
     string? ImageUrl,
     UserId UserId,
-    bool IsAdmin)
+    bool IsAdmin,
+    SeriesStatus SeriesStatus)
     : BaseTvAnime(Id, Season, Title, Synopsis, ImageUrl);
 
 public sealed record NotAvailableAnime(
@@ -32,7 +36,8 @@ public sealed record NotAvailableAnime(
     string Synopsis,
     string? ImageUrl,
     UserId UserId,
-    bool IsAdmin) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin);
+    bool IsAdmin,
+    SeriesStatus SeriesStatus) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin, SeriesStatus);
 
 public sealed record InterestedAnime(
     string Id,
@@ -41,7 +46,8 @@ public sealed record InterestedAnime(
     string Synopsis,
     string? ImageUrl,
     UserId UserId,
-    bool IsAdmin) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin);
+    bool IsAdmin,
+    SeriesStatus SeriesStatus) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin,SeriesStatus);
 
 public sealed record UnSubscribedAnime(
     string Id,
@@ -51,7 +57,8 @@ public sealed record UnSubscribedAnime(
     string? ImageUrl,
     string FeedId,
     UserId UserId,
-    bool IsAdmin) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin);
+    bool IsAdmin,
+    SeriesStatus SeriesStatus) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin, SeriesStatus);
 
 public sealed record SubscribedAnime(
     string Id,
@@ -61,4 +68,5 @@ public sealed record SubscribedAnime(
     string? ImageUrl,
     string FeedId,
     UserId UserId,
-    bool IsAdmin) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin);
+    bool IsAdmin,
+    SeriesStatus SeriesStatus) : AnimeForUser(Id, Season, Title, Synopsis, ImageUrl, UserId, IsAdmin, SeriesStatus);

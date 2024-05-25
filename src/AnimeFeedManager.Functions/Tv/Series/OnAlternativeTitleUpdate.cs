@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Events;
+using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Tv.Scrapping.Series;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,8 @@ public class OnAlternativeTitleUpdate
     [Function(nameof(OnAlternativeTitleUpdate))]
     public async Task Run(
         [QueueTrigger(UpdateAlternativeTitle.TargetQueue, Connection = Constants.AzureConnectionName)]
-        UpdateAlternativeTitle message)
+        UpdateAlternativeTitle message,
+        CancellationToken token)
     {
         var result = await (PartitionKey.Validate(message.Season), RowKey.Validate(message.Id))
             .Apply((key, rowKey) => new {PartitionKey = key, RowKey = rowKey})
@@ -29,7 +31,8 @@ public class OnAlternativeTitleUpdate
             .BindAsync(safeData =>
                 _alternativeTitleUpdater.AddAlternativeTitle(safeData.RowKey, safeData.PartitionKey, message.Original,
                     message.Title,
-                    default));
+                    (SeriesStatus)message.Status,
+                    token));
 
         result.Match(
             r => LogResult(r, message),

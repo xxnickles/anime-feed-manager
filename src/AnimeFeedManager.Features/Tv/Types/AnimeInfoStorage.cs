@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Tv.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
+
+namespace AnimeFeedManager.Features.Tv.Types;
 
 public class UpdateFeedAnimeInfoStorage : ITableEntity 
 {
@@ -35,6 +37,7 @@ public sealed class LegacyAnimeInfoStorage : AnimeInfoStorage
     public bool? Completed { get; set; }
 }
 
+
 public class AlternativeTitleStorage : ITableEntity
 {
     public string? AlternativeTitle { get; set; }
@@ -43,4 +46,5 @@ public class AlternativeTitleStorage : ITableEntity
     public string? RowKey { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
+    public string Status { get; set; } = SeriesStatus.NotAvailable;
 }
