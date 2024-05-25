@@ -66,6 +66,7 @@ internal static class Registration
         services.RegisterMoviesServices();
         services.RegisterNotificationServices();
         services.RegisterUserServices();
+        services.RegisterPasswordlessServices();
         services.RegisterMaintenanceServices();
         services.RegisterMigration();
 

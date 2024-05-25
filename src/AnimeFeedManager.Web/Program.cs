@@ -11,6 +11,8 @@ using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseDefaultServiceProvider(options => { options.ValidateOnBuild = true; });
+
 // Add services to the container.
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddRazorComponents();

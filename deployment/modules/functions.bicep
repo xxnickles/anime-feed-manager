@@ -139,9 +139,13 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           value: 'Anime Feed Manager'
         }
         {
+          name: 'RunHeadless'
+          value: 'true'
+        }
+        {
           name: 'WEBSITE_TIME_ZONE'
           value: 'America/New_York'
-        }
+        }      
       ]
       linuxFxVersion: 'DOTNET-ISOLATED|8.0'
       use32BitWorkerProcess: false

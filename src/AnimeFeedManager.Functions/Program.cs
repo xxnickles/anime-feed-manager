@@ -7,7 +7,8 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults(options =>
     {
         options.Serializer = new JsonObjectSerializer(new JsonSerializerOptions(JsonSerializerDefaults.Web));
-    })    
+    })
+    .UseDefaultServiceProvider(options => { options.ValidateOnBuild = true; })
     .ConfigureServices(services =>
     {
         services.AddHttpClient();

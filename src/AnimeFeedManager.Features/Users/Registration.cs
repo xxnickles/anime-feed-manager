@@ -11,14 +11,19 @@ public static class UsersRegistration
         services.TryAddScoped<IUserGetter, UserGetter>();
         services.TryAddScoped<IUserRoleGetter, UserRoleGetter>();
         services.TryAddScoped<IUserEmailGetter, UserEmailGetter>();
-        services.TryAddScoped<IUserDelete, UserDelete>();
-        services.TryAddScoped<IPasswordlessRegistration, PasswordlessRegistration>();
-        services.TryAddScoped<IPasswordlessLogin, PasswordlessLogin>();
         services.TryAddScoped<IUserVerification, UserVerification>();
         services.TryAddScoped<CleanAllSubscriptions>();
         services.TryAddScoped<CopyAllSubscriptions>();
         services.TryAddScoped<SubscriptionCopierSetter>();
 
+        return services;
+    }
+
+    public static IServiceCollection RegisterPasswordlessServices(this IServiceCollection services)
+    {
+        services.TryAddScoped<IUserDelete, UserDelete>();
+        services.TryAddScoped<IPasswordlessRegistration, PasswordlessRegistration>();
+        services.TryAddScoped<IPasswordlessLogin, PasswordlessLogin>();
         return services;
     }
 }
