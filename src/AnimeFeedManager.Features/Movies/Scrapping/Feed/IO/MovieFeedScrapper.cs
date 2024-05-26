@@ -39,9 +39,9 @@ public sealed class MovieFeedScrapper : IMovieFeedScrapper
             foreach (var movie in movies)
             {
                 var links = await NyaaScrapper.ScrapHelper(movie.Title ?? "nope", browser);
-                resultList.Add((movie, links.Select(Map).ToImmutableList()));
+                resultList.Add((movie, GetOnlyBatchesIfAvailable(links).Select(Map).ToImmutableList()));
             }
-
+            
             await browser.CloseAsync();
             return resultList.ToImmutableList();
         }
@@ -50,6 +50,14 @@ public sealed class MovieFeedScrapper : IMovieFeedScrapper
             return ExceptionError.FromException(e);
         }
     }
+
+    private static ShortSeriesTorrent[] GetOnlyBatchesIfAvailable(ShortSeriesTorrent[] links)
+    {
+        return links.Any(l => l.Title.Contains("BATCH") || l.Title.Contains("BATCH"))
+            ? links.Where(l => l.Title.Contains("BATCH") || l.Title.Contains("BATCH")).ToArray()
+            : links;
+    }
+
 
     private static SeriesFeedLinks Map(ShortSeriesTorrent info)
     {

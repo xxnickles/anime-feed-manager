@@ -9,7 +9,8 @@ namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.IO;
 
 public interface IOvaFeedScrapper
 {
-    public Task<Either<DomainError, ImmutableList<(OvaStorage OvaStorage, ImmutableList<SeriesFeedLinks> Links)>>> GetFeed(ImmutableList<OvaStorage> ovas, CancellationToken token);
+    public Task<Either<DomainError, ImmutableList<(OvaStorage OvaStorage, ImmutableList<SeriesFeedLinks> Links)>>>
+        GetFeed(ImmutableList<OvaStorage> ovas, CancellationToken token);
 }
 
 public sealed class OvumFeedScrapper : IOvaFeedScrapper
@@ -21,7 +22,8 @@ public sealed class OvumFeedScrapper : IOvaFeedScrapper
         _puppeteerOptions = puppeteerOptions;
     }
 
-    public async Task<Either<DomainError, ImmutableList<(OvaStorage OvaStorage, ImmutableList<SeriesFeedLinks> Links)>>> GetFeed(ImmutableList<OvaStorage> ovas, CancellationToken token)
+    public async Task<Either<DomainError, ImmutableList<(OvaStorage OvaStorage, ImmutableList<SeriesFeedLinks> Links)>>>
+        GetFeed(ImmutableList<OvaStorage> ovas, CancellationToken token)
     {
         try
         {
@@ -36,12 +38,11 @@ public sealed class OvumFeedScrapper : IOvaFeedScrapper
             foreach (var ova in ovas)
             {
                 var links = await NyaaScrapper.ScrapHelper(ova.Title ?? "nope", browser);
-                resultList.Add((ova, links.Select(Map).ToImmutableList()));
+                resultList.Add((ova, GetOnlyBatchesIfAvailable(links).Select(Map).ToImmutableList()));
             }
 
             await browser.CloseAsync();
             return resultList.ToImmutableList();
-
         }
         catch (Exception e)
         {
@@ -49,6 +50,13 @@ public sealed class OvumFeedScrapper : IOvaFeedScrapper
         }
     }
 
+    private static ShortSeriesTorrent[] GetOnlyBatchesIfAvailable(ShortSeriesTorrent[] links)
+    {
+        return links.Any(l => l.Title.Contains("BATCH") || l.Title.Contains("BATCH"))
+            ? links.Where(l => l.Title.Contains("BATCH") || l.Title.Contains("BATCH")).ToArray()
+            : links;
+    }
+    
     private static SeriesFeedLinks Map(ShortSeriesTorrent info)
     {
         return new SeriesFeedLinks(NyaaScrapper.CleanTitle(info.Title), info.Size,
