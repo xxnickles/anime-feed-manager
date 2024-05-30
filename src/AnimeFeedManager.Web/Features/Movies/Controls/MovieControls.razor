@@ -5,14 +5,14 @@
         case NotAvailableMovie:
             <NotAvailableMovieControls/>
             break;
-        case AvailableMovie movie:
-            <AvailableMovieControls Links="movie.Links" />
+        case AvailableMovie:
+            <AvailableMovieControls/>
             break;
         case SubscribedMovie movie:
-            <SubscribedMovieControls ControlData="@MovieControlData.MapFrom(movie, LoaderSelector)" Links="movie.Links"/>
+            <SubscribedMovieControls ControlData="@MovieControlData.MapFrom(movie, LoaderSelector)"/>
             break;
         case UnsubscribedMovie movie:
-            <UnsubscribedMovieControls ControlData="@MovieControlData.MapFrom(movie, LoaderSelector)" Links="movie.Links"/>
+            <UnsubscribedMovieControls ControlData="@MovieControlData.MapFrom(movie, LoaderSelector)"/>
             break;
         default:
             <div class="badge badge-error gap-2">

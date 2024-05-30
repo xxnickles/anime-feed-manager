@@ -2,30 +2,27 @@
 {
     <WithMessage Message="@Message" DomainError="@DomainError">
         <Content>
-            <div class="flex flex-nowrap items-center justify-between">
-                <div class="flex gap-2">
+            <form hx-post="movies/subscribe"
+                  hx-swap="outerHTML"
+                  hx-indicator="@ControlData.LoaderSelector"
+                  hx-confirm="@($"Do you want to add {ControlData.Title} for notifications?")">
+                <AntiforgeryToken/>
+                <fieldset class="flex flex-nowrap items-center justify-between">
                     <div class="tooltip tooltip-success " data-tip="Available">
                         <div class="badge badge-success"></div>
                     </div>
-                    <LinksPresenter Links="@Links"></LinksPresenter>
-                </div>
 
-                <form hx-post="movies/subscribe"
-                      hx-swap="outerHTML"
-                      hx-indicator="@ControlData.LoaderSelector"
-                      hx-confirm="@($"Do you want to add {ControlData.Title} for notifications?")">
-                    <AntiforgeryToken/>
-                    <fieldset >
+                    <div>
                         <input type="hidden" name="@nameof(MovieControlData.Title)" @bind="ControlData.Title"/>
                         <input type="hidden" name="@nameof(MovieControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
                         <input type="hidden" name="@nameof(MovieControlData.UserId)" @bind="ControlData.UserId"/>
                         <input type="hidden" name="@nameof(MovieControlData.LoaderSelector)" @bind="ControlData.LoaderSelector"/>
                         <button type="submit" class="btn btn-primary btn-xs">
-                            Add to Notifications
+                            Add <span class="hidden md:contents">to Notifications</span>
                         </button>
-                    </fieldset>
-                </form>
-            </div>
+                    </div>
+                </fieldset>
+            </form>
         </Content>
     </WithMessage>
 }
@@ -36,6 +33,4 @@
     [Parameter, EditorRequired] public MovieControlData? ControlData { get; set; }
     [Parameter] public string Message { get; set; } = string.Empty;
     [Parameter] public DomainError? DomainError { get; set; }
-    [Parameter, EditorRequired] public SeriesFeedLinks[] Links { get; set; } = [];
-
 }

@@ -7,6 +7,15 @@ public record NullOva() : BaseOva(string.Empty, string.Empty, string.Empty, stri
 public sealed record NotAvailableOva(string Id, string Season, string Title, string Synopsis, string? ImageUrl)
     : BaseOva(Id, Season, Title, Synopsis, ImageUrl);
 
+public abstract record BaseAvailableOva(
+    string Id,
+    string Season,
+    string Title,
+    string Synopsis,
+    string? ImageUrl,
+    DateTime AirDate,
+    SeriesFeedLinks[] Links) : BaseOva(Id, Season, Title, Synopsis, ImageUrl);
+
 public sealed record AvailableOva(
     string Id,
     string Season,
@@ -15,7 +24,7 @@ public sealed record AvailableOva(
     string? ImageUrl,
     DateTime AirDate,
     SeriesFeedLinks[] Links)
-    : BaseOva(Id, Season, Title, Synopsis, ImageUrl);
+    : BaseAvailableOva(Id, Season, Title, Synopsis, ImageUrl, AirDate, Links);
 
 public abstract record OvaForUser(
     string Id,
@@ -27,7 +36,7 @@ public abstract record OvaForUser(
     UserId UserId,
     bool IsAdmin,
     SeriesFeedLinks[] Links)
-    : BaseOva(Id, Season, Title, Synopsis, ImageUrl);
+    : BaseAvailableOva(Id, Season, Title, Synopsis, ImageUrl,AirDate,Links);
 
 public record UnsubscribedOva(
     string Id,

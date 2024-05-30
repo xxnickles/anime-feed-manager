@@ -3,20 +3,28 @@
     <div class="absolute top-0 left-0">
         @switch (Movie)
         {
-            case MovieForUser { IsAdmin: true } ova:
-                <AdminMovieControls MovieInfo="ova" LoaderSelector="@LoaderSelector"/>
+            case MovieForUser { IsAdmin: true } movieInfo:
+                <AdminMovieControls MovieInfo="movieInfo" LoaderSelector="@LoaderSelector"/>
                 break;
         }
     </div>
+
+
     @if (Movie.ImageUrl is not null)
     {
-        <img class="object-cover w-44" src="@Movie.ImageUrl" alt="@Movie.Title"/>
+        <img class="w-44 object-cover" src="@Movie.ImageUrl" alt="@Movie.Title"/>
     }
     else
     {
         <ImageNotAvailable/>
     }
 
+    @if (Movie is BaseAvailableMovie available)
+    {
+        <div class="absolute bottom-0 left-0">
+            <LinksPresenter Links="available.Links"></LinksPresenter>
+        </div>
+    }
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
 
         <h2 class="basis-[5%] w-[87%] mx-4 mt-2 mr-2 text-base font-bold ">@Movie.Title</h2>
@@ -33,7 +41,6 @@
                 <ShortSeriesDate AirDate="movieForUser.AirDate"></ShortSeriesDate>
                 break;
         }
-
 
         <p class="basis-[78%] mx-4 my-2 text-sm text-justify max-h-full overflow-y-auto scrollbar pr-3 break-all">
             @if (!string.IsNullOrEmpty(Movie.Synopsis))
