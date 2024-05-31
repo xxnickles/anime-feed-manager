@@ -39,13 +39,13 @@ jobs:
     steps:
       # Checkout the repo
       - uses: actions/checkout@main
-      - uses: azure/login@v1.6.1
+      - uses: azure/login@v2.1.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Get variables from infrastructure
       - name: Get variables from infrastructure
-        uses: Azure/arm-deploy@v1
+        uses: Azure/arm-deploy@v2
         id: infrastructure
         with:
           scope: resourcegroup
@@ -56,7 +56,7 @@ jobs:
 
         # Setup node.js for tailwind
       - name: Setup Node lts
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: lts/*
 

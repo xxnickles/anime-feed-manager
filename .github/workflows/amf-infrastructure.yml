@@ -30,20 +30,20 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout GitHub Action
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.6
         with:
           submodules: true
           clean: true
 
       - name: Azure Login
-        uses: azure/login@v1.6.1
+        uses: azure/login@v2.1.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
 
       # Deploys infrastructure
       - name: Deploy Azure Infrastructure
-        uses: Azure/arm-deploy@v1
+        uses: Azure/arm-deploy@v2
         id: infrastructure
         with:
           scope: resourcegroup
