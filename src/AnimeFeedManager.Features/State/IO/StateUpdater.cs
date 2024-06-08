@@ -38,7 +38,6 @@ public sealed class StateUpdater(ITableClientFactory<StateUpdateStorage> tableCl
             .BindAsync(client => TryUpdate(client, id, target, Add, token));
     }
 
-
     private static async Task<Either<DomainError, CurrentState>> TryUpdate(
         TableClient client,
         string id,

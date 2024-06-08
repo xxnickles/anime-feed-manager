@@ -13,7 +13,7 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 namespace AnimeFeedManager.Features.Tv.Subscriptions;
 
 public sealed class InterestedToSubscribe(
-    ICreateState createState,
+    IStateCreator stateCreator,
     IDomainPostman domainPostman,
     ITittlesGetter tittlesGetter,
     IAlternativeTitlesGetter alternativeTitlesGetter,
@@ -69,7 +69,7 @@ public sealed class InterestedToSubscribe(
     private Task<Either<DomainError, int>> ProcessEvents(ImmutableList<InterestedToSubscription> events,
         CancellationToken token)
     {
-        return createState.Create(NotificationTarget.Tv, events, new Box(InterestedToSubscription.TargetQueue))
+        return stateCreator.Create(NotificationTarget.Tv, events, new Box(InterestedToSubscription.TargetQueue))
             .BindAsync(stateEvents => SendMessages(stateEvents, token));
     }
 

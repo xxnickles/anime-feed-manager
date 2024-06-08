@@ -4,13 +4,13 @@ using AnimeFeedManager.Common.Domain.Notifications.Base;
 
 namespace AnimeFeedManager.Features.State.IO;
 
-public interface ICreateState
+public interface IStateCreator
 {
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
         ImmutableList<T> entities, Box MessageBox) where T : DomainMessage;
 }
 
-public sealed class CreateState(ITableClientFactory<StateUpdateStorage> tableClientFactory) : ICreateState
+public sealed class StateCreator(ITableClientFactory<StateUpdateStorage> tableClientFactory) : IStateCreator
 {
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
         ImmutableList<T> entities, Box MessageBox) where T : DomainMessage

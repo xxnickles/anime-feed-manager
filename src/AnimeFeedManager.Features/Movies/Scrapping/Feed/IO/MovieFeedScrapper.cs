@@ -53,8 +53,8 @@ public sealed class MovieFeedScrapper : IMovieFeedScrapper
 
     private static ShortSeriesTorrent[] GetOnlyBatchesIfAvailable(ShortSeriesTorrent[] links)
     {
-        return links.Any(l => l.Title.Contains("BATCH") || l.Title.Contains("BATCH"))
-            ? links.Where(l => l.Title.Contains("BATCH") || l.Title.Contains("BATCH")).ToArray()
+        return links.Any(l => l.Title.Contains("BATCH") || l.Title.Contains("Batch"))
+            ? links.Where(l => l.Title.Contains("BATCH") || l.Title.Contains("Batch")).ToArray()
             : links;
     }
 

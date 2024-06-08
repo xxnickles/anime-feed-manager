@@ -35,7 +35,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e,CallerInfo(callerPath, callerName));
+            return ExceptionError.FromException(e, CallerInfo(callerPath, callerName));
         }
     }
 
@@ -69,7 +69,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e,CallerInfo(callerPath, callerName));
+            return ExceptionError.FromException(e, CallerInfo(callerPath, callerName));
         }
     }
 
@@ -101,7 +101,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e,CallerInfo(callerPath, callerName));
+            return ExceptionError.FromException(e, CallerInfo(callerPath, callerName));
         }
     }
 
@@ -136,7 +136,7 @@ internal static class TableUtils
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e,CallerInfo(callerPath, callerName));
+            return ExceptionError.FromException(e, CallerInfo(callerPath, callerName));
         }
         finally
         {
@@ -181,10 +181,12 @@ internal static class TableUtils
         {
             return await action();
         }
-        catch (RequestFailedException)
+        catch (RequestFailedException ex)
         {
-            return NotFoundError.Create(
-                $"The entity of type {typeof(T).Name} was not found. {CallerInfo(callerPath, callerName)}");
+            return ex.Status == 404
+                ? NotFoundError.Create(
+                    $"The entity of type {typeof(T).Name} was not found. {CallerInfo(callerPath, callerName)}")
+                : ExceptionError.FromException(ex, CallerInfo(callerPath, callerName));
         }
         catch (Exception e)
         {

@@ -38,7 +38,7 @@ public sealed class OvumFeedScrapper : IOvaFeedScrapper
             foreach (var ova in ovas)
             {
                 var links = await NyaaScrapper.ScrapHelper(ova.Title ?? "nope", browser);
-                resultList.Add((ova, GetOnlyBatchesIfAvailable(links).Select(Map).ToImmutableList()));
+                resultList.Add((ova, FilterMatches(links).Select(Map).ToImmutableList()));
             }
 
             await browser.CloseAsync();
@@ -50,13 +50,27 @@ public sealed class OvumFeedScrapper : IOvaFeedScrapper
         }
     }
 
-    private static ShortSeriesTorrent[] GetOnlyBatchesIfAvailable(ShortSeriesTorrent[] links)
+    private static ShortSeriesTorrent[] FilterMatches(ShortSeriesTorrent[] links)
     {
-        return links.Any(l => l.Title.Contains("BATCH") || l.Title.Contains("BATCH"))
-            ? links.Where(l => l.Title.Contains("BATCH") || l.Title.Contains("BATCH")).ToArray()
+        var batchFiltered = links.Any(l => l.Title.Contains("BATCH") || l.Title.Contains("Batch"))
+            ? links.Where(l => l.Title.Contains("BATCH") || l.Title.Contains("Batch")).ToArray()
             : links;
+
+        return ReduceToHighQuality(batchFiltered);
     }
-    
+
+    private static ShortSeriesTorrent[] ReduceToHighQuality(ShortSeriesTorrent[] links)
+    {
+        if (links.Length <= 30) return links;
+
+        // Get only 1080p
+        var fullHd = links.Where(x => x.Title.Contains("1080p"));
+        return fullHd.Any()
+            ? fullHd.ToArray()
+            : links.Where(x => x.Title.Contains("720p"))
+                .ToArray();
+    }
+
     private static SeriesFeedLinks Map(ShortSeriesTorrent info)
     {
         return new SeriesFeedLinks(NyaaScrapper.CleanTitle(info.Title), info.Size,

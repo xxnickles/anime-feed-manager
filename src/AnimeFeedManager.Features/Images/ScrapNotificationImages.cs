@@ -7,13 +7,13 @@ using Microsoft.Extensions.Logging;
 namespace AnimeFeedManager.Features.Images;
 
 public sealed class ScrapImagesNotificationHandler(
-    ICreateState stateCreator,
+    IStateCreator stateCreatorCreator,
     IDomainPostman domainPostman,
     ILogger<ScrapImagesNotificationHandler> logger)
 {
     public async Task Handle(ScrapImagesRequest notification, CancellationToken cancellationToken)
     {
-        var results = await stateCreator.Create(NotificationTarget.Images, notification.Events, new Box(DownloadImageEvent.TargetQueue))
+        var results = await stateCreatorCreator.Create(NotificationTarget.Images, notification.Events, new Box(DownloadImageEvent.TargetQueue))
             .MapAsync(r => SendMessages(r, cancellationToken));
 
         results.Match(async r => await r,
