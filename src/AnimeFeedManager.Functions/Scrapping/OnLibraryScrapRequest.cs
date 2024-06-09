@@ -21,24 +21,27 @@ public sealed class OnLibraryScrapRequest(
     [Function(nameof(OnLibraryScrapRequest))]
     public async Task Run(
         [QueueTrigger(ScrapLibraryRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
-        ScrapLibraryRequest notification)
+        ScrapLibraryRequest notification, CancellationToken token)
     {
         var task = notification switch
         {
-            (SeriesType.Tv, _, ScrapType.Latest, _) => tvLibraryUpdater.Update(new Latest()),
+            (SeriesType.Tv, _, ScrapType.Latest, _) => tvLibraryUpdater.Update(new Latest(), token),
             (SeriesType.Tv, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
                 notification.SeasonParameter?.Year ?? 0).BindAsync(season => tvLibraryUpdater.Update(season)),
 
-            (SeriesType.Ova, _, ScrapType.Latest, _) => ovasLibraryUpdater.Update(new Latest(), notification.KeepFeed),
+            (SeriesType.Ova, _, ScrapType.Latest, _) => ovasLibraryUpdater.Update(new Latest(), notification.KeepFeed, token),
             (SeriesType.Ova, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
-                notification.SeasonParameter?.Season ?? string.Empty,
-                notification.SeasonParameter?.Year ?? 0).BindAsync(season => ovasLibraryUpdater.Update(season, notification.KeepFeed)),
+                    notification.SeasonParameter?.Season ?? string.Empty,
+                    notification.SeasonParameter?.Year ?? 0)
+                .BindAsync(season => ovasLibraryUpdater.Update(season, notification.KeepFeed, token)),
 
-            (SeriesType.Movie, _, ScrapType.Latest, _) => moviesLibraryUpdater.Update(new Latest(), notification.KeepFeed),
+            (SeriesType.Movie, _, ScrapType.Latest, _) => moviesLibraryUpdater.Update(new Latest(),
+                notification.KeepFeed),
             (SeriesType.Movie, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
-                notification.SeasonParameter?.Season ?? string.Empty,
-                notification.SeasonParameter?.Year ?? 0).BindAsync(season => moviesLibraryUpdater.Update(season, notification.KeepFeed)),
+                    notification.SeasonParameter?.Season ?? string.Empty,
+                    notification.SeasonParameter?.Year ?? 0)
+                .BindAsync(season => moviesLibraryUpdater.Update(season, notification.KeepFeed, token)),
 
             _ => Task.FromResult(
                 Left<DomainError, Unit>(BasicError.Create($"Scrapping parameters are invalid {notification}"))

@@ -14,14 +14,14 @@ public class RemoveInterested(
     [Function("RemoveTvInterested")]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/removeInterested")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         var payload =
-            await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription);
+            await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription, token);
         ArgumentNullException.ThrowIfNull(payload);
 
         return await Utils.Validate(payload)
-            .BindAsync(param => interestedSeriesRemover.Remove(param.UserId, param.Series, default))
+            .BindAsync(param => interestedSeriesRemover.Remove(param.UserId, param.Series, token))
             .ToResponse(req, _logger);
     }
 }

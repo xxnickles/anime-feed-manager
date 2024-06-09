@@ -12,10 +12,10 @@ public class RemoveOvasSubscription(IRemoveOvasSubscription ovasSubscription, IL
     [Function(nameof(RemoveOvasSubscription))]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "ovas/subscriptions/unsubscribe")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         var payload =
-            await JsonSerializer.DeserializeAsync(req.Body, ShortSeriesUnsubscribeContext.Default.ShortSeriesUnsubscribe);
+            await JsonSerializer.DeserializeAsync(req.Body, ShortSeriesUnsubscribeContext.Default.ShortSeriesUnsubscribe, token);
         ArgumentNullException.ThrowIfNull(payload);
         return await req
             .CheckAuthorization()

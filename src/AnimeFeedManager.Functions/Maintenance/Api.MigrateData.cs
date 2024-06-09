@@ -14,11 +14,11 @@ public class MigrateData(
     [Function("MigrateTv")]
     public async Task<HttpResponseData> RunTv(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "migration/tv")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         _logger.LogInformation("Tv Data Migration Process");
 
-        var result = await seriesMigration.MigrateTvSeries(default);
+        var result = await seriesMigration.MigrateTvSeries(token);
         _logger.LogInformation("Tv Series status has been updated");
         return await result.ToResponse(req, _logger);
     }

@@ -16,7 +16,8 @@ public sealed class OnImageNotification(
     [Function("OnImageNotification")]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(ImageUpdateNotification.TargetQueue, Connection = Constants.AzureConnectionName)] ImageUpdateNotification notification)
+        [QueueTrigger(ImageUpdateNotification.TargetQueue, Connection = Constants.AzureConnectionName)] ImageUpdateNotification notification,
+        CancellationToken token)
     {
         
         // Stores notification
@@ -26,7 +27,7 @@ public sealed class OnImageNotification(
             NotificationTarget.Images,
             NotificationArea.Update,
             notification,
-            default);
+            token);
 
 
         return result.Match(

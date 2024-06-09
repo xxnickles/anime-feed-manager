@@ -21,7 +21,7 @@ public sealed class OnCopySubscriptions
     [Function("OnCopySubscriptions")]
     public async Task Run(
         [QueueTrigger(CopySubscriptionRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
-        CopySubscriptionRequest notification)
+        CopySubscriptionRequest notification, CancellationToken token)
     {
         _logger.LogInformation("Trying to copy subscriptions from {Source} to {Target}", notification.SourceId,
             notification.TargetId);
@@ -29,7 +29,7 @@ public sealed class OnCopySubscriptions
             await (UserId.Validate(notification.SourceId), UserId.Validate(notification.TargetId))
                 .Apply((source, target) => (source, target))
                 .ValidationToEither()
-                .BindAsync(users => _subscriptionsCopier.CopyAll(users.source, users.target, default));
+                .BindAsync(users => _subscriptionsCopier.CopyAll(users.source, users.target, token));
 
         result.Match(LogResults,
             error => error.LogError(_logger));

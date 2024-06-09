@@ -21,11 +21,11 @@ public sealed class OnSubscriptionsCleanup
     [Function("OnSubscriptionsCleanup")]
     public async Task Run(
         [QueueTrigger(RemoveSubscriptionsRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
-        RemoveSubscriptionsRequest notification)
+        RemoveSubscriptionsRequest notification, CancellationToken token)
     {
         var result = await UserId.Validate(notification.UserId)
             .ValidationToEither()
-            .BindAsync(userId => _subscriptionsCleaner.CleanAll(userId, default));
+            .BindAsync(userId => _subscriptionsCleaner.CleanAll(userId, token));
 
         result.Match(LogResults,
             error => error.LogError(_logger));

@@ -15,9 +15,10 @@ public sealed class GetLibrary(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ovas/{year:int}/{season}")]
         HttpRequestData req,
         string season,
-        ushort year)
+        ushort year,
+        CancellationToken token)
     {
-        return await ovasLibraryGetter.GetForSeason(season,year)
+        return await ovasLibraryGetter.GetForSeason(season,year, token)
             .ToResponse(req,_logger);
     }
 }

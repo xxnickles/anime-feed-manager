@@ -12,10 +12,10 @@ public class AddOvasSubscription(IAddOvasSubscription ovasSubscription, ILoggerF
     [Function("AddOvasSubscription")]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "ovas/subscriptions")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         var payload =
-            await JsonSerializer.DeserializeAsync(req.Body, ShortSeriesSubscriptionContext.Default.ShortSeriesSubscription);
+            await JsonSerializer.DeserializeAsync(req.Body, ShortSeriesSubscriptionContext.Default.ShortSeriesSubscription, token);
         ArgumentNullException.ThrowIfNull(payload);
         return await req
             .CheckAuthorization()

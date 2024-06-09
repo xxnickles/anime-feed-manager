@@ -13,15 +13,15 @@ public class AddInterested(
     [Function("AddTvInterested")]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "tv/interested")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         var payload =
             await JsonSerializer.DeserializeAsync(req.Body,
-                InterestedTvSubscriptionContext.Default.InterestedTvSubscription);
+                InterestedTvSubscriptionContext.Default.InterestedTvSubscription, token);
         ArgumentNullException.ThrowIfNull(payload);
 
         return await Utils.Validate(payload)
-            .BindAsync(param => addInterested.Add(param.UserId, param.SeriesId, param.Series, default))
+            .BindAsync(param => addInterested.Add(param.UserId, param.SeriesId, param.Series, token))
             .ToResponse(req, _logger);
     }
 }

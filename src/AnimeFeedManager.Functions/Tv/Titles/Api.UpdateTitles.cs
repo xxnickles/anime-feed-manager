@@ -11,11 +11,11 @@ public sealed class UpdateTitles(ScrapSeasonTitles titlesScrapper, ILoggerFactor
     [Function("UpdateTitles")]
     public async Task<HttpResponseData> RunSeason(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/titles")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         _logger.LogInformation("Automated Update of Titles (Manual trigger)");
 
-        var result = await req.AllowAdminOnly().BindAsync(_ => titlesScrapper.Scrap());
+        var result = await req.AllowAdminOnly().BindAsync(_ => titlesScrapper.Scrap(token));
         return await result.ToResponse(req, _logger);
     }
 }

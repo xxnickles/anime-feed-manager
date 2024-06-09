@@ -13,7 +13,8 @@ public sealed class OnTvTitlesScrapRequest(
     [Function(nameof(OnTvTitlesScrapRequest))]
     public async Task Run(
         [QueueTrigger(ScrapTvTilesRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
-        ScrapTvTilesRequest notification)
+        ScrapTvTilesRequest notification,
+        CancellationToken token)
     {
         
         var result = await titlesScrapper.Scrap();

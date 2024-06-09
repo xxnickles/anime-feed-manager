@@ -14,10 +14,10 @@ public class AddSubscription(
     [Function("AddTvSubscription")]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "tv/subscriptions")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         var payload =
-            await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription);
+            await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription, token);
         ArgumentNullException.ThrowIfNull(payload);
         return await req.CheckAuthorization()
             .BindAsync(_ => Utils.Validate(payload))

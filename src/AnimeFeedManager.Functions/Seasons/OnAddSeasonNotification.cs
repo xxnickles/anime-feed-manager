@@ -19,9 +19,9 @@ public sealed class OnAddSeasonNotification
     [Function("OnAddSeasonNotification")]
     public async Task Run(
         [QueueTrigger(AddSeasonNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
-        AddSeasonNotification notification)
+        AddSeasonNotification notification, CancellationToken token)
     {
         _logger.LogInformation("Updating Seasons with {Season}-{Year}", notification.Season, notification.Year.ToString());
-        await _addSeasonNotificationHandler.Handle(notification, default);
+        await _addSeasonNotificationHandler.Handle(notification, token);
     }
 }

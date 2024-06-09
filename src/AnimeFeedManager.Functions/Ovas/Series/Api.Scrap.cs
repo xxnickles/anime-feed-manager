@@ -17,34 +17,35 @@ public sealed class Scrap(
     [Function("ScrapLatestOvasSeason")]
     public async Task<HttpResponseData> RunLatest(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         _logger.LogInformation("Automated Update of Ovas Library (Manual trigger)");
 
         var result = await req.AllowAdminOnly()
             .BindAsync(_ =>
-                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest)));
+                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest),
+                    token: token));
 
         // var result =
         //     await _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, null, ScrapType.Latest));
 
         return await result.ToResponse(req, _logger);
     }
-    
+
     [Function("ScrapCustomOvasSeason")]
     public async Task<HttpResponseData> RunSeason(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ovas/library/{year:int}/{season}")]
         HttpRequestData req,
         string season,
-        ushort year)
+        ushort year, CancellationToken token)
     {
         _logger.LogInformation("Automated Update Ovas Library (Manual trigger) for Custom Season");
-        
+
         var result = await req.AllowAdminOnly()
             .BindAsync(_ => SeasonValidators.Parse(season, year))
             .MapAsync(param => param.ToSeasonParameter())
             .BindAsync(param =>
-                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, param, ScrapType.BySeason)));
+                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, param, ScrapType.BySeason), token: token));
 
         // var result = await SeasonValidators.Validate(season, year)
         //     .Map(param => param.ToSeasonParameter())
@@ -52,6 +53,5 @@ public sealed class Scrap(
         //         _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Ova, param, ScrapType.BySeason)));
 
         return await result.ToResponse(req, _logger);
-
     }
 }

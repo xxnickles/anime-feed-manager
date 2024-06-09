@@ -18,7 +18,7 @@ public sealed class OnSeasonNotification(
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
         [QueueTrigger(SeasonProcessNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
-        SeasonProcessNotification notification)
+        SeasonProcessNotification notification, CancellationToken token)
     {
         // Stores notification and create event to update latest seasons
         var result = await storeNotification.Add(
@@ -27,7 +27,7 @@ public sealed class OnSeasonNotification(
             FromNotification(notification.SeriesType),
             NotificationArea.Update,
             notification,
-            default);
+            token);
 
 
         return result.Match(

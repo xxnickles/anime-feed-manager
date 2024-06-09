@@ -19,9 +19,9 @@ public sealed class OnImagesToScrapRequest
     [Function("OnImagesToScrapRequest")]
     public async Task Run(
         [QueueTrigger(ScrapImagesRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
-        ScrapImagesRequest notification)
+        ScrapImagesRequest notification, CancellationToken token)
     {
         _logger.LogInformation("Images scrapping process for {Count} will be enqueue", notification.Events.Count);
-        await _scrapImagesNotificationHandler.Handle(notification, default);
+        await _scrapImagesNotificationHandler.Handle(notification, token);
     }
 }

@@ -14,10 +14,10 @@ public sealed class OnProcessAutoSubscription(
     [Function("OnProcessAutoSubscription")]
     public async Task Run(
         [QueueTrigger(InterestedToSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
-        StateWrap<InterestedToSubscription> notification)
+        StateWrap<InterestedToSubscription> notification, CancellationToken token)
     {
 
-        var result = await subscriptionProcessor.Process(notification, default);
+        var result = await subscriptionProcessor.Process(notification, token);
 
         result.Match(
             _ => _logger.LogInformation("Processing {Title} Automated subscription for {User}",

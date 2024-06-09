@@ -20,7 +20,7 @@ public class SendNotifications(
     [Function("SendNotifications")]
     public async Task Run(
         [QueueTrigger(SubscriberTvNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
-        SubscriberTvNotification notification)
+        SubscriberTvNotification notification, CancellationToken token)
     {
         try
         {
@@ -28,7 +28,7 @@ public class SendNotifications(
             message.SetFrom(new EmailAddress(sendGridConfiguration.FromEmail, sendGridConfiguration.FromName));
             message.SetSandBoxMode(sendGridConfiguration.Sandbox);
             message.AddInfoFromNotification(notification);
-            var response = await client.SendEmailAsync(message);
+            var response = await client.SendEmailAsync(message, token);
             if (response.IsSuccessStatusCode)
             {
                 var result = await storeNotification.Add(
@@ -39,7 +39,7 @@ public class SendNotifications(
                         new TvFeedUpdateNotification(TargetAudience.User, NotificationType.Update,
                             "Notification has been sent", DateTime.Now, notification.Feeds),
                         default)
-                    .BindAsync(_ => addProcessedTitles.Add(GetTitlesForUser(notification), default));
+                    .BindAsync(_ => addProcessedTitles.Add(GetTitlesForUser(notification), token));
 
                 result.Match(
                     _ => _logger.LogInformation("Sending notification to {NotificationSubscriber}",

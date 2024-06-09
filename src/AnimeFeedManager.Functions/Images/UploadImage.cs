@@ -30,7 +30,7 @@ public sealed class UploadImage
     [Function("UploadImage")]
     public async Task Run(
         [QueueTrigger(DownloadImageEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
-        StateWrap<DownloadImageEvent> imageScrapEvent)
+        StateWrap<DownloadImageEvent> imageScrapEvent, CancellationToken token)
     {
         _logger.LogInformation("Getting image for {Name} from {RemoteUrl}", imageScrapEvent.Payload.BlobName,
             imageScrapEvent.Payload.RemoteUrl);
@@ -38,9 +38,9 @@ public sealed class UploadImage
         
         var response = await _httpClient.GetAsync(imageScrapEvent.Payload.RemoteUrl);
         response.EnsureSuccessStatusCode();
-        await using var ms = await response.Content.ReadAsStreamAsync(default);
+        await using var ms = await response.Content.ReadAsStreamAsync(token);
 
-        var result = await _imageAdder.Add(ms, imageScrapEvent);
+        var result = await _imageAdder.Add(ms, imageScrapEvent, token);
 
         result.Match(
             _ => _logger.LogInformation(""),

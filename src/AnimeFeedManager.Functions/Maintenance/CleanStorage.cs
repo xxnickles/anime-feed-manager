@@ -9,9 +9,10 @@ public class CleanStorage(IStorageCleanup storageCleanup, ILoggerFactory loggerF
     private readonly ILogger<CleanStorage> _logger = loggerFactory.CreateLogger<CleanStorage>();
 
     [Function("CleanOldNotifications")]
-    public async Task RunCleanNotifications([TimerTrigger("0 0 0 1 * *")] TimerInfo timer)
+    public async Task RunCleanNotifications([TimerTrigger("0 0 0 1 * *")] TimerInfo timer, 
+        CancellationToken token)
     {
-        var result = await storageCleanup.CleanOldNotifications(DateTime.Now.AddDays(-30), default);
+        var result = await storageCleanup.CleanOldNotifications(DateTime.Now.AddDays(-30), token);
         result.Match(
             _ => { _logger.LogInformation("Old notifications have been cleaned"); },
             e => e.LogError(_logger)
@@ -19,7 +20,8 @@ public class CleanStorage(IStorageCleanup storageCleanup, ILoggerFactory loggerF
     }
 
     [Function("CleanOldState")]
-    public async Task RunCleanState([TimerTrigger("0 0 10 * * SAT")] TimerInfo timer)
+    public async Task RunCleanState([TimerTrigger("0 0 10 * * SAT")] TimerInfo timer,
+        CancellationToken token)
     {
         var notificationTypes = new[]
         {

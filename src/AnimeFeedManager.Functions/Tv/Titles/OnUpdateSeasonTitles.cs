@@ -12,11 +12,12 @@ public sealed class OnUpdateSeasonTitles(
 
     [Function("OnUpdateSeasonTitles")]
     public async Task Run(
-        [QueueTrigger(UpdateSeasonTitlesRequest.TargetQueue, Connection = Constants.AzureConnectionName)] UpdateSeasonTitlesRequest notification)
+        [QueueTrigger(UpdateSeasonTitlesRequest.TargetQueue, Connection = Constants.AzureConnectionName)] UpdateSeasonTitlesRequest notification,
+        CancellationToken token)
     {
         
         // Stores notification
-        var result = await updater.Process(notification, default);
+        var result = await updater.Process(notification, token);
         result.Match(
             _ => _logger.LogInformation("Titles ({Count}) have been updated successfully",
                 notification.Titles.Count.ToString()),

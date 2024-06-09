@@ -14,12 +14,12 @@ public sealed class AddUser(IUserStore userStore, ILoggerFactory loggerFactory)
     [Function("AddUser")]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", "put", Route = "user")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
-        var payload = await JsonSerializer.DeserializeAsync(req.Body, SimpleUserContext.Default.SimpleUser);
+        var payload = await JsonSerializer.DeserializeAsync(req.Body, SimpleUserContext.Default.SimpleUser, token);
         ArgumentNullException.ThrowIfNull(payload);
         return await Validate(payload)
-            .BindAsync(param => userStore.AddUser(param.UserId, param.Email, default))
+            .BindAsync(param => userStore.AddUser(param.UserId, param.Email, token))
             .ToResponse(req, _logger);
     }
 

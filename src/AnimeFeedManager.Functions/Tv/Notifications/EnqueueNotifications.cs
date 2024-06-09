@@ -16,11 +16,12 @@ public class EnqueueNotifications(
 
     [Function("EnqueueNotifications")]
     public async Task Run(
-        [TimerTrigger("0 0 * * * *")] TimerInfo timer
+        [TimerTrigger("0 0 * * * *")] TimerInfo timer,
         // [TimerTrigger("0 0/1 * * * *")] TimerInfo timer
+        CancellationToken token
     )
     {
-        var users = await userGetter.GetAvailableUsers(default);
+        var users = await userGetter.GetAvailableUsers(token);
 
         await users.Match(
             ProcessUsers,

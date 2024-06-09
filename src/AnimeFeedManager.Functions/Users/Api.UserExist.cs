@@ -13,11 +13,11 @@ public class UserExist(IUserVerification userGetter, ILoggerFactory loggerFactor
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/{id}")]
         HttpRequestData req,
-        string id)
+        string id, CancellationToken token)
     {
         return await UserId.Validate(id)
             .ValidationToEither()
-            .BindAsync(userId => userGetter.UserExist(userId, default))
+            .BindAsync(userId => userGetter.UserExist(userId, token))
             .ToResponse(req, _logger);
     }
 }

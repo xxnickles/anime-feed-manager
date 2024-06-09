@@ -12,10 +12,10 @@ public class Unsubscribe(IRemoveTvSubscription tvUnsubscriber, ILoggerFactory lo
     [Function("RemoveTvSubscription")]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "tv/unsubscribe")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         var payload =
-            await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription);
+            await JsonSerializer.DeserializeAsync(req.Body, SimpleTvSubscriptionContext.Default.SimpleTvSubscription, token);
         ArgumentNullException.ThrowIfNull(payload);
         return await req.CheckAuthorization()
             .BindAsync(_ => Utils.Validate(payload))

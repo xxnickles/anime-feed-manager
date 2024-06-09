@@ -12,12 +12,13 @@ public class GetSubscribedSeries(IGetTvSubscriptions tvSubscriptions, ILoggerFac
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "subscriptions/{subscriber}")]
         HttpRequestData req,
-        string subscriber)
+        string subscriber,
+        CancellationToken token)
     {
         return await req
             .CheckAuthorization()
             .BindAsync(_ => UserId.Parse(subscriber))
-            .BindAsync(userId => tvSubscriptions.GetUserSubscriptions(userId, default))
+            .BindAsync(userId => tvSubscriptions.GetUserSubscriptions(userId, token))
             .MapAsync(collection => collection.Series.Select(s => s.ToString()))
             .ToResponse(req, _logger);
     }

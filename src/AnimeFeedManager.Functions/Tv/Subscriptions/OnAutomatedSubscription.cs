@@ -20,9 +20,9 @@ public sealed class OnAutomatedSubscription
     [Function("OnAutomatedSubscription")]
     public async Task Run(
         [QueueTrigger(AutomatedSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
-        AutomatedSubscription notification)
+        AutomatedSubscription notification, CancellationToken token)
     {
         _logger.LogInformation("Starting automated subscription");
-        await _automatedSubscriptionHandler.Handle(notification, default);
+        await _automatedSubscriptionHandler.Handle(notification, token);
     }
 }

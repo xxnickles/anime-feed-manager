@@ -17,13 +17,13 @@ public sealed class Scrap(
     [Function("ScrapLatestMoviesSeason")]
     public async Task<HttpResponseData> RunLatest(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "movies/library")]
-        HttpRequestData req)
+        HttpRequestData req, CancellationToken token)
     {
         _logger.LogInformation("Automated Update of Movies Library (Manual trigger)");
 
         var result = await req.AllowAdminOnly()
             .BindAsync(_ =>
-                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Movie, null, ScrapType.Latest)));
+                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Movie, null, ScrapType.Latest), token: token));
 
         // var result =
         //     await _domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Movie, null, ScrapType.Latest));
@@ -36,7 +36,7 @@ public sealed class Scrap(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "movies/library/{year:int}/{season}")]
         HttpRequestData req,
         string season,
-        ushort year)
+        ushort year, CancellationToken token)
     {
         _logger.LogInformation("Automated Update Movies Library (Manual trigger) for Custom Season");
 
@@ -44,7 +44,8 @@ public sealed class Scrap(
             .BindAsync(_ => SeasonValidators.Parse(season, year))
             .MapAsync(param => param.ToSeasonParameter())
             .BindAsync(param =>
-                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Movie, param, ScrapType.BySeason)));
+                domainPostman.CreateScrapingEvent(new ScrapLibraryRequest(SeriesType.Movie, param,
+                    ScrapType.BySeason), token: token));
 
         // var result = await SeasonValidators.Validate(season, year)
         //     .Map(param => param.ToSeasonParameter())

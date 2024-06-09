@@ -15,9 +15,10 @@ public sealed class GetLibrary(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "movies/{year:int}/{season}")]
         HttpRequestData req,
         string season,
-        ushort year)
+        ushort year,
+        CancellationToken token)
     {
-        return await moviesLibraryGetter.GetForSeason(season,year)
+        return await moviesLibraryGetter.GetForSeason(season,year, token)
             .ToResponse(req,_logger);
     }
 }

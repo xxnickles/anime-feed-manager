@@ -16,7 +16,8 @@ public sealed class OnTitlesNotification(
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
         [QueueTrigger(TitlesUpdateNotification.TargetQueue, Connection = Constants.AzureConnectionName)] 
-        TitlesUpdateNotification notification)
+        TitlesUpdateNotification notification,
+        CancellationToken token)
     {
         
         // Stores notification
@@ -26,7 +27,7 @@ public sealed class OnTitlesNotification(
             NotificationTarget.Tv,
             NotificationArea.Update,
             notification,
-            default);
+            token);
 
 
         return result.Match(

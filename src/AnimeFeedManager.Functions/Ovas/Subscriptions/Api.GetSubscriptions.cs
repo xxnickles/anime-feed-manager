@@ -12,10 +12,10 @@ public class GetSubscriptions(IGetOvasSubscriptions ovasSubscriptions, ILoggerFa
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ovas/subscriptions/{subscriber}")]
         HttpRequestData req,
-        string subscriber)
+        string subscriber, CancellationToken token)
     {
         return await UserId.Parse(subscriber)
-            .BindAsync(id => ovasSubscriptions.GetSubscriptions(id, default))
+            .BindAsync(id => ovasSubscriptions.GetSubscriptions(id, token))
             .ToResponse(req, _logger);
     }
 }
