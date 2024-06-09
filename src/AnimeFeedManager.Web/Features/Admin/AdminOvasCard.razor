@@ -84,6 +84,7 @@
         <form class="card-actions form-control"
               hx-put="/admin/ovas/feed"
               hx-indicator="@($"#{_ovasFeedLoader}")"
+              hx-confirm="Do you want to trigger update of ovas feed?"
               hx-swap="none">
             <AntiforgeryToken/>
             <button type="submit" class="btn btn-primary mt-4">
