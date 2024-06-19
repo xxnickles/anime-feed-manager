@@ -3,7 +3,8 @@
     <form hx-post="tv/remove"
           hx-confirm="@($"Do you want remove {TvAnimeInfo.Title} from the library?")"
           hx-indicator="@LoaderSelector"
-          hx-swap="none">
+          hx-target="section#main-grid"
+          hx-swap="outerHTML">
         <AntiforgeryToken/>
         <input type="hidden" name="@nameof(SeriesToRemove.Id)" value="@TvAnimeInfo.Id"/>
         <input type="hidden" name="@nameof(SeriesToRemove.Season)" value="@TvAnimeInfo.Season"/>

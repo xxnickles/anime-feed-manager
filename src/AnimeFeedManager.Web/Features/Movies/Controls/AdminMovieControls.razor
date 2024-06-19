@@ -3,7 +3,8 @@
     <form hx-post="movies/remove"
           hx-confirm="@($"Do you want remove {MovieInfo.Title} from the Movies library?")"
           hx-indicator="@LoaderSelector"
-          hx-swap="none">
+          hx-target="section#main-grid"
+          hx-swap="outerHTML">
         <AntiforgeryToken/>
         <input type="hidden" name="@nameof(SeriesToRemove.Id)" value="@MovieInfo.Id"/>
         <input type="hidden" name="@nameof(SeriesToRemove.Season)" value="@MovieInfo.Season"/>

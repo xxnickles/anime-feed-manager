@@ -3,7 +3,8 @@
     <form hx-post="ovas/remove"
           hx-indicator="@LoaderSelector"
           hx-confirm="@($"Do you want remove {OvaInfo.Title} from the Ovas library?")"
-          hx-swap="none">
+          hx-target="section#main-grid"
+          hx-swap="outerHTML">
         <AntiforgeryToken/>
         <input type="hidden" name="@nameof(SeriesToRemove.Id)" value="@OvaInfo.Id"/>
         <input type="hidden" name="@nameof(SeriesToRemove.Season)" value="@OvaInfo.Season"/>

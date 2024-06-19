@@ -1,13 +1,8 @@
-﻿@inject IOptions<PasswordlessOptions> PasswordlessOptions
-@page "/Register"
-@using Microsoft.Extensions.Options
-@using Passwordless.Net
-
+﻿@page "/Register"
 
 <PageTitle>@PageTitle("Registration")</PageTitle>
 
-
-<section class="hero min-h-[95vh] bg-base-200">
+<section class="hero min-h-[95vh] bg-base-200" hx-boost="false">
     <div class="hero-content flex-col lg:flex-row-reverse">
         <div class="text-center lg:text-left">
             <h1 class="text-5xl font-bold">Registration</h1>
@@ -66,12 +61,3 @@
         </div>
     </div>
 </section>
-
-<SectionContent SectionName="additional-scripts">
-    <script defer>    
-        const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
-        const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
-    </script>
-    <script defer src="lib/passwordlessdev/passwordless-client/dist/umd/passwordless.umd.min.js"></script>
-    <script src="./Features/Security/Register.razor.js" type="text/javascript"></script>
-</SectionContent>

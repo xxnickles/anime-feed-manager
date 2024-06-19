@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.Extensions.Options
+@using Passwordless.Net
+@inject IOptions<PasswordlessOptions> PasswordlessOptions
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -11,11 +15,18 @@
     <script defer src="lib/htmx/htmx.min.js"></script>
     <script defer src="lib/alpinejs/cdn.min.js"></script>
     @* <script defer src="_framework/blazor.web.js"></script> *@
-    <SectionOutlet SectionName="additional-scripts"/>
+    <script defer>
+        const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
+        const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
+    </script>
+    <script defer src="lib/passwordlessdev/passwordless-client/dist/umd/passwordless.umd.min.js"></script>
+    <script defer src="scripts/client-signin.js" type="module"></script>
+    <script src="./Features/Security/Login.razor.js" type="text/javascript"></script>
+    <script src="./Features/Security/Register.razor.js" type="text/javascript"></script>
     <HeadOutlet/>
 </head>
 
-<body class="min-w-[380px]">
+<body class="min-w-[380px]" hx-boost="true">
 
 <Routes/>
 
@@ -26,3 +37,8 @@
 
 </body>
 </html>
+
+@code {
+
+
+}

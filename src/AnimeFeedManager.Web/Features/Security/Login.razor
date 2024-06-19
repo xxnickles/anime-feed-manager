@@ -3,21 +3,18 @@
 @using AnimeFeedManager.Features.Users.IO
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
-@using Microsoft.Extensions.Options
-@using Passwordless.Net
 
 @inject IPasswordlessLogin PasswordlessLogin;
 @inject NavigationManager NavigationManager;
 @inject ILogger<Login> Logger;
-@inject IOptions<PasswordlessOptions> PasswordlessOptions
 
 <PageTitle>@PageTitle("Login")</PageTitle>
 
-<section class="hero min-h-[95vh] bg-base-200">
+<section class="hero min-h-[95vh] bg-base-200" hx-boost="false">
     <div class="hero-content flex-col lg:flex-row-reverse">
         <div class="text-center lg:text-left">
             <h1 class="text-5xl font-bold">Login</h1>
-            <p class="py-6">Use your username (email) to access the system using your passkey</p>
+            <p class="py-6">Use your username (email) to access the system using a passkey stored in your device</p>
         </div>
         <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form method="post"
@@ -71,17 +68,6 @@
         </div>
     </div>
 </section>
-
-<SectionContent SectionName="additional-scripts">
-    <script defer>
-        const PASSWORDLESS_API_URL = "https://v4.passwordless.dev"; // For self-hosting, change this. This is always the default value.
-        const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
-    </script>
-    <script defer src="lib/passwordlessdev/passwordless-client/dist/umd/passwordless.umd.min.js"></script>
-    <script defer src="scripts/client-signin.js" type="module"></script>
-    <script src="./Features/Security/Login.razor.js" type="text/javascript"></script>
-</SectionContent>
-
 
 @code {
     [SupplyParameterFromForm] public string? Id { get; set; }

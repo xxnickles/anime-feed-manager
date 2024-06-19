@@ -9,7 +9,7 @@
              $refs.htmxConfirm.showModal();
                 
             }}">
-    <dialog id="confim-htmx-event" class="modal" @htmx:confirm.window.prevent="checkEvent($event.detail)" x-ref="htmxConfirm">
+    <dialog id="confim-htmx-event" class="modal" @htmx:confirm.window.prevent="checkEvent($event.detail)" x-ref="htmxConfirm" hx-boost="false">
         <div class="modal-box">
             <h3 class="font-bold text-lg">Confirmation</h3>
             <p class="py-4" x-text="eventDetail.question"></p>
