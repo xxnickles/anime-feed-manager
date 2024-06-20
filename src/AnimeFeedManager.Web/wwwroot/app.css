@@ -4126,6 +4126,11 @@ html:has(.drawer-toggle:checked) {
   display: none;
 }
 
+.size-6 {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 .h-3 {
   height: 0.75rem;
 }

@@ -12,13 +12,13 @@
         <a href="/" class="btn btn-ghost normal-case text-xl">Anime Feed Manager</a>
         <ul class="menu menu-horizontal px-1 hidden lg:flex">
             <li>
-                <NavLink class="nav-link" href="seasons" Match="NavLinkMatch.All">
+                <NavLink href="seasons" Match="NavLinkMatch.All">
                     Seasons
                 </NavLink>
             </li>
             <AuthorizeView Roles="@RoleNames.Admin">
                 <li>
-                    <NavLink class="nav-link" href="admin">
+                    <NavLink href="admin">
                         Admin
                     </NavLink>
                 </li>
@@ -26,19 +26,19 @@
             <AuthorizeView>
                 <NotAuthorized>
                     <li>
-                        <NavLink class="nav-link" href="@GetLoginPath()">
+                        <NavLink href="@GetLoginPath()">
                             Login
                         </NavLink>
                     </li>
                     <li>
-                        <NavLink class="nav-link" href="register">
+                        <NavLink href="register">
                             Register
                         </NavLink>
                     </li>
                 </NotAuthorized>
                 <Authorized>
                     <li>
-                        <NavLink class="nav-link" href="@GetLogoutPath()">
+                        <NavLink href="@GetLogoutPath()">
                             Logout
                         </NavLink>
                     </li>

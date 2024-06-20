@@ -2,18 +2,18 @@
     <label for="drawer" aria-label="close sidebar" class="drawer-overlay"></label>
     <ul class="menu p-4 w-80 min-h-full bg-base-200">
         <li>
-            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+            <NavLink href="/" Match="NavLinkMatch.All">
                 Home
             </NavLink>
         </li>
         <li>
-            <NavLink class="nav-link" href="seasons" Match="NavLinkMatch.All">
+            <NavLink href="seasons" Match="NavLinkMatch.All">
                 Seasons
             </NavLink>
         </li>
         <AuthorizeView Roles="@RoleNames.Admin">
             <li>
-                <NavLink class="nav-link" href="admin">
+                <NavLink href="admin">
                     Admin
                 </NavLink>
             </li>
@@ -21,19 +21,19 @@
         <AuthorizeView>
             <NotAuthorized>
                 <li>
-                    <NavLink class="nav-link" href="login">
+                    <NavLink href="login">
                         Login
                     </NavLink>
                 </li>
                 <li>
-                    <NavLink class="nav-link" href="register">
+                    <NavLink href="register">
                         Register
                     </NavLink>
                 </li>
             </NotAuthorized>
             <Authorized>
                 <li>
-                    <NavLink class="nav-link" href="logout">
+                    <NavLink href="logout">
                         Logout
                     </NavLink>
                 </li>
