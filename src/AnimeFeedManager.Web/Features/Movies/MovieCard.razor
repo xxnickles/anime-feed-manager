@@ -12,7 +12,7 @@
 
     @if (Movie.ImageUrl is not null)
     {
-        <img class="w-44 object-cover" src="@Movie.ImageUrl" alt="@Movie.Title"/>
+        <img class="w-44 object-cover" src="@Movie.ImageUrl" alt="@Movie.Title" loading="lazy"/>
     }
     else
     {

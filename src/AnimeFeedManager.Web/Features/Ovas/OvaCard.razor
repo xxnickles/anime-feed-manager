@@ -12,7 +12,7 @@
 
     @if (Ova.ImageUrl is not null)
     {
-        <img class="object-cover w-44" src="@Ova.ImageUrl" alt="@Ova.Title"/>
+        <img class="object-cover w-44" src="@Ova.ImageUrl" alt="@Ova.Title" loading="lazy"/>
     }
     else
     {

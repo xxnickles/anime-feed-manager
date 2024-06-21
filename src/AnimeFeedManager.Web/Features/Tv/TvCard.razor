@@ -10,7 +10,7 @@
     </div>
     @if (Anime.ImageUrl is not null)
     {
-        <img class="object-cover w-44" src="@Anime.ImageUrl" alt="@Anime.Title"/>
+        <img class="object-cover w-44" src="@Anime.ImageUrl" alt="@Anime.Title" loading="lazy"/>
     }
     else
     {
