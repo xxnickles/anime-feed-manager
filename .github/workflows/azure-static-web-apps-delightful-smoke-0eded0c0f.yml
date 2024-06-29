@@ -3,7 +3,7 @@ name: AFM Azure Static App
 on:
   push:
     paths:
-      - "src/AnimeFeedManager.Web**"
+      - "src/AnimeFeedManager.WebApp**"
       - "src/AnimeFeedManager.Features.Common/**"
       - "!deployment/**"
       - "!**/*.md"
@@ -11,7 +11,7 @@ on:
       - main
   pull_request:
     paths:
-      - "src/AnimeFeedManager.Web**"
+      - "src/AnimeFeedManager.WebApp**"
       - "src/AnimeFeedManager.Features.Common/**"
       - "!deployment/**"
       - "!**/*.md"

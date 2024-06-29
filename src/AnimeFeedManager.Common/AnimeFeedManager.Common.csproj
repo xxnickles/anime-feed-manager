@@ -11,7 +11,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-        <PackageReference Include="LanguageExt.Core" Version="4.4.8" />
+        <PackageReference Include="LanguageExt.Core" Version="4.4.9" />
     </ItemGroup>
 
 </Project>

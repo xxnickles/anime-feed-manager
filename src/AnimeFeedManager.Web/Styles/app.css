@@ -38,3 +38,5 @@
 .blazor-error-boundary::after {
     content: "An error has occurred."
 }
+
+[x-cloak] { display: none !important; }
