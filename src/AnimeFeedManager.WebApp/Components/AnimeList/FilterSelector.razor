@@ -18,7 +18,7 @@
     [Parameter]
     public EventCallback<IEnumerable<Func<FeedAnime, bool>>> SelectedFiltersChanged { get; set; }
 
-    MudChip[] SelectedFilters
+    IReadOnlyCollection<string> SelectedFilters
     {
         get => _selectedFilters;
         set
@@ -28,22 +28,22 @@
         }
     }
 
-    private MudChip[] _selectedFilters = [];
+    private IReadOnlyCollection<string> _selectedFilters = [];
 
-    private async Task NotifyChanges(MudChip[] selectedChips)
+    private async Task NotifyChanges(IReadOnlyCollection<string> selectedChips)
     {
         await SelectedFiltersChanged.InvokeAsync(selectedChips.Select(Map));
     }
 
-    private Func<FeedAnime, bool> Map(MudChip chip)
+    private Func<FeedAnime, bool> Map(string chip)
     {
-        return chip.Text switch {
+        return chip switch {
             "Available" => Filters.Available,
             "Not Available" => Filters.NoAvailable,
             "Completed" => Filters.Completed,
             "Subscribed" => Filters.Subscribed(State.Value.TvSubscriptions),
             "Interested" => Filters.Interested(State.Value.TvInterested),
-            _ => throw new ArgumentException($"'{chip.Text}' is an invalid selection")
+            _ => throw new ArgumentException($"'{chip}' is an invalid selection")
             };
     }
 
