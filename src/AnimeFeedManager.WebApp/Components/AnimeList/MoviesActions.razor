@@ -14,7 +14,7 @@
         // Subscribe flow
         if (Anime.AirDate is not null)
         {
-            <MudChip Label="true" Color="Color.Success">Available for notifications</MudChip>
+            <MudChip T="string" Label="true" Color="Color.Success">Available for notifications</MudChip>
             <MudSpacer></MudSpacer>
             <MudTooltip Text="Subscribe">
                 <MudIconButton Icon="@Icons.Material.Filled.PlaylistAddCheck"
@@ -24,14 +24,14 @@
         }
         else
         {
-            <MudChip Label="true" Color="Color.Info" Icon="@Icons.Material.Filled.Info">No actions available</MudChip>
+            <MudChip T="string" Label="true" Color="Color.Info" Icon="@Icons.Material.Filled.Info">No actions available</MudChip>
             <MudSpacer></MudSpacer>
         }
     }
     else
     {
         // Unsubscribe flow
-        <MudChip Label="true" Color="Color.Secondary">Subscribed for notifications</MudChip>
+        <MudChip T="string" Label="true" Color="Color.Secondary">Subscribed for notifications</MudChip>
         <MudSpacer></MudSpacer>
         <MudTooltip Text="Unsubscribe">
             <MudIconButton Icon="@Icons.Material.Filled.PlaylistRemove"

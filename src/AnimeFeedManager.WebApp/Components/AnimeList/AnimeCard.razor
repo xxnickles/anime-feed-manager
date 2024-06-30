@@ -28,7 +28,7 @@
 
         @if (Anime.FeedInformation.Status == SeriesStatus.Completed)
         {
-            <MudChip Label="true" Color="Color.Info">Series has ended</MudChip>
+            <MudChip T="string" Label="true" Color="Color.Info">Series has ended</MudChip>
         }
         else
         {
@@ -38,7 +38,7 @@
                 {
                     if (!State.Value.TvSubscriptions.Contains(Anime.FeedInformation?.Title ?? string.Empty))
                     {
-                        <MudChip Label="true" Color="Color.Success">Available</MudChip>
+                        <MudChip T="string" Label="true" Color="Color.Success">Available</MudChip>
                         <MudSpacer></MudSpacer>
                         <MudTooltip Text="Subscribe">
                             <MudIconButton Icon="@Icons.Material.Filled.PlaylistAddCheck"
@@ -48,7 +48,7 @@
                     }
                     else
                     {
-                        <MudChip Label="true" Color="Color.Secondary">Subscribed</MudChip>
+                        <MudChip T="string" Label="true" Color="Color.Secondary">Subscribed</MudChip>
                         <MudSpacer></MudSpacer>
                         <MudTooltip Text="Unsubscribe">
                             <MudIconButton Icon="@Icons.Material.Filled.PlaylistRemove"
@@ -59,13 +59,13 @@
                 }
                 else
                 {
-                    <MudChip Label="true" Color="Color.Success">Available</MudChip>
+                    <MudChip T="string" Label="true" Color="Color.Success">Available</MudChip>
                     <MudSpacer></MudSpacer>
                 }
             }
             else
             {
-                <MudChip Label="true" Color="Color.Warning">Not Available Yet</MudChip>
+                <MudChip T="string" Label="true" Color="Color.Warning">Not Available Yet</MudChip>
                 <MudSpacer></MudSpacer>
                 if (State.Value.User is ApplicationUser user)
                 {
