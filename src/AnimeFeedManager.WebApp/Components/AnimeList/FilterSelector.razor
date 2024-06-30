@@ -1,7 +1,7 @@
 ﻿@using AnimeFeedManager.WebApp.State
 @inject ApplicationState State
 
-<MudChipSet T="string" @bind-SelectedChips="SelectedFilters" MultiSelection="true" Filter="true" Class="d-flex justify-center mb-4">
+<MudChipSet T="string" @bind-SelectedValues="SelectedFilters" SelectionMode="SelectionMode.MultiSelection" CheckMark="true" Class="d-flex justify-center mb-4">
     <MudChip Color="Color.Info" Text="Available"></MudChip>
     <MudChip Color="Color.Info" Text="Not Available"></MudChip>
     <MudChip Color="Color.Info" Text="Completed"></MudChip>

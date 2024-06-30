@@ -1,10 +1,18 @@
 /** @type {import('tailwindcss').Config} */
+
+const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
     content: ["./**/*.{razor,cshtml}", "../AnimeFeedManager.Web.Client/**/*.{razor,cshtml}"],
+    theme:{
+      extend: {
+          fontFamily: {
+              'sans': ['"PT Sans"', ...defaultTheme.fontFamily.sans],
+          }
+      }  
+    },
     daisyui: {
-        themes: ["emerald", "dim"],
-        darkTheme: "dim",
-        
+        themes: ["nord", "dim"],
+        darkTheme: "dim"        
     },
     plugins: [
         require('@tailwindcss/typography'),
