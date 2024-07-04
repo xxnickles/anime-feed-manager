@@ -1,8 +1,0 @@
-﻿@using System.Text.Json
-<pre>@JsonSerializer.Serialize(Value, new JsonSerializerOptions {WriteIndented = true})</pre>
-
-@code {
-
-    [Parameter]
-    public object? Value { get; set; }
-}
