@@ -6,8 +6,6 @@ public interface ISeasonsGetter
 {
     Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetAvailableSeasons(CancellationToken token);
 
-    Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetSeasons(byte count, CancellationToken token);
-
     Task<Either<DomainError, SeasonStorage>> GetCurrentSeason(CancellationToken token);
 }
 
@@ -21,14 +19,6 @@ public sealed class SeasonsGetter(ITableClientFactory<SeasonStorage> tableClient
                 cancellationToken: token)));
     }
 
-    public Task<Either<DomainError, ImmutableList<SeasonStorage>>> GetSeasons(byte count, CancellationToken token)
-    {
-        return tableClientFactory.GetClient()
-            .BindAsync(client => TableUtils.ExecuteLimitedQuery(
-                () => client.QueryAsync<SeasonStorage>(season =>
-                        season.PartitionKey == SeasonType.Season || season.PartitionKey == SeasonType.Latest,
-                    cancellationToken: token), count));
-    }
 
     public Task<Either<DomainError, SeasonStorage>> GetCurrentSeason(CancellationToken token)
     {
@@ -40,7 +30,7 @@ public sealed class SeasonsGetter(ITableClientFactory<SeasonStorage> tableClient
             .BindAsync(GetLatest);
     }
 
-    private Either<DomainError, SeasonStorage> GetLatest(ImmutableList<SeasonStorage> availableSeasons)
+    private static Either<DomainError, SeasonStorage> GetLatest(ImmutableList<SeasonStorage> availableSeasons)
     {
         return availableSeasons.Count > 0
             ? availableSeasons.First()

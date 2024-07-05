@@ -1,6 +1,7 @@
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Features.Infrastructure.SendGrid;
 using AnimeFeedManager.Features.Notifications.IO;
+using AnimeFeedManager.Features.Tv.Feed;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
 using Microsoft.Extensions.Logging;
 using SendGrid;
@@ -49,7 +50,7 @@ public class SendNotifications(
             }
             else
                 _logger.LogError("Error sending email notification (Status Code {Code}) {Reason}", response.StatusCode,
-                    await response.Body.ReadAsStringAsync());
+                    await response.Body.ReadAsStringAsync(token));
         }
         catch (Exception ex)
         {
@@ -57,7 +58,7 @@ public class SendNotifications(
         }
     }
 
-    private IEnumerable<(string User, string Title)> GetTitlesForUser(SubscriberTvNotification notification)
+    private static IEnumerable<(string User, string Title)> GetTitlesForUser(SubscriberTvNotification notification)
     {
         return notification.Feeds.Select(feed => (notification.SubscriberId, feed.Title));
     }

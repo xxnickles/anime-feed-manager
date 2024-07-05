@@ -31,7 +31,7 @@ public class RemoveAllOvasSubscriptions : IRemoveAllOvasSubscriptions
             .BindAsync(items => RemoveAll(client, items, token));
     }
 
-    private Task<Either<DomainError, ProcessResult>> RemoveAll(TableClient client,
+    private static Task<Either<DomainError, ProcessResult>> RemoveAll(TableClient client,
         ImmutableList<OvasSubscriptionStorage> subscriptions,
         CancellationToken token)
     {

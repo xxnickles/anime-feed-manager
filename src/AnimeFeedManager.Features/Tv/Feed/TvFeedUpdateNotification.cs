@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
 
-namespace AnimeFeedManager.Features.Notifications;
+namespace AnimeFeedManager.Features.Tv.Feed;
 
 [method: JsonConstructor]
 public record TvFeedUpdateNotification(
@@ -26,6 +26,4 @@ public record TvFeedUpdateNotification(
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(TvFeedUpdateNotification))]
-public partial class TvNotificationContext : JsonSerializerContext
-{
-}
+public partial class TvNotificationContext : JsonSerializerContext;

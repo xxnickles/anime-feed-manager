@@ -31,7 +31,7 @@ public interface IDomainPostman
 
 public class AzureQueueMessages : IDomainPostman
 {
-    private AzureStorageSettings _azureSettings;
+    private readonly AzureStorageSettings _azureSettings;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly QueueClientOptions _queueClientOptions;
 

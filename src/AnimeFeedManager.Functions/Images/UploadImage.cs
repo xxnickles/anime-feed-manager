@@ -36,7 +36,7 @@ public sealed class UploadImage
             imageScrapEvent.Payload.RemoteUrl);
 
         
-        var response = await _httpClient.GetAsync(imageScrapEvent.Payload.RemoteUrl);
+        var response = await _httpClient.GetAsync(imageScrapEvent.Payload.RemoteUrl, token);
         response.EnsureSuccessStatusCode();
         await using var ms = await response.Content.ReadAsStreamAsync(token);
 

@@ -15,7 +15,7 @@ public class ValidationErrors : DomainError
 {
     public ImmutableDictionary<string, string[]> Errors { get; }
 
-    public ValidationErrors(IEnumerable<ValidationError> errors)
+    private ValidationErrors(IEnumerable<ValidationError> errors)
         : base("One or more validations have failed")
     {
         Errors = new Dictionary<string, string[]>(errors.Select(x => x.Error))

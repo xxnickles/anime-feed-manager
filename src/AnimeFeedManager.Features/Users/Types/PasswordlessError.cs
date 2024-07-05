@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.Users.Types;
 
 public class PasswordlessError : DomainError
 {
-    public PasswordlessApiException Exception { get; set; }
+    public PasswordlessApiException Exception { get; }
     
     private PasswordlessError(PasswordlessApiException exception) : base(exception.Message)
     {

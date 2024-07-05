@@ -19,10 +19,6 @@
                     <h3 class="font-bold">Nothing to see here!</h3>
                     <ValidationResult ValidationErrors="errors"/>
                     break;
-                case ForbiddenError error:
-                    <h3 class="font-bold">You are not allowed to perform this action!</h3>
-                    <p class="text-sm whitespace-normal">@error</p>
-                    break;
                 default:
                     <h3 class="font-bold">An Error Occurred</h3>
                     <p class="text-sm whitespace-normal">Unexpected condition has occured</p>
@@ -41,8 +37,8 @@
         {
             NoContentError => ToastType.Warning,
             NotFoundError => ToastType.Warning,
-            ForbiddenError => ToastType.Warning,
             _ => ToastType.Error
         };
     }
+
 }

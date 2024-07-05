@@ -77,7 +77,7 @@ public class AlternativeTitleUpdater
             .MapAsync(_ => AlternativeTitleUpdateResult.ProcessComplete);
     }
 
-    private AlternativeTitleStorage Complete(AlternativeTitleStorage alternativeTitleStorage)
+    private static AlternativeTitleStorage Complete(AlternativeTitleStorage alternativeTitleStorage)
     {
         alternativeTitleStorage.Status = SeriesStatus.Completed;
         return alternativeTitleStorage;

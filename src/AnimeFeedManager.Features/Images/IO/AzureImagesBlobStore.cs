@@ -7,7 +7,7 @@ namespace AnimeFeedManager.Features.Images.IO;
 public class AzureImagesBlobStore : IImagesBlobStore
 {
     private const string Container = "images";
-    private BlobContainerClient _containerClient;
+    private readonly BlobContainerClient _containerClient;
 
     public AzureImagesBlobStore(AzureStorageSettings storageOptions)
     {

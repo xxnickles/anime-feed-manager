@@ -30,7 +30,7 @@ public sealed class MovieFeedUpdater
     public Task<Either<DomainError, int>> TryGetFeed(ImmutableList<MovieStorage> movies,
         CancellationToken token)
     {
-        return _feedScrapper.GetFeed(movies, token)
+        return _feedScrapper.GetFeed(movies)
             .BindAsync(CreateState)
             .BindAsync(data => SendMessages(data, token));
     }

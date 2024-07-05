@@ -75,7 +75,7 @@ public sealed class FeedProvider : IFeedProvider
 
     private static string GetRssUrl(Resolution resolution, LinkType type)
     {
-        var baseUrl = $"{SubsPleaseRss}";
+        const string baseUrl = $"{SubsPleaseRss}";
 
         return type switch
         {

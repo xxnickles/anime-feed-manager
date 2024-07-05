@@ -6,7 +6,7 @@ internal static class Utils
 {
     internal static string TryGetFeedTitle(ImmutableList<string> titleList, string animeTitle)
     {
-        if (!titleList.Any()) return string.Empty;
+        if (titleList.IsEmpty) return string.Empty;
         var result = Process.ExtractOne(animeTitle, titleList);
         return result.Score switch
         {

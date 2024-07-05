@@ -32,7 +32,7 @@ public sealed class UserStore(ITableClientFactory<UserStorage> tableClientFactor
     private static Either<DomainError, Unit> CheckMatches(
         ImmutableList<UserStorage> results)
     {
-        if (results.Any())
+        if (!results.IsEmpty)
         {
             return Left<DomainError, Unit>(ValidationErrors.Create(new[]
                 {ValidationError.Create("Email", "Provided email is already registered in the system")}));

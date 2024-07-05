@@ -11,9 +11,9 @@ public class AggregatedError(ImmutableList<DomainError> errors, AggregatedError.
         Total,
         Partial
     }
-    
-    public ImmutableList<DomainError> Errors { get; } = errors;
-    public FailureType Type { get; } = failureType;
+
+    private ImmutableList<DomainError> Errors { get; } = errors;
+    private FailureType Type { get; } = failureType;
     public override void LogError(ILogger logger)
     {
         logger.LogWarning("{Message}. {TypeMessage}", Message, TypeMessage(Type));

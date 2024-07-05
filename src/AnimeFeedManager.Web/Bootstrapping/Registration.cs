@@ -2,7 +2,6 @@
 using AnimeFeedManager.Features.Images;
 using AnimeFeedManager.Features.Infrastructure;
 using AnimeFeedManager.Features.Maintenance;
-using AnimeFeedManager.Features.Migration;
 using AnimeFeedManager.Features.Movies;
 using AnimeFeedManager.Features.Notifications;
 using AnimeFeedManager.Features.Ovas;
@@ -53,7 +52,7 @@ internal static class Registration
 
     internal static IServiceCollection RegisterAppDependencies(this IServiceCollection services,
         IConfigurationManager configuration,
-       Func<TokenCredential> defaultTokenCredential)
+        Func<TokenCredential> defaultTokenCredential)
     {
         // Storage
         services.RegisterStorage(configuration, defaultTokenCredential);
@@ -68,7 +67,6 @@ internal static class Registration
         services.RegisterUserServices();
         services.RegisterPasswordlessServices();
         services.RegisterMaintenanceServices();
-        services.RegisterMigration();
 
         return services;
     }

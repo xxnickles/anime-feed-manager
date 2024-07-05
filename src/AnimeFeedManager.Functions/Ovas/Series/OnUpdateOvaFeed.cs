@@ -45,7 +45,7 @@ public class OnUpdateOvaFeed
                 new StateChange(message.StateId, NotificationTarget.Ova, message.Payload.Series.RowKey ?? string.Empty),
                 token)
             .BindAsync(
-                currentState => TryToPublishUpdate(currentState, message.Payload.Series?.PartitionKey ?? string.Empty, token));
+                currentState => TryToPublishUpdate(currentState, message.Payload.Series.PartitionKey ?? string.Empty, token));
 
         stateUpdate.Match(
             _ => _logger.LogInformation("Ova feed notification has been sent"),

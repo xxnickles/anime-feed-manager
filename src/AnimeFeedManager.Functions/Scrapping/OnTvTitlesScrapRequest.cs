@@ -17,7 +17,7 @@ public sealed class OnTvTitlesScrapRequest(
         CancellationToken token)
     {
         
-        var result = await titlesScrapper.Scrap();
+        var result = await titlesScrapper.Scrap(token);
         result.Match(
             _ => _logger.LogInformation("Scrapping process for tv has started"),
             e => e.LogError(_logger)

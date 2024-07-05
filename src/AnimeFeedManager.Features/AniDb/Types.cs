@@ -1,8 +1,8 @@
 ﻿namespace AnimeFeedManager.Features.AniDb;
 
-internal record JsonSeasonInfo(string Season, int Year);
+internal abstract record JsonSeasonInfo(string Season, int Year);
 
-internal record JsonAnimeInfo(
+internal abstract record JsonAnimeInfo(
     string Title,
     string? ImageUrl,
     string Synopsys,

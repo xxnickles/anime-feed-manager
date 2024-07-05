@@ -36,4 +36,4 @@ public abstract record Notification(
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(Notification))]
-public partial class NotificationContext : JsonSerializerContext {}
+public partial class NotificationContext : JsonSerializerContext;

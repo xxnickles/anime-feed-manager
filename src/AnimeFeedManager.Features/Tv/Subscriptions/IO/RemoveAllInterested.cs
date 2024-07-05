@@ -23,7 +23,7 @@ public class RemoveAllInterested : IRemoveAllInterested
             .BindAsync(client => RemoveAllSubscription(client, userId, token));
     }
 
-    private Task<Either<DomainError, ProcessResult>> RemoveAllSubscription(TableClient client, UserId userId,
+    private static Task<Either<DomainError, ProcessResult>> RemoveAllSubscription(TableClient client, UserId userId,
         CancellationToken token)
     {
         return TableUtils.ExecuteQueryWithEmptyResult(() =>
@@ -31,7 +31,7 @@ public class RemoveAllInterested : IRemoveAllInterested
             .BindAsync(items => RemoveAll(client, items, token));
     }
 
-    private Task<Either<DomainError, ProcessResult>> RemoveAll(TableClient client,
+    private static Task<Either<DomainError, ProcessResult>> RemoveAll(TableClient client,
         ImmutableList<InterestedStorage> subscriptions,
         CancellationToken token)
     {

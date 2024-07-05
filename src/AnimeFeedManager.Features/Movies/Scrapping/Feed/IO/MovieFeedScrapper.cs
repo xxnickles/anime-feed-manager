@@ -10,7 +10,7 @@ namespace AnimeFeedManager.Features.Movies.Scrapping.Feed.IO;
 public interface IMovieFeedScrapper
 {
     public Task<Either<DomainError, ImmutableList<(MovieStorage MovieStorage, ImmutableList<SeriesFeedLinks> Links)>>>
-        GetFeed(ImmutableList<MovieStorage> movies, CancellationToken token);
+        GetFeed(ImmutableList<MovieStorage> movies);
 }
 
 public sealed class MovieFeedScrapper : IMovieFeedScrapper
@@ -24,7 +24,7 @@ public sealed class MovieFeedScrapper : IMovieFeedScrapper
 
     public async
         Task<Either<DomainError, ImmutableList<(MovieStorage MovieStorage, ImmutableList<SeriesFeedLinks> Links)>>>
-        GetFeed(ImmutableList<MovieStorage> movies, CancellationToken token)
+        GetFeed(ImmutableList<MovieStorage> movies)
     {
         try
         {

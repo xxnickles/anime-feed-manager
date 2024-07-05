@@ -29,6 +29,4 @@ public record MoviesFeedUpdateNotification(
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(MoviesFeedUpdateNotification))]
-public partial class MoviesFeedUpdateNotificationContext : JsonSerializerContext
-{
-}
+public partial class MoviesFeedUpdateNotificationContext : JsonSerializerContext;

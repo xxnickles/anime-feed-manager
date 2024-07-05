@@ -14,7 +14,7 @@ public static class LanguageExtensions
         if (oks.Count == results.Length)
             return results.Rights().ToImmutableList();
 
-        var errorType = oks.Any() switch
+        var errorType = !oks.IsEmpty switch
         {
             true => AggregatedError.FailureType.Partial,
             false => AggregatedError.FailureType.Total

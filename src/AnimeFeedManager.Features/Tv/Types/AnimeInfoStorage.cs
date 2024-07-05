@@ -32,12 +32,6 @@ public sealed class AnimeInfoWithImageStorage : AnimeInfoStorage
     public string? ImageUrl { get; set; }
 }
 
-public sealed class LegacyAnimeInfoStorage : AnimeInfoStorage
-{
-    public bool? Completed { get; set; }
-}
-
-
 public class AlternativeTitleStorage : ITableEntity
 {
     public string? AlternativeTitle { get; set; }

@@ -28,6 +28,4 @@ public record SeasonProcessNotification(
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(SeasonProcessNotification))]
-public partial class SeasonProcessNotificationContext : JsonSerializerContext
-{
-}
+public partial class SeasonProcessNotificationContext : JsonSerializerContext;

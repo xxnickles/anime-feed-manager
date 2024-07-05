@@ -10,35 +10,12 @@ namespace AnimeFeedManager.Features.Movies.Library;
 
 public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
 {
-    public Task<Either<DomainError, ShortSeasonCollection>> GetForSeason(string season, ushort year,
-        CancellationToken token = default)
-    {
-        return SeasonValidators.Parse(season, year)
-            .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.Season, param.Year, token))
-            .MapAsync(movies => Project(year, season, movies));
-    }
-
     public Task<Either<DomainError, ImmutableList<MovieLibrary>>> GetFeedForSeason(string season, ushort year,
         CancellationToken token = default)
     {
         return SeasonValidators.Parse(season, year)
             .BindAsync(param => seasonalLibrary.GetSeasonalLibrary(param.Season, param.Year, token))
             .MapAsync(ovas => ovas.ConvertAll(Project));
-    }
-
-    private static ShortSeasonCollection Project(ushort year, string season,
-        IEnumerable<MovieStorage> movies)
-    {
-        return new ShortSeasonCollection(year, season,
-            movies.Select(a =>
-                    new SimpleAnime(
-                        a.RowKey ?? string.Empty,
-                        a.PartitionKey ?? string.Empty,
-                        a.Title ?? "Not Available",
-                        a.Synopsis ?? "Not Available",
-                        a.ImageUrl,
-                        a.Date))
-                .ToArray());
     }
 
     private static MovieLibrary Project(MovieStorage movieStorage)

@@ -9,7 +9,6 @@ internal static class TableUtils
     /// Executes a query. Returns Domain Error on empty results
     /// </summary>
     /// <param name="query">Query</param>
-    /// <param name="typeName">Parameter name</param>
     /// <param name="callerPath">Caller Path</param>
     /// <param name="callerName">Caller Name</param>
     /// <typeparam name="T">Table Entity</typeparam>
@@ -43,7 +42,6 @@ internal static class TableUtils
     /// Executes a query with default empty results
     /// </summary>
     /// <param name="query">Query</param>
-    /// <param name="typeName">Parameter name</param>
     /// <param name="callerPath">Caller Path</param>
     /// <param name="callerName">Caller Name</param>
     /// <typeparam name="T">Table Entity</typeparam>
@@ -78,7 +76,6 @@ internal static class TableUtils
     /// Executes a query with that return no found instead of no content when no items match
     /// </summary>
     /// <param name="query">Query</param>
-    /// <param name="typeName">Parameter name</param>
     /// <param name="callerPath">Caller Path</param>
     /// <param name="callerName">Caller Name</param>
     /// <typeparam name="T">Table Entity</typeparam>
@@ -110,7 +107,6 @@ internal static class TableUtils
     /// Executes a query that iterates in a limited set of records at least once. Max records per page/request is 1000 <see cref="https://learn.microsoft.com/en-us/rest/api/storageservices/query-timeout-and-pagination"/>
     /// </summary>
     /// <param name="query">Query</param>
-    /// <param name="typeName">Parameter Name</param>
     /// <param name="items">Maximum items</param>
     ///  <param name="callerPath">Caller Path</param>
     /// <param name="callerName">Caller Name</param>

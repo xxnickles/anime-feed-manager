@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.Nyaa;
 
 internal static partial class NyaaScrapper
 {
-    internal const string BaseUrl = "https://nyaa.si/?f=2&c=1_0&q=";
+    private const string BaseUrl = "https://nyaa.si/?f=2&c=1_0&q=";
 
     internal static async Task<ShortSeriesTorrent[]> ScrapHelper(string series, IBrowser browser)
     {

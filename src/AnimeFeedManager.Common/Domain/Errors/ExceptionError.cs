@@ -47,7 +47,7 @@ public sealed class ExceptionError : DomainError
     }
 
     [Pure]
-    private static IImmutableList<string> ExtractErrors(Exception exn)
+    private static ImmutableList<string> ExtractErrors(Exception exn)
     {
         var lst = ImmutableList<string>.Empty;
         lst = lst.Add(exn.Message);

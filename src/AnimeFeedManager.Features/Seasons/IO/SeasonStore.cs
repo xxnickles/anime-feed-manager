@@ -25,7 +25,7 @@ public sealed class SeasonStore(ITableClientFactory<SeasonStorage> tableClientFa
         CancellationToken token)
     {
         return TableUtils.ExecuteQueryWithEmptyResult(() =>
-                client.QueryAsync<SeasonStorage>(s => s.Season == season.Season && s.Year == season.Year))
+                client.QueryAsync<SeasonStorage>(s => s.Season == season.Season && s.Year == season.Year, cancellationToken: token))
             .BindAsync((Func<ImmutableList<SeasonStorage>, Either<DomainError, TableClient>>?) CreateResult);
 
         Either<DomainError, TableClient> CreateResult(ImmutableList<SeasonStorage> items) =>

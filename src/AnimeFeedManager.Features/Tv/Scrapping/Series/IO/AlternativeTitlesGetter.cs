@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using AnimeFeedManager.Common.Domain.Errors;
+﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
 using AnimeFeedManager.Features.Tv.Types;
@@ -58,19 +57,5 @@ public sealed class AlternativeTitlesGetter : IAlternativeTitlesGetter
                 TableUtils.ExecuteQuery(() => client.QueryAsync<AlternativeTitleStorage>(x =>
                     x.RowKey == rowKey && x.PartitionKey == partitionKey, cancellationToken: token)))
             .MapAsync(results => results.First());
-    }
-
-    private static Expression<Func<AlternativeTitleStorage, bool>> GetTitlesFilter(IEnumerable<string> originalTitles)
-    {
-        var param = Expression.Parameter(typeof(AlternativeTitleStorage), "x");
-        Expression body = Expression.Constant(false);
-        body = originalTitles.Aggregate(body,
-            (current, title) => Expression.OrElse(current,
-                Expression.Equal(
-                    Expression.Property(param, typeof(AlternativeTitleStorage),
-                        nameof(AlternativeTitleStorage.OriginalTitle)),
-                    Expression.Constant(title))));
-
-        return Expression.Lambda<Func<AlternativeTitleStorage, bool>>(body, param);
     }
 }

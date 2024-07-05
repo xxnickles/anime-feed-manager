@@ -14,28 +14,28 @@ public sealed class StateUpdater(ITableClientFactory<StateUpdateStorage> tableCl
     private Task<Either<DomainError, CurrentState>> UpdateCompleted(string id, NotificationTarget target, string item,
         CancellationToken token = default)
     {
+        return tableClientFactory.GetClient()
+            .BindAsync(client => TryUpdate(client, id, target, Add, token));
+
         StateUpdateStorage Add(StateUpdateStorage original)
         {
             original.Completed += 1;
             original.Items = !string.IsNullOrWhiteSpace(original.Items) ? string.Join(',', original.Items, item) : item;
             return original;
         }
-
-        return tableClientFactory.GetClient()
-            .BindAsync(client => TryUpdate(client, id, target, Add, token));
     }
 
     private Task<Either<DomainError, CurrentState>> UpdateError(string id, NotificationTarget target,
         CancellationToken token = default)
     {
+        return tableClientFactory.GetClient()
+            .BindAsync(client => TryUpdate(client, id, target, Add, token));
+
         StateUpdateStorage Add(StateUpdateStorage original)
         {
             original.Errors += 1;
             return original;
         }
-
-        return tableClientFactory.GetClient()
-            .BindAsync(client => TryUpdate(client, id, target, Add, token));
     }
 
     private static async Task<Either<DomainError, CurrentState>> TryUpdate(

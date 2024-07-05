@@ -76,4 +76,4 @@ public record AdminTvControlParams(string Id, string Title, string Season, Serie
 }
 
 public record DefaultAdminTvControlParams() : AdminTvControlParams(string.Empty, string.Empty, string.Empty, SeriesStatus.NotAvailable);
-public record AlternativeTitleUpdate(string Id, string Season, string Title, string OriginalTitle, string Status);
+public abstract record AlternativeTitleUpdate(string Id, string Season, string Title, string OriginalTitle, string Status);

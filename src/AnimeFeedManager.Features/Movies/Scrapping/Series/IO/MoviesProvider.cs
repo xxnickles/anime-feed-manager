@@ -57,7 +57,7 @@ public sealed class MoviesProvider(
         }
     }
     
-    private Either<DomainError, SeasonInformation> GetSeasonInformation(JsonSeasonInfo jsonSeasonInfo)
+    private static Either<DomainError, SeasonInformation> GetSeasonInformation(JsonSeasonInfo jsonSeasonInfo)
     {
         return SeasonValidators.Parse(jsonSeasonInfo.Season, (ushort)jsonSeasonInfo.Year)
             .Map(data => new SeasonInformation(data.Season, data.Year));
@@ -76,17 +76,16 @@ public sealed class MoviesProvider(
 
     private static MovieStorage MapInfo(SeriesContainer container)
     {
-        var seasonInfo = MapSeasonInfo(container.SeasonInfo);
-        var year = seasonInfo.Year;
+        var (season, year) = MapSeasonInfo(container.SeasonInfo);
         var date = MappingUtils.ParseDate(container.Date, container.SeasonInfo.Year)?.ToUniversalTime();
         return new MovieStorage
         {
             RowKey = container.Id,
-            PartitionKey = IdHelpers.GenerateAnimePartitionKey(seasonInfo.Season, year),
+            PartitionKey = IdHelpers.GenerateAnimePartitionKey(season, year),
             Title = container.Title,
             Synopsis = container.Synopsys,
             Date = date,
-            Season = seasonInfo.Season.Value,
+            Season = season.Value,
             Year = year,
             Status = date is not null ? ShortSeriesStatus.NotProcessed : ShortSeriesStatus.NotAvailable
         };
