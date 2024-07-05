@@ -46,7 +46,7 @@ public sealed class OvasLibraryUpdater(
             .BindAsync(series => ovasStorage.Add(series, token));
     }
 
-    private OvaStorage ApplyExistentStatus(OvaStorage ova, ImmutableList<OvaFeedStatus> statusList)
+    private static OvaStorage ApplyExistentStatus(OvaStorage ova, ImmutableList<OvaFeedStatus> statusList)
     {
         OvaFeedStatus? oldStatus = statusList.FirstOrDefault(sl => sl.Id == ova.RowKey);
         if (oldStatus != null)

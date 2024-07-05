@@ -34,9 +34,11 @@ public class TitlesProvider(PuppeteerOptions puppeteerOptions) : ITitlesProvider
         }
     }
 
-    private const string ScrappingScript = @"
-        () => {
-            return Array.from(document.querySelectorAll('td.all-schedule-show a')).map(x => x.innerText);
-        }
-    ";
+    private const string ScrappingScript = """
+                                           
+                                                   () => {
+                                                       return Array.from(document.querySelectorAll('td.all-schedule-show a')).map(x => x.innerText);
+                                                   }
+                                               
+                                           """;
 }

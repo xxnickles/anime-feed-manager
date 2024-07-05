@@ -46,7 +46,7 @@ public sealed class MoviesLibraryUpdater(
     }
 
 
-    private MovieStorage ApplyExistentStatus(MovieStorage movie, ImmutableList<MovieFeedStatus> statusList)
+    private static MovieStorage ApplyExistentStatus(MovieStorage movie, ImmutableList<MovieFeedStatus> statusList)
     {
         MovieFeedStatus? oldStatus = statusList.FirstOrDefault(sl => sl.Id == movie.RowKey);
         if (oldStatus != null)

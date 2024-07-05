@@ -2,7 +2,7 @@
 
 public readonly struct Resolution
 {
-    public readonly string Value;
+    private readonly string Value;
 
     private Resolution(string value)
     {

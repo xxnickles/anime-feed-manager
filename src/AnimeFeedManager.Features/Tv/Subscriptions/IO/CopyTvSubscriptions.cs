@@ -24,7 +24,7 @@ public class CopyTvSubscriptions : ICopyTvSubscriptions
     }
 
 
-    private Task<Either<DomainError, ProcessResult>> CopySubscription(TableClient client, UserId source, UserId target,
+    private static Task<Either<DomainError, ProcessResult>> CopySubscription(TableClient client, UserId source, UserId target,
         CancellationToken token)
     {
         return TableUtils.ExecuteQueryWithEmptyResult(() =>

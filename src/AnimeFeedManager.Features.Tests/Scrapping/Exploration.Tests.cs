@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace AnimeFeedManager.Features.Tests.Scrapping;
 
-public class ExplorationTests
+public partial class ExplorationTests
 {
     // https://nyaa.si/?f=2&c=1_0&q=Koukaku+Kidoutai%3A+SAC_2045+%282022%29
     
@@ -22,7 +22,10 @@ public class ExplorationTests
     [InlineData("[Erai-raws] Boku no Daemon - 01 ~ 13 [720p][BATCH][Multiple Subtitle] [ENG][POR-BR][SPA-LA][SPA][ARA][FRE][GER][ITA][RUS][JPN][POR][POL][DUT][NOB][FIN][TUR][SWE][GRE][HEB][RUM][IND][THA][KOR][DAN][CHI][VIE][UKR][HUN][CES][HRV][MAY][FIL]","[Erai-raws] Boku no Daemon - 01 ~ 13 [720p][BATCH][Multiple Subtitle]")]
     public void Should_Remove_Language_Strings(string title, string expected)
     {
-        var sut =  Regex.Replace(title, @"\[[A-Z]{3}(-[A-Z]+)?\]", "").Trim();
+        var sut = TitlePattern().Replace(title, "").Trim();
         sut.Should().Be(expected);
     }
+
+    [GeneratedRegex(@"\[[A-Z]{3}(-[A-Z]+)?\]")]
+    private static partial Regex TitlePattern();
 }

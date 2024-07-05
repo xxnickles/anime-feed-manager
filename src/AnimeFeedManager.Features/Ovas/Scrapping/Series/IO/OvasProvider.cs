@@ -57,7 +57,7 @@ public sealed class OvasProvider(
         }
     }
 
-    private Either<DomainError, SeasonInformation> GetSeasonInformation(JsonSeasonInfo jsonSeasonInfo)
+    private static Either<DomainError, SeasonInformation> GetSeasonInformation(JsonSeasonInfo jsonSeasonInfo)
     {
         return SeasonValidators.Parse(jsonSeasonInfo.Season, (ushort)jsonSeasonInfo.Year)
             .Map(data => new SeasonInformation(data.Season, data.Year));

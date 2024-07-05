@@ -14,11 +14,9 @@ public static class ErrorToApiResults
             ValidationErrors vError => vError.ToResponse(),
             NotFoundError nError => nError.ToResponse(),
             NoContentError cError => cError.ToResponse(),
-            UnauthorizedError uError => uError.ToResponse(),
-            ForbiddenError fError => fError.ToResponse(),
             BasicError bError => bError.ToResponse(),
             PasswordlessError pError => pError.ToResponse(),
-                _ => DefaultError()
+            _ => DefaultError()
         };
     }
 
@@ -29,7 +27,7 @@ public static class ErrorToApiResults
             error.Errors,
             string.Empty,
             string.Empty,
-            (int) HttpStatusCode.UnprocessableEntity,
+            (int)HttpStatusCode.UnprocessableEntity,
             "An error occurred when processing your request.",
             "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422");
     }
@@ -39,7 +37,7 @@ public static class ErrorToApiResults
         return Results.Problem(
             null,
             null,
-            (int) HttpStatusCode.InternalServerError,
+            (int)HttpStatusCode.InternalServerError,
             "A system error has occurred",
             "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500");
     }
@@ -54,29 +52,19 @@ public static class ErrorToApiResults
         return Results.NoContent();
     }
 
-    private static IResult ToResponse(this UnauthorizedError _)
-    {
-        return Results.Unauthorized();
-    }
-
-    private static IResult ToResponse(this ForbiddenError _)
-    {
-        return Results.Forbid();
-    }
 
     private static IResult ToResponse(this BasicError error)
     {
         return Results.Problem(
             error.ToString(),
             null,
-            (int) HttpStatusCode.InternalServerError,
+            (int)HttpStatusCode.InternalServerError,
             "A error has ocurred",
             "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500");
     }
 
     private static IResult ToResponse(this PasswordlessError error)
     {
-        
         return Results.Problem(
             detail: error.Exception.Details.Detail,
             title: error.Exception.Details.Title,
@@ -85,7 +73,7 @@ public static class ErrorToApiResults
             instance: error.Exception.Details.Instance,
             extensions: error.Exception.Details.Extensions.ToDictionary(
                 pair => pair.Key,
-                pair => (object?) pair.Value
+                pair => (object?)pair.Value
             ));
     }
 
@@ -93,7 +81,7 @@ public static class ErrorToApiResults
     private static IResult DefaultError() => Results.Problem(
         null,
         null,
-        (int) HttpStatusCode.InternalServerError,
+        (int)HttpStatusCode.InternalServerError,
         "A error has ocurred",
         "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500");
 }

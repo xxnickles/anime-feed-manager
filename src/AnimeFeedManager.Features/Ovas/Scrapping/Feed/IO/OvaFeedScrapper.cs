@@ -10,7 +10,7 @@ namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.IO;
 public interface IOvaFeedScrapper
 {
     public Task<Either<DomainError, ImmutableList<(OvaStorage OvaStorage, ImmutableList<SeriesFeedLinks> Links)>>>
-        GetFeed(ImmutableList<OvaStorage> ovas, CancellationToken token);
+        GetFeed(ImmutableList<OvaStorage> ovas);
 }
 
 public sealed class OvumFeedScrapper : IOvaFeedScrapper
@@ -23,7 +23,7 @@ public sealed class OvumFeedScrapper : IOvaFeedScrapper
     }
 
     public async Task<Either<DomainError, ImmutableList<(OvaStorage OvaStorage, ImmutableList<SeriesFeedLinks> Links)>>>
-        GetFeed(ImmutableList<OvaStorage> ovas, CancellationToken token)
+        GetFeed(ImmutableList<OvaStorage> ovas)
     {
         try
         {

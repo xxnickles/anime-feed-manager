@@ -1,6 +1,3 @@
 ﻿namespace AnimeFeedManager.Features.Notifications.Types;
 
-public class General
-{
-    
-}
+public class General;

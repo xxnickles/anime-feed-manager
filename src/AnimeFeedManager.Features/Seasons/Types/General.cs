@@ -20,23 +20,21 @@ public record SimpleSeasonWrapper(string Season, int Year, bool IsLatest);
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(SimpleSeasonWrapper[]))]
-public partial class SimpleSeasonWrapperContext : JsonSerializerContext
-{
-}
+public partial class SimpleSeasonWrapperContext : JsonSerializerContext;
 
 public static class Extensions
 {
-    private static FrozenSet<Season> _yearSeasons =
-        new[] {Season.Winter, Season.Spring, Season.Summer, Season.Fall}.ToFrozenSet();
+    private static readonly FrozenSet<Season> YearSeasons =
+        new[] { Season.Winter, Season.Spring, Season.Summer, Season.Fall }.ToFrozenSet();
 
     public static SeasonGroup ToGroup(
         this IEnumerable<SeasonWrapper> seasonWrappers, Year year)
     {
-        var values = _yearSeasons.Aggregate((Seasons: new List<SeasonInfo>(), HasLatest: false), (acc, next) =>
+        var values = YearSeasons.Aggregate((Seasons: new List<SeasonInfo>(), HasLatest: false), (acc, next) =>
         {
             SeasonInfo seasonInfo = seasonWrappers.FirstOrDefault(s => s.Season == next) switch
             {
-                {IsLatest: true} => new LatestSeason(next),
+                { IsLatest: true } => new LatestSeason(next),
                 not null => new RegularSeason(next),
                 _ => new NotAvailableSeason(next)
             };
@@ -57,11 +55,6 @@ public static class Extensions
     public static SeasonWrapper ToWrapper(this SimpleSeasonWrapper season) =>
         new(Season.FromString(season.Season), Year.FromNumber(season.Year), season.IsLatest);
 
-
-    public static SeasonInformation ToSeasonInformation(this SeasonWrapper season)
-    {
-        return new SeasonInformation(season.Season, season.Year);
-    }
 
     internal static SeasonWrapper ToWrapper(this SeasonStorage storage)
     {

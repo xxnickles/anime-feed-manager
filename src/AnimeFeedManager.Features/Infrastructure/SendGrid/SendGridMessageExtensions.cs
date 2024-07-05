@@ -15,12 +15,11 @@ public static partial class SendGridMessageExtensions
     //     return @this;
     // }
     
-    public static SendGridMessage AddInfoFromNotification(this SendGridMessage @this, SubscriberTvNotification notification)
+    public static void AddInfoFromNotification(this SendGridMessage @this, SubscriberTvNotification notification)
     {
         @this.AddTo(notification.Subscriber);
         @this.SetSubject(DefaultSubject());
         @this.AddContent(MimeType.Html, CreateHtmlBody(notification.Feeds));
-        return @this;
     }
 
     // private static string CreateHtmlBody(IEnumerable<ShortSeries> feeds, string type)
@@ -70,15 +69,17 @@ public static partial class SendGridMessageExtensions
         const string linkStyle = "style=\"margin: 0;\"";
         var stringBuilder = new StringBuilder();
         stringBuilder.Append(
-            @"<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Strict//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"">");
+            """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">""");
         stringBuilder.Append("<html>");
         stringBuilder.Append("<head>");
-        stringBuilder.Append(@"<style type=""text/css"">
-                    body, p, div {
-                      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-                      font-size: 16px;
-                    }
-                    </style>");
+        stringBuilder.Append("""
+                             <style type="text/css">
+                                                 body, p, div {
+                                                   font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+                                                   font-size: 16px;
+                                                 }
+                                                 </style>
+                             """);
         stringBuilder.Append("</head>");
         stringBuilder.Append("<body>");
         stringBuilder.AppendLine(

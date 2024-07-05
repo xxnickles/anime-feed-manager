@@ -27,7 +27,7 @@ public sealed class SeriesProvider(
     private readonly record struct ProcessData(
         ImmutableList<TvSeriesStatus> CompletedSeries,
         SeasonInformation SeasonInfo,
-        bool isOldSeason);
+        bool IsOldSeason);
 
     public async Task<Either<DomainError, TvSeries>> GetLibrary(SeasonSelector season, CancellationToken token)
     {
@@ -47,7 +47,7 @@ public sealed class SeriesProvider(
                 .BindAsync(seasonInfo => PrepareSeriesData(seasonInfo.Season, seasonInfo.Year, token))
                 .MapAsync(processData => new TvSeries(series
                         .Select(s => MapInfo(s, processData.CompletedSeries, processData.SeasonInfo,
-                            processData.isOldSeason))
+                            processData.IsOldSeason))
                         .ToImmutableList(),
                     series.Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
                         .Select(seriesContainer => AniDbMappers.MapImages(seriesContainer, SeriesType.Tv))

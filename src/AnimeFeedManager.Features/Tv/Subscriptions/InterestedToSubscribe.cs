@@ -52,18 +52,13 @@ public sealed class InterestedToSubscribe(
                 new InterestedToSubscription(userId, item.FeedTitle, item.InterestedTitle)));
     }
 
-    private string TryToGetFeedTitle(string interestedTitle, ImmutableList<string> titles,
+    private static string TryToGetFeedTitle(string interestedTitle, ImmutableList<string> titles,
         ImmutableList<TilesMap> alternativeTitlesMap)
     {
         var feedTitle = Utils.TryGetFeedTitle(titles, interestedTitle);
-        if (string.IsNullOrEmpty(feedTitle))
-        {
-            var alternative = alternativeTitlesMap.FirstOrDefault(at => at.Original == interestedTitle).Alternative;
-            if (alternative is not null)
-                return Utils.TryGetFeedTitle(titles, alternative);
-        }
-
-        return feedTitle;
+        if (!string.IsNullOrEmpty(feedTitle)) return feedTitle;
+        var alternative = alternativeTitlesMap.FirstOrDefault(at => at.Original == interestedTitle).Alternative;
+        return alternative is not null ? Utils.TryGetFeedTitle(titles, alternative) : feedTitle;
     }
 
     private Task<Either<DomainError, int>> ProcessEvents(ImmutableList<InterestedToSubscription> events,

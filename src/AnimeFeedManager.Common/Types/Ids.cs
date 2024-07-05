@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Common.Types;
 
 public abstract record DomainId
 {
-    public readonly string Value;
+    private readonly string Value;
 
     protected DomainId(string value)
     {

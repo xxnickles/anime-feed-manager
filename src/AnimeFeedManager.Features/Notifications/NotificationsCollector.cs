@@ -1,6 +1,3 @@
 ﻿namespace AnimeFeedManager.Features.Notifications;
 
-public class NotificationsCollector
-{
-    
-}
+public class NotificationsCollector;

@@ -22,6 +22,4 @@ public record TitlesUpdateNotification(
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(TitlesUpdateNotification))]
-public partial class TitlesUpdateNotificationContext : JsonSerializerContext
-{
-}
+public partial class TitlesUpdateNotificationContext : JsonSerializerContext;

@@ -25,6 +25,4 @@ public record AutomatedSubscriptionProcessNotification(
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(AutomatedSubscriptionProcessNotification))]
-public partial class AutomatedSubscriptionProcessNotificationContext : JsonSerializerContext
-{
-}
+public partial class AutomatedSubscriptionProcessNotificationContext : JsonSerializerContext;

@@ -28,7 +28,7 @@ public sealed class OnLibraryScrapRequest(
             (SeriesType.Tv, _, ScrapType.Latest, _) => tvLibraryUpdater.Update(new Latest(), token),
             (SeriesType.Tv, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
                 notification.SeasonParameter?.Season ?? string.Empty,
-                notification.SeasonParameter?.Year ?? 0).BindAsync(season => tvLibraryUpdater.Update(season)),
+                notification.SeasonParameter?.Year ?? 0).BindAsync(season => tvLibraryUpdater.Update(season, token)),
 
             (SeriesType.Ova, _, ScrapType.Latest, _) => ovasLibraryUpdater.Update(new Latest(), notification.KeepFeed, token),
             (SeriesType.Ova, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
@@ -36,8 +36,7 @@ public sealed class OnLibraryScrapRequest(
                     notification.SeasonParameter?.Year ?? 0)
                 .BindAsync(season => ovasLibraryUpdater.Update(season, notification.KeepFeed, token)),
 
-            (SeriesType.Movie, _, ScrapType.Latest, _) => moviesLibraryUpdater.Update(new Latest(),
-                notification.KeepFeed),
+            (SeriesType.Movie, _, ScrapType.Latest, _) => moviesLibraryUpdater.Update(new Latest(), notification.KeepFeed, token),
             (SeriesType.Movie, _, ScrapType.BySeason, _) => SeasonValidators.ParseSeasonValues(
                     notification.SeasonParameter?.Season ?? string.Empty,
                     notification.SeasonParameter?.Year ?? 0)

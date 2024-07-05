@@ -35,7 +35,7 @@ public class StorageCleanup(
                 () => client.QueryAsync<StateUpdateStorage>(s =>
                     s.PartitionKey == target.Value && s.Timestamp <= beforeOf))
             .BindAsync(entities => TableUtils.BatchDelete(client, entities, token))
-            .MapAsync(r => new Unit());
+            .MapAsync(_ => new Unit());
     }
 
 

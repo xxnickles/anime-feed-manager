@@ -5,7 +5,6 @@ namespace AnimeFeedManager.Features.Users.IO;
 
 public interface IUserVerification
 {
-    Task<Either<DomainError, Unit>> UserExist(UserId userId, CancellationToken token);
     Task<Either<DomainError, UsersCheck>> CheckUsersExist(CancellationToken token, params UserId[] users);
 }
 
@@ -16,17 +15,6 @@ public class UserVerification : IUserVerification
     public UserVerification(ITableClientFactory<UserStorage> tableClientFactory)
     {
         _tableClientFactory = tableClientFactory;
-    }
-
-    public Task<Either<DomainError, Unit>> UserExist(UserId userId, CancellationToken token)
-    {
-        return _tableClientFactory.GetClient()
-            .BindAsync(client =>
-                TableUtils.ExecuteQueryWithNotFoundResult(() =>
-                    client.QueryAsync<UserStorage>(
-                        u => u.PartitionKey == Constants.UserPartitionKey && u.RowKey == userId,
-                        cancellationToken: token)))
-            .MapAsync(_ => unit);
     }
 
     public Task<Either<DomainError, UsersCheck>> CheckUsersExist(CancellationToken token, params UserId[] users)
@@ -44,7 +32,7 @@ public class UserVerification : IUserVerification
     private static UsersCheck ExtractResults(ImmutableList<UserStorage> matches, IEnumerable<string> targets)
     {
         if (matches.Count == targets.Count()) return new AllMatched();
-       
+
         // At this  point we guarantee there is at least a match
         return new SomeNotFound(targets.Except(matches.Select(m => m.RowKey ?? string.Empty)).ToImmutableList());
     }

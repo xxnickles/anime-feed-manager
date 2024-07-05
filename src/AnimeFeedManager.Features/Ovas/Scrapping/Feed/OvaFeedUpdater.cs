@@ -30,7 +30,7 @@ public sealed class OvaFeedUpdater
     public Task<Either<DomainError, int>> TryGetFeed(ImmutableList<OvaStorage> ovas,
         CancellationToken token)
     {
-        return _feedScrapper.GetFeed(ovas, token)
+        return _feedScrapper.GetFeed(ovas)
             .BindAsync(CreateState)
             .BindAsync(data => SendMessages(data, token));
     }

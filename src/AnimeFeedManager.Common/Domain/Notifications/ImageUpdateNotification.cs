@@ -23,6 +23,4 @@ public record ImageUpdateNotification(NotificationType Result, SeriesType Series
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(ImageUpdateNotification))]
-public partial class ImageUpdateNotificationContext : JsonSerializerContext
-{
-}
+public partial class ImageUpdateNotificationContext : JsonSerializerContext;

@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.Nyaa;
 
-internal record ShortSeriesTorrent(string Title, string[] Links, string Size);
+internal abstract record ShortSeriesTorrent(string Title, string[] Links, string Size);
 
 internal static class Constants
 {

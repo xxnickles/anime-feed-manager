@@ -46,7 +46,7 @@ public class OnUpdateMovieFeed
                 token)
             .BindAsync(
                 currentState =>
-                    TryToPublishUpdate(currentState, message.Payload.Series?.PartitionKey ?? string.Empty, token));
+                    TryToPublishUpdate(currentState, message.Payload.Series.PartitionKey ?? string.Empty, token));
 
 
         stateUpdate.Match(

@@ -31,6 +31,4 @@ public record SeriesFeedLinks(string LinkTitle, string Size, SeriesLink[] Links)
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(SeriesLink[]))]
 [JsonSerializable(typeof(SeriesFeedLinks[]))]
-public partial class SeriesFeedLinksContext : JsonSerializerContext
-{
-}
+public partial class SeriesFeedLinksContext : JsonSerializerContext;

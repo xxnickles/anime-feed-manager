@@ -2,7 +2,7 @@
 
 namespace AnimeFeedManager.Common.Domain;
 
-public static class IdHelpers
+public static partial class IdHelpers
 {
     public static string GetUniqueId() => Guid.NewGuid().ToString("N");
 
@@ -17,11 +17,13 @@ public static class IdHelpers
 
     public static string CleanAndFormatAnimeTitle(string title)
     {
-        var noSpecialCharactersString = Regex.Replace(title, "[^a-zA-Z0-9_.\\s]+", "", RegexOptions.Compiled);
+        var noSpecialCharactersString = SpecialCharacters().Replace(title, "");
         return noSpecialCharactersString
             .Replace(" ", "_")
             .Replace("__", "_");
     }
 
     public static string GetUniqueName(string baseName) => $"{baseName}-{Guid.NewGuid().ToString("N")[..5]}";
+    [GeneratedRegex("[^a-zA-Z0-9_.\\s]+", RegexOptions.Compiled)]
+    private static partial Regex SpecialCharacters();
 }

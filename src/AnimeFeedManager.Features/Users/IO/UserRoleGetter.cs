@@ -12,6 +12,7 @@ public interface IUserRoleGetter
 public class UserRoleGetter : IUserRoleGetter
 {
     private readonly ITableClientFactory<UserStorage> _tableClientFactory;
+    private static readonly string[] Keys = ["Role"];
 
     public UserRoleGetter(ITableClientFactory<UserStorage> tableClientFactory)
     {
@@ -22,7 +23,7 @@ public class UserRoleGetter : IUserRoleGetter
     {
         return _tableClientFactory.GetClient()
             .BindAsync(client => TableUtils.TryExecute(() =>
-                client.GetEntityAsync<UserStorage>(Constants.UserPartitionKey, id, new[] {"Role"},
+                client.GetEntityAsync<UserStorage>(Constants.UserPartitionKey, id, Keys,
                     cancellationToken)))
             .BindAsync(response => GetStoredRole(response, id));
     }

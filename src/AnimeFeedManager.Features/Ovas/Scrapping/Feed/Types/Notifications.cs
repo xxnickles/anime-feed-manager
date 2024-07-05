@@ -29,6 +29,4 @@ public record OvasFeedUpdateNotification(
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(OvasFeedUpdateNotification))]
-public partial class OvasFeedUpdateNotificationContext : JsonSerializerContext
-{
-}
+public partial class OvasFeedUpdateNotificationContext : JsonSerializerContext;

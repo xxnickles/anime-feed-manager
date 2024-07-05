@@ -2,7 +2,7 @@
 
 namespace AnimeFeedManager.Web.Features.Admin;
 
-public record CopyUserPayload(string Source, string Target);
+public abstract record CopyUserPayload(string Source, string Target);
 
 public static class Extensions
 {

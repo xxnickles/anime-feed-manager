@@ -7,15 +7,15 @@ namespace AnimeFeedManager.Features.State.IO;
 public interface IStateCreator
 {
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
-        ImmutableList<T> entities, Box MessageBox) where T : DomainMessage;
+        ImmutableList<T> entities, Box messageBox) where T : DomainMessage;
 }
 
 public sealed class StateCreator(ITableClientFactory<StateUpdateStorage> tableClientFactory) : IStateCreator
 {
     public Task<Either<DomainError, ImmutableList<StateWrap<T>>>> Create<T>(NotificationTarget target,
-        ImmutableList<T> entities, Box MessageBox) where T : DomainMessage
+        ImmutableList<T> entities, Box messageBox) where T : DomainMessage
     {
-        if (!entities.Any())
+        if (entities.IsEmpty)
             return Task.FromResult(
                 Left<DomainError, ImmutableList<StateWrap<T>>>(
                     NotingToProcessError.Create("Collection of entities is empty")));
@@ -33,6 +33,6 @@ public sealed class StateCreator(ITableClientFactory<StateUpdateStorage> tableCl
         return tableClientFactory.GetClient()
             .BindAsync(client =>
                 TableUtils.TryExecute(() => client.UpsertEntityAsync(newState)))
-            .MapAsync(_ => entities.ConvertAll(e => new StateWrap<T>(id, e, MessageBox)));
+            .MapAsync(_ => entities.ConvertAll(e => new StateWrap<T>(id, e, messageBox)));
     }
 }

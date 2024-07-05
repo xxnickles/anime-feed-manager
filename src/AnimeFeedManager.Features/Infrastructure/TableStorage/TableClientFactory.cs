@@ -34,7 +34,6 @@ public sealed class TableClientFactory<T>(TableServiceClient serviceClient) : IT
         return type.Name switch
         {
             nameof(AnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
-            nameof(LegacyAnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             nameof(AnimeInfoWithImageStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             nameof(UpdateFeedAnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             nameof(AlternativeTitleStorage) =>  AzureTableMap.StoreTo.AlternativeTitles,
