@@ -44,7 +44,6 @@ public sealed class OnSeasonNotification(
     {
         return new SignalRMessageAction(ServerNotifications.SeasonProcess)
         {
-            GroupName = HubGroups.AdminGroup,
             Arguments =
             [
                 notification

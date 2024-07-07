@@ -30,6 +30,10 @@
         "dist/umd/passwordless.umd.js",
         "dist/umd/passwordless.umd.min.js"
       ]
+    },
+    {
+      "library": "microsoft-signalr@8.0.0",
+      "destination": "wwwroot\\lib\\microsoft-signalr"
     }
   ]
 }
