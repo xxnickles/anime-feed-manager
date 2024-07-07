@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Notifications.IO;
 using Microsoft.Extensions.Logging;
 using ImageUpdateNotification = AnimeFeedManager.Common.Domain.Notifications.ImageUpdateNotification;
@@ -14,12 +13,11 @@ public sealed class OnImageNotification(
     private readonly ILogger<OnImageNotification> _logger = loggerFactory.CreateLogger<OnImageNotification>();
 
     [Function("OnImageNotification")]
-    [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
-    public async Task<SignalRMessageAction> Run(
-        [QueueTrigger(ImageUpdateNotification.TargetQueue, Connection = Constants.AzureConnectionName)] ImageUpdateNotification notification,
+    public async Task Run(
+        [QueueTrigger(ImageUpdateNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
+        ImageUpdateNotification notification,
         CancellationToken token)
     {
-        
         // Stores notification
         var result = await storeNotification.Add(
             IdHelpers.GetUniqueId(),
@@ -30,25 +28,11 @@ public sealed class OnImageNotification(
             token);
 
 
-        return result.Match(
-            _ => CreateMessage(notification),
-            e =>
-            {
-                e.LogError(_logger);
-                return CreateMessage(notification);
-            }
+        result.Match(
+            _ => _logger.LogInformation(
+                "Image notification for {For} has been stored. Notification message is {Message}",
+                notification.SeriesType, notification.Message),
+            e => e.LogError(_logger)
         );
-    }
-    
-    private static SignalRMessageAction CreateMessage(ImageUpdateNotification notification)
-    {
-        return new SignalRMessageAction(ServerNotifications.ImageUpdate)
-        {
-            GroupName = HubGroups.AdminGroup,
-            Arguments =
-            [
-                notification
-            ]
-        };
     }
 }

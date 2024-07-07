@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Blazor", "Blazor", "{917D81
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Web", "AnimeFeedManager.Web\AnimeFeedManager.Web.csproj", "{04A34488-6295-4CAD-9F51-7E69F5833A95}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RealTime", "RealTime", "{5E3146B9-0A7D-4AF5-B4F0-74BB73FD64E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

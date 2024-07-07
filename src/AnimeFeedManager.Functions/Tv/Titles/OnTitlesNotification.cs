@@ -44,7 +44,6 @@ public sealed class OnTitlesNotification(
     {
         return new SignalRMessageAction(ServerNotifications.TitleUpdate)
         {
-            GroupName = HubGroups.AdminGroup,
             Arguments =
             [
                 notification

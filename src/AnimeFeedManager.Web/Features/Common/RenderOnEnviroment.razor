@@ -1,0 +1,21 @@
+﻿@inject IWebHostEnvironment Environment
+
+@if (ShouldRenderContent())
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; } = @<br/>;
+    [Parameter] public string[] Include { get; set; } = [];
+    [Parameter] public string[] Exclude { get; set; } = [];
+
+
+    private bool ShouldRenderContent()
+    {
+        var isInInclude = Include.Contains(Environment.EnvironmentName);
+        var isInExcluded = Exclude.Contains(Environment.EnvironmentName);
+
+        return isInInclude && !isInExcluded;
+    }
+}
