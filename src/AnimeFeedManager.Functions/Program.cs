@@ -1,5 +1,7 @@
 using AnimeFeedManager.Functions.Bootstrapping;
+using AnimeFeedManager.Web.BlazorComponents;
 using Azure.Core.Serialization;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -11,6 +13,8 @@ var host = new HostBuilder()
     .UseDefaultServiceProvider(options => { options.ValidateOnBuild = true; })
     .ConfigureServices(services =>
     {
+        services.AddScoped<HtmlRenderer>();
+        services.AddScoped<BlazorRenderer>();
         services.AddHttpClient();
         services.AddSingleton(TimeProvider.System);
         services.RegisterAppDependencies();
