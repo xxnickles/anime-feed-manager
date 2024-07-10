@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage" Version="6.4.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.4.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" OutputItemType="Analyzer" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.3" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.22.0" />    
     <PackageReference Include="SendGrid" Version="9.29.3" />    
   </ItemGroup>
@@ -34,5 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+    <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
   </ItemGroup>
 </Project>

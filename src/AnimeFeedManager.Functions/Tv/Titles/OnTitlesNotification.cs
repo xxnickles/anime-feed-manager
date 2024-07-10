@@ -2,13 +2,16 @@
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Notifications.IO;
+using AnimeFeedManager.Web.BlazorComponents;
+using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Tv.Titles;
 
 public sealed class OnTitlesNotification(
     IStoreNotification storeNotification,
-    ILoggerFactory loggerFactory)
+    ILoggerFactory loggerFactory,
+    BlazorRenderer renderer)
 {
     private readonly ILogger<OnTitlesNotification> _logger = loggerFactory.CreateLogger<OnTitlesNotification>();
 
@@ -30,7 +33,7 @@ public sealed class OnTitlesNotification(
             token);
 
 
-        return result.Match(
+        return await result.Match(
             _ => CreateMessage(notification),
             e =>
             {
@@ -40,13 +43,17 @@ public sealed class OnTitlesNotification(
         );
     }
     
-    private static SignalRMessageAction CreateMessage(TitlesUpdateNotification notification)
+    private async Task<SignalRMessageAction> CreateMessage(TitlesUpdateNotification notification)
     {
+        var html = await renderer.RenderComponent<TitlesNotification>(new Dictionary<string, object?>
+        {
+            { nameof(TitlesNotification.Notification), notification }
+        });
         return new SignalRMessageAction(ServerNotifications.TitleUpdate)
         {
             Arguments =
             [
-                notification
+                html
             ]
         };
     }

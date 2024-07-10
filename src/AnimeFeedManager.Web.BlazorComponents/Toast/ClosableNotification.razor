@@ -9,7 +9,6 @@
 </div>
 
 @code {
-    [Parameter, EditorRequired] public RenderFragment Content { get; set; } = @<span></span>;
+    [Parameter] public RenderFragment Content { get; set; } = @<span></span>;
     [Parameter, EditorRequired] public ToastType Type { get; set; } = ToastType.Info;
-
 }

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>AnimeFeedManager.Web.BlazorComponents</RootNamespace>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <SupportedPlatform Include="browser"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Toast\ClosableNotification.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
+    </ItemGroup>
+
+</Project>

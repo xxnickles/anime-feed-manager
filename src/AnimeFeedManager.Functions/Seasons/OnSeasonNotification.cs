@@ -4,13 +4,16 @@ using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Notifications.IO;
+using AnimeFeedManager.Web.BlazorComponents;
+using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Seasons;
 
 public sealed class OnSeasonNotification(
     IStoreNotification storeNotification,
-    ILoggerFactory loggerFactory)
+    ILoggerFactory loggerFactory,
+    BlazorRenderer renderer)
 {
     private readonly ILogger<OnSeasonNotification> _logger = loggerFactory.CreateLogger<OnSeasonNotification>();
 
@@ -30,7 +33,7 @@ public sealed class OnSeasonNotification(
             token);
 
 
-        return result.Match(
+        return await result.Match(
             _ => CreateMessage(notification),
             e =>
             {
@@ -40,13 +43,19 @@ public sealed class OnSeasonNotification(
         );
     }
 
-    private static SignalRMessageAction CreateMessage(SeasonProcessNotification notification)
+    private async Task<SignalRMessageAction> CreateMessage(SeasonProcessNotification notification)
     {
+        var html = await renderer.RenderComponent<SeasonNotification>(new Dictionary<string, object?>
+        {
+            { nameof(SeasonNotification.Notification), notification }
+        });
+
         return new SignalRMessageAction(ServerNotifications.SeasonProcess)
         {
+            
             Arguments =
             [
-                notification
+                html
             ]
         };
     }

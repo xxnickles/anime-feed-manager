@@ -2,7 +2,7 @@
 
 const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
-    content: ["./**/*.{razor,cshtml}", "../AnimeFeedManager.Web.Client/**/*.{razor,cshtml}"],
+    content: ["./**/*.{razor,cshtml}", "../AnimeFeedManager.Web.BlazorComponents/**/*.{razor,cshtml}"],
     theme:{
       extend: {
           fontFamily: {
