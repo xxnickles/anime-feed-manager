@@ -18,7 +18,10 @@ using Passwordless.Net;
 
 namespace AnimeFeedManager.Web.Bootstrapping;
 
-internal record SignalROptions(string Endpoint);
+internal class SignalROptions
+{
+    public string Endpoint { get; set; } = string.Empty;
+}
 
 internal static class Registration
 {
@@ -45,7 +48,7 @@ internal static class Registration
         // bind section Passwordless to the object PassworlessOptions
         services.Configure<PasswordlessOptions>(configuration.GetSection("Passwordless"));
         services.Configure<SignalROptions>(configuration.GetSection("SignalR"));
-        
+
         // Add Passwordless
         services.AddPasswordlessSdk(options => { configuration.GetRequiredSection("Passwordless").Bind(options); });
 

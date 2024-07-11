@@ -1,4 +1,4 @@
-﻿@using AnimeFeedManager.Web.BlazorComponents
+﻿@using AnimeFeedManager.Common.RealTimeNotifications
 @using AnimeFeedManager.Web.Bootstrapping
 @using Microsoft.Extensions.Options
 @using Passwordless.Net
@@ -39,8 +39,8 @@
         const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
     </script>
 
-    <script src="./Features/Security/Login.razor.min.js" type="text/javascript"></script>
-    <script src="./Features/Security/Register.razor.min.js" type="text/javascript"></script>
+    <script src="./Features/Security/Login.razor.js" type="text/javascript"></script>
+    <script src="./Features/Security/Register.razor.js" type="text/javascript"></script>
     @* <script defer src="_framework/blazor.web.js"></script> *@
 
     <HeadOutlet/>
@@ -51,8 +51,11 @@
 
 <Routes/>
 
-<div signalr-subscribe="@HubNames.Notifications" hx-target="#toast-panel" hx-swap="beforeend">
+
+<div signalr-subscribe="@ServerNotifications.SeasonProcess" hx-target="#toast-panel" hx-swap="beforeend">
 </div>
+
+
 <div id="toast-panel" class="toast toast-end">
 </div>
 
