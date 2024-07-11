@@ -2,10 +2,12 @@
 @if (Notification is not null)
 {
     <ClosableNotification Type="Helpers.Map(Notification.Result)">
-        <h3 class="font-bold">Latest TV titles have been updated</h3>
-        <p class="text-sm whitespace-normal">
-            @Notification.Message
-        </p>
+        <Content>
+            <h3 class="font-bold">Latest TV titles update</h3>
+            <p class="text-sm whitespace-normal">
+                @Notification.Message
+            </p>
+        </Content>
     </ClosableNotification>
 }
 

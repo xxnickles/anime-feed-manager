@@ -1,16 +1,19 @@
-﻿@using AnimeFeedManager.Common.Domain.Notifications
+﻿@using AnimeFeedManager.Common
+@using AnimeFeedManager.Common.Domain.Notifications
 @using AnimeFeedManager.Common.Domain.Notifications.Base
 @if (Notification is not null)
 {
     <ClosableNotification Type="Helpers.Map(Notification.Result)">
-        <h3 class="font-bold">Season has been updated</h3>
-        <p class="text-sm whitespace-normal">
-            @Notification.Message
-            @if (Notification.Result is not NotificationType.Error)
-            {
-                <a class="link" href="@GetLink()" target="_blank"></a>
-            }
-        </p>
+        <Content>
+            <h3 class="font-bold">@GetTitle()</h3>
+            <p class="text-sm whitespace-normal">
+                @Notification.Message <br/>
+                @if (Notification.Result is not NotificationType.Error)
+                {
+                    <a class="link" href="@GetLink()" target="_self">See updated season</a>
+                }
+            </p>
+        </Content>
     </ClosableNotification>
 }
 
@@ -19,6 +22,12 @@
 
     private string GetLink()
     {
-        return Notification is not null ? $"/{Notification.SimpleSeason.Season}-{Notification.SimpleSeason.Year}/{Notification?.SeriesType}" : string.Empty;
+        return Notification is not null ? $"/{Notification.SimpleSeason.Season}-{Notification.SimpleSeason.Year}/{Notification.SeriesType.AsPlural()}" : string.Empty;
     }
+
+    private string GetTitle()
+    {
+        return Notification is not null ? $"Updates for {Notification.SeriesType.AsPlural()} {Notification.SimpleSeason.Season}-{Notification.SimpleSeason.Year} season" : string.Empty;
+    }
+
 }

@@ -4,7 +4,6 @@ using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Notifications.IO;
-using AnimeFeedManager.Web.BlazorComponents;
 using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 using Microsoft.Extensions.Logging;
 

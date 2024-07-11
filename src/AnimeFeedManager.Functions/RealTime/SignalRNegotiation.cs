@@ -15,7 +15,7 @@ public class SignalRNegotiation
 
     [Function(nameof(SignalRNegotiation))]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "negotiate")]
         HttpRequestData req,
         [SignalRConnectionInfoInput(HubName = HubNames.Notifications,
             ConnectionStringSetting = "SignalRConnectionString")]

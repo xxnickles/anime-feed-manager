@@ -41,7 +41,7 @@
                     <span class="label-text">Season</span>
                 </label>
 
-                <select id="ovas-season" name="@(nameof(ShorSeriesSeason.Season))" class="select" title="Season Selection" @bind="SelectedSeason">
+                <select id="ovas-season" name="@(nameof(ShortSeriesSeason.Season))" class="select" title="Season Selection" @bind="SelectedSeason">
                     <option value="@Season.Spring.ToString()">Spring</option>
                     <option value="@Season.Summer.ToString()">Summer</option>
                     <option value="@Season.Fall.ToString()">Fall</option>
@@ -52,7 +52,7 @@
                     <span class="label-text">Year</span>
                 </label>
 
-                <input name="@(nameof(ShorSeriesSeason.Year))"
+                <input name="@(nameof(ShortSeriesSeason.Year))"
                        id="ovas-year"
                        type="number"
                        class="input input-bordered invalid:input-error required:!input-bordered"

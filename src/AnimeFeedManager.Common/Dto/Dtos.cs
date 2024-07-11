@@ -2,9 +2,9 @@
 
 public record BasicSeason(string Season, ushort Year);
 
-public abstract record ShorSeriesLatestSeason(bool KeeepFeed);
+public record ShorSeriesLatestSeason(bool KeeepFeed);
 
-public abstract record ShorSeriesSeason(string Season, ushort Year, bool KeeepFeed);
+public record ShortSeriesSeason(string Season, ushort Year, bool KeeepFeed);
 
 public record SimpleSeasonInfo(string Season, int Year, bool IsLatest);
 

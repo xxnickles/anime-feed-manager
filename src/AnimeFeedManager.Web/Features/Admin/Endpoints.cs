@@ -64,7 +64,7 @@ public static class Endpoints
             .RequireAuthorization(Policies.AdminRequired);
 
         group.MapPut("/admin/ovas/season",
-                ([FromForm] ShorSeriesSeason season,
+                ([FromForm] ShortSeriesSeason season,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>
@@ -99,7 +99,7 @@ public static class Endpoints
             .RequireAuthorization(Policies.AdminRequired);
 
         group.MapPut("/admin/movies/season",
-                ([FromForm] ShorSeriesSeason season,
+                ([FromForm] ShortSeriesSeason season,
                         [FromServices] IDomainPostman domainPostman,
                         [FromServices] ILogger<Admin> logger,
                         CancellationToken token) =>

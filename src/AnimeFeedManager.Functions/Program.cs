@@ -1,5 +1,4 @@
 using AnimeFeedManager.Functions.Bootstrapping;
-using AnimeFeedManager.Web.BlazorComponents;
 using Azure.Core.Serialization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
