@@ -49,10 +49,15 @@
 
 <body class="min-w-[380px]" hx-boost="true" hx-indicator="#page-indicator" hx-ext="signalr" signalr-connect="@SignalROptions.Value.Endpoint">
 
+
 <Routes/>
 
 
-<div signalr-subscribe="@ServerNotifications.SeasonProcess" hx-target="#toast-panel" hx-swap="beforeend">
+<div signalr-subscribe="@ServerNotifications.SeasonProcess"
+     hx-target="#toast-panel"
+     hx-swap="beforeend">
+
+
 </div>
 
 
