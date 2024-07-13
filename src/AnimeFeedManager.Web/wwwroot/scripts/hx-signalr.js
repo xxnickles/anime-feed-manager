@@ -95,7 +95,7 @@ by bigskysoftware.
         // Create a new HubConnection and event handlers
         /** @type {HubConnection} */
         var hubConnection = htmx.createHubConnection(signalrHubUrl);
-
+        api.triggerEvent(hubElt, 'htmx:signalr:connection-starting');
         hubConnection.onreconnecting(function (error) {
             api.triggerEvent(hubElt, 'htmx:signalr:reconnecting', { error: error });
         });
@@ -107,6 +107,8 @@ by bigskysoftware.
         });
         hubConnection.start().then(function () {
             api.triggerEvent(hubElt, 'htmx:signalr:start', { connectionId: hubConnection.connectionId })
+        }).catch(function (ex) {
+            api.triggerErrorEvent(hubElt, 'htmx:signalr:start-error', { message: ex.message, errorType: ex.errorType })
         });
 
         // Put the HubConnection into the HTML Element's custom data.

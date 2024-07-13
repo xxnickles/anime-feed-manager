@@ -1,0 +1,25 @@
+﻿<div x-data="{
+            status:'connecting',
+            init() {
+                if (localStorage.getItem('last-hub-status')) {
+                    this.status = localStorage.getItem('last-hub-status');
+                }
+            },
+            updateStatus(status) {
+                this.status = status;
+                localStorage.setItem('last-hub-status', this.status);
+            }
+        }"
+     @htmx:signalr:connection-starting.window="updateStatus('connecting')"
+     @htmx:signalr:reconnecting.window="updateStatus($event.detail.error ? 'error' : 'reconnecting')"
+     @htmx:signalr:reconnected.window="updateStatus($event.detail.error ? 'error' : 'connected')"
+     @htmx:signalr:start-error.window="updateStatus('error')"
+     @htmx:signalr:start.window="updateStatus('connected')">
+    <h5 class="text-sm">
+        <b class="hidden sm:contents">Hub Status:</b>
+        <span class="badge badge-info badge-sm ml-1" x-show="status === 'connecting'">Connecting</span>
+        <span class="badge badge-success badge-sm ml-1" x-show="status === 'connected'" x-cloak>Connected</span>
+        <span class="badge badge-info badge-sm ml-1" x-show="status === 'reconnecting'" x-cloak>Reconnecting</span>
+        <span class="badge badge-error badge-sm ml-1" x-show="status === 'error'" x-cloak>Error</span>
+    </h5>
+</div>
