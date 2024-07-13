@@ -22,6 +22,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
+      <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
     </ItemGroup>
 
 </Project>

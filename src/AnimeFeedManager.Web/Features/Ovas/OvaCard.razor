@@ -28,7 +28,7 @@
 
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">
 
-        <h2 class="basis-[5%] w-[87%] mx-4 mt-2 mr-2 text-base font-bold ">@Ova.Title</h2>
+        <h2 class="basis-[5%] w-[87%] mx-4 mt-2 mr-2 font-bold @GetTitleStyle()">@Ova.Title</h2>
         @* Loader *@
         <div class="absolute top-0 right-0 mr-2 mt-2 htmx-indicator" id="@_loaderId">
             <span class="loading loading-spinner loading-xs "></span>
@@ -75,5 +75,12 @@
     private readonly string _loaderId = IdHelpers.GetUniqueName("card-loader");
 
     private string LoaderSelector => $"#{_loaderId}";
+    
+    string GetTitleStyle()
+    {
+        return Ova is BaseAvailableOva availableOva && availableOva.Links.Any()
+            ? "text-secondary"
+            : "text-base ";
+    }
 
 }
