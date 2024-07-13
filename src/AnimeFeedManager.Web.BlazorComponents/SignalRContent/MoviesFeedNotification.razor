@@ -1,0 +1,16 @@
+﻿@using AnimeFeedManager.Features.Movies.Scrapping.Feed.Types
+@if (Notification is not null)
+{
+    <ClosableNotification Type="Helpers.Map(Notification.Result)">
+        <Content>
+            <h3 class="font-bold">Movies feed has been updated</h3>
+            <p class="text-sm whitespace-normal">
+                @Notification.Message
+            </p>
+        </Content>
+    </ClosableNotification>
+}
+
+@code {
+    [Parameter, EditorRequired] public MoviesFeedUpdateNotification? Notification { get; set; }
+}
