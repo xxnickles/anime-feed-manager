@@ -16,6 +16,10 @@
         var isInInclude = Include.Contains(Environment.EnvironmentName);
         var isInExcluded = Exclude.Contains(Environment.EnvironmentName);
 
-        return isInInclude && !isInExcluded;
+        return Include switch
+        {
+            [] => !isInExcluded,
+            _ => isInInclude && !isInExcluded
+        };
     }
 }
