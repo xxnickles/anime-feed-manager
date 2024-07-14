@@ -4651,6 +4651,11 @@ html:has(.drawer-toggle:checked) {
   line-height: 1rem;
 }
 
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
 .font-bold {
   font-weight: 700;
 }
@@ -4962,6 +4967,11 @@ html:has(.drawer-toggle:checked) {
   .md\:text-base {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+
+  .md\:text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
   }
 
   @media not all and (min-width: 1280px) {
