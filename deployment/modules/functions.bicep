@@ -17,13 +17,12 @@ var sharedVariables = loadJsonContent('./shared-variables.json')
 
 var hostingPlanName = 'afm-hosting-plan'
 var functionWorkerRuntime = 'dotnet-isolated'
-
+var webSiteUrl = 'https://anime-feed-manager.azurewebsites.net'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: storageAccountName
   scope: resourceGroup()
 }
-
 
 resource signalR 'Microsoft.SignalRService/signalR@2023-02-01' = {
   name: 'afm-web-events'
@@ -59,7 +58,7 @@ resource signalR 'Microsoft.SignalRService/signalR@2023-02-01' = {
       }
     ]
     cors: {
-      allowedOrigins: [ 'https://delightful-smoke-0eded0c0f.1.azurestaticapps.net' ]
+      allowedOrigins: [webSiteUrl]
     }
 
     publicNetworkAccess: 'Enabled'
@@ -145,8 +144,12 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'WEBSITE_TIME_ZONE'
           value: 'America/New_York'
-        }      
+        }
       ]
+      cors: {
+        allowedOrigins: [webSiteUrl]
+        supportCredentials: true
+      }
       linuxFxVersion: 'DOTNET-ISOLATED|8.0'
       use32BitWorkerProcess: false
       ftpsState: 'FtpsOnly'
@@ -156,4 +159,3 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
     httpsOnly: true
   }
 }
-
