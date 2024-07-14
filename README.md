@@ -7,7 +7,7 @@
 Anime Feed Manager
 =================
 
-Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/)*  as data sources. Simple API using [azure functions isolated](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide), [swa cli](https://azure.github.io/static-web-apps-cli/) , Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The are a couple of clients app based on Blazor [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor):
+Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/)*  as data sources. Simple API using [azure functions isolated](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide), Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The are a couple of clients app based on Blazor [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor):
 
 - **Blazor SSR (AnimeFeedManager.Web):** Using The SSR part of Blazor with [HTMX](https://htmx.org/) and [AlpineJS](https://alpinejs.dev/) for client interaction
 
