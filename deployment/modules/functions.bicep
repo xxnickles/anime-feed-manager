@@ -159,3 +159,6 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
     httpsOnly: true
   }
 }
+
+
+output signalREndpoint string = 'https://${functionApp.properties.defaultHostName}/api'

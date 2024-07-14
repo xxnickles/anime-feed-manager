@@ -13,6 +13,10 @@ param passwordlessApiKey string
 @secure()
 param passwordlessApiSecret string
 
+@description('SignalR Endpoint')
+param signalREnpoint string
+
+
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
@@ -69,6 +73,10 @@ resource siteConfig 'Microsoft.Web/sites/config@2023-01-01' = {
       {
         name: 'Passwordless__ApiSecret'
         value: passwordlessApiSecret
+      }
+      {
+        name: 'SignalR__Endpoint'
+        value: signalREnpoint
       }
     ]
     linuxFxVersion: 'DOTNETCORE|8.0'

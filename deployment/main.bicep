@@ -46,5 +46,6 @@ module blazor './modules/blazor-app.bicep' = {
     passwordlessApiKey: passwordlessApiKey
     passwordlessApiSecret: passwordlessApiSecret
     repoUrl: repoUrl
+    signalREnpoint: functions.outputs.signalREndpoint
   }
 }
