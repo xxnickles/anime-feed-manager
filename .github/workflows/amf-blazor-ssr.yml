@@ -7,19 +7,9 @@ on:
     paths-ignore:
       - "src/AnimeFeedManager.WebApp**"
       - "src/AnimeFeedManager.Functions**"
-      - 'deployment/*'
-      - '!deployment/main-blazor.bicep'
+      - "deployment/*"
+      - "!deployment/main-blazor.bicep"
       - "**/*.md"
-    branches:
-      - main
-  pull_request:
-    paths-ignore:
-      - "src/AnimeFeedManager.WebApp**"
-      - "src/AnimeFeedManager.Functions**"
-      - 'deployment/*'
-      - '!deployment/main-blazor.bicep'
-      - "**/*.md"
-    types: [opened, synchronize, reopened, closed]
     branches:
       - main
 
@@ -32,9 +22,8 @@ env:
   TEST_PROJECT_PATH: "./src/AnimeFeedManager.Features.Tests"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:    
+jobs:
   build-and-deploy-blazor-ssr-app:
-
     runs-on: ubuntu-latest
     steps:
       # Checkout the repo
@@ -92,9 +81,8 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ steps.infrastructure.outputs.appname }}
-          package: "${{ env.APP_PATH }}/output"          
+          package: "${{ env.APP_PATH }}/output"
 
       - name: logout
         run: |
-          az logout   
-
+          az logout

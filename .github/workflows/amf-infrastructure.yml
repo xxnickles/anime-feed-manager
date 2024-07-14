@@ -10,12 +10,6 @@ on:
       - "deployment/*"
     branches:
       - main
-  pull_request:
-    paths:
-      - "deployment/*"
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
