@@ -6,7 +6,8 @@ module.exports = {
     theme:{
       extend: {
           fontFamily: {
-              'sans': ['"PT Sans"', ...defaultTheme.fontFamily.sans],
+              'sans': ['"SF Mono"', ...defaultTheme.fontFamily.sans],
+              'logo' : ['"Prettier Script"', 'sans-serif']
           }
       }  
     },
