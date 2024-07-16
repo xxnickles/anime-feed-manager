@@ -39,6 +39,7 @@ internal static class Registration
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                 options.Cookie.MaxAge = options.ExpireTimeSpan;
                 options.SlidingExpiration = true;
+                options.Cookie.SameSite = SameSiteMode.Strict;
             });
 
 

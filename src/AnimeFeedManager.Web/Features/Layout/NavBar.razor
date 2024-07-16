@@ -10,7 +10,7 @@
         </label>
     </div>
     <div class="flex-1">
-        <a href="/" class="btn btn-ghost normal-case text-xl font-logo md:text-3xl">Anime Feed Manager</a>
+        <a href="/" class="btn btn-ghost normal-case text-2xl font-logo md:text-3xl">Anime Feed Manager</a>
         <ul class="menu menu-horizontal px-1 hidden lg:flex">
             <li>
                 <NavLink href="seasons" Match="NavLinkMatch.All">
@@ -47,11 +47,10 @@
             </AuthorizeView>
         </ul>
     </div>
+    <span id="page-indicator" class="loading loading-spinner loading-sm mr-4 htmx-indicator"></span>
     <HubStatus></HubStatus>
     <ThemeSelector></ThemeSelector>
 </div>
-
-<span id="page-indicator" class="loading loading-bars loading-sm self-center mb-4 htmx-indicator"></span>
 
 @code
 {

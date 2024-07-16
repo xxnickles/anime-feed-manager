@@ -43,7 +43,7 @@ public class NotAvailableControlData
 
     public string LoaderSelector { get; set; } = string.Empty;
 
-    public static  NotAvailableControlData MapFrom(InterestedAnime anime, string loaderSelector)
+    public static NotAvailableControlData MapFrom(InterestedAnime anime, string loaderSelector)
     {
         return new NotAvailableControlData
         {
@@ -70,10 +70,13 @@ public record AdminTvControlParams(string Id, string Title, string Season, Serie
 {
     public static implicit operator AdminTvControlParams(AnimeForUser animeForUser) => animeForUser switch
     {
-        {IsAdmin: true} => new AdminTvControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season, animeForUser.SeriesStatus),
+        {IsAdmin: true} => new AdminTvControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season,
+            animeForUser.SeriesStatus),
         _ => new DefaultAdminTvControlParams()
     };
 }
 
-public record DefaultAdminTvControlParams() : AdminTvControlParams(string.Empty, string.Empty, string.Empty, SeriesStatus.NotAvailable);
-public abstract record AlternativeTitleUpdate(string Id, string Season, string Title, string OriginalTitle, string Status);
+public record DefaultAdminTvControlParams()
+    : AdminTvControlParams(string.Empty, string.Empty, string.Empty, SeriesStatus.NotAvailable);
+
+public record AlternativeTitleUpdate(string Id, string Season, string Title, string OriginalTitle, string Status);

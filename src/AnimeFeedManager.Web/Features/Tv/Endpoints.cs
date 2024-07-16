@@ -62,7 +62,7 @@ public static class Endpoints
         group.MapPut("/tv/alternative-title", (
                     [FromForm] AlternativeTitleUpdate updateInfo,
                     [FromServices] IDomainPostman domainPostman,
-                    [FromServices] ILogger<TvGrid> logger,
+                    [FromServices] ILogger<TvCard> logger,
                     CancellationToken token) =>
                 domainPostman.SendMessage(
                         new UpdateAlternativeTitle(updateInfo.Id, updateInfo.Season, updateInfo.Title,
@@ -74,7 +74,7 @@ public static class Endpoints
         group.MapPost("/tv/remove", (
                     [FromForm] SeriesToRemove removeInfo,
                     [FromServices] ITvSeriesStore tvSeriesStore,
-                    [FromServices] ILogger<TvGrid> logger,
+                    [FromServices] ILogger<TvCard> logger,
                     CancellationToken token) =>
                 (PartitionKey.Validate(removeInfo.Season), RowKey.Validate(removeInfo.Id),
                     SeasonValidators.ValidateSeasonPartitionString(removeInfo.Season))
