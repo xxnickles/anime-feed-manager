@@ -8,6 +8,7 @@ public static class NotificationRegistration
     {
         services.TryAddScoped<IStoreNotification, StoreNotification>();
         services.TryAddScoped<IGetNotifications, GetNotifications>();
+        services.TryAddScoped<FeedNotificationsCollector>();
         return services;
     }
 }

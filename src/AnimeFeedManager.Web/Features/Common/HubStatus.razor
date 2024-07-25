@@ -10,7 +10,7 @@
                 localStorage.setItem('last-hub-status', this.status);
             }
         }"
-     @htmx:signalr:connection-starting.window="updateStatus('connecting')"
+     @htmx:signalr:starting.window="updateStatus('connecting')"
      @htmx:signalr:reconnecting.window="updateStatus($event.detail.error ? 'error' : 'reconnecting')"
      @htmx:signalr:reconnected.window="updateStatus($event.detail.error ? 'error' : 'connected')"
      @htmx:signalr:start-error.window="updateStatus('error')"

@@ -28,7 +28,8 @@ public readonly record struct NotificationArea
     public static NotificationArea Error = new(ErrorValue, NotificationAreaValue.Error);
     public static NotificationArea None = new(NoneValue, NotificationAreaValue.None);
    
-    
+    public static implicit operator string(NotificationArea area) => area.Value;
+
     public static NotificationArea Parse(string value)
     {
         return value switch

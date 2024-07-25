@@ -36,7 +36,7 @@ public readonly record struct NotificationTarget : IEquatable<string>
     public static NotificationTarget Images = new(ImagesValue, Target.Image);
     public static NotificationTarget None = new(NoneValue, Target.None);
    
-    
+    public static implicit operator string(NotificationTarget target) => target.Value;
     public static NotificationTarget Parse(string value)
     {
         return value switch
