@@ -80,6 +80,41 @@
         </form>
     </AdminCard>
 
+    <AdminCard Title="Update Feed for Season" LoaderId="@_moviesSeasonFeedLoader">
+        <form hx-put="/admin/movies/season-feed"
+              hx-indicator="@($"#{_moviesSeasonFeedLoader}")"
+              hx-swap="none">
+            <AntiforgeryToken/>
+
+            <fieldset class="form-control">
+                <label class="label">
+                    <span class="label-text">Season</span>
+                </label>
+
+                <select name="@nameof(BasicSeason.Season)" class="select" title="Season Selection" @bind="SelectedSeason">
+                    <option value="@Season.Spring.ToString()">Spring</option>
+                    <option value="@Season.Summer.ToString()">Summer</option>
+                    <option value="@Season.Fall.ToString()">Fall</option>
+                    <option value="@Season.Winter.ToString()">Winter</option>
+                </select>
+
+                <label class="label">
+                    <span class="label-text">Year</span>
+                </label>
+
+                <input name="@nameof(BasicSeason.Year)"
+                       type="number"
+                       class="input input-bordered invalid:input-error required:!input-bordered"
+                       placeholder="Input year"
+                       required
+                       min="@MinYear.ToString()"
+                       max="@MaxYear.ToString()"
+                       @bind="Year"/>
+            </fieldset>
+            <button type="submit" class="btn btn-primary mt-4">Update Season Feed</button>
+        </form>
+    </AdminCard>
+
     <AdminCard Title="Update Feed" LoaderId="@_moviesFeedLoader">
         <form class="card-actions form-control"
               hx-put="/admin/movies/feed"
@@ -96,4 +131,5 @@
 
 @code {
     private readonly string _moviesFeedLoader = IdHelpers.GetUniqueName("admin-card-loader");
+    private readonly string _moviesSeasonFeedLoader = IdHelpers.GetUniqueName("admin-card-loader");
 }

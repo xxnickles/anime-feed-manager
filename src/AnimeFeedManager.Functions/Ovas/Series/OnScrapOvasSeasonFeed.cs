@@ -40,6 +40,4 @@ public class OnScrapOvasSeasonFeed
                 count, message.SeasonInformation.Season, message.SeasonInformation.Year),
             error => error.LogError(_logger));
     }
-
-   
 }

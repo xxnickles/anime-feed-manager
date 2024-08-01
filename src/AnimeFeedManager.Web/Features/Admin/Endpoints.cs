@@ -88,6 +88,16 @@ public static class Endpoints
                         .ToComponentResult("Ovas feed will be updated in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
+        group.MapPut("/admin/ovas/season-feed",
+                ([FromForm] BasicSeason season,
+                        [FromServices] IDomainPostman domainPostman,
+                        [FromServices] ILogger<Admin> logger,
+                        CancellationToken token) =>
+                    domainPostman.SendMessage(new ScrapOvasSeasonFeed(season), token)
+                        .ToComponentResult(
+                            $"Ovas feed for {season.Season}-{season.Year}  will be updated in the background", logger))
+            .RequireAuthorization(Policies.AdminRequired);
+
         group.MapPut("/admin/movies",
                 ([FromForm] ShorSeriesLatestSeason payload,
                         [FromServices] IDomainPostman domainPostman,
@@ -121,6 +131,15 @@ public static class Endpoints
                         CancellationToken token) =>
                     domainPostman.SendMessage(new StartScrapMoviesFeed(FeedType.Complete), token)
                         .ToComponentResult("Movies feed will be updated in the background", logger))
+            .RequireAuthorization(Policies.AdminRequired);
+        
+        group.MapPut("/admin/movies/season-feed",
+                ([FromForm] BasicSeason season,
+                        [FromServices] IDomainPostman domainPostman,
+                        [FromServices] ILogger<Admin> logger,
+                        CancellationToken token) =>
+                    domainPostman.SendMessage(new ScrapMoviesSeasonFeed(season), token)
+                        .ToComponentResult($"Movies feed for {season.Season}-{season.Year}  will be updated in the background", logger))
             .RequireAuthorization(Policies.AdminRequired);
 
 

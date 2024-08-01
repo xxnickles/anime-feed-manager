@@ -29,7 +29,7 @@ public class OnScrapMoviesSeasonFeed
     {
         _logger.LogInformation("Processing movies feed for season {Year}-{Season}", message.SeasonInformation.Year,
             message.SeasonInformation.Season);
-        
+
         var results = await SeasonValidators.Parse(message.SeasonInformation.Season, message.SeasonInformation.Year)
             .BindAsync(parsedSeason =>
                 _moviesProvider.GetMoviesForFeedProcess(parsedSeason.Season, parsedSeason.Year, token))
@@ -40,6 +40,4 @@ public class OnScrapMoviesSeasonFeed
                 count, message.SeasonInformation.Season, message.SeasonInformation.Year),
             error => error.LogError(_logger));
     }
-
-   
 }
