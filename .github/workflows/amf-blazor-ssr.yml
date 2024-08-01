@@ -21,6 +21,11 @@ env:
   APP_PATH: "./src/AnimeFeedManager.Web"
   TEST_PROJECT_PATH: "./src/AnimeFeedManager.Features.Tests"
 
+# login with OIDC permissions
+permissions:
+  id-token: write
+  contents: read
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build-and-deploy-blazor-ssr-app:
@@ -30,7 +35,9 @@ jobs:
       - uses: actions/checkout@main
       - uses: azure/login@v2.1.1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # Get variables from infrastructure
       - name: Get variables from infrastructure
@@ -38,7 +45,7 @@ jobs:
         id: infrastructure
         with:
           scope: resourcegroup
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./deployment/main-blazor.bicep
           failOnStdErr: false
