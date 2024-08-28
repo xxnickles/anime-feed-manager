@@ -2,7 +2,7 @@
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Users.Types;
-using Passwordless.Net;
+using Passwordless;
 
 namespace AnimeFeedManager.Features.Users.IO;
 

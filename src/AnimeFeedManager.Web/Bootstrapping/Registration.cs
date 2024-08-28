@@ -14,7 +14,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
-using Passwordless.Net;
+using Passwordless;
 
 namespace AnimeFeedManager.Web.Bootstrapping;
 

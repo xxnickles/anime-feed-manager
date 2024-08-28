@@ -2,7 +2,7 @@
 
 namespace AnimeFeedManager.Common.Utils;
 
-public static class MappingUtils
+public  static partial class MappingUtils
 {
     public static DateTime? ParseDate(string dateStr, int year)
     {
@@ -12,4 +12,14 @@ public static class MappingUtils
         var result = DateTime.TryParse($"{dateCleaned} {year}", out var date);
         return result ? date : null;
     }
+    
+    
+    public static string SplitWordsByCase(string str)
+    {
+        var split = CaseRegex().Split(str);
+        return string.Join(' ', split);
+    }
+
+    [GeneratedRegex("(?<!^)(?=[A-Z])")]
+    private static partial Regex CaseRegex();
 }

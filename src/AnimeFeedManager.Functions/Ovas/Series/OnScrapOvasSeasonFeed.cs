@@ -39,5 +39,7 @@ public class OnScrapOvasSeasonFeed
             count => _logger.LogInformation("Trying to get feed information for {Count} Ovas from {Season}-{Year} ",
                 count, message.SeasonInformation.Season, message.SeasonInformation.Year),
             error => error.LogError(_logger));
+        
+        
     }
 }

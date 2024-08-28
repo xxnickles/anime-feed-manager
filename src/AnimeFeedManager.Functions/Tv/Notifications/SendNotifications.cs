@@ -18,7 +18,7 @@ public class SendNotifications(
 {
     private readonly ILogger<SendNotifications> _logger = loggerFactory.CreateLogger<SendNotifications>();
 
-    [Function("SendNotifications")]
+    [Function(nameof(SendNotifications))]
     public async Task Run(
         [QueueTrigger(SubscriberTvNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
         SubscriberTvNotification notification, CancellationToken token)

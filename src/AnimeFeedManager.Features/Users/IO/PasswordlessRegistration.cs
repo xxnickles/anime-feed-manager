@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Users.Types;
-using Passwordless.Net;
-using Passwordless.Net.Models;
+using Passwordless;
+using Passwordless.Models;
 
 namespace AnimeFeedManager.Features.Users.IO;
 

@@ -1,6 +1,6 @@
 ﻿using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Users.Types;
-using Passwordless.Net;
+using Passwordless;
 
 namespace AnimeFeedManager.Features.Users.IO;
 
@@ -42,8 +42,8 @@ public class PasswordlessLogin : IPasswordlessLogin
     {
         try
         {
-            var verifiedUser = await _passwordlessClient.VerifyTokenAsync(token, cancellationToken);
-            return verifiedUser is not null ? verifiedUser : NotFoundError.Create("User has not been registered");
+            var verifiedUser = await _passwordlessClient.VerifyAuthenticationTokenAsync(token, cancellationToken);
+            return verifiedUser.Success ? verifiedUser : NotFoundError.Create("User has not been registered");
         }
         catch (PasswordlessApiException e)
         {

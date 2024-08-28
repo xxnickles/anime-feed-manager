@@ -16,7 +16,7 @@ public static class Endpoints
     {
         group.MapPost("/ovas/subscribe", (
                 [FromForm] OvaControlData data,
-                [FromServices] IAddOvasSubscription ovaSubscriber,
+                [FromServices] IOvasSubscriptionStore ovaSubscriber,
                 [FromServices] ILogger<OvasGrid> logger,
                 CancellationToken token
             ) =>

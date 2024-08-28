@@ -41,7 +41,7 @@ public class EnqueueNotifications(
         {
             result.Match(
                 notificationResult =>
-                    _logger.LogInformation("A notification with {Count} series will be sent to {UserId}",
+                    _logger.LogInformation("A notification with {Count} series will be sent to {UserEmail}",
                         notificationResult.SeriesCount.ToString(), notificationResult.Subscriber),
                 error => error.LogError(_logger)
             );

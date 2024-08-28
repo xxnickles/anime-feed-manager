@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.12.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-    <PackageReference Include="Passwordless" Version="1.0.2" />
+    <PackageReference Include="Passwordless" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
