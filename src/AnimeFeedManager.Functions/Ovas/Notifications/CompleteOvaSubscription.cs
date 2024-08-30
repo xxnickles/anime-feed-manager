@@ -4,23 +4,23 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Ovas.Notifications;
 
-public class CompleteSubscription
+public class CompleteOvaSubscription
 {
     private readonly IOvasSubscriptionStore _ovasSubscriptionStore;
-    private readonly ILogger<CompleteSubscription> _logger;
+    private readonly ILogger<CompleteOvaSubscription> _logger;
 
-    public CompleteSubscription(
+    public CompleteOvaSubscription(
         IOvasSubscriptionStore ovasSubscriptionStore,
-        ILogger<CompleteSubscription> logger)
+        ILogger<CompleteOvaSubscription> logger)
     {
         _ovasSubscriptionStore = ovasSubscriptionStore;
         _logger = logger;
     }
 
-    [Function(nameof(CompleteSubscription))]
+    [Function(nameof(CompleteOvaSubscription))]
     public async Task Run(
-        [QueueTrigger(CompleteOvaSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
-        CompleteOvaSubscription message, CancellationToken token)
+        [QueueTrigger(CompleteOvaSubscriptionEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
+        CompleteOvaSubscriptionEvent message, CancellationToken token)
     {
         var entity = message.OvaInformation;
         entity.Processed = true;

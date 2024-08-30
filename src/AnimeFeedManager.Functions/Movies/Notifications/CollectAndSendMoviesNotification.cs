@@ -5,29 +5,29 @@ using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Infrastructure.SendGrid;
 using AnimeFeedManager.Features.Notifications.IO;
-using AnimeFeedManager.Features.Ovas.Subscriptions;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+using AnimeFeedManager.Features.Movies.Subscriptions;
+using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 using AnimeFeedManager.Web.BlazorComponents.Templates;
 using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace AnimeFeedManager.Functions.Ovas.Notifications;
+namespace AnimeFeedManager.Functions.Movies.Notifications;
 
-public class CollectAndSendNotification
+public class CollectAndSendMoviesNotification
 {
     private readonly ISendGridClient _client;
     private readonly SendGridConfiguration _sendGridConfiguration;
-    private readonly UserOvasFeedForProcess _userOvasFeedForProcess;
+    private readonly UserMoviesFeedForProcess _userMoviesFeedForProcess;
     private readonly IStoreNotification _storeNotification;
     private readonly BlazorRenderer _renderer;
     private readonly IDomainPostman _domainPostman;
-    private readonly ILogger<CollectAndSendNotification> _logger;
+    private readonly ILogger<CollectAndSendMoviesNotification> _logger;
 
-    public CollectAndSendNotification(
+    public CollectAndSendMoviesNotification(
         ISendGridClient client,
         SendGridConfiguration sendGridConfiguration,
-        UserOvasFeedForProcess userOvasFeedForProcess,
+        UserMoviesFeedForProcess userMoviesFeedForProcess,
         IStoreNotification storeNotification,
         BlazorRenderer renderer,
         IDomainPostman domainPostman,
@@ -35,43 +35,43 @@ public class CollectAndSendNotification
     {
         _client = client;
         _sendGridConfiguration = sendGridConfiguration;
-        _userOvasFeedForProcess = userOvasFeedForProcess;
+        _userMoviesFeedForProcess = userMoviesFeedForProcess;
         _storeNotification = storeNotification;
         _renderer = renderer;
         _domainPostman = domainPostman;
-        _logger = loggerFactory.CreateLogger<CollectAndSendNotification>();
+        _logger = loggerFactory.CreateLogger<CollectAndSendMoviesNotification>();
     }
 
-    [Function(nameof(CollectAndSendNotification))]
+    [Function(nameof(CollectAndSendMoviesNotification))]
     public async Task Run(
-        [QueueTrigger(OvasCheckFeedMatches.TargetQueue, Connection = Constants.AzureConnectionName)]
-        OvasCheckFeedMatches notification, CancellationToken token)
+        [QueueTrigger(MoviesCheckFeedMatchesEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
+        MoviesCheckFeedMatchesEvent notification, CancellationToken token)
     {
-        var result = await (PartitionKey.Validate(notification.PartitionKey), UserId.Validate(notification.UserEmail),
+        var result = await (PartitionKey.Validate(notification.PartitionKey), UserId.Validate(notification.UserId),
                 EmailValidator.Validate(notification.UserEmail))
             .Apply((key, id, email) => new {PartitionKey = key, UserId = id, Email = email})
             .ValidationToEither()
-            .BindAsync(safeData => _userOvasFeedForProcess
+            .BindAsync(safeData => _userMoviesFeedForProcess
                 .GetFeedForProcess(safeData.UserId, safeData.PartitionKey, token)
                 .MapAsync(data => new {ProcessInfo = data, safeData.UserId, safeData.Email}))
             .MapAsync(data => SendMessage(data.ProcessInfo, data.UserId, data.Email, token));
 
 
         result.Match(
-            _ => _logger.LogInformation("Notification process for Ovas feed has been completed successfully"),
+            _ => _logger.LogInformation("Notification process for Movies feed has been completed successfully"),
             error => error.LogError(_logger)
         );
     }
 
     private async Task SendMessage(
-        OvasUserFeed processInfo,
+        MoviesUserFeed processInfo,
         UserId userId,
         Email userEmail,
         CancellationToken token)
     {
         if (processInfo.Feed.IsEmpty)
         {
-            _logger.LogInformation("No ovas feed to process for {User}", userEmail);
+            _logger.LogInformation("No Movies feed to process for {User}", userEmail);
             return;
         }
 
@@ -83,9 +83,9 @@ public class CollectAndSendNotification
             message.SetSubject(DefaultSubject());
             message.SetSandBoxMode(_sendGridConfiguration.Sandbox);
 
-            var html = await _renderer.RenderComponent<OvasFeed>(new Dictionary<string, object?>
+            var html = await _renderer.RenderComponent<MoviesFeed>(new Dictionary<string, object?>
             {
-                {nameof(OvasFeed.Feed), processInfo.Feed}
+                {nameof(MoviesFeed.Feed), processInfo.Feed}
             });
 
             message.AddContent(MimeType.Html, html);
@@ -95,17 +95,17 @@ public class CollectAndSendNotification
                 var result = await _storeNotification.Add(
                     Guid.NewGuid().ToString(),
                     userId,
-                    NotificationTarget.Ova,
+                    NotificationTarget.Movie,
                     NotificationArea.Feed,
-                    new OvasFeedSentNotification(
+                    new MoviesFeedSentNotification(
                         TargetAudience.User,
                         NotificationType.Update,
-                        "Ovas feed notification has been sent",
+                        "Movies feed notification has been sent",
                         DateTime.Now, processInfo.Feed),
                     default).BindAsync(_ => SendCompleteMessage(processInfo.Subscriptions, token));
 
                 result.Match(
-                    _ => _logger.LogInformation("Sending ovas notification to {NotificationSubscriber}",
+                    _ => _logger.LogInformation("Sending Movies notification to {NotificationSubscriber}",
                         userEmail),
                     error => error.LogError(_logger)
                 );
@@ -123,10 +123,10 @@ public class CollectAndSendNotification
     }
 
     private async Task<Either<DomainError, Unit>> SendCompleteMessage(
-        ImmutableList<OvasSubscriptionStorage> ovasSubscriptions, CancellationToken token)
+        ImmutableList<MoviesSubscriptionStorage> moviesSubscriptions, CancellationToken token)
     {
-        var tasks = ovasSubscriptions.ConvertAll(subscription =>
-            _domainPostman.SendMessage(new CompleteOvaSubscription(subscription), token)).ToArray();
+        var tasks = moviesSubscriptions.ConvertAll(subscription =>
+            _domainPostman.SendMessage(new CompleteMovieSubscriptionEvent(subscription), token)).ToArray();
 
         var results = await Task.WhenAll(tasks);
         return results.FlattenResults().Map(_ => unit);
@@ -134,6 +134,6 @@ public class CollectAndSendNotification
 
     private static string DefaultSubject()
     {
-        return $"Ovas subscriptions Available for Download ({DateTime.Today.ToShortDateString()})";
+        return $"Movies subscriptions Available for Download ({DateTime.Today.ToShortDateString()})";
     }
 }

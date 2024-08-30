@@ -99,11 +99,11 @@ public class OnUpdateOvaFeed
     private Task<Either<DomainError, Unit>> SendOvasFeedNotifications(string seasonInfo, CancellationToken token)
     {
         return _userGetter.GetAvailableUsersData(token)
-            .MapAsync(users => users.ConvertAll(user => new OvasCheckFeedMatches(user.Email, user.UserId, seasonInfo)))
+            .MapAsync(users => users.ConvertAll(user => new OvasCheckFeedMatchesEvent(user.Email, user.UserId, seasonInfo)))
             .BindAsync(notification => SendNotifications(notification, token));
     }
 
-    private async Task<Either<DomainError, Unit>> SendNotifications(ImmutableList<OvasCheckFeedMatches> notifications,
+    private async Task<Either<DomainError, Unit>> SendNotifications(ImmutableList<OvasCheckFeedMatchesEvent> notifications,
         CancellationToken token)
     {
         var process = notifications.Select(notification => _domainPostman.SendMessage(notification, token)).ToArray();

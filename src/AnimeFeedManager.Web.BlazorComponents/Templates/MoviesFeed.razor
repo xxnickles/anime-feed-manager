@@ -1,0 +1,49 @@
+﻿@using System.Collections.Immutable
+@using AnimeFeedManager.Common.Utils
+@using AnimeFeedManager.Features.Movies.Subscriptions.IO
+@using AnimeFeedManager.Features.Ovas.Subscriptions.IO
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        body,
+        p,
+        div {
+            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+<p style="color: #28404F">Available download links based on your subscription:</p>
+@foreach (var series in Feed)
+{
+    <p style="line-height: 2; font-size: 18px; color: #2bbbb2; margin: 0;">
+        <strong>@series.SeriesTitle</strong>
+    </p>
+    <table style="padding: 7px 0;">
+        <tbody>
+        @foreach (var availableLinks in series.Links)
+        {
+            <tr>
+                <td style="vertical-align:top; padding: 20px 15px;">
+                    <p style="font-size: 15px; color: #2bbbb2; margin: 0;">LinkTitle</p>
+                    @foreach (var link in availableLinks.Links)
+                    {
+                        <a href="@link.Link" title="@availableLinks.LinkTitle">@MappingUtils.SplitWordsByCase(link.Type.ToString())</a>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+</body>
+
+</html>
+
+@code {
+    [Parameter] public ImmutableList<FeedProcessedMovie> Feed { get; set; } = ImmutableList<FeedProcessedMovie>.Empty;
+}

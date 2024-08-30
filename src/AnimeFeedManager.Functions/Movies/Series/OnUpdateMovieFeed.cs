@@ -1,12 +1,16 @@
-﻿using AnimeFeedManager.Common;
+﻿using System.Collections.Immutable;
+using AnimeFeedManager.Common;
 using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Movies.Scrapping.Feed;
 using AnimeFeedManager.Features.Movies.Scrapping.Feed.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 using AnimeFeedManager.Features.State.IO;
 using AnimeFeedManager.Features.State.Types;
+using AnimeFeedManager.Features.Users.IO;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Movies.Series;
@@ -16,17 +20,20 @@ public class OnUpdateMovieFeed
     private readonly MovieFeedUpdateStore _feedUpdateStore;
     private readonly IStateUpdater _stateUpdater;
     private readonly IDomainPostman _domainPostman;
+    private readonly IUserGetter _userGetter;
     private readonly ILogger<OnUpdateMovieFeed> _logger;
 
     public OnUpdateMovieFeed(
         MovieFeedUpdateStore feedUpdateStore,
         IStateUpdater stateUpdater,
         IDomainPostman domainPostman,
+        IUserGetter userGetter,
         ILogger<OnUpdateMovieFeed> logger)
     {
         _feedUpdateStore = feedUpdateStore;
         _stateUpdater = stateUpdater;
         _domainPostman = domainPostman;
+        _userGetter = userGetter;
         _logger = logger;
     }
 
@@ -85,6 +92,22 @@ public class OnUpdateMovieFeed
             seasonInfo,
             $"Movies feed for {seasonInfo} has been updated. Processed series: {currentState.Completed} Errors: {currentState.Errors}");
 
-        return await _domainPostman.SendMessage(notification, token);
+        return await _domainPostman.SendMessage(notification, token)
+            .BindAsync(_ => SendMoviesFeedNotifications(seasonInfo, token));
+    }
+    
+    private Task<Either<DomainError, Unit>> SendMoviesFeedNotifications(string seasonInfo, CancellationToken token)
+    {
+        return _userGetter.GetAvailableUsersData(token)
+            .MapAsync(users => users.ConvertAll(user => new MoviesCheckFeedMatchesEvent(user.Email, user.UserId, seasonInfo)))
+            .BindAsync(notification => SendNotifications(notification, token));
+    }
+
+    private async Task<Either<DomainError, Unit>> SendNotifications(ImmutableList<MoviesCheckFeedMatchesEvent> notifications,
+        CancellationToken token)
+    {
+        var process = notifications.Select(notification => _domainPostman.SendMessage(notification, token)).ToArray();
+        var results = await Task.WhenAll(process);
+        return results.FlattenResults().Map(_ => unit);
     }
 }

@@ -16,7 +16,7 @@ public static class Endpoints
     {
         group.MapPost("/movies/subscribe", (
                 [FromForm] MovieControlData data,
-                [FromServices] IAddMovieSubscription movieSubscriber,
+                [FromServices] IMovieSubscriptionStore movieSubscriber,
                 [FromServices] ILogger<MoviesGrid> logger,
                 CancellationToken token
             ) =>
