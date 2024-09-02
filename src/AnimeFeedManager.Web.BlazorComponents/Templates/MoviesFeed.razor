@@ -28,11 +28,18 @@
         @foreach (var availableLinks in series.Links)
         {
             <tr>
-                <td style="vertical-align:top; padding: 20px 15px;">
+                <td style="vertical-align:top; padding: 0 15px 20px 15px;">
                     <p style="font-size: 15px; color: #2bbbb2; margin: 0;">@availableLinks.LinkTitle</p>
-                    @foreach (var link in availableLinks.Links)
+                    @{
+                        var links = availableLinks.Links;
+                    }
+                    @for (int i = 0; i < links.Count(); i++)
                     {
-                        <a style="margin-right: 7px" href="@link.Link" title="@availableLinks.LinkTitle">@MappingUtils.SplitWordsByCase(link.Type.ToString()) |</a>
+                        <a style="margin-right: 7px" href="@links[i].Link" title="@availableLinks.LinkTitle">@MappingUtils.SplitWordsByCase(links[i].Type.ToString())</a>
+                        @if (i < links.Count() - 1)
+                        {
+                            <span> | </span>
+                        }
                     }
                 </td>
             </tr>
