@@ -34,7 +34,7 @@ public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
             synopsis,
             imageUrl,
             airDate,
-            movieStorage.FeedInfo is not null
+            !string.IsNullOrEmpty(movieStorage.FeedInfo)
                 ? JsonSerializer.Deserialize(movieStorage.FeedInfo,
                     SeriesFeedLinksContext.Default.SeriesFeedLinksArray) ?? []
                 : []);

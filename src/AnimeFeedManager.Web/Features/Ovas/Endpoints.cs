@@ -45,7 +45,7 @@ public static class Endpoints
         );
 
         group.MapPost("/ovas/remove", (
-                    [FromForm] SeriesToRemove removeInfo,
+                    [FromForm] SeriesToUpdate removeInfo,
                     [FromServices] IOvasStorage ovasStorage,
                     [FromServices] ILogger<OvasGrid> logger,
                     CancellationToken token) =>
@@ -60,6 +60,24 @@ public static class Endpoints
                 .ToComponentResult(
                     data => ComponentResponses.OkResponse(data.SeasonInfo,
                         $"{removeInfo.Title} has been removed from the ovas library"),
+                    error => CommonComponentResponses.ErrorComponentResult(error, logger)))
+            .RequireAuthorization(Policies.AdminRequired);
+        
+        group.MapPost("/ovas/remove-feed", (
+                    [FromForm] SeriesToUpdate feedUpdateInfo,
+                    [FromServices] IOvaFeedRemover feedRemover,
+                    [FromServices] ILogger<OvasGrid> logger,
+                    CancellationToken token) =>
+                (PartitionKey.Validate(feedUpdateInfo.Season), RowKey.Validate(feedUpdateInfo.Id), SeasonValidators.ValidateSeasonPartitionString(feedUpdateInfo.Season))
+                .Apply((key, rowKey, season) => new { PartitionKey = key, RowKey = rowKey, Season = season })
+                .ValidationToEither()
+                .BindAsync(safeData =>
+                    feedRemover.RemoveFeed(safeData.RowKey, safeData.PartitionKey, token)
+                        .MapAsync(_ => new
+                            { SeasonInfo = new SeasonInformation(safeData.Season.Season, safeData.Season.Year) }))
+                .ToComponentResult(
+                    data => ComponentResponses.OkResponse(data.SeasonInfo,
+                        $"{feedUpdateInfo.Title} feed information has been removed"),
                     error => CommonComponentResponses.ErrorComponentResult(error, logger)))
             .RequireAuthorization(Policies.AdminRequired);
     }

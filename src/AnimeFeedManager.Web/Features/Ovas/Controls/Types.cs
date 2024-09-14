@@ -32,13 +32,13 @@ public class OvaControlData
     }
 }
 
-public record AdminOvaControlParams(string Id, string Title, string Season)
+public record AdminOvaControlParams(string Id, string Title, string Season, bool HasFeed)
 {
     public static implicit operator AdminOvaControlParams(OvaForUser animeForUser) => animeForUser switch
     {
-        {IsAdmin: true} => new AdminOvaControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season),
+        {IsAdmin: true} => new AdminOvaControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season, animeForUser.Links.Length > 0),
         _ => new DefaultAdminOvaControlParams()
     };
 }
 
-public record DefaultAdminOvaControlParams() : AdminOvaControlParams(string.Empty, string.Empty, string.Empty);
+public record DefaultAdminOvaControlParams() : AdminOvaControlParams(string.Empty, string.Empty, string.Empty, false);

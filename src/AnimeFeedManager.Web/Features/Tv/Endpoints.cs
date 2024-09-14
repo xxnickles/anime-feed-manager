@@ -72,7 +72,7 @@ public static class Endpoints
 
 
         group.MapPost("/tv/remove", (
-                    [FromForm] SeriesToRemove removeInfo,
+                    [FromForm] SeriesToUpdate removeInfo,
                     [FromServices] ITvSeriesStore tvSeriesStore,
                     [FromServices] ILogger<TvCard> logger,
                     CancellationToken token) =>

@@ -22,6 +22,7 @@ public static class OvasRegistration
         services.TryAddScoped<IGetOvasSubscriptions, GetOvasSubscriptions>();
         services.TryAddScoped<IOvasStatusProvider, OvasStatusProvider>();
         services.TryAddScoped<IGetProcessedOvas, GetProcessedOvas>();
+        services.TryAddScoped<IOvaFeedRemover, OvaFeedRemover>();
         services.TryAddScoped<OvaFeedUpdateStore>();
         services.TryAddScoped<OvasLibraryGetter>();
         services.TryAddScoped<UserOvasFeedForProcess>();

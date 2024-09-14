@@ -35,7 +35,7 @@ public sealed class OvasLibraryGetter(IOvasSeasonalLibrary seasonalLibrary)
             synopsis,
             imageUrl,
             airDate,
-            ovaStorage.FeedInfo is not null
+            !string.IsNullOrEmpty(ovaStorage.FeedInfo) 
                 ? JsonSerializer.Deserialize(ovaStorage.FeedInfo,
                     SeriesFeedLinksContext.Default.SeriesFeedLinksArray) ?? []
                 : []);

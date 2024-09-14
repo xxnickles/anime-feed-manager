@@ -21,14 +21,15 @@ public static class MoviesRegistration
         services.TryAddScoped<ICopyMoviesSubscriptions, CopyMoviesSubscriptions>();
         services.TryAddScoped<IGetMovieSubscriptions, GetMovieSubscriptions>();
         services.TryAddScoped<IMoviesStatusProvider, MovieStatusProvider>();
-        services.TryAddScoped<IGetProcessedMovies,GetProcessedMovies>();
+        services.TryAddScoped<IGetProcessedMovies, GetProcessedMovies>();
+        services.TryAddScoped<IMovieFeedRemover, MovieFeedRemover>();
         services.TryAddScoped<MovieFeedUpdateStore>();
         services.TryAddScoped<MoviesLibraryGetter>();
         services.TryAddScoped<UserMoviesFeedForProcess>();
         return services;
     }
-    
-    
+
+
     public static IServiceCollection RegisterMoviesScrappingServices(this IServiceCollection services)
     {
         services.TryAddScoped<MoviesLibraryUpdater>();

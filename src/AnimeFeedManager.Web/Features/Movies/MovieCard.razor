@@ -22,7 +22,7 @@
     @if (Movie is BaseAvailableMovie available)
     {
         <div class="absolute bottom-0 left-0">
-            <LinksPresenter Links="available.Links"></LinksPresenter>
+            <LinksPresenter Links="available.Links" SeriesTitle="@Movie.Title"></LinksPresenter>
         </div>
     }
     <div class="basis-3/4 flex flex-nowrap flex-col max-h-full">

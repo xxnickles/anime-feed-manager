@@ -32,13 +32,13 @@ public class MovieControlData
     }
 }
 
-public record AdminMovieControlParams(string Id, string Title, string Season)
+public record AdminMovieControlParams(string Id, string Title, string Season, bool HasFeed)
 {
     public static implicit operator AdminMovieControlParams(MovieForUser animeForUser) => animeForUser switch
     {
-        {IsAdmin: true} => new AdminMovieControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season),
+        {IsAdmin: true} => new AdminMovieControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season, animeForUser.Links.Length > 0),
         _ => new DefaultAdminMovieControlParams()
     };
 }
 
-public record DefaultAdminMovieControlParams() : AdminMovieControlParams(string.Empty, string.Empty, string.Empty);
+public record DefaultAdminMovieControlParams() : AdminMovieControlParams(string.Empty, string.Empty, string.Empty, false);
