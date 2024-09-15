@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Features.Notifications.IO;
 using AnimeFeedManager.Features.Notifications.Types;
 using AnimeFeedManager.Features.Tv.Feed;

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Features.Images.IO;
 using Microsoft.Extensions.Logging;

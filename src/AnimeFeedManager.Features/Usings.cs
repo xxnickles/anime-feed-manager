@@ -2,6 +2,7 @@
 global using AnimeFeedManager.Common.Dto;
 global using AnimeFeedManager.Common.Types;
 global using AnimeFeedManager.Common.Domain;
+global using AnimeFeedManager.Common.Domain.Errors;
 global using AnimeFeedManager.Common.Domain.Notifications;
 global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Features.State.Types;

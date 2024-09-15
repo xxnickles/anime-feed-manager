@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Feed.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Series.IO;

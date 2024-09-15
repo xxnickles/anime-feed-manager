@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Tv.Types;
+﻿using AnimeFeedManager.Features.Tv.Types;
 
 namespace AnimeFeedManager.Features.Tv.Library.IO;
 

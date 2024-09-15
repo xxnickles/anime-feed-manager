@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 using MoviesContainer =
     (System.Collections.Immutable.ImmutableList<
@@ -17,7 +16,7 @@ public interface IMovieFeedRemover
     Task<Either<DomainError, Unit>> RemoveFeed(RowKey rowKey, PartitionKey key, CancellationToken token);
 }
 
-public class MovieFeedRemover : IMovieFeedRemover
+public sealed class MovieFeedRemover : IMovieFeedRemover
 {
     private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
 

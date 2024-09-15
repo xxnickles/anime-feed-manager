@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Features.Ovas.Library.IO;

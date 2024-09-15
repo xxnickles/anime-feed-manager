@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Ovas.Subscriptions.IO;
 
@@ -8,7 +7,7 @@ public interface ICopyOvasSubscriptions
     Task<Either<DomainError, ProcessResult>> CopyAll(UserId source, UserId target, CancellationToken token);
 }
 
-public class CopyOvasSubscriptions : ICopyOvasSubscriptions
+public sealed class CopyOvasSubscriptions : ICopyOvasSubscriptions
 {
     private readonly ITableClientFactory<OvasSubscriptionStorage> _clientFactory;
 

@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using AnimeFeedManager.Common.Domain.Errors;
 
 namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 

@@ -1,7 +1,9 @@
 ﻿using AnimeFeedManager.Common.Domain.Validators;
 using AnimeFeedManager.Common.Utils;
+using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
 using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
+using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
 using AnimeFeedManager.Web.Features.Ovas.Controls;
@@ -66,6 +68,7 @@ public static class Endpoints
         group.MapPost("/ovas/remove-feed", (
                     [FromForm] SeriesToUpdate feedUpdateInfo,
                     [FromServices] IOvaFeedRemover feedRemover,
+                    [FromServices] IDomainPostman domainPostman,
                     [FromServices] ILogger<OvasGrid> logger,
                     CancellationToken token) =>
                 (PartitionKey.Validate(feedUpdateInfo.Season), RowKey.Validate(feedUpdateInfo.Id), SeasonValidators.ValidateSeasonPartitionString(feedUpdateInfo.Season))
@@ -75,6 +78,9 @@ public static class Endpoints
                     feedRemover.RemoveFeed(safeData.RowKey, safeData.PartitionKey, token)
                         .MapAsync(_ => new
                             { SeasonInfo = new SeasonInformation(safeData.Season.Season, safeData.Season.Year) }))
+                .BindAsync(data =>
+                    domainPostman.SendMessage(new OvaFeedRemovedEvent(feedUpdateInfo.Title), token)
+                        .MapAsync(_ => data))
                 .ToComponentResult(
                     data => ComponentResponses.OkResponse(data.SeasonInfo,
                         $"{feedUpdateInfo.Title} feed information has been removed"),

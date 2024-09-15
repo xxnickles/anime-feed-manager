@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Movies.Subscriptions.Types;
+﻿using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Movies.Subscriptions.IO;
 
@@ -8,7 +7,7 @@ public interface IRemoveAllMoviesSubscriptions
     Task<Either<DomainError, ProcessResult>> UnsubscribeAll(UserId userId, CancellationToken token);
 }
 
-public class RemoveAllMoviesSubscriptions : IRemoveAllMoviesSubscriptions
+public sealed class RemoveAllMoviesSubscriptions : IRemoveAllMoviesSubscriptions
 {
     private readonly ITableClientFactory<MoviesSubscriptionStorage> _clientFactory;
 

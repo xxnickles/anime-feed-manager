@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 
@@ -13,7 +12,7 @@ public interface IGetProcessedOvas
         CancellationToken token);
 }
 
-public class GetProcessedOvas : IGetProcessedOvas
+public sealed class GetProcessedOvas : IGetProcessedOvas
 {
     private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
 

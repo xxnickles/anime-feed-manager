@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Movies.Subscriptions.Types;
+﻿using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Movies.Subscriptions.IO;
 
@@ -9,6 +8,8 @@ public interface IMovieSubscriptionStore
         CancellationToken token);
     
     public Task<Either<DomainError, Unit>> Upsert(MoviesSubscriptionStorage entity, CancellationToken token);
+    
+    public Task<Either<DomainError, Unit>> BulkUpdate(ImmutableList<MoviesSubscriptionStorage> entities, CancellationToken token);
 }
 
 public sealed class MovieSubscriptionStore(ITableClientFactory<MoviesSubscriptionStorage> clientFactory)
@@ -24,6 +25,13 @@ public sealed class MovieSubscriptionStore(ITableClientFactory<MoviesSubscriptio
     {
         return clientFactory.GetClient().BindAsync(client =>
             TableUtils.TryExecute(() => client.UpsertEntityAsync(entity, cancellationToken: token))
+                .MapAsync(_ => unit));
+    }
+
+    public Task<Either<DomainError, Unit>> BulkUpdate(ImmutableList<MoviesSubscriptionStorage> entities, CancellationToken token)
+    {
+        return clientFactory.GetClient().BindAsync(client =>
+            TableUtils.BatchAdd(client,entities,token)
                 .MapAsync(_ => unit));
     }
 

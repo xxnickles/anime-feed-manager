@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Utils;
+﻿using AnimeFeedManager.Common.Utils;
 using AnimeFeedManager.Features.Tv.Subscriptions.Types;
 using AnimeFeedManager.Features.Users.IO;
 

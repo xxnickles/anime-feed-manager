@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 
 namespace AnimeFeedManager.Features.Ovas.Library.IO;
@@ -13,7 +12,7 @@ public interface IOvasSeasonalLibrary
         CancellationToken token);
 }
 
-public class OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFactory, TimeProvider timeProvider)
+public sealed class OvasSeasonalLibrary(ITableClientFactory<OvaStorage> tableClientFactory, TimeProvider timeProvider)
     : IOvasSeasonalLibrary
 {
     public Task<Either<DomainError, ImmutableList<OvaStorage>>> GetSeasonalLibrary(Season season,

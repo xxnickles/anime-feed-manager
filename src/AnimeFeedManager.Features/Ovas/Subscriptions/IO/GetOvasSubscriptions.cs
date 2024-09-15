@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Ovas.Subscriptions.IO;
 
@@ -8,9 +7,11 @@ public interface IGetOvasSubscriptions
     Task<Either<DomainError, ImmutableList<string>>> GetSubscriptions(UserId userId, CancellationToken token);
     
     Task<Either<DomainError, ImmutableList<OvasSubscriptionStorage>>> GetCompleteSubscriptions(UserId userId, CancellationToken token);
+    
+    Task<Either<DomainError, ImmutableList<OvasSubscriptionStorage>>> GetSubscriptionForOva(RowKey rowKey,  CancellationToken token);
 }
 
-public class GetOvasSubscriptions(ITableClientFactory<OvasSubscriptionStorage> clientFactory) : IGetOvasSubscriptions
+public sealed class GetOvasSubscriptions(ITableClientFactory<OvasSubscriptionStorage> clientFactory) : IGetOvasSubscriptions
 {
     public Task<Either<DomainError, ImmutableList<string>>> GetSubscriptions(UserId userId, CancellationToken token)
     {
@@ -26,6 +27,14 @@ public class GetOvasSubscriptions(ITableClientFactory<OvasSubscriptionStorage> c
         return clientFactory.GetClient()
             .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
                 client.QueryAsync<OvasSubscriptionStorage>(storage => storage.PartitionKey == userId,
+                    cancellationToken: token)));
+    }
+
+    public Task<Either<DomainError, ImmutableList<OvasSubscriptionStorage>>> GetSubscriptionForOva(RowKey rowKey, CancellationToken token)
+    {
+        return clientFactory.GetClient()
+            .BindAsync(client => TableUtils.ExecuteQueryWithEmptyResult(() =>
+                client.QueryAsync<OvasSubscriptionStorage>(storage => storage.RowKey == rowKey && storage.Processed,
                     cancellationToken: token)));
     }
 }

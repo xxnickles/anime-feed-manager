@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
+﻿using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
 using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Ovas.Subscriptions;
@@ -8,7 +7,7 @@ public readonly record struct OvasUserFeed(
     ImmutableList<FeedProcessedOva> Feed,
     ImmutableList<OvasSubscriptionStorage> Subscriptions);
 
-public class UserOvasFeedForProcess
+public sealed class UserOvasFeedForProcess
 {
     private readonly IGetProcessedOvas _getProcessedOvas;
     private readonly IGetOvasSubscriptions _getOvasSubscriptions;

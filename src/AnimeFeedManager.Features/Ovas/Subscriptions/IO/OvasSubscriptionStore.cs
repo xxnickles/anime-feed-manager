@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Ovas.Subscriptions.IO;
 
@@ -9,6 +8,8 @@ public interface IOvasSubscriptionStore
         CancellationToken token);
 
     public Task<Either<DomainError, Unit>> Upsert(OvasSubscriptionStorage entity, CancellationToken token);
+    
+    public Task<Either<DomainError, Unit>> BulkUpdate(ImmutableList<OvasSubscriptionStorage> entities, CancellationToken token);
 }
 
 public sealed class OvasSubscriptionStoreStore(ITableClientFactory<OvasSubscriptionStorage> clientFactory)
@@ -24,6 +25,13 @@ public sealed class OvasSubscriptionStoreStore(ITableClientFactory<OvasSubscript
     {
         return clientFactory.GetClient().BindAsync(client =>
             TableUtils.TryExecute(() => client.UpsertEntityAsync(entity, cancellationToken: token))
+                .MapAsync(_ => unit));
+    }
+    
+    public Task<Either<DomainError, Unit>> BulkUpdate(ImmutableList<OvasSubscriptionStorage> entities, CancellationToken token)
+    {
+        return clientFactory.GetClient().BindAsync(client =>
+            TableUtils.BatchAdd(client,entities,token)
                 .MapAsync(_ => unit));
     }
 

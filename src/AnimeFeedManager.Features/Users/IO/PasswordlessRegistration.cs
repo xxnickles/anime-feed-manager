@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Features.Users.Types;
 using Passwordless;
 using Passwordless.Models;
 

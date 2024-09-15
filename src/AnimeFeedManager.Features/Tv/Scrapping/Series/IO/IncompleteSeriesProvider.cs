@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Tv.Types;
 
 namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;

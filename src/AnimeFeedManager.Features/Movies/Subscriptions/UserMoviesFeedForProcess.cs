@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Movies.Subscriptions.IO;
+﻿using AnimeFeedManager.Features.Movies.Subscriptions.IO;
 using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Movies.Subscriptions;
@@ -8,7 +7,7 @@ public readonly record struct MoviesUserFeed(
     ImmutableList<FeedProcessedMovie> Feed,
     ImmutableList<MoviesSubscriptionStorage> Subscriptions);
 
-public class UserMoviesFeedForProcess
+public sealed class UserMoviesFeedForProcess
 {
     private readonly IGetProcessedMovies _getProcessedMovies;
     private readonly IGetMovieSubscriptions _getMoviesSubscriptions;

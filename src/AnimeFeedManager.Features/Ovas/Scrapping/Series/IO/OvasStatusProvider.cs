@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
@@ -12,7 +11,7 @@ public interface IOvasStatusProvider
         CancellationToken token);
 }
 
-public class OvasStatusProvider : IOvasStatusProvider
+public sealed class OvasStatusProvider : IOvasStatusProvider
 {
     private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
 

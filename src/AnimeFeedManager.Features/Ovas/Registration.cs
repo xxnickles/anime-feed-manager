@@ -26,6 +26,7 @@ public static class OvasRegistration
         services.TryAddScoped<OvaFeedUpdateStore>();
         services.TryAddScoped<OvasLibraryGetter>();
         services.TryAddScoped<UserOvasFeedForProcess>();
+        services.TryAddScoped<OvasSubscriptionStatusResetter>();
         return services;
     }
 

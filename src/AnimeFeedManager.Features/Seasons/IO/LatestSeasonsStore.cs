@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Errors;
 
 namespace AnimeFeedManager.Features.Seasons.IO;
 

@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 
 namespace AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
@@ -12,7 +11,7 @@ public interface IMoviesStatusProvider
         CancellationToken token);
 }
 
-public class MovieStatusProvider : IMoviesStatusProvider
+public sealed class MovieStatusProvider : IMoviesStatusProvider
 {
     private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
 

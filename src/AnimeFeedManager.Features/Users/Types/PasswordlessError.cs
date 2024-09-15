@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Passwordless;
 
 namespace AnimeFeedManager.Features.Users.Types;

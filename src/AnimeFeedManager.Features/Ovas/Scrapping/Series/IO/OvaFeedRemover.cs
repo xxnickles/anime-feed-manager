@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 using OvasContainer =
     (System.Collections.Immutable.ImmutableList<
@@ -15,7 +14,7 @@ public interface IOvaFeedRemover
     Task<Either<DomainError, Unit>> RemoveFeed(RowKey rowKey, PartitionKey key, CancellationToken token);
 }
 
-public class OvaFeedRemover : IOvaFeedRemover
+public sealed class OvaFeedRemover : IOvaFeedRemover
 {
     private readonly ITableClientFactory<OvaStorage> _tableClientFactory;
 

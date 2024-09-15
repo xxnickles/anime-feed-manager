@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Ovas.Subscriptions.IO;
 

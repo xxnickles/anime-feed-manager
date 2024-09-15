@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
 
 namespace AnimeFeedManager.Features.Ovas.Subscriptions.IO;
 
@@ -8,7 +7,7 @@ public interface IRemoveAllOvasSubscriptions
     Task<Either<DomainError, ProcessResult>> UnsubscribeAll(UserId userId, CancellationToken token);
 }
 
-public class RemoveAllOvasSubscriptions : IRemoveAllOvasSubscriptions
+public sealed class RemoveAllOvasSubscriptions : IRemoveAllOvasSubscriptions
 {
     private readonly ITableClientFactory<OvasSubscriptionStorage> _clientFactory;
 

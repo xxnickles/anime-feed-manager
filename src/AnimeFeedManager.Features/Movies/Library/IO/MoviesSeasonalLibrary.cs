@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 
 namespace AnimeFeedManager.Features.Movies.Library.IO;
@@ -12,7 +11,7 @@ public interface IMoviesSeasonalLibrary
         CancellationToken token);
 }
 
-public class MoviesSeasonalLibrary(ITableClientFactory<MovieStorage> tableClientFactory, TimeProvider timeProvider) : IMoviesSeasonalLibrary
+public sealed class MoviesSeasonalLibrary(ITableClientFactory<MovieStorage> tableClientFactory, TimeProvider timeProvider) : IMoviesSeasonalLibrary
 {
     public Task<Either<DomainError, ImmutableList<MovieStorage>>> GetSeasonalLibrary(Season season,
         Year year, CancellationToken token)

@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
 
@@ -13,7 +12,7 @@ public interface IGetProcessedMovies
         CancellationToken token);
 }
 
-public class GetProcessedMovies : IGetProcessedMovies
+public sealed class GetProcessedMovies : IGetProcessedMovies
 {
     private readonly ITableClientFactory<MovieStorage> _tableClientFactory;
 

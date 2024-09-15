@@ -11,3 +11,8 @@ public record CompleteMovieSubscriptionEvent(MoviesSubscriptionStorage MoviesInf
 {
     public const string TargetQueue = "movie-subscription-completer";
 }
+
+public record MovieFeedRemovedEvent(string Tile) : DomainMessage(new Box(TargetQueue))
+{
+    public const string TargetQueue = "movie-feed-removed-process";
+}

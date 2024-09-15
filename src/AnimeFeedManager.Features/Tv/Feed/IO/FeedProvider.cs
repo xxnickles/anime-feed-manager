@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
 
 namespace AnimeFeedManager.Features.Tv.Feed.IO;

@@ -26,6 +26,7 @@ public static class MoviesRegistration
         services.TryAddScoped<MovieFeedUpdateStore>();
         services.TryAddScoped<MoviesLibraryGetter>();
         services.TryAddScoped<UserMoviesFeedForProcess>();
+        services.TryAddScoped<MoviesSubscriptionStatusResetter>();
         return services;
     }
 

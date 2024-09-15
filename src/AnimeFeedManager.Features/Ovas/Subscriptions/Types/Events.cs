@@ -12,3 +12,8 @@ public record CompleteOvaSubscriptionEvent(OvasSubscriptionStorage OvaInformatio
 {
     public const string TargetQueue = "ova-subscription-completer";
 }
+
+public record OvaFeedRemovedEvent(string Tile) : DomainMessage(new Box(TargetQueue))
+{
+    public const string TargetQueue = "ova-feed-removed-process";
+}

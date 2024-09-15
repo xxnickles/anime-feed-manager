@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Events;
+﻿using AnimeFeedManager.Common.Domain.Events;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Users.IO;
 using AnimeFeedManager.Features.Users.Types;

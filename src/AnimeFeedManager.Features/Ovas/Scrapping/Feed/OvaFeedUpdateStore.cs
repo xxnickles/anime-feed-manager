@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Errors;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
 using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
@@ -7,7 +6,7 @@ using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
 
 namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed;
 
-public class OvaFeedUpdateStore
+public sealed class OvaFeedUpdateStore
 {
     private readonly IOvasStorage _ovasStorage;
 
