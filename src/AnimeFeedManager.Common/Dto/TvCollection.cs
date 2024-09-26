@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Common.Dto;
 
 public record NullTvAnime() : BaseTvAnime(string.Empty, string.Empty, string.Empty, string.Empty, null);
 
-public sealed record FeedData(bool Available, string Status, string? Title);
+public sealed record FeedData(string Status, string? Title);
 
 public sealed record FeedAnime(
     string Id,

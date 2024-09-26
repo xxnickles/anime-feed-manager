@@ -88,8 +88,9 @@
     {
         return Ova switch
         {
-            SubscribedOva {Links.Length: > 0} or UnsubscribedOva {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed, Attributes.Susbcribed]).AsReadOnly(),
-            SubscribedOva  => new Dictionary<string, object>([Attributes.Susbcribed]).AsReadOnly(),
+            SubscribedOva {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed, Attributes.Subscribed]).AsReadOnly(),
+            UnsubscribedOva {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly(),
+            SubscribedOva  => new Dictionary<string, object>([Attributes.Subscribed]).AsReadOnly(),
             AvailableOva {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly(),
             _ => ReadOnlyDictionary<string, object>.Empty
         };

@@ -13,27 +13,27 @@
                     @if (!_isAnonymous)
                     {
                         <li>
-                            <a x-on:click.throttle.300ms="toggleFilter('subscribed')">
+                            <a x-on:click.throttle.300ms="toggleFilter('@Attributes.SubscribedAttributeDefinition.Attribute')">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <title>Filter Subscribed</title>
                                     <details>Filters Ovas you are subscribed</details>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"></path>
                                 </svg>
                                 <span>Filter Subscribed</span>
-                                <div x-show="filters.includes('subscribed')" class="badge badge-primary badge-xs"></div>
+                                <div x-show="filters.includes('@Attributes.SubscribedAttributeDefinition.Attribute')" class="badge badge-primary badge-xs"></div>
                             </a>
                         </li>
                     }
 
                     <li>
-                        <a x-on:click.throttle.300ms="toggleFilter('hasFeed')">
+                        <a x-on:click.throttle.300ms="toggleFilter('@Attributes.HasFeedAttributeDefinition.Attribute')">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <title>Filter with Feed</title>
                                 <details>Filters Ovas that have a feed</details>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <span>Filter with Feed</span>
-                            <div x-show="filters.includes('hasFeed')" class="badge badge-primary badge-xs"></div>
+                            <div x-show="filters.includes('@Attributes.HasFeedAttributeDefinition.Attribute')" class="badge badge-primary badge-xs"></div>
                         </a>
                     </li>
                 </ul>
@@ -60,6 +60,7 @@
     {
         var user = await UserProvider.GetCurrentUser(default);
         _isAnonymous = user is Anonymous;
+        
         var results = await LibraryGetter.GetFeedForSeason(SeasonInfo.Season, SeasonInfo.Year)
             .MapAsync(lib => Map(lib, user))
             .LogErrors(Logger);

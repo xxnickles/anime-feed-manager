@@ -28,7 +28,7 @@ public sealed class TvLibraryGetter(ITvSeasonalLibrary seasonalLibrary)
                         a.Synopsis ?? "Not Available",
                         a.ImageUrl,
                         a.Status is null ? SeriesStatus.NotAvailable : (SeriesStatus)a.Status,
-                        new FeedData(!string.IsNullOrEmpty(a.FeedTitle), a.Status ?? SeriesStatus.NotAvailable,
+                        new FeedData(a.Status ?? SeriesStatus.NotAvailable,
                             a?.FeedTitle ?? string.Empty)
                     ))
                 .ToArray());

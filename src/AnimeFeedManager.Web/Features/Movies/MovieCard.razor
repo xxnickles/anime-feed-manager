@@ -4,7 +4,7 @@
     <div class="absolute top-0 left-0">
         @switch (Movie)
         {
-            case MovieForUser {IsAdmin: true} movieInfo:
+            case MovieForUser { IsAdmin: true } movieInfo:
                 <AdminMovieControls MovieInfo="movieInfo" LoaderSelector="@LoaderSelector"/>
                 break;
         }
@@ -81,14 +81,15 @@
             ? "text-secondary"
             : "text-base ";
     }
-    
+
     private IReadOnlyDictionary<string, object> GetAttributes()
     {
         return Movie switch
         {
-            SubscribedMovie {Links.Length: > 0} or UnsubscribedMovie {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed, Attributes.Susbcribed]).AsReadOnly(),
-            SubscribedMovie  => new Dictionary<string, object>([Attributes.Susbcribed]).AsReadOnly(),
-            AvailableMovie {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly(),
+            SubscribedMovie { Links.Length: > 0 } => new Dictionary<string, object>([Attributes.HasFeed, Attributes.Subscribed]).AsReadOnly(),
+            UnsubscribedMovie { Links.Length: > 0 } => new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly(),
+            SubscribedMovie => new Dictionary<string, object>([Attributes.Subscribed]).AsReadOnly(),
+            AvailableMovie { Links.Length: > 0 } => new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly(),
             _ => ReadOnlyDictionary<string, object>.Empty
         };
     }

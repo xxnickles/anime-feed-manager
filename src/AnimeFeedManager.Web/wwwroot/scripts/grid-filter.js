@@ -10,12 +10,13 @@
             this.applyFilters();
         },
         applyFilters() {
-            let items = document.querySelectorAll('article');
+            let items = document.querySelectorAll('#main-grid > article');
             let showAllItems = this.filters.length === 0;
             items.forEach(item => {
                 let showItem = showAllItems;
                 if (!showItem) {
-                    showItem = this.filters.every(filter => item.dataset[filter] === 'true');
+                    showItem = this.filters.every(filter => {
+                        return item.dataset[filter] === 'true'});
                 }
                 item.style.display = showItem ? '' : 'none';
             });
