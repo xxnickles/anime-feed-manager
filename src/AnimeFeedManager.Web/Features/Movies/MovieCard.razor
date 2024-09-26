@@ -1,5 +1,6 @@
-﻿@using AnimeFeedManager.Common.Domain
-<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative">
+﻿@using System.Collections.ObjectModel
+@using AnimeFeedManager.Common.Domain
+<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative" @attributes="GetAttributes()">
     <div class="absolute top-0 left-0">
         @switch (Movie)
         {
@@ -80,5 +81,17 @@
             ? "text-secondary"
             : "text-base ";
     }
+    
+    private IReadOnlyDictionary<string, object> GetAttributes()
+    {
+        return Movie switch
+        {
+            SubscribedMovie {Links.Length: > 0} or UnsubscribedMovie {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed, Attributes.Susbcribed]).AsReadOnly(),
+            SubscribedMovie  => new Dictionary<string, object>([Attributes.Susbcribed]).AsReadOnly(),
+            AvailableMovie {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly(),
+            _ => ReadOnlyDictionary<string, object>.Empty
+        };
+    }
+
 
 }

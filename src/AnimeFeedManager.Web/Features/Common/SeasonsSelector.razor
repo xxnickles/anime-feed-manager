@@ -6,38 +6,45 @@
 
 <SeasonLinks Seasons="_lastSeasons"></SeasonLinks>
 <h1 class="text-bold text-2xl my-2 ml-2 md:ml-10">@SeriesType.AsPluralText().ToUpperInvariant()</h1>
-@if (CurrentSeason is not DefaultSeasonInformation)
-{
-    <div class="text-sm breadcrumbs ml-2 md:ml-10">
-        <ul>
-            <li>
-                <span>@CurrentSeason.Season.ToString().ToUpperInvariant() @CurrentSeason.Year.ToString()</span>
-            </li>
-            <li>
-                <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Tv)" Match="NavLinkMatch.All">
-                    TV
-                </NavLink>
-            </li>
-            <li>
-                <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Ova)" Match="NavLinkMatch.All">
-                    Ovas
-                </NavLink>
-            </li>
-            <li>
-                <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Movie)" Match="NavLinkMatch.All">
-                    Movies
-                </NavLink>
-            </li>
+<div class="flex justify-between">
+    @if (CurrentSeason is not DefaultSeasonInformation)
+    {
+        <div class="text-sm breadcrumbs ml-2 md:ml-10">
+            <ul>
+                <li>
+                    <span>@CurrentSeason.Season.ToString().ToUpperInvariant() @CurrentSeason.Year.ToString()</span>
+                </li>
+                <li>
+                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Tv)" Match="NavLinkMatch.All">
+                        TV
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Ova)" Match="NavLinkMatch.All">
+                        Ovas
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" href="@GetLink(SeriesType.Movie)" Match="NavLinkMatch.All">
+                        Movies
+                    </NavLink>
+                </li>
 
-        </ul>
-    </div>
-}
+            </ul>
+        </div>
+    }
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+</div>
 
 @code {
     private ImmutableList<SeasonWrapper> _lastSeasons = ImmutableList<SeasonWrapper>.Empty;
-    
+
     [Parameter, EditorRequired] public SeriesType SeriesType { get; set; } = SeriesType.None;
     [Parameter, EditorRequired] public SeasonInformation CurrentSeason { get; set; } = new DefaultSeasonInformation();
+    [Parameter] public RenderFragment? ChildContent { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

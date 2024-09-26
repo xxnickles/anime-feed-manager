@@ -1,7 +1,7 @@
 ﻿@page "/{Season}/ovas"
 
 <PageTitle>@PageTitleForSeason(SeriesType.Ova, _selectedSeason)</PageTitle>
-<SeasonsSelector SeriesType="SeriesType.Ova" CurrentSeason="_selectedSeason"></SeasonsSelector>
+<SeasonsSelector SeriesType="SeriesType.Ova" CurrentSeason="_selectedSeason"/>
 <OvasGridComponent SeasonInfo="@_selectedSeason"></OvasGridComponent>
 
 @code {
