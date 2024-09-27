@@ -8,6 +8,7 @@ public class MovieControlData
     public DateTime NotificationTime { get; set; }
     public string UserId { get; set; } = string.Empty;
     public string LoaderSelector { get; set; } = string.Empty;
+    public bool HasFeed { get; set; } 
     
     public static MovieControlData MapFrom(UnsubscribedMovie movie, string loaderSelector)
     {
@@ -16,7 +17,8 @@ public class MovieControlData
             Title = movie.Title,
             UserId = movie.UserId,
             NotificationTime = movie.AirDate,
-            LoaderSelector = loaderSelector
+            LoaderSelector = loaderSelector,
+            HasFeed = movie.Links.Length > 0
         };
     }
     
@@ -27,7 +29,8 @@ public class MovieControlData
             Title = movie.Title,
             UserId = movie.UserId,
             NotificationTime = movie.AirDate,
-            LoaderSelector = loaderSelector
+            LoaderSelector = loaderSelector,
+            HasFeed = movie.Links.Length > 0
         };
     }
 }

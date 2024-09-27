@@ -1,4 +1,6 @@
-﻿<section>
+﻿@using System.Collections.ObjectModel
+<section>
+    <GridFilterMetadataHolder Filters="@GetFilters()"/>
     @switch (FeedInformation.Status)
     {
         case SeriesStatus.CompletedValue:
@@ -15,4 +17,14 @@
 
 @code {
     [Parameter] public FeedData FeedInformation { get; set; } = new(string.Empty, string.Empty);
+
+    private IReadOnlyDictionary<string, object> GetFilters()
+    {
+        return FeedInformation.Status switch
+        {
+            SeriesStatus.OngoingValue => new Dictionary<string, object>([Attributes.Available]).AsReadOnly(),
+            SeriesStatus.CompletedValue => new Dictionary<string, object>([Attributes.Completed]).AsReadOnly(),
+            _ => ReadOnlyDictionary<string, object>.Empty
+        };
+    }
 }

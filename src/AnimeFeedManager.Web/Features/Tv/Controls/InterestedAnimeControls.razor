@@ -4,6 +4,7 @@
 {
     <WithMessage Message="@Message" DomainError="@DomainError">
         <Content>
+            <GridFilterMetadataHolder Filters="@GetFilters()"/>
             <form hx-post="tv/remove-interested"
                   hx-swap="outerHTML"
                   hx-indicator="@ControlData.LoaderSelector"
@@ -24,4 +25,11 @@
             </form>
         </Content>
     </WithMessage>
+}
+
+@code{
+
+    private IReadOnlyDictionary<string, object> GetFilters() =>
+        new Dictionary<string, object>([Attributes.Interested]).AsReadOnly();
+
 }

@@ -1,10 +1,9 @@
-﻿@using System.Collections.ObjectModel
-@using AnimeFeedManager.Common.Domain
-<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative" @attributes="GetAttributes()">
+﻿@using AnimeFeedManager.Common.Domain
+<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative">
     <div class="absolute top-0 left-0">
         @switch (Ova)
         {
-            case OvaForUser {IsAdmin: true} ova:
+            case OvaForUser { IsAdmin: true } ova:
                 <AdminOvaControls OvaInfo="ova" LoaderSelector="@LoaderSelector"/>
                 break;
         }
@@ -83,17 +82,4 @@
             ? "text-secondary"
             : "text-base ";
     }
-
-    private IReadOnlyDictionary<string, object> GetAttributes()
-    {
-        return Ova switch
-        {
-            SubscribedOva {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed, Attributes.Subscribed]).AsReadOnly(),
-            UnsubscribedOva {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly(),
-            SubscribedOva  => new Dictionary<string, object>([Attributes.Subscribed]).AsReadOnly(),
-            AvailableOva {Links.Length: > 0} => new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly(),
-            _ => ReadOnlyDictionary<string, object>.Empty
-        };
-    }
-
 }

@@ -10,15 +10,14 @@
             this.applyFilters();
         },
         applyFilters() {
-            let items = document.querySelectorAll('#main-grid > article');
+            let items = document.querySelectorAll('#main-grid > article footer span.filters');
             let showAllItems = this.filters.length === 0;
             items.forEach(item => {
                 let showItem = showAllItems;
                 if (!showItem) {
-                    showItem = this.filters.every(filter => {
-                        return item.dataset[filter] === 'true'});
+                    showItem = this.filters.every(filter => item.dataset[filter] === 'true');
                 }
-                item.style.display = showItem ? '' : 'none';
+                item.closest('article').style.display = showItem ? '' : 'none';
             });
         }
     }

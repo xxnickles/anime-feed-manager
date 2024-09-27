@@ -5,8 +5,8 @@
         case NotAvailableMovie:
             <NotAvailableMovieControls/>
             break;
-        case AvailableMovie:
-            <AvailableMovieControls/>
+        case AvailableMovie availableMovie:
+            <AvailableMovieControls HasFeed="@(availableMovie.Links.Length > 0)"/>
             break;
         case SubscribedMovie movie:
             <SubscribedMovieControls ControlData="@MovieControlData.MapFrom(movie, LoaderSelector)"/>

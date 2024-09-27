@@ -1,4 +1,5 @@
-﻿@if (ControlData is not null)
+﻿@using System.Collections.ObjectModel
+@if (ControlData is not null)
 {
     <WithMessage Message="@Message" DomainError="@DomainError">
         <Content>
@@ -7,6 +8,7 @@
                   hx-indicator="@ControlData.LoaderSelector"
                   hx-confirm="@($"Do you want to add {ControlData.Title} for notifications?")">
                 <AntiforgeryToken/>
+                <GridFilterMetadataHolder Filters="@GetFilters(ControlData)"/>
                 <fieldset class="flex flex-nowrap items-center justify-between">
                     <div class="tooltip tooltip-success " data-tip="Available">
                         <div class="badge badge-success"></div>
@@ -17,6 +19,7 @@
                         <input type="hidden" name="@nameof(MovieControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
                         <input type="hidden" name="@nameof(MovieControlData.UserId)" @bind="ControlData.UserId"/>
                         <input type="hidden" name="@nameof(MovieControlData.LoaderSelector)" @bind="ControlData.LoaderSelector"/>
+                        <input type="hidden" name="@nameof(MovieControlData.HasFeed)" value="@ControlData.HasFeed.ToString()"/>
                         <button type="submit" class="btn btn-primary btn-xs">
                             Add <span class="hidden md:contents">to Notifications</span>
                         </button>
@@ -33,4 +36,11 @@
     [Parameter, EditorRequired] public MovieControlData? ControlData { get; set; }
     [Parameter] public string Message { get; set; } = string.Empty;
     [Parameter] public DomainError? DomainError { get; set; }
+
+    private IReadOnlyDictionary<string, object> GetFilters(MovieControlData data)
+    {
+        return data.HasFeed
+            ? new Dictionary<string, object>([Attributes.HasFeed]).AsReadOnly()
+            : ReadOnlyDictionary<string, object>.Empty;
+    }
 }

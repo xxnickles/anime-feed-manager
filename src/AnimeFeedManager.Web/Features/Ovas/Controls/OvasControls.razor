@@ -5,8 +5,8 @@
         case NotAvailableOva:
             <NotAvailableOvaControls/>
             break;
-        case AvailableOva:
-            <AvailableOvaControls/>
+        case AvailableOva availableOva:
+            <AvailableOvaControls HasFeed="@(availableOva.Links.Length > 0)"/>
             break;
         case SubscribedOva ova:
             <SubscribedOvaControls ControlData="@OvaControlData.MapFrom(ova, LoaderSelector)"/>

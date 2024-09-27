@@ -7,6 +7,7 @@
                   hx-indicator="@ControlData.LoaderSelector"
                   hx-confirm="@($"Do you want to stop notifications for {ControlData.Title}?")">
                 <AntiforgeryToken/>
+                <GridFilterMetadataHolder Filters="@GetFilters(ControlData)"/>
                 <fieldset class="flex flex-nowrap items-center justify-between">
                     <div class="tooltip tooltip-accent" data-tip="Subscribed">
                         <div class="badge badge-accent"></div>
@@ -16,6 +17,7 @@
                         <input type="hidden" name="@nameof(MovieControlData.UserId)" @bind="ControlData.UserId"/>
                         <input type="hidden" name="@nameof(MovieControlData.NotificationTime)" @bind="ControlData.NotificationTime"/>
                         <input type="hidden" name="@nameof(MovieControlData.LoaderSelector)" @bind="ControlData.LoaderSelector"/>
+                        <input type="hidden" name="@nameof(MovieControlData.HasFeed)" value="@ControlData.HasFeed.ToString()"/>
                         <button type="submit" class="btn btn-secondary btn-xs">Remove <span class="hidden md:contents">from Notifications</span></button>
                     </div>
                 </fieldset>
@@ -29,4 +31,12 @@
     [Parameter, EditorRequired] public MovieControlData? ControlData { get; set; }
     [Parameter] public string Message { get; set; } = string.Empty;
     [Parameter] public DomainError? DomainError { get; set; }
+
+    private IReadOnlyDictionary<string, object> GetFilters(MovieControlData data)
+    {
+        return data.HasFeed
+            ? new Dictionary<string, object>([Attributes.HasFeed, Attributes.Subscribed]).AsReadOnly()
+            : new Dictionary<string, object>([Attributes.Subscribed]).AsReadOnly();
+    }
+
 }

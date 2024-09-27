@@ -8,6 +8,8 @@ public class OvaControlData
     public DateTime NotificationTime { get; set; }
     public string UserId { get; set; } = string.Empty;
     public string LoaderSelector { get; set; } = string.Empty;
+    
+    public bool HasFeed { get; set; }
 
     public static OvaControlData MapFrom(UnsubscribedOva ova, string loaderSelector)
     {
@@ -16,7 +18,8 @@ public class OvaControlData
             Title = ova.Title,
             UserId = ova.UserId,
             NotificationTime = ova.AirDate,
-            LoaderSelector = loaderSelector
+            LoaderSelector = loaderSelector,
+            HasFeed = ova.Links.Length > 0
         };
     }
 
@@ -27,7 +30,8 @@ public class OvaControlData
             Title = ova.Title,
             UserId = ova.UserId,
             NotificationTime = ova.AirDate,
-            LoaderSelector = loaderSelector
+            LoaderSelector = loaderSelector,
+            HasFeed = ova.Links.Length > 0
         };
     }
 }
@@ -36,7 +40,8 @@ public record AdminOvaControlParams(string Id, string Title, string Season, bool
 {
     public static implicit operator AdminOvaControlParams(OvaForUser animeForUser) => animeForUser switch
     {
-        {IsAdmin: true} => new AdminOvaControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season, animeForUser.Links.Length > 0),
+        { IsAdmin: true } => new AdminOvaControlParams(animeForUser.Id, animeForUser.Title, animeForUser.Season,
+            animeForUser.Links.Length > 0),
         _ => new DefaultAdminOvaControlParams()
     };
 }

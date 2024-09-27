@@ -1,9 +1,11 @@
-﻿@inherits NotAvailableSeriesBase
+﻿@using System.Collections.ObjectModel
+@inherits NotAvailableSeriesBase
 
 @if (ControlData is not null)
 {
     <WithMessage Message="@Message" DomainError="@DomainError">
         <Content>
+            <GridFilterMetadataHolder Filters="@GetFilters()"/>
             <form hx-post="tv/add-interested"
                   hx-swap="outerHTML"
                   hx-indicator="@ControlData.LoaderSelector"
@@ -24,4 +26,10 @@
             </form>
         </Content>
     </WithMessage>
+}
+
+@code{
+
+    private IReadOnlyDictionary<string, object> GetFilters() => ReadOnlyDictionary<string, object>.Empty;
+
 }

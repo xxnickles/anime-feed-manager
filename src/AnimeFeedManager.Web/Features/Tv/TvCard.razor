@@ -1,6 +1,5 @@
-﻿@using System.Collections.ObjectModel
-@using AnimeFeedManager.Common.Domain
-<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative" @attributes="GetAttributes()">
+﻿@using AnimeFeedManager.Common.Domain
+<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative">
     <div class="absolute top-0 left-0">
         @switch (Anime)
         {
@@ -57,19 +56,4 @@
     private readonly string _loaderId = IdHelpers.GetUniqueName("card-loader");
 
     private string LoaderSelector => $"#{_loaderId}";
-
-    private IReadOnlyDictionary<string, object> GetAttributes()
-    {
-        return Anime switch
-        {
-            FeedAnime fa when fa.SeriesStatus == SeriesStatus.Ongoing => new Dictionary<string, object>([Attributes.Available]).AsReadOnly(),
-            FeedAnime fa when fa.SeriesStatus == SeriesStatus.Completed => new Dictionary<string, object>([Attributes.Completed]).AsReadOnly(),
-            SubscribedAnime => new Dictionary<string, object>([Attributes.Available, Attributes.Subscribed]).AsReadOnly(),
-            UnSubscribedAnime => new Dictionary<string, object>([Attributes.Available]).AsReadOnly(),
-            InterestedAnime => new Dictionary<string, object>([Attributes.Interested]).AsReadOnly(),
-            CompletedAnime => new Dictionary<string, object>([Attributes.Completed]).AsReadOnly(),
-            _ => ReadOnlyDictionary<string, object>.Empty
-        };
-    }
-
 }
