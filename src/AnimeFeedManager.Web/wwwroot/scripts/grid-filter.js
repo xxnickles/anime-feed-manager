@@ -10,7 +10,7 @@
             this.applyFilters();
         },
         applyFilters() {
-            let items = document.querySelectorAll('#main-grid > article footer span.filters');
+            let items = document.querySelectorAll('div#main-grid > section > article footer span.filters');
             let showAllItems = this.filters.length === 0;
             items.forEach(item => {
                 let showItem = showAllItems;

@@ -3,7 +3,7 @@
     <form hx-post="movies/remove"
           hx-confirm="@($"Do you want remove {MovieInfo.Title} from the Movies library?")"
           hx-indicator="@LoaderSelector"
-          hx-target="section#main-grid"
+          hx-target="div#main-grid"
           hx-swap="outerHTML">
         <AntiforgeryToken/>
         <input type="hidden" name="@nameof(SeriesToUpdate.Id)" value="@MovieInfo.Id"/>
@@ -21,7 +21,7 @@
         <form hx-post="movies/remove-feed"
               hx-indicator="@LoaderSelector"
               hx-confirm="@($"Do you want remove feeds associated to {MovieInfo.Title}?")"
-              hx-target="section#main-grid"
+              hx-target="div#main-grid"
               hx-swap="outerHTML">
             <AntiforgeryToken/>
             <input type="hidden" name="@nameof(SeriesToUpdate.Id)" value="@MovieInfo.Id"/>

@@ -1,12 +1,10 @@
-﻿<div @attributes="AdditionalAttributes">
+﻿<div @attributes="AdditionalAttributes" id="main-grid">
     @if (GridControls is not null)
     {
         @GridControls
     }
-    
-    <section
-        id="main-grid"
-        class="grid grid-cols-1 md:max-xl:grid-cols-2 xl:grid-cols-3 min-[2300px]:grid-cols-4 grid-flow-row gap-10 px-2 md:px-10 py-2 md:py-4">
+
+    <section class="grid grid-cols-1 md:max-xl:grid-cols-2 xl:grid-cols-3 min-[2300px]:grid-cols-4 grid-flow-row gap-10 px-2 md:px-10 py-2 md:py-4">
         @GridContent
     </section>
 </div>
@@ -18,8 +16,7 @@
 
     [Parameter, EditorRequired]
     public RenderFragment GridContent { get; set; } = @<span>No content here!</span>;
-    
-    [Parameter]
-    public RenderFragment? GridControls { get; set; } 
+
+    [Parameter] public RenderFragment? GridControls { get; set; }
 
 }

@@ -3,7 +3,7 @@
     <form hx-post="ovas/remove"
           hx-indicator="@LoaderSelector"
           hx-confirm="@($"Do you want remove {OvaInfo.Title} from the Ovas library?")"
-          hx-target="section#main-grid"
+          hx-target="div#main-grid"
           hx-swap="outerHTML">
         <AntiforgeryToken/>
         <input type="hidden" name="@nameof(SeriesToUpdate.Id)" value="@OvaInfo.Id"/>
@@ -23,7 +23,7 @@
         <form hx-post="ovas/remove-feed"
               hx-indicator="@LoaderSelector"
               hx-confirm="@($"Do you want remove feeds associated to {OvaInfo.Title}?")"
-              hx-target="section#main-grid"
+              hx-target="div#main-grid"
               hx-swap="outerHTML">
             <AntiforgeryToken/>
             <input type="hidden" name="@nameof(SeriesToUpdate.Id)" value="@OvaInfo.Id"/>
