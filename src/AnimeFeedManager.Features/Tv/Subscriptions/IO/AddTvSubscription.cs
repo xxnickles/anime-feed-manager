@@ -20,7 +20,7 @@ public sealed class AddTvTvSubscription(ITableClientFactory<SubscriptionStorage>
         var storage = new SubscriptionStorage
         {
             PartitionKey = userId,
-            RowKey = series
+            RowKey = series.ReplaceForbiddenRowKeyParameters()
         };
 
         return TableUtils.TryExecute(() => client.UpsertEntityAsync(storage, cancellationToken: token))

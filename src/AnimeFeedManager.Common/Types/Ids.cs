@@ -5,18 +5,18 @@ namespace AnimeFeedManager.Common.Types;
 
 public abstract record DomainId
 {
-    private readonly string Value;
+    private readonly string _value;
 
     protected DomainId(string value)
     {
-        Value = value;
+        _value = value;
     }
 
-    public static implicit operator string(DomainId userId) => userId.Value;
+    public static implicit operator string(DomainId userId) => userId._value;
 
     public override string ToString()
     {
-        return Value;
+        return _value;
     }
 }
 

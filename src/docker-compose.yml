@@ -4,8 +4,8 @@ services:
    azurite:
     image: mcr.microsoft.com/azure-storage/azurite:latest
     ports:
-      - "10001:10000"
-      - "10002:10001"
-      - "10003:10002"
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
     volumes:
-      - ./azurite:/workspace mcr.microsoft.com/azure-storage/azurite
+      - ../../azurite-data:/data

@@ -19,7 +19,7 @@ public record NoEmptyString
     {
         return _value;
     }
-
     public static implicit operator string(NoEmptyString value) => value._value;
+   
 }
 

@@ -24,14 +24,14 @@ public sealed class OvasSubscriptionStoreStore(ITableClientFactory<OvasSubscript
     public Task<Either<DomainError, Unit>> Upsert(OvasSubscriptionStorage entity, CancellationToken token)
     {
         return clientFactory.GetClient().BindAsync(client =>
-            TableUtils.TryExecute(() => client.UpsertEntityAsync(entity, cancellationToken: token))
+            TableUtils.TryExecute(() => client.UpsertEntityAsync(ReplaceCharacters(entity), cancellationToken: token))
                 .MapAsync(_ => unit));
     }
     
     public Task<Either<DomainError, Unit>> BulkUpdate(ImmutableList<OvasSubscriptionStorage> entities, CancellationToken token)
     {
         return clientFactory.GetClient().BindAsync(client =>
-            TableUtils.BatchAdd(client,entities,token)
+            TableUtils.BatchAdd(client,entities.ConvertAll(ReplaceCharacters),token)
                 .MapAsync(_ => unit));
     }
 
@@ -42,11 +42,17 @@ public sealed class OvasSubscriptionStoreStore(ITableClientFactory<OvasSubscript
         var storage = new OvasSubscriptionStorage
         {
             PartitionKey = userId,
-            RowKey = series,
+            RowKey = series.ReplaceForbiddenRowKeyParameters(),
             DateToNotify = notificationDate
         };
 
         return TableUtils.TryExecute(() => client.UpsertEntityAsync(storage, cancellationToken: token))
             .MapAsync(_ => unit);
+    }
+    
+    private static OvasSubscriptionStorage ReplaceCharacters(OvasSubscriptionStorage storage)
+    {
+        storage.RowKey = storage.RowKey?.ReplaceForbiddenRowKeyParameters() ?? string.Empty;
+        return storage;
     }
 }

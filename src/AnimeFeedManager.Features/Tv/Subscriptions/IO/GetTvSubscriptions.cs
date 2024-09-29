@@ -29,7 +29,7 @@ public class GetTvSubscriptions(
                 TableUtils.ExecuteQueryWithEmptyResult(() =>
                     client.QueryAsync<SubscriptionStorage>(s => s.PartitionKey == userId, cancellationToken: token)))
             .MapAsync(subscriptions =>
-                subscriptions.ConvertAll(subscription => NoEmptyString.FromString(subscription.RowKey ?? string.Empty)))
+                subscriptions.ConvertAll(subscription => NoEmptyString.FromString(subscription.RowKey?.RestoreForbiddenRowKeyParameters() ?? string.Empty)))
             .MapAsync(titles => new SubscriptionCollection(email, titles.Flatten()));
     }
 }
