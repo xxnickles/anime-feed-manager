@@ -1,0 +1,12 @@
+{
+     "version": 1,
+     "isRoot": true,
+     "tools": {
+       "Microsoft.Web.LibraryManager.Cli": {
+         "version": "2.1.175",
+         "commands": [
+           "libman"
+         ]
+       }
+     }
+   }
