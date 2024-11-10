@@ -24,7 +24,7 @@
     },
     {
       "provider": "unpkg",
-      "library": "@passwordlessdev/passwordless-client@1.1.2",
+      "library": "@passwordlessdev/passwordless-client@1.2.2",
       "destination": "wwwroot/lib/passwordlessdev/passwordless-client/",
       "files": [
         "dist/umd/passwordless.umd.js",
