@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: "8.0.x" # set this to the dotnet version to use
+  DOTNET_VERSION: "9.0.x" # set this to the dotnet version to use
   APP_PATH: "./src/AnimeFeedManager.Web"
   TEST_PROJECT_PATH: "./src/AnimeFeedManager.Features.Tests"
 
