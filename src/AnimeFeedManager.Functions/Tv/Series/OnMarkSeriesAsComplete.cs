@@ -12,7 +12,7 @@ public sealed class OnMarkSeriesAsComplete
         _markSeriesAsCompletedHandler = markSeriesAsCompletedHandler;
     }
 
-    [Function("OnMarkSeriesAsComplete")]
+    [Function(nameof(OnMarkSeriesAsComplete))]
     public async Task Run(
         [QueueTrigger(MarkSeriesAsComplete.TargetQueue, Connection = Constants.AzureConnectionName)]
         MarkSeriesAsComplete notification, CancellationToken token)

@@ -11,7 +11,7 @@ public sealed class OnUserAutoSubscription(
 {
     private readonly ILogger<OnUserAutoSubscription> _logger = loggerFactory.CreateLogger<OnUserAutoSubscription>();
 
-    [Function("OnUserAutoSubscription")]
+    [Function(nameof(OnUserAutoSubscription))]
     public async Task Run(
         [QueueTrigger(UserAutoSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
         UserAutoSubscription notification, CancellationToken token)

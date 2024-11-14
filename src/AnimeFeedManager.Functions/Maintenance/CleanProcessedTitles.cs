@@ -9,7 +9,7 @@ public class CleanProcessedTitles(
 {
     private readonly ILogger<CleanProcessedTitles> _logger = loggerFactory.CreateLogger<CleanProcessedTitles>();
 
-    [Function("CleanProcessedTitles")]
+    [Function(nameof(CleanProcessedTitles))]
     public async Task Run([TimerTrigger("0 30 1 * * *")] TimerInfo timer, CancellationToken token)
     {
         var result = await processedTitles.Remove(DateTimeOffset.Now, token);

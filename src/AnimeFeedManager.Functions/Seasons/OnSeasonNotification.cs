@@ -4,6 +4,7 @@ using AnimeFeedManager.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Common.Domain.Types;
 using AnimeFeedManager.Common.RealTimeNotifications;
 using AnimeFeedManager.Features.Notifications.IO;
+using AnimeFeedManager.Functions.Tv.Titles;
 using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +17,7 @@ public sealed class OnSeasonNotification(
 {
     private readonly ILogger<OnSeasonNotification> _logger = loggerFactory.CreateLogger<OnSeasonNotification>();
 
-    [Function("OnSeasonNotification")]
+    [Function(nameof(OnSeasonNotification))]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
         [QueueTrigger(SeasonProcessNotification.TargetQueue, Connection = Constants.AzureConnectionName)]

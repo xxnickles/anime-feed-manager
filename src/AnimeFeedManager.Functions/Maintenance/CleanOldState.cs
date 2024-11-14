@@ -4,22 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Functions.Maintenance;
 
-public class CleanStorage(IStorageCleanup storageCleanup, ILoggerFactory loggerFactory)
+public class CleanOldState(IStorageCleanup storageCleanup, ILoggerFactory loggerFactory)
 {
-    private readonly ILogger<CleanStorage> _logger = loggerFactory.CreateLogger<CleanStorage>();
+    private readonly ILogger<CleanOldState> _logger = loggerFactory.CreateLogger<CleanOldState>();
 
-    [Function("CleanOldNotifications")]
-    public async Task RunCleanNotifications([TimerTrigger("0 0 0 1 * *")] TimerInfo timer, 
-        CancellationToken token)
-    {
-        var result = await storageCleanup.CleanOldNotifications(DateTime.Now.AddDays(-30), token);
-        result.Match(
-            _ => { _logger.LogInformation("Old notifications have been cleaned"); },
-            e => e.LogError(_logger)
-        );
-    }
-
-    [Function("CleanOldState")]
+    [Function(nameof(CleanOldState))]
     public async Task RunCleanState([TimerTrigger("0 0 10 * * SAT")] TimerInfo timer,
         CancellationToken token)
     {

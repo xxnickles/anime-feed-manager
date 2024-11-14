@@ -12,7 +12,7 @@ public sealed class OnImageNotification(
 {
     private readonly ILogger<OnImageNotification> _logger = loggerFactory.CreateLogger<OnImageNotification>();
 
-    [Function("OnImageNotification")]
+    [Function(nameof(OnImageNotification))]
     public async Task Run(
         [QueueTrigger(ImageUpdateNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
         ImageUpdateNotification notification,

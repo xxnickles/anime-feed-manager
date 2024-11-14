@@ -18,7 +18,7 @@ public sealed class OnCopySubscriptions
     }
 
 
-    [Function("OnCopySubscriptions")]
+    [Function(nameof(OnCopySubscriptions))]
     public async Task Run(
         [QueueTrigger(CopySubscriptionRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         CopySubscriptionRequest notification, CancellationToken token)

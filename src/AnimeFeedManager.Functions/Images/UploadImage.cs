@@ -27,7 +27,7 @@ public sealed class UploadImage
     }
 
 
-    [Function("UploadImage")]
+    [Function(nameof(UploadImage))]
     public async Task Run(
         [QueueTrigger(DownloadImageEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
         StateWrap<DownloadImageEvent> imageScrapEvent, CancellationToken token)

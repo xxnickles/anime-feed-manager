@@ -15,7 +15,7 @@ public sealed class OnLatestSeasonsUpdate
         _logger = loggerFactory.CreateLogger<OnLatestSeasonsUpdate>();
     }
 
-    [Function("OnLatestSeasonsUpdate")]
+    [Function(nameof(OnLatestSeasonsUpdate))]
     public async Task Run(
         [QueueTrigger(UpdateLatestSeasonsRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         UpdateLatestSeasonsRequest notification, CancellationToken token)

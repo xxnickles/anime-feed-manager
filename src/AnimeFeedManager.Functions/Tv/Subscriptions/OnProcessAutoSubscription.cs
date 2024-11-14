@@ -11,7 +11,7 @@ public sealed class OnProcessAutoSubscription(
 {
     private readonly ILogger<OnProcessAutoSubscription> _logger = loggerFactory.CreateLogger<OnProcessAutoSubscription>();
 
-    [Function("OnProcessAutoSubscription")]
+    [Function(nameof(OnProcessAutoSubscription))]
     public async Task Run(
         [QueueTrigger(InterestedToSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
         StateWrap<InterestedToSubscription> notification, CancellationToken token)

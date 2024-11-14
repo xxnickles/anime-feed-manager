@@ -10,7 +10,7 @@ public sealed class OnUpdateSeasonTitles(
 {
     private readonly ILogger<OnUpdateSeasonTitles> _logger = loggerFactory.CreateLogger<OnUpdateSeasonTitles>();
 
-    [Function("OnUpdateSeasonTitles")]
+    [Function(nameof(OnUpdateSeasonTitles))]
     public async Task Run(
         [QueueTrigger(UpdateSeasonTitlesRequest.TargetQueue, Connection = Constants.AzureConnectionName)] UpdateSeasonTitlesRequest notification,
         CancellationToken token)

@@ -16,7 +16,7 @@ public sealed class OnAddSeasonNotification
 
     private readonly ILogger<OnAddSeasonNotification> _logger;
 
-    [Function("OnAddSeasonNotification")]
+    [Function(nameof(OnAddSeasonNotification))]
     public async Task Run(
         [QueueTrigger(AddSeasonNotification.TargetQueue, Connection = Constants.AzureConnectionName)]
         AddSeasonNotification notification, CancellationToken token)

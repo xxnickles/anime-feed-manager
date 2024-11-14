@@ -18,7 +18,7 @@ public sealed class OnSubscriptionsCleanup
     }
 
 
-    [Function("OnSubscriptionsCleanup")]
+    [Function(nameof(OnSubscriptionsCleanup))]
     public async Task Run(
         [QueueTrigger(RemoveSubscriptionsRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         RemoveSubscriptionsRequest notification, CancellationToken token)

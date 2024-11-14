@@ -17,7 +17,7 @@ public sealed class OnAutomatedSubscription
 
     private readonly ILogger<OnAutomatedSubscription> _logger;
 
-    [Function("OnAutomatedSubscription")]
+    [Function(nameof(OnAutomatedSubscription))]
     public async Task Run(
         [QueueTrigger(AutomatedSubscription.TargetQueue, Connection = Constants.AzureConnectionName)]
         AutomatedSubscription notification, CancellationToken token)

@@ -16,7 +16,7 @@ public sealed class OnImagesToScrapRequest
 
     private readonly ILogger<OnImagesToScrapRequest> _logger;
 
-    [Function("OnImagesToScrapRequest")]
+    [Function(nameof(OnImagesToScrapRequest))]
     public async Task Run(
         [QueueTrigger(ScrapImagesRequest.TargetQueue, Connection = Constants.AzureConnectionName)]
         ScrapImagesRequest notification, CancellationToken token)

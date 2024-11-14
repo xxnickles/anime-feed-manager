@@ -14,7 +14,7 @@ public sealed class OnTitlesNotification(
 {
     private readonly ILogger<OnTitlesNotification> _logger = loggerFactory.CreateLogger<OnTitlesNotification>();
 
-    [Function("OnTitlesNotification")]
+    [Function(nameof(OnTitlesNotification))]
     [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = "SignalRConnectionString")]
     public async Task<SignalRMessageAction> Run(
         [QueueTrigger(TitlesUpdateNotification.TargetQueue, Connection = Constants.AzureConnectionName)] 

@@ -14,7 +14,7 @@ public class EnqueueNotifications(
 {
     private readonly ILogger<EnqueueNotifications> _logger = loggerFactory.CreateLogger<EnqueueNotifications>();
 
-    [Function("EnqueueNotifications")]
+    [Function(nameof(EnqueueNotifications))]
     public async Task Run(
         [TimerTrigger("0 0 * * * *")] TimerInfo timer,
         // [TimerTrigger("0 0/1 * * * *")] TimerInfo timer
