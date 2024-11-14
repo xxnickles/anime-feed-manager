@@ -79,7 +79,7 @@ resource siteConfig 'Microsoft.Web/sites/config@2023-01-01' = {
         value: signalREnpoint
       }
     ]
-    linuxFxVersion: 'DOTNETCORE|8.0'
+    linuxFxVersion: 'DOTNETCORE|9.0'
     http20Enabled: true    
   }
 }

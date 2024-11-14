@@ -142,7 +142,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           value: 'true'
         }
         {
-          name: 'WEBSITE_TIME_ZONE'
+          name: 'TZ'
           value: 'America/New_York'
         }
       ]
@@ -150,7 +150,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         allowedOrigins: [webSiteUrl]
         supportCredentials: true
       }
-      linuxFxVersion: 'DOTNET-ISOLATED|8.0'
+      linuxFxVersion: 'DOTNET-ISOLATED|9.0'
       use32BitWorkerProcess: false
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'
