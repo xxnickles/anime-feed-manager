@@ -41,9 +41,9 @@
 
 
             <GridContent>
-                @foreach (var item in _movies)
+                @foreach (var item in _movies.Select((value, index) => new { value, index }))
                 {
-                    <MovieCard Movie="item"></MovieCard>
+                    <MovieCard Movie="item.value" style="@GenerateViewTransitionNameStyle($"card-{item.index}")"></MovieCard>
                 }
             </GridContent>
         </GridSection>

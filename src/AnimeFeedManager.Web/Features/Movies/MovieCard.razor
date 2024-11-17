@@ -1,5 +1,5 @@
 ﻿@using AnimeFeedManager.Common.Domain
-<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative">
+<article class="flex flex-nowrap drop-shadow-md border border-neutral w-full h-60 max-h-60 relative" @attributes="AdditionalAttributes">
     <div class="absolute top-0 left-0">
         @switch (Movie)
         {
@@ -69,6 +69,9 @@
 
     [Parameter]
     public RenderFragment AdminContent { get; set; } = @<span>No content here!</span>;
+    
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
     private readonly string _loaderId = IdHelpers.GetUniqueName("card-loader");
 

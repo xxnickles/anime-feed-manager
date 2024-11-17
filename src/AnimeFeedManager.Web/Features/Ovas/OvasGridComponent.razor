@@ -40,9 +40,9 @@
             </GridControls>
 
             <GridContent>
-                @foreach (var item in _ovas)
+                @foreach (var item in  _ovas.Select((value, index) => new { value, index }))
                 {
-                    <OvaCard Ova="item"></OvaCard>
+                    <OvaCard Ova="item.value" style="@GenerateViewTransitionNameStyle($"card-{item.index}")"></OvaCard>
                 }
             </GridContent>
         </GridSection>

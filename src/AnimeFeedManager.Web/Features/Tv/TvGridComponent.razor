@@ -63,9 +63,9 @@
                 </ul>
             </GridControls>
             <GridContent>
-                @foreach (var item in _animes)
+                @foreach (var item in _animes.Select((value, index) => new { value, index }))
                 {
-                    <TvCard Anime="item"></TvCard>
+                    <TvCard Anime="item.value" style="@GenerateViewTransitionNameStyle($"card-{item.index}")"></TvCard>
                 }
             </GridContent>
         </GridSection>
@@ -118,5 +118,6 @@
             _ => anime
         };
     }
+    
 
 }

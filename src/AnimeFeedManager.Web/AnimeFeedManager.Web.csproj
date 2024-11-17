@@ -24,6 +24,10 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Features\Common\Toast\ClosableNotification.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Styles\app.output.css" />
   </ItemGroup> 
 
 </Project>

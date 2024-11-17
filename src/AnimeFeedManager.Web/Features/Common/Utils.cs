@@ -9,5 +9,7 @@ internal static class Utils
     internal static string PageTitleForSeason(SeriesType type, SeasonInformation seasonInformation) =>
         PageTitle($"{type.AsPluralText()} {GetSeasonString(seasonInformation)}");
     
-    internal static string GetSeasonString(SeasonInformation seasonInformation) => seasonInformation is not DefaultSeasonInformation ? $"{seasonInformation.Season} - {seasonInformation.Year.ToString()}" : "No available season";
+    internal static string GenerateViewTransitionNameStyle(string name) => $"view-transition-name:{name}";
+
+    private static string GetSeasonString(SeasonInformation seasonInformation) => seasonInformation is not DefaultSeasonInformation ? $"{seasonInformation.Season} - {seasonInformation.Year.ToString()}" : "No available season";
 }
