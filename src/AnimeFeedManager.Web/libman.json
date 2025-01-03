@@ -3,7 +3,7 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "htmx@2.0.3",
+      "library": "htmx@2.0.4",
       "destination": "wwwroot/lib/htmx/",
       "files": [
         "htmx.min.js",
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "library": "alpinejs@3.14.3",
+      "library": "alpinejs@3.14.8",
       "destination": "wwwroot/lib/alpinejs/",
       "files": [
         "cdn.js",
