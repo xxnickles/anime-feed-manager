@@ -22,7 +22,7 @@ public class GetAvailableSeasonsTests
         var result = await sut.GetAvailable();
 
         result.Match(
-            items => items.Should().BeEquivalentTo(OrderedResults(), config => config.WithStrictOrdering()),
+            items => Assert.Equal(OrderedResults(), items),
             _ => Assert.Fail("Should not be here")
         );
     }

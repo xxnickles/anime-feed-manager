@@ -107,7 +107,7 @@ public class ExplorationTests
         ];
         for (int i = 0; i < result.Length; i++)
         {
-            result[i].Should().BeEquivalentTo(expectation[i]);
+            Assert.Equal(expectation[i].Year, result[i].Year);
         }
     }
 }

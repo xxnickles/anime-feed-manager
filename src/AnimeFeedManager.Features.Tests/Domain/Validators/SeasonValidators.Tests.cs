@@ -12,7 +12,7 @@ public class SeasonValidatorsTests
     [InlineData("Fall", 0, new []{ "Year" })]
     [InlineData("Spring", 0, new []{ "Year" })]
     [InlineData("bad", 2023, new []{ "Season" })]
-    [InlineData("bad", 10, new []{ "Season", "Year" })]
+    [InlineData("bad", 10, new []{ "Year", "Season" })]
     public void Should_Invalidate_Wrong_Inputs(string season, ushort year, string[] expectedErrorFields)
     {
         var sut = SeasonValidators.Parse(season, year);
@@ -20,9 +20,9 @@ public class SeasonValidatorsTests
             _ => Assert.Fail("Should not be a positive result"),
             e =>
             {
-                e.Should().BeOfType<ValidationErrors>();
+                Assert.IsType<ValidationErrors>(e);
                 var errors = (ValidationErrors)e;
-                errors.Errors.Keys.Should().BeEquivalentTo(expectedErrorFields);
+                Assert.Equal(expectedErrorFields, errors.Errors.Keys);
             });
     }
 
@@ -35,9 +35,9 @@ public class SeasonValidatorsTests
             _ => Assert.Fail("Should not be a positive result"),
             e =>
             {
-                e.Should().BeOfType<ValidationErrors>();
+                Assert.IsType<ValidationErrors>(e);
                 var errors = (ValidationErrors)e;
-                errors.Errors.Keys.Should().ContainSingle(error => error == "Year");
+                Assert.Equal(["Year"], errors.Errors.Keys);
             });
     }
     
@@ -51,9 +51,9 @@ public class SeasonValidatorsTests
             _ => Assert.Fail("Should not be a positive result"),
             e =>
             {
-                e.Should().BeOfType<ValidationErrors>();
+                Assert.IsType<ValidationErrors>(e);
                 var errors = (ValidationErrors)e;
-                errors.Errors.Keys.Should().ContainSingle(error => error == "Year");
+                Assert.Equal(["Year"], errors.Errors.Keys);
             });
     }
 }

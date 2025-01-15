@@ -13,7 +13,7 @@ public partial class ExplorationTests
     public void Should_Enconde_String_WebUtility_Method(string source, string expected)
     {
         var sut = WebUtility.UrlEncode(source);
-        sut.Should().Be(expected);
+        Assert.Equal(expected, sut);
     }
 
     [Theory]
@@ -23,7 +23,7 @@ public partial class ExplorationTests
     public void Should_Remove_Language_Strings(string title, string expected)
     {
         var sut = TitlePattern().Replace(title, "").Trim();
-        sut.Should().Be(expected);
+        Assert.Equal(expected, sut);
     }
 
     [GeneratedRegex(@"\[[A-Z]{3}(-[A-Z]+)?\]")]
