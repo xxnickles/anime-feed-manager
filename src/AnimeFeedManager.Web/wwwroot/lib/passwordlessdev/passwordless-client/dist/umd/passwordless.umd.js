@@ -260,7 +260,7 @@
                     data: {
                         ...res.data,
                         challenge: base64UrlToArrayBuffer(res.data.challenge),
-                        allowCredentials: (_a = res.data.allowCredentials) === null || _a === void 0 ? void 0 : _a.map((cred) => {
+                        allowCredentials: (_a = res.data.allowCredentials) === null || _a === undefined ? undefined : _a.map((cred) => {
                             return { ...cred, id: base64UrlToArrayBuffer(cred.id) };
                         })
                     }
