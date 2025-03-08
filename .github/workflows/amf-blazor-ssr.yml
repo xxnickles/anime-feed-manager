@@ -52,14 +52,14 @@ jobs:
 
         # Setup node.js for tailwind
       - name: Setup Node lts
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.2.0
         with:
           node-version: lts/*
 
-      - name: "npm install, build, and test"
+      - name: "npm install and build"
         run: |
           npm install
-          npx tailwindcss -i ./Styles/app.css -o ./wwwroot/app.css --minify
+          npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/app.css --minify
         working-directory: ${{ env.APP_PATH }}
 
       # Setup .NET Core SDK
