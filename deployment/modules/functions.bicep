@@ -140,11 +140,7 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'RunHeadless'
           value: 'true'
-        }
-        {
-          name: 'TZ'
-          value: 'America/New_York'
-        }
+        }        
       ]
       cors: {
         allowedOrigins: [webSiteUrl]

@@ -11,29 +11,31 @@
                       }">
             <AntiforgeryToken/>
 
-            <fieldset class="form-control w-full">
-                <label class="label" for="copy-source-id">
-                    <span class="label-text">Source User Id</span>
+            <fieldset class="fieldset w-full">
+                <label class="floating-label mt-2" for="copy-source-id">
+                    <span>Source User Id</span>
+
+                    <input name="source"
+                           id="copy-source-id"
+                           type="text"
+                           class="input w-full validator"
+                           placeholder="Source User Id"
+                           required
+                           x-model="source"/>
                 </label>
-                <input name="source"
-                       id="copy-source-id"
-                       type="text"
-                       class="input input-bordered w-full invalid:input-error required:!input-bordered"
-                       placeholder="Source User Id"
-                       required
-                       x-model="source"/>
-                <label class="label" for="copy-target-id">
-                    <span class="label-text">Target User Id</span>
+                <label class="floating-label mt-2" for="copy-target-id">
+                    <span>Target User Id</span>
+
+                    <input name="target"
+                           type="text"
+                           id="copy-target-id"
+                           class="input w-full validator"
+                           placeholder="Target User Id"
+                           required
+                           x-model="target"/>
                 </label>
-                <input name="target"
-                       type="text"
-                       id="copy-target-id"
-                       class="input input-bordered w-full invalid:input-error required:!input-bordered"
-                       placeholder="Target User Id"
-                       required
-                       x-model="target"/>
             </fieldset>
-            <button type="submit" class="btn btn-primary mt-4">
+            <button type="submit" class="btn btn-primary mt-2">
                 Copy Subscriptions
             </button>
 
@@ -50,17 +52,18 @@
                         get confirmationMessage() { return `Do you want to delete ${this.source} and its associated data?`}
                        }">
             <AntiforgeryToken/>
-            <label class="label" for="delete-source-id">
-                <span class="label-text">Source User Id</span>
+            <label class="floating-label mt-2 w-full" for="delete-source-id">
+                <span >Source User Id</span>
+
+                <input name="source"
+                       id="delete-source-id"
+                       type="text"
+                       class="input validator w-full"
+                       placeholder="Source User Id"
+                       required
+                       x-model="source"/>
             </label>
-            <input name="source"
-                   id="delete-source-id"
-                   type="text"
-                   class="input input-bordered invalid:input-error required:!input-bordered w-full"
-                   placeholder="Source User Id"
-                   required
-                   x-model="source"/>
-            <button type="submit" class="btn btn-error mt-4">
+            <button type="submit" class="btn btn-error mt-2">
                 Delete User
             </button>
         </form>

@@ -11,7 +11,7 @@
       ]
     },
     {
-      "library": "alpinejs@3.14.8",
+      "library": "alpinejs@3.14.9",
       "destination": "wwwroot/lib/alpinejs/",
       "files": [
         "cdn.js",

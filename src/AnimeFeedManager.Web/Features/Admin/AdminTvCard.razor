@@ -16,33 +16,32 @@
     <AdminCard Title="Update by Season" LoaderId="@BySeasonLoader">
         <form hx-put="/admin/tv/season"
               hx-indicator="@($"#{BySeasonLoader}")"
-              hx-swap="none">
+              hx-swap="none"
+              class="w-full">
             <AntiforgeryToken/>
 
-            <fieldset class="form-control">
-                <label class="label">
-                    <span class="label-text">Season</span>
+            <fieldset class="fieldset w-full">
+                <label class="select mt-2 w-full">
+                    <span class="label">Season</span>
+                    <select name="season" class="select" title="Season Selection" @bind="SelectedSeason">
+                        <option value="@Season.Spring.ToString()">Spring</option>
+                        <option value="@Season.Summer.ToString()">Summer</option>
+                        <option value="@Season.Fall.ToString()">Fall</option>
+                        <option value="@Season.Winter.ToString()">Winter</option>
+                    </select>
                 </label>
 
-                <select name="season" class="select" title="Season Selection" @bind="SelectedSeason">
-                    <option value="@Season.Spring.ToString()">Spring</option>
-                    <option value="@Season.Summer.ToString()">Summer</option>
-                    <option value="@Season.Fall.ToString()">Fall</option>
-                    <option value="@Season.Winter.ToString()">Winter</option>
-                </select>
-
-                <label class="label">
-                    <span class="label-text">Year</span>
+                <label class="input mt-2 w-full">
+                    <span class="label">Year</span>
+                    <input name="year"
+                           type="number"
+                           class="input validator"
+                           placeholder="Input year"
+                           required
+                           min="@MinYear.ToString()"
+                           max="@MaxYear.ToString()"
+                           @bind="Year"/>
                 </label>
-
-                <input name="year"
-                       type="number"
-                       class="input input-bordered invalid:input-error required:!input-bordered"
-                       placeholder="Input year"
-                       required
-                       min="@MinYear.ToString()"
-                       max="@MaxYear.ToString()"
-                       @bind="Year"/>
             </fieldset>
             <button type="submit" class="btn btn-primary mt-4">Update Season</button>
         </form>

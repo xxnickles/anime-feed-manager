@@ -25,20 +25,20 @@
                   @formname="login">
                 <AntiforgeryToken/>
                 <fieldset class="form-control">
-                    <label for="user-alias" class="label">
-                        <span class="label-text">Please provide an email</span>
-                    </label>
+                    <label for="user-alias" class="floating-label">
+                        <span>Please provide an email</span>
 
-                    <input @bind-value="Alias"
-                           type="email"
-                           id="user-alias"
-                           name="alias"
-                           required
-                           x-model="alias"
-                           x-ref="alias"
-                           placeholder="Enter your Email"
-                           class="input input-bordered invalid:input-error required:!input-bordered"/>
-                    <input @bind-value="Id" name="id" type="hidden" id="id-value"/>
+                        <input @bind-value="Alias"
+                               type="email"
+                               id="user-alias"
+                               name="alias"
+                               required
+                               x-model="alias"
+                               x-ref="alias"
+                               placeholder="Enter your Email"
+                               class="input validator"/>
+                        <input @bind-value="Id" name="id" type="hidden" id="id-value"/>
+                    </label>
                 </fieldset>
                 <div class="form-control">
                     <button class="btn btn-primary mt-4">Login</button>
@@ -54,7 +54,9 @@
                 </template>
                 <template x-if="result && result.unauthorized">
                     <div class="bg-error text-error-content rounded-box p-4 mt-2">
-                        <p>Your account is not registered. <NavLink class="link" href="register">Register</NavLink></p>
+                        <p>Your account is not registered.
+                            <NavLink class="link" href="register">Register</NavLink>
+                        </p>
                     </div>
                 </template>
             </form>
@@ -95,7 +97,7 @@
 
     private async Task CompleteLogin(ClaimsPrincipal principal)
     {
-        await HttpContext.SignInAsync(principal, new AuthenticationProperties { IsPersistent = true });
+        await HttpContext.SignInAsync(principal, new AuthenticationProperties {IsPersistent = true});
         NavigationManager.NavigateTo(!string.IsNullOrWhiteSpace(ReturnUrl) ? ReturnUrl : "/");
     }
 

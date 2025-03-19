@@ -8,22 +8,21 @@
               hx-swap="none"
               x-data="{ keepFeed: true}">
             <AntiforgeryToken/>
-            <fieldset class="form-control">
+            <fieldset class="fieldset w-full">
                 <input id="movies-latest-check-value"
                        type="hidden"
                        x-model="keepFeed"
                        name="@(nameof(ShorSeriesLatestSeason.KeeepFeed))"/>
 
-                <label class="label" for="movies-latest-check">
-                    <span class="label-text">Keep Feed</span>
+                <label class="fieldset-label w-full mt-2" for="movies-latest-check">
+                    Keep Feed
+                    <input id="movies-latest-check"
+                           type="checkbox"
+                           class="toggle"
+                           x-model="keepFeed"/>
                 </label>
-
-                <input id="movies-latest-check"
-                       type="checkbox"
-                       class="toggle"
-                       x-model="keepFeed"/>
             </fieldset>
-            <button type="submit" class="btn btn-primary mt-4">
+            <button type="submit" class="btn btn-primary mt-2">
                 Update Latest
             </button>
         </form>
@@ -36,45 +35,45 @@
               x-data="{ keepFeed: true}">
             <AntiforgeryToken/>
 
-            <fieldset class="form-control">
-                <label class="label" for="movies-season">
-                    <span class="label-text">Season</span>
+            <fieldset class="fieldset w-full">
+                <label class="select mt-2 w-full" for="movies-season">
+                    <span class="label">Season</span>
+                    <select id="movies-season" name="@(nameof(ShortSeriesSeason.Season))" class="select"
+                            title="Season Selection" @bind="SelectedSeason">
+                        <option value="@Season.Spring.ToString()">Spring</option>
+                        <option value="@Season.Summer.ToString()">Summer</option>
+                        <option value="@Season.Fall.ToString()">Fall</option>
+                        <option value="@Season.Winter.ToString()">Winter</option>
+                    </select>
                 </label>
 
-                <select id="movies-season" name="@(nameof(ShortSeriesSeason.Season))" class="select"  title="Season Selection" @bind="SelectedSeason">
-                    <option value="@Season.Spring.ToString()">Spring</option>
-                    <option value="@Season.Summer.ToString()">Summer</option>
-                    <option value="@Season.Fall.ToString()">Fall</option>
-                    <option value="@Season.Winter.ToString()">Winter</option>
-                </select>
+                <label class="input mt-2 w-full" for="movies-year">
+                    <span class="label">Year</span>
 
-                <label class="label" for="movies-year">
-                    <span class="label-text">Year</span>
+                    <input name="@(nameof(ShortSeriesSeason.Year))"
+                           id="movies-year"
+                           type="number"
+
+                           class="input validator"
+                           placeholder="Input year"
+                           required
+                           min="@MinYear.ToString()"
+                           max="@MaxYear.ToString()"
+                           @bind="Year"/>
                 </label>
-
-                <input name="@(nameof(ShortSeriesSeason.Year))"
-                       id="movies-year"
-                       type="number"
-                       class="input input-bordered invalid:input-error required:!input-bordered"
-                       placeholder="Input year"
-                       required
-                       min="@MinYear.ToString()"
-                       max="@MaxYear.ToString()"
-                       @bind="Year"/>
 
                 <input id="movies-season-check-value"
                        type="hidden"
                        x-model="keepFeed"
                        name="@(nameof(ShorSeriesLatestSeason.KeeepFeed))"/>
 
-                <label class="label" for="movies-season-check">
-                    <span class="label-text mr-4">Keep Feed</span>
+                <label class="fieldset-label w-full mt-2" for="movies-season-check">
+                    Keep Feed
+                    <input id="movies-season-check"
+                           type="checkbox"
+                           class="toggle"
+                           x-model="keepFeed"/>
                 </label>
-
-                <input id="movies-season-check"
-                       type="checkbox"
-                       class="toggle"
-                       x-model="keepFeed"/>
             </fieldset>
             <button type="submit" class="btn btn-primary mt-4">Update Season</button>
         </form>
@@ -86,30 +85,34 @@
               hx-swap="none">
             <AntiforgeryToken/>
 
-            <fieldset class="form-control">
-                <label class="label">
-                    <span class="label-text">Season</span>
+            <fieldset class="fieldset w-full">
+                <label class="select mt-2 w-full">
+                    <span class="label">Season</span>
+
+
+                    <select name="@nameof(BasicSeason.Season)" class="select" title="Season Selection"
+                            @bind="SelectedSeason">
+                        <option value="@Season.Spring.ToString()">Spring</option>
+                        <option value="@Season.Summer.ToString()">Summer</option>
+                        <option value="@Season.Fall.ToString()">Fall</option>
+                        <option value="@Season.Winter.ToString()">Winter</option>
+                    </select>
                 </label>
 
-                <select name="@nameof(BasicSeason.Season)" class="select" title="Season Selection" @bind="SelectedSeason">
-                    <option value="@Season.Spring.ToString()">Spring</option>
-                    <option value="@Season.Summer.ToString()">Summer</option>
-                    <option value="@Season.Fall.ToString()">Fall</option>
-                    <option value="@Season.Winter.ToString()">Winter</option>
-                </select>
+                <label class="input mt-2 w-full">
+                    <span class="label">Year</span>
 
-                <label class="label">
-                    <span class="label-text">Year</span>
+
+                    <input name="@nameof(BasicSeason.Year)"
+                           type="number"
+                           class="input validator"
+                           placeholder="Input year"
+                           required
+                           min="@MinYear.ToString()"
+                           max="@MaxYear.ToString()"
+                           @bind="Year"/>
+
                 </label>
-
-                <input name="@nameof(BasicSeason.Year)"
-                       type="number"
-                       class="input input-bordered invalid:input-error required:!input-bordered"
-                       placeholder="Input year"
-                       required
-                       min="@MinYear.ToString()"
-                       max="@MaxYear.ToString()"
-                       @bind="Year"/>
             </fieldset>
             <button type="submit" class="btn btn-primary mt-4">Update Season Feed</button>
         </form>
