@@ -4,14 +4,15 @@
   "description": "A Blazor client + Tailwind",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-prod:css": "@tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/app.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/app.css --watch"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@tailwindcss/cli": "^4.0.14",
+    "@tailwindcss/cli": "^4.0.15",
     "@tailwindcss/typography": "^0.5.16",
-    "daisyui": "^5.0.6",
+    "daisyui": "^5.0.9",
     "tailwindcss": "^4.0.14"
   }
 }

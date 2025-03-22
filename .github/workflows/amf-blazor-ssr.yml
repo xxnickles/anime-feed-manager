@@ -59,7 +59,7 @@ jobs:
       - name: "npm install and build"
         run: |
           npm install
-          npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/app.css --minify
+          npm run build-prod:css
         working-directory: ${{ env.APP_PATH }}
 
       # Setup .NET Core SDK
