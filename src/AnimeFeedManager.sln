@@ -5,15 +5,15 @@ VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{18C3647A-3B1D-490D-8A46-F8B29A408558}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Features", "AnimeFeedManager.Features\AnimeFeedManager.Features.csproj", "{C45FDC33-7E71-46A6-96B7-E949B01AD73E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Features", "AnimeFeedManager.Old.Features\AnimeFeedManager.Old.Features.csproj", "{C45FDC33-7E71-46A6-96B7-E949B01AD73E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Functions", "AnimeFeedManager.Functions\AnimeFeedManager.Functions.csproj", "{01635DED-9DD8-4763-A447-727319B2CF36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Functions", "AnimeFeedManager.Old.Functions\AnimeFeedManager.Old.Functions.csproj", "{01635DED-9DD8-4763-A447-727319B2CF36}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{71417D4D-4455-47E2-874A-B3B835AF46CA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OldBackend", "OldBackend", "{71417D4D-4455-47E2-874A-B3B835AF46CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Features.Tests", "AnimeFeedManager.Features.Tests\AnimeFeedManager.Features.Tests.csproj", "{7FAAF47E-037F-4B0C-8600-0AD6B3DC77D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Features.Tests", "AnimeFeedManager.Old.Features.Tests\AnimeFeedManager.Old.Features.Tests.csproj", "{7FAAF47E-037F-4B0C-8600-0AD6B3DC77D9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Common", "AnimeFeedManager.Common\AnimeFeedManager.Common.csproj", "{9B66E1B2-7416-4858-B68A-6763A4C64279}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Common", "AnimeFeedManager.Old.Common\AnimeFeedManager.Old.Common.csproj", "{9B66E1B2-7416-4858-B68A-6763A4C64279}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Blazor", "Blazor", "{917D8146-26E4-4E77-8211-4D76A23ABA7C}"
 EndProject

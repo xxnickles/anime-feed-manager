@@ -21,8 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
-      <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+      <ProjectReference Include="..\AnimeFeedManager.Old.Common\AnimeFeedManager.Old.Common.csproj" />
+      <ProjectReference Include="..\AnimeFeedManager.Old.Features\AnimeFeedManager.Old.Features.csproj" />
     </ItemGroup>
 
     <ItemGroup>

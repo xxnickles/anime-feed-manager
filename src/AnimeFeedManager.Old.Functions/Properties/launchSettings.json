@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AnimeFeedManager.Backend.Functions": {
+      "commandName": "Project",      
+      "launchBrowser": false
+    }
+  }
+}

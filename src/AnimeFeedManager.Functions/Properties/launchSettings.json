@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "AnimeFeedManager.Backend.Functions": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7157",
-      "launchBrowser": false
-    }
-  }
-}

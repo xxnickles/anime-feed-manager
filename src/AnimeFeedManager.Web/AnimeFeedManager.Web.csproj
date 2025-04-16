@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+    <ProjectReference Include="..\AnimeFeedManager.Old.Features\AnimeFeedManager.Old.Features.csproj" />
     <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
   </ItemGroup>
 
