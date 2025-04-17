@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Common.Dto;
+﻿namespace AnimeFeedManager.Old.Common.Dto;
 
 public record BasicSeason(string Season, ushort Year);
 

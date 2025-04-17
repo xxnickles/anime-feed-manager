@@ -1,5 +1,6 @@
 ﻿using System.Net;
-using AnimeFeedManager.Features.Users.Types;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Users.Types;
 
 namespace AnimeFeedManager.Web.Features.Common.ApiResponses;
 

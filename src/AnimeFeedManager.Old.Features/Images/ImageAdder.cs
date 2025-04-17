@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
-using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Images.IO;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.Images.IO;
+using AnimeFeedManager.Old.Features.State.Types;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Features.Images;
+namespace AnimeFeedManager.Old.Features.Images;
 
 public class ImageAdder(
     IImagesBlobStore imagesBlobStore,

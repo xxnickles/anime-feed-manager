@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
 
-namespace AnimeFeedManager.Features.Movies.Scrapping.Feed.Types;
+namespace AnimeFeedManager.Old.Features.Movies.Scrapping.Feed.Types;
 
 [method: JsonConstructor]
 public record MoviesFeedUpdateNotification(

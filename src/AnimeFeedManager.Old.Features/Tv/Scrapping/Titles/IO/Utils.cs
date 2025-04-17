@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+﻿namespace AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.IO;
 
 internal static class Utils
 {

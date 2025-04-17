@@ -1,10 +1,12 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
+using SeriesFeedLinksContext = AnimeFeedManager.Old.Common.Domain.Types.SeriesFeedLinksContext;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed;
+namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed;
 
 public sealed class OvaFeedUpdateStore
 {

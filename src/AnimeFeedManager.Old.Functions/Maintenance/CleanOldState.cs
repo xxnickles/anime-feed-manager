@@ -1,5 +1,5 @@
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Maintenance.IO;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Features.Maintenance.IO;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Maintenance;

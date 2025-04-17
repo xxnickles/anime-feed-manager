@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
 
-namespace AnimeFeedManager.Common.Domain.Notifications;
+namespace AnimeFeedManager.Old.Common.Domain.Notifications;
 
 [method: JsonConstructor]
 public record TitlesUpdateNotification(

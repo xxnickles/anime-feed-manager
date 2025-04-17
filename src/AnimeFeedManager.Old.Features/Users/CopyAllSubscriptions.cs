@@ -1,9 +1,10 @@
-﻿using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Movies.Subscriptions.IO;
-using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Movies.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
 
-namespace AnimeFeedManager.Features.Users;
+namespace AnimeFeedManager.Old.Features.Users;
 
 public class CopyAllSubscriptions
 {

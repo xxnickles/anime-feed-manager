@@ -1,5 +1,5 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Dto;
+﻿using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Dto;
 
 namespace AnimeFeedManager.Web.Features.Tv.Controls;
 

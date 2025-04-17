@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Seasons.Types;
+﻿namespace AnimeFeedManager.Old.Features.Seasons.Types;
 
 public readonly struct SeasonType
 {

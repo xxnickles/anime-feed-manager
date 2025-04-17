@@ -1,8 +1,8 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Utils;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Utils;
 
-namespace AnimeFeedManager.Common.Domain.Validators;
+namespace AnimeFeedManager.Old.Common.Domain.Validators;
 
 public static class SeasonValidators
 {

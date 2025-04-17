@@ -1,8 +1,11 @@
-﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Notifications.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Notifications.Types;
+using AnimeFeedManager.Old.Features.State.Types;
 
-namespace AnimeFeedManager.Features.Maintenance.IO;
+namespace AnimeFeedManager.Old.Features.Maintenance.IO;
 
 public interface IStorageCleanup
 {

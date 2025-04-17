@@ -1,6 +1,8 @@
-﻿using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Users.IO;
-using AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Types;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Users.IO;
+using AnimeFeedManager.Old.Features.Users.Types;
 using AnimeFeedManager.Web.Features.Common.ApiResponses;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,6 +1,6 @@
 ﻿using PuppeteerSharp;
 
-namespace AnimeFeedManager.Features.AniDb;
+namespace AnimeFeedManager.Old.Features.AniDb;
 
 internal static class AniDbScrapper
 {

@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Features.Users.IO;
+﻿using AnimeFeedManager.Old.Features.Users.IO;
 
-namespace AnimeFeedManager.Features.Users;
+namespace AnimeFeedManager.Old.Features.Users;
 
 public static class UsersRegistration
 {

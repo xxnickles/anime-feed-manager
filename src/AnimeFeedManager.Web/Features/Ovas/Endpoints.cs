@@ -1,14 +1,18 @@
-﻿using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Common.Types;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
 using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
 using AnimeFeedManager.Web.Features.Ovas.Controls;
 using AnimeFeedManager.Web.Features.Security;
 using Microsoft.AspNetCore.Mvc;
+using RowKey = AnimeFeedManager.Old.Common.Types.RowKey;
+using SeasonInformation = AnimeFeedManager.Old.Common.Types.SeasonInformation;
 
 namespace AnimeFeedManager.Web.Features.Ovas;
 
@@ -89,7 +93,7 @@ public static class Endpoints
     }
 
 
-    private static Either<DomainError, (UserId UserId, RowKey SeriesId, DateTime NotificationDate)>
+    private static Either<DomainError, (Old.Common.Types.UserId UserId, RowKey SeriesId, DateTime NotificationDate)>
         Validate(
             OvaControlData payload)
     {

@@ -1,8 +1,10 @@
-﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Notifications.Types;
-using Notification = AnimeFeedManager.Common.Domain.Notifications.Base.Notification;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Notifications.Types;
+using Notification = AnimeFeedManager.Old.Common.Domain.Notifications.Base.Notification;
 
-namespace AnimeFeedManager.Features.Notifications.IO;
+namespace AnimeFeedManager.Old.Features.Notifications.IO;
 
 public interface IStoreNotification
 {

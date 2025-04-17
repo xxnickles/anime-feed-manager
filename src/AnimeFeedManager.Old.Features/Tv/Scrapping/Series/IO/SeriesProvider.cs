@@ -1,15 +1,17 @@
 ﻿using System.Diagnostics;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.AniDb;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
-using AnimeFeedManager.Features.Tv.Types;
-using NotificationType = AnimeFeedManager.Common.Domain.Notifications.Base.NotificationType;
-using TargetAudience = AnimeFeedManager.Common.Domain.Notifications.Base.TargetAudience;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.AniDb;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series.Types;
+using AnimeFeedManager.Old.Features.Tv.Types;
+using NotificationType = AnimeFeedManager.Old.Common.Domain.Notifications.Base.NotificationType;
+using TargetAudience = AnimeFeedManager.Old.Common.Domain.Notifications.Base.TargetAudience;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+namespace AnimeFeedManager.Old.Features.Tv.Scrapping.Series.IO;
 
 public interface ISeriesProvider
 {

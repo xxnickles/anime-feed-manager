@@ -1,14 +1,16 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
-using AnimeFeedManager.Features.State.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.IO;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Features.State.IO;
+using AnimeFeedManager.Old.Features.State.Types;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed;
+namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed;
 
 public sealed class OvaFeedUpdater
 {

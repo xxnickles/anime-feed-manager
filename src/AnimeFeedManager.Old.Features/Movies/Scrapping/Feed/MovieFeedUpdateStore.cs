@@ -1,10 +1,12 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Movies.Scrapping.Feed.Types;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Feed.Types;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
+using SeriesFeedLinksContext = AnimeFeedManager.Old.Common.Domain.Types.SeriesFeedLinksContext;
 
-namespace AnimeFeedManager.Features.Movies.Scrapping.Feed;
+namespace AnimeFeedManager.Old.Features.Movies.Scrapping.Feed;
 
 public class MovieFeedUpdateStore
 {

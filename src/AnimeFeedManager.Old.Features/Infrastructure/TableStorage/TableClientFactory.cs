@@ -1,14 +1,16 @@
-﻿using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
-using AnimeFeedManager.Features.Movies.Subscriptions.Types;
-using AnimeFeedManager.Features.Notifications.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
-using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
-using AnimeFeedManager.Features.Tv.Subscriptions.Types;
-using AnimeFeedManager.Features.Tv.Types;
-using AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Features.Movies.Subscriptions.Types;
+using AnimeFeedManager.Old.Features.Notifications.Types;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
+using AnimeFeedManager.Old.Features.State.Types;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.Types;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
+using AnimeFeedManager.Old.Features.Tv.Types;
+using AnimeFeedManager.Old.Features.Users.Types;
 
-namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
+namespace AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
 
 public sealed class TableClientFactory<T>(TableServiceClient serviceClient) : ITableClientFactory<T>
     where T : ITableEntity

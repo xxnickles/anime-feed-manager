@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Common.Domain.Events;
+﻿namespace AnimeFeedManager.Old.Common.Domain.Events;
 
 public readonly struct Box
 {

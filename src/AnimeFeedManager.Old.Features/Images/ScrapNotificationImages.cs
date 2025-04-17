@@ -1,10 +1,11 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.State.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.State.IO;
+using AnimeFeedManager.Old.Features.State.Types;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Features.Images;
+namespace AnimeFeedManager.Old.Features.Images;
 
 public sealed class ScrapImagesNotificationHandler(
     IStateCreator stateCreatorCreator,

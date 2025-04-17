@@ -1,15 +1,17 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.State.IO;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
-using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.State.IO;
+using AnimeFeedManager.Old.Features.State.Types;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series.Types;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.IO;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Tv.Subscriptions;
+namespace AnimeFeedManager.Old.Features.Tv.Subscriptions;
 
 public sealed class InterestedToSubscribe(
     IStateCreator stateCreator,

@@ -1,7 +1,7 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Utils;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Utils;
 
-namespace AnimeFeedManager.Common.Types;
+namespace AnimeFeedManager.Old.Common.Types;
 
 public abstract record DomainId
 {

@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Common.Dto;
+﻿namespace AnimeFeedManager.Old.Common.Dto;
 
 public abstract record BaseAnime(string Id, string Season, string Title, string Synopsis, string? ImageUrl);
 

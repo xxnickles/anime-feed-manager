@@ -1,11 +1,12 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Features.Movies.Library.IO;
-using AnimeFeedManager.Features.Movies.Library.Types;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Features.Movies.Library.IO;
+using AnimeFeedManager.Old.Features.Movies.Library.Types;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
+using SeriesFeedLinksContext = AnimeFeedManager.Old.Common.Domain.Types.SeriesFeedLinksContext;
 
-namespace AnimeFeedManager.Features.Movies.Library;
+namespace AnimeFeedManager.Old.Features.Movies.Library;
 
 public sealed class MoviesLibraryGetter(IMoviesSeasonalLibrary seasonalLibrary)
 {

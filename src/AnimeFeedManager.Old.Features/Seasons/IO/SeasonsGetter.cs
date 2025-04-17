@@ -1,4 +1,7 @@
-﻿namespace AnimeFeedManager.Features.Seasons.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+
+namespace AnimeFeedManager.Old.Features.Seasons.IO;
 
 public interface ISeasonsGetter
 {

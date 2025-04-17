@@ -1,13 +1,13 @@
-﻿using AnimeFeedManager.Features.Movies.Library;
-using AnimeFeedManager.Features.Movies.Library.IO;
-using AnimeFeedManager.Features.Movies.Scrapping.Feed;
-using AnimeFeedManager.Features.Movies.Scrapping.Feed.IO;
-using AnimeFeedManager.Features.Movies.Scrapping.Series;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Movies.Subscriptions;
-using AnimeFeedManager.Features.Movies.Subscriptions.IO;
+﻿using AnimeFeedManager.Old.Features.Movies.Library;
+using AnimeFeedManager.Old.Features.Movies.Library.IO;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Feed;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Feed.IO;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Movies.Subscriptions;
+using AnimeFeedManager.Old.Features.Movies.Subscriptions.IO;
 
-namespace AnimeFeedManager.Features.Movies;
+namespace AnimeFeedManager.Old.Features.Movies;
 
 public static class MoviesRegistration
 {

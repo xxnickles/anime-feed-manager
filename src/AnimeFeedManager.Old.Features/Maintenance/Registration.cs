@@ -1,7 +1,7 @@
 ﻿
-using AnimeFeedManager.Features.Maintenance.IO;
+using AnimeFeedManager.Old.Features.Maintenance.IO;
 
-namespace AnimeFeedManager.Features.Maintenance;
+namespace AnimeFeedManager.Old.Features.Maintenance;
 
 public static class MaintenanceRegistration
 {

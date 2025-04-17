@@ -1,11 +1,14 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Images.Types;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
-using AnimeFeedManager.Features.State.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Features.Images.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Features.State.IO;
+using AnimeFeedManager.Old.Features.State.Types;
 
-namespace AnimeFeedManager.Features.Images.IO;
+namespace AnimeFeedManager.Old.Features.Images.IO;
 
 public class OvasImageStorage(
     IStateUpdater stateUpdaterUpdater,

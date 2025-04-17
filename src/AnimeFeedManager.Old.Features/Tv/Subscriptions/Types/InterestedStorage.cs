@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Tv.Subscriptions.Types;
+﻿namespace AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
 
 public sealed class InterestedStorage : ITableEntity
 {

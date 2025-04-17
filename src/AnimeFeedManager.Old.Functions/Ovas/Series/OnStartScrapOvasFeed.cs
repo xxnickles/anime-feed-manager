@@ -1,9 +1,10 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
-using AnimeFeedManager.Features.Seasons.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
+using AnimeFeedManager.Old.Features.Seasons.IO;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Ovas.Series;

@@ -1,7 +1,7 @@
-﻿using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Features.Ovas.Library.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Features.Ovas.Library.IO;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Ovas.Series;

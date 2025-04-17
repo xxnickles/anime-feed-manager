@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Features.Seasons.IO;
+﻿using AnimeFeedManager.Old.Features.Seasons.IO;
 
-namespace AnimeFeedManager.Features.Seasons;
+namespace AnimeFeedManager.Old.Features.Seasons;
 
 public static class Registration
 {

@@ -1,8 +1,10 @@
-﻿using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Tv.Subscriptions.Types;
-using AnimeFeedManager.Features.Users.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
+using AnimeFeedManager.Old.Features.Users.IO;
 
-namespace AnimeFeedManager.Features.Tv.Subscriptions.IO;
+namespace AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
 
 public interface IGetTvSubscriptions
 {

@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
+﻿namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
 
 public sealed class OvaStorage : ITableEntity
 {

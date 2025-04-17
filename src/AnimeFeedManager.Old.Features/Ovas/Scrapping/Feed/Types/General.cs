@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
+﻿namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
 
 public enum OvaFeedScrapResult
 {

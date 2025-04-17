@@ -1,6 +1,8 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.State.Types;
 
-namespace AnimeFeedManager.Features.Images.IO;
+namespace AnimeFeedManager.Old.Features.Images.IO;
 
 public interface IOvasImageStorage
 {

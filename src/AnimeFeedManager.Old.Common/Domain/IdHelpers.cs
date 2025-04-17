@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AnimeFeedManager.Common.Domain;
+namespace AnimeFeedManager.Old.Common.Domain;
 
 public static partial class IdHelpers
 {

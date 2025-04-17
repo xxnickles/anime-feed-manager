@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Common.Dto;
+﻿using AnimeFeedManager.Old.Common.Dto;
 
 namespace AnimeFeedManager.Web.Features.Movies.Controls;
 

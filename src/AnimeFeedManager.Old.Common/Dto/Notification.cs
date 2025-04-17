@@ -1,7 +1,7 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Types;
 
-namespace AnimeFeedManager.Common.Dto;
+namespace AnimeFeedManager.Old.Common.Dto;
 
 public record SubscribedFeed(string Title, TorrentLink[] Links, string EpisodeInfo, DateTime PublicationDate);
 

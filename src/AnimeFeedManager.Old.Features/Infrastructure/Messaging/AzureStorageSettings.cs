@@ -1,6 +1,6 @@
 ﻿using Azure.Core;
 
-namespace AnimeFeedManager.Features.Infrastructure.Messaging;
+namespace AnimeFeedManager.Old.Features.Infrastructure.Messaging;
 
 public abstract record AzureStorageSettings;
 

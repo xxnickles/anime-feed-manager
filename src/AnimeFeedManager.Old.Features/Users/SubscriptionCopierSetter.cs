@@ -1,9 +1,10 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Users.IO;
-using AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Users.IO;
+using AnimeFeedManager.Old.Features.Users.Types;
 
-namespace AnimeFeedManager.Features.Users;
+namespace AnimeFeedManager.Old.Features.Users;
 
 public class SubscriptionCopierSetter
 {

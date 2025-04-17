@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Web.Features.Common.ApiResponses;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+
+namespace AnimeFeedManager.Web.Features.Common.ApiResponses;
 
 public static class ResultToApiResult
 {

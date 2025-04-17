@@ -1,11 +1,7 @@
-﻿global using AnimeFeedManager.Common;
-global using AnimeFeedManager.Common.Dto;
-global using AnimeFeedManager.Common.Types;
-global using AnimeFeedManager.Common.Domain;
-global using AnimeFeedManager.Common.Domain.Errors;
-global using AnimeFeedManager.Common.Domain.Notifications;
-global using AnimeFeedManager.Features.Infrastructure.TableStorage;
-global using AnimeFeedManager.Features.State.Types;
+﻿global using AnimeFeedManager.Old.Common;
+global using AnimeFeedManager.Old.Common.Types;
+global using AnimeFeedManager.Old.Common.Domain;
+global using AnimeFeedManager.Old.Common.Domain.Notifications;
 global using Azure;
 global using Azure.Data.Tables;
 global using System.Collections.Immutable;
@@ -13,5 +9,5 @@ global using LanguageExt;
 global using static LanguageExt.Prelude;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
-global using AnimeFeedManager.Features.Seasons.Types;
+global using AnimeFeedManager.Old.Features.Seasons.Types;
 

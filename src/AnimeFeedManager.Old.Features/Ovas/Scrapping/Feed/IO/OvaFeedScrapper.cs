@@ -1,10 +1,11 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Nyaa;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Nyaa;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
 using PuppeteerSharp;
-using SeriesLink = AnimeFeedManager.Common.Domain.Types.SeriesLink;
+using SeriesLink = AnimeFeedManager.Old.Common.Domain.Types.SeriesLink;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.IO;
+namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.IO;
 
 public interface IOvaFeedScrapper
 {

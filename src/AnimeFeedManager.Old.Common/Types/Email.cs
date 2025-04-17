@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
-using AnimeFeedManager.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Errors;
 
-namespace AnimeFeedManager.Common.Types;
+namespace AnimeFeedManager.Old.Common.Types;
 
 public partial record Email
 {

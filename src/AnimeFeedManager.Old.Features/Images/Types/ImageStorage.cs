@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Images.Types;
+﻿namespace AnimeFeedManager.Old.Features.Images.Types;
 
 public sealed class ImageStorage : ITableEntity
 {

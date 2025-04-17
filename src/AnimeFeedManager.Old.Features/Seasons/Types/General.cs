@@ -1,7 +1,8 @@
 ﻿using System.Collections.Frozen;
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Old.Common.Dto;
 
-namespace AnimeFeedManager.Features.Seasons.Types;
+namespace AnimeFeedManager.Old.Features.Seasons.Types;
 
 public abstract record SeasonInfo(Season Season);
 

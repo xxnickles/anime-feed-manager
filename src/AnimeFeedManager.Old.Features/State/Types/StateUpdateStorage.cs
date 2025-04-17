@@ -1,4 +1,4 @@
-namespace AnimeFeedManager.Features.State.Types;
+namespace AnimeFeedManager.Old.Features.State.Types;
 
 public sealed class StateUpdateStorage : ITableEntity
 {

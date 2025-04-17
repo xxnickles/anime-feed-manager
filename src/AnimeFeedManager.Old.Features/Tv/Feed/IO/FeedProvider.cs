@@ -1,8 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using AnimeFeedManager.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
 
-namespace AnimeFeedManager.Features.Tv.Feed.IO;
+namespace AnimeFeedManager.Old.Features.Tv.Feed.IO;
 
 public interface IFeedProvider {
     Either<DomainError, ImmutableList<FeedInfo>> GetFeed(Resolution resolution);

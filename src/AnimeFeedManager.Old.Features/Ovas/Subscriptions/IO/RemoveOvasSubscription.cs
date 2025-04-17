@@ -1,6 +1,8 @@
-﻿using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Ovas.Subscriptions.IO;
+namespace AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
 
 public interface IRemoveOvasSubscription
 {

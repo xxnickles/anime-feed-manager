@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Types;
 
-namespace AnimeFeedManager.Common.Dto;
+namespace AnimeFeedManager.Old.Common.Dto;
 
 public record NullOva() : BaseOva(string.Empty, string.Empty, string.Empty, string.Empty, null);
 

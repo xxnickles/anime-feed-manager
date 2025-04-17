@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace AnimeFeedManager.Common;
+namespace AnimeFeedManager.Old.Common;
 
 public enum SeriesType
 {

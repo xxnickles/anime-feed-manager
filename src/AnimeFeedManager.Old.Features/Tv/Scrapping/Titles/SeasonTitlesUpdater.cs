@@ -1,10 +1,11 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.IO;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Titles;
+namespace AnimeFeedManager.Old.Features.Tv.Scrapping.Titles;
 
 public sealed class SeasonTitlesUpdater(
     ITitlesStore titlesStore,

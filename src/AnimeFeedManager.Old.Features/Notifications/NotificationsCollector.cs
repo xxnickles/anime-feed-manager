@@ -1,9 +1,11 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Features.Notifications.IO;
-using AnimeFeedManager.Features.Notifications.Types;
-using AnimeFeedManager.Features.Tv.Feed;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Features.Notifications.IO;
+using AnimeFeedManager.Old.Features.Notifications.Types;
+using TvNotificationContext = AnimeFeedManager.Old.Features.Tv.Feed.TvNotificationContext;
 
-namespace AnimeFeedManager.Features.Notifications;
+namespace AnimeFeedManager.Old.Features.Notifications;
 
 public class FeedNotificationsCollector
 {
@@ -29,7 +31,7 @@ public class FeedNotificationsCollector
         var deserialized = JsonSerializer.Deserialize(storage.Payload ?? string.Empty,
             TvNotificationContext.Default.TvFeedUpdateNotification);
 
-        return deserialized?.Feeds is not null ? Map(deserialized.Feeds) : [];
+        return deserialized?.Feeds is not null ? Map((IEnumerable<SubscribedFeed>) deserialized.Feeds) : [];
     }
 
     private static Transport[] Map(IEnumerable<SubscribedFeed> subscribedFeeds)

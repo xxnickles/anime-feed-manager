@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Common.Types;
+﻿namespace AnimeFeedManager.Old.Common.Types;
 
 public record SeasonInformation(Season Season, Year Year);
 

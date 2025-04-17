@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Common.Domain.Types;
+﻿using Email = AnimeFeedManager.Old.Common.Types.Email;
+
+namespace AnimeFeedManager.Old.Common.Domain.Types;
 
 public static class RoleNames
 {

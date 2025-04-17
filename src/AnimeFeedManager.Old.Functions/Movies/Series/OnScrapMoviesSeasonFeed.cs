@@ -1,7 +1,7 @@
-﻿using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Features.Movies.Library.IO;
-using AnimeFeedManager.Features.Movies.Scrapping.Feed;
-using AnimeFeedManager.Features.Movies.Scrapping.Feed.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Features.Movies.Library.IO;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Feed;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Feed.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Movies.Series;

@@ -1,5 +1,5 @@
 ﻿
-namespace AnimeFeedManager.Common.RealTimeNotifications;
+namespace AnimeFeedManager.Old.Common.RealTimeNotifications;
 
 public static class ServerNotifications
 {

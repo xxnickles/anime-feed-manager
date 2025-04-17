@@ -1,6 +1,7 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Dto;
 
-namespace AnimeFeedManager.Features.Ovas.Library.Types;
+namespace AnimeFeedManager.Old.Features.Ovas.Library.Types;
 
 public record OvaLibrary(
     string Id,

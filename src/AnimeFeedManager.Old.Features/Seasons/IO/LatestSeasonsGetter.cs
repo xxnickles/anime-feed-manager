@@ -1,6 +1,9 @@
 ﻿using System.Text.Json;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using Extensions = AnimeFeedManager.Old.Features.Seasons.Types.Extensions;
 
-namespace AnimeFeedManager.Features.Seasons.IO;
+namespace AnimeFeedManager.Old.Features.Seasons.IO;
 
 public interface ILatestSeasonsGetter
 {
@@ -25,6 +28,6 @@ public class LatestSeasonsGetter : ILatestSeasonsGetter
             .MapAsync(items => items.First())
             .MapAsync(item => JsonSerializer.Deserialize(item.Payload ?? string.Empty,
                 SimpleSeasonWrapperContext.Default.SimpleSeasonWrapperArray) ?? [])
-            .MapAsync(items => items.Select(i => i.ToWrapper()).ToImmutableList());
+            .MapAsync(items => Enumerable.Select<SimpleSeasonWrapper, SeasonWrapper>(items, i => Extensions.ToWrapper((SimpleSeasonWrapper) i)).ToImmutableList());
     }
 }

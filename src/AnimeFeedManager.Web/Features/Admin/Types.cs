@@ -1,4 +1,6 @@
-﻿using AnimeFeedManager.Common.Utils;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Types;
+using AnimeFeedManager.Old.Common.Utils;
 
 namespace AnimeFeedManager.Web.Features.Admin;
 

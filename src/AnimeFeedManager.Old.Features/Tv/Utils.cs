@@ -1,6 +1,6 @@
 ﻿using FuzzySharp;
 
-namespace AnimeFeedManager.Features.Tv;
+namespace AnimeFeedManager.Old.Features.Tv;
 
 internal static class Utils
 {

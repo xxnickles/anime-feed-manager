@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
+﻿namespace AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
 
 public sealed class MovieStorage : ITableEntity
 {

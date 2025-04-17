@@ -1,17 +1,17 @@
-﻿using AnimeFeedManager.Features.Infrastructure.SendGrid;
-using AnimeFeedManager.Features.Maintenance.IO;
-using AnimeFeedManager.Features.Tv.Feed.IO;
-using AnimeFeedManager.Features.Tv.Library;
-using AnimeFeedManager.Features.Tv.Library.IO;
-using AnimeFeedManager.Features.Tv.Scrapping.Series;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Tv.Scrapping.Titles;
-using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions;
-using AnimeFeedManager.Features.Tv.Subscriptions.IO;
+﻿using AnimeFeedManager.Old.Features.Infrastructure.SendGrid;
+using AnimeFeedManager.Old.Features.Maintenance.IO;
+using AnimeFeedManager.Old.Features.Tv.Feed.IO;
+using AnimeFeedManager.Old.Features.Tv.Library;
+using AnimeFeedManager.Old.Features.Tv.Library.IO;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Titles;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.IO;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
 using SendGrid.Extensions.DependencyInjection;
 
-namespace AnimeFeedManager.Features.Tv;
+namespace AnimeFeedManager.Old.Features.Tv;
 
 public static class TvRegistration
 {

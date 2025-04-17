@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AnimeFeedManager.Common.Utils;
+namespace AnimeFeedManager.Old.Common.Utils;
 
 public  static partial class MappingUtils
 {

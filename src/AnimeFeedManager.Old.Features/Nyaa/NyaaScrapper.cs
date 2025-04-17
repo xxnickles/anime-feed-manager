@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using PuppeteerSharp;
 
-namespace AnimeFeedManager.Features.Nyaa;
+namespace AnimeFeedManager.Old.Features.Nyaa;
 
 internal static partial class NyaaScrapper
 {

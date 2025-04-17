@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Features.State.Types;
-using AnimeFeedManager.Features.Tv.Subscriptions;
-using AnimeFeedManager.Features.Tv.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Features.State.Types;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Tv.Subscriptions;

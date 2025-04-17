@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
+﻿namespace AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
 
 internal static class AzureTableMap
 {

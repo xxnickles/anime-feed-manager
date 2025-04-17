@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Features.Notifications.IO;
+﻿using AnimeFeedManager.Old.Features.Notifications.IO;
 
-namespace AnimeFeedManager.Features.Notifications;
+namespace AnimeFeedManager.Old.Features.Notifications;
 
 public static class NotificationRegistration
 {

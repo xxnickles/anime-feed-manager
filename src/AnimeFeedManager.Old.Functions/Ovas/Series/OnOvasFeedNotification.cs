@@ -1,8 +1,9 @@
-﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.RealTimeNotifications;
-using AnimeFeedManager.Features.Notifications.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
+﻿using AnimeFeedManager.Old.Common.Domain;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.RealTimeNotifications;
+using AnimeFeedManager.Old.Features.Notifications.IO;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
 using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 using Microsoft.Extensions.Logging;
 

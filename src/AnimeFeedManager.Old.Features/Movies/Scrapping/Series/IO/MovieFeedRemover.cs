@@ -1,15 +1,17 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
 using MoviesContainer =
     (System.Collections.Immutable.ImmutableList<
-        AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage.MovieStorage> Movies,
+        AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage.MovieStorage> Movies,
     Azure.Data.Tables.TableClient
     Client);
 using MovieContainer =
-    (AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage.MovieStorage Movie, Azure.Data.Tables.TableClient
+    (AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage.MovieStorage Movie, Azure.Data.Tables.TableClient
     Client);
 
-namespace AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
+namespace AnimeFeedManager.Old.Features.Movies.Scrapping.Series.IO;
 
 public interface IMovieFeedRemover
 {

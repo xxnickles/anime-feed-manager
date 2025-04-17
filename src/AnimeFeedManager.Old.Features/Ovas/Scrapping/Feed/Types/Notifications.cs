@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
+namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
 
 [method: JsonConstructor]
 public record OvasFeedUpdateNotification(

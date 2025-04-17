@@ -1,7 +1,7 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping.Series.Types;
+namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types;
 
 public readonly record struct OvasCollection(
     SeasonInformation SeasonInformation,

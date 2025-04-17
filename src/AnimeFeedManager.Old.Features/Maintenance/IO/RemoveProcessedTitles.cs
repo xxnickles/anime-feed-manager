@@ -1,6 +1,8 @@
-﻿using AnimeFeedManager.Features.Tv.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Maintenance.IO;
+namespace AnimeFeedManager.Old.Features.Maintenance.IO;
 
 public interface IRemoveProcessedTitles
 {

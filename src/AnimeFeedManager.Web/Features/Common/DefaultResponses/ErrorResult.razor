@@ -1,4 +1,5 @@
-﻿<div hx-swap-oob="afterbegin:#toast-panel">
+﻿@using AnimeFeedManager.Old.Common.Domain.Errors
+<div hx-swap-oob="afterbegin:#toast-panel">
     <ClosableNotification Type="@GetToastType()">
         <Content>
             @switch (Error)

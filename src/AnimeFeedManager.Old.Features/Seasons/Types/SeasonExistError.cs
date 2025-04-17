@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Features.Seasons.Types;
+namespace AnimeFeedManager.Old.Features.Seasons.Types;
 
 public sealed class SeasonExistError : DomainError
 {

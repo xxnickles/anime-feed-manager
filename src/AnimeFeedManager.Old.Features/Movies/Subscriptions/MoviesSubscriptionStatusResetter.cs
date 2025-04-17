@@ -1,7 +1,8 @@
-﻿using AnimeFeedManager.Features.Movies.Subscriptions.IO;
-using AnimeFeedManager.Features.Movies.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Movies.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Movies.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Movies.Subscriptions;
+namespace AnimeFeedManager.Old.Features.Movies.Subscriptions;
 
 public sealed class MoviesSubscriptionStatusResetter
 {

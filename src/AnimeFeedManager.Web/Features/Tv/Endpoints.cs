@@ -1,14 +1,19 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Common.Types;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
 using AnimeFeedManager.Web.Features.Common;
 using AnimeFeedManager.Web.Features.Common.DefaultResponses;
 using AnimeFeedManager.Web.Features.Security;
 using AnimeFeedManager.Web.Features.Tv.Controls;
 using Microsoft.AspNetCore.Mvc;
+using NoEmptyString = AnimeFeedManager.Old.Common.Types.NoEmptyString;
+using RowKey = AnimeFeedManager.Old.Common.Types.RowKey;
+using SeasonInformation = AnimeFeedManager.Old.Common.Types.SeasonInformation;
 
 namespace AnimeFeedManager.Web.Features.Tv;
 
@@ -106,7 +111,7 @@ public static class Endpoints
         ).RequireAuthorization();
     }
 
-    private static Either<DomainError, (UserId UserId, NoEmptyString Series)> Validate(
+    private static Either<DomainError, (Old.Common.Types.UserId UserId, NoEmptyString Series)> Validate(
         AvailableTvSeriesControlData payload)
     {
         return (
@@ -117,7 +122,7 @@ public static class Endpoints
             .ValidationToEither();
     }
 
-    private static Either<DomainError, (UserId UserId, NoEmptyString Series)> Validate(NotAvailableControlData payload)
+    private static Either<DomainError, (Old.Common.Types.UserId UserId, NoEmptyString Series)> Validate(NotAvailableControlData payload)
     {
         return (
                 UserId.Validate(payload.UserId),
@@ -127,7 +132,7 @@ public static class Endpoints
             .ValidationToEither();
     }
 
-    private static Either<DomainError, (UserId UserId, RowKey SeriesId, NoEmptyString Series)> ValidateSubscription(
+    private static Either<DomainError, (Old.Common.Types.UserId UserId, RowKey SeriesId, NoEmptyString Series)> ValidateSubscription(
         NotAvailableControlData payload)
     {
         return (

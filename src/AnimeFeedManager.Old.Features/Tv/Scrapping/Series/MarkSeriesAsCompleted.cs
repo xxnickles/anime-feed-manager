@@ -1,13 +1,14 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Tv.Scrapping.Series.Types;
-using AnimeFeedManager.Features.Tv.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series.Types;
+using AnimeFeedManager.Old.Features.Tv.Types;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series;
+namespace AnimeFeedManager.Old.Features.Tv.Scrapping.Series;
 
 public class MarkSeriesAsCompletedHandler(
     IIncompleteSeriesProvider incompleteSeriesProvider,

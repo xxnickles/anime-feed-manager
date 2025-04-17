@@ -1,9 +1,10 @@
 ﻿using System.Text;
-using AnimeFeedManager.Common.Utils;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Common.Utils;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace AnimeFeedManager.Features.Infrastructure.SendGrid;
+namespace AnimeFeedManager.Old.Features.Infrastructure.SendGrid;
 
 public static partial class SendGridMessageExtensions
 {

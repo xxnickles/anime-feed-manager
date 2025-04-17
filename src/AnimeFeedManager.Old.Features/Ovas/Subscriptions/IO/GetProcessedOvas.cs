@@ -1,8 +1,11 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
+using SeriesFeedLinksContext = AnimeFeedManager.Old.Common.Domain.Types.SeriesFeedLinksContext;
 
-namespace AnimeFeedManager.Features.Ovas.Subscriptions.IO;
+namespace AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
 
 public readonly record struct FeedProcessedOva(string SeriesTitle, SeriesFeedLinks[] Links);
 

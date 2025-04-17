@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Common.Domain.Types;
+﻿namespace AnimeFeedManager.Old.Common.Domain.Types;
 
 public readonly struct SeriesStatus : IEquatable<SeriesStatus>
 {

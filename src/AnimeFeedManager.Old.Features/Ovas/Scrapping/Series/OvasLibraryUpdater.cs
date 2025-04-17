@@ -1,12 +1,13 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping.Series;
+namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Series;
 
 public sealed class OvasLibraryUpdater(
     IOvasStatusProvider statusProvider,

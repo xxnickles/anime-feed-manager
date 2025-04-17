@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Types;
 
-namespace AnimeFeedManager.Features.Tv.Types;
+namespace AnimeFeedManager.Old.Features.Tv.Types;
 
 public class UpdateFeedAnimeInfoStorage : ITableEntity 
 {

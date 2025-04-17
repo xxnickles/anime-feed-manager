@@ -1,6 +1,7 @@
-﻿using PuppeteerSharp;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using PuppeteerSharp;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+namespace AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.IO;
 
 public interface ITitlesProvider
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace AnimeFeedManager.Common.Types;
+namespace AnimeFeedManager.Old.Common.Types;
 
 public readonly record struct Year : IComparable<Year>
 {

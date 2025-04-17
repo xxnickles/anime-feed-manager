@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Movies.Subscriptions.IO;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Features.Movies.Subscriptions.IO;
 
-namespace AnimeFeedManager.Features.Movies.Subscriptions.Types;
+namespace AnimeFeedManager.Old.Features.Movies.Subscriptions.Types;
 
 [method: JsonConstructor]
 public record MoviesFeedSentNotification(

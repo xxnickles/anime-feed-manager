@@ -1,5 +1,5 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Validators;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Validators;
 
 namespace AnimeFeedManager.Old.Features.Tests.Domain.Validators;
 

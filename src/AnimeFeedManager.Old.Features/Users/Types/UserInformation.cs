@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Users.Types;
+﻿namespace AnimeFeedManager.Old.Features.Users.Types;
 
 public record UserRegistration(Email Email, UserId UserId, NoEmptyString DisplayName);
 

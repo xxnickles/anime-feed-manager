@@ -1,5 +1,5 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Tv.Scrapping.Series;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series;
 
 namespace AnimeFeedManager.Old.Functions.Tv.Series;
 

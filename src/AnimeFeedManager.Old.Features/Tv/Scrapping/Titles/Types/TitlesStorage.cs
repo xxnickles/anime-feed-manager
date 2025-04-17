@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
+﻿namespace AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.Types;
 
 public sealed class TitlesStorage : ITableEntity
 {

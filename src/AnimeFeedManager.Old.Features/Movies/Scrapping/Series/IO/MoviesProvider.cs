@@ -1,14 +1,16 @@
 ﻿using System.Diagnostics;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.AniDb;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.Types;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.AniDb;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
 
-namespace AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
+namespace AnimeFeedManager.Old.Features.Movies.Scrapping.Series.IO;
 
 public interface IMoviesProvider
 {

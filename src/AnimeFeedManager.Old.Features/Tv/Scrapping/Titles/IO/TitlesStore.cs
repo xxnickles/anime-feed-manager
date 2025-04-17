@@ -1,6 +1,8 @@
-﻿using AnimeFeedManager.Features.Tv.Scrapping.Titles.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.Types;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
+namespace AnimeFeedManager.Old.Features.Tv.Scrapping.Titles.IO;
 
 public interface ITitlesStore
 {

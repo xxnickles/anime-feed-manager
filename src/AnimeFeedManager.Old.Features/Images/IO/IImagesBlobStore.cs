@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Images.IO;
+﻿namespace AnimeFeedManager.Old.Features.Images.IO;
 
 public interface IImagesBlobStore
 {

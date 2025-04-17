@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Common.Domain.Notifications.Base;
+﻿namespace AnimeFeedManager.Old.Common.Domain.Notifications.Base;
 
 public enum Target
 {

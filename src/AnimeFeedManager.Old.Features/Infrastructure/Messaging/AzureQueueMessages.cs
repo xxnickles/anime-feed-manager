@@ -1,8 +1,9 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
 using Azure.Storage.Queues;
 
-namespace AnimeFeedManager.Features.Infrastructure.Messaging;
+namespace AnimeFeedManager.Old.Features.Infrastructure.Messaging;
 
 public readonly record struct Delay
 {

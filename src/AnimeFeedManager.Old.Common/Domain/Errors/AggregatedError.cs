@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Common.Domain.Errors;
+namespace AnimeFeedManager.Old.Common.Domain.Errors;
 
 public class AggregatedError(ImmutableList<DomainError> errors, AggregatedError.FailureType failureType)
     : DomainError("Multiple Errors have been collected")

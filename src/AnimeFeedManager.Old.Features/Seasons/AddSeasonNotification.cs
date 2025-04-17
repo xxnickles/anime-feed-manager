@@ -1,9 +1,9 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Seasons.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Seasons.IO;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Features.Seasons;
+namespace AnimeFeedManager.Old.Features.Seasons;
 
 public sealed class AddSeasonNotificationHandler(
     ISeasonStore seasonStore,

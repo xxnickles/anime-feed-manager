@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AnimeFeedManager.Common.Domain.Types;
+namespace AnimeFeedManager.Old.Common.Domain.Types;
 
 public enum LinkType
 {

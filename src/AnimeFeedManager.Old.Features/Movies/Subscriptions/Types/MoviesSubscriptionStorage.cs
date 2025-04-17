@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Movies.Subscriptions.Types;
+﻿namespace AnimeFeedManager.Old.Features.Movies.Subscriptions.Types;
 
 public sealed class MoviesSubscriptionStorage : ITableEntity
 {

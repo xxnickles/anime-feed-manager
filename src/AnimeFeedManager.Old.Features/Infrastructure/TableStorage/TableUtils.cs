@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+using AnimeFeedManager.Old.Common.Domain.Errors;
 
-namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
+namespace AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
 
 internal static class TableUtils
 {

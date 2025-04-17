@@ -1,8 +1,10 @@
-﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Notifications.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Notifications.Types;
 
-namespace AnimeFeedManager.Features.Notifications.IO;
+namespace AnimeFeedManager.Old.Features.Notifications.IO;
 
 public interface IGetNotifications
 {

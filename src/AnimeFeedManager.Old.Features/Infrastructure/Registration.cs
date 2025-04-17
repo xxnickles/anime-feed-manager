@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
 using Azure.Core;
 using Microsoft.Extensions.Configuration;
 
-namespace AnimeFeedManager.Features.Infrastructure;
+namespace AnimeFeedManager.Old.Features.Infrastructure;
 
 public static class InfrastructureRegistration
 {

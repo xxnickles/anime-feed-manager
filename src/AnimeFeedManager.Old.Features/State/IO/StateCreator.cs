@@ -1,7 +1,10 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.State.Types;
 
-namespace AnimeFeedManager.Features.State.IO;
+namespace AnimeFeedManager.Old.Features.State.IO;
 
 public interface IStateCreator
 {

@@ -1,6 +1,8 @@
-﻿using AnimeFeedManager.Features.Tv.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Tv.Subscriptions.IO;
+namespace AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
 
 public interface IGetInterestedSeries
 {

@@ -1,7 +1,9 @@
-﻿using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Users.Types;
 
-namespace AnimeFeedManager.Features.Users.IO;
+namespace AnimeFeedManager.Old.Features.Users.IO;
 
 public interface IUserEmailGetter
 {

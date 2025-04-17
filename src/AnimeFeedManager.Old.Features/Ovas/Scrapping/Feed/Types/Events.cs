@@ -1,8 +1,9 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
 
-namespace AnimeFeedManager.Features.Ovas.Scrapping.Feed.Types;
+namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
 
 public record StartScrapOvasFeed(FeedType Type) : DomainMessage(new Box(TargetQueue))
 {

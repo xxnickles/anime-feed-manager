@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
 
-namespace AnimeFeedManager.Features.Seasons.IO;
+namespace AnimeFeedManager.Old.Features.Seasons.IO;
 
 public interface ILatestSeasonStore
 {

@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.AniDb;
+﻿namespace AnimeFeedManager.Old.Features.AniDb;
 
 internal record JsonSeasonInfo(string Season, int Year);
 

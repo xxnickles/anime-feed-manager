@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
 
-namespace AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+namespace AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
 
 public record OvasCheckFeedMatchesEvent(string UserEmail, string UserId, string PartitionKey) : DomainMessage(new Box(TargetQueue))
 {

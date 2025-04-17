@@ -1,8 +1,8 @@
-﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
+﻿using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
-namespace AnimeFeedManager.Features.Images.IO;
+namespace AnimeFeedManager.Old.Features.Images.IO;
 
 public class AzureImagesBlobStore : IImagesBlobStore
 {

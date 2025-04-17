@@ -1,5 +1,5 @@
-﻿using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Ovas.Notifications;

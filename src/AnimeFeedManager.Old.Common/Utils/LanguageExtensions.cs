@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Common.Domain.Errors;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
 
-namespace AnimeFeedManager.Common.Utils;
+namespace AnimeFeedManager.Old.Common.Utils;
 
 public static class LanguageExtensions
 {

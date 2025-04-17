@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Features.State.IO;
+﻿using AnimeFeedManager.Old.Features.State.IO;
 
-namespace AnimeFeedManager.Features.State;
+namespace AnimeFeedManager.Old.Features.State;
 
 public static class StateRegistration
 {

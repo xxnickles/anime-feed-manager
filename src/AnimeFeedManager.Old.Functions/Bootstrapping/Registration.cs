@@ -1,5 +1,14 @@
-﻿using AnimeFeedManager.Features.Maintenance;
-using AnimeFeedManager.Features.Users;
+﻿using AnimeFeedManager.Old.Features.AniDb;
+using AnimeFeedManager.Old.Features.Images;
+using AnimeFeedManager.Old.Features.Infrastructure;
+using AnimeFeedManager.Old.Features.Maintenance;
+using AnimeFeedManager.Old.Features.Movies;
+using AnimeFeedManager.Old.Features.Notifications;
+using AnimeFeedManager.Old.Features.Ovas;
+using AnimeFeedManager.Old.Features.Seasons;
+using AnimeFeedManager.Old.Features.State;
+using AnimeFeedManager.Old.Features.Tv;
+using AnimeFeedManager.Old.Features.Users;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeFeedManager.Old.Functions.Bootstrapping;

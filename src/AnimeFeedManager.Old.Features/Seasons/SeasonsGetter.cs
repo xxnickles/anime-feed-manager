@@ -1,6 +1,8 @@
-﻿using AnimeFeedManager.Features.Seasons.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Features.Seasons.IO;
 
-namespace AnimeFeedManager.Features.Seasons;
+namespace AnimeFeedManager.Old.Features.Seasons;
 
 public sealed class SeasonsGetter(ISeasonsGetter seasonsGetter, ILatestSeasonsGetter latestSeasonsGetter)
 {

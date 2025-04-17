@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Common.Domain.Events;
+﻿namespace AnimeFeedManager.Old.Common.Domain.Events;
 
 public enum ScrapType
 {
@@ -21,6 +21,6 @@ public record ScrapTvTilesRequest() : DomainMessage(new Box(TargetQueue))
 
 public static class Extensions
 {
-    public static SeasonParameter ToSeasonParameter(this (Season Season, Year Year) param) =>
+    public static SeasonParameter ToSeasonParameter(this (Common.Types.Season Season, Common.Types.Year Year) param) =>
         new(param.Season, param.Year);
 }

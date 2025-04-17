@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
 
-namespace AnimeFeedManager.Features.Movies.Subscriptions.Types;
+namespace AnimeFeedManager.Old.Features.Movies.Subscriptions.Types;
 
 public record MoviesCheckFeedMatchesEvent(string UserEmail, string UserId, string PartitionKey) : DomainMessage(new Box(TargetQueue))
 {

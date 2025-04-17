@@ -1,12 +1,13 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Utils;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Subscriptions.Types;
-using AnimeFeedManager.Features.Users.IO;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Utils;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
+using AnimeFeedManager.Old.Features.Users.IO;
 using Microsoft.Extensions.Logging;
 using Unit = LanguageExt.Unit;
 
-namespace AnimeFeedManager.Features.Tv.Subscriptions;
+namespace AnimeFeedManager.Old.Features.Tv.Subscriptions;
 
 public sealed class AutomatedSubscriptionHandler(
     IDomainPostman domainPostman,

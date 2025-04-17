@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnimeFeedManager.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Events;
 
-namespace AnimeFeedManager.Common.Domain.Notifications.Base;
+namespace AnimeFeedManager.Old.Common.Domain.Notifications.Base;
 
 public enum TargetAudience
 {

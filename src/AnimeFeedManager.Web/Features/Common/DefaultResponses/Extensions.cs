@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Common.DefaultResponses;
 

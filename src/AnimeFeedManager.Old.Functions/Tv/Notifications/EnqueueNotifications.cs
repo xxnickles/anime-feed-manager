@@ -1,8 +1,9 @@
 using System.Collections.Immutable;
-using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Features.Tv.Subscriptions;
-using AnimeFeedManager.Features.Tv.Subscriptions.Types;
-using AnimeFeedManager.Features.Users.IO;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Types;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
+using AnimeFeedManager.Old.Features.Users.IO;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Tv.Notifications;

@@ -1,8 +1,9 @@
-﻿using AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Users.Types;
 using Passwordless;
 using Passwordless.Models;
 
-namespace AnimeFeedManager.Features.Users.IO;
+namespace AnimeFeedManager.Old.Features.Users.IO;
 
 public interface IPasswordlessRegistration
 {

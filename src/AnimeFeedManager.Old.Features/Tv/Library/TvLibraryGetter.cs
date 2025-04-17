@@ -1,9 +1,11 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Features.Tv.Library.IO;
-using AnimeFeedManager.Features.Tv.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Features.Tv.Library.IO;
+using AnimeFeedManager.Old.Features.Tv.Types;
 
-namespace AnimeFeedManager.Features.Tv.Library;
+namespace AnimeFeedManager.Old.Features.Tv.Library;
 
 public sealed class TvLibraryGetter(ITvSeasonalLibrary seasonalLibrary)
 {

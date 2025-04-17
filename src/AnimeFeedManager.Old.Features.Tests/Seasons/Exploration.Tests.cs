@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
-using AnimeFeedManager.Common.Types;
-using AnimeFeedManager.Features.Seasons.Types;
+using AnimeFeedManager.Old.Common.Types;
+using AnimeFeedManager.Old.Features.Seasons.Types;
 
 namespace AnimeFeedManager.Old.Features.Tests.Seasons;
 

@@ -1,6 +1,6 @@
-﻿using AnimeFeedManager.Features.Images.IO;
+﻿using AnimeFeedManager.Old.Features.Images.IO;
 
-namespace AnimeFeedManager.Features.Images;
+namespace AnimeFeedManager.Old.Features.Images;
 
 public static class ImageRegistration
 {

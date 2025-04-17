@@ -1,5 +1,5 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Tv.Subscriptions;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Tv.Subscriptions;

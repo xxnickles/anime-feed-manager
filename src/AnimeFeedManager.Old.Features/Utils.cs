@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace AnimeFeedManager.Features;
+namespace AnimeFeedManager.Old.Features;
 
 internal static class Utils
 {

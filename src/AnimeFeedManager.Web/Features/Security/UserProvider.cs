@@ -1,8 +1,10 @@
 ﻿using System.Security.Claims;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Movies.Subscriptions.IO;
-using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions.IO;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Types;
+using AnimeFeedManager.Old.Features.Movies.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
 
 namespace AnimeFeedManager.Web.Features.Security;
 

@@ -1,10 +1,12 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Tv.Feed.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions.IO;
-using AnimeFeedManager.Features.Tv.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Tv.Feed.IO;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Tv.Subscriptions;
+namespace AnimeFeedManager.Old.Features.Tv.Subscriptions;
 
 public class UserNotificationsCollector(
     IFeedProvider feedProvider,

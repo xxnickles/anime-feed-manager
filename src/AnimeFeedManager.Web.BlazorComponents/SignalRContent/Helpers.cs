@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Common.Domain.Notifications.Base;
+﻿using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Web.BlazorComponents.Toast;
 
 namespace AnimeFeedManager.Web.BlazorComponents.SignalRContent;

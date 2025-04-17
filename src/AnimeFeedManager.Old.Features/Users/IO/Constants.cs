@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Users.IO;
+﻿namespace AnimeFeedManager.Old.Features.Users.IO;
 
 internal static class Constants
 {

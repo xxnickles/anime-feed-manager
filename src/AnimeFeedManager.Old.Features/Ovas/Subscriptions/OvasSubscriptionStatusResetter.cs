@@ -1,7 +1,8 @@
-﻿using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
-using AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
 
-namespace AnimeFeedManager.Features.Ovas.Subscriptions;
+namespace AnimeFeedManager.Old.Features.Ovas.Subscriptions;
 
 public sealed class OvasSubscriptionStatusResetter
 {

@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
+﻿using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.Images;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Images;

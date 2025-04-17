@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
-using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Dto;
-using AnimeFeedManager.Common.Types;
-using AnimeFeedManager.Features.Seasons.IO;
-using AnimeFeedManager.Features.Seasons.Types;
-using SeasonsGetter = AnimeFeedManager.Features.Seasons.SeasonsGetter;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Common.Types;
+using AnimeFeedManager.Old.Features.Seasons.IO;
+using AnimeFeedManager.Old.Features.Seasons.Types;
+using SeasonsGetter = AnimeFeedManager.Old.Features.Seasons.SeasonsGetter;
 
 namespace AnimeFeedManager.Old.Features.Tests.Seasons;
 

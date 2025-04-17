@@ -1,7 +1,9 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Tv.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Tv.Types;
 
-namespace AnimeFeedManager.Features.Tv.Scrapping.Series.IO;
+namespace AnimeFeedManager.Old.Features.Tv.Scrapping.Series.IO;
 
 public interface ITvSeriesUpdates
 {

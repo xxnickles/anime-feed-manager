@@ -1,10 +1,11 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
-using AnimeFeedManager.Features.Nyaa;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
+using AnimeFeedManager.Old.Features.Nyaa;
 using PuppeteerSharp;
-using SeriesLink = AnimeFeedManager.Common.Domain.Types.SeriesLink;
+using SeriesLink = AnimeFeedManager.Old.Common.Domain.Types.SeriesLink;
 
-namespace AnimeFeedManager.Features.Movies.Scrapping.Feed.IO;
+namespace AnimeFeedManager.Old.Features.Movies.Scrapping.Feed.IO;
 
 public interface IMovieFeedScrapper
 {

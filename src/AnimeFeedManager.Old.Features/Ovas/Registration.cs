@@ -1,13 +1,13 @@
-﻿using AnimeFeedManager.Features.Ovas.Library;
-using AnimeFeedManager.Features.Ovas.Library.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed;
-using AnimeFeedManager.Features.Ovas.Scrapping.Feed.IO;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.IO;
-using AnimeFeedManager.Features.Ovas.Subscriptions;
-using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
+﻿using AnimeFeedManager.Old.Features.Ovas.Library;
+using AnimeFeedManager.Old.Features.Ovas.Library.IO;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.IO;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.IO;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
 
-namespace AnimeFeedManager.Features.Ovas;
+namespace AnimeFeedManager.Old.Features.Ovas;
 
 public static class OvasRegistration
 {

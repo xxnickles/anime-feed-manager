@@ -1,8 +1,9 @@
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Infrastructure.SendGrid;
-using AnimeFeedManager.Features.Notifications.IO;
-using AnimeFeedManager.Features.Tv.Feed;
-using AnimeFeedManager.Features.Tv.Subscriptions.IO;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Common.Dto;
+using AnimeFeedManager.Old.Features.Infrastructure.SendGrid;
+using AnimeFeedManager.Old.Features.Notifications.IO;
+using AnimeFeedManager.Old.Features.Tv.Feed;
+using AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;
 using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;

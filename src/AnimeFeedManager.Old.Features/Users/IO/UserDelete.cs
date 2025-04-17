@@ -1,9 +1,11 @@
-﻿using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Users.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Users.Types;
 using Passwordless;
 
-namespace AnimeFeedManager.Features.Users.IO;
+namespace AnimeFeedManager.Old.Features.Users.IO;
 
 public interface IUserDelete
 {

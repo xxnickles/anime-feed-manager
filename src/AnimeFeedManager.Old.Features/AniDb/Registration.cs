@@ -1,7 +1,7 @@
 ﻿using PuppeteerSharp;
 using PuppeteerSharp.BrowserData;
 
-namespace AnimeFeedManager.Features.AniDb;
+namespace AnimeFeedManager.Old.Features.AniDb;
 
 public static class AniDbRegistration
 {

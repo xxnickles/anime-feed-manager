@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Features.Ovas.Subscriptions.IO;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+using AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
 
-namespace AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+namespace AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
 
 [method: JsonConstructor]
 public record OvasFeedSentNotification(

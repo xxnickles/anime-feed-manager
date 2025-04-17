@@ -1,11 +1,11 @@
-﻿using AnimeFeedManager.Common;
-using AnimeFeedManager.Common.Domain.Errors;
-using AnimeFeedManager.Common.Domain.Events;
-using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Common.Domain.Validators;
-using AnimeFeedManager.Features.Movies.Scrapping.Series;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series;
-using AnimeFeedManager.Features.Tv.Scrapping.Series;
+﻿using AnimeFeedManager.Old.Common;
+using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Events;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Domain.Validators;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series;
+using AnimeFeedManager.Old.Features.Tv.Scrapping.Series;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Scrapping;

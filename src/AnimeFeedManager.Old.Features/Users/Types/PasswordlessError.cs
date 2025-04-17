@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using Microsoft.Extensions.Logging;
 using Passwordless;
 
-namespace AnimeFeedManager.Features.Users.Types;
+namespace AnimeFeedManager.Old.Features.Users.Types;
 
 public class PasswordlessError : DomainError
 {

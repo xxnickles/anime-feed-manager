@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Notifications.Types;
+﻿namespace AnimeFeedManager.Old.Features.Notifications.Types;
 
 public class NotificationStorage : ITableEntity
 {

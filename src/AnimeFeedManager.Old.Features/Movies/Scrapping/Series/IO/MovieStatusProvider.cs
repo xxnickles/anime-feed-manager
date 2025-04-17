@@ -1,7 +1,9 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Movies.Scrapping.Series.Types.Storage;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
 
-namespace AnimeFeedManager.Features.Movies.Scrapping.Series.IO;
+namespace AnimeFeedManager.Old.Features.Movies.Scrapping.Series.IO;
 
 public readonly record struct MovieFeedStatus(string Id, ShortSeriesStatus Status);
 

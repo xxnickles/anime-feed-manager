@@ -1,7 +1,9 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
-using AnimeFeedManager.Features.Ovas.Scrapping.Series.Types.Storage;
+﻿using AnimeFeedManager.Old.Common.Domain.Errors;
+using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
+using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
 
-namespace AnimeFeedManager.Features.Ovas.Library.IO;
+namespace AnimeFeedManager.Old.Features.Ovas.Library.IO;
 
 public interface IOvasSeasonalLibrary
 {

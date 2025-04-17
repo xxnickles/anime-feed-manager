@@ -1,6 +1,7 @@
-﻿using AnimeFeedManager.Common.Domain.Types;
+﻿using AnimeFeedManager.Old.Common.Domain.Types;
+using AnimeFeedManager.Old.Common.Dto;
 
-namespace AnimeFeedManager.Features.Movies.Library.Types;
+namespace AnimeFeedManager.Old.Features.Movies.Library.Types;
 
 public record MovieLibrary(
     string Id,

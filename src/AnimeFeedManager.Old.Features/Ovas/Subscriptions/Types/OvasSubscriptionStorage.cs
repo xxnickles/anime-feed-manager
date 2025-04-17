@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Ovas.Subscriptions.Types;
+﻿namespace AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
 
 public sealed class OvasSubscriptionStorage : ITableEntity
 {

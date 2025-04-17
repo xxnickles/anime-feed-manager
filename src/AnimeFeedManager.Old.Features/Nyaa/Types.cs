@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Nyaa;
+﻿namespace AnimeFeedManager.Old.Features.Nyaa;
 
 internal record ShortSeriesTorrent(string Title, string[] Links, string Size);
 
