@@ -2,6 +2,8 @@
 
 namespace AnimeFeedManager.Common.Results;
 
+public readonly record struct Unit;
+
 public abstract record Error(string Message)
 {
     public abstract void LogError(ILogger logger);
