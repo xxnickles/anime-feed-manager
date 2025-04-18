@@ -2,18 +2,28 @@
 
 namespace AnimeFeedManager.Common.Results;
 
-public abstract record Error(string Message)
+public readonly record struct Unit;
+
+public abstract record DomainError(string Message)
 {
+    public string Message { get; } = Message;
+
+    public override string ToString()
+    {
+        return Message;
+    }
+    
     public abstract void LogError(ILogger logger);
 }
+
 
 public sealed record Result<T>
 {
     private readonly T? _resultValue;
-    private readonly Error? _errorValueValue;
+    private readonly DomainError? _errorValueValue;
 
 
-    private Result(T? resultValue, Error? errorValueValue)
+    private Result(T? resultValue, DomainError? errorValueValue)
     {
         _resultValue = resultValue;
         _errorValueValue = errorValueValue;
@@ -22,11 +32,12 @@ public sealed record Result<T>
     private bool IsSuccess => _errorValueValue is null;
 
 
+    public static Result<Unit> Success() => new(new Unit(), null);
     public static Result<T> Success(T value) => new(value, null);
-    public static Result<T> Failure(Error error) => new(default, error);
+    public static Result<T> Failure(DomainError error) => new(default, error);
 
 
-    public void Match(Action<T> onOk, Action<Error> onError)
+    public void Match(Action<T> onOk, Action<DomainError> onError)
     {
         if (IsSuccess)
             onOk(_resultValue!);
@@ -41,7 +52,7 @@ public sealed record Result<T>
             : new Result<TTarget>(default, _errorValueValue);
     }
 
-    public TTarget MatchToValue<TTarget>(Func<T, TTarget> onOk, Func<Error, TTarget> onError)
+    public TTarget MatchToValue<TTarget>(Func<T, TTarget> onOk, Func<DomainError, TTarget> onError)
     {
         return IsSuccess
             ? onOk(_resultValue!)
@@ -49,7 +60,7 @@ public sealed record Result<T>
     }
 
 
-    public Result<T> MapError(Func<Error, Error> mapper)
+    public Result<T> MapError(Func<DomainError, DomainError> mapper)
     {
         return IsSuccess
             ? new Result<T>(_resultValue, null)
@@ -73,14 +84,14 @@ public sealed record Result<T>
 public static class ResultExtensions
 {
     public static async ValueTask Match<T>(this ValueTask<Result<T>> resultTask, Action<T> onSuccess,
-        Action<Error> onError)
+        Action<DomainError> onError)
     {
         var result = await resultTask;
         result.Match(onSuccess, onError);
     }
 
     public static async ValueTask<TTarget> MatchToValue<T, TTarget>(this ValueTask<Result<T>> resultTask,
-        Func<T, TTarget> onSuccess, Func<Error, TTarget> onError)
+        Func<T, TTarget> onSuccess, Func<DomainError, TTarget> onError)
     {
         var result = await resultTask;
         return result.MatchToValue(onSuccess, onError);
@@ -94,7 +105,7 @@ public static class ResultExtensions
     }
 
     public static async ValueTask<Result<T>> MapError<T>(this ValueTask<Result<T>> resultTask,
-        Func<Error, Error> mapper)
+        Func<DomainError, DomainError> mapper)
     {
         var result = await resultTask;
         return result.MapError(mapper);
