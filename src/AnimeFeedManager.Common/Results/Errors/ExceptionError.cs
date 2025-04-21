@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Common.Results.Errors;
 
-public sealed class ExceptionError : DomainError
+public sealed record ExceptionError : DomainError
 {
     public Exception Exception { get; }
 

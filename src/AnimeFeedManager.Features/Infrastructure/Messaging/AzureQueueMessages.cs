@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
+using Azure.Data.Tables;
 using Azure.Storage.Queues;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
@@ -7,7 +9,7 @@ public readonly record struct Delay
 {
     public TimeSpan Value { get; } = TimeSpan.Zero;
 
-    public Delay(TimeSpan value) 
+    public Delay(TimeSpan value)
     {
         if (value.Days >= 7)
         {
@@ -30,48 +32,57 @@ public interface IDomainPostman
 public class AzureQueueMessages : IDomainPostman
 {
     private readonly AzureStorageSettings _azureSettings;
+    private readonly ILogger<AzureQueueMessages> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly QueueClientOptions _queueClientOptions;
 
-    public AzureQueueMessages(AzureStorageSettings tableStorageSettings)
+    public AzureQueueMessages(
+        AzureStorageSettings tableStorageSettings,
+        ILogger<AzureQueueMessages> logger)
     {
         _azureSettings = tableStorageSettings;
+        _logger = logger;
         _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
-            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
         _queueClientOptions = new QueueClientOptions
         {
             MessageEncoding = QueueMessageEncoding.Base64
         };
     }
 
-    public async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage
+    public async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
+        where T : DomainMessage
     {
-        if (message.MessageBox.HasNoTarget()) return new BasicError($"{typeof(T).FullName} has not a target box");
-        
+        if (message.MessageBox.HasNoTarget())
+            return Result<Unit>.Failure(new Error($"{typeof(T).FullName} has not a target box"));
+
         try
         {
             await SendMessage(message, message.MessageBox, null, cancellationToken);
-            return Result<Unit>.Success(new Unit());
+            return Result<Unit>.Success();
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e);
+            _logger.LogError(e, "Error sending message {Message}", message);
+            return Result<Unit>.Failure(new HandledError());
         }
     }
 
-    public async Task<Either<DomainError, Unit>> SendDelayedMessage<T>(T message, Delay delay,
+    public async Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
-        if (message.MessageBox.HasNoTarget()) return new BasicError($"{typeof(T).FullName} has not a target box");
-        
+        if (message.MessageBox.HasNoTarget())
+            return Result<Unit>.Failure(new Error($"{typeof(T).FullName} has not a target box"));
+
         try
         {
             await SendMessage(message, message.MessageBox, delay.Value, cancellationToken);
-            return unit;
+            return Result<Unit>.Success();
         }
         catch (Exception e)
         {
-            return ExceptionError.FromException(e);
+            _logger.LogError(e, "Error sending message {Message}", message);
+            return Result<Unit>.Failure(new HandledError());
         }
     }
 
@@ -91,7 +102,8 @@ public class AzureQueueMessages : IDomainPostman
                 connectionStringOptions.StorageConnectionString, destiny,
                 _queueClientOptions),
             TokenCredentialSettings tokenCredentialOptions => new QueueClient(
-                new Uri(tokenCredentialOptions.QueueUri, destiny), tokenCredentialOptions.DefaultTokenCredential(), _queueClientOptions),
+                new Uri(tokenCredentialOptions.QueueUri, destiny), tokenCredentialOptions.DefaultTokenCredential(),
+                _queueClientOptions),
             _ => throw new ArgumentException(
                 "Provided Table Storage configuration is not valid. Make sure Configurations for Azure table Storage is correct for either connection string or managed identities",
                 nameof(TableClientOptions))

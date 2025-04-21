@@ -3,15 +3,15 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Common.Results.Errors;
 
-public sealed class ValidationError(string field, string[] errors)
+public sealed record ValidationError(string Field, string[] Errors)
 {
-    public KeyValuePair<string, string[]> Error { get; } = new(field, errors);
+    public KeyValuePair<string, string[]> Error { get; } = new(Field, Errors);
 
     public static ValidationError Create(string field, string[] errors) => new(field, errors);
     public static ValidationError Create(string field, string error) => new(field, [error]);
 }
 
-public class ValidationErrors : DomainError
+public sealed record ValidationErrors : DomainError
 {
     public ImmutableDictionary<string, string[]> Errors { get; }
 

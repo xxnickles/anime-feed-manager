@@ -2,7 +2,7 @@
 
 namespace AnimeFeedManager.Common.Results.Errors;
 
-public sealed class NoContentError : DomainError
+public sealed record NoContentError : DomainError
 {
     private NoContentError(string message) : base(message)
     {

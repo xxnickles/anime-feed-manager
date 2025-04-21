@@ -2,7 +2,7 @@
 
 namespace AnimeFeedManager.Common.Results.Errors;
 
-public sealed class NotFoundError : DomainError
+public sealed record NotFoundError : DomainError
 {
     private NotFoundError(string message) : base(message)
     {

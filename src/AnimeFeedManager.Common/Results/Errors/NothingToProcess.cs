@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Common.Results.Errors;
 
-public sealed class NotingToProcessError : DomainError
+public record class NotingToProcessError : DomainError
 {
     private NotingToProcessError(string message) : base(message)
     {

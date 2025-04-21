@@ -16,4 +16,10 @@
       <ProjectReference Include="..\AnimeFeedManager.Common\AnimeFeedManager.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Azure.Data.Tables">
+        <HintPath>..\..\..\..\.nuget\packages\azure.data.tables\12.10.0\lib\net8.0\Azure.Data.Tables.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

@@ -1,18 +1,18 @@
 ﻿namespace AnimeFeedManager.Features.Scrapping.AniDb;
 
 // Used for configuration
-public record PuppeteerOptions(string Path, bool RunHeadless = true);
+public sealed record PuppeteerOptions(string Path, bool RunHeadless = true);
 
-internal record JsonSeasonInfo(string Season, int Year);
+internal sealed record JsonSeasonInfo(string Season, int Year);
 
-internal record JsonAnimeInfo(
+internal sealed record JsonAnimeInfo(
     string Title,
     string? ImageUrl,
     string Synopsys,
     string Date,
     JsonSeasonInfo SeasonInfo);
 
-internal record SeriesContainer(
+internal sealed record SeriesContainer(
     string Id,
     string Title,
     string? ImageUrl,
@@ -20,7 +20,7 @@ internal record SeriesContainer(
     string Date,
     JsonSeasonInfo SeasonInfo);
 
-internal record ScrapResult(IEnumerable<SeriesContainer> Series, JsonSeasonInfo Season);
+internal sealed record ScrapResult(IEnumerable<SeriesContainer> Series, JsonSeasonInfo Season);
 
 internal static class Constants
 {
