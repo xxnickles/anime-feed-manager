@@ -1,4 +1,5 @@
-﻿using PuppeteerSharp;
+﻿using AnimeFeedManager.Features.Scrapping.Types;
+using PuppeteerSharp;
 
 namespace AnimeFeedManager.Features.Scrapping.AniDb;
 

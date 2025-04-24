@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AnimeFeedManager.Features.Scrapping.Types;
+using Microsoft.Extensions.DependencyInjection;
 using PuppeteerSharp;
 using PuppeteerSharp.BrowserData;
 

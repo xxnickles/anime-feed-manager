@@ -1,10 +1,11 @@
-﻿namespace AnimeFeedManager.Old.Common.Domain.Types;
+﻿namespace AnimeFeedManager.Features.Scrapping.Types;
 
 public abstract record SeasonSelector;
 
 public record Latest : SeasonSelector;
 
 public record BySeason(Season Season, Year Year) : SeasonSelector;
+
 
 public static class Extensions
 {

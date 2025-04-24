@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Scrapping.AniDb;
+﻿namespace AnimeFeedManager.Features.Scrapping.Types;
 
 // Used for configuration
 public sealed record PuppeteerOptions(string Path, bool RunHeadless = true);
