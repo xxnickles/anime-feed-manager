@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Common;
 
 public static partial class IdHelpers
 {
-    public static string GetUniqueId() => Guid.NewGuid().ToString("N");
+    public static string GetUniqueId() => Guid.CreateVersion7().ToString("N");
 
     // public static string GenerateAnimePartitionKey(Season season, ushort year) => $"{year.ToString()}-{season}";
 

@@ -29,7 +29,7 @@ public sealed record Result<T>
         _errorValueValue = errorValueValue;
     }
 
-    private bool IsSuccess => _errorValueValue is null;
+    public bool IsSuccess => _errorValueValue is null;
 
 
     public static Result<Unit> Success() => new(new Unit(), null);
@@ -59,7 +59,6 @@ public sealed record Result<T>
             : onError(_errorValueValue!);
     }
 
-
     public Result<T> MapError(Func<DomainError, DomainError> mapper)
     {
         return IsSuccess
@@ -78,36 +77,5 @@ public sealed record Result<T>
             await func(_resultValue!);
 
         return this;
-    }
-}
-
-public static class ResultExtensions
-{
-    public static async ValueTask Match<T>(this ValueTask<Result<T>> resultTask, Action<T> onSuccess,
-        Action<DomainError> onError)
-    {
-        var result = await resultTask;
-        result.Match(onSuccess, onError);
-    }
-
-    public static async ValueTask<TTarget> MatchToValue<T, TTarget>(this ValueTask<Result<T>> resultTask,
-        Func<T, TTarget> onSuccess, Func<DomainError, TTarget> onError)
-    {
-        var result = await resultTask;
-        return result.MatchToValue(onSuccess, onError);
-    }
-
-    public static async ValueTask<Result<TTarget>> Map<T, TTarget>(this ValueTask<Result<T>> resultTask,
-        Func<T, TTarget> mapper)
-    {
-        var result = await resultTask;
-        return result.Map(mapper);
-    }
-
-    public static async ValueTask<Result<T>> MapError<T>(this ValueTask<Result<T>> resultTask,
-        Func<DomainError, DomainError> mapper)
-    {
-        var result = await resultTask;
-        return result.MapError(mapper);
     }
 }

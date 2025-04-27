@@ -3,7 +3,7 @@
 // Used for configuration
 public sealed record PuppeteerOptions(string Path, bool RunHeadless = true);
 
-internal sealed record JsonSeasonInfo(string Season, int Year);
+public sealed record JsonSeasonInfo(string Season, int Year);
 
 internal sealed record JsonAnimeInfo(
     string Title,
@@ -12,7 +12,7 @@ internal sealed record JsonAnimeInfo(
     string Date,
     JsonSeasonInfo SeasonInfo);
 
-internal sealed record SeriesContainer(
+public sealed record SeriesContainer(
     string Id,
     string Title,
     string? ImageUrl,

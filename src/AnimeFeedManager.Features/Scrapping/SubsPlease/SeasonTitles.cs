@@ -4,25 +4,25 @@ using PuppeteerSharp;
 
 namespace AnimeFeedManager.Features.Scrapping.SubsPlease;
 
-public interface ISeasonTitlesProvider
+public interface ISeasonFeedTitlesProvider
 {
-    Task<Result<ImmutableList<string>>> Get();
+    ValueTask<Result<ImmutableList<string>>> Get();
 }
 
-public sealed class SeasonTitlesProvider : ISeasonTitlesProvider
+public sealed class SeasonFeedFeedTitlesProvider : ISeasonFeedTitlesProvider
 {
     private readonly PuppeteerOptions _puppeteerOptions;
-    private readonly ILogger<SeasonTitlesProvider> _logger;
+    private readonly ILogger<SeasonFeedFeedTitlesProvider> _logger;
 
-    public SeasonTitlesProvider(
+    public SeasonFeedFeedTitlesProvider(
         PuppeteerOptions puppeteerOptions,
-        ILogger<SeasonTitlesProvider> logger)
+        ILogger<SeasonFeedFeedTitlesProvider> logger)
     {
         _puppeteerOptions = puppeteerOptions;
         _logger = logger;
     }
 
-    public async Task<Result<ImmutableList<string>>> Get()
+    public async ValueTask<Result<ImmutableList<string>>> Get()
     {
         try
         {

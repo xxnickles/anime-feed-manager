@@ -5,3 +5,8 @@ global using AnimeFeedManager.Common.Types;
 global using AnimeFeedManager.Features.Infrastructure.Messaging;
 global using System.Collections.Immutable;
 global using Microsoft.Extensions.Logging;
+global using System.Diagnostics;
+global using Azure.Data.Tables;
+global using Azure;
+global using System.Text.Json.Serialization;
+global using static AnimeFeedManager.Common.Results.ResultError;

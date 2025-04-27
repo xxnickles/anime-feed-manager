@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using Azure.Data.Tables;
 using Azure.Storage.Queues;
-using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
@@ -23,9 +22,9 @@ public readonly record struct Delay
 
 public interface IDomainPostman
 {
-    Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;
+    ValueTask<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;
 
-    Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
+    ValueTask<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage;
 }
 
@@ -50,7 +49,7 @@ public class AzureQueueMessages : IDomainPostman
         };
     }
 
-    public async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
+    public async ValueTask<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
         where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
@@ -68,7 +67,7 @@ public class AzureQueueMessages : IDomainPostman
         }
     }
 
-    public async Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
+    public async ValueTask<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
