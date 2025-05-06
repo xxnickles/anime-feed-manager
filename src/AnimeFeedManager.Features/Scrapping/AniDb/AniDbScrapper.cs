@@ -17,8 +17,8 @@ internal static class AniDbScrapper
         
         await using var page = await browser.NewPageAsync();
         await page.GoToAsync(url);
-        await page.WaitForSelectorAsync("div.g_bubblewrap.g_bubble.container");
-        var data = await page.EvaluateFunctionAsync<JsonAnimeInfo[]>(Constants.ScrappingScript);
+        await page.WaitForSelectorAsync("div.g_bubblewrap.g_bubble.container", new WaitForSelectorOptions {});
+        var data = await page.EvaluateFunctionAsync<JsonAnimeInfo[]>(Constants.ScrappingScript) ?? [];
         await browser.CloseAsync();
 
         return new ScrapResult(data.Select(Map),  data.First().SeasonInfo);

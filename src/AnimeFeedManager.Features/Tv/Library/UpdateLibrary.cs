@@ -8,9 +8,11 @@ namespace AnimeFeedManager.Features.Tv.Library;
 
 public sealed class UpdateLibrary
 {
-  
-    private readonly record struct ProcessData(ImmutableList<AnimeInfoStorage> Series, ImmutableList<string> feedTitles, string JsonSeason);
-    
+    private record ProcessData(
+        IEnumerable<AnimeInfoStorage> Series,
+        ImmutableList<string> FeedTitles,
+        SeriesSeason JsonSeason);
+
     private readonly ISeasonFeedTitlesProvider _seasonFeedTitlesProvider;
     private readonly IDomainPostman _domainPostman;
     private readonly PuppeteerOptions _puppeteerOptions;
@@ -19,7 +21,7 @@ public sealed class UpdateLibrary
     public UpdateLibrary(
         ISeasonFeedTitlesProvider seasonFeedTitlesProvider,
         IDomainPostman domainPostman,
-        PuppeteerOptions puppeteerOptions, 
+        PuppeteerOptions puppeteerOptions,
         ILogger<UpdateLibrary> logger)
     {
         _seasonFeedTitlesProvider = seasonFeedTitlesProvider;
@@ -27,25 +29,22 @@ public sealed class UpdateLibrary
         _puppeteerOptions = puppeteerOptions;
         _logger = logger;
     }
-    
+
     public async Task<Result<Unit>> Execute(SeasonSelector season, CancellationToken token = default)
     {
         try
         {
             // Get Season Feed Titles
             var t = _seasonFeedTitlesProvider.Get()
-                    .Bind(tiles => );
-            
-            
-            // Scrapping
-            var (series,jsonSeason) = await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
-            
+                .Bind(tiles => GetProcessData(tiles, season, _puppeteerOptions));
+
+
             // Send Series Messages
-            
+
             // Create State Process based on messages sent correctly
-            
+
             // Sent 
-            
+
             return Result<Unit>.Success();
         }
         catch (Exception e)
@@ -55,27 +54,48 @@ public sealed class UpdateLibrary
         }
     }
 
-    private async ValueTask<Result<ProcessData>> GetProcessData(
+    private static async Task<Result<ProcessData>> GetProcessData(
         ImmutableList<string> feedTitles,
         SeasonSelector season,
-        CancellationToken token = default)
+        PuppeteerOptions puppeteerOptions)
     {
         // Scrapping
-        var (series,jsonSeason) = await AniDbScrapper.Scrap(CreateScrappingLink(season), _puppeteerOptions);
-        var seriesToProcess = series.Select(s => new AnimeInfoStorage
+        var (series, jsonSeason) = await AniDbScrapper.Scrap(CreateScrappingLink(season), puppeteerOptions);
+
+        return (jsonSeason.Season, jsonSeason.Year, season is Latest)
+            .ParseAsSeriesSeason()
+            .Map(seriesSeason => new ProcessData(series.Select(Transform), feedTitles, seriesSeason));
+
+        // To keep it simple, we are using the season information coming from the scrapping instead of the parsed one
+        // But at this point we are sure Season is valid as we have parsed the data scrapped 
+        AnimeInfoStorage Transform(SeriesContainer seriesContainer)
         {
-            Date = s.Date,
-            
-        })
-        
-        return Result<ProcessData>.Success(new ProcessData());
+            return new AnimeInfoStorage
+            {
+                RowKey = seriesContainer.Id,
+                PartitionKey = IdHelpers.GenerateAnimePartitionKey(jsonSeason.Season, (ushort) jsonSeason.Year),
+                Title = seriesContainer.Title,
+                Synopsis = seriesContainer.Synopsys,
+                FeedTitle = string.Empty,
+                Date = Utils.ParseDate(seriesContainer.Date, seriesContainer.SeasonInfo.Year)?.ToUniversalTime(),
+                Status = SeriesStatus.NotAvailableValue,
+                Season = seriesContainer.SeasonInfo.Season,
+                Year = seriesContainer.SeasonInfo.Year
+            };
+        }
     }
 
-    private ValueTask<Result<Unit>> SendUpdateEvent(AnimeInfoStorage series, CancellationToken token = default)
+
+    // private static Result<ProcessData> AddFeedTitle(ProcessData processData)
+    // {
+    //     
+    // } 
+
+    private Task<Result<Unit>> SendUpdateEvent(AnimeInfoStorage series, CancellationToken token = default)
     {
         return _domainPostman.SendMessage(new TvSeriesToUpdate(series), token);
     }
-    
+
     private static string CreateScrappingLink(SeasonSelector season)
     {
         return season switch

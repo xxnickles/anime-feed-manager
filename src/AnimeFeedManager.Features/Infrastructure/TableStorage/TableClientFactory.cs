@@ -3,23 +3,23 @@
 namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
 
-public interface ITableClientFactory<T> where T : ITableEntity
+public interface ITableClientFactory
 {
-    ValueTask<Result<TableClient>> GetClient(CancellationToken cancellationToken = default);
+    Task<Result<TableClient>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity;
 }
 
-public sealed class TableClientFactory<T> : ITableClientFactory<T> where T : ITableEntity
+public sealed class TableClientFactory : ITableClientFactory
 {
     private readonly TableServiceClient _serviceClient;
-    private readonly ILogger<TableClientFactory<T>> _logger;
+    private readonly ILogger<TableClientFactory> _logger;
 
-    public TableClientFactory(TableServiceClient serviceClient, ILogger<TableClientFactory<T>> logger)
+    public TableClientFactory(TableServiceClient serviceClient, ILogger<TableClientFactory> logger)
     {
         _serviceClient = serviceClient;
         _logger = logger;
     }
     
-    public async ValueTask<Result<TableClient>> GetClient(CancellationToken cancellationToken = default)
+    public async Task<Result<TableClient>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity
     {
         try
         {

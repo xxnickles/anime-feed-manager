@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using AnimeFeedManager.Common.Results;
 
 namespace AnimeFeedManager.Common.Types;
 
@@ -10,7 +11,7 @@ public readonly record struct Year : IComparable<Year>
     {
         if (!NumberIsValid(value))
             throw new ArgumentOutOfRangeException(nameof(value));
-        Value = (ushort)value;
+        Value = (ushort) value;
     }
 
 
@@ -30,4 +31,14 @@ public readonly record struct Year : IComparable<Year>
     {
         return Value.ToString();
     }
+}
+
+public static class YearExtensions
+{
+    public static Validation<Year> ParseAsYear(this int value) =>
+        Year.NumberIsValid(value)
+            ? Validation<Year>.Valid(Year.FromNumber(value))
+            : Validation<Year>.Invalid(
+                DomainValidationError.Create<Year>($"'{value}' is not a valid year")
+                .ToErrors());
 }

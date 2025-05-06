@@ -12,11 +12,11 @@ public abstract record DomainError(string Message)
     {
         return Message;
     }
-    
+
     public abstract void LogError(ILogger logger);
 }
 
-
+// ReSharper disable NullableWarningSuppressionIsUsed
 public sealed record Result<T>
 {
     private readonly T? _resultValue;
@@ -66,16 +66,20 @@ public sealed record Result<T>
             : new Result<T>(default, mapper(_errorValueValue!));
     }
 
-    public async ValueTask<Result<TTarget>> Bind<TTarget>(Func<T, ValueTask<Result<TTarget>>> binder)
+    public Result<TTarget> Bind<TTarget>(Func<T, Result<TTarget>> binder)
+    {
+        return IsSuccess ? binder(_resultValue!) : new Result<TTarget>(default, _errorValueValue);
+    }
+    
+    public async Task<Result<TTarget>> Bind<TTarget>(Func<T, Task<Result<TTarget>>> binder)
     {
         return IsSuccess ? await binder(_resultValue!) : new Result<TTarget>(default, _errorValueValue);
     }
 
-    public async ValueTask<Result<T>> Apply(Func<T, ValueTask> func)
+    public Result<T> Apply(Action<T> func)
     {
         if (IsSuccess)
-            await func(_resultValue!);
-
+            func(_resultValue!);
         return this;
     }
 }

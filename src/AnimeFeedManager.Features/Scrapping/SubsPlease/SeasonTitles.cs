@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.Scrapping.SubsPlease;
 
 public interface ISeasonFeedTitlesProvider
 {
-    ValueTask<Result<ImmutableList<string>>> Get();
+    Task<Result<ImmutableList<string>>> Get();
 }
 
 public sealed class SeasonFeedFeedTitlesProvider : ISeasonFeedTitlesProvider
@@ -22,7 +22,7 @@ public sealed class SeasonFeedFeedTitlesProvider : ISeasonFeedTitlesProvider
         _logger = logger;
     }
 
-    public async ValueTask<Result<ImmutableList<string>>> Get()
+    public async Task<Result<ImmutableList<string>>> Get()
     {
         try
         {

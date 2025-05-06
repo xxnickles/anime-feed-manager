@@ -1,3 +1,5 @@
+using AnimeFeedManager.Common.Results;
+
 namespace AnimeFeedManager.Common.Types;
 
 public readonly record struct Season : IComparable<Season>
@@ -83,4 +85,14 @@ public readonly record struct Season : IComparable<Season>
         _ => 0
     };
 
+}
+
+public static class SeasonExtensions 
+{
+    public static Validation<Season> ParseAsSeason(this string value) =>
+            Season.IsValid(value)
+                ? Validation<Season>.Valid(Season.FromString(value))
+                : Validation<Season>.Invalid(
+                    DomainValidationError.Create<Season>($"'{value}' is not a valid Season")
+                    .ToErrors());
 }

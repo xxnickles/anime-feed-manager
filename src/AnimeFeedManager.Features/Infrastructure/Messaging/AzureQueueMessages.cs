@@ -22,9 +22,9 @@ public readonly record struct Delay
 
 public interface IDomainPostman
 {
-    ValueTask<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;
+    Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;
 
-    ValueTask<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
+    Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage;
 }
 
@@ -49,7 +49,7 @@ public class AzureQueueMessages : IDomainPostman
         };
     }
 
-    public async ValueTask<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
+    public async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
         where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
@@ -67,7 +67,7 @@ public class AzureQueueMessages : IDomainPostman
         }
     }
 
-    public async ValueTask<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
+    public async Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())

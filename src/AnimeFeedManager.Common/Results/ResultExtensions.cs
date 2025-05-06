@@ -11,7 +11,7 @@ public static class ResultExtensions
                 v => v,
                 _ => throw new InvalidOperationException("List contains errors which should not be possible")
             ));
-            
+
             return Result<ImmutableList<T>>.Success(finalResult.ToImmutableList());
         }
 
@@ -20,49 +20,48 @@ public static class ResultExtensions
             0 => FailureType.Total,
             _ => FailureType.Partial
         };
-        
+
         var errors = results.Where(r => !r.IsSuccess).Select(r => r.MatchToValue(
             _ => throw new InvalidOperationException("List contains valid values which should not be possible"),
-            error => error 
+            error => error
         ));
-        
+
         return Result<ImmutableList<T>>.Failure(new AggregatedError(errors.ToImmutableList(), errorType));
     }
-    
-    public static async ValueTask Match<T>(this ValueTask<Result<T>> resultTask, Action<T> onSuccess,
+
+    public static async Task Match<T>(this Task<Result<T>> resultTask, Action<T> onSuccess,
         Action<DomainError> onError)
     {
-        var result = await resultTask;
-        result.Match(onSuccess, onError);
+        (await resultTask).Match(onSuccess, onError);
     }
 
-    public static async ValueTask<TTarget> MatchToValue<T, TTarget>(this ValueTask<Result<T>> resultTask,
+    public static async Task<TTarget> MatchToValue<T, TTarget>(this Task<Result<T>> resultTask,
         Func<T, TTarget> onSuccess, Func<DomainError, TTarget> onError)
     {
-        var result = await resultTask;
-        return result.MatchToValue(onSuccess, onError);
+        return (await resultTask).MatchToValue(onSuccess, onError);
     }
 
-    public static async ValueTask<Result<TTarget>> Map<T, TTarget>(this ValueTask<Result<T>> resultTask,
+    public static async Task<Result<TTarget>> Map<T, TTarget>(this Task<Result<T>> resultTask,
         Func<T, TTarget> mapper)
     {
-        var result = await resultTask;
-        return result.Map(mapper);
+        return (await resultTask).Map(mapper);
     }
 
-    public static async ValueTask<Result<T>> MapError<T>(this ValueTask<Result<T>> resultTask,
+    public static async Task<Result<T>> MapError<T>(this Task<Result<T>> resultTask,
         Func<DomainError, DomainError> mapper)
     {
-        var result = await resultTask;
-        return result.MapError(mapper);
+        return (await resultTask).MapError(mapper);
     }
 
-    public static async ValueTask<Result<U>> Bind<T, U>(this ValueTask<Result<T>> resultTask, 
-        Func<T, ValueTask<Result<U>>> binder)
+    public static async Task<Result<TTarget>> Bind<T, TTarget>(this Task<Result<T>> resultTask,
+        Func<T, Result<TTarget>> binder)
     {
-        var result = await resultTask;
-        return await result.Bind(binder);
+        return (await resultTask).Bind(binder);
     }
 
-    
+    public static async Task<Result<TTarget>> Bind<T, TTarget>(this Task<Result<T>> resultTask,
+        Func<T, Task<Result<TTarget>>> binder)
+    {
+        return await (await resultTask).Bind(binder);
+    }
 }

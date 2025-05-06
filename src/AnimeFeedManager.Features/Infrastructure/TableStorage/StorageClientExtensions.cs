@@ -2,7 +2,7 @@
 
 internal static class StorageClientExtensions
 {
-    private static async ValueTask<Result<T>> TryExecute<T>(
+    private static async Task<Result<T>> TryExecute<T>(
         this TableClient client,
         Func<TableClient, Task<T>> action,
         ILogger logger)
@@ -27,13 +27,13 @@ internal static class StorageClientExtensions
         
     }
 
-    internal static  ValueTask<Result<T>> TryExecute<T>(this ValueTask<Result<TableClient>> clientResult,
+    internal static  Task<Result<T>> TryExecute<T>(this Task<Result<TableClient>> clientResult,
         Func<TableClient, Task<T>> action, ILogger logger)
     {
         return clientResult.Bind(tableClient => tableClient.TryExecute(action, logger));
     }
 
-    internal static ValueTask<Result<Unit>> WithDefaultMap(this ValueTask<Result<Response>> result)
+    internal static Task<Result<Unit>> WithDefaultMap(this Task<Result<Response>> result)
     {
         return result.Map(_ => new Unit());
     }
