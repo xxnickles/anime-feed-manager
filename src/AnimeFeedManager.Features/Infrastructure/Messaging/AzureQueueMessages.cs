@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Azure.Data.Tables;
 using Azure.Storage.Queues;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;

@@ -2,10 +2,12 @@
 
 namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
+public sealed record AppTableClient<T>(TableClient Client, ILogger Logger) where T : ITableEntity;
+public delegate Task<Result<AppTableClient<T>>> ClientGetter<T>(CancellationToken cancellationToken = default) where T : ITableEntity;
 
 public interface ITableClientFactory
 {
-    Task<Result<TableClient>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity;
+    Task<Result<AppTableClient<T>>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity;
 }
 
 public sealed class TableClientFactory : ITableClientFactory
@@ -19,18 +21,18 @@ public sealed class TableClientFactory : ITableClientFactory
         _logger = logger;
     }
     
-    public async Task<Result<TableClient>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity
+    public async Task<Result<AppTableClient<T>>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity
     {
         try
         {
             var client = _serviceClient.GetTableClient(TableNameFactory(typeof(T)));
             await client.CreateIfNotExistsAsync(cancellationToken);
-            return Result<TableClient>.Success(client);
+            return Result<AppTableClient<T>>.Success(new AppTableClient<T>(client, _logger));
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occurred when creating a Table Client");;
-            return HandledErrorResult<TableClient>();
+            return HandledErrorResult<AppTableClient<T>>();
         }
       
     }

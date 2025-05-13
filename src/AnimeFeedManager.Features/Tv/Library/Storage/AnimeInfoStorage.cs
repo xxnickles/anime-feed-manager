@@ -19,6 +19,8 @@ public class AnimeInfoStorage : ITableEntity
     public string? Season { get; set; }
     public DateTime? Date { get; set; }
     public string? Status { get; set; }
+    
+    public string? AlternativeTitles { get; set; }
     public string? PartitionKey { get; set; }
     public string? RowKey { get; set; }
     public DateTimeOffset? Timestamp { get; set; }

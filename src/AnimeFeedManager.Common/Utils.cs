@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-
 namespace AnimeFeedManager.Common;
 
 public static partial class Utils
@@ -12,6 +11,8 @@ public static partial class Utils
         var result = DateTime.TryParse($"{dateCleaned} {year}", out var date);
         return result ? date : null;
     }
+    
+    public static string ArrayToString(this string[] array) => string.Join("|", array);
     
     [GeneratedRegex("(?<!^)(?=[A-Z])")]
     private static partial Regex CaseRegex();
