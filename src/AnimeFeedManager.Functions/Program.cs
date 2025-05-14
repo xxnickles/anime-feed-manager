@@ -17,7 +17,7 @@ var host = new HostBuilder()
         services.AddHttpClient();
         services.AddSingleton(TimeProvider.System);
         services.RegisterAppDependencies();
-        services.RegisterSendGrid();
+        services.RegisterEmail();
     })
     .Build();
 

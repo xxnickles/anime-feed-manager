@@ -17,7 +17,7 @@ public class EnqueueNotifications(
     [Function(nameof(EnqueueNotifications))]
     public async Task Run(
         [TimerTrigger("0 0 * * * *")] TimerInfo timer,
-        // [TimerTrigger("0 0/1 * * * *")] TimerInfo timer
+        // [TimerTrigger("0 0/1 * * * *")] TimerInfo timer,
         CancellationToken token
     )
     {

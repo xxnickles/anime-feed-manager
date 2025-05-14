@@ -1,21 +1,19 @@
 ﻿using System.Text;
 using AnimeFeedManager.Common.Utils;
-using SendGrid;
-using SendGrid.Helpers.Mail;
 
 namespace AnimeFeedManager.Features.Infrastructure.SendGrid;
 
-public static partial class SendGridMessageExtensions
+public static class EmailMessageExtensions
 {
     
-    public static void AddInfoFromNotification(this SendGridMessage @this, SubscriberTvNotification notification)
-    {
-        @this.AddTo(notification.Subscriber);
-        @this.SetSubject(DefaultSubject());
-        @this.AddContent(MimeType.Html, CreateHtmlBody(notification.Feeds));
-    }
+    // public static void AddInfoFromNotification(this SendGridMessage @this, SubscriberTvNotification notification)
+    // {
+    //     @this.AddTo(notification.Subscriber);
+    //     @this.SetSubject(DefaultSubject());
+    //     @this.AddContent(MimeType.Html, CreateHtmlBody(notification.Feeds));
+    // }
 
-    private static string CreateHtmlBody(IEnumerable<SubscribedFeed> feeds)
+    public static string CreateHtmlBody(IEnumerable<SubscribedFeed> feeds)
     {
         const string rowStyle = "style=\"vertical-align:top; padding: 20px 15px;\"";
         const string dateStyle = "style=\"font-size: 12px; line-height: 1.5; margin: 0;\"";
@@ -71,7 +69,7 @@ public static partial class SendGridMessageExtensions
         return string.Join(" | ", listOfLinks);
     }
 
-    private static string DefaultSubject()
+    public static string DefaultSubject()
     {
         return $"Subscriptions Available for Download ({DateTime.Today.ToShortDateString()})";
     }

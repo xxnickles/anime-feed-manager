@@ -7,7 +7,7 @@
 Anime Feed Manager
 =================
 
-Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/)*  as data sources. Simple API using [azure functions isolated](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide), Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The are a couple of clients app based on Blazor [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor):
+Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/)*  as data sources. Simple API using [azure functions isolated](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide), Azure Storage (Tables) and [Azure Communication Service (Email)](https://learn.microsoft.com/en-us/azure/communication-services/concepts/email/email-overview). The are a couple of clients app based on Blazor [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor):
 
 - **Blazor SSR (AnimeFeedManager.Web):** Using The SSR part of Blazor with [HTMX](https://htmx.org/) and [AlpineJS](https://alpinejs.dev/) for client interaction
 
@@ -34,20 +34,13 @@ To run the [functions project](https://github.com/xxnickles/anime-feed-manager/t
     "AzureWebJobsStorage": {
       "IsEncrypted": false,
       "Values": {
-        "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10001/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10002/devstoreaccount1;TableEndpoint=http://127.0.0.1:10003/devstoreaccount1;",
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "Sandbox": true,
-        "SendGridKey": ""
+        "SignalRConnectionString": "",        
+        "CommunicationServiceConnectionString": "",
+        "FromEmail": ""  
 
-      },
-      "Host": {
-        "CORS": "*"
       }
-    },
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "Sandbox": true,
-    "SendGridKey": ""
-
   },
   "Host": {
     "CORS": "*"

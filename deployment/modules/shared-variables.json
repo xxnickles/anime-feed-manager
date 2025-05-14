@@ -1,4 +1,5 @@
 {
     "webAppname": "anime-feed-manager",
-    "functionAppName": "anime-manager"
+    "functionAppName": "anime-manager",
+    "communicationServiceName": "amf-communication"
 }

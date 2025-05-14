@@ -1,6 +1,3 @@
-@description('SendGrid Key')
-param sendgridKey string
-
 @description('Default Email Sender')
 param email string
 
@@ -21,6 +18,11 @@ var webSiteUrl = 'https://anime-feed-manager.azurewebsites.net'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: storageAccountName
+  scope: resourceGroup()
+}
+
+resource comunicationService 'Microsoft.Communication/CommunicationServices@2024-09-01-preview' existing = {
+  name: sharedVariables.communicationServiceName
   scope: resourceGroup()
 }
 
@@ -120,26 +122,18 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: functionWorkerRuntime
-        }
-        {
-          name: 'Sandbox'
-          value: 'false'
-        }
-        {
-          name: 'SendGridKey'
-          value: sendgridKey
-        }
+        }     
         {
           name: 'FromEmail'
           value: email
-        }
-        {
-          name: 'FromName'
-          value: 'Anime Feed Manager'
-        }
+        }      
         {
           name: 'RunHeadless'
           value: 'true'
+        }
+        {
+          name: 'CommunicationServiceConnectionString'
+          value: comunicationService.listKeys().primaryConnectionString
         }        
       ]
       cors: {

@@ -9,7 +9,7 @@ using AnimeFeedManager.Features.Tv.Scrapping.Titles;
 using AnimeFeedManager.Features.Tv.Scrapping.Titles.IO;
 using AnimeFeedManager.Features.Tv.Subscriptions;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
-using SendGrid.Extensions.DependencyInjection;
+using Azure.Communication.Email;
 
 namespace AnimeFeedManager.Features.Tv;
 
@@ -61,14 +61,13 @@ public static class TvRegistration
         return services;
     }
 
-    public static IServiceCollection RegisterSendGrid(this IServiceCollection services)
+    public static IServiceCollection RegisterEmail(this IServiceCollection services)
     {
         var defaultFromEmail = Environment.GetEnvironmentVariable("FromEmail") ?? "test@test.com";
-        var defaultFromName = Environment.GetEnvironmentVariable("FromName") ?? "Test";
-        var parseResult = bool.TryParse(Environment.GetEnvironmentVariable("Sandbox"), out var sandbox);
-        var config = new SendGridConfiguration(defaultFromEmail, defaultFromName, parseResult && sandbox);
+        var connectionString = Environment.GetEnvironmentVariable("CommunicationServiceConnectionString") ?? throw new InvalidOperationException("Missing CommunicationService Connection String");
+        var config = new EmailConfiguration(defaultFromEmail);
         services.AddSingleton(config);
-        services.AddSendGrid(options => options.ApiKey = Environment.GetEnvironmentVariable("SendGridKey"));
+        services.AddScoped(_ => new EmailClient(connectionString));
         return services;
     }
 }

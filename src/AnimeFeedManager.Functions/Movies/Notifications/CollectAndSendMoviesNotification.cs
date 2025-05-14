@@ -8,16 +8,16 @@ using AnimeFeedManager.Features.Notifications.IO;
 using AnimeFeedManager.Features.Movies.Subscriptions;
 using AnimeFeedManager.Features.Movies.Subscriptions.Types;
 using AnimeFeedManager.Web.BlazorComponents.Templates;
+using Azure;
+using Azure.Communication.Email;
 using Microsoft.Extensions.Logging;
-using SendGrid;
-using SendGrid.Helpers.Mail;
 
 namespace AnimeFeedManager.Functions.Movies.Notifications;
 
 public class CollectAndSendMoviesNotification
 {
-    private readonly ISendGridClient _client;
-    private readonly SendGridConfiguration _sendGridConfiguration;
+    private readonly EmailClient _client;
+    private readonly EmailConfiguration _emailConfiguration;
     private readonly UserMoviesFeedForProcess _userMoviesFeedForProcess;
     private readonly IStoreNotification _storeNotification;
     private readonly BlazorRenderer _renderer;
@@ -25,8 +25,8 @@ public class CollectAndSendMoviesNotification
     private readonly ILogger<CollectAndSendMoviesNotification> _logger;
 
     public CollectAndSendMoviesNotification(
-        ISendGridClient client,
-        SendGridConfiguration sendGridConfiguration,
+        EmailClient client,
+        EmailConfiguration emailConfiguration,
         UserMoviesFeedForProcess userMoviesFeedForProcess,
         IStoreNotification storeNotification,
         BlazorRenderer renderer,
@@ -34,7 +34,7 @@ public class CollectAndSendMoviesNotification
         ILoggerFactory loggerFactory)
     {
         _client = client;
-        _sendGridConfiguration = sendGridConfiguration;
+        _emailConfiguration = emailConfiguration;
         _userMoviesFeedForProcess = userMoviesFeedForProcess;
         _storeNotification = storeNotification;
         _renderer = renderer;
@@ -77,20 +77,17 @@ public class CollectAndSendMoviesNotification
 
         try
         {
-            var message = new SendGridMessage();
-            message.SetFrom(new EmailAddress(_sendGridConfiguration.FromEmail, _sendGridConfiguration.FromName));
-            message.AddTo(userEmail);
-            message.SetSubject(DefaultSubject());
-            message.SetSandBoxMode(_sendGridConfiguration.Sandbox);
-
-            var html = await _renderer.RenderComponent<MoviesFeed>(new Dictionary<string, object?>
+            var emailContent = new EmailContent(DefaultSubject());
+            emailContent.Html = await _renderer.RenderComponent<OvasFeed>(new Dictionary<string, object?>
             {
-                {nameof(MoviesFeed.Feed), processInfo.Feed}
+                {nameof(OvasFeed.Feed), processInfo.Feed}
             });
 
-            message.AddContent(MimeType.Html, html);
-            var response = await _client.SendEmailAsync(message, token);
-            if (response.IsSuccessStatusCode)
+            var emailMessage = new EmailMessage(_emailConfiguration.FromEmail, userEmail, emailContent);
+            var emailOperation = await _client.SendAsync(WaitUntil.Completed, emailMessage, token);
+
+            var response = await emailOperation.WaitForCompletionAsync(token);
+            if (response.HasValue && response.Value.Status == EmailSendStatus.Succeeded)
             {
                 var result = await _storeNotification.Add(
                     Guid.NewGuid().ToString(),
@@ -111,9 +108,8 @@ public class CollectAndSendMoviesNotification
                 );
             }
             else
-                _logger.LogError("Error sending email notification (Status Code {Code}) {Reason}",
-                    response.StatusCode,
-                    await response.Body.ReadAsStringAsync(token));
+                _logger.LogError("Error sending email notification (Status {Status})",
+                    response.HasValue ? response.Value.Status : "Unknown");
         }
         catch
             (Exception ex)

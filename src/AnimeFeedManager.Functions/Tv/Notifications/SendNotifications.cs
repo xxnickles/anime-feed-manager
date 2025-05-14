@@ -3,15 +3,15 @@ using AnimeFeedManager.Features.Infrastructure.SendGrid;
 using AnimeFeedManager.Features.Notifications.IO;
 using AnimeFeedManager.Features.Tv.Feed;
 using AnimeFeedManager.Features.Tv.Subscriptions.IO;
+using Azure;
+using Azure.Communication.Email;
 using Microsoft.Extensions.Logging;
-using SendGrid;
-using SendGrid.Helpers.Mail;
 
 namespace AnimeFeedManager.Functions.Tv.Notifications;
 
 public class SendNotifications(
-    ISendGridClient client,
-    SendGridConfiguration sendGridConfiguration,
+    EmailClient client,
+    EmailConfiguration emailConfiguration,
     IStoreNotification storeNotification,
     IAddProcessedTitles addProcessedTitles,
     ILoggerFactory loggerFactory)
@@ -25,12 +25,17 @@ public class SendNotifications(
     {
         try
         {
-            var message = new SendGridMessage();
-            message.SetFrom(new EmailAddress(sendGridConfiguration.FromEmail, sendGridConfiguration.FromName));
-            message.SetSandBoxMode(sendGridConfiguration.Sandbox);
-            message.AddInfoFromNotification(notification);
-            var response = await client.SendEmailAsync(message, token);
-            if (response.IsSuccessStatusCode)
+            var emailContent = new EmailContent(EmailMessageExtensions.DefaultSubject())
+            {
+                Html = EmailMessageExtensions.CreateHtmlBody(notification.Feeds),
+            };
+            
+            var emailMessage = new EmailMessage(emailConfiguration.FromEmail, notification.Subscriber, emailContent);
+            
+            var emailOperation = await client.SendAsync(WaitUntil.Completed, emailMessage, token);
+
+            var response = await emailOperation.WaitForCompletionAsync(token);
+            if (response.HasValue && response.Value.Status == EmailSendStatus.Succeeded)
             {
                 var result = await storeNotification.Add(
                         Guid.NewGuid().ToString(),
@@ -49,8 +54,10 @@ public class SendNotifications(
                 );
             }
             else
-                _logger.LogError("Error sending email notification (Status Code {Code}) {Reason}", response.StatusCode,
-                    await response.Body.ReadAsStringAsync(token));
+            {
+                _logger.LogError("Error sending email notification (Status {Status})", response.HasValue ? response.Value.Status: "Unknown");
+            }
+           
         }
         catch (Exception ex)
         {
