@@ -78,9 +78,9 @@ public class CollectAndSendMoviesNotification
         try
         {
             var emailContent = new EmailContent(DefaultSubject());
-            emailContent.Html = await _renderer.RenderComponent<OvasFeed>(new Dictionary<string, object?>
+            emailContent.Html = await _renderer.RenderComponent<MoviesFeed>(new Dictionary<string, object?>
             {
-                {nameof(OvasFeed.Feed), processInfo.Feed}
+                {nameof(MoviesFeed.Feed), processInfo.Feed}
             });
 
             var emailMessage = new EmailMessage(_emailConfiguration.FromEmail, userEmail, emailContent);
