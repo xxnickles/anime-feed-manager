@@ -1,11 +1,11 @@
-﻿// namespace AnimeFeedManager.Features.ProcessState.Storage;
-//
-// public interface IStateStore
-// {
-//     Task<Result<Unit>> Upsert(StateUpdateStorage stateUpdateStorage,
-//         CancellationToken cancellationToken = default);
-// }
-//
+﻿namespace AnimeFeedManager.Features.ProcessState.Storage;
+
+public interface IStateStore
+{
+    Task<Result<Unit>> Upsert(StateUpdateStorage stateUpdateStorage,
+        CancellationToken cancellationToken = default);
+}
+
 // public sealed class StateStore : IStateStore
 // {
 //     private readonly TableClientFactory _tableClientFactory;

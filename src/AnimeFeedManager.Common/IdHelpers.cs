@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using AnimeFeedManager.Common.Types;
 
 namespace AnimeFeedManager.Common;
 
@@ -9,6 +10,7 @@ public static partial class IdHelpers
     // public static string GenerateAnimePartitionKey(Season season, ushort year) => $"{year.ToString()}-{season}";
 
     public static string GenerateAnimePartitionKey(string season, ushort year) => $"{year.ToString()}-{season}";
+    public static string GenerateAnimePartitionKey(SeriesSeason season) => $"{season.Year.ToString()}-{season.Season.ToString()}";
 
     public static string GenerateAnimeId(string season, string year, string title)
     {

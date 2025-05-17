@@ -1,6 +1,6 @@
 using AnimeFeedManager.Features.Scrapping.Types;
 
-namespace AnimeFeedManager.Features.Tv.Library.UpdateProcess;
+namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 internal static class UpdateLibraryUtils
 {

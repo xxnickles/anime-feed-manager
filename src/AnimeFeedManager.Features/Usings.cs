@@ -4,6 +4,7 @@ global using AnimeFeedManager.Common.Results.Errors;
 global using AnimeFeedManager.Common.Types;
 global using AnimeFeedManager.Features.Infrastructure.Messaging;
 global using AnimeFeedManager.Features.Infrastructure.TableStorage;
+global using AnimeFeedManager.Features.Tv.Library.Storage;
 global using System.Collections.Immutable;
 global using Microsoft.Extensions.Logging;
 global using System.Diagnostics;

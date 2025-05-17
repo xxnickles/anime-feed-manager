@@ -1,11 +1,22 @@
 namespace AnimeFeedManager.Features.Tv.Library.Storage;
 
-public record TvSeriesInfo(string Title, string? FeedTitle, string[] AlternativeTitles, SeriesStatus Status);
+public record TvSeriesInfo(
+    string Title,
+    string? FeedTitle,
+    string[] AlternativeTitles,
+    SeriesStatus Status);
+
+public sealed record TvSeriesInfoWithImage(
+    string Title,
+    string? FeedTitle,
+    string[] AlternativeTitles,
+    SeriesStatus Status,
+    string ImageUrl) : TvSeriesInfo(Title, FeedTitle, AlternativeTitles, Status);
 
 public delegate Task<Result<ImmutableList<TvSeriesInfo>>> StoredSeriesGetter(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public static class ExistentSeriesGetter
+public static class ExistentSeries
 {
     public static StoredSeriesGetter GetStoredSeries(ITableClientFactory clientFactory) => (season, token) =>
         clientFactory.GetClient<AnimeInfoStorage>(token)
@@ -22,15 +33,25 @@ public static class ExistentSeriesGetter
                     nameof(AnimeInfoStorage.Title),
                     nameof(AnimeInfoStorage.FeedTitle),
                     nameof(AnimeInfoStorage.AlternativeTitles),
-                    nameof(AnimeInfoStorage.Status)
+                    nameof(AnimeInfoStorage.Status),
+                    nameof(AnimeInfoStorage.ImageUrl)
                 ],
                 cancellationToken: cancellationToken))
-            .Map(series => series.ConvertAll(s => new TvSeriesInfo(
-                s.Title ?? string.Empty,
-                s.FeedTitle,
-                ConvertAlternativeTitles(s.AlternativeTitles),
-                (SeriesStatus) (s.Status ?? string.Empty))));
+            .Map(series => series.ConvertAll(Mapper));
     }
+
+    private static TvSeriesInfo Mapper(AnimeInfoStorage entity)
+        => !string.IsNullOrWhiteSpace(entity.ImageUrl)
+            ? new TvSeriesInfo(
+                entity.Title ?? string.Empty,
+                entity.FeedTitle,
+                ConvertAlternativeTitles(entity.AlternativeTitles),
+                (SeriesStatus) entity.Status)
+            : new TvSeriesInfoWithImage(entity.Title ?? string.Empty,
+                entity.FeedTitle,
+                ConvertAlternativeTitles(entity.AlternativeTitles),
+                (SeriesStatus) entity.Status,
+                entity.ImageUrl ?? string.Empty);
 
     private static string[] ConvertAlternativeTitles(string? alternativeTitles) => alternativeTitles?.Split('|') ?? [];
 }

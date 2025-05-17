@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Storage;
-
-namespace AnimeFeedManager.Features.Tv.Library.Messages;
+﻿namespace AnimeFeedManager.Features.Tv.Library.Messages;
 
 public sealed record TvSeriesToUpdate(AnimeInfoStorage Series) :  DomainMessage(new Box(TargetQueue))
 {

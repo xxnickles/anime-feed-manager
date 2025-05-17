@@ -53,11 +53,41 @@ internal static class StorageClientExtensions
         }
     }
 
-    internal static Task<Result<ImmutableList<T>>> TryToQuery<T>(this Task<Result<AppTableClient<T>>> clientResult,
-        Func<TableClient,AsyncPageable<T>> query) where T : ITableEntity
+    public static async Task<Result<Unit>> AddBatch<T>(
+        this AppTableClient<T> client,
+        IEnumerable<T> entities,
+        CancellationToken token,
+        TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge
+        ) where T : ITableEntity
     {
-        return clientResult.Bind(tableClient => tableClient.ExecuteQuery(query));
+        try
+        {
+            if (!entities.Any()) return Result<Unit>.Success();
+
+            // Create batches based on partition keys, as this is a restriction in azure tables
+            foreach (var groupedEntities in entities.GroupBy(e => e.PartitionKey))
+            {
+                var addEntitiesBatch = new List<TableTransactionAction>();
+                addEntitiesBatch.AddRange(
+                    groupedEntities.Select(tableEntity =>
+                        new TableTransactionAction(actionType, tableEntity)));
+                const ushort limit = 99;
+                for (ushort i = 0; i < addEntitiesBatch.Count; i += limit)
+                {
+                    _ = await client.Client.SubmitTransactionAsync(addEntitiesBatch.Skip(i).Take(limit), token)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            return Result<Unit>.Success();
+        }
+        catch (Exception e)
+        {
+            client.Logger.LogError(e, "An error occurred when executing add batch operation");
+            return HandledErrorResult<Unit>();
+        }
     }
+
 
     internal static Task<Result<Unit>> WithDefaultMap(this Task<Result<Response>> result)
     {

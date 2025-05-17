@@ -1,6 +1,6 @@
 ﻿using Process = FuzzySharp.Process;
 
-namespace AnimeFeedManager.Features.Tv.Library.UpdateProcess;
+namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 internal static class FeedTitle
 {
