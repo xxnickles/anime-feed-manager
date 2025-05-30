@@ -2,12 +2,12 @@
 using AnimeFeedManager.Old.Common.Domain.Types;
 using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
 using AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage;
+using OvaContainer =
+    (AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage.OvaStorage Ova, Azure.Data.Tables.TableClient Client);
 using OvasContainer =
     (System.Collections.Immutable.ImmutableList<
         AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage.OvaStorage> Ovas, Azure.Data.Tables.TableClient
     Client);
-using OvaContainer =
-    (AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.Types.Storage.OvaStorage Ova, Azure.Data.Tables.TableClient Client);
 
 namespace AnimeFeedManager.Old.Features.Ovas.Scrapping.Series.IO;
 

@@ -6,9 +6,9 @@ public enum ScrapType
     BySeason
 }
 
-public record SeasonToScrap(string Season, ushort Year);
+public sealed record SeasonToScrap(string Season, ushort Year);
 
-public record ScrapLibrary(SeriesType SeriesType,
+public sealed record ScrapLibrary(SeriesType SeriesType,
     SeasonToScrap? Season,
     ScrapType ScrapType,
     bool KeepFeed = false): DomainMessage(new Box(TargetQueue))

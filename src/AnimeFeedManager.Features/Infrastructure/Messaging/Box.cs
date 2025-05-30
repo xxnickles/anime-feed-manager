@@ -1,15 +1,10 @@
 ﻿namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
-public readonly struct Box
+public readonly struct Box(string boxValue)
 {
     private const string EmptyBox = "EMPTY";
 
-    private readonly string _boxValue;
-
-    public Box(string boxValue)
-    {
-        _boxValue = boxValue;
-    }
+    private readonly string _boxValue = boxValue;
 
     public bool HasNoTarget() => _boxValue == EmptyBox;
 

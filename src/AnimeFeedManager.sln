@@ -25,9 +25,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{079A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Functions", "AnimeFeedManager.Functions\AnimeFeedManager.Functions.csproj", "{AEE7B8E6-23EC-4BFE-A061-713CFDCB326B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Common", "AnimeFeedManager.Common\AnimeFeedManager.Common.csproj", "{C2B4B558-4EB6-4529-BE78-75F0B0AD99A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Shared", "AnimeFeedManager.Shared\AnimeFeedManager.Shared.csproj", "{C2B4B558-4EB6-4529-BE78-75F0B0AD99A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features", "AnimeFeedManager.Features\AnimeFeedManager.Features.csproj", "{91B29D9E-15B7-497D-A962-A8EEF9608BE4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features.Tests", "AnimeFeedManager.Features.Tests\AnimeFeedManager.Features.Tests.csproj", "{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{91B29D9E-15B7-497D-A962-A8EEF9608BE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91B29D9E-15B7-497D-A962-A8EEF9608BE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91B29D9E-15B7-497D-A962-A8EEF9608BE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,6 +95,7 @@ Global
 		{AEE7B8E6-23EC-4BFE-A061-713CFDCB326B} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
 		{C2B4B558-4EB6-4529-BE78-75F0B0AD99A5} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
 		{91B29D9E-15B7-497D-A962-A8EEF9608BE4} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
+		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {628063C2-8D1C-46C8-A506-8760464EB763}

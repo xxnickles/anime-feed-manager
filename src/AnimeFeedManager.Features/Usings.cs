@@ -1,7 +1,13 @@
-﻿global using AnimeFeedManager.Common;
-global using AnimeFeedManager.Common.Results;
-global using AnimeFeedManager.Common.Results.Errors;
-global using AnimeFeedManager.Common.Types;
+﻿global using System.Collections.Immutable;
+global using System.Diagnostics;
+global using System.Text.Json.Serialization;
 global using AnimeFeedManager.Features.Infrastructure.Messaging;
-global using System.Collections.Immutable;
+global using AnimeFeedManager.Features.Infrastructure.TableStorage;
+global using AnimeFeedManager.Features.Tv.Library.Storage;
+global using AnimeFeedManager.Shared;
+global using AnimeFeedManager.Shared.Results;
+global using AnimeFeedManager.Shared.Types;
+global using Azure;
+global using Azure.Data.Tables;
 global using Microsoft.Extensions.Logging;
+global using static AnimeFeedManager.Shared.Results.ResultError;

@@ -1,12 +1,12 @@
-﻿global using AnimeFeedManager.Old.Common.Types;
-global using AnimeFeedManager.Old.Features.Tv;
-global using AnimeFeedManager.Old.Features.Movies;
-global using AnimeFeedManager.Old.Features.Ovas;
+﻿global using System.Text.Json;
 global using AnimeFeedManager.Old.Common.Domain;
 global using AnimeFeedManager.Old.Common.Domain.Notifications;
+global using AnimeFeedManager.Old.Common.Types;
+global using AnimeFeedManager.Old.Features.Movies;
+global using AnimeFeedManager.Old.Features.Ovas;
 global using AnimeFeedManager.Old.Features.Seasons;
+global using AnimeFeedManager.Old.Features.Tv;
 global using AnimeFeedManager.Web.BlazorComponents;
-global using Microsoft.Azure.Functions.Worker;
-global using System.Text.Json;
 global using LanguageExt;
+global using Microsoft.Azure.Functions.Worker;
 global using static LanguageExt.Prelude;

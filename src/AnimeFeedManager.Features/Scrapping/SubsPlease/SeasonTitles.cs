@@ -1,22 +1,23 @@
 using AnimeFeedManager.Features.Scrapping.Types;
+using AnimeFeedManager.Shared.Results.Errors;
 using PuppeteerSharp;
 
 
 namespace AnimeFeedManager.Features.Scrapping.SubsPlease;
 
-public interface ISeasonTitlesProvider
+public interface ISeasonFeedTitlesProvider
 {
     Task<Result<ImmutableList<string>>> Get();
 }
 
-public sealed class SeasonTitlesProvider : ISeasonTitlesProvider
+public sealed class SeasonFeedTitlesProvider : ISeasonFeedTitlesProvider
 {
     private readonly PuppeteerOptions _puppeteerOptions;
-    private readonly ILogger<SeasonTitlesProvider> _logger;
+    private readonly ILogger<SeasonFeedTitlesProvider> _logger;
 
-    public SeasonTitlesProvider(
+    public SeasonFeedTitlesProvider(
         PuppeteerOptions puppeteerOptions,
-        ILogger<SeasonTitlesProvider> logger)
+        ILogger<SeasonFeedTitlesProvider> logger)
     {
         _puppeteerOptions = puppeteerOptions;
         _logger = logger;

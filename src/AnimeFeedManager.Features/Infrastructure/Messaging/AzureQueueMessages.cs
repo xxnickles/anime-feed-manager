@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
-using Azure.Data.Tables;
+using AnimeFeedManager.Shared.Results.Errors;
 using Azure.Storage.Queues;
-using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
@@ -24,6 +23,9 @@ public readonly record struct Delay
 public interface IDomainPostman
 {
     Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;
+
+    Task<Result<Unit>> SendMessages<T>(IEnumerable<T> message, CancellationToken cancellationToken = default)
+        where T : DomainMessage;
 
     Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage;
@@ -64,6 +66,31 @@ public class AzureQueueMessages : IDomainPostman
         catch (Exception e)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
+            return Result<Unit>.Failure(new HandledError());
+        }
+    }
+
+    public async Task<Result<Unit>> SendMessages<T>(IEnumerable<T> messages,
+        CancellationToken cancellationToken = default) where T : DomainMessage
+    {
+        try
+        {
+            if (messages.Any(m => m.MessageBox.HasNoTarget()))
+            {
+                return Result<Unit>.Failure(new Error("One of the messages has no target box"));
+            }
+            
+            foreach (var message in messages)
+            {
+                await SendMessage(message, message.MessageBox, null, cancellationToken);
+            }
+            
+            return Result<Unit>.Success();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "An occurred when trying to send multiple messages to {Queues}",
+                string.Join(", ", messages.Select(m => m.MessageBox)));
             return Result<Unit>.Failure(new HandledError());
         }
     }

@@ -2,13 +2,13 @@
 using AnimeFeedManager.Old.Common.Domain.Types;
 using AnimeFeedManager.Old.Features.Infrastructure.TableStorage;
 using AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage;
+using MovieContainer =
+    (AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage.MovieStorage Movie, Azure.Data.Tables.TableClient
+    Client);
 using MoviesContainer =
     (System.Collections.Immutable.ImmutableList<
         AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage.MovieStorage> Movies,
     Azure.Data.Tables.TableClient
-    Client);
-using MovieContainer =
-    (AnimeFeedManager.Old.Features.Movies.Scrapping.Series.Types.Storage.MovieStorage Movie, Azure.Data.Tables.TableClient
     Client);
 
 namespace AnimeFeedManager.Old.Features.Movies.Scrapping.Series.IO;

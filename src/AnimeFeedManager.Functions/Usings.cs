@@ -1,0 +1,10 @@
+﻿global using AnimeFeedManager.Features.Images;
+global using AnimeFeedManager.Features.Infrastructure;
+global using AnimeFeedManager.Features.Infrastructure.Messaging;
+global using AnimeFeedManager.Features.Infrastructure.TableStorage;
+global using AnimeFeedManager.Features.Scrapping;
+global using AnimeFeedManager.Features.Tv;
+global using AnimeFeedManager.Shared.Results;
+global using AnimeFeedManager.Shared.Types;
+global using Microsoft.Azure.Functions.Worker;
+global using Microsoft.Extensions.Logging;
