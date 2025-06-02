@@ -1,8 +1,4 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Library.Events;
-public sealed record SeasonUpdated(SeriesSeason Season) : DomainMessage(new Box(TargetQueue))
-{
-    public const string TargetQueue = "season-updated-events";
-}
 
 public sealed record NewSeriesAdded(string[] SeriesTitles) : DomainMessage(new Box(TargetQueue))
 {

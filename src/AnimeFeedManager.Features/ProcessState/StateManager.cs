@@ -1,7 +1,5 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Features.ProcessState.Storage;
 using AnimeFeedManager.Features.ProcessState.Types;
-using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Features.ProcessState;
 

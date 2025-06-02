@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Old.Common.Domain;
-using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
+﻿using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
 using AnimeFeedManager.Old.Common.Domain.Types;
 using AnimeFeedManager.Old.Common.RealTimeNotifications;
 using AnimeFeedManager.Old.Features.Movies.Scrapping.Feed.Types;

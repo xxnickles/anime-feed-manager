@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AnimeFeedManager.Shared.Results.Errors;
 using Azure.Storage.Queues;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
@@ -31,16 +30,16 @@ public interface IDomainPostman
         CancellationToken cancellationToken = default) where T : DomainMessage;
 }
 
-public class AzureQueueMessages : IDomainPostman
+public class AzureQueuePostman : IDomainPostman
 {
     private readonly AzureStorageSettings _azureSettings;
-    private readonly ILogger<AzureQueueMessages> _logger;
+    private readonly ILogger<AzureQueuePostman> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly QueueClientOptions _queueClientOptions;
 
-    public AzureQueueMessages(
+    public AzureQueuePostman(
         AzureStorageSettings tableStorageSettings,
-        ILogger<AzureQueueMessages> logger)
+        ILogger<AzureQueuePostman> logger)
     {
         _azureSettings = tableStorageSettings;
         _logger = logger;
@@ -121,15 +120,15 @@ public class AzureQueueMessages : IDomainPostman
         await queue.SendMessageAsync(AsBinary(message), cancellationToken: cancellationToken, visibilityTimeout: delay);
     }
 
-    private QueueClient GetClient(string destiny)
+    private QueueClient GetClient(string destinatary)
     {
         return _azureSettings switch
         {
             ConnectionStringSettings connectionStringOptions => new QueueClient(
-                connectionStringOptions.StorageConnectionString, destiny,
+                connectionStringOptions.StorageConnectionString, destinatary,
                 _queueClientOptions),
             TokenCredentialSettings tokenCredentialOptions => new QueueClient(
-                new Uri(tokenCredentialOptions.QueueUri, destiny), tokenCredentialOptions.DefaultTokenCredential(),
+                new Uri(tokenCredentialOptions.QueueUri, destinatary), tokenCredentialOptions.DefaultTokenCredential(),
                 _queueClientOptions),
             _ => throw new ArgumentException(
                 "Provided Table Storage configuration is not valid. Make sure Configurations for Azure table Storage is correct for either connection string or managed identities",

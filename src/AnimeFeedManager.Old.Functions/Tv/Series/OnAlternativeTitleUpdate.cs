@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Old.Common.Domain.Events;
 using AnimeFeedManager.Old.Common.Domain.Types;
-using AnimeFeedManager.Old.Common.Types;
 using AnimeFeedManager.Old.Common.Utils;
 using AnimeFeedManager.Old.Features.Tv.Scrapping.Series;
 using Microsoft.Extensions.Logging;

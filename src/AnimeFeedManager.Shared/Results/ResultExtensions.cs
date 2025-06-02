@@ -31,6 +31,14 @@ public static class ResultExtensions
         return Result<ImmutableList<T>>.Failure(new AggregatedError(errors.ToImmutableList(), errorType));
     }
 
+    public static ImmutableList<T> GetSuccessValues<T>(this IEnumerable<Result<T>> results)
+    {
+        return results.Where(r => r.IsSuccess).Select(r => r.MatchToValue(
+            v => v,
+            _ => throw new InvalidOperationException("List contains errors which should not be possible")
+        )).ToImmutableList();
+    }
+
     public static async Task Match<T>(this Task<Result<T>> resultTask, Action<T> onSuccess,
         Action<DomainError> onError)
     {
@@ -48,7 +56,7 @@ public static class ResultExtensions
     {
         return (await resultTask).Map(mapper);
     }
-    
+
     public static async Task<Result<T>> MapError<T>(this Task<Result<T>> resultTask,
         Func<DomainError, DomainError> mapper)
     {
@@ -60,7 +68,7 @@ public static class ResultExtensions
     {
         return (await resultTask).Bind(binder);
     }
-
+    
     public static async Task<Result<TTarget>> Bind<T, TTarget>(this Task<Result<T>> resultTask,
         Func<T, Task<Result<TTarget>>> binder)
     {

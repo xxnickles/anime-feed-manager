@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Old.Common.Types;
-using AnimeFeedManager.Old.Features.Ovas.Subscriptions;
+﻿using AnimeFeedManager.Old.Features.Ovas.Subscriptions;
 using AnimeFeedManager.Old.Features.Ovas.Subscriptions.Types;
 using Microsoft.Extensions.Logging;
 

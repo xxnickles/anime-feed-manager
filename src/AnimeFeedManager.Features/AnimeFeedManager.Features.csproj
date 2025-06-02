@@ -23,6 +23,10 @@
     <ItemGroup>
         <InternalsVisibleTo Include="$(AssemblyName).Tests" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="SystemEvents\" />
+    </ItemGroup>
 
 
 

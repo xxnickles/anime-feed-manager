@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Old.Common;
-using AnimeFeedManager.Old.Common.Types;
 
 namespace AnimeFeedManager.Web.Features.Common;
 

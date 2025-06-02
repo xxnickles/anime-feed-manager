@@ -1,5 +1,4 @@
 using AnimeFeedManager.Features.Scrapping.Types;
-using AnimeFeedManager.Shared.Results.Errors;
 using PuppeteerSharp;
 
 

@@ -1,0 +1,79 @@
+﻿using AnimeFeedManager.Features.Seasons.UpdateProcess;
+
+namespace AnimeFeedManager.Features.Seasons.Storage;
+
+public delegate Task<Result<SeasonStorageData>> LatestSeasonGetter(CancellationToken cancellationToken = default);
+
+public delegate Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason season,
+    CancellationToken cancellation = default);
+
+public delegate Task<Result<ImmutableList<SeriesSeason>>> AllSeasonsGetter(
+    CancellationToken cancellationToken = default);
+
+public static class ExistentSeasons
+{
+    public static LatestSeasonGetter LatestSeasonGetter(this ITableClientFactory clientFactory) =>
+        cancellationToken => clientFactory.GetClient<SeasonStorage>(cancellationToken)
+            .Bind(client => client.GetLatestSeason(cancellationToken));
+
+    public static SeasonGetter SeasonGetter(this ITableClientFactory clientFactory) =>
+        (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>(cancellationToken)
+            .Bind(client => client.GetSeason(season, cancellationToken));
+
+    public static AllSeasonsGetter AllSeasonsGetter(this ITableClientFactory clientFactory) =>
+        cancellationToken => clientFactory.GetClient<SeasonStorage>(cancellationToken)
+            .Bind(client => GetAllSeasons(client, cancellationToken))
+            .Map(seasons => seasons.TransformToSeriesSeason());
+
+
+    private static Task<Result<ImmutableList<SeasonStorage>>> GetAllSeasons(
+        this AppTableClient<SeasonStorage> tableClient,
+        CancellationToken cancellationToken = default)
+    {
+        return tableClient.ExecuteQuery(client =>
+            client.QueryAsync<SeasonStorage>(
+                storage => storage.PartitionKey == SeasonType.Season || storage.PartitionKey == SeasonType.Latest,
+                cancellationToken: cancellationToken));
+    }
+
+    private static Task<Result<SeasonStorageData>> GetLatestSeason(this AppTableClient<SeasonStorage> tableClient,
+        CancellationToken cancellationToken = default)
+    {
+        return tableClient.ExecuteQuery(client =>
+                client.QueryAsync<SeasonStorage>(storage => storage.PartitionKey == SeasonType.Latest,
+                    cancellationToken: cancellationToken))
+            .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(seasons =>
+                !seasons.IsEmpty ? new LatestSeason(seasons.First()) : new NoMatch());
+    }
+
+    private static Task<Result<SeasonStorageData>> GetSeason(this AppTableClient<SeasonStorage> tableClient,
+        SeriesSeason season, CancellationToken cancellation = default)
+    {
+        return tableClient.ExecuteQuery(client =>
+                client.QueryAsync<SeasonStorage>(
+                    storage => storage.PartitionKey == SeasonType.Season &&
+                               storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season),
+                    cancellationToken: cancellation))
+            .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(matches =>
+            {
+                if (matches.IsEmpty)
+                    return new NoMatch();
+
+                var match = matches.First();
+
+                return (match.Latest, season.IsLatest) switch
+                {
+                    (true, true) => new NoUpdateRequired(),
+                    (true, false) => new LatestSeason(match),
+                    _ => match.Season == season.Season && match.Year == season.Year
+                        ? new NoUpdateRequired()
+                        : new ExistentSeason(match)
+                };
+            });
+    }
+
+
+    private static ImmutableList<SeriesSeason> TransformToSeriesSeason(this ImmutableList<SeasonStorage> seasons) =>
+        seasons.ConvertAll(s => (s.Season ?? string.Empty, s.Year, s.Latest).ParseAsSeriesSeason())
+            .GetSuccessValues();
+}

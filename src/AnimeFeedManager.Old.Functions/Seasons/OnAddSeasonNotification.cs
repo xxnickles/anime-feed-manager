@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Old.Common.Domain.Events;
-using AnimeFeedManager.Old.Features.Seasons;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Seasons;

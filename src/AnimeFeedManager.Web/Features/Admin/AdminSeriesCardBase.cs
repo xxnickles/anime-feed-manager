@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Old.Common.Domain;
-using AnimeFeedManager.Old.Common.Types;
 using Microsoft.AspNetCore.Components;
 
 namespace AnimeFeedManager.Web.Features.Admin;

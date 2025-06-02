@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Old.Features.Seasons.Types;
 
-public readonly struct SeasonType
+public readonly record struct SeasonType
 {
     public string Value { get; }
 

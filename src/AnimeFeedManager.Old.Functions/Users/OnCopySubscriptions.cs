@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Old.Common.Domain.Events;
-using AnimeFeedManager.Old.Common.Types;
 using AnimeFeedManager.Old.Common.Utils;
 using AnimeFeedManager.Old.Features.Users;
 using Microsoft.Extensions.Logging;

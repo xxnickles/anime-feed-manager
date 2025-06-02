@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Old.Common.Domain.Errors;
 using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Old.Common.Types;
 using AnimeFeedManager.Old.Common.Utils;
 using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Old.Features.Infrastructure.SendGrid;

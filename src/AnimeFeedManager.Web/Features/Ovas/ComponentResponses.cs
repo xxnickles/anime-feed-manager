@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Old.Common.Domain.Errors;
-using AnimeFeedManager.Old.Common.Types;
 using AnimeFeedManager.Web.Features.Ovas.Controls;
 using Microsoft.AspNetCore.Http.HttpResults;
 

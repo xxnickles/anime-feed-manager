@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Storage;
-
-namespace AnimeFeedManager.Features.Tests.Helpers;
+﻿namespace AnimeFeedManager.Features.Tests.Helpers;
 
 public class DefaultSeasonDataCustomization : ICustomization
 {

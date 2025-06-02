@@ -22,7 +22,6 @@ public sealed record Result<T>
     private readonly T? _resultValue;
     private readonly DomainError? _errorValueValue;
 
-
     private Result(T? resultValue, DomainError? errorValueValue)
     {
         _resultValue = resultValue;
@@ -30,7 +29,6 @@ public sealed record Result<T>
     }
 
     public bool IsSuccess => _errorValueValue is null;
-
 
     public static Result<Unit> Success() => new(new Unit(), null);
     public static Result<T> Success(T value) => new(value, null);
@@ -44,6 +42,15 @@ public sealed record Result<T>
         else
             onError(_errorValueValue!);
     }
+
+    public async Task Match(Func<T, Task> onOk, Func<DomainError, Task> onError)
+    {
+        if (IsSuccess)
+            await onOk(_resultValue!);
+        else
+            await onError(_errorValueValue!);
+    }
+
 
     public Result<TTarget> Map<TTarget>(Func<T, TTarget> mapper)
     {
@@ -70,7 +77,7 @@ public sealed record Result<T>
     {
         return IsSuccess ? binder(_resultValue!) : new Result<TTarget>(default, _errorValueValue);
     }
-    
+
     public async Task<Result<TTarget>> Bind<TTarget>(Func<T, Task<Result<TTarget>>> binder)
     {
         return IsSuccess ? await binder(_resultValue!) : new Result<TTarget>(default, _errorValueValue);

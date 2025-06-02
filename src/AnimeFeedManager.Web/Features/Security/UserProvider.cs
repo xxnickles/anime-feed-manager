@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using AnimeFeedManager.Old.Common.Domain.Errors;
 using AnimeFeedManager.Old.Common.Domain.Types;
-using AnimeFeedManager.Old.Common.Types;
 using AnimeFeedManager.Old.Features.Movies.Subscriptions.IO;
 using AnimeFeedManager.Old.Features.Ovas.Subscriptions.IO;
 using AnimeFeedManager.Old.Features.Tv.Subscriptions.IO;

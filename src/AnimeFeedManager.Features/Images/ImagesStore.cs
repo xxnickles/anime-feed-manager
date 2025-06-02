@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Shared.Results.Errors;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
 namespace AnimeFeedManager.Features.Images;

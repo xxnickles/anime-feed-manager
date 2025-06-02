@@ -2,38 +2,38 @@
 
 internal static class StorageClientExtensions
 {
-    private static async Task<Result<T>> TryExecute<T>(
+    public static async Task<Result<Response>> TryExecute<T>(
         this AppTableClient<T> client,
-        Func<TableClient, Task<T>> action) where T : ITableEntity
+        Func<TableClient, Task<Response>> action) where T : ITableEntity
     {
         try
         {
-            return Result<T>.Success(await action(client.Client));
+            return Result<Response>.Success(await action(client.Client));
         }
         catch (RequestFailedException ex)
         {
             client.Logger.LogError(ex, "An error occurred when executing a request to table storage service");
             return ex.Status == 404
-                ? NotFoundResult<T>($"The entity of type {typeof(T).Name} was not found.")
-                : HandledErrorResult<T>();
+                ? NotFoundResult<Response>($"The entity of type {typeof(T).Name} was not found.")
+                : HandledErrorResult<Response>();
         }
         catch (Exception e)
         {
             client.Logger.LogError(e, "An error occurred when executing a Table Client action");
             return e.Message == "Not Found"
-                ? NotFoundResult<T>($"The entity of type {typeof(T).Name} was not found.")
-                : HandledErrorResult<T>();
+                ? NotFoundResult<Response>($"The entity of type {typeof(T).Name} was not found.")
+                : HandledErrorResult<Response>();
         }
     }
 
-    internal static Task<Result<T>> TryExecute<T>(this Task<Result<AppTableClient<T>>> clientResult,
-        Func<TableClient, Task<T>> action) where T : ITableEntity
+    public static Task<Result<Response>> TryExecute<T>(this Task<Result<AppTableClient<T>>> clientResult,
+        Func<TableClient, Task<Response>> action) where T : ITableEntity
     {
         return clientResult.Bind(tableClient => tableClient.TryExecute(action));
     }
 
     public static async Task<Result<ImmutableList<T>>> ExecuteQuery<T>(this AppTableClient<T> client,
-        Func<TableClient,AsyncPageable<T>> query) where T : ITableEntity
+        Func<TableClient, AsyncPageable<T>> query) where T : ITableEntity
     {
         try
         {
@@ -43,7 +43,7 @@ internal static class StorageClientExtensions
             {
                 resultList = resultList.Add(qEntity);
             }
-            
+
             return Result<ImmutableList<T>>.Success(resultList);
         }
         catch (Exception e)
@@ -58,7 +58,7 @@ internal static class StorageClientExtensions
         IEnumerable<T> entities,
         CancellationToken token,
         TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge
-        ) where T : ITableEntity
+    ) where T : ITableEntity
     {
         try
         {
@@ -86,6 +86,13 @@ internal static class StorageClientExtensions
             client.Logger.LogError(e, "An error occurred when executing add batch operation");
             return HandledErrorResult<Unit>();
         }
+    }
+
+    public static Task<Result<T>> SingleItem<T>(this Task<Result<ImmutableList<T>>> result)
+    {
+        return result.Bind(x => x.IsEmpty
+            ? Result<T>.Failure(new Error("The collection is empty"))
+            : Result<T>.Success(x.First()));
     }
 
 

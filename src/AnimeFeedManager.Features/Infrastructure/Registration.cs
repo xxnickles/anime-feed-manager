@@ -42,7 +42,7 @@ public static class Registration
 
     private static void RegisterCommonServices(this IServiceCollection services)
     {
-        services.TryAddSingleton<IDomainPostman, AzureQueueMessages>();
+        services.TryAddSingleton<IDomainPostman, AzureQueuePostman>();
         services.TryAddSingleton<ITableClientFactory, TableClientFactory>();
     }
 

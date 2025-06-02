@@ -23,7 +23,8 @@ public static class ExistentSeries
             .Bind(client => client.GetStoredSeries(season, token));
 
     private static Task<Result<ImmutableList<TvSeriesInfo>>> GetStoredSeries(
-        this AppTableClient<AnimeInfoStorage> tableClient, SeriesSeason season,
+        this AppTableClient<AnimeInfoStorage> tableClient, 
+        SeriesSeason season,
         CancellationToken cancellationToken = default)
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);

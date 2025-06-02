@@ -4,7 +4,6 @@ using AnimeFeedManager.Old.Common.Domain.Events;
 using AnimeFeedManager.Old.Common.Domain.Types;
 using AnimeFeedManager.Old.Common.Domain.Validators;
 using AnimeFeedManager.Old.Common.Dto;
-using AnimeFeedManager.Old.Common.Types;
 using AnimeFeedManager.Old.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Old.Features.Movies.Scrapping.Feed.Types;
 using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;

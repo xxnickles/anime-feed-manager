@@ -1,6 +1,4 @@
-﻿using AnimeFeedManager.Features.ProcessState.Storage;
-
-namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
+﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
 public sealed record AppTableClient<T>(TableClient Client, ILogger Logger) where T : ITableEntity;
 
@@ -40,12 +38,12 @@ public sealed class TableClientFactory : ITableClientFactory
     {
         return type.Name switch
         {
-            // nameof(AnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
+             nameof(AnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             // nameof(AnimeInfoWithImageStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             // nameof(UpdateFeedAnimeInfoStorage) => AzureTableMap.StoreTo.AnimeLibrary,
             // nameof(AlternativeTitleStorage) =>  AzureTableMap.StoreTo.AlternativeTitles,
             // nameof(SubscriptionStorage) => AzureTableMap.StoreTo.Subscriptions,
-            // nameof(SeasonStorage) => AzureTableMap.StoreTo.AvailableSeasons,
+            nameof(SeasonStorage) => AzureTableMap.StoreTo.AvailableSeasons,
             // nameof(InterestedStorage) => AzureTableMap.StoreTo.InterestedSeries,
             // nameof(TitlesStorage) => AzureTableMap.StoreTo.FeedTitles,
             // nameof(ProcessedTitlesStorage) => AzureTableMap.StoreTo.ProcessedTitles,   
@@ -56,7 +54,7 @@ public sealed class TableClientFactory : ITableClientFactory
             // nameof(MoviesSubscriptionStorage) => AzureTableMap.StoreTo.MovieSubscriptions,
             // nameof(NotificationStorage) => AzureTableMap.StoreTo.Notifications,
             nameof(StateUpdateStorage) => AzureTableMap.StoreTo.StateUpdates,
-            // nameof(LatestSeasonsStorage) => AzureTableMap.StoreTo.JsonStorage,
+            nameof(LatestSeasonsStorage) => AzureTableMap.StoreTo.JsonStorage,
             _ => throw new ArgumentException($"There is not a defined table for the type {type.FullName}")
         };
     }

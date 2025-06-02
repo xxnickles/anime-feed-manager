@@ -1,6 +1,5 @@
 using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Images;
-using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
