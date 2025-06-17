@@ -21,9 +21,9 @@ public class SeriesStatusTests
     {
         SeriesSeason[] sut =
         [
-            new(Season.Fall, Year.FromNumber(2025)),
-            new(Season.Winter, Year.FromNumber(2025), true),
-            new(Season.Spring, Year.FromNumber(2025))
+            new(Season.Fall(), Year.FromNumber(2025)),
+            new(Season.Winter(), Year.FromNumber(2025), true),
+            new(Season.Spring(), Year.FromNumber(2025))
         ];
 
         var serialized = JsonSerializer.Serialize(sut, SeriesSeasonContext.Default.SeriesSeasonArray);

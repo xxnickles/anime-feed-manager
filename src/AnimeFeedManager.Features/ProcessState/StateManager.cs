@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using AnimeFeedManager.Features.ProcessState.Types;
+﻿using AnimeFeedManager.Features.ProcessState.Types;
 
 namespace AnimeFeedManager.Features.ProcessState;
 

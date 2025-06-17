@@ -1,5 +1,6 @@
 namespace AnimeFeedManager.Features.ProcessState.Storage;
 
+[WithTableName(AzureTableMap.StoreTo.StateUpdates)]
 public sealed class StateUpdateStorage : ITableEntity
 {
     public string? PartitionKey { get; set; }

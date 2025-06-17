@@ -13,6 +13,7 @@
         <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0"/>
         <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0"/>
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.2"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.SignalRService" Version="2.0.1" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.5.2" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.4"/>
@@ -31,5 +32,6 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+      <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
     </ItemGroup>
 </Project>

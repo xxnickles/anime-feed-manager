@@ -15,11 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Featur
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Common", "AnimeFeedManager.Old.Common\AnimeFeedManager.Old.Common.csproj", "{9B66E1B2-7416-4858-B68A-6763A4C64279}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Blazor", "Blazor", "{917D8146-26E4-4E77-8211-4D76A23ABA7C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OldBlazor", "OldBlazor", "{917D8146-26E4-4E77-8211-4D76A23ABA7C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Web", "AnimeFeedManager.Web\AnimeFeedManager.Web.csproj", "{04A34488-6295-4CAD-9F51-7E69F5833A95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Web.BlazorComponents", "AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj", "{94B50DA1-E3DA-44AA-A866-CD98956C98F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Old.Web.BlazorComponents", "AnimeFeedManager.Old.Web.BlazorComponents\AnimeFeedManager.Old.Web.BlazorComponents.csproj", "{94B50DA1-E3DA-44AA-A866-CD98956C98F7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{079A4253-0B67-4267-8D3E-FC0D20CCFD40}"
 EndProject
@@ -30,6 +30,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features", "AnimeFeedManager.Features\AnimeFeedManager.Features.csproj", "{91B29D9E-15B7-497D-A962-A8EEF9608BE4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Features.Tests", "AnimeFeedManager.Features.Tests\AnimeFeedManager.Features.Tests.csproj", "{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.SourceGenerators", "AnimeFeedManager.SourceGenerators\AnimeFeedManager.SourceGenerators.csproj", "{1EFED953-F97F-4EC2-BF1E-2B631ECC9CFF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FrontEnd", "FrontEnd", "{087C751E-8380-4489-9C8A-474D795534CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Web.BlazorComponents", "AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj", "{AA7DF332-B70E-4151-85F2-37F6B5789DDD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +87,14 @@ Global
 		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EFED953-F97F-4EC2-BF1E-2B631ECC9CFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EFED953-F97F-4EC2-BF1E-2B631ECC9CFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EFED953-F97F-4EC2-BF1E-2B631ECC9CFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EFED953-F97F-4EC2-BF1E-2B631ECC9CFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA7DF332-B70E-4151-85F2-37F6B5789DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA7DF332-B70E-4151-85F2-37F6B5789DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA7DF332-B70E-4151-85F2-37F6B5789DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA7DF332-B70E-4151-85F2-37F6B5789DDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -96,6 +110,8 @@ Global
 		{C2B4B558-4EB6-4529-BE78-75F0B0AD99A5} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
 		{91B29D9E-15B7-497D-A962-A8EEF9608BE4} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
 		{A8E5304D-BCFF-4E5A-8190-1A0411C0CA79} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
+		{1EFED953-F97F-4EC2-BF1E-2B631ECC9CFF} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
+		{AA7DF332-B70E-4151-85F2-37F6B5789DDD} = {087C751E-8380-4489-9C8A-474D795534CE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {628063C2-8D1C-46C8-A506-8760464EB763}

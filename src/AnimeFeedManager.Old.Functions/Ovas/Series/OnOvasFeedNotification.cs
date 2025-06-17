@@ -3,7 +3,7 @@ using AnimeFeedManager.Old.Common.Domain.Types;
 using AnimeFeedManager.Old.Common.RealTimeNotifications;
 using AnimeFeedManager.Old.Features.Notifications.IO;
 using AnimeFeedManager.Old.Features.Ovas.Scrapping.Feed.Types;
-using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
+using AnimeFeedManager.Old.Web.BlazorComponents.SignalRContent;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Ovas.Series;

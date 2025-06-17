@@ -62,6 +62,13 @@ public static class ResultExtensions
     {
         return (await resultTask).MapError(mapper);
     }
+    
+    public static async Task<Result<T>> MapError<T>(this Task<Result<T>> resultTask,
+        Func<DomainError, Task<DomainError>> mapper)
+    {
+       
+        return await (await resultTask).MapError(mapper);
+    }
 
     public static async Task<Result<TTarget>> Bind<T, TTarget>(this Task<Result<T>> resultTask,
         Func<T, Result<TTarget>> binder)

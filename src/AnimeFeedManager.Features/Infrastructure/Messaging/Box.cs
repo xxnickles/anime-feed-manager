@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace AnimeFeedManager.Features.Infrastructure.Messaging;
+﻿namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
 [JsonConverter(typeof(SeasonJsonConverter))]
 public readonly struct Box(string boxValue)

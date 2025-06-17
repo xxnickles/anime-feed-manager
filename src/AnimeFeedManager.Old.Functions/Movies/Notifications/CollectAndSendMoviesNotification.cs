@@ -7,7 +7,7 @@ using AnimeFeedManager.Old.Features.Infrastructure.SendGrid;
 using AnimeFeedManager.Old.Features.Movies.Subscriptions;
 using AnimeFeedManager.Old.Features.Movies.Subscriptions.Types;
 using AnimeFeedManager.Old.Features.Notifications.IO;
-using AnimeFeedManager.Web.BlazorComponents.Templates;
+using AnimeFeedManager.Old.Web.BlazorComponents.Templates;
 using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;

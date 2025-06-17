@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace AnimeFeedManager.Features.Seasons.UpdateProcess;
 
 public static class LastSeasonsUpdate
@@ -24,17 +22,16 @@ public static class LastSeasonsUpdate
         }, cancellationToken);
     }
 
-    public static Task<Result<T>> UpdateLast4Season<T>(
-        this Task<Result<T>> result,
+    public static Task<Result<SeasonUpdateData>> UpdateLast4Seasons(
+        this Task<Result<SeasonUpdateData>> result,
         AllSeasonsGetter seasonsGetter,
         LastestSeasonsUpdater latestSeasonUpdater,
-        Func<T,bool> shouldUpdateWhen,
         CancellationToken cancellationToken) =>
-        result.Bind(r => shouldUpdateWhen(r) switch
+        result.Bind(r => r.SeasonData switch
         {
-            true => GetLast4Season(seasonsGetter, cancellationToken)
+            NoUpdateRequired => Task.FromResult(Result<SeasonUpdateData>.Success(r)),
+            _ => GetLast4Season(seasonsGetter, cancellationToken)
                 .Bind(s => StoreLatestSeason(latestSeasonUpdater, s, cancellationToken))
-                .Map(_ => r),
-            false => Task.FromResult(Result<T>.Success(r))
+                .Map(_ => r)
         });
 }

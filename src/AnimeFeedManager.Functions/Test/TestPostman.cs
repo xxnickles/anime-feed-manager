@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace AnimeFeedManager.Functions.Test;
 
 public class TestPostman
@@ -14,12 +16,19 @@ public class TestPostman
     }
 
     [Function("TestPostman")]
-    public Task Run([TimerTrigger("*/15 * * * * *")] TimerInfo myTimer)
+    public Task Run([TimerTrigger("*/10 * * * * *")] TimerInfo myTimer)
     {
         _logger.LogInformation("C# Timer trigger function executed at: {Now}", DateTime.Now);
-
-        return _domainPostman.SendMessage(new TestMessage(Season.Spring, Year.FromNumber(2025)))
-            .Match(_ => _logger.LogInformation("Message sent"), 
+        var payload = JsonSerializer.Serialize(new SeriesSeason(Season.Spring(), Year.FromNumber(2020)),
+            SeriesSeasonContext.Default.SeriesSeason);
+        return _domainPostman.SendMessage(
+                new SystemEvent(
+                    TargetConsumer.Admin(),
+                    EventTarget.Both,
+                    EventType.Information,
+                    new EventPayload(payload, nameof(SeriesSeason))
+                ))
+            .Match(_ => _logger.LogInformation("Message sent"),
                 e => e.LogError(_logger));
     }
 }

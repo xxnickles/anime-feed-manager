@@ -11,4 +11,6 @@ public sealed record ScrapTvLibraryData(
     ImmutableList<string> FeedTitles,
     SeriesSeason Season);
 
-public sealed record ScrapTvLibraryResult(SeriesSeason Season, int UpdatedSeries, int NewSeries);    
+
+
+

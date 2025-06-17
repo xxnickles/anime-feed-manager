@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Azure.Storage.Queues;
+﻿using Azure.Storage.Queues;
 
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
@@ -65,32 +64,35 @@ public class AzureQueuePostman : IDomainPostman
         catch (Exception e)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
-            return Result<Unit>.Failure(new HandledError());
+            return Result<Unit>.Failure(MessagesNotDelivered.Create(e.Message, message));
         }
     }
 
     public async Task<Result<Unit>> SendMessages<T>(IEnumerable<T> messages,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
+        var processMessages = new Queue<T>(messages);
         try
         {
-            if (messages.Any(m => m.MessageBox.HasNoTarget()))
+            if (processMessages.Any(m => m.MessageBox.HasNoTarget()))
             {
                 return Result<Unit>.Failure(new Error("One of the messages has no target box"));
             }
-            
-            foreach (var message in messages)
+
+            while (processMessages.Count > 0)
             {
+                var message = processMessages.Dequeue();
                 await SendMessage(message, message.MessageBox, null, cancellationToken);
             }
-            
+
+
             return Result<Unit>.Success();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An occurred when trying to send multiple messages to {Queues}",
-                string.Join(", ", messages.Select(m => m.MessageBox)));
-            return Result<Unit>.Failure(new HandledError());
+                string.Join(", ", processMessages.Select(m => m.MessageBox)));
+            return Result<Unit>.Failure(MessagesNotDelivered.Create(e.Message, processMessages));
         }
     }
 
@@ -108,7 +110,7 @@ public class AzureQueuePostman : IDomainPostman
         catch (Exception e)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
-            return Result<Unit>.Failure(new HandledError());
+            return Result<Unit>.Failure(MessagesNotDelivered.Create(e.Message, message));
         }
     }
 

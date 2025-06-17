@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AnimeFeedManager.Web.BlazorComponents;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeFeedManager.Functions.Bootstraping;
 
@@ -18,6 +19,8 @@ internal static class Registration
             out var runHeadless);
 
         services.RegisterScrappingServices(downloadChromiumToProjectFolder, runHeadless);
+        
+        services.AddScoped<BlazorRenderer>();
 
         // App
         services.RegisterImageServices();

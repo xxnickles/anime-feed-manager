@@ -7,13 +7,16 @@ namespace AnimeFeedManager.Functions.Seasons;
 public class OnSeasonUpdated
 {
     private readonly ITableClientFactory _tableClientFactory;
+    private readonly IDomainPostman _domainPostman;
     private readonly ILogger<OnSeasonUpdated> _logger;
 
     public OnSeasonUpdated(
         ITableClientFactory tableClientFactory,
+        IDomainPostman domainPostman,
         ILogger<OnSeasonUpdated> logger)
     {
         _tableClientFactory = tableClientFactory;
+        _domainPostman = domainPostman;
         _logger = logger;
     }
 
@@ -28,34 +31,32 @@ public class OnSeasonUpdated
             .AddLatestSeasonData(_tableClientFactory.LatestSeasonGetter(), token)
             .StoreUpdatedSeason(_tableClientFactory.SeasonUpdater(), token)
             .DemoteCurrentLatest(_tableClientFactory.SeasonUpdater(), token)
-            .UpdateLast4Season(
-                _tableClientFactory.AllSeasonsGetter(),
-                _tableClientFactory.LastestSeasonsUpdater(),
-                data => data.SeasonData is not NoUpdateRequired,
+            .UpdateLast4Seasons(_tableClientFactory.AllSeasonsGetter(), _tableClientFactory.LastestSeasonsUpdater(),
                 token)
-            .Match(r => LogSuccess(r, _logger), 
+            .SentEvents(_domainPostman, message.Season, token)
+            .Match(r => LogSuccess(r, _logger),
                 e => e.LogError(_logger));
     }
 
-    private static void LogSuccess(SeasonUpdateData data, ILogger logger)
+    private static void LogSuccess(SeasonUpdateResult data, ILogger logger)
     {
-        switch (data.SeasonData)
+        switch (data.SeasonUpdateStatus, data.Season.IsLatest)
         {
-            case NoUpdateRequired:
+            case (SeasonUpdateStatus.NoChanges, _):
                 logger.LogInformation("{Year}-{Season} already exist in the system. No actions have been taken",
-                    data.SeasonToUpdate.Year, data.SeasonToUpdate.Season);
+                    data.Season.Year, data.Season.Season);
                 break;
-            case LatestSeason:
+            case (SeasonUpdateStatus.New, true):
                 logger.LogInformation("{Year}-{Season} has been added to the system as latest season",
-                    data.SeasonToUpdate.Year, data.SeasonToUpdate.Season);
+                    data.Season.Year, data.Season.Season);
                 break;
-            case NewSeason:
+            case  (SeasonUpdateStatus.New, false):
                 logger.LogInformation("{Year}-{Season} has been added to the system as new season",
-                    data.SeasonToUpdate.Year, data.SeasonToUpdate.Season);
+                    data.Season.Year, data.Season.Season);
                 break;
             default:
                 logger.LogInformation("{Year}-{Season} has been updated",
-                    data.SeasonToUpdate.Year, data.SeasonToUpdate.Season);
+                    data.Season.Year, data.Season.Season);
                 break;
         }
     }

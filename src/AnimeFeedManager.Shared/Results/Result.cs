@@ -59,6 +59,13 @@ public sealed record Result<T>
             : new Result<TTarget>(default, _errorValueValue);
     }
 
+    public async Task<Result<TTarget>> Map<TTarget>(Func<T, Task<TTarget>> mapper)
+    {
+        return IsSuccess
+            ? new Result<TTarget>(await mapper(_resultValue!), null)
+            : new Result<TTarget>(default, _errorValueValue);
+    }
+
     public TTarget MatchToValue<TTarget>(Func<T, TTarget> onOk, Func<DomainError, TTarget> onError)
     {
         return IsSuccess
@@ -72,6 +79,14 @@ public sealed record Result<T>
             ? new Result<T>(_resultValue, null)
             : new Result<T>(default, mapper(_errorValueValue!));
     }
+
+    public async Task<Result<T>> MapError(Func<DomainError, Task<DomainError>> mapper)
+    {
+        return IsSuccess
+            ? new Result<T>(_resultValue, null)
+            : new Result<T>(default, await mapper(_errorValueValue!));
+    }
+
 
     public Result<TTarget> Bind<TTarget>(Func<T, Result<TTarget>> binder)
     {

@@ -1,18 +1,19 @@
-﻿using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Web.BlazorComponents.Toast;
+﻿using AnimeFeedManager.Web.BlazorComponents.Toast;
 
 namespace AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 
 internal static class  Helpers
 {
-    internal static ToastType Map(NotificationType type)
+    internal static ToastType Map(EventType type)
     {
         return type switch
         {
-            NotificationType.Information => ToastType.Info,
-            NotificationType.Update => ToastType.Success,
-            NotificationType.Error => ToastType.Error,
+            EventType.Information => ToastType.Info,
+            EventType.Completed => ToastType.Success,
+            EventType.Error => ToastType.Error,
             _ => ToastType.Warning
         };
     }
+    
+    
 }

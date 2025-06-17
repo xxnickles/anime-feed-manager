@@ -46,19 +46,19 @@ public readonly record struct Season : IComparable<Season>
         return Value.GetHashCode();
     }
 
-    public static Season Spring = new(SpringValue);
-    public static Season Summer = new(SummerValue);
-    public static Season Fall = new(FallValue);
-    public static Season Winter = new(WinterValue);
+    public static Season Spring() => new(SpringValue);
+    public static Season Summer() => new(SummerValue);
+    public static Season Fall() => new(FallValue);
+    public static Season Winter() => new(WinterValue);
 
 
     public static Season FromString(string? val) => val?.ToLowerInvariant() switch
     {
-        SpringValue => Spring,
-        SummerValue => Summer,
-        FallValue => Fall,
-        FallAlternativeValue => Fall,
-        WinterValue => Winter,
+        SpringValue => Spring(),
+        SummerValue => Summer(),
+        FallValue => Fall(),
+        FallAlternativeValue => Fall(),
+        WinterValue => Winter(),
         _ => throw new ArgumentException($"'{val}' is an invalid season")
     };
 
@@ -106,10 +106,9 @@ public class SeasonJsonConverter : JsonConverter<Season>
     {
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException();
-        var readerStringValue = reader.GetString() ?? string.Empty;
-        if (!Season.IsValid(readerStringValue))
-            throw new JsonException($"Expected a value string for Season type, but got '{readerStringValue}' instead.");
         var seasonValue = reader.GetString() ?? string.Empty;
+        if (!Season.IsValid(seasonValue))
+            throw new JsonException($"Expected a value string for Season type, but got '{seasonValue}' instead.");
         return Season.FromString(seasonValue);
     }
 

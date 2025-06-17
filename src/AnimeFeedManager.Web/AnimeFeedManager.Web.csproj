@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Old.Features\AnimeFeedManager.Old.Features.csproj" />
-    <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
+    <ProjectReference Include="..\AnimeFeedManager.Old.Web.BlazorComponents\AnimeFeedManager.Old.Web.BlazorComponents.csproj" />
   </ItemGroup>
 
   <ItemGroup>

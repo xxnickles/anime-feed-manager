@@ -3,6 +3,7 @@ global using AnimeFeedManager.Features.Infrastructure;
 global using AnimeFeedManager.Features.Infrastructure.Messaging;
 global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Features.Scrapping;
+global using AnimeFeedManager.Features.SystemEvents;
 global using AnimeFeedManager.Features.Tv;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Types;

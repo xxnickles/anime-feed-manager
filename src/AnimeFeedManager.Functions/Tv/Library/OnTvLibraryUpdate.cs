@@ -29,23 +29,26 @@ public class OnTvLibraryUpdate
 
     [Function(nameof(OnTvLibraryUpdate))]
     public async Task Run(
-        [QueueTrigger(UpdateTvSeriesEvent.TargetQueue, Connection = Constants.AzureConnectionName)] UpdateTvSeriesEvent message,
+        [QueueTrigger(UpdateTvSeriesEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
+        UpdateTvSeriesEvent message,
         CancellationToken token)
     {
         await TryGetSeasonSelector(message.SeasonParameters)
             .ScrapTvSeries(_scrapper, token)
             .AddImagesLinks(_imagesCollector, token)
             .UpdateTvLibrary(_tableClientFactory.GetTvLibraryUpdater(), token)
-            .SendEvents(_domainPostman, token)
+            .SendEvents(_domainPostman, message.SeasonParameters, token)
             .Match(
-                results => _logger.LogInformation("Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added}", results.Season.Year, results.Season.Season, results.UpdatedSeries, results.NewSeries),
+                results => _logger.LogInformation(
+                    "Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
+                    results.Season.Year, results.Season.Season, results.UpdatedSeries, results.NewSeries),
                 e => e.LogError(_logger)
             );
     }
 
     private static Result<SeasonSelector> TryGetSeasonSelector(SeasonParameters? season)
     {
-        if(season is null)
+        if (season is null)
             return Result<SeasonSelector>.Success(new Latest());
 
         return (season.Season, season.Year, false)
@@ -53,4 +56,3 @@ public class OnTvLibraryUpdate
             .Map<SeasonSelector>(parsedSeason => new BySeason(parsedSeason.Season, parsedSeason.Year));
     }
 }
-

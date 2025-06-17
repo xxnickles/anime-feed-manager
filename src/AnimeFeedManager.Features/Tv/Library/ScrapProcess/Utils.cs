@@ -21,10 +21,10 @@ internal static class Utils
         var reference = timeProvider.GetUtcNow().AddMonths(-6);
         var referenceSeason = reference.Month switch
         {
-            < 4 => Season.Winter,
-            < 7 => Season.Spring,
-            < 10 => Season.Summer,
-            _ => Season.Fall
+            < 4 => Season.Winter(),
+            < 7 => Season.Spring(),
+            < 10 => Season.Summer(),
+            _ => Season.Fall()
         };
 
         var referenceYear = Year.FromNumber(reference.Year);

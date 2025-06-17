@@ -4,3 +4,4 @@ public sealed record SeasonUpdated(SeriesSeason Season) : DomainMessage(new Box(
 {
     public const string TargetQueue = "season-updated-events";
 }
+

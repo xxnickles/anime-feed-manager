@@ -10,7 +10,7 @@ public class QueueReceiverTest
     }
 
     [Function(nameof(QueueReceiverTest))]
-    public void Run([QueueTrigger(TestMessage.TargetQueue, Connection = Constants.AzureConnectionName)] TestMessage message)
+    public void Run([QueueTrigger(SystemEvent.TargetQueue, Connection = Constants.AzureConnectionName)] SystemEvent message)
     {
        
         _logger.LogInformation("C# Queue trigger function processed: {Message}", message);

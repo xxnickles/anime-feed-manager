@@ -139,7 +139,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
         {
             // Create initial ScrapTvLibraryData
             // Season to scrap will be old
-            var seriesSeason = new SeriesSeason(Season.Summer, Year.FromNumber(2024));
+            var seriesSeason = new SeriesSeason(Season.Summer(), Year.FromNumber(2024));
             var feedTitles = ImmutableList.Create("Other Series"); // No matching feed title
 
             var processSeries = new StorageData(new AnimeInfoStorage
@@ -150,7 +150,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 Synopsis = "Test synopsis",
                 FeedTitle = string.Empty,
                 Status = SeriesStatus.NotAvailableValue,
-                Season = Season.Spring,
+                Season = Season.Spring(),
                 Year = 2023
             }, new NoImage());
 

@@ -3,7 +3,7 @@ using AnimeFeedManager.Old.Common.Domain.Types;
 using AnimeFeedManager.Old.Common.RealTimeNotifications;
 using AnimeFeedManager.Old.Features.Movies.Scrapping.Feed.Types;
 using AnimeFeedManager.Old.Features.Notifications.IO;
-using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
+using AnimeFeedManager.Old.Web.BlazorComponents.SignalRContent;
 using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Old.Functions.Movies.Series;

@@ -1,5 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.Seasons.Storage;
 
+[WithTableName(AzureTableMap.StoreTo.AvailableSeasons)]
 public sealed class SeasonStorage: ITableEntity
 {
     public string? Season { get; set; }
@@ -12,6 +13,7 @@ public sealed class SeasonStorage: ITableEntity
     public ETag ETag { get; set; }
 }
 
+[WithTableName(AzureTableMap.StoreTo.JsonStorage)]
 public sealed class LatestSeasonsStorage: ITableEntity
 {
     public const string Partition = "latest-seasons";

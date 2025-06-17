@@ -1,5 +1,7 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Library.Storage;
 
+
+[WithTableName(AzureTableMap.StoreTo.AnimeLibrary)]
 public class UpdateFeedAnimeInfoStorage : ITableEntity 
 {
     public string? PartitionKey { get; set; }
@@ -10,6 +12,7 @@ public class UpdateFeedAnimeInfoStorage : ITableEntity
     public string? Status { get; set; }
 }
 
+[WithTableName(AzureTableMap.StoreTo.AnimeLibrary)]
 public class AnimeInfoStorage : ITableEntity
 {
     public string? Title { get; set; }

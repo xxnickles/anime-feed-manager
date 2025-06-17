@@ -2,7 +2,7 @@
 
 public class DefaultSeasonDataCustomization : ICustomization
 {
-    private static readonly Season[] ValidSeasons = [Season.Winter, Season.Spring, Season.Summer, Season.Fall];
+    private static readonly Season[] ValidSeasons = [Season.Winter(), Season.Spring(), Season.Summer(), Season.Fall()];
     private static readonly Random Random = new();
     private readonly Year _year = Year.FromNumber(DateTime.Now.Year);
     private readonly Season _season = ValidSeasons[Random.Next(ValidSeasons.Length)];
