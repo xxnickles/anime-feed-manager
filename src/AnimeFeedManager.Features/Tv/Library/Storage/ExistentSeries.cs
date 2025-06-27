@@ -16,13 +16,22 @@ public sealed record TvSeriesInfoWithImage(
 public delegate Task<Result<ImmutableList<TvSeriesInfo>>> StoredSeriesGetter(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
+public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> RawStoredSeriesGetter(SeriesSeason season,
+    CancellationToken cancellationToken = default);
+
 public static class ExistentSeries
 {
     public static StoredSeriesGetter GetExistentStoredSeriesGetter(this ITableClientFactory clientFactory) => (season, token) =>
         clientFactory.GetClient<AnimeInfoStorage>(token)
+            .Bind(client => client.GetStoredSeries(season, token))
+            .Map(series => series.ConvertAll(Mapper));
+    
+    public static RawStoredSeriesGetter GetRawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) => (season, token) =>
+        clientFactory.GetClient<AnimeInfoStorage>(token)
             .Bind(client => client.GetStoredSeries(season, token));
 
-    private static Task<Result<ImmutableList<TvSeriesInfo>>> GetStoredSeries(
+
+    private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
         this AppTableClient<AnimeInfoStorage> tableClient, 
         SeriesSeason season,
         CancellationToken cancellationToken = default)
@@ -37,8 +46,7 @@ public static class ExistentSeries
                     nameof(AnimeInfoStorage.Status),
                     nameof(AnimeInfoStorage.ImageUrl)
                 ],
-                cancellationToken: cancellationToken))
-            .Map(series => series.ConvertAll(Mapper));
+                cancellationToken: cancellationToken));
     }
 
     private static TvSeriesInfo Mapper(AnimeInfoStorage entity)

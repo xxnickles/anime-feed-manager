@@ -40,7 +40,7 @@ public sealed record DomainValidationErrors : DomainError
         return builder.ToString();
     }
 
-    public override void LogError(ILogger logger)
+    protected override void LoggingBehavior(ILogger logger)
     {
         logger.LogWarning("{Error}", Message);
         

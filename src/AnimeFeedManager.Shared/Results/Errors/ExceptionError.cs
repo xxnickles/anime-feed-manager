@@ -41,7 +41,7 @@ public sealed record ExceptionError : DomainError
         return builder.ToString();
     }
 
-    public override void LogError(ILogger logger)
+    protected override void LoggingBehavior(ILogger logger)
     {
         logger.LogError(Exception, "{Error} {Additional}", Exception.Message, AdditionalMessage);
     }

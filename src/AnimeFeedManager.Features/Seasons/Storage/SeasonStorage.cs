@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Seasons.Storage;
+﻿using AnimeFeedManager.Features.Common.Storage;
+
+namespace AnimeFeedManager.Features.Seasons.Storage;
 
 [WithTableName(AzureTableMap.StoreTo.AvailableSeasons)]
 public sealed class SeasonStorage: ITableEntity
@@ -14,16 +16,11 @@ public sealed class SeasonStorage: ITableEntity
 }
 
 [WithTableName(AzureTableMap.StoreTo.JsonStorage)]
-public sealed class LatestSeasonsStorage: ITableEntity
+public sealed class LatestSeasonsStorage: JsonStorage
 {
     public const string Partition = "latest-seasons";
     public const string Key = "last-4";
     
-    public string PartitionKey { get; set; } = Partition;
-    public string? Payload { get; set; }
-    public string RowKey { get; set; } = Key;
-    public DateTimeOffset? Timestamp { get; set; }
-    public ETag ETag { get; set; }
-    
-    
+    public override string PartitionKey { get; set; } = Partition;
+    public override string RowKey { get; set; } = Key;
 }

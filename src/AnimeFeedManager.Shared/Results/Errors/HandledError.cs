@@ -7,7 +7,7 @@ namespace AnimeFeedManager.Shared.Results.Errors;
 /// </summary>
 public sealed record HandledError() : DomainError(string.Empty)
 {
-    public override void LogError(ILogger logger)
+    protected override void LoggingBehavior(ILogger logger)
     {
         // Does nothing
     }

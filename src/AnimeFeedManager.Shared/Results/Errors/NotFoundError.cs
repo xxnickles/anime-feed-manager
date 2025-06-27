@@ -9,7 +9,8 @@ public sealed record NotFoundError : DomainError
     }
 
     public static NotFoundError Create(string message) => new(message);
-    public override void LogError(ILogger logger)
+
+    protected override void LoggingBehavior(ILogger logger)
     {
         logger.LogError("{Message}", Message);
     }

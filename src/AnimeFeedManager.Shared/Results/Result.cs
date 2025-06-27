@@ -1,20 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace AnimeFeedManager.Shared.Results;
+﻿namespace AnimeFeedManager.Shared.Results;
 
 public readonly record struct Unit;
-
-public abstract record DomainError(string Message)
-{
-    public string Message { get; } = Message;
-
-    public override string ToString()
-    {
-        return Message;
-    }
-
-    public abstract void LogError(ILogger logger);
-}
 
 // ReSharper disable NullableWarningSuppressionIsUsed
 public sealed record Result<T>

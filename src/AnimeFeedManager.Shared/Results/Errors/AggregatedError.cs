@@ -14,7 +14,8 @@ public record AggregatedError(ImmutableList<DomainError> Errors, FailureType Fai
 {
     private ImmutableList<DomainError> Errors { get; } = Errors;
     private FailureType Type { get; } = FailureType;
-    public override void LogError(ILogger logger)
+
+    protected override void LoggingBehavior(ILogger logger)
     {
         logger.LogWarning("{Message}. {TypeMessage}", Message, TypeMessage(Type));
         foreach (var error in Errors)

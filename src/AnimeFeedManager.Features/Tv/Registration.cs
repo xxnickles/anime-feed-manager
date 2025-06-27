@@ -14,7 +14,6 @@ public static class Registration
 
     public static IServiceCollection RegisterTvScrappingServices(this IServiceCollection services)
     {
-        services.TryAddScoped<ISeasonFeedTitlesProvider, SeasonFeedTitlesProvider>();
         services.TryAddScoped<ITvLibraryScrapper, TvLibraryScrapper>();
         services.TryAddScoped<ITvImagesCollector, TvImagesCollector>();
 

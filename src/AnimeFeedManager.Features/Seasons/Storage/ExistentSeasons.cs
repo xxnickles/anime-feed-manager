@@ -12,6 +12,7 @@ public delegate Task<Result<ImmutableList<SeriesSeason>>> AllSeasonsGetter(
 
 public static class ExistentSeasons
 {
+
     public static LatestSeasonGetter LatestSeasonGetter(this ITableClientFactory clientFactory) =>
         cancellationToken => clientFactory.GetClient<SeasonStorage>(cancellationToken)
             .Bind(client => client.GetLatestSeason(cancellationToken));

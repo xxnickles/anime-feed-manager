@@ -28,13 +28,36 @@ public class TableNameMapGenerator : IIncrementalGenerator
             static (spc, source) => Execute(source.Left, source.Right, spc));
     }
 
-    private static bool IsSyntaxTargetForGeneration(SyntaxNode node) =>
-        node is ClassDeclarationSyntax {AttributeLists: {Count: > 0}};
+    private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
+    {
+        // Only process class declarations with attributes
+        if (node is not ClassDeclarationSyntax classDeclaration || classDeclaration.AttributeLists.Count == 0)
+            return false;
+        
+        // Filter out non-regular classes
+        if (classDeclaration.Modifiers.Any(m => 
+                m.IsKind(SyntaxKind.StaticKeyword) || 
+                m.IsKind(SyntaxKind.AbstractKeyword) ||
+                m.IsKind(SyntaxKind.SealedKeyword)))
+            return false;
+        
+        return true;
+    }
+
 
     private static ClassDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
     {
-        var classDeclaration = (ClassDeclarationSyntax) context.Node;
-
+        var classDeclaration = (ClassDeclarationSyntax)context.Node;
+    
+        // Get the semantic model and symbol for more accurate checks
+        var semanticModel = context.SemanticModel;
+        var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+    
+        // Skip if we can't get the symbol or if it's not a regular class
+        if (classSymbol == null || classSymbol.IsStatic || classSymbol.IsAbstract || classSymbol.TypeKind != TypeKind.Class)
+            return null;
+    
+        // Check for the WithTableNameAttribute
         foreach (var attributeList in classDeclaration.AttributeLists)
         {
             foreach (var attribute in attributeList.Attributes)
@@ -42,6 +65,7 @@ public class TableNameMapGenerator : IIncrementalGenerator
                 var attributeName = attribute.Name.ToString();
                 if (attributeName.Contains("WithTableName"))
                 {
+                    // Now we can be sure it's a regular class with the right attribute
                     return classDeclaration;
                 }
             }
@@ -49,6 +73,7 @@ public class TableNameMapGenerator : IIncrementalGenerator
 
         return null;
     }
+
 
     private static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax?> classes,
         SourceProductionContext context)

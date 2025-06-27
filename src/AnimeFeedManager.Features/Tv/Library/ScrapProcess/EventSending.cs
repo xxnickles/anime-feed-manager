@@ -31,12 +31,18 @@ public static class EventSending
     private static DomainMessage[] GetEvents((ScrapTvLibraryData processData, ScrapTvLibraryResult summary) data) =>
     [
         new SeasonUpdated(data.processData.Season),
-        new NewSeriesAdded(data.processData.SeriesData.Where(d => d.Image is AlreadyExistInSystem)
-            .Select(d => d.Series.Title ?? string.Empty).ToArray()),
-        new FeedUpdated(data.processData.FeedTitles.ToArray()),
+        new FeedTitlesUpdated(data.processData.Season, data.processData.FeedTitles.ToArray()),
         new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
-            data.summary.AsEventPayload())
+            data.summary.AsEventPayload()),
+        .. GetFeedUpdatedEvents(data.processData)
     ];
+
+    private static DomainMessage[] GetFeedUpdatedEvents(ScrapTvLibraryData data)
+    {
+        return data.SeriesData.Where(d => !string.IsNullOrEmpty(d.Series.FeedTitle))
+            .Select(d => new SeriesFeedUpdated(d.Series.RowKey ?? string.Empty, d.Series.FeedTitle ?? string.Empty))
+            .ToArray<DomainMessage>();
+    }
 
     private static ScrapTvLibraryResult ExtractResults(ScrapTvLibraryData data) =>
         new(data.Season,
