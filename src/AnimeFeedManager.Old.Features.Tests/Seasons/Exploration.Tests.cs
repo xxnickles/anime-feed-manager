@@ -74,32 +74,32 @@ public class ExplorationTests
 
         SeasonStorage[] expectation =
         [
-            new SeasonStorage
+            new()
             {
                 PartitionKey = SeasonType.Season, RowKey = "2025-fall", Season = Season.Fall, Latest = false,
                 Year = 2025
             },
-            new SeasonStorage
+            new()
             {
                 PartitionKey = SeasonType.Latest, RowKey = "2024-winter", Season = Season.Winter, Latest = true,
                 Year = 2024
             },
-            new SeasonStorage
+            new()
             {
                 PartitionKey = SeasonType.Season, RowKey = "2023-fall", Season = Season.Fall, Latest = false,
                 Year = 2023
             },
-            new SeasonStorage
+            new()
             {
                 PartitionKey = SeasonType.Season, RowKey = "2023-summer", Season = Season.Summer, Latest = false,
                 Year = 2023
             },
-            new SeasonStorage
+            new()
             {
                 PartitionKey = SeasonType.Season, RowKey = "2023-spring", Season = Season.Spring, Latest = false,
                 Year = 2023
             },
-            new SeasonStorage
+            new()
             {
                 PartitionKey = SeasonType.Season, RowKey = "2023-winter", Season = Season.Winter, Latest = false,
                 Year = 2023

@@ -19,7 +19,7 @@ public readonly record struct Year : IComparable<Year>
     }
 
 
-    public static Year FromNumber(int value) => new Year(value);
+    public static Year FromNumber(int value) => new(value);
 
     public static bool NumberIsValid(int value) => value >= 2000 && value <= DateTime.Now.Year + 1;
 
