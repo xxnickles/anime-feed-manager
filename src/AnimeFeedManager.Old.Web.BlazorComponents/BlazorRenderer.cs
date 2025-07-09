@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.Web.HtmlRendering;
 
-namespace AnimeFeedManager.Web.BlazorComponents;
+namespace AnimeFeedManager.Old.Web.BlazorComponents;
 
 public class BlazorRenderer
 {

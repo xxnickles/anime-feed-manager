@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Old.Common.Domain.Notifications.Base;
-using AnimeFeedManager.Web.BlazorComponents.Toast;
+using AnimeFeedManager.Old.Web.BlazorComponents.Toast;
 
-namespace AnimeFeedManager.Web.BlazorComponents.SignalRContent;
+namespace AnimeFeedManager.Old.Web.BlazorComponents.SignalRContent;
 
 internal static class  Helpers
 {

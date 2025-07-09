@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Common
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OldBlazor", "OldBlazor", "{917D8146-26E4-4E77-8211-4D76A23ABA7C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Web", "AnimeFeedManager.Web\AnimeFeedManager.Web.csproj", "{04A34488-6295-4CAD-9F51-7E69F5833A95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Web", "AnimeFeedManager.Old.Web\AnimeFeedManager.Old.Web.csproj", "{04A34488-6295-4CAD-9F51-7E69F5833A95}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Old.Web.BlazorComponents", "AnimeFeedManager.Old.Web.BlazorComponents\AnimeFeedManager.Old.Web.BlazorComponents.csproj", "{94B50DA1-E3DA-44AA-A866-CD98956C98F7}"
 EndProject

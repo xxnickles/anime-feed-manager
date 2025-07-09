@@ -6,7 +6,6 @@ global using AnimeFeedManager.Old.Features.Movies;
 global using AnimeFeedManager.Old.Features.Ovas;
 global using AnimeFeedManager.Old.Features.Seasons;
 global using AnimeFeedManager.Old.Features.Tv;
-global using AnimeFeedManager.Web.BlazorComponents;
 global using LanguageExt;
 global using Microsoft.Azure.Functions.Worker;
 global using static LanguageExt.Prelude;

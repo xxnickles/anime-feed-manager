@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Web.BlazorComponents;
+﻿namespace AnimeFeedManager.Old.Web.BlazorComponents;
 
 public struct HubNames
 {

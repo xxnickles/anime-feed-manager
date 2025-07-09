@@ -2,6 +2,7 @@
 using AnimeFeedManager.Old.Common.Domain.Types;
 using AnimeFeedManager.Old.Common.RealTimeNotifications;
 using AnimeFeedManager.Old.Features.Notifications.IO;
+using AnimeFeedManager.Old.Web.BlazorComponents;
 using AnimeFeedManager.Old.Web.BlazorComponents.SignalRContent;
 using Microsoft.Extensions.Logging;
 

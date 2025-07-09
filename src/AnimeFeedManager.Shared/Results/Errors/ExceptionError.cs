@@ -6,9 +6,9 @@ namespace AnimeFeedManager.Shared.Results.Errors;
 
 public sealed record ExceptionError : DomainError
 {
-    public Exception Exception { get; }
+    private Exception Exception { get; }
 
-    public string? AdditionalMessage { get; }
+    private string? AdditionalMessage { get; }
     private ExceptionError(Exception exn) : base(exn.Message)
     {
         Exception = exn;

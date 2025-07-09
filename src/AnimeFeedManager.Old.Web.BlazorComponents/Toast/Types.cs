@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Web.BlazorComponents.Toast;
+﻿namespace AnimeFeedManager.Old.Web.BlazorComponents.Toast;
 
 public enum ToastType
 {
