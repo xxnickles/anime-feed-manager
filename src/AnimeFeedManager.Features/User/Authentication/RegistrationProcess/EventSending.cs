@@ -1,6 +1,6 @@
-using AnimeFeedManager.Features.User.Events;
+using AnimeFeedManager.Features.User.Authentication.Events;
 
-namespace AnimeFeedManager.Features.User.RegistrationProcess;
+namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
 public static class EventSending
 {

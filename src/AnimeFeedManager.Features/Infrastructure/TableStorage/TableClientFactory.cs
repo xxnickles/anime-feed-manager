@@ -18,13 +18,14 @@ public sealed class TableClientFactory : ITableClientFactory
         _logger = logger;
     }
     
+    
     public async Task<Result<AppTableClient<T>>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity
     {
         try
         {
             var client = _serviceClient.GetTableClient(AzureTableName.GetTableName<T>());
             await client.CreateIfNotExistsAsync(cancellationToken);
-            return Result<AppTableClient<T>>.Success(new AppTableClient<T>(client, _logger));
+            return new AppTableClient<T>(client, _logger);
         }
         catch (KeyNotFoundException ex)
         {

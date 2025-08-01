@@ -11,6 +11,6 @@ public sealed record MovieSubscriptions(ImmutableList<string> Subscriptions);
 
 public abstract record AuthenticatedUser(Email Email, NoEmptyString UserId, TvSubscriptions TvSubscriptions, OvaSubscriptions OvaSubscriptions, MovieSubscriptions MovieSubscriptions) : AppUser;
 
-public record User(Email Email, NoEmptyString UserId, TvSubscriptions TvSubscriptions, OvaSubscriptions OvaSubscriptions, MovieSubscriptions MovieSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions, OvaSubscriptions, MovieSubscriptions);
+public record RegularUser(Email Email, NoEmptyString UserId, TvSubscriptions TvSubscriptions, OvaSubscriptions OvaSubscriptions, MovieSubscriptions MovieSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions, OvaSubscriptions, MovieSubscriptions);
 
 public record AdminUser(Email Email, NoEmptyString UserId, TvSubscriptions TvSubscriptions, OvaSubscriptions OvaSubscriptions, MovieSubscriptions MovieSubscriptions) : AuthenticatedUser(Email,UserId, TvSubscriptions, OvaSubscriptions, MovieSubscriptions);

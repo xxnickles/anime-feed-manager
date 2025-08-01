@@ -1,4 +1,4 @@
-namespace AnimeFeedManager.Features.User.Storage;
+namespace AnimeFeedManager.Features.User.Authentication.Storage;
 
 public delegate Task<Result<Unit>> UserUpdater(Email email, string userId, UserRole role,
     CancellationToken cancellationToken = default);

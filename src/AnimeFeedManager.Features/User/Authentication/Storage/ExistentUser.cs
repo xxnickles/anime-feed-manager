@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.User.Storage;
+﻿namespace AnimeFeedManager.Features.User.Authentication.Storage;
 
 public abstract record User;
 
@@ -53,7 +53,7 @@ public static class ExistentUser
     {
         // No match
         if (storage.Count == 0)
-            return Result<User>.Success(new NotAUser());
+            return new NotAUser();
 
         // we can guarantee at least a match
         var matchingStorage = storage.First();

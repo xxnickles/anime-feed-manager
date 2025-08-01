@@ -10,9 +10,11 @@ public delegate Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason season
 public delegate Task<Result<ImmutableList<SeriesSeason>>> AllSeasonsGetter(
     CancellationToken cancellationToken = default);
 
+public delegate Task<Result<ImmutableList<SeriesSeason>>> LatestSeasonsGetter(
+    CancellationToken cancellationToken = default);
+
 public static class ExistentSeasons
 {
-
     public static LatestSeasonGetter LatestSeasonGetter(this ITableClientFactory clientFactory) =>
         cancellationToken => clientFactory.GetClient<SeasonStorage>(cancellationToken)
             .Bind(client => client.GetLatestSeason(cancellationToken));
@@ -25,6 +27,11 @@ public static class ExistentSeasons
         cancellationToken => clientFactory.GetClient<SeasonStorage>(cancellationToken)
             .Bind(client => GetAllSeasons(client, cancellationToken))
             .Map(seasons => seasons.TransformToSeriesSeason());
+
+    public static LatestSeasonsGetter LatestSeasonsGetter(this ITableClientFactory clientFactory) =>
+        cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>(cancellationToken)
+            .Bind(client => client.GetLatestSeason(cancellationToken)
+                .Map(seasons => TransformToSeriesSeason(seasons, client.Logger)));
 
 
     private static Task<Result<ImmutableList<SeasonStorage>>> GetAllSeasons(
@@ -71,6 +78,33 @@ public static class ExistentSeasons
                         : new ExistentSeason(match)
                 };
             });
+    }
+
+
+    private static Task<Result<LatestSeasonsStorage>> GetLatestSeason(
+        this AppTableClient<LatestSeasonsStorage> tableClient,
+        CancellationToken cancellationToken = default)
+    {
+        return tableClient.ExecuteQuery(client =>
+                client.QueryAsync<LatestSeasonsStorage>(
+                    storage => storage.PartitionKey == LatestSeasonsStorage.Partition &&
+                               storage.RowKey == LatestSeasonsStorage.Key, cancellationToken: cancellationToken))
+            .SingleItem();
+    }
+
+    private static ImmutableList<SeriesSeason> TransformToSeriesSeason(this LatestSeasonsStorage seasons,
+        ILogger logger)
+    {
+        try
+        {
+            return (JsonSerializer.Deserialize(seasons.Payload ?? string.Empty,
+                SeriesSeasonContext.Default.SeriesSeasonArray) ?? []).ToImmutableList();
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "An error occurred when trying to deserialize the latest seasons");
+            return [];
+        }
     }
 
 

@@ -15,12 +15,12 @@ public static class FeedTitlesScrap
                 LatestSeason latest => (latest.Season.Season ?? string.Empty, latest.Season.Year, latest.Season.Latest)
                     .ParseAsSeriesSeason()
                     .Map(latestSeason => new FeedTitleUpdateData(latestSeason, [], [])),
-                NoMatch => Result<FeedTitleUpdateData>.Failure(new OperationError(
+                NoMatch => new OperationError(
                     $"{nameof(StartFeedUpdateProcess)}",
-                    "There is no latest season data in storage.")),
-                _ => Result<FeedTitleUpdateData>.Failure(new OperationError(
+                    "There is no latest season data in storage."),
+                _ => new OperationError(
                     $"{nameof(StartFeedUpdateProcess)}-{nameof(seasonGetter)}",
-                    $"Season is not latest. Received {season.GetType().Name}"))
+                    $"Season is not latest. Received {season.GetType().Name}")
             };
         });
 

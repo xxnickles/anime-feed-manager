@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using AnimeFeedManager.Shared.Results;
 using AnimeFeedManager.Shared.Results.Errors;
@@ -12,7 +13,7 @@ public record NoEmptyString
 
     protected NoEmptyString(string value)
     {
-        if(string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrWhiteSpace(value))
             throw new ArgumentException("Value cannot be empty", nameof(value));
         _value = value;
     }
@@ -27,16 +28,16 @@ public record NoEmptyString
     public static NoEmptyString FromString(string value) => new(value);
 }
 
-
 public static class NoEmptyStringExtensions
 {
-    public static Validation<NoEmptyString> ParseAsNonEmpty(this string value) => !string.IsNullOrWhiteSpace(value)
+    public static Validation<NoEmptyString> ParseAsNonEmpty(this string value,
+        [CallerArgumentExpression(nameof(value))] string propertyName = ""
+    ) => !string.IsNullOrWhiteSpace(value)
         ? Validation<NoEmptyString>.Valid(NoEmptyString.FromString(value))
         : Validation<NoEmptyString>.Invalid(
-            DomainValidationError.Create<NoEmptyString>("Value cannot be empty")
+            DomainValidationError.Create(propertyName, "Value cannot be empty")
                 .ToErrors());
 }
-
 
 public class NoEmptyStringConverter : JsonConverter<NoEmptyString>
 {
@@ -46,7 +47,7 @@ public class NoEmptyStringConverter : JsonConverter<NoEmptyString>
         {
             case JsonTokenType.String:
                 var value = reader.GetString() ?? string.Empty;
-                if(!string.IsNullOrWhiteSpace(value))
+                if (!string.IsNullOrWhiteSpace(value))
                     return NoEmptyString.FromString(value);
                 throw new JsonException("Value cannot be empty");
             case JsonTokenType.Null:

@@ -34,4 +34,7 @@
       <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Seasons\" />
+    </ItemGroup>
 </Project>

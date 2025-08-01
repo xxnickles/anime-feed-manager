@@ -1,6 +1,6 @@
 ﻿using Passwordless;
 
-namespace AnimeFeedManager.Features.User;
+namespace AnimeFeedManager.Features.User.Authentication;
 
 public sealed record PasswordlessError : DomainError
 {

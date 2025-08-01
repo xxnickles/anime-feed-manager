@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "htmx@2.0.6",
+      "destination": "wwwroot/lib/htmx/",
+      "files": [
+        "htmx.min.js",
+        "htmx.js"
+      ]
+    },
+    {
+      "library": "alpinejs@3.14.9",
+      "destination": "wwwroot/lib/alpinejs/",
+      "files": [
+        "cdn.js",
+        "cdn.min.js",
+        "module.cjs.js",
+        "module.cjs.min.js",
+        "module.esm.js",
+        "module.esm.min.js"
+      ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "@passwordlessdev/passwordless-client@1.2.4",
+      "destination": "wwwroot/lib/passwordlessdev/passwordless-client/",
+      "files": [
+        "dist/umd/passwordless.umd.js",
+        "dist/umd/passwordless.umd.min.js",
+        "dist/esm/passwordless.min.mjs"
+      ]
+    },
+    {
+      "library": "microsoft-signalr@8.0.7",
+      "destination": "wwwroot\\lib\\microsoft-signalr"
+    }
+  ]
+}

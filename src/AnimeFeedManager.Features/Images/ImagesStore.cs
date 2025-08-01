@@ -47,12 +47,12 @@ public class ImagesStore : IImagesStore
             response.EnsureSuccessStatusCode();
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
 
-            return Result<Uri>.Success(await Upload(data.FileName, data.TargetDirectory, stream, cancellationToken));
+            return await Upload(data.FileName, data.TargetDirectory, stream, cancellationToken);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occurred when processing image {ImageName}", data.FileName);
-            return Result<Uri>.Failure(new HandledError());
+            return new HandledError();
         }
     }
 

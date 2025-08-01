@@ -24,6 +24,8 @@ public record UserRole
     
     public bool NoRole() => _value == NoneValue;
 
+    
+    
     public static UserRole Admin() => new(AdminValue);
     public static UserRole User() => new(UserValue);
     public static UserRole None() => new(NoneValue);

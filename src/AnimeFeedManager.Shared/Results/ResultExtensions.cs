@@ -1,4 +1,5 @@
 using AnimeFeedManager.Shared.Results.Errors;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Shared.Results;
 
@@ -14,7 +15,7 @@ public static class ResultExtensions
                 _ => throw new InvalidOperationException("List contains errors which should not be possible")
             ));
 
-            return Result<ImmutableList<T>>.Success(finalResult.ToImmutableList());
+            return finalResult.ToImmutableList();
         }
 
         var errorType = oks switch
@@ -28,7 +29,7 @@ public static class ResultExtensions
             error => error
         ));
 
-        return Result<ImmutableList<T>>.Failure(new AggregatedError(errors.ToImmutableList(), errorType));
+        return new AggregatedError(errors.ToImmutableList(), errorType);
     }
 
     public static ImmutableList<T> GetSuccessValues<T>(this IEnumerable<Result<T>> results)
@@ -43,6 +44,12 @@ public static class ResultExtensions
         Action<DomainError> onError)
     {
         (await resultTask).Match(onSuccess, onError);
+    }
+    
+    public static async Task Match<T>(this Task<Result<T>> resultTask, Func<T, Task> onSuccess,
+        Func<DomainError, Task> onError)
+    {
+        await (await resultTask).Match(onSuccess, onError);
     }
 
     public static async Task<TTarget> MatchToValue<T, TTarget>(this Task<Result<T>> resultTask,
@@ -62,11 +69,10 @@ public static class ResultExtensions
     {
         return (await resultTask).MapError(mapper);
     }
-    
+
     public static async Task<Result<T>> MapError<T>(this Task<Result<T>> resultTask,
         Func<DomainError, Task<DomainError>> mapper)
     {
-       
         return await (await resultTask).MapError(mapper);
     }
 
@@ -75,10 +81,22 @@ public static class ResultExtensions
     {
         return (await resultTask).Bind(binder);
     }
-    
+
     public static async Task<Result<TTarget>> Bind<T, TTarget>(this Task<Result<T>> resultTask,
         Func<T, Task<Result<TTarget>>> binder)
     {
         return await (await resultTask).Bind(binder);
     }
+
+    public static Result<T> LogErrors<T>(this Result<T> result, ILogger logger)
+    {
+        return result.MapError(error =>
+        {
+            error.LogError(logger);
+            return error;
+        });
+    }
+
+    public static async Task<Result<T>> LogErrors<T>(this Task<Result<T>> result, ILogger logger) =>
+        (await result).LogErrors(logger);
 }

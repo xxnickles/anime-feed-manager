@@ -2,7 +2,7 @@
 
 
 [WithTableName(AzureTableMap.StoreTo.AnimeLibrary)]
-public class UpdateFeedAnimeInfoStorage : ITableEntity 
+public sealed class UpdateFeedAnimeInfoStorage : ITableEntity 
 {
     public string? PartitionKey { get; set; }
     public string? RowKey { get; set; }
@@ -13,7 +13,7 @@ public class UpdateFeedAnimeInfoStorage : ITableEntity
 }
 
 [WithTableName(AzureTableMap.StoreTo.AnimeLibrary)]
-public class AnimeInfoStorage : ITableEntity
+public sealed class AnimeInfoStorage : ITableEntity
 {
     public string? Title { get; set; }
     public string? Synopsis { get; set; }

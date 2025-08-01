@@ -37,8 +37,7 @@ public class TableNameMapGenerator : IIncrementalGenerator
         // Filter out non-regular classes
         if (classDeclaration.Modifiers.Any(m => 
                 m.IsKind(SyntaxKind.StaticKeyword) || 
-                m.IsKind(SyntaxKind.AbstractKeyword) ||
-                m.IsKind(SyntaxKind.SealedKeyword)))
+                m.IsKind(SyntaxKind.AbstractKeyword)))
             return false;
         
         return true;

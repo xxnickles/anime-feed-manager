@@ -24,7 +24,6 @@ internal static class Registration
 
         // App
         services.RegisterImageServices();
-        services.RegisterTvServices();
         services.RegisterTvScrappingServices();
    
 

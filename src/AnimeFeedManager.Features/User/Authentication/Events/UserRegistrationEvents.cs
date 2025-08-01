@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization.Metadata;
 
-namespace AnimeFeedManager.Features.User.Events;
+namespace AnimeFeedManager.Features.User.Authentication.Events;
 
 public sealed record UserRegistered(Email Email, string Id) : SerializableEventPayload<UserRegistered>
 {

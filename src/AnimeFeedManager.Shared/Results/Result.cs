@@ -7,15 +7,21 @@ public sealed record Result<T>
 {
     private readonly T? _resultValue;
     private readonly DomainError? _errorValueValue;
+
     private Result(bool isSuccess, T? resultValue, DomainError? errorValueValue) =>
         (IsSuccess, _resultValue, _errorValueValue) = (isSuccess, resultValue, errorValueValue);
 
 
     public bool IsSuccess { get; }
 
-    public static Result<Unit> Success() => new(true, new Unit(), null);
-    public static Result<T> Success(T value) => new(true, value, null);
-    public static Result<T> Failure(DomainError error) => new(false, default, error);
+    public static implicit operator Result<T>(T value) => Success(value);
+
+    public static implicit operator Result<T>(DomainError error) => Failure(error);
+
+
+    public static Result<Unit> Success() => new Unit();
+    public static Result<T> Success(T value) => new (true, value, null);
+    public static Result<T> Failure(DomainError error) => new (false, default, error);
 
 
     public void Match(Action<T> onOk, Action<DomainError> onError)

@@ -1,0 +1,279 @@
+﻿@page "/Login"
+@using System.Security.Claims
+@using AnimeFeedManager.Features.User.Authentication.Queries
+@using AnimeFeedManager.Features.User.Authentication.Storage
+@using AnimeFeedManager.Web.Features.Layout
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject NavigationManager NavigationManager;
+@inject ILogger<Login> Logger;
+@inject ITableClientFactory TableClientFactory;
+@layout AltNavBarLayout
+
+<PageTitle>@PageTitle("Login")</PageTitle>
+
+<section class="hero min-h-screen bg-base-200">
+    <div class="hero-content flex-col items-start  -pt-96">
+        <header class="text-center mb-2">
+            <h1 class="normal-case font-semibold text-4xl font-logo md:text-5xl">Anime Feed Manager</h1>
+        </header>
+        <article class="card w-full max-w-sm shadow-2xl bg-base-100">
+            <EditForm Model="ViewModel"
+                      FormName="login"
+                      OnValidSubmit="SubmitLogin"
+                      class="card-body"
+                      x-data="@($"loginForm('{ViewModel.Alias ?? ""}')")"
+                      x-on:submit.prevent="$event.target.checkValidity() ? handlePasswordlessLogin($event) : $event.target.reportValidity()"
+            >
+                <fieldset class="form-control">
+                    <label class="label" for="email-input">
+                        <span class="label-text">Email</span>
+                    </label>
+                    <input
+                        id="email-input"
+                        required
+                        type="email"
+                        placeholder="Enter your email"
+                        class="input input-bordered"
+                        :class="{
+                                       'input-error': result && result.attempted && !result.success && !result.unauthorized,
+                                       'input-success': result && result.attempted && result.success
+                                   }"
+                        :disabled="isLoading"
+                        x-model="alias"/>
+
+                    <!-- DaisyUI 5 validation styling -->
+                    <template x-if="result && !result.success && !result.unauthorized">
+                        <div class="label">
+                            <span class="label-text-alt text-error">Please check your email and try again</span>
+                        </div>
+                    </template>
+                </fieldset>
+
+                <!-- Use x-model to bind Alpine data to hidden fields -->
+                <InputText @bind-Value="ViewModel.Id"
+                           name="@nameof(ViewModel.Id)"
+                           type="hidden"
+                           x-model="userId"/>
+
+                <InputText @bind-Value="ViewModel.Alias"
+                           name="@nameof(ViewModel.Alias)"
+                           type="hidden"
+                           x-model="alias"/>
+
+                <fieldset class="form-control mt-6">
+
+                    <button type="submit"
+                            class="btn btn-primary"
+                            :class="{ 'btn-disabled': isLoading }"
+                            :disabled="isLoading"
+                    >
+                        <!-- DaisyUI 5 loading spinner -->
+                        <template x-if="isLoading">
+                            <span class="loading loading-spinner loading-sm"></span>
+                        </template>
+                        <span x-text="isLoading ? 'Getting Passkey...' : 'Login'"></span>
+                    </button>
+                    <button type="submit" class="hidden" x-ref="submit"></button>
+
+                </fieldset>
+
+                <!-- Error states with DaisyUI 5 alert styles -->
+                <template x-if="result && !result.success && !result.unauthorized">
+                    <div class="alert alert-error mt-4" role="alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <template x-for="error in Object.values(result.errors)">
+                                <p x-text="Array.isArray(error) ? error.join(', ') : error"></p>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <template x-if="result && result.unauthorized">
+                    <div class="alert alert-warning mt-4" role="alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                        <div>
+                            <p>Your account is not registered.</p>
+                            <NavLink class="link link-primary font-semibold" href="/register">Register here</NavLink>
+                        </div>
+                    </div>
+                </template>
+            </EditForm>
+
+            @if (ServerError)
+            {
+                <div class="alert alert-error mt-4" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>@_errorText</span>
+                </div>
+            }
+        </article>
+    </div>
+</section>
+
+<script defer>
+    function loginForm(initialAlias) {
+        return {
+            alias: initialAlias,
+            userId: '',
+            isLoading: false,
+            result: {success: true, attempted: false, unauthorized: false, errors: {}},
+
+            async handlePasswordlessLogin(event) {
+                event.preventDefault();
+
+                // Reset previous results and start loading
+                this.result = {success: true, unauthorized: false, errors: {}};
+                this.isLoading = true;
+
+                const Client = Passwordless.Client;
+                const p = new Client({
+                    apiKey: API_KEY
+                });
+
+                try {
+                    const {token, error} = await p.signinWithAlias(this.alias);
+
+                    if (error) {
+                        this.result = {success: false, attempted: true, unauthorized: false, errors: {}};
+                        this.isLoading = false;
+
+                        if (error.status && (error.status === 401 || error.status === 403)) {
+                            this.result = {
+                                errors: error,
+                                unauthorized: true,
+                                success: false
+                            };
+                            return;
+                        }
+
+                        if (error.status && error.status >= 400) {
+                            this.result = {
+                                errors: error,
+                                unauthorized: false,
+                                success: false
+                            };
+                            return;
+                        }
+
+                        if (error.errorCode && error.errorCode === 'unknown') {
+                            this.result = {
+                                errors: {
+                                    'client': 'Authentication flow was not completed. Please try again'
+                                },
+                                unauthorized: false,
+                                success: false
+                            };
+                            return;
+                        }
+                    }
+
+                    const verifiedUser = await fetch('/verify-signin?token=' + token).then((r) => r.json());
+                    if (verifiedUser.success === true) {
+                        console.log(verifiedUser);
+                        // Update Alpine data properties instead of direct DOM manipulation
+                        this.userId = verifiedUser.userId;
+                        this.$nextTick(() => {
+                            event.target.submit();
+                        });
+
+
+                    } else {
+                        this.isLoading = false;
+                        this.result = {
+                            errors: {server: 'Authentication verification failed'},
+                            unauthorized: false,
+                            success: false
+                        };
+                    }
+                } catch (e) {
+                    this.isLoading = false;
+                    console.error('Things went bad on sign-in', e);
+                    this.result = {
+                        errors: {ex: [e.message || e]},
+                        success: false
+                    };
+                }
+            }
+        }
+    }
+</script>
+
+@code {
+
+    [SupplyParameterFromForm(FormName = "login", Name = "")]
+    public LoginViewModel ViewModel { get; set; } = new();
+
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string ReturnUrl { get; set; } = "";
+
+    [CascadingParameter] public HttpContext HttpContext { get; set; } = default!;
+    private string _errorText = string.Empty;
+
+    private bool ServerError { get; set; }
+
+    private async Task SubmitLogin()
+    {
+        await ViewModel.Id.ParseAsNonEmpty(nameof(ViewModel.Id))
+            .AsResult()
+            .Bind(id => Users.GetById(TableClientFactory.ExistentUserGetterById(), id, CancellationToken.None))
+            .Bind(TryToCreatePrincipal)
+            .Match(CompleteLogin, ShowError);
+    }
+
+    private async Task CompleteLogin(ClaimsPrincipal principal)
+    {
+        await HttpContext.SignInAsync(principal, new AuthenticationProperties {IsPersistent = true});
+        NavigationManager.NavigateTo(!string.IsNullOrWhiteSpace(ReturnUrl) ? ReturnUrl : "/");
+    }
+
+    private Task ShowError(DomainError error)
+    {
+        error.LogError(Logger);
+        ServerError = true;
+        _errorText = error switch
+        {
+            Error e => e.Message,
+            DomainValidationErrors e => e.ToString(),
+            _ => "An error has occurred. Please try again."
+        };
+        return Task.CompletedTask;
+    }
+
+    private Result<ClaimsPrincipal> TryToCreatePrincipal(User user)
+    {
+        return user switch
+        {
+            ValidUser vu => CreatePrincipal(vu),
+            _ => new Error("Provided user doesn't exist in the system")
+        };
+    }
+
+    private static ClaimsPrincipal CreatePrincipal(ValidUser user)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, user.Email),
+            new(ClaimTypes.Email, user.Email),
+            new(CustomClaimTypes.Sub, user.UserId),
+            new(ClaimTypes.Role, user.Role)
+        };
+
+        return
+            new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+    }
+
+}

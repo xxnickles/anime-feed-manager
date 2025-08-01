@@ -36,9 +36,11 @@ public class Validation<T>
 
     private Result<T> ToResult()
     {
-        return IsSuccess ? Result<T>.Success(ValidValue) : Result<T>.Failure(ErrorValue);
+        return IsSuccess ? ValidValue : ErrorValue;
     }
 
+    public Result<T> AsResult() => ToResult();
+    
     public static implicit operator Result<T>(Validation<T> validation) => validation.ToResult();
 }
 

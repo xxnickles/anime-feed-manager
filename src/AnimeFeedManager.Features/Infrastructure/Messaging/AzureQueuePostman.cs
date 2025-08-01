@@ -54,17 +54,17 @@ public class AzureQueuePostman : IDomainPostman
         where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
-            return Result<Unit>.Failure(new Error($"{typeof(T).FullName} has not a target box"));
+            return new Error($"{typeof(T).FullName} has not a target box");
 
         try
         {
             await SendMessage(message, message.MessageBox, null, cancellationToken);
-            return Result<Unit>.Success();
+            return new Unit();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
-            return Result<Unit>.Failure(MessagesNotDelivered.Create(e.Message, message));
+            return MessagesNotDelivered.Create(e.Message, message);
         }
     }
 
@@ -76,7 +76,7 @@ public class AzureQueuePostman : IDomainPostman
         {
             if (processMessages.Any(m => m.MessageBox.HasNoTarget()))
             {
-                return Result<Unit>.Failure(new Error("One of the messages has no target box"));
+                return new Error("One of the messages has no target box");
             }
 
             while (processMessages.Count > 0)
@@ -86,13 +86,13 @@ public class AzureQueuePostman : IDomainPostman
             }
 
 
-            return Result<Unit>.Success();
+            return new Unit();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An occurred when trying to send multiple messages to {Queues}",
                 string.Join(", ", processMessages.Select(m => m.MessageBox)));
-            return Result<Unit>.Failure(MessagesNotDelivered.Create(e.Message, processMessages));
+            return MessagesNotDelivered.Create(e.Message, processMessages);
         }
     }
 
@@ -100,17 +100,17 @@ public class AzureQueuePostman : IDomainPostman
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
-            return Result<Unit>.Failure(new Error($"{typeof(T).FullName} has not a target box"));
+            return new Error($"{typeof(T).FullName} has not a target box");
 
         try
         {
             await SendMessage(message, message.MessageBox, delay.Value, cancellationToken);
-            return Result<Unit>.Success();
+            return new Unit();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
-            return Result<Unit>.Failure(MessagesNotDelivered.Create(e.Message, message));
+            return MessagesNotDelivered.Create(e.Message, message);
         }
     }
 

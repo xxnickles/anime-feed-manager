@@ -3,7 +3,7 @@
 namespace AnimeFeedManager.Features.Tv.Library.Storage;
 
 [WithTableName(AzureTableMap.StoreTo.JsonStorage)]
-public class FeedTitlesStorage : JsonStorage
+public sealed class FeedTitlesStorage : JsonStorage
 {
     public const string Partition = "feed-titles";
     public const string Key = "standard";

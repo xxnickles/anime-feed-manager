@@ -10,8 +10,8 @@ public sealed record DomainValidationError(string Field, string[] Errors)
     public static DomainValidationError Create(string field, string[] errors) => new(field, errors);
     public static DomainValidationError Create(string field, string error) => new(field, [error]);
     
-    public static DomainValidationError Create<T>(string[] errors) => Create(nameof(T), errors);
-    public static DomainValidationError Create<T>(string error) => Create(nameof(T), [error]);
+    public static DomainValidationError Create<T>(string[] errors) => Create(typeof(T).Name, errors);
+    public static DomainValidationError Create<T>(string error) => Create(typeof(T).Name, [error]);
 }
 
 public sealed record DomainValidationErrors : DomainError

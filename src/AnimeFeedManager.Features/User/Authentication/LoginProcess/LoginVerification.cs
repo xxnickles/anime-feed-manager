@@ -1,6 +1,6 @@
 ﻿using Passwordless;
 
-namespace AnimeFeedManager.Features.User.LoginProcess;
+namespace AnimeFeedManager.Features.User.Authentication.LoginProcess;
 
 public static class LoginVerification
 {
@@ -13,16 +13,16 @@ public static class LoginVerification
         {
             var verifiedUser = await passwordlessClient.VerifyAuthenticationTokenAsync(token, cancellationToken);
             return verifiedUser.Success
-                ? Result<VerifiedUser>.Success(verifiedUser)
-                : Result<VerifiedUser>.Failure(NotFoundError.Create("User not found"));
+                ? verifiedUser
+                : NotFoundError.Create("User not found");
         }
         catch (PasswordlessApiException e)
         {
-            return Result<VerifiedUser>.Failure(PasswordlessError.FromException(e));
+            return PasswordlessError.FromException(e);
         }
         catch (Exception e)
         {
-            return Result<VerifiedUser>.Failure(ExceptionError.FromException(e));
+            return ExceptionError.FromException(e);
         }
     }
 }

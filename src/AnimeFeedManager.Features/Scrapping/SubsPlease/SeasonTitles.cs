@@ -39,12 +39,12 @@ public sealed class SeasonFeedTitlesProvider : ISeasonFeedTitlesProvider
             await page.WaitForSelectorAsync("table#full-schedule-table td.all-schedule-show");
             var data = await page.EvaluateFunctionAsync<IEnumerable<string>>(ScrappingScript);
             await browser.CloseAsync();
-            return Result<ImmutableList<string>>.Success(data.ToImmutableList());
+            return data.ToImmutableList();
         }
         catch(Exception exception)
         {
             _logger.LogError(exception, "An error occurred when scrapping titles from SubsPlease");
-            return Result<ImmutableList<string>>.Failure(new HandledError());
+            return new HandledError();
         }
     }
 

@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.User.Storage;
+﻿namespace AnimeFeedManager.Features.User.Authentication.Storage;
 
 [WithTableName(AzureTableMap.StoreTo.Users)]
 public sealed class UserStorage : ITableEntity

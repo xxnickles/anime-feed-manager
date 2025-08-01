@@ -33,7 +33,6 @@ public static class SystemEventUpdate
         });
     }
 
-
     private static EventStorage CreateEventStorage(SystemEvent systemEvent) => new()
     {
         RowKey = IdHelpers.GetUniqueId(),

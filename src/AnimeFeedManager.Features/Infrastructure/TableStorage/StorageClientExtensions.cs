@@ -91,7 +91,7 @@ internal static class StorageClientExtensions
     public static Task<Result<T>> SingleItem<T>(this Task<Result<ImmutableList<T>>> result)
     {
         return result.Bind(x => x.IsEmpty
-            ? Result<T>.Failure(new Error("The collection is empty"))
+            ? new Error($"The collection of type {typeof(T).FullName} is empty")
             : Result<T>.Success(x.First()));
     }
 

@@ -1,8 +1,8 @@
-using AnimeFeedManager.Features.User.Storage;
+using AnimeFeedManager.Features.User.Authentication.Storage;
 using Passwordless;
 using Passwordless.Models;
 
-namespace AnimeFeedManager.Features.User.RegistrationProcess;
+namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
 public static class UserRegistration
 {
@@ -41,8 +41,8 @@ public static class UserRegistration
     {
         return data.StorageUser switch
         {
-            ValidUser user => Task.FromResult(Result<RegisterTokenResponse>.Failure(
-                new OperationError(nameof(CreateUser), $"Email '{user.Email}' already exist in the system"))),
+            ValidUser user => Task.FromResult<Result<RegisterTokenResponse>>(
+                new OperationError(nameof(CreateUser), $"Email '{user.Email}' already exist in the system")),
             _ => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
                 .Bind(token =>
                     updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)
@@ -58,15 +58,15 @@ public static class UserRegistration
         try
         {
             var result = await passwordlessClient.CreateRegisterTokenAsync(options, token);
-            return Result<RegisterTokenResponse>.Success(result);
+            return result;
         }
         catch (PasswordlessApiException e)
         {
-            return Result<RegisterTokenResponse>.Failure(PasswordlessError.FromException(e));
+            return PasswordlessError.FromException(e);
         }
         catch (Exception e)
         {
-            return Result<RegisterTokenResponse>.Failure(ExceptionError.FromException(e));
+            return ExceptionError.FromException(e);
         }
     }
 }

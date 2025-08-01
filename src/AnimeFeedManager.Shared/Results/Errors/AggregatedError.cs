@@ -12,7 +12,7 @@ public enum FailureType
 public record AggregatedError(ImmutableList<DomainError> Errors, FailureType FailureType)
     : DomainError("Multiple Errors have been collected")
 {
-    private ImmutableList<DomainError> Errors { get; } = Errors;
+    public ImmutableList<DomainError> Errors { get; } = Errors;
     private FailureType Type { get; } = FailureType;
 
     protected override void LoggingBehavior(ILogger logger)

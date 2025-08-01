@@ -1,12 +1,20 @@
 {
-     "version": 1,
-     "isRoot": true,
-     "tools": {
-       "Microsoft.Web.LibraryManager.Cli": {
-         "version": "2.1.175",
-         "commands": [
-           "libman"
-         ]
-       }
-     }
-   }
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "Microsoft.Web.LibraryManager.Cli": {
+      "version": "3.0.71",
+      "commands": [
+        "libman"
+      ],
+      "rollForward": false
+    },
+    "snitch": {
+      "version": "2.0.0",
+      "commands": [
+        "snitch"
+      ],
+      "rollForward": false
+    }
+  }
+}

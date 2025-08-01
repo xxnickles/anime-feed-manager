@@ -1,0 +1,66 @@
+﻿@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Seasons.Queries
+@using AnimeFeedManager.Features.Seasons.Storage
+@inject ITableClientFactory TableClientFactory;
+@inject ILogger<SeasonsSelector> Logger;
+
+
+<SeasonLinks Seasons="_lastSeasons"></SeasonLinks>
+<h1 class="text-bold text-2xl my-2 ml-2 md:ml-10">@SeriesType.AsPlural()</h1>
+<div class="flex justify-between">
+    @if (CurrentSeason is not null)
+    {
+        <div class="text-sm breadcrumbs ml-2 md:ml-10">
+            <ul>
+                <li>
+                    <span>@CurrentSeason.Season.ToString().ToUpperInvariant() @CurrentSeason.Year.ToString()</span>
+                </li>
+                <li>
+                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus"
+                             href="@GetLink(SeriesType.Tv)" Match="NavLinkMatch.All">
+                        TV
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus"
+                             href="@GetLink(SeriesType.Ova)" Match="NavLinkMatch.All">
+                        Ovas
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus"
+                             href="@GetLink(SeriesType.Movie)" Match="NavLinkMatch.All">
+                        Movies
+                    </NavLink>
+                </li>
+
+            </ul>
+        </div>
+    }
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+</div>
+
+@code {
+    private ImmutableList<SeriesSeason> _lastSeasons = ImmutableList<SeriesSeason>.Empty;
+
+    [Parameter, EditorRequired] public SeriesType SeriesType { get; set; } = SeriesType.None;
+    [Parameter, EditorRequired] public SeriesSeason? CurrentSeason { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var seasonsResult = await Last4Seasons.GetLast4Seasons(TableClientFactory.LatestSeasonsGetter(), CancellationToken.None);
+
+        _lastSeasons = seasonsResult
+            .LogErrors(Logger)
+            .MatchToValue(
+                seasons => seasons,
+                _ => ImmutableList<SeriesSeason>.Empty
+            );
+    }
+
+    private string GetLink(SeriesType seriesType) => CurrentSeason is not null ? $"{CurrentSeason.Season}-{CurrentSeason.Year}/{seriesType.AsPlural()}" : string.Empty;
+}

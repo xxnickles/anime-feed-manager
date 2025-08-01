@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.User.Storage;
+﻿namespace AnimeFeedManager.Features.User.Authentication.Storage;
 
 internal static class Constants
 {
