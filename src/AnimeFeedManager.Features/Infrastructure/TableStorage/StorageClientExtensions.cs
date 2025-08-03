@@ -3,7 +3,7 @@
 internal static class StorageClientExtensions
 {
     public static async Task<Result<Response>> TryExecute<T>(
-        this AppTableClient<T> client,
+        this AppTableClient client,
         Func<TableClient, Task<Response>> action) where T : ITableEntity
     {
         try
@@ -26,13 +26,13 @@ internal static class StorageClientExtensions
         }
     }
 
-    public static Task<Result<Response>> TryExecute<T>(this Task<Result<AppTableClient<T>>> clientResult,
+    public static Task<Result<Response>> TryExecute<T>(this Task<Result<AppTableClient>> clientResult,
         Func<TableClient, Task<Response>> action) where T : ITableEntity
     {
-        return clientResult.Bind(tableClient => tableClient.TryExecute(action));
+        return clientResult.Bind(tableClient => tableClient.TryExecute<T>(action));
     }
 
-    public static async Task<Result<ImmutableList<T>>> ExecuteQuery<T>(this AppTableClient<T> client,
+    public static async Task<Result<ImmutableList<T>>> ExecuteQuery<T>(this AppTableClient client,
         Func<TableClient, AsyncPageable<T>> query) where T : ITableEntity
     {
         try
@@ -54,7 +54,7 @@ internal static class StorageClientExtensions
     }
 
     public static async Task<Result<Unit>> AddBatch<T>(
-        this AppTableClient<T> client,
+        this AppTableClient client,
         IEnumerable<T> entities,
         CancellationToken token,
         TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge

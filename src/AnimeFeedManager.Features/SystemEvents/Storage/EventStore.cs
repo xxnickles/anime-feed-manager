@@ -11,12 +11,12 @@ public static class EventStore
     
     
     private static Task<Result<Unit>> UpsertEvent(
-        this AppTableClient<EventStorage> tableClient,
+        this AppTableClient tableClient,
         EventStorage systemEvent,
         CancellationToken cancellationToken = default)
     {
         return tableClient
-            .TryExecute(client => client.UpsertEntityAsync(systemEvent, cancellationToken: cancellationToken))
+            .TryExecute<EventStorage>(client => client.UpsertEntityAsync(systemEvent, cancellationToken: cancellationToken))
             .WithDefaultMap();
     }
 }

@@ -12,116 +12,116 @@
 
 <PageTitle>@PageTitle("Login")</PageTitle>
 
-<section class="hero min-h-screen bg-base-200">
-    <div class="hero-content flex-col items-start  -pt-96">
-        <header class="text-center mb-2">
-            <h1 class="normal-case font-semibold text-4xl font-logo md:text-5xl">Anime Feed Manager</h1>
-        </header>
-        <article class="card w-full max-w-sm shadow-2xl bg-base-100">
-            <EditForm Model="ViewModel"
-                      FormName="login"
-                      OnValidSubmit="SubmitLogin"
-                      class="card-body"
-                      x-data="@($"loginForm('{ViewModel.Alias ?? ""}')")"
-                      x-on:submit.prevent="$event.target.checkValidity() ? handlePasswordlessLogin($event) : $event.target.reportValidity()"
-            >
-                <fieldset class="form-control">
-                    <label class="label" for="email-input">
-                        <span class="label-text">Email</span>
-                    </label>
-                    <input
-                        id="email-input"
-                        required
-                        type="email"
-                        placeholder="Enter your email"
-                        class="input input-bordered"
-                        :class="{
+<section class="min-h-screen bg-base-200 flex flex-col items-center pt-16 px-4">
+    <header class="text-center mb-8">
+        <h1 class="normal-case font-semibold text-4xl font-logo md:text-5xl bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent p-2">
+            Anime Feed Manager</h1>
+    </header>
+    <article class="card w-full max-w-sm shadow-2xl bg-base-100">
+
+        <EditForm Model="ViewModel"
+                  FormName="login"
+                  OnValidSubmit="SubmitLogin"
+                  class="card-body"
+                  x-data="@($"loginForm('{ViewModel.Alias ?? ""}')")"
+                  x-on:submit.prevent="$event.target.checkValidity() ? handlePasswordlessLogin($event) : $event.target.reportValidity()"
+        >
+            <fieldset class="form-control">
+                <label class="label" for="email-input">
+                    <span class="label-text">Email</span>
+                </label>
+                <input
+                    id="email-input"
+                    required
+                    type="email"
+                    placeholder="Enter your email"
+                    class="input input-bordered"
+                    :class="{
                                        'input-error': result && result.attempted && !result.success && !result.unauthorized,
                                        'input-success': result && result.attempted && result.success
                                    }"
-                        :disabled="isLoading"
-                        x-model="alias"/>
+                    :disabled="isLoading"
+                    x-model="alias"/>
 
-                    <!-- DaisyUI 5 validation styling -->
-                    <template x-if="result && !result.success && !result.unauthorized">
-                        <div class="label">
-                            <span class="label-text-alt text-error">Please check your email and try again</span>
-                        </div>
-                    </template>
-                </fieldset>
-
-                <!-- Use x-model to bind Alpine data to hidden fields -->
-                <InputText @bind-Value="ViewModel.Id"
-                           name="@nameof(ViewModel.Id)"
-                           type="hidden"
-                           x-model="userId"/>
-
-                <InputText @bind-Value="ViewModel.Alias"
-                           name="@nameof(ViewModel.Alias)"
-                           type="hidden"
-                           x-model="alias"/>
-
-                <fieldset class="form-control mt-6">
-
-                    <button type="submit"
-                            class="btn btn-primary"
-                            :class="{ 'btn-disabled': isLoading }"
-                            :disabled="isLoading"
-                    >
-                        <!-- DaisyUI 5 loading spinner -->
-                        <template x-if="isLoading">
-                            <span class="loading loading-spinner loading-sm"></span>
-                        </template>
-                        <span x-text="isLoading ? 'Getting Passkey...' : 'Login'"></span>
-                    </button>
-                    <button type="submit" class="hidden" x-ref="submit"></button>
-
-                </fieldset>
-
-                <!-- Error states with DaisyUI 5 alert styles -->
+                <!-- DaisyUI 5 validation styling -->
                 <template x-if="result && !result.success && !result.unauthorized">
-                    <div class="alert alert-error mt-4" role="alert">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
-                             viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <div>
-                            <template x-for="error in Object.values(result.errors)">
-                                <p x-text="Array.isArray(error) ? error.join(', ') : error"></p>
-                            </template>
-                        </div>
+                    <div class="label">
+                        <span class="label-text-alt text-error">Please check your email and try again</span>
                     </div>
                 </template>
+            </fieldset>
 
-                <template x-if="result && result.unauthorized">
-                    <div class="alert alert-warning mt-4" role="alert">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
-                             viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"/>
-                        </svg>
-                        <div>
-                            <p>Your account is not registered.</p>
-                            <NavLink class="link link-primary font-semibold" href="/register">Register here</NavLink>
-                        </div>
-                    </div>
-                </template>
-            </EditForm>
+            <!-- Use x-model to bind Alpine data to hidden fields -->
+            <InputText @bind-Value="ViewModel.Id"
+                       name="@nameof(ViewModel.Id)"
+                       type="hidden"
+                       x-model="userId"/>
 
-            @if (ServerError)
-            {
+            <InputText @bind-Value="ViewModel.Alias"
+                       name="@nameof(ViewModel.Alias)"
+                       type="hidden"
+                       x-model="alias"/>
+
+            <fieldset class="form-control mt-6">
+
+                <button type="submit"
+                        class="btn btn-primary"
+                        :class="{ 'btn-disabled': isLoading }"
+                        :disabled="isLoading"
+                >
+                    <!-- DaisyUI 5 loading spinner -->
+                    <template x-if="isLoading">
+                        <span class="loading loading-spinner loading-sm"></span>
+                    </template>
+                    <span x-text="isLoading ? 'Getting Passkey...' : 'Login'"></span>
+                </button>
+                <button type="submit" class="hidden" x-ref="submit"></button>
+
+            </fieldset>
+
+            <!-- Error states with DaisyUI 5 alert styles -->
+            <template x-if="result && !result.success && !result.unauthorized">
                 <div class="alert alert-error mt-4" role="alert">
                     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
                          viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <span>@_errorText</span>
+                    <div>
+                        <template x-for="error in Object.values(result.errors)">
+                            <p x-text="Array.isArray(error) ? error.join(', ') : error"></p>
+                        </template>
+                    </div>
                 </div>
-            }
-        </article>
-    </div>
+            </template>
+
+            <template x-if="result && result.unauthorized">
+                <div class="alert alert-warning mt-4" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                    <div>
+                        <p>Your account is not registered.</p>
+                        <NavLink class="link link-primary font-semibold" href="/register">Register here</NavLink>
+                    </div>
+                </div>
+            </template>
+        </EditForm>
+
+        @if (ServerError)
+        {
+            <div class="alert alert-error mt-4" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>@_errorText</span>
+            </div>
+        }
+    </article>
 </section>
 
 <script defer>

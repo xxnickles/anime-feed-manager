@@ -32,7 +32,7 @@ public static class ExistentSeries
 
 
     private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
-        this AppTableClient<AnimeInfoStorage> tableClient, 
+        this AppTableClient tableClient, 
         SeriesSeason season,
         CancellationToken cancellationToken = default)
     {

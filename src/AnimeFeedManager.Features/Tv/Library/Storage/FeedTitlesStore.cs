@@ -11,11 +11,11 @@ public static class FeedTitlesStore
             .Bind(client => client.UpsertFeedTitles(titles, token));
     
     private static Task<Result<Unit>> UpsertFeedTitles(
-        this AppTableClient<FeedTitlesStorage> tableClient,
+        this AppTableClient tableClient,
         FeedTitlesStorage titles,
         CancellationToken cancellationToken = default)
     {
-        return tableClient.TryExecute(client => client.UpsertEntityAsync(titles, cancellationToken: cancellationToken))
+        return tableClient.TryExecute<FeedTitlesStorage>(client => client.UpsertEntityAsync(titles, cancellationToken: cancellationToken))
             .WithDefaultMap();
         
     }

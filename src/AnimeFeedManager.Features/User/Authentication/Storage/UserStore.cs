@@ -11,13 +11,13 @@ public static class UserStore
                 .Bind(client => client.UpsertUser(email, userId, role, cancellationToken));
 
     private static Task<Result<Unit>> UpsertUser(
-        this AppTableClient<UserStorage> tableClient,
+        this AppTableClient tableClient,
         Email email,
         string userId,
         UserRole role,
         CancellationToken cancellationToken = default)
     {
-        return tableClient.TryExecute(client => client.UpsertEntityAsync(new UserStorage
+        return tableClient.TryExecute<UserStorage>(client => client.UpsertEntityAsync(new UserStorage
             {
                 PartitionKey = Constants.UserPartitionKey,
                 RowKey = userId,

@@ -1,10 +1,10 @@
 ﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
-public sealed record AppTableClient<T>(TableClient Client, ILogger Logger) where T : ITableEntity;
+public sealed record AppTableClient(TableClient Client, ILogger Logger);
 
 public interface ITableClientFactory
 {
-    Task<Result<AppTableClient<T>>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity;
+    Task<Result<AppTableClient>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity;
 }
 
 public sealed class TableClientFactory : ITableClientFactory
@@ -19,23 +19,23 @@ public sealed class TableClientFactory : ITableClientFactory
     }
     
     
-    public async Task<Result<AppTableClient<T>>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity
+    public async Task<Result<AppTableClient>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity
     {
         try
         {
             var client = _serviceClient.GetTableClient(AzureTableName.GetTableName<T>());
             await client.CreateIfNotExistsAsync(cancellationToken);
-            return new AppTableClient<T>(client, _logger);
+            return new AppTableClient(client, _logger);
         }
         catch (KeyNotFoundException ex)
         {
             _logger.LogError(ex, "Table name not found for entity type {EntityType}", typeof(T).FullName);
-            return HandledErrorResult<AppTableClient<T>>();
+            return HandledErrorResult<AppTableClient>();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occurred when creating a Table Client");
-            return HandledErrorResult<AppTableClient<T>>();
+            return HandledErrorResult<AppTableClient>();
         }
     }
 }

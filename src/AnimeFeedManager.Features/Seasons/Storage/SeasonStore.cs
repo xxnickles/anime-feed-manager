@@ -17,20 +17,20 @@ public static class SeasonStore
 
 
     private static Task<Result<Unit>> UpsertSeason(
-        this AppTableClient<SeasonStorage> tableClient,
+        this AppTableClient tableClient,
         SeasonStorage seasonStorage,
         CancellationToken token = default)
     {
         return tableClient
-            .TryExecute(client => client.UpsertEntityAsync(seasonStorage, cancellationToken: token))
+            .TryExecute<SeasonStorage>(client => client.UpsertEntityAsync(seasonStorage, cancellationToken: token))
             .WithDefaultMap();
     }
     
-    private static Task<Result<Unit>> UpsertLatestSeasons(this AppTableClient<LatestSeasonsStorage> tableClient,
+    private static Task<Result<Unit>> UpsertLatestSeasons(this AppTableClient tableClient,
         LatestSeasonsStorage latestSeasonsStorage, CancellationToken token = default)
     {
         return tableClient
-            .TryExecute(client => client.UpsertEntityAsync(latestSeasonsStorage, cancellationToken: token))
+            .TryExecute<LatestSeasonsStorage>(client => client.UpsertEntityAsync(latestSeasonsStorage, cancellationToken: token))
             .WithDefaultMap();
     }
 }

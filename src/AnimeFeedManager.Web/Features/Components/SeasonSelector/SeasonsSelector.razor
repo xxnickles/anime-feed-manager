@@ -52,7 +52,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var seasonsResult = await Last4Seasons.GetLast4Seasons(TableClientFactory.LatestSeasonsGetter(), CancellationToken.None);
+        var seasonsResult = await Last4Seasons.GetLast4Seasons(TableClientFactory.Latest4SeasonsGetter(), CancellationToken.None);
 
         _lastSeasons = seasonsResult
             .LogErrors(Logger)

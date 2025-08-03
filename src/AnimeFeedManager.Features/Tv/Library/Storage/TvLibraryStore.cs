@@ -10,7 +10,7 @@ public static class TvLibraryStore
             .Bind(client => client.UpsertSeries(series, token));
     
     private static Task<Result<Unit>> UpsertSeries(
-        this AppTableClient<AnimeInfoStorage> tableClient,
+        this AppTableClient tableClient,
         IEnumerable<AnimeInfoStorage> series,
         CancellationToken cancellationToken = default)
     {
