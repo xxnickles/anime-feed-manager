@@ -21,7 +21,7 @@ public readonly record struct Year : IComparable<Year>
 
     public static Year FromNumber(int value) => new(value);
 
-    public static bool NumberIsValid(int value) => value >= 2000 && value <= DateTime.Now.Year + 1;
+    public static bool NumberIsValid(int value) => value >= MinYear && value <= MaxYear;
 
     public static implicit operator int(Year year) => year.Value;
     public static implicit operator ushort(Year year) => year.Value;
@@ -35,6 +35,11 @@ public readonly record struct Year : IComparable<Year>
     {
         return Value.ToString();
     }
+    
+    public const int MinYear = 2000;
+    public static readonly int MaxYear =  DateTime.UtcNow.Year + 1;
+    
+    public static Year Current => FromNumber(DateTime.UtcNow.Year);
 }
 
 public static class YearExtensions

@@ -1,0 +1,74 @@
+﻿@using AnimeFeedManager.Shared
+@using AnimeFeedManager.Web.Common
+@typeparam TModel where TModel : class, new()
+<div class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+        <div class="flex items-center justify-between">
+            <h3 class="card-title m-0">@Title</h3>
+            <span id="@_loaderId"
+                  class="loading loading-spinner loading-xs htmx-indicator"></span>
+        </div>
+
+        <EditForm
+            Model="@ViewModel"
+            FormName="@FormName"
+            AdditionalAttributes="AggregatedAttributes"
+        >
+            <HtmxRequestValidator/>
+            @ChildContent
+            <div class="card-actions justify-end">
+                <button type="submit" class="btn btn-primary mt-4">@SubmitText</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+
+    /// <summary>
+    /// Reusable admin form card. Additional attributes passed will be applied to the form, which makes it practical for HMTX request 
+    /// </summary>
+    /// <remarks>
+    /// This component renders a card-based form with season dropdown and year input controls.
+    /// It supports both EditForm and regular form submissions with DaisyUI styling.
+    /// </remarks>
+
+    [Parameter, EditorRequired]
+    public required TModel ViewModel { get; set; }
+
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string FormName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Meant to be form inputs
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string SubmitText { get; set; } = string.Empty;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Parameter] public RenderFragment ChildContent { get; set; } = @<br/>;
+
+    private string _loaderId = string.Empty;
+
+    private IReadOnlyDictionary<string, object> AggregatedAttributes => UiUtils.MergeAttributes(
+        AdditionalAttributes,
+        ("hx-indicator", $"#{_loaderId}"),
+        ("x-data", true),
+        ("x-form-submit-locker.disable-on-submit", true)
+    );
+
+
+    protected override void OnParametersSet()
+    {
+        // Only regenerate if FormName changed or UniqueId is not set
+        if (string.IsNullOrEmpty(_loaderId) || !_loaderId.Contains(FormName))
+        {
+            _loaderId = IdHelpers.GetUniqueName(FormName);
+        }
+    }
+
+}

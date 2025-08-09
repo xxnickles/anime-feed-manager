@@ -59,12 +59,12 @@
         @*     </AuthorizeView> *@
         @* </ul> *@
     </div>
-    <span id="page-indicator" class="loading loading-spinner loading-sm mr-4 htmx-indicator"></span>
+    <span id="page-indicator" class="loading loading-spinner loading-sm mx-1 htmx-indicator"></span>
 
     <AuthorizeView>
         <NotAuthorized>
             <NavLink href="@GetLoginPath()"
-                     class="btn btn-md btn-circle"
+                     class="btn btn-md btn-circle mx-1"
                      aria-label="Login to your account"
                      title="Login">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -77,7 +77,7 @@
         </NotAuthorized>
         <Authorized>
             <NavLink href="@GetLogoutPath()"
-                     class="btn btn-md btn-circle"
+                     class="btn btn-md btn-circle mx-1"
                      aria-label="Logout from your account"
                      title="Logout">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

@@ -28,6 +28,14 @@
   }
 }
 
+@utility validator-no-success {
+  &:user-valid, &:has(:user-valid) {
+    &, &:focus, &:checked, &[aria-checked="true"], &:focus-within {
+      --input-color: hsl(var(--bc) / 0.2);
+    }
+  }
+}
+
 @utility scrollbar {
   scrollbar-width: thin;
 

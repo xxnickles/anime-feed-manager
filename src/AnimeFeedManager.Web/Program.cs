@@ -1,5 +1,7 @@
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
+using AnimeFeedManager.Web.Features.Admin;
+using AnimeFeedManager.Web.Features.Admin.Enpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,5 +37,6 @@ var endpointsGroup = app
     .MapGroup(string.Empty);
 
 endpointsGroup.MapSecurityEndpoints();
+endpointsGroup.MapAdminEndpoints();
 
 app.Run();

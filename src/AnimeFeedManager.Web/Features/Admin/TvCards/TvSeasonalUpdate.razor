@@ -1,0 +1,18 @@
+﻿@using AnimeFeedManager.Web.Features.Admin.Base
+
+<SeasonalUpdate ViewModel="@ViewModel"
+                FormName="@FormName"
+                Title="Update Seasonal Anime"
+                hx-put="/admin/tv/season"
+                hx-swap="none"
+                hx-confirm="Do you want to updated the selected TV season?">
+    ></SeasonalUpdate>
+
+@code {
+    
+    private const string FormName = "tv-seasonal-update-form";
+    
+    [SupplyParameterFromForm(FormName = FormName, Name  = "")]
+    private BySeasonViewModel ViewModel { get; set; } = BySeasonViewModel.Current;
+    
+}

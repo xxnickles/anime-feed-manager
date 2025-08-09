@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AnimeFeedManager.Shared.Results;
@@ -50,6 +51,17 @@ public readonly record struct Season : IComparable<Season>
     public static Season Summer() => new(SummerValue);
     public static Season Fall() => new(FallValue);
     public static Season Winter() => new(WinterValue);
+    
+    public static Season[] All() => [Spring(), Summer(), Fall(), Winter()];
+
+    public static Season Current => DateTime.UtcNow.Month switch
+    {
+        1 or 2 or 3 => Winter(),    // January-March
+        4 or 5 or 6 => Spring(),    // April-June  
+        7 or 8 or 9 => Summer(),    // July-September
+        10 or 11 or 12 => Fall(),   // October-December
+        _ => throw new UnreachableException("Invalid month")
+    };
 
 
     public static Season FromString(string? val) => val?.ToLowerInvariant() switch

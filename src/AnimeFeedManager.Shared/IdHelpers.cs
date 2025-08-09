@@ -25,7 +25,8 @@ public static partial class IdHelpers
             .Replace("__", "_");
     }
 
-    public static string GetUniqueName(string baseName) => $"{baseName}-{Guid.NewGuid().ToString("N")[..5]}";
+    public static string GetUniqueName(string baseName) => $"{baseName}-{Guid.CreateVersion7().ToString("N")[..5]}";
+    
     [GeneratedRegex("[^a-zA-Z0-9_.\\s]+", RegexOptions.Compiled)]
     private static partial Regex SpecialCharacters();
 }

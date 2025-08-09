@@ -1,14 +1,12 @@
 ﻿@inherits LayoutComponentBase
 
-<main class="w-full mx-auto min-h-full ">
-    <div class="drawer">
-        <input id="drawer" type="checkbox" class="drawer-toggle"/>
-        <div class="drawer-content flex flex-col">
-            <NavBar ShowBrand="false"></NavBar>
+<div class="drawer">
+    <input id="drawer" type="checkbox" class="drawer-toggle"/>
+    <div class="drawer-content flex flex-col">
+        <NavBar ShowBrand="false"></NavBar>
+        <main class="px-4 md:px-8">
             @Body
-        </div>
-        <SideMenu/>
+        </main>
     </div>
-</main>
-     
-    
+    <SideMenu/>
+</div>

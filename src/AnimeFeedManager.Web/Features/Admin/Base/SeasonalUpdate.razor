@@ -1,0 +1,46 @@
+﻿@using AnimeFeedManager.Web.Common
+<AdminCardForm
+    Title="@Title"
+    SubmitText="Update Season"
+    ViewModel="@ViewModel"
+    AdditionalAttributes="@AdditionalAttributes"
+    FormName="@FormName">
+    <fieldset class="fieldset w-full">
+        <label class="select mt-4 w-full ">
+            <span class="label">Season</span>
+            <InputSelect
+                class="validator-no-success"
+                title="Season Selection"
+                @bind-Value="ViewModel.Season"
+                name="@nameof(ViewModel.Season)">
+                @foreach (var season in Season.All())
+                {
+                    <option value="@season">@season</option>
+                }
+            </InputSelect>
+        </label>
+
+        <label class="input mt-4 w-full validator">
+            <span class="label">Year</span>
+            <InputNumber @bind-Value="ViewModel.Year"
+                         name="@nameof(ViewModel.Year)"
+                         required
+                         min="@Year.MinYear"
+                         max="@Year.MaxYear"/>
+        </label>
+        <Hint For="() => ViewModel.Year"></Hint>
+    </fieldset>
+</AdminCardForm>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string FormName { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public BySeasonViewModel ViewModel { get; set; } = BySeasonViewModel.Current;
+    
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+    
+
+}

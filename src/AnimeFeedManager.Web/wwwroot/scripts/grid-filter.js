@@ -25,7 +25,7 @@ function gridFilter() {
 
             const state = getItemFilterState(this.filters);
             const itemsToShow = state.filter(s => s.showItem).length;
-            document.startViewTransition && this.motionOk && (itemsToShow < 20 ) ? document.startViewTransition(() => this.applyFilters(state)) : this.applyFilters(state);
+            document.startViewTransition && this.motionOk && (itemsToShow < 20) ? document.startViewTransition(() => this.applyFilters(state)) : this.applyFilters(state);
         },
         applyFilters(itemsState) {
             itemsState.forEach(state => {
