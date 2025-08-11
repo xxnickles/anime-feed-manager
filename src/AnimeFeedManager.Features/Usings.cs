@@ -2,6 +2,7 @@
 global using System.Diagnostics;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
+global using AnimeFeedManager.Features.Common;
 global using AnimeFeedManager.Features.Infrastructure.Messaging;
 global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Features.ProcessState.Storage;
@@ -14,8 +15,8 @@ global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;
 global using AnimeFeedManager.Shared.Types;
 global using AnimeFeedManager.SourceGenerators.EventPayload;
+global using AnimeFeedManager.SourceGenerators.TableNames;
 global using Azure;
 global using Azure.Data.Tables;
 global using Microsoft.Extensions.Logging;
 global using static AnimeFeedManager.Shared.Results.ResultError;
-global using AnimeFeedManager.SourceGenerators.TableNames;

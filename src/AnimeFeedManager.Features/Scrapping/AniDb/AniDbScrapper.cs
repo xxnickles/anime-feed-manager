@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Features.Scrapping.Types;
 using PuppeteerSharp;
+using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Scrapping.AniDb;
 

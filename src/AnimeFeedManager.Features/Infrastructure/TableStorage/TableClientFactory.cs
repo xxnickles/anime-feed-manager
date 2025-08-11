@@ -4,7 +4,7 @@ public sealed record AppTableClient(TableClient Client, ILogger Logger);
 
 public interface ITableClientFactory
 {
-    Task<Result<AppTableClient>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity;
+    Result<AppTableClient> GetClient<T>()  where T : ITableEntity;
 }
 
 public sealed class TableClientFactory : ITableClientFactory
@@ -19,12 +19,11 @@ public sealed class TableClientFactory : ITableClientFactory
     }
     
     
-    public async Task<Result<AppTableClient>> GetClient<T>(CancellationToken cancellationToken = default)  where T : ITableEntity
+    public Result<AppTableClient> GetClient<T>()  where T : ITableEntity
     {
         try
         {
             var client = _serviceClient.GetTableClient(AzureTableName.GetTableName<T>());
-            await client.CreateIfNotExistsAsync(cancellationToken);
             return new AppTableClient(client, _logger);
         }
         catch (KeyNotFoundException ex)

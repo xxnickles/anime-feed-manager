@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
+﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+
+namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
 public record NewRegistration(Email Email, string UserId, NoEmptyString DisplayName);
 

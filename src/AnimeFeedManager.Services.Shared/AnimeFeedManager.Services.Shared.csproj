@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsAspireSharedProject>true</IsAspireSharedProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="Aspire.Azure.Data.Tables" Version="9.4.0" />
+        <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.4.0" />
+        <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.4.0" />
+    </ItemGroup>
+
+</Project>

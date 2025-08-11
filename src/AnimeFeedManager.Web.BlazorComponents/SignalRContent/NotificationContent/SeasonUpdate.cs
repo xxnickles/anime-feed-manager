@@ -7,24 +7,22 @@ internal static class SeasonUpdate
 {
     internal static RenderFragment ForSeasonUpdate(SeasonUpdateResult notification) => builder =>
     {
-        byte seq = 0;
-        
         // Header
-        builder.OpenElement(seq++, "h3");
-        builder.AddAttribute(seq++, "class", "font-bold");
+        builder.OpenElement(1, "h3");
+        builder.AddAttribute(2, "class", "font-bold");
         
-        builder.AddContent(seq++, GetNotificationTitle(notification));
+        builder.AddContent(3, GetNotificationTitle(notification));
         builder.CloseElement(); // h3
 
         // Body
-        builder.OpenElement(seq++, "p");
-        builder.AddAttribute(seq++, "class", "text-sm whitespace-normal");
+        builder.OpenElement(4, "p");
+        builder.AddAttribute(5, "class", "text-sm whitespace-normal");
         // First strong element
-        builder.OpenElement(seq++, "strong");
-        builder.AddContent(seq++, $"{notification.Season.Year}-{notification.Season.Season}");
+        builder.OpenElement(6, "strong");
+        builder.AddContent(7, $"{notification.Season.Year}-{notification.Season.Season}");
         builder.CloseElement(); // Close strong
         // Text between strong elements
-        builder.AddContent(seq++, GetNotificationBody(notification.SeasonUpdateStatus));
+        builder.AddContent(8, GetNotificationBody(notification.SeasonUpdateStatus));
       
         builder.CloseElement(); // Close p
     };

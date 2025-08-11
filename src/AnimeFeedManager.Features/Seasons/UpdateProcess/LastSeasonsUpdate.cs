@@ -1,3 +1,5 @@
+using SeriesSeasonContext = AnimeFeedManager.Features.Common.SeriesSeasonContext;
+
 namespace AnimeFeedManager.Features.Seasons.UpdateProcess;
 
 public static class LastSeasonsUpdate

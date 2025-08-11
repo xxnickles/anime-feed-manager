@@ -1,16 +1,21 @@
+using AnimeFeedManager.Features.Infrastructure;
+using AnimeFeedManager.Services.Shared;
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
-using AnimeFeedManager.Web.Features.Admin;
 using AnimeFeedManager.Web.Features.Admin.Enpoints;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+builder.RegisterStorageServices();
 
 // Add services to the container.
 builder.Services.AddRazorComponents();
 
 builder.Services.AddHttpContextAccessor();
 builder.RegisterSecurityServices();
-builder.RegisterAppServices();
+builder.Services.RegisterStorageBasedServices();
+
 
 var app = builder.Build();
 

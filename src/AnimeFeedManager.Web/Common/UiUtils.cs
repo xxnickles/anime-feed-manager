@@ -3,7 +3,8 @@
 namespace AnimeFeedManager.Web.Common;
 
 internal static class UiUtils
-{
+{public static string GetUniqueName(string baseName) => $"{baseName}-{Guid.CreateVersion7().ToString("N")[..5]}";
+    
     internal static string PageTitle(string titleMessage) => $"Anime Feed Manager | {titleMessage}";
     internal static string PageTitle() => PageTitle(string.Empty);
     internal static string RemoveTrailingPeriod(this string message)

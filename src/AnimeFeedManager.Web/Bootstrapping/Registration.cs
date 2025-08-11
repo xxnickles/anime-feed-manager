@@ -1,8 +1,4 @@
-﻿using AnimeFeedManager.Features.Infrastructure;
-using AnimeFeedManager.Shared.Types;
-using AnimeFeedManager.Web.Features.Security;
-using Azure.Core;
-using Azure.Identity;
+﻿using AnimeFeedManager.Shared.Types;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
@@ -46,14 +42,4 @@ internal static class Registration
 
         builder.Services.AddScoped<IUserProvider, UserProvider>();
     }
-
-    internal static void RegisterAppServices(this WebApplicationBuilder builder)
-    {
-        builder.Services.RegisterAzureStorageServices(builder.Configuration, GetDefaultCredential(builder.Environment));
-    }
-    
-    
-    private static Func<TokenCredential> GetDefaultCredential(IWebHostEnvironment environment) => () =>
-        !environment.IsDevelopment() ? new ManagedIdentityCredential() : new AzureCliCredential();
-
 }

@@ -1,6 +1,4 @@
-﻿@using AnimeFeedManager.Shared
-@using AnimeFeedManager.Web.Common
-@typeparam TModel where TModel : class, new()
+﻿@typeparam TModel where TModel : class, new()
 <div class="card bg-base-100 shadow-sm">
     <div class="card-body">
         <div class="flex items-center justify-between">
@@ -67,7 +65,7 @@
         // Only regenerate if FormName changed or UniqueId is not set
         if (string.IsNullOrEmpty(_loaderId) || !_loaderId.Contains(FormName))
         {
-            _loaderId = IdHelpers.GetUniqueName(FormName);
+            _loaderId = GetUniqueName(FormName);
         }
     }
 

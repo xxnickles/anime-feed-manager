@@ -7,5 +7,4 @@ namespace AnimeFeedManager.SourceGenerators.EventPayload
     {
         public Type PayloadType { get; } = payloadType;
     }
-
 }

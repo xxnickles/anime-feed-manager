@@ -1,7 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using AnimeFeedManager.Shared.Results;
-
-namespace AnimeFeedManager.Shared.Types;
+﻿namespace AnimeFeedManager.Features.Common;
 
 public sealed record SeriesSeason(Season Season, Year Year, bool IsLatest = false);
 
@@ -9,6 +6,7 @@ public sealed record SeriesSeason(Season Season, Year Year, bool IsLatest = fals
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(SeriesSeason[]))]
+[EventPayloadSerializerContext(typeof(SeriesSeason))]
 public partial class SeriesSeasonContext : JsonSerializerContext;
 
 public static class SeriesSeasonExtensions

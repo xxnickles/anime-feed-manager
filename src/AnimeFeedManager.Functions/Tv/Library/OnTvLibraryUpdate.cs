@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Scrapping.Types;
+﻿using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage;
@@ -29,7 +30,7 @@ public class OnTvLibraryUpdate
 
     [Function(nameof(OnTvLibraryUpdate))]
     public async Task Run(
-        [QueueTrigger(UpdateTvSeriesEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
+        [QueueTrigger(UpdateTvSeriesEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         UpdateTvSeriesEvent message,
         CancellationToken token)
     {

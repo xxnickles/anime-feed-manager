@@ -23,7 +23,7 @@ public class OnSystemEvent
 
     [Function(nameof(OnSystemEvent))]
     public async Task<SignalRMessageAction?> Run(
-        [QueueTrigger(SystemEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
+        [QueueTrigger(SystemEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         SystemEvent message,
         CancellationToken cancellationToken)
     {

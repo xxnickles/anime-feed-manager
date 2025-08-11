@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
-builder.ConfigureFunctionsWebApplication();
 
 // Configure service provider validation
 builder.Services.Configure<ServiceProviderOptions>(options =>
@@ -14,11 +13,19 @@ builder.Services.Configure<ServiceProviderOptions>(options =>
     options.ValidateScopes = true;
 });
 
+// Aspire local dev exposes the OTEL Endpoint 
+if (builder.Configuration["AzureFunctionsJobHost:telemetryMode"] is not "OpenTelemetry")
+{
+    builder.Services
+        .AddApplicationInsightsTelemetryWorkerService()
+        .ConfigureFunctionsApplicationInsights();
+}
+else
+{
+    builder.AddServiceDefaults();
+}
 
-// Application Insights isn't enabled by default. See https://aka.ms/AAt8mw4.
-builder.Services
-    .AddApplicationInsightsTelemetryWorkerService()
-    .ConfigureFunctionsApplicationInsights();
+builder.RegisterStorageServices();
 
 builder.Services.AddSingleton(TimeProvider.System);
 
@@ -26,5 +33,12 @@ builder.Services
     .AddHttpClient()
     .RegisterAppDependencies();
 
+builder.ConfigureFunctionsWebApplication();
 
-builder.Build().Run();
+var app = builder.Build();
+
+var resourceCreator = app.Services.GetRequiredService<ResourceCreator>();
+await resourceCreator.TryCreateResources(CancellationToken.None);
+
+
+app.Run();

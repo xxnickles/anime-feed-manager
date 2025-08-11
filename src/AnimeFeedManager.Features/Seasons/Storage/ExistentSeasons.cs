@@ -1,4 +1,6 @@
 ﻿using AnimeFeedManager.Features.Seasons.UpdateProcess;
+using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+using SeriesSeasonContext = AnimeFeedManager.Features.Common.SeriesSeasonContext;
 
 namespace AnimeFeedManager.Features.Seasons.Storage;
 
@@ -16,20 +18,20 @@ public delegate Task<Result<ImmutableList<SeriesSeason>>> Latest4SeasonsGetter(
 public static class ExistentSeasons
 {
     public static LatestSeasonGetter LatestSeasonGetter(this ITableClientFactory clientFactory) =>
-        cancellationToken => clientFactory.GetClient<SeasonStorage>(cancellationToken)
+        cancellationToken => clientFactory.GetClient<SeasonStorage>()
             .Bind(client => client.GetLatestSeason(cancellationToken));
 
     public static SeasonGetter SeasonGetter(this ITableClientFactory clientFactory) =>
-        (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>(cancellationToken)
+        (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
             .Bind(client => client.GetSeason(season, cancellationToken));
 
     public static AllSeasonsGetter AllSeasonsGetter(this ITableClientFactory clientFactory) =>
-        cancellationToken => clientFactory.GetClient<SeasonStorage>(cancellationToken)
+        cancellationToken => clientFactory.GetClient<SeasonStorage>()
             .Bind(client => GetAllSeasons(client, cancellationToken))
             .Map(seasons => seasons.TransformToSeriesSeason());
 
     public static Latest4SeasonsGetter Latest4SeasonsGetter(this ITableClientFactory clientFactory) =>
-        cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>(cancellationToken)
+        cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
             .Bind(client => client.GetLast4Seasons(cancellationToken)
                 .Map(seasons => TransformToSeriesSeason(seasons, client.Logger)));
 

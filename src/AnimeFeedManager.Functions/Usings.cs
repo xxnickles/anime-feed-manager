@@ -5,6 +5,7 @@ global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Features.Scrapping;
 global using AnimeFeedManager.Features.SystemEvents;
 global using AnimeFeedManager.Features.Tv;
+global using AnimeFeedManager.Services.Shared;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Types;
 global using Microsoft.Azure.Functions.Worker;

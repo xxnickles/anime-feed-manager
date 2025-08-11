@@ -9,6 +9,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+      <ProjectReference Include="..\AnimeFeedmanager.ServiceDefaults\AnimeFeedmanager.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\AnimeFeedManager.Services.Shared\AnimeFeedManager.Services.Shared.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\lib\" />
+    </ItemGroup>
+
 
 </Project>

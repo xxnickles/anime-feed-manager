@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AnimeFeedManager.SourceGenerators.TableNames;
 
@@ -33,29 +33,30 @@ public class TableNameMapGenerator : IIncrementalGenerator
         // Only process class declarations with attributes
         if (node is not ClassDeclarationSyntax classDeclaration || classDeclaration.AttributeLists.Count == 0)
             return false;
-        
+
         // Filter out non-regular classes
-        if (classDeclaration.Modifiers.Any(m => 
-                m.IsKind(SyntaxKind.StaticKeyword) || 
+        if (classDeclaration.Modifiers.Any(m =>
+                m.IsKind(SyntaxKind.StaticKeyword) ||
                 m.IsKind(SyntaxKind.AbstractKeyword)))
             return false;
-        
+
         return true;
     }
 
 
     private static ClassDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
     {
-        var classDeclaration = (ClassDeclarationSyntax)context.Node;
-    
+        var classDeclaration = (ClassDeclarationSyntax) context.Node;
+
         // Get the semantic model and symbol for more accurate checks
         var semanticModel = context.SemanticModel;
         var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
-    
+
         // Skip if we can't get the symbol or if it's not a regular class
-        if (classSymbol == null || classSymbol.IsStatic || classSymbol.IsAbstract || classSymbol.TypeKind != TypeKind.Class)
+        if (classSymbol == null || classSymbol.IsStatic || classSymbol.IsAbstract ||
+            classSymbol.TypeKind != TypeKind.Class)
             return null;
-    
+
         // Check for the WithTableNameAttribute
         foreach (var attributeList in classDeclaration.AttributeLists)
         {
@@ -210,6 +211,65 @@ public class TableNameMapGenerator : IIncrementalGenerator
 
         sb.AppendLine("    };");
         sb.AppendLine();
+
+        // Generate individual constants for each table name
+        sb.AppendLine("    // Individual table name constants");
+        var distinctTableNames = tableEntities.Select(te => te.TableName).Distinct().OrderBy(t => t).ToList();
+        foreach (var tableName in distinctTableNames)
+        {
+            // Create a valid C# identifier from the table name
+            var constantName = CreateValidIdentifier(tableName);
+            sb.AppendLine($"    /// <summary>");
+            sb.AppendLine($"    /// Table name constant for '{tableName}'");
+            sb.AppendLine($"    /// </summary>");
+            sb.AppendLine($"    public const string {constantName} = \"{tableName}\";");
+            sb.AppendLine();
+        }
+
+        // Generate array with all table names
+        sb.AppendLine("    /// <summary>");
+        sb.AppendLine("    /// Array containing all discovered table names.");
+        sb.AppendLine("    /// </summary>");
+        sb.Append("    public static readonly string[] AllTableNames = {");
+
+        if (distinctTableNames.Count > 0)
+        {
+            sb.AppendLine();
+            for (int i = 0; i < distinctTableNames.Count; i++)
+            {
+                var constantName = CreateValidIdentifier(distinctTableNames[i]);
+                sb.Append($"        {constantName}");
+                if (i < distinctTableNames.Count - 1)
+                    sb.Append(",");
+                sb.AppendLine();
+            }
+
+            sb.AppendLine("    };");
+        }
+        else
+        {
+            sb.AppendLine(" };");
+        }
+
+        sb.AppendLine();
+
+        // Generate ReadOnlySpan property for performance
+        sb.AppendLine("    /// <summary>");
+        sb.AppendLine("    /// ReadOnlySpan containing all discovered table names for efficient iteration.");
+        sb.AppendLine("    /// </summary>");
+        sb.AppendLine("    public static ReadOnlySpan<string> AllTableNamesSpan => AllTableNames;");
+
+        sb.AppendLine();
+
+        // Generate count property
+        sb.AppendLine("    /// <summary>");
+        sb.AppendLine("    /// Total number of discovered tables.");
+        sb.AppendLine("    /// </summary>");
+        sb.AppendLine($"    public const int TableCount = {distinctTableNames.Count};");
+
+        sb.AppendLine();
+
+        // Keep the existing methods
         sb.AppendLine("    /// <summary>");
         sb.AppendLine("    /// Gets the table name for the specified entity type.");
         sb.AppendLine("    /// </summary>");
@@ -242,5 +302,61 @@ public class TableNameMapGenerator : IIncrementalGenerator
         sb.AppendLine("}");
 
         return sb.ToString();
+    }
+
+    private static string CreateValidIdentifier(string tableName)
+    {
+        if (string.IsNullOrEmpty(tableName))
+            return "Unknown";
+
+        var sb = new StringBuilder();
+
+        // First character must be a letter or underscore
+        var firstChar = tableName[0];
+        if (char.IsLetter(firstChar))
+            sb.Append(char.ToUpper(firstChar));
+        else
+            sb.Append('_');
+
+        // Process remaining characters
+        for (int i = 1; i < tableName.Length; i++)
+        {
+            var c = tableName[i];
+            if (char.IsLetterOrDigit(c))
+            {
+                sb.Append(c);
+            }
+            else if (c == '-' || c == '_' || c == '.')
+            {
+                sb.Append('_');
+            }
+            // Skip other invalid characters
+        }
+
+        var result = sb.ToString();
+
+        // Ensure it's not a C# keyword
+        if (IsCSharpKeyword(result))
+            result = "@" + result;
+
+        return result;
+    }
+
+    private static bool IsCSharpKeyword(string identifier)
+    {
+        var keywords = new HashSet<string>
+        {
+            "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
+            "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
+            "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for",
+            "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock",
+            "long", "namespace", "new", "null", "object", "operator", "out", "override", "params",
+            "private", "protected", "public", "readonly", "ref", "return", "sbyte", "sealed",
+            "short", "sizeof", "stackalloc", "static", "string", "struct", "switch", "this",
+            "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort",
+            "using", "virtual", "void", "volatile", "while"
+        };
+
+        return keywords.Contains(identifier.ToLower());
     }
 }

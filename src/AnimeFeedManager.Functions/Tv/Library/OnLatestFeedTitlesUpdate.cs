@@ -27,7 +27,7 @@ public class OnLatestFeedTitlesUpdate
 
     [Function(nameof(OnLatestFeedTitlesUpdate))]
     public async Task Run(
-        [QueueTrigger(UpdateLatestFeedTitlesEvent.TargetQueue, Connection = Constants.AzureConnectionName)]
+        [QueueTrigger(UpdateLatestFeedTitlesEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         UpdateLatestFeedTitlesEvent message, CancellationToken token)
     {
         await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.LatestSeasonGetter(), token)

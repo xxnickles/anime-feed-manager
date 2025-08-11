@@ -8,11 +8,11 @@ public delegate Task<Result<Unit>> LastestSeasonsUpdater(LatestSeasonsStorage se
 public static class SeasonStore
 {
     public static SeasonUpdater SeasonUpdater(this ITableClientFactory clientFactory) =>
-        (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>(cancellationToken)
+        (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
             .Bind(client => client.UpsertSeason(season, cancellationToken));
 
     public static LastestSeasonsUpdater LastestSeasonsUpdater(this ITableClientFactory clientFactory) =>
-        (seasons, cancellationToken) => clientFactory.GetClient<LatestSeasonsStorage>(cancellationToken)
+        (seasons, cancellationToken) => clientFactory.GetClient<LatestSeasonsStorage>()
             .Bind(client => client.UpsertLatestSeasons(seasons, cancellationToken));
 
 

@@ -1,6 +1,7 @@
 using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Scrapping.AniDb;
 using AnimeFeedManager.Features.Scrapping.Types;
+using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 

@@ -31,23 +31,18 @@ public interface IDomainPostman
 
 public class AzureQueuePostman : IDomainPostman
 {
-    private readonly AzureStorageSettings _azureSettings;
+    private readonly QueueServiceClient _queueServiceClient;
     private readonly ILogger<AzureQueuePostman> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
-    private readonly QueueClientOptions _queueClientOptions;
 
     public AzureQueuePostman(
-        AzureStorageSettings tableStorageSettings,
+        QueueServiceClient queueServiceClient,
         ILogger<AzureQueuePostman> logger)
     {
-        _azureSettings = tableStorageSettings;
+        _queueServiceClient = queueServiceClient;
         _logger = logger;
         _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
             {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
-        _queueClientOptions = new QueueClientOptions
-        {
-            MessageEncoding = QueueMessageEncoding.Base64
-        };
     }
 
     public async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
@@ -117,29 +112,14 @@ public class AzureQueuePostman : IDomainPostman
     private async Task SendMessage<T>(T message, string destiny, TimeSpan? delay = default,
         CancellationToken cancellationToken = default)
     {
-        var queue = GetClient(destiny);
-        await queue.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
-        await queue.SendMessageAsync(AsBinary(message), cancellationToken: cancellationToken, visibilityTimeout: delay);
-    }
+        var queue = _queueServiceClient.GetQueueClient(destiny);
 
-    private QueueClient GetClient(string destinatary)
-    {
-        return _azureSettings switch
-        {
-            ConnectionStringSettings connectionStringOptions => new QueueClient(
-                connectionStringOptions.StorageConnectionString, destinatary,
-                _queueClientOptions),
-            TokenCredentialSettings tokenCredentialOptions => new QueueClient(
-                new Uri(tokenCredentialOptions.QueueUri, destinatary), tokenCredentialOptions.DefaultTokenCredential(),
-                _queueClientOptions),
-            _ => throw new ArgumentException(
-                "Provided Table Storage configuration is not valid. Make sure Configurations for Azure table Storage is correct for either connection string or managed identities",
-                nameof(TableClientOptions))
-        };
-    }
+        // Create BinaryData from JSON
+        var binaryData = BinaryData.FromObjectAsJson(message, _jsonOptions);
 
-    private BinaryData AsBinary<T>(T data)
-    {
-        return BinaryData.FromObjectAsJson(data, _jsonOptions);
+        // Convert to base64 string explicitly
+        string base64Message = Convert.ToBase64String(binaryData.ToArray());
+
+        await queue.SendMessageAsync(base64Message, cancellationToken: cancellationToken, visibilityTimeout: delay);
     }
 }

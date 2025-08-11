@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Features.User.Authentication.Queries;
 using AnimeFeedManager.Web.Common;
-using Microsoft.AspNetCore.Mvc;
 using Passwordless;
 
 namespace AnimeFeedManager.Web.Features.Security;

@@ -7,7 +7,7 @@ public static class UserStore
 {
     public static UserUpdater GetUserUpdater(this ITableClientFactory clientFactory) =>
         (email, userId, role, cancellationToken) =>
-            clientFactory.GetClient<UserStorage>(cancellationToken)
+            clientFactory.GetClient<UserStorage>()
                 .Bind(client => client.UpsertUser(email, userId, role, cancellationToken));
 
     private static Task<Result<Unit>> UpsertUser(

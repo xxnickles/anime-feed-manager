@@ -39,6 +39,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Web.Blazor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Web", "AnimeFeedManager.Web\AnimeFeedManager.Web.csproj", "{AA0EDA80-92D6-4263-84A5-34715F1FD041}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aspire", "Aspire", "{B1DE95DA-DC6A-45FB-8FBF-A9831568F0DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedmanager.AspireHost", "AnimeFeedmanager.AspireHost\AnimeFeedmanager.AspireHost.csproj", "{CAF93763-39DF-4973-834A-0E060B72E6E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedmanager.ServiceDefaults", "AnimeFeedmanager.ServiceDefaults\AnimeFeedmanager.ServiceDefaults.csproj", "{87B09600-7124-4710-9D91-FE3865D3D247}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFeedManager.Services.Shared", "AnimeFeedManager.Services.Shared\AnimeFeedManager.Services.Shared.csproj", "{021425AD-FABE-435D-9344-36531E38321E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +109,18 @@ Global
 		{AA0EDA80-92D6-4263-84A5-34715F1FD041}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA0EDA80-92D6-4263-84A5-34715F1FD041}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA0EDA80-92D6-4263-84A5-34715F1FD041}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAF93763-39DF-4973-834A-0E060B72E6E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAF93763-39DF-4973-834A-0E060B72E6E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAF93763-39DF-4973-834A-0E060B72E6E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAF93763-39DF-4973-834A-0E060B72E6E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87B09600-7124-4710-9D91-FE3865D3D247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87B09600-7124-4710-9D91-FE3865D3D247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87B09600-7124-4710-9D91-FE3865D3D247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87B09600-7124-4710-9D91-FE3865D3D247}.Release|Any CPU.Build.0 = Release|Any CPU
+		{021425AD-FABE-435D-9344-36531E38321E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{021425AD-FABE-435D-9344-36531E38321E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{021425AD-FABE-435D-9344-36531E38321E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{021425AD-FABE-435D-9344-36531E38321E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +139,9 @@ Global
 		{1EFED953-F97F-4EC2-BF1E-2B631ECC9CFF} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
 		{AA7DF332-B70E-4151-85F2-37F6B5789DDD} = {087C751E-8380-4489-9C8A-474D795534CE}
 		{AA0EDA80-92D6-4263-84A5-34715F1FD041} = {087C751E-8380-4489-9C8A-474D795534CE}
+		{CAF93763-39DF-4973-834A-0E060B72E6E8} = {B1DE95DA-DC6A-45FB-8FBF-A9831568F0DF}
+		{87B09600-7124-4710-9D91-FE3865D3D247} = {B1DE95DA-DC6A-45FB-8FBF-A9831568F0DF}
+		{021425AD-FABE-435D-9344-36531E38321E} = {079A4253-0B67-4267-8D3E-FC0D20CCFD40}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {628063C2-8D1C-46C8-A506-8760464EB763}

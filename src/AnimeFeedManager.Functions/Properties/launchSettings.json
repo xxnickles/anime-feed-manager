@@ -2,7 +2,7 @@
   "profiles": {
     "AnimeFeedManager.Functions": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7284",
+      "commandLineArgs": "--port 7071",
       "launchBrowser": false
     }
   }

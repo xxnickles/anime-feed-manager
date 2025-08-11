@@ -1,3 +1,5 @@
+using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+
 namespace AnimeFeedManager.Features.Tv.Library.Storage;
 
 public record TvSeriesInfo(
@@ -22,12 +24,12 @@ public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> RawStoredSeriesGet
 public static class ExistentSeries
 {
     public static StoredSeriesGetter GetExistentStoredSeriesGetter(this ITableClientFactory clientFactory) => (season, token) =>
-        clientFactory.GetClient<AnimeInfoStorage>(token)
+        clientFactory.GetClient<AnimeInfoStorage>()
             .Bind(client => client.GetStoredSeries(season, token))
             .Map(series => series.ConvertAll(Mapper));
     
     public static RawStoredSeriesGetter GetRawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) => (season, token) =>
-        clientFactory.GetClient<AnimeInfoStorage>(token)
+        clientFactory.GetClient<AnimeInfoStorage>()
             .Bind(client => client.GetStoredSeries(season, token));
 
 

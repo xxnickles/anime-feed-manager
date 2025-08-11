@@ -22,7 +22,7 @@ public class OnFeedTitlesUpdate
 
     [Function(nameof(OnFeedTitlesUpdate))]
     public async Task Run(
-        [QueueTrigger(FeedTitlesUpdated.TargetQueue, Connection = Constants.AzureConnectionName)]
+        [QueueTrigger(FeedTitlesUpdated.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         FeedTitlesUpdated message, CancellationToken token)
     {
         await FeedTitlesUpdate.StoreTitles(new FeedTitleUpdateData(message.Season, message.FeedTitles),

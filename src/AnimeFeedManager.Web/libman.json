@@ -23,18 +23,19 @@
       ]
     },
     {
-      "provider": "unpkg",
+      "library": "microsoft-signalr@9.0.6",
+      "destination": "wwwroot\\lib\\microsoft-signalr"
+    },
+    {
+      "provider": "jsdelivr",
       "library": "@passwordlessdev/passwordless-client@1.2.4",
-      "destination": "wwwroot/lib/passwordlessdev/passwordless-client/",
+      "destination": "wwwroot/lib/passwordlessdev/passwordless-client",
       "files": [
         "dist/umd/passwordless.umd.js",
         "dist/umd/passwordless.umd.min.js",
+        "dist/esm/passwordless.mjs",
         "dist/esm/passwordless.min.mjs"
       ]
-    },
-    {
-      "library": "microsoft-signalr@8.0.7",
-      "destination": "wwwroot\\lib\\microsoft-signalr"
     }
   ]
 }

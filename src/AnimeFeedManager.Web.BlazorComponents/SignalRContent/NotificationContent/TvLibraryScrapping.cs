@@ -7,30 +7,28 @@ internal static class TvLibraryScrapping
 {
     internal static RenderFragment ForTvLibraryScrapping(ScrapTvLibraryResult notification) => builder =>
     {
-        byte seq = 0;
-
         // Header
-        builder.OpenElement(seq++, "h3");
-        builder.AddAttribute(seq++, "class", "font-bold");
-        builder.AddContent(seq++,
+        builder.OpenElement(1, "h3");
+        builder.AddAttribute(2, "class", "font-bold");
+        builder.AddContent(3,
             $"TV library for {notification.Season.Year}-{notification.Season.Season} has been scrapped successfully");
         builder.CloseElement(); // h3
 
         // Body
-        builder.OpenElement(seq++, "p");
-        builder.AddAttribute(seq++, "class", "text-sm whitespace-normal");
+        builder.OpenElement(4, "p");
+        builder.AddAttribute(5, "class", "text-sm whitespace-normal");
         // First strong element
-        builder.OpenElement(seq++, "strong");
-        builder.AddContent(seq++, notification.NewSeries);
+        builder.OpenElement(6, "strong");
+        builder.AddContent(7, notification.NewSeries);
         builder.CloseElement(); // Close strong
         // Text between strong elements
-        builder.AddContent(seq++, " new series has been added. ");
+        builder.AddContent(8, " new series has been added. ");
         // Second strong element
-        builder.OpenElement(seq++, "strong");
-        builder.AddContent(seq++, notification.UpdatedSeries);
+        builder.OpenElement(9, "strong");
+        builder.AddContent(10, notification.UpdatedSeries);
         builder.CloseElement(); // Close strong
         // Final text
-        builder.AddContent(seq, " has been updated.");
+        builder.AddContent(11, " has been updated.");
         builder.CloseElement(); // Close p
     };
 }

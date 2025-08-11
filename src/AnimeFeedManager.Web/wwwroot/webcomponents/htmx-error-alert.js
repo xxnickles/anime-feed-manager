@@ -304,11 +304,11 @@ class DaisyHTMXAlerts extends HTMLElement {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
                 ${icon}
             </svg>
-            <div>
+            <section>
                 <h3 class="font-bold">${this.escapeHtml(title)}</h3>
-                <div class="text-xs">${this.escapeHtml(message)}</div>
-                <div class="text-xs opacity-50" style="margin-top: 0.25rem;">URL: ${this.escapeHtml(url)}</div>
-            </div>
+                <p class="text-xs">${this.escapeHtml(message)}</p>
+                <small class="text-xs opacity-50" style="margin-top: 0.25rem;">URL: ${this.escapeHtml(url)}</small>
+            </section>
             <button class="btn btn-sm" onclick="document.querySelector('daisy-htmx-alerts').dismissAlert('${alertId}')">
                 Dismiss
             </button>

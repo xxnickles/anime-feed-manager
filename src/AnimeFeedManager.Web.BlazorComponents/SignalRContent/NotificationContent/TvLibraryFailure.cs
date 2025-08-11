@@ -7,19 +7,17 @@ public static class TvLibraryFailure
 {
     internal static RenderFragment ForTvLibraryScrapping(ScrapTvLibraryFailedResult notification) => builder =>
     {
-        byte seq = 0;
-
         // Header
-        builder.OpenElement(seq++, "h3");
-        builder.AddAttribute(seq++, "class", "font-bold");
-        builder.AddContent(seq++,
+        builder.OpenElement(1, "h3");
+        builder.AddAttribute(2, "class", "font-bold");
+        builder.AddContent(3,
             $"TV library for {notification.Season} has been failed");
         builder.CloseElement(); // h3
 
         // Body
-        builder.OpenElement(seq++, "p");
-        builder.AddAttribute(seq++, "class", "text-sm whitespace-normal");
-        builder.AddContent(seq, "Scraping process has been failed.");
+        builder.OpenElement(4, "p");
+        builder.AddAttribute(5, "class", "text-sm whitespace-normal");
+        builder.AddContent(6, "Scraping process has been failed.");
         builder.CloseElement(); // Close p
         
     };

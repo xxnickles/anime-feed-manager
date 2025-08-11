@@ -1,4 +1,6 @@
 using System.Text.Json;
+using AnimeFeedManager.Features.Common;
+using SeriesSeasonContext = AnimeFeedManager.Features.Common.SeriesSeasonContext;
 
 namespace AnimeFeedManager.Features.Tests.Shared.Types;
 

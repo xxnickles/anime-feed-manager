@@ -16,12 +16,12 @@ public interface IImagesStore
 public class ImagesStore : IImagesStore
 {
     private readonly HttpClient _httpClient;
+    private readonly BlobServiceClient _blobServiceClient;
     private readonly ILogger<ImagesStore> _logger;
-    private const string Container = "images";
-    private readonly BlobContainerClient _containerClient;
+    public const string Container = "images";
 
     public ImagesStore(
-        AzureStorageSettings storageOptions,
+        BlobServiceClient blobServiceClient,
         IHttpClientFactory httpClientFactory,
         ILogger<ImagesStore> logger)
     {
@@ -31,11 +31,9 @@ public class ImagesStore : IImagesStore
         _httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate,sdch");
         _httpClient.DefaultRequestHeaders.Add("Accept",
             "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        _blobServiceClient = blobServiceClient;
         _logger = logger;
-        _containerClient = GetClient(storageOptions);
-        Initialize();
     }
-
 
     public async Task<Result<Uri>> Process(ImageProcessData data,
         CancellationToken cancellationToken = default)
@@ -59,35 +57,11 @@ public class ImagesStore : IImagesStore
     private async Task<Uri> Upload(string fileName, string path, Stream data,
         CancellationToken cancellationToken = default)
     {
+        var container = _blobServiceClient.GetBlobContainerClient(Container);
         var finalPath = Path.Combine(path, $"{fileName}.jpg");
-        var blob = _containerClient.GetBlobClient(finalPath);
+        var blob = container.GetBlobClient(finalPath);
         var blobHttpHeader = new BlobHttpHeaders {ContentType = "image/jpg"};
         await blob.UploadAsync(data, new BlobUploadOptions {HttpHeaders = blobHttpHeader}, cancellationToken);
         return blob.Uri;
-    }
-
-
-    private static BlobContainerClient GetClient(AzureStorageSettings azureSettings)
-    {
-        return azureSettings switch
-        {
-            ConnectionStringSettings connectionStringOptions => new BlobContainerClient(
-                connectionStringOptions.StorageConnectionString, Container),
-            TokenCredentialSettings tokenCredentialOptions => new BlobContainerClient(
-                new Uri(tokenCredentialOptions.BlobUri, Container), tokenCredentialOptions.DefaultTokenCredential()),
-            _ => throw new ArgumentException(
-                "Provided Table Storage configuration is not valid. Make sure Configurations for Azure table Storage is correct for either connection string or managed identities",
-                nameof(TableClientOptions))
-        };
-    }
-
-    private void Initialize()
-    {
-        _containerClient.CreateIfNotExists();
-        var currentAccessPolicy = _containerClient.GetAccessPolicy();
-        if (currentAccessPolicy == null || currentAccessPolicy.Value.BlobPublicAccess == PublicAccessType.None)
-        {
-            _containerClient.SetAccessPolicy(PublicAccessType.Blob);
-        }
     }
 }

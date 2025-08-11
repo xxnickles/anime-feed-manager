@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Features.ProcessState.Types;
+using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.ProcessState;
 
