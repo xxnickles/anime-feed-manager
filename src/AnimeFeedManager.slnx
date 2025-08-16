@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/Aspire/">
+    <Project Path="AnimeFeedmanager.AspireHost/AnimeFeedmanager.AspireHost.csproj" />
+    <Project Path="AnimeFeedmanager.ServiceDefaults/AnimeFeedmanager.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Backend/">
+    <Project Path="AnimeFeedManager.Features.Tests/AnimeFeedManager.Features.Tests.csproj" />
+    <Project Path="AnimeFeedManager.Features/AnimeFeedManager.Features.csproj" />
+    <Project Path="AnimeFeedManager.Functions/AnimeFeedManager.Functions.csproj" />
+    <Project Path="AnimeFeedManager.Services.Shared/AnimeFeedManager.Services.Shared.csproj" />
+    <Project Path="AnimeFeedManager.Shared/AnimeFeedManager.Shared.csproj" />
+    <Project Path="AnimeFeedManager.SourceGenerators/AnimeFeedManager.SourceGenerators.csproj" />
+  </Folder>
+  <Folder Name="/FrontEnd/">
+    <Project Path="AnimeFeedManager.Web.BlazorComponents/AnimeFeedManager.Web.BlazorComponents.csproj" />
+    <Project Path="AnimeFeedManager.Web/AnimeFeedManager.Web.csproj" />
+  </Folder>
+  <Folder Name="/OldBackend/">
+    <Project Path="AnimeFeedManager.Old.Common/AnimeFeedManager.Old.Common.csproj" />
+    <Project Path="AnimeFeedManager.Old.Features.Tests/AnimeFeedManager.Old.Features.Tests.csproj" />
+    <Project Path="AnimeFeedManager.Old.Features/AnimeFeedManager.Old.Features.csproj" />
+    <Project Path="AnimeFeedManager.Old.Functions/AnimeFeedManager.Old.Functions.csproj" />
+  </Folder>
+  <Folder Name="/OldBlazor/">
+    <Project Path="AnimeFeedManager.Old.Web.BlazorComponents/AnimeFeedManager.Old.Web.BlazorComponents.csproj" />
+    <Project Path="AnimeFeedManager.Old.Web/AnimeFeedManager.Old.Web.csproj" />
+  </Folder>
+</Solution>
