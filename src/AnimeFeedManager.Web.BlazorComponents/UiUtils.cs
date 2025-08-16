@@ -1,21 +1,23 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AnimeFeedManager.Web.Common;
+namespace AnimeFeedManager.Web.BlazorComponents;
 
-internal static class UiUtils
-{public static string GetUniqueName(string baseName) => $"{baseName}-{Guid.CreateVersion7().ToString("N")[..5]}";
-    
-    internal static string PageTitle(string titleMessage) => $"Anime Feed Manager | {titleMessage}";
-    internal static string PageTitle() => PageTitle(string.Empty);
-    internal static string RemoveTrailingPeriod(this string message)
+public static class UiUtils
+{
+    public static string GetUniqueName(string baseName) => $"{baseName}-{Guid.CreateVersion7().ToString("N")[..5]}";
+
+    public static string PageTitle(string titleMessage) => $"Anime Feed Manager | {titleMessage}";
+    public static string PageTitle() => PageTitle(string.Empty);
+
+    public static string RemoveTrailingPeriod(this string message)
     {
         return message.EndsWith('.') ? message.TrimEnd('.') : message;
     }
-    
-    internal static string RemoveAdditionalOccurrencesOf(this string input, string word)
+
+    public static string RemoveAdditionalOccurrencesOf(this string input, string word)
     {
         // Do nothing if either the input or the word are null or empty
-        if(string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(word))
+        if (string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(word))
             return input;
 
         if (!input.Contains(word, StringComparison.Ordinal))
@@ -39,8 +41,8 @@ internal static class UiUtils
 
         return result;
     }
-    
-    
+
+
     public static IReadOnlyDictionary<string, object> MergeAttributes(
         IReadOnlyDictionary<string, object>? additional,
         params (string Key, object Value)[] defaults)
@@ -62,5 +64,4 @@ internal static class UiUtils
 
         return result;
     }
-
 }

@@ -290,7 +290,7 @@ class DaisyHTMXAlerts extends HTMLElement {
         const alertDiv = document.createElement('div');
         alertDiv.id = alertId;
         alertDiv.setAttribute('role', 'alert');
-        alertDiv.className = `alert alert-${type} shadow-lg`;
+        alertDiv.className = `alert alert-${type} shadow-lg alert-vertical sm:alert-horizontal`;
 
         // Add fade transition styles
         alertDiv.style.transition = 'opacity 300ms ease-in-out';
@@ -301,7 +301,7 @@ class DaisyHTMXAlerts extends HTMLElement {
 
         // Build the alert HTML following DaisyUI structure
         alertDiv.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6 hidden md:block">
                 ${icon}
             </svg>
             <section>
@@ -309,7 +309,7 @@ class DaisyHTMXAlerts extends HTMLElement {
                 <p class="text-xs">${this.escapeHtml(message)}</p>
                 <small class="text-xs opacity-50" style="margin-top: 0.25rem;">URL: ${this.escapeHtml(url)}</small>
             </section>
-            <button class="btn btn-sm" onclick="document.querySelector('daisy-htmx-alerts').dismissAlert('${alertId}')">
+            <button type="button" class="btn btn-sm" onclick="document.querySelector('daisy-htmx-alerts').dismissAlert('${alertId}')">
                 Dismiss
             </button>
         `;

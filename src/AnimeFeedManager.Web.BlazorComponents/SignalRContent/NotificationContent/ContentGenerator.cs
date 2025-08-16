@@ -7,7 +7,7 @@ namespace AnimeFeedManager.Web.BlazorComponents.SignalRContent.NotificationConte
 
 internal static class ContentGenerator
 {
-    internal static Result<RenderFragment> GetContent(object notification) => notification switch
+    internal static Result<(string Title, RenderFragment Message)> GetContent(object notification) => notification switch
     {
         ScrapTvLibraryResult scrappingResult => TvLibraryScrapping.ForTvLibraryScrapping(scrappingResult),
         ScrapTvLibraryFailedResult scrappingFailedResult => TvLibraryFailure.ForTvLibraryScrapping(

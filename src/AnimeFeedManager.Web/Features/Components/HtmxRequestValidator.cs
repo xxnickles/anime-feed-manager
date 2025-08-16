@@ -15,6 +15,13 @@ public class HtmxRequestValidator : ComponentBase
 
     protected override void OnParametersSet()
     {
+        // Validate that this component is used within an EditForm
+        if (CurrentEditContext == null)
+        {
+            throw new InvalidOperationException(
+                $"{nameof(HtmxRequestValidator)} must be placed inside an EditForm component.");
+        }
+        
         if (HttpContextAccessor.GetHtmxRequestType() is HtmxRequestType.HxForm)
         {
             CurrentEditContext?.Validate();

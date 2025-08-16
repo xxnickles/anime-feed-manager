@@ -1,52 +1,128 @@
 ﻿<div
     role="alert"
-    class="alert shadow-lg max-w-(--breakpoint-md)"
+    class="alert shadow-lg transition-opacity duration-500 min-w-[95vw] md:min-w-[50vw] lg:min-w-[25vw] alert-vertical sm:alert-horizontal @GetAlertTypeClass()"
     x-data="{ 
-        open: true, 
-        progress: 0, 
-        intervalId: null, 
+        open: true,
+        isPaused: false,
+        secondsLeft: @((int) CloseTime.TotalSeconds),
+        intervalId: null,
+        
         startTimeout() {
-            const totalTime = @CloseTime.TotalMilliseconds;
-            const intervalTime = 500;
-            const decrement = intervalTime / totalTime * 100;
+            if (this.intervalId) return; // Prevent multiple intervals
+            
             this.intervalId = setInterval(() => {
-                if (this.progress >= 100) {
-                    clearInterval(this.intervalId);
-                    this.open = false;
-                     setTimeout(() => {
-                        $el.remove();
-                    }, 500);
-                } else {
-                    this.progress += decrement;
+                if (this.isPaused) return; // Skip if paused
+                
+                this.secondsLeft--;
+                
+                if (this.secondsLeft <= 0) {
+                    this.dismiss();
                 }
-            }, intervalTime);
+            }, 1000);
         },
+        
+        pauseTimeout() {
+            this.isPaused = true;
+        },
+        
+        resumeTimeout() {
+            this.isPaused = false;
+        },
+        
+        togglePause() {
+            if (this.isPaused) {
+                this.resumeTimeout();
+            } else {
+                this.pauseTimeout();
+            }
+        },
+        
         stopTimeout() {
-            clearInterval(this.intervalId);
+            if (this.intervalId) {
+                clearInterval(this.intervalId);
+                this.intervalId = null;
+            }
+        },
+        
+        dismiss() {
+            this.stopTimeout();
+            this.open = false;
+            
+            // Wait for opacity transition then remove from DOM
+            setTimeout(() => {
+                $el.remove();
+            }, 500); // Match transition duration
         }
     }"
     x-init="startTimeout()"
-    x-show="open"
-    x-transition.duration.500ms
-    x-on:open="startTimeout"
-    x-on:close="stopTimeout"
+    x-bind:class="{ 'opacity-0': !open }"
+    x-show="true"
 >
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="hidden md:block @Type.AsStrokeStyle() shrink-0 w-6 h-6">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+         class="stroke-current hidden md:block shrink-0 w-6 h-6">
+        @Icons[Type]
     </svg>
+
+    <section class="flex-1">
+        <h3 class="font-bold contents">@Title</h3>
+        <p class="text-xs">@Message</p>
+    </section>
+
     <div>
-        <progress class="progress progress-primary w-full" value="0" x-bind:value="progress"  max="100"></progress>
-        @Content
+        <!-- Pause/Resume Button with Counter -->
+        <button
+            type="button"
+            class="btn btn-sm"
+            x-bind:class="{ 'btn-warning': isPaused, 'btn-info': !isPaused }"
+            x-on:click="togglePause()"
+            x-bind:title="isPaused ? 'Resume auto-dismiss' : 'Pause auto-dismiss'"
+        >
+            <!-- Pause/Play Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
+                 class="w-4 h-4">
+                <!-- Pause Icon (when not paused) -->
+                <path x-show="!isPaused" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 9v6m4-6v6"></path>
+                <!-- Play Icon (when paused) -->
+                <path x-show="isPaused" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M14.752 11.168l-6.518-3.759A1 1 0 007 8.359v7.282a1 1 0 001.234.97l6.518-3.759a1 1 0 000-1.74z"></path>
+            </svg>
+            <span x-text="secondsLeft + 's'" class="text-xs"></span>
+        </button>
+
+        <!-- Dismiss Button -->
+        <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            x-on:click="dismiss()">
+            Dismiss
+        </button>
     </div>
-    <button
-        type="button"
-        class="btn btn-primary btn-sm -mt-3 md:mt-0"
-        x-on:click="open = false; stopTimeout();"
-    >Ok</button>
 </div>
 
 @code {
-    [Parameter] public RenderFragment Content { get; set; } = @<span></span>;
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public RenderFragment Message { get; set; } = _ => { };
+
     [Parameter, EditorRequired] public ToastType Type { get; set; } = ToastType.Info;
     [Parameter] public TimeSpan CloseTime { get; set; } = TimeSpan.FromSeconds(5);
+
+    private static readonly Dictionary<ToastType, MarkupString> Icons = new()
+    {
+        [ToastType.Error] = (MarkupString) """<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />""",
+        [ToastType.Warning] = (MarkupString) """<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />""",
+        [ToastType.Info] = (MarkupString) """<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>""",
+        [ToastType.Success] = (MarkupString) """<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />"""
+    };
+
+    private string GetAlertTypeClass() => Type switch
+    {
+        ToastType.Info => "alert-info",
+        ToastType.Success => "alert-success",
+        ToastType.Warning => "alert-warning",
+        ToastType.Error => "alert-error",
+        _ => string.Empty
+    };
+
+
 }

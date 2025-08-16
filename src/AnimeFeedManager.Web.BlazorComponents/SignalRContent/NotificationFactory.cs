@@ -18,7 +18,8 @@ public static class NotificationFactory
             .Map(content => renderer.RenderComponent<ClosableNotification>(new Dictionary<string, object?>
             {
                 {nameof(ClosableNotification.Type), Helpers.Map(notification.Type)},
-                {nameof(ClosableNotification.Content), ContentGenerator.GetContent(content)}
+                {nameof(ClosableNotification.Title), content.Title},
+                {nameof(ClosableNotification.Message), content.Message}
             }));
     }
 }

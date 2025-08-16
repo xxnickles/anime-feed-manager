@@ -12,11 +12,20 @@ public class AsSeason : ValidationAttribute
         ErrorMessage = "{0} is not a valid season.";
     }
 
+    public override string FormatErrorMessage(string name)
+    {
+        return string.Format(ErrorMessageString, name, ActualValue?.ToString() ?? name);
+    }
+
+    private object? ActualValue { get; set; }
+
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value is null || (value is string stringValue && Season.IsValid(stringValue)))
             return ValidationResult.Success;
-        
+
+        ActualValue = value; // Store the actual value for error formatting
+
         var errorMessage = FormatErrorMessage(validationContext.DisplayName);
         return new ValidationResult(errorMessage, validationContext.MemberName is not null ? [validationContext.MemberName] : null);
     }
@@ -31,12 +40,22 @@ public class AsYear : ValidationAttribute
         ErrorMessage = "{0} is not a valid year.";
     }
 
+    public override string FormatErrorMessage(string name)
+    {
+        return string.Format(ErrorMessageString, name, ActualValue?.ToString() ?? name);
+    }
+
+    private object? ActualValue { get; set; }
+
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value is null || (value is int intValue && Year.NumberIsValid(intValue)))
             return ValidationResult.Success;
-        
+
+        ActualValue = value; // Store the actual value for error formatting
+
         var errorMessage = FormatErrorMessage(validationContext.DisplayName);
         return new ValidationResult(errorMessage, validationContext.MemberName is not null ? [validationContext.MemberName] : null);
     }
+
 }

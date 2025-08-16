@@ -1,0 +1,54 @@
+﻿@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Forms
+@typeparam TValue
+
+@if (!string.IsNullOrEmpty(GetValidationErrorMessage()))
+{
+    <div class="tooltip tooltip-error tooltip-top validation-error-icon relative z-50 transition-all duration-300 ease-out" 
+         data-tip="@GetValidationErrorMessage()"
+         data-field="@FieldIdentifier.FieldName">
+        <svg xmlns="http://www.w3.org/2000/svg" 
+             viewBox="0 0 16 16" 
+             fill="currentColor" 
+             class="size-4 text-error cursor-help"
+             tabindex="0"
+             role="img"
+             aria-label="Validation error: @GetValidationErrorMessage()"
+             aria-describedby="@($"validation-error-{FieldIdentifier.FieldName}")"
+             x-on:keydown.space.prevent>
+            <path fill-rule="evenodd" d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" clip-rule="evenodd" />
+        </svg>
+        
+        <!-- Hidden description for screen readers -->
+        <div id="@($"validation-error-{FieldIdentifier.FieldName}")" class="sr-only">
+            Validation error: @GetValidationErrorMessage()
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] 
+    public Expression<Func<TValue>>? For { get; set; }
+
+    [CascadingParameter] 
+    public EditContext? EditContext { get; set; }
+
+    private FieldIdentifier FieldIdentifier { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (For == null || EditContext == null)
+            return;
+
+        FieldIdentifier = FieldIdentifier.Create(For);
+    }
+
+    private string? GetValidationErrorMessage()
+    {
+        if (EditContext == null || For == null)
+            return null;
+
+        var validationMessages = EditContext.GetValidationMessages(FieldIdentifier);
+        return validationMessages.FirstOrDefault();
+    }
+}

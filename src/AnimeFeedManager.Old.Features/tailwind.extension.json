@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/theron-wang/VS2022-Editor-Support-for-Tailwind-CSS/refs/heads/main/tailwind.extension.schema.json",
   "BuildFiles": [
     {
-      "Input": "animefeedmanager.old.web\\styles\\app.css",
+      "Input": "..\\animefeedmanager.old.web\\styles\\app.css",
       "Output": "",
       "Behavior": "Default"
     }

@@ -1,7 +1,4 @@
-﻿using AnimeFeedManager.Shared.Results;
-using AnimeFeedManager.Shared.Results.Errors;
-
-namespace AnimeFeedManager.Web.Common;
+﻿namespace AnimeFeedManager.Web.Common;
 
 internal static class ResponseExtensions
 {

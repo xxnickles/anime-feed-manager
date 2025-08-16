@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+
 @source "../../AnimeFeedManager.Web.BlazorComponents";
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
@@ -10,54 +11,61 @@
 */
 
 @plugin "daisyui" {
-  themes: nord --default, dim --prefersdark;
+    themes: nord --default, dim --prefersdark;
 }
 
 @theme {
-  --font-sans: 'SF Mono', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-logo: 'Prettier Script', sans-serif;  
+    --font-sans: 'SF Mono', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-logo: 'Prettier Script', sans-serif;
 }
 
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
 }
 
 @utility validator-no-success {
-  &:user-valid, &:has(:user-valid) {
-    &, &:focus, &:checked, &[aria-checked="true"], &:focus-within {
-      --input-color: hsl(var(--bc) / 0.2);
+    &:user-valid, &:has(:user-valid) {
+        &, &:focus, &:checked, &[aria-checked="true"], &:focus-within {
+            --input-color: hsl(var(--bc) / 0.2);
+        }
     }
-  }
 }
 
+/* Apply input-error styling to label when it contains an input with .invalid class */
+
+label:has(.invalid) {
+    @apply input-error;
+}
+
+
 @utility scrollbar {
-  scrollbar-width: thin;
+    scrollbar-width: thin;
 
-  &::-webkit-scrollbar {
-    width: 8px;
-    background-color: rgba(255, 255, 255, 0);
-  }
+    &::-webkit-scrollbar {
+        width: 8px;
+        background-color: rgba(255, 255, 255, 0);
+    }
 
-  &::-webkit-scrollbar-track {
-    background-color: rgba(255, 255, 255, 0);
-  }
+    &::-webkit-scrollbar-track {
+        background-color: rgba(255, 255, 255, 0);
+    }
 
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    box-shadow: none;
-    background-color: transparent;
-  }
+    &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        box-shadow: none;
+        background-color: transparent;
+    }
 
-  &:hover::-webkit-scrollbar-thumb {
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: #888585;
-  }
+    &:hover::-webkit-scrollbar-thumb {
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+        background-color: #888585;
+    }
 }
 
 .blazor-error-boundary {
@@ -70,4 +78,6 @@
     content: "An error has occurred."
 }
 
-[x-cloak] { display: none !important; }
+[x-cloak] {
+    display: none !important;
+}

@@ -1,25 +1,25 @@
 ﻿@typeparam TModel where TModel : class, new()
-<div class="card bg-base-100 shadow-sm">
-    <div class="card-body">
-        <div class="flex items-center justify-between">
-            <h3 class="card-title m-0">@Title</h3>
-            <span id="@_loaderId"
-                  class="loading loading-spinner loading-xs htmx-indicator"></span>
-        </div>
-
-        <EditForm
-            Model="@ViewModel"
-            FormName="@FormName"
-            AdditionalAttributes="AggregatedAttributes"
-        >
-            <HtmxRequestValidator/>
+<EditForm
+    Model="@ViewModel"
+    FormName="@FormName"
+    AdditionalAttributes="AggregatedAttributes">
+    <DataAnnotationsValidator/>
+    <HtmxRequestValidator/>
+    <div class="card bg-base-100 shadow-sm">
+        <div class="card-body">
+            <div class="flex items-center justify-between">
+                <h3 class="card-title m-0">@Title</h3>
+                <span id="@_loaderId"
+                      class="loading loading-spinner loading-xs htmx-indicator"></span>
+            </div>
             @ChildContent
             <div class="card-actions justify-end">
                 <button type="submit" class="btn btn-primary mt-4">@SubmitText</button>
             </div>
-        </EditForm>
+
+        </div>
     </div>
-</div>
+</EditForm>
 
 
 @code {
@@ -52,11 +52,12 @@
 
     private string _loaderId = string.Empty;
 
-    private IReadOnlyDictionary<string, object> AggregatedAttributes => UiUtils.MergeAttributes(
+    private IReadOnlyDictionary<string, object> AggregatedAttributes => MergeAttributes(
         AdditionalAttributes,
         ("hx-indicator", $"#{_loaderId}"),
         ("x-data", true),
-        ("x-form-submit-locker.disable-on-submit", true)
+        ("x-form-submit-locker.disable-on-submit", true),
+        ("x-invalid-cleaner", true)
     );
 
 

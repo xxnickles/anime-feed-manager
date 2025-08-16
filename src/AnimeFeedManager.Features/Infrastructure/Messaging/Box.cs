@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
-[JsonConverter(typeof(SeasonJsonConverter))]
+[JsonConverter(typeof(BoxJsonConverter))]
 public readonly struct Box(string boxValue)
 {
     private const string EmptyBox = "EMPTY";
@@ -19,7 +19,7 @@ public readonly struct Box(string boxValue)
     public static Box Empty() => new(EmptyBox);
 }
 
-public class SeasonJsonConverter : JsonConverter<Box>
+public class BoxJsonConverter : JsonConverter<Box>
 {
     public override Box Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

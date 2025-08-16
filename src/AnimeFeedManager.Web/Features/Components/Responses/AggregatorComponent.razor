@@ -1,0 +1,9 @@
+﻿@foreach (var fragment in Fragments)
+{
+    @fragment
+}
+
+
+@code {
+    [Parameter, EditorRequired] public RenderFragment[] Fragments { get; set; } = [];
+}

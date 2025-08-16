@@ -20,7 +20,7 @@ public class OnSeasonUpdated
         _logger = logger;
     }
 
-    [Function(nameof(OnSeasonUpdated))]
+    //[Function(nameof(OnSeasonUpdated))]
     public async Task Run(
         [QueueTrigger(SeasonUpdated.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         SeasonUpdated message,

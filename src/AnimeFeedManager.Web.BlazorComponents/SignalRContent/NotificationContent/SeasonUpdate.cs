@@ -5,27 +5,17 @@ namespace AnimeFeedManager.Web.BlazorComponents.SignalRContent.NotificationConte
 
 internal static class SeasonUpdate
 {
-    internal static RenderFragment ForSeasonUpdate(SeasonUpdateResult notification) => builder =>
-    {
-        // Header
-        builder.OpenElement(1, "h3");
-        builder.AddAttribute(2, "class", "font-bold");
-        
-        builder.AddContent(3, GetNotificationTitle(notification));
-        builder.CloseElement(); // h3
-
-        // Body
-        builder.OpenElement(4, "p");
-        builder.AddAttribute(5, "class", "text-sm whitespace-normal");
-        // First strong element
-        builder.OpenElement(6, "strong");
-        builder.AddContent(7, $"{notification.Season.Year}-{notification.Season.Season}");
-        builder.CloseElement(); // Close strong
-        // Text between strong elements
-        builder.AddContent(8, GetNotificationBody(notification.SeasonUpdateStatus));
-      
-        builder.CloseElement(); // Close p
-    };
+    internal static (string, RenderFragment) ForSeasonUpdate(SeasonUpdateResult notification) => (
+        GetNotificationTitle(notification),
+        builder =>
+        {
+            // First strong element
+            builder.OpenElement(1, "strong");
+            builder.AddContent(2, $"{notification.Season.Year}-{notification.Season.Season}");
+            builder.CloseElement(); // Close strong
+            // Text between strong elements
+            builder.AddContent(3, GetNotificationBody(notification.SeasonUpdateStatus));
+        });
 
     private static string GetNotificationTitle(SeasonUpdateResult notification) =>
         notification.SeasonUpdateStatus switch
@@ -41,7 +31,7 @@ internal static class SeasonUpdate
             _ => throw new ArgumentOutOfRangeException(nameof(SeasonUpdateResult.SeasonUpdateStatus),
                 notification.SeasonUpdateStatus, $"Unknown '{notification.SeasonUpdateStatus}' status")
         };
-    
+
     private static string GetNotificationBody(SeasonUpdateStatus status) =>
         status switch
         {
@@ -52,5 +42,4 @@ internal static class SeasonUpdate
             _ => throw new ArgumentOutOfRangeException(nameof(SeasonUpdateStatus),
                 status, $"Unknown '{status}' status")
         };
-
 }

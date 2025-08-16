@@ -8,10 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-        <PackageReference Include="Aspire.Azure.Data.Tables" Version="9.4.0" />
-        <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.4.0" />
-        <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.4.0" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Aspire.Azure.Data.Tables" Version="9.4.1" />
+        <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="9.4.1" />
+        <PackageReference Include="Aspire.Azure.Storage.Queues" Version="9.4.1" />
     </ItemGroup>
 
 </Project>

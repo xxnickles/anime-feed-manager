@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{18C3647A-3B1D-490D-8A46-F8B29A408558}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Features", "AnimeFeedManager.Old.Features\AnimeFeedManager.Old.Features.csproj", "{C45FDC33-7E71-46A6-96B7-E949B01AD73E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeFeedManager.Old.Functions", "AnimeFeedManager.Old.Functions\AnimeFeedManager.Old.Functions.csproj", "{01635DED-9DD8-4763-A447-727319B2CF36}"
