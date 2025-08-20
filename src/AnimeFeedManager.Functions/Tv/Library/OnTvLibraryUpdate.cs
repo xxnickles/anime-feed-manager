@@ -9,20 +9,20 @@ namespace AnimeFeedManager.Functions.Tv.Library;
 public class OnTvLibraryUpdate
 {
     private readonly ITvLibraryScrapper _scrapper;
-    private readonly ITvImagesCollector _imagesCollector;
+    private readonly IImageProvider _imageProvider;
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IDomainPostman _domainPostman;
     private readonly ILogger<OnTvLibraryUpdate> _logger;
 
     public OnTvLibraryUpdate(
         ITvLibraryScrapper scrapper,
-        ITvImagesCollector imagesCollector,
+        IImageProvider imageProvider,
         ITableClientFactory tableClientFactory,
         IDomainPostman domainPostman,
         ILogger<OnTvLibraryUpdate> logger)
     {
         _scrapper = scrapper;
-        _imagesCollector = imagesCollector;
+        _imageProvider = imageProvider;
         _tableClientFactory = tableClientFactory;
         _domainPostman = domainPostman;
         _logger = logger;
@@ -36,7 +36,7 @@ public class OnTvLibraryUpdate
     {
         await TryGetSeasonSelector(message.SeasonParameters)
             .ScrapTvSeries(_scrapper, token)
-            .AddImagesLinks(_imagesCollector, token)
+            .AddImagesLinks(_imageProvider, _logger, token)
             .UpdateTvLibrary(_tableClientFactory.GetTvLibraryUpdater(), token)
             .SendEvents(_domainPostman, message.SeasonParameters, token)
             .Match(

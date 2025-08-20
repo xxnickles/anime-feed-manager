@@ -28,14 +28,14 @@ public class ResourceCreator(
     {
         try
         {
-            logger.LogInformation("Creating container {ContainerName}", ImagesStore.Container);
+            logger.LogInformation("Creating container {ContainerName}", ImageProvider.Container);
         
-            var containerClient = blobServiceClient.GetBlobContainerClient(ImagesStore.Container);
+            var containerClient = blobServiceClient.GetBlobContainerClient(ImageProvider.Container);
             var response = await containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         
             if (response is null || !response.HasValue)
             {
-                logger.LogInformation("Container {ContainerName} already exists", ImagesStore.Container);
+                logger.LogInformation("Container {ContainerName} already exists", ImageProvider.Container);
                 return;
             }
 
@@ -45,12 +45,12 @@ public class ResourceCreator(
                 await containerClient.SetAccessPolicyAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
             }
 
-            logger.LogInformation("Container {ContainerName} created", ImagesStore.Container);
+            logger.LogInformation("Container {ContainerName} created", ImageProvider.Container);
 
         }
         catch (Exception e)
         {
-            logger.LogError(e, "An error occurred when creating container {ContainerName}", ImagesStore.Container);
+            logger.LogError(e, "An error occurred when creating container {ContainerName}", ImageProvider.Container);
         }
     }
     

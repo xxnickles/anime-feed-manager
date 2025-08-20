@@ -20,11 +20,13 @@ internal class TvAdminHandlers
             .ToComponentResult(
                 _ =>
                 [
+                    TvSeasonalUpdate.AsRenderFragment(viewModel),
                     Notifications.CreateNotificationToast(
                         "TV Season Updates",
                         TvSeasonalUpdate.OkNotificationContent(viewModel))
                 ],
-                error => [
+                error =>
+                [
                     TvSeasonalUpdate.AsRenderFragment(viewModel),
                     Notifications.CreateErrorToast("TV Season Updates failed", error)
                 ]);

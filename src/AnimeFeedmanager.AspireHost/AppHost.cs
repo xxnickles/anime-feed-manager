@@ -3,6 +3,7 @@ var storage = builder.AddAzureStorage("storage")
     .RunAsEmulator(emulator =>
     {
         // emulator.WithDataVolume("azurite-data");
+        //emulator.WithImageTag("latest");
         emulator.WithBindMount(builder.Configuration["AzuriteDataPath"] ?? "../../../azurite-data", "/data");
         emulator.WithLifetime(ContainerLifetime.Persistent);
     });

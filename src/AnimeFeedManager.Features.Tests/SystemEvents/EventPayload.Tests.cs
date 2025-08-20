@@ -4,7 +4,6 @@ using System.Text.Json.Serialization.Metadata;
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.SystemEvents;
 
-
 namespace AnimeFeedManager.Features.Tests.SystemEvents;
 
 public class EventPayloadTests
@@ -27,8 +26,6 @@ public record TestPayload(SeriesSeason Season) : SerializableEventPayload<TestPa
     public override JsonTypeInfo<TestPayload> GetJsonTypeInfo() => TestPayloadContext.Default.TestPayload;
 }
 
-[JsonSourceGenerationOptions(
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(TestPayload))]
 public partial class TestPayloadContext : JsonSerializerContext;

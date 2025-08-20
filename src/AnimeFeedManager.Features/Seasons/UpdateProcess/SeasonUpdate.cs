@@ -37,6 +37,7 @@ public static class SeasonUpdate
     {
         var newSeason = new SeasonStorage
         {
+            RowKey = IdHelpers.GenerateAnimePartitionKey(data.SeasonToUpdate),
             PartitionKey = data.SeasonToUpdate.IsLatest ? SeasonType.Latest : SeasonType.Season,
             Latest = data.SeasonToUpdate.IsLatest,
             Season = data.SeasonToUpdate.Season,
@@ -56,9 +57,10 @@ public static class SeasonUpdate
     {
         ExistentSeason existent => seasonUpdater(existent.Season, cancellationToken),
         LatestSeason latest => seasonUpdater(latest.Season, cancellationToken),
+        NewSeason newSeason => seasonUpdater(newSeason.Season, cancellationToken),
         _ => Task.FromResult<Result<Unit>>(new OperationError(
             $"{nameof(UpdateSeason)}-{nameof(SeasonStorageData)}",
-            $"Season data is not selectable for updated. Received {data.GetType().Name}"))
+            $"Season data is not selectable to be updated. Received {data.GetType().Name}"))
     };
 
     private static Task<Result<Unit>> UpdateLatestSeason(
@@ -69,7 +71,7 @@ public static class SeasonUpdate
         LatestSeason latest => seasonUpdater(DemoteCurrentLatestSeason(latest.Season), cancellationToken),
         _ => Task.FromResult<Result<Unit>>(new OperationError(
             $"{nameof(UpdateLatestSeason)}-{nameof(SeasonStorageData)}",
-            $"Season data is not selectable for updated. Received {data.GetType().Name}"))
+            $"Season data is not selectable to be  updated. Received {data.GetType().Name}"))
     };
 
     private static SeasonStorage DemoteCurrentLatestSeason(SeasonStorage data)

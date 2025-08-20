@@ -9,7 +9,7 @@ public sealed record DomainValidationError(string Field, string[] Errors)
 
     public static DomainValidationError Create(string field, string[] errors) => new(field, errors);
     public static DomainValidationError Create(string field, string error) => new(field, [error]);
-    
+
     public static DomainValidationError Create<T>(string[] errors) => Create(typeof(T).Name, errors);
     public static DomainValidationError Create<T>(string error) => Create(typeof(T).Name, [error]);
 }
@@ -18,14 +18,20 @@ public sealed record DomainValidationErrors : DomainError
 {
     public List<DomainValidationError> Errors { get; set; } = [];
 
-    private DomainValidationErrors(IEnumerable<DomainValidationError> errors)
-        : base("One or more validations have failed")
+    private DomainValidationErrors(IEnumerable<DomainValidationError> errors,
+        string CallerMemberName,
+        string CallerFilePath,
+        int CallerLineNumber)
+        : base("One or more validations have failed", CallerMemberName, CallerFilePath, CallerLineNumber)
     {
         Errors.AddRange(errors);
     }
 
-    public static DomainValidationErrors Create(IEnumerable<DomainValidationError> errors) =>
-        new(errors);
+    public static DomainValidationErrors Create(IEnumerable<DomainValidationError> errors,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerFilePath] string callerFilePath = "",
+        [CallerLineNumber] int callerLineNumber = 0) =>
+        new(errors, callerMemberName, callerFilePath, callerLineNumber);
 
     public override string ToString()
     {
@@ -43,7 +49,7 @@ public sealed record DomainValidationErrors : DomainError
     protected override void LoggingBehavior(ILogger logger)
     {
         logger.LogWarning("{Error}", Message);
-        
+
         foreach (var validationError in Errors)
             logger.LogWarning("Field: {Field} Messages: {Messages}", validationError.Field,
                 string.Join(". ", validationError.Errors));
@@ -52,7 +58,8 @@ public sealed record DomainValidationErrors : DomainError
 
 public static class Extensions
 {
-    public static DomainValidationErrors AppendErrors(this DomainValidationErrors validationErrors, DomainValidationErrors otherValidationErrors)
+    public static DomainValidationErrors AppendErrors(this DomainValidationErrors validationErrors,
+        DomainValidationErrors otherValidationErrors)
     {
         validationErrors.Errors.AddRange(otherValidationErrors.Errors);
         return validationErrors;
@@ -60,7 +67,7 @@ public static class Extensions
 
     public static DomainValidationErrors ToErrors(this DomainValidationError validationError) =>
         DomainValidationErrors.Create([validationError]);
-    
+
     public static DomainValidationErrors ToErrors(this IEnumerable<DomainValidationError> validationErrors) =>
         DomainValidationErrors.Create(validationErrors);
 }

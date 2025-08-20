@@ -3,7 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Shared.Results.Errors;
 
-public abstract record FormDataValidationError(ICollection<ValidationResult> ValidationResults) : DomainError("Form validation issues has been found")
+public abstract record FormDataValidationError(
+    ICollection<ValidationResult> ValidationResults,
+    string CallerMemberName,
+    string CallerFilePath,
+    int CallerLineNumber) : DomainError("Form validation issues has been found", CallerMemberName, CallerFilePath,
+    CallerLineNumber)
 {
     protected abstract string GetTypeName();
 
@@ -45,7 +50,12 @@ public abstract record FormDataValidationError(ICollection<ValidationResult> Val
     }
 }
 
-public record FormDataValidationError<T>(ICollection<ValidationResult> ValidationResults) : FormDataValidationError(ValidationResults)
+public sealed record FormDataValidationError<T>(
+    ICollection<ValidationResult> ValidationResults,
+    [CallerMemberName] string CallerMemberName = "",
+    [CallerFilePath] string CallerFilePath = "",
+    [CallerLineNumber] int CallerLineNumber = 0)
+    : FormDataValidationError(ValidationResults, CallerMemberName, CallerFilePath, CallerLineNumber)
 {
     protected override string GetTypeName() => typeof(T).Name;
 }

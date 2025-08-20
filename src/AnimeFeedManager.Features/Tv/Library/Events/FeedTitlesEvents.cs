@@ -7,9 +7,7 @@ public sealed record FeedTitlesUpdateResult(SeriesSeason Season, int UpdatedFeed
     public override JsonTypeInfo<FeedTitlesUpdateResult> GetJsonTypeInfo() => FeedTitlesUpdateResultContext.Default.FeedTitlesUpdateResult;
 }
 
-[JsonSourceGenerationOptions(
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(FeedTitlesUpdateResult))]
 [EventPayloadSerializerContext(typeof(FeedTitlesUpdateResult))]
 public partial class FeedTitlesUpdateResultContext : JsonSerializerContext;
@@ -19,9 +17,7 @@ public sealed record FeedTitlesUpdateError(SeriesSeason Season) : SerializableEv
     public override JsonTypeInfo<FeedTitlesUpdateError> GetJsonTypeInfo() => FeedTitlesUpdateErrorContext.Default.FeedTitlesUpdateError;
 }
 
-[JsonSourceGenerationOptions(
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(FeedTitlesUpdateError))]
 [EventPayloadSerializerContext(typeof(FeedTitlesUpdateError))]
 public partial class FeedTitlesUpdateErrorContext : JsonSerializerContext;

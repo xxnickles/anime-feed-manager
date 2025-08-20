@@ -19,9 +19,7 @@ public sealed record SeasonUpdateResult(SeriesSeason Season, SeasonUpdateStatus 
     }
 }
 
-[JsonSourceGenerationOptions(
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(SeasonUpdateResult))]
 [EventPayloadSerializerContext(typeof(SeasonUpdateResult))]
 public partial class SeasonUpdatedResultContext : JsonSerializerContext;

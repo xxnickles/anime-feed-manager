@@ -2,7 +2,13 @@
 
 namespace AnimeFeedManager.Shared.Results.Errors;
 
-public sealed record TypeMismatch(Type TargetType, object Received) : DomainError("Type Mismatch")
+public sealed record TypeMismatch(
+    Type TargetType,
+    object Received,
+    [CallerMemberName] string CallerMemberName = "",
+    [CallerFilePath] string CallerFilePath = "",
+    [CallerLineNumber] int CallerLineNumber = 0)
+    : DomainError("Type Mismatch", CallerMemberName, CallerFilePath, CallerLineNumber)
 {
     protected override void LoggingBehavior(ILogger logger)
     {

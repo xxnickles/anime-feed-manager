@@ -259,7 +259,7 @@
         return user switch
         {
             ValidUser vu => CreatePrincipal(vu),
-            _ => new Error("Provided user doesn't exist in the system")
+            _ => Error.Create("Provided user doesn't exist in the system")
         };
     }
 

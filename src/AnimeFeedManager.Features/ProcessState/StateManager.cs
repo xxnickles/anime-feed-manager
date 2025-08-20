@@ -16,7 +16,7 @@ public sealed class StateManager
     public async Task<Result<Unit>> Create(StateProcessTarget target, IEnumerable<StateItem> trackingItems, string? id = null)
     {
         if (!trackingItems.Any())
-            return new Error("No items to track");
+            return  Error.Create("No items to track");
 
         var internalId = id ?? IdHelpers.GetUniqueId();
         var entity = new StateUpdateStorage

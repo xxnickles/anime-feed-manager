@@ -4,58 +4,64 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
-public interface ITvImagesCollector
+internal static class TvImagesCollector
 {
-    Task<Result<ScrapTvLibraryData>> AddImagesLink(ScrapTvLibraryData data, CancellationToken token = default);
-}
+    private const int BatchSize = 10;
 
-internal sealed class TvImagesCollector : ITvImagesCollector
-{
-    private readonly IImagesStore _imagesStore;
-    private readonly ILogger<TvImagesCollector> _logger;
-
-    public TvImagesCollector(
-        IImagesStore imagesStore,
-        ILogger<TvImagesCollector> logger)
+    public static async Task<Result<ScrapTvLibraryData>> AddImagesLink(
+        this IImageProvider imageProvider,
+        ScrapTvLibraryData data,
+        ILogger logger,
+        CancellationToken token = default)
     {
-        _imagesStore = imagesStore;
-        _logger = logger;
-    }
-
-    public async Task<Result<ScrapTvLibraryData>> AddImagesLink(ScrapTvLibraryData data, CancellationToken token = default)
-    {
-        var targetDirectory =  $"{data.Season.Year}/{data.Season.Season}";
+        var targetDirectory = $"{data.Season.Year}/{data.Season.Season}";
         var updatedSeriesTasks = data.SeriesData
-            .Select(s => AddImageLink(s, targetDirectory, token));
+            .Select(s => AddImageLink(imageProvider, s, targetDirectory, logger, token));
 
-        // Wait for all tasks to complete
-        var results = await Task.WhenAll(updatedSeriesTasks);
+        // Process tasks in batches of 10
+        var results = new List<StorageData>();
+      
+        var batches = updatedSeriesTasks
+            .Select((task, index) => new { Task = task, Index = index })
+            .GroupBy(x => x.Index / BatchSize)
+            .Select(g => g.Select(x => x.Task));
 
-        return Result<ScrapTvLibraryData>.Success(data with {SeriesData = results});
+        foreach (var batch in batches)
+        {
+            var batchResults = await Task.WhenAll(batch);
+            results.AddRange(batchResults);
+        }
+
+        return Result<ScrapTvLibraryData>.Success(data with { SeriesData = results });
     }
 
-    private Task<StorageData> AddImageLink(StorageData storageData, string targetDirectory,
+    private static async Task<StorageData> AddImageLink(
+        IImageProvider imageProvider,
+        StorageData storageData,
+        string targetDirectory,
+        ILogger logger,
         CancellationToken cancellationToken)
     {
-        if (storageData is {Image: ScrappedImageUrl scrappedImageUrl, Series.RowKey: not null})
+        if (storageData is { Image: ScrappedImageUrl scrappedImageUrl, Series.RowKey: not null })
         {
-            return _imagesStore.Process(new ImageProcessData(
+            return await imageProvider.Process(new ImageProcessData(
                     IdHelpers.CleanAndFormatAnimeTitle(storageData.Series.RowKey),
                     targetDirectory,
                     scrappedImageUrl.Url), cancellationToken)
                 .MatchToValue(
                     uri => AddUrl(storageData, uri),
-                    error => ProcessError(error, storageData, _logger));
+                    error => ProcessError(error, storageData, logger));
         }
 
-        return Task.FromResult(storageData);
+        return storageData;
     }
 
 
     private static StorageData AddUrl(StorageData storageData, Uri imageUrl)
     {
-        storageData.Series.ImageUrl = imageUrl.ToString();
-        return storageData;
+        var series = storageData.Series;
+        series.ImageUrl = imageUrl.ToString();
+        return storageData with { Series = series };
     }
 
     private static StorageData ProcessError(DomainError error, StorageData storageData, ILogger logger)

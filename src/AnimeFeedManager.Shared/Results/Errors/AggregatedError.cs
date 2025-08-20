@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Shared.Results.Errors;
 
@@ -9,8 +8,13 @@ public enum FailureType
     Partial
 }
 
-public record AggregatedError(ImmutableList<DomainError> Errors, FailureType FailureType)
-    : DomainError("Multiple Errors have been collected")
+public sealed record AggregatedError(
+    ImmutableList<DomainError> Errors,
+    FailureType FailureType,
+    [CallerMemberName] string CallerMemberName = "",
+    [CallerFilePath] string CallerFilePath = "",
+    [CallerLineNumber] int CallerLineNumber = 0)
+    : DomainError("Multiple Errors have been collected", CallerMemberName, CallerFilePath, CallerLineNumber)
 {
     public ImmutableList<DomainError> Errors { get; } = Errors;
     private FailureType Type { get; } = FailureType;

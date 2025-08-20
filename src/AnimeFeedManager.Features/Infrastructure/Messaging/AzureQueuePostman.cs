@@ -33,7 +33,6 @@ public class AzureQueuePostman : IDomainPostman
 {
     private readonly QueueServiceClient _queueServiceClient;
     private readonly ILogger<AzureQueuePostman> _logger;
-    private readonly JsonSerializerOptions _jsonOptions;
 
     public AzureQueuePostman(
         QueueServiceClient queueServiceClient,
@@ -41,15 +40,13 @@ public class AzureQueuePostman : IDomainPostman
     {
         _queueServiceClient = queueServiceClient;
         _logger = logger;
-        _jsonOptions = new JsonSerializerOptions(new JsonSerializerOptions
-            {PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
     }
 
     public async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
         where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
-            return new Error($"{typeof(T).FullName} has not a target box");
+            return Error.Create($"{typeof(T).FullName} has not a target box");
 
         try
         {
@@ -71,7 +68,7 @@ public class AzureQueuePostman : IDomainPostman
         {
             if (processMessages.Any(m => m.MessageBox.HasNoTarget()))
             {
-                return new Error("One of the messages has no target box");
+                return Error.Create("One of the messages has no target box");
             }
 
             while (processMessages.Count > 0)
@@ -95,7 +92,7 @@ public class AzureQueuePostman : IDomainPostman
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
-            return new Error($"{typeof(T).FullName} has not a target box");
+            return Error.Create($"{typeof(T).FullName} has not a target box");
 
         try
         {
@@ -110,15 +107,12 @@ public class AzureQueuePostman : IDomainPostman
     }
 
     private async Task SendMessage<T>(T message, string destiny, TimeSpan? delay = default,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) where T : DomainMessage
     {
         var queue = _queueServiceClient.GetQueueClient(destiny);
 
-        // Create BinaryData from JSON
-        var binaryData = BinaryData.FromObjectAsJson(message, _jsonOptions);
-
         // Convert to base64 string explicitly
-        string base64Message = Convert.ToBase64String(binaryData.ToArray());
+        string base64Message = Convert.ToBase64String(message.ToBinaryData());
 
         await queue.SendMessageAsync(base64Message, cancellationToken: cancellationToken, visibilityTimeout: delay);
     }

@@ -9,12 +9,20 @@ public sealed record ExceptionError : DomainError
     private Exception Exception { get; }
 
     private string? AdditionalMessage { get; }
-    private ExceptionError(Exception exn) : base(exn.Message)
+
+    private ExceptionError(Exception exn,
+        string callerMemberName,
+        string callerFilePath,
+        int callerLineNumber) : base(exn.Message, callerMemberName, callerFilePath, callerLineNumber)
     {
         Exception = exn;
     }
-    
-    private ExceptionError(Exception exn, string additionalMessage) : base(exn.Message)
+
+    private ExceptionError(Exception exn, 
+        string additionalMessage,
+        string callerMemberName,
+        string callerFilePath,
+        int callerLineNumber) : base(exn.Message, callerMemberName, callerFilePath, callerLineNumber)
     {
         Exception = exn;
         AdditionalMessage = additionalMessage;
@@ -30,7 +38,7 @@ public sealed record ExceptionError : DomainError
         {
             builder.AppendLine(AdditionalMessage);
         }
-      
+
         if (!innerErrors.Any()) return builder.ToString();
         builder.AppendLine("Inner Errors: ");
         foreach (var error in innerErrors)
@@ -56,6 +64,13 @@ public sealed record ExceptionError : DomainError
         return lst;
     }
 
-    public static ExceptionError FromException(Exception exn) => new(exn);
-    public static ExceptionError FromException(Exception exn, string additionalMessage) => new(exn, additionalMessage);
+    public static ExceptionError FromException(Exception exn,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerFilePath] string callerFilePath = "",
+        [CallerLineNumber] int callerLineNumber = 0) => new(exn, callerMemberName, callerFilePath, callerLineNumber);
+
+    public static ExceptionError FromException(Exception exn, string additionalMessage,
+        [CallerMemberName] string callerMemberName = "",
+        [CallerFilePath] string callerFilePath = "",
+        [CallerLineNumber] int callerLineNumber = 0) => new(exn, additionalMessage, callerMemberName, callerFilePath, callerLineNumber);
 }

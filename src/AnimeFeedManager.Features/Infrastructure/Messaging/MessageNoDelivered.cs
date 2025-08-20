@@ -1,6 +1,11 @@
+using System.Runtime.CompilerServices;
+
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
-internal sealed record MessagesNotDelivered(string Reason, IEnumerable<DomainMessage> Messages) : DomainError(Reason)
+internal sealed record MessagesNotDelivered(string Reason, IEnumerable<DomainMessage> Messages,
+    [CallerMemberName] string CallerMemberName = "",
+    [CallerFilePath] string CallerFilePath = "",
+    [CallerLineNumber] int CallerLineNumber = 0) : DomainError(Reason, CallerMemberName, CallerFilePath, CallerLineNumber)
 {
     protected override void LoggingBehavior(ILogger logger)
     {

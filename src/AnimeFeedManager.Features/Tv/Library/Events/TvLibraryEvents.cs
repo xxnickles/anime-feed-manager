@@ -15,9 +15,7 @@ public sealed record ScrapTvLibraryResult(SeriesSeason Season, int UpdatedSeries
         ScrapTvLibraryResultContext.Default.ScrapTvLibraryResult;
 }
 
-[JsonSourceGenerationOptions(
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(ScrapTvLibraryResult))]
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryResult))]
 public partial class ScrapTvLibraryResultContext : JsonSerializerContext;
@@ -28,9 +26,7 @@ public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType Update
         ScrapTvLibraryFailedResultContext.Default.ScrapTvLibraryFailedResult;
 }
 
-[JsonSourceGenerationOptions(
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(ScrapTvLibraryFailedResult))]
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryFailedResult))]
 public partial class ScrapTvLibraryFailedResultContext : JsonSerializerContext;

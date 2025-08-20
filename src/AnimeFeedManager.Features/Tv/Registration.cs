@@ -9,8 +9,6 @@ public static class Registration
     public static IServiceCollection RegisterTvScrappingServices(this IServiceCollection services)
     {
         services.TryAddScoped<ITvLibraryScrapper, TvLibraryScrapper>();
-        services.TryAddScoped<ITvImagesCollector, TvImagesCollector>();
-
         return services;
     }
 }

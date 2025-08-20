@@ -7,9 +7,7 @@ public sealed record UserRegistered(Email Email, string Id) : SerializableEventP
     public override JsonTypeInfo<UserRegistered> GetJsonTypeInfo() => UserRegisteredContext.Default.UserRegistered;
 }
 
-[JsonSourceGenerationOptions(
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(UserRegistered))]
 [EventPayloadSerializerContext(typeof(UserRegistered))]
 public partial class UserRegisteredContext : JsonSerializerContext;

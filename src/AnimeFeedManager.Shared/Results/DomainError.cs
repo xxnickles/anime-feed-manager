@@ -1,13 +1,12 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Shared.Results;
 
 public abstract record DomainError(
     string Message,
-    [CallerMemberName] string CallerMemberName = "",
-    [CallerFilePath] string CallerFilePath = "",
-    [CallerLineNumber] int CallerLineNumber = 0)
+    string CallerMemberName,
+    string CallerFilePath,
+    int CallerLineNumber)
 {
     public string Message { get; } = Message;
     public string CallerMemberName { get; } = CallerMemberName;
@@ -19,14 +18,13 @@ public abstract record DomainError(
     {
         return $"{Message} (Called from {CallerMemberName} at {CallerFilePath}:{CallerLineNumber})";
     }
-    
+
     // Abstract method that implementations must provide, only accessible to derived classes
     /// <summary>
     /// Provides an implementation for logging messages
     /// </summary>
     /// <param name="logger">A logger <see cref="ILogger"/></param>
     protected abstract void LoggingBehavior(ILogger logger);
-
 
 
     // Template method that wraps the implementation-specific logging in a context scope
@@ -44,7 +42,7 @@ public abstract record DomainError(
 
         // Add additional properties specific to this error
         AddLogProperties(logProperties);
-        
+
         // Create a logging scope with all properties
         using (logger.BeginScope(logProperties))
         {
@@ -52,12 +50,10 @@ public abstract record DomainError(
             LoggingBehavior(logger);
         }
     }
-    
+
     // Allow derived classes to add their own properties to the logging context
     protected virtual void AddLogProperties(Dictionary<string, object> properties)
     {
         // Default implementation does nothing
     }
-
-
 }

@@ -8,34 +8,31 @@ public sealed record ImageProcessData(
     string TargetDirectory,
     Uri Url);
 
-public interface IImagesStore
+public interface IImageProvider
 {
     Task<Result<Uri>> Process(ImageProcessData data, CancellationToken cancellationToken = default);
 }
 
-public class ImagesStore : IImagesStore
+public class ImageProvider : IImageProvider
 {
+    public const string Container = "images";
+    
     private readonly HttpClient _httpClient;
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly ILogger<ImagesStore> _logger;
-    public const string Container = "images";
+    private readonly ILogger<ImageProvider> _logger;
 
-    public ImagesStore(
+    public ImageProvider(
+        HttpClient httpClient,
         BlobServiceClient blobServiceClient,
-        IHttpClientFactory httpClientFactory,
-        ILogger<ImagesStore> logger)
+        ILogger<ImageProvider> logger)
     {
-        _httpClient = httpClientFactory.CreateClient();
-        _httpClient.DefaultRequestHeaders.Add("user-agent",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36");
-        _httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate,sdch");
-        _httpClient.DefaultRequestHeaders.Add("Accept",
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        _httpClient = httpClient;
         _blobServiceClient = blobServiceClient;
         _logger = logger;
     }
 
-    public async Task<Result<Uri>> Process(ImageProcessData data,
+    public async Task<Result<Uri>> Process(
+        ImageProcessData data, 
         CancellationToken cancellationToken = default)
     {
         try
@@ -43,9 +40,8 @@ public class ImagesStore : IImagesStore
             _logger.LogInformation("Downloading image for {Name} from {RemoteUrl}", data.FileName, data.Url);
             var response = await _httpClient.GetAsync(data.Url, cancellationToken);
             response.EnsureSuccessStatusCode();
-            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-
-            return await Upload(data.FileName, data.TargetDirectory, stream, cancellationToken);
+            var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            return await Upload(_blobServiceClient, data.FileName, data.TargetDirectory, stream, cancellationToken);
         }
         catch (Exception e)
         {
@@ -53,11 +49,15 @@ public class ImagesStore : IImagesStore
             return new HandledError();
         }
     }
-
-    private async Task<Uri> Upload(string fileName, string path, Stream data,
+    
+    private static async Task<Uri> Upload(
+        BlobServiceClient blobServiceClient,
+        string fileName,
+        string path,
+        Stream data,
         CancellationToken cancellationToken = default)
     {
-        var container = _blobServiceClient.GetBlobContainerClient(Container);
+        var container = blobServiceClient.GetBlobContainerClient(Container);
         var finalPath = Path.Combine(path, $"{fileName}.jpg");
         var blob = container.GetBlobClient(finalPath);
         var blobHttpHeader = new BlobHttpHeaders {ContentType = "image/jpg"};

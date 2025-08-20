@@ -2,9 +2,7 @@
 
 public sealed record SeriesSeason(Season Season, Year Year, bool IsLatest = false);
 
-[JsonSourceGenerationOptions(
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(SeriesSeason[]))]
 [EventPayloadSerializerContext(typeof(SeriesSeason))]
 public partial class SeriesSeasonContext : JsonSerializerContext;

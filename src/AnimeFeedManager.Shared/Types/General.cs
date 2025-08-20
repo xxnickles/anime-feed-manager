@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace AnimeFeedManager.Shared.Types;
 
 public enum SeriesType
