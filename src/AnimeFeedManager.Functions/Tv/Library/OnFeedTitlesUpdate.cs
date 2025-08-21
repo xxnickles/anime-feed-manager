@@ -25,10 +25,12 @@ public class OnFeedTitlesUpdate
         [QueueTrigger(FeedTitlesUpdated.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         FeedTitlesUpdated message, CancellationToken token)
     {
+        using var tracedActivity = message.StartTracedActivity(nameof(OnFeedTitlesUpdate));
+
         if(message.FeedTitles is null or [])
             _logger.LogError("No titles where sent with the update for season {Year}-{Season}", message.Season.Year, message.Season.Season);
          
-        await FeedTitlesUpdate.StoreTitles(new FeedTitleUpdateData(message.Season, message.FeedTitles),
+        await FeedTitlesUpdate.StoreTitles(new FeedTitleUpdateData(message.Season, message.FeedTitles ?? []),
                 _tableClientFactory.GetFeedTitlesUpdater(), token)
             .SentEvents(_domainPostman, message.Season, token)
             .Match(

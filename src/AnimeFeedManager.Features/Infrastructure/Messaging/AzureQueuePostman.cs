@@ -109,6 +109,16 @@ public class AzureQueuePostman : IDomainPostman
     private async Task SendMessage<T>(T message, string destiny, TimeSpan? delay = default,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
+        // Capture current activity and add the info to the message. It can be useful for tracing in the consumer functions
+        var currentActivity = Activity.Current;
+        if (currentActivity != null)
+        {
+            message = message with
+            {
+                TraceInformation = new TraceInformation(currentActivity.Id, currentActivity.TraceStateString)
+            };
+        }
+
         var queue = _queueServiceClient.GetQueueClient(destiny);
 
         // Convert to base64 string explicitly

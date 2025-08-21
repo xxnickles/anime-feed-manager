@@ -30,6 +30,7 @@ public class OnLatestFeedTitlesUpdate
         [QueueTrigger(UpdateLatestFeedTitlesEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         UpdateLatestFeedTitlesEvent message, CancellationToken token)
     {
+        using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
         await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.LatestSeasonGetter(), token)
             .GetFeedTitles(_seasonFeedTitlesProvider)
             .UpdateSeries(_tableClientFactory.GetRawExistentStoredSeriesGetter(),

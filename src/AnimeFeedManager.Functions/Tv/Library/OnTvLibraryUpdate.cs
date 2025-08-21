@@ -34,6 +34,7 @@ public class OnTvLibraryUpdate
         UpdateTvSeriesEvent message,
         CancellationToken token)
     {
+        using var tracedActivity = message.StartTracedActivity(nameof(OnTvLibraryUpdate));
         await TryGetSeasonSelector(message.SeasonParameters)
             .ScrapTvSeries(_scrapper, token)
             .AddImagesLinks(_imageProvider, _logger, token)

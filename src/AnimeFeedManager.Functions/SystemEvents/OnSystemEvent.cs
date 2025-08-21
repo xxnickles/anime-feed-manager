@@ -27,6 +27,7 @@ public class OnSystemEvent
         SystemEvent message,
         CancellationToken cancellationToken)
     {
+        using var tracedActivity = message.StartTracedActivity(nameof(OnSystemEvent));
         return await SystemEventUpdate.StartProcess(message)
             .StoreEvent(_tableClientFactory.EventUpdater(), cancellationToken)
             .PrepareUiNotification()

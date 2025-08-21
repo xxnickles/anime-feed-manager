@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Passwordless;
+﻿using Passwordless;
 
 namespace AnimeFeedManager.Features.User.Authentication;
 

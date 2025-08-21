@@ -26,6 +26,7 @@ public class OnSeasonUpdated
         SeasonUpdated message,
         CancellationToken token)
     {
+        using var tracedActivity = message.StartTracedActivity(nameof(OnSeasonUpdated));
         await SeasonUpdate.CheckSeasonExist(_tableClientFactory.SeasonGetter(), message.Season, token)
             .CreateNewSeason()
             .AddLatestSeasonData(_tableClientFactory.LatestSeasonGetter(), token)

@@ -10,3 +10,4 @@ global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Types;
 global using Microsoft.Azure.Functions.Worker;
 global using Microsoft.Extensions.Logging;
+global using System.Diagnostics;

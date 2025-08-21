@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
 internal sealed record MessagesNotDelivered(string Reason, IEnumerable<DomainMessage> Messages,

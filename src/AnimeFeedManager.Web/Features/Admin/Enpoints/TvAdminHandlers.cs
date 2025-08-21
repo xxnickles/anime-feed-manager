@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Admin.Enpoints;
 
-internal class TvAdminHandlers
+internal static class TvAdminHandlers
 {
     internal static Task<RazorComponentResult> BySeason(
         [FromForm] BySeasonViewModel viewModel,
