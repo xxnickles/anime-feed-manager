@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace AnimeFeedManager.Functions.RealTime;
@@ -13,17 +13,14 @@ public class SignalRNegotiation
     }
 
     [Function(nameof(SignalRNegotiation))]
-    public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "negotiate")]
+    public IActionResult Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, Route = "negotiate")]
         HttpRequestData req,
         [SignalRConnectionInfoInput(HubName = HubNames.Notifications,
-            ConnectionStringSetting = "SignalRConnectionString")]
+            ConnectionStringSetting = StorageRegistrationConstants.SignalRConnectionName)]
         SignalRConnectionInfo connectionInfo)
     {
-        
         _logger.LogInformation("Creating signalr connection");
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(connectionInfo);
-        return response;
+        return new OkObjectResult(connectionInfo);
     }
 }

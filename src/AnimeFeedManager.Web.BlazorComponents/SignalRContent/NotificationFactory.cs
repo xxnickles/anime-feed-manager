@@ -19,7 +19,8 @@ public static class NotificationFactory
             {
                 {nameof(ClosableNotification.Type), Helpers.Map(notification.Type)},
                 {nameof(ClosableNotification.Title), content.Title},
-                {nameof(ClosableNotification.Message), content.Message}
+                {nameof(ClosableNotification.Message), content.Message},
+                {nameof(ClosableNotification.CloseTime), TimeSpan.FromSeconds(8)}
             }));
     }
 }

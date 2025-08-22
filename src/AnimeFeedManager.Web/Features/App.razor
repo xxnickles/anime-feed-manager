@@ -1,6 +1,9 @@
-﻿@using Microsoft.Extensions.Options
+﻿@using AnimeFeedManager.Services.Shared
+@using AnimeFeedManager.Web.Bootstrapping
+@using Microsoft.Extensions.Options
 @using Passwordless
 @inject IOptions<PasswordlessOptions> PasswordlessOptions
+@inject IOptions<SignalROptions> SignalROptions
 
 <!DOCTYPE html>
 <html lang="en">
@@ -51,14 +54,23 @@
     <title>Anime Feed Manager</title>
 </head>
 
-<body class="bg-base-200 min-h-screen min-w-[380px]" hx-boost="true">
+<body class="bg-base-200 min-h-screen min-w-[380px]"
+      hx-boost="true"
+      hx-ext="signalr"
+      signalr-connect="@SignalROptions.Value.Endpoint"
+>
 
 <Routes/>
+
+<div signalr-subscribe="@ServerNotifications.AlertNotifications"
+     hx-target="#toast-panel"
+     hx-swap="beforeend">
+</div>
+
+
 <daisy-htmx-alerts attach-to="#toast-panel"></daisy-htmx-alerts>
 <HtmxConfirm></HtmxConfirm>
-<div id="toast-panel" class="toast toast-center" hx-preserve>
-   
-</div>
+<div id="toast-panel" class="toast toast-center" hx-preserve></div>
 @* <script src="_framework/blazor.web.js"></script> *@
 </body>
 

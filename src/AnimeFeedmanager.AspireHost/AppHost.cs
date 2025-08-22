@@ -1,4 +1,10 @@
+using Aspire.Hosting.Azure;
+
 var builder = DistributedApplication.CreateBuilder(args);
+
+var signalR = builder.AddAzureSignalR("signalr", AzureSignalRServiceMode.Serverless)
+    .RunAsEmulator();
+
 var storage = builder.AddAzureStorage("storage")
     .RunAsEmulator(emulator =>
     {
@@ -16,20 +22,25 @@ var tables = storage.AddTables("TablesConnection");
 builder.AddNpmApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 
 var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Functions>("functions")
+    .WithExternalHttpEndpoints()
+    .WaitFor(signalR)
     .WithReference(blobs)
+    .WaitFor(blobs)
     .WithReference(queues)
+    .WaitFor(queues)
     .WithReference(tables)
-    .WithHostStorage(storage);
+    .WaitFor(tables)
+    .WithEnvironment("SignalRConnectionString", signalR);
 
 builder.AddProject<Projects.AnimeFeedManager_Web>("web")
-    .WithExternalHttpEndpoints()
     .WaitFor(functions)
     .WithReference(blobs)
     .WaitFor(blobs)
     .WithReference(queues)
     .WaitFor(queues)
     .WithReference(tables)
-    .WaitFor(tables);
+    .WaitFor(tables)
+    .WithEnvironment("SignalR__Endpoint", "http://localhost:7071/api");
 
 
 builder.Build().Run();

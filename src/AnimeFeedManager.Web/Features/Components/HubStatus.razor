@@ -1,0 +1,106 @@
+﻿<div x-data="{
+            status: 'connecting',
+            hasConnected: false,
+            init() {
+                const last = localStorage.getItem('last-hub-status');
+                const ever = localStorage.getItem('hub-has-connected');
+                if (last) this.status = last;
+                this.hasConnected = ever === 'true';
+            },
+            updateStatus(status) {
+                this.status = status;
+                localStorage.setItem('last-hub-status', this.status);
+            }
+        }"
+     role="status"
+     aria-live="polite"
+     aria-atomic="true"
+     @htmx:signalr:starting.window="updateStatus('connecting')"
+     @htmx:signalr:start.window="hasConnected = true; localStorage.setItem('hub-has-connected','true'); updateStatus('connected')"
+     @htmx:signalr:start-error.window="updateStatus(hasConnected ? 'error' : 'unavailable')"
+     @htmx:signalr:reconnecting.window="updateStatus(hasConnected ? 'reconnecting' : 'connecting')"
+     @htmx:signalr:reconnected.window="updateStatus('connected')"
+     @htmx:signalr:close.window="updateStatus(hasConnected ? 'error' : 'unavailable')">
+
+  <!-- Icon-only status indicator with tooltip and accessible name -->
+  <div class="inline-flex items-center gap-1">
+    <span class="tooltip tooltip-bottom"
+          :data-tip="(() => {
+            switch (status) {
+              case 'connected': return 'Connected';
+              case 'connecting': return 'Connecting';
+              case 'reconnecting': return 'Reconnecting';
+              case 'error': return 'Not available';
+              case 'unavailable': return 'Not available';
+              default: return 'Status';
+            }
+          })()"
+          :aria-label="(() => {
+            switch (status) {
+              case 'connected': return 'Hub status: connected';
+              case 'connecting': return 'Hub status: connecting';
+              case 'reconnecting': return 'Hub status: reconnecting';
+              case 'error': return 'Hub status: not available';
+              case 'unavailable': return 'Hub status: not available';
+              default: return `Hub status: ${status}`;
+            }
+          })()">
+      <!-- Wrapper controls color based on state -->
+      <span class="transition-colors duration-500 btn btn-sm btn-circle mx-1"
+            :class="{
+              'text-success': status === 'connected',
+              'text-info': status === 'connecting',
+              'text-warning': status === 'reconnecting',
+              'text-error': status === 'error' || status === 'unavailable'
+            }"
+            aria-hidden="false">
+        <!-- Connected -->
+        <svg x-show="status === 'connected'" x-cloak xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.5" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+        </svg>
+
+        <!-- Connecting -->
+        <svg x-show="status === 'connecting'" x-cloak xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.5" class="size-6 animate-spin">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+        </svg>
+
+        <!-- Reconnecting -->
+        <svg x-show="status === 'reconnecting'" x-cloak xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.5" class="size-6 animate-ping">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 0 1 1.06 0Z" />
+        </svg>
+
+        <!-- Error after having been connected (glitch) -->
+        <svg x-show="status === 'error'" x-cloak xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.5" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m0 3v.007M10.73 3.104 1.676 18a1.5 1.5 0 0 0 1.294 2.25h19.06A1.5 1.5 0 0 0 23.324 18L14.27 3.104a1.5 1.5 0 0 0-2.54 0Z"/>
+        </svg>
+
+        <!-- Unavailable: could not establish first connection -->
+        <svg x-show="status === 'unavailable'" x-cloak xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.5" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m0 3v.007M10.73 3.104 1.676 18a1.5 1.5 0 0 0 1.294 2.25h19.06A1.5 1.5 0 0 0 23.324 18L14.27 3.104a1.5 1.5 0 0 0-2.54 0Z"/>
+        </svg>
+
+        <!-- Screen-reader-only current state text -->
+        <span class="sr-only"
+              x-text="(() => {
+                switch (status) {
+                  case 'connected': return 'Hub status: connected';
+                  case 'connecting': return 'Hub status: connecting';
+                  case 'reconnecting': return 'Hub status: reconnecting';
+                  case 'error': return 'Hub status: not available';
+                  case 'unavailable': return 'Hub status: not available';
+                  default: return `Hub status: ${status}`;
+                }
+              })()"></span>
+      </span>
+    </span>
+  </div>
+</div>

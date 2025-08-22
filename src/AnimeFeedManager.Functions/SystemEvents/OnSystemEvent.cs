@@ -22,6 +22,7 @@ public class OnSystemEvent
     }
 
     [Function(nameof(OnSystemEvent))]
+    [SignalROutput(HubName = HubNames.Notifications, ConnectionStringSetting = StorageRegistrationConstants.SignalRConnectionName)]
     public async Task<SignalRMessageAction?> Run(
         [QueueTrigger(SystemEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         SystemEvent message,
