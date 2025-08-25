@@ -9,11 +9,10 @@ var storage = builder.AddAzureStorage("storage")
     .RunAsEmulator(emulator =>
     {
         // emulator.WithDataVolume("azurite-data");
-        //emulator.WithImageTag("latest");
+        emulator.WithImageTag("latest");
         emulator.WithBindMount(builder.Configuration["AzuriteDataPath"] ?? "../../../azurite-data", "/data");
         emulator.WithLifetime(ContainerLifetime.Persistent);
     });
-
 
 var blobs = storage.AddBlobs("BlobConnection");
 var queues = storage.AddQueues("QueueConnection");
@@ -23,6 +22,7 @@ builder.AddNpmApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 
 var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Functions>("functions")
     .WithExternalHttpEndpoints()
+    .WithHostStorage(storage)
     .WaitFor(signalR)
     .WithReference(blobs)
     .WaitFor(blobs)

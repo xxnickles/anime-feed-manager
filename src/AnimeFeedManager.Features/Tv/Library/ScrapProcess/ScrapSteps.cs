@@ -23,36 +23,44 @@ internal static class ScrapSteps
         PuppeteerOptions puppeteerOptions)
     {
         // Scrapping
-        var (series, jsonSeason) =
-            await AniDbScrapper.Scrap(Utils.CreateScrappingLink(season), puppeteerOptions);
-
-        return (jsonSeason.Season, jsonSeason.Year, season is Latest)
-            .ParseAsSeriesSeason()
-            .Map(seriesSeason => new ScrapTvLibraryData(
-                series.Select(Transform),
-                titles,
-                seriesSeason));
-
-        // To keep it simple, we are using the season information coming from the scrapping instead of the parsed one
-        // But at this point we are sure Season is valid as we have parsed the data scrapped 
-        StorageData Transform(SeriesContainer seriesContainer)
+        try
         {
-            return new StorageData(
-                new AnimeInfoStorage
-                {
-                    RowKey = seriesContainer.Id,
-                    PartitionKey = IdHelpers.GenerateAnimePartitionKey(jsonSeason.Season, (ushort) jsonSeason.Year),
-                    Title = seriesContainer.Title,
-                    Synopsis = seriesContainer.Synopsys,
-                    FeedTitle = string.Empty,
-                    Date = SharedUtils.ParseDate(seriesContainer.Date, seriesContainer.SeasonInfo.Year)?.ToUniversalTime(),
-                    Status = SeriesStatus.NotAvailableValue,
-                    Season = seriesContainer.SeasonInfo.Season,
-                    Year = seriesContainer.SeasonInfo.Year
-                },
-                Uri.TryCreate(seriesContainer.ImageUrl, UriKind.Absolute, out var validUri)
-                    ? new ScrappedImageUrl(validUri)
-                    : new NoImage());
+            var (series, jsonSeason) =
+                await AniDbScrapper.Scrap(Utils.CreateScrappingLink(season), puppeteerOptions);
+
+            return (jsonSeason.Season, jsonSeason.Year, season is Latest)
+                .ParseAsSeriesSeason()
+                .Map(seriesSeason => new ScrapTvLibraryData(
+                    series.Select(Transform),
+                    titles,
+                    seriesSeason));
+
+            // To keep it simple, we are using the season information coming from the scrapping instead of the parsed one
+            // But at this point we are sure Season is valid as we have parsed the data scrapped 
+            StorageData Transform(SeriesContainer seriesContainer)
+            {
+                return new StorageData(
+                    new AnimeInfoStorage
+                    {
+                        RowKey = seriesContainer.Id,
+                        PartitionKey = IdHelpers.GenerateAnimePartitionKey(jsonSeason.Season, (ushort) jsonSeason.Year),
+                        Title = seriesContainer.Title,
+                        Synopsis = seriesContainer.Synopsys,
+                        FeedTitle = string.Empty,
+                        Date = SharedUtils.ParseDate(seriesContainer.Date, seriesContainer.SeasonInfo.Year)
+                            ?.ToUniversalTime(),
+                        Status = SeriesStatus.NotAvailableValue,
+                        Season = seriesContainer.SeasonInfo.Season,
+                        Year = seriesContainer.SeasonInfo.Year
+                    },
+                    Uri.TryCreate(seriesContainer.ImageUrl, UriKind.Absolute, out var validUri)
+                        ? new ScrappedImageUrl(validUri)
+                        : new NoImage());
+            }
+        }
+        catch (Exception e)
+        {
+            return ExceptionError.FromException(e);
         }
     }
 
@@ -87,13 +95,15 @@ internal static class ScrapSteps
             baseSeries.Status = (currentInfo.Status.ToString(), processHasFeedTitle) switch
             {
                 (SeriesStatus.NotAvailableValue, true) => SeriesStatus.OngoingValue,
-                (SeriesStatus.NotAvailableValue, false) => isOldSeason ? SeriesStatus.Completed : SeriesStatus.NotAvailable,
+                (SeriesStatus.NotAvailableValue, false) => isOldSeason
+                    ? SeriesStatus.Completed
+                    : SeriesStatus.NotAvailable,
                 (SeriesStatus.OngoingValue, false) => SeriesStatus.Completed,
                 (SeriesStatus.OngoingValue, true) => SeriesStatus.Ongoing,
                 (_, _) => SeriesStatus.NotAvailable,
             };
             baseSeries.AlternativeTitles = currentInfo.AlternativeTitles.ArrayToString();
-            
+
             if (currentInfo is not TvSeriesInfoWithImage withImage)
                 return storageSeries with {Series = baseSeries};
 

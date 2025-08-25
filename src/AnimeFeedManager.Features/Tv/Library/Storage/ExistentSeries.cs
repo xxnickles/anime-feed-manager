@@ -23,36 +23,39 @@ public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> RawStoredSeriesGet
 
 public static class ExistentSeries
 {
-    public static StoredSeriesGetter GetExistentStoredSeriesGetter(this ITableClientFactory clientFactory) => (season, token) =>
-        clientFactory.GetClient<AnimeInfoStorage>()
-            .Bind(client => client.GetStoredSeries(season, token))
-            .Map(series => series.ConvertAll(Mapper));
-    
-    public static RawStoredSeriesGetter GetRawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) => (season, token) =>
-        clientFactory.GetClient<AnimeInfoStorage>()
-            .Bind(client => client.GetStoredSeries(season, token));
+    public static StoredSeriesGetter GetExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
+        (season, token) =>
+            clientFactory.GetClient<AnimeInfoStorage>()
+                .Bind(client => client.GetStoredSeries(season, token))
+                .Map(series => series.ConvertAll(Mapper));
+
+    public static RawStoredSeriesGetter GetRawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
+        (season, token) =>
+            clientFactory.GetClient<AnimeInfoStorage>()
+                .Bind(client => client.GetStoredSeries(season, token));
 
 
     private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
-        this AppTableClient tableClient, 
+        this AppTableClient tableClient,
         SeriesSeason season,
         CancellationToken cancellationToken = default)
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);
-        return tableClient.ExecuteQuery(client => client.QueryAsync<AnimeInfoStorage>(partitionKey,
-                select:
-                [
-                    nameof(AnimeInfoStorage.Title),
-                    nameof(AnimeInfoStorage.FeedTitle),
-                    nameof(AnimeInfoStorage.AlternativeTitles),
-                    nameof(AnimeInfoStorage.Status),
-                    nameof(AnimeInfoStorage.ImageUrl)
-                ],
-                cancellationToken: cancellationToken));
+        return tableClient.ExecuteQuery(client => client.QueryAsync<AnimeInfoStorage>(
+            series => series.PartitionKey == partitionKey,
+            select:
+            [
+                nameof(AnimeInfoStorage.Title),
+                nameof(AnimeInfoStorage.FeedTitle),
+                nameof(AnimeInfoStorage.AlternativeTitles),
+                nameof(AnimeInfoStorage.Status),
+                nameof(AnimeInfoStorage.ImageUrl)
+            ],
+            cancellationToken: cancellationToken));
     }
 
     private static TvSeriesInfo Mapper(AnimeInfoStorage entity)
-        => !string.IsNullOrWhiteSpace(entity.ImageUrl)
+        => string.IsNullOrWhiteSpace(entity.ImageUrl)
             ? new TvSeriesInfo(
                 entity.Title ?? string.Empty,
                 entity.FeedTitle,
@@ -64,5 +67,6 @@ public static class ExistentSeries
                 (SeriesStatus) entity.Status,
                 entity.ImageUrl ?? string.Empty);
 
-    private static string[] ConvertAlternativeTitles(string? alternativeTitles) => alternativeTitles?.Split(SharedUtils.ArraySeparator) ?? [];
+    private static string[] ConvertAlternativeTitles(string? alternativeTitles) =>
+        alternativeTitles?.Split(SharedUtils.ArraySeparator) ?? [];
 }

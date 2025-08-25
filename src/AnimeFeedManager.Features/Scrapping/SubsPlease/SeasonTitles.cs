@@ -29,7 +29,7 @@ public sealed class SeasonFeedTitlesProvider : ISeasonFeedTitlesProvider
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
                 Browser = SupportedBrowser.Chrome,
-                Headless = true,
+                Headless = _puppeteerOptions.RunHeadless,
                 DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
                 ExecutablePath = _puppeteerOptions.Path
             });
