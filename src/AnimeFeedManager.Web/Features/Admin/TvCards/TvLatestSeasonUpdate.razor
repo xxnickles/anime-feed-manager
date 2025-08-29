@@ -1,0 +1,33 @@
+﻿@using AnimeFeedManager.Web.Features.Admin.Base
+@implements INotifiableComponent<Noop>
+<LatestUpdate ViewModel="@ViewModel"
+              FormName="@FormName"
+              Title="Update Latest Season"
+              hx-swap="outerHTML"
+              hx-put="/admin/tv/latest"
+              hx-confirm="Do you want to updated the latest TV season?"
+              >
+    
+</LatestUpdate>
+@code {
+    private const string FormName = "tv-lastest-update-form";
+
+    [Parameter] public Noop ViewModel { get; set; } = new();
+
+    public static RenderFragment AsRenderFragment(Noop viewModel) =>
+        builder =>
+        {
+            builder.OpenComponent<TvLatestSeasonUpdate>(1);
+            builder.AddAttribute(2, nameof(ViewModel), viewModel);
+            builder.CloseComponent();
+        };
+
+    public static RenderFragment OkNotificationContent(Noop viewModel) =>
+        builder =>
+        {
+            builder.AddContent(0,"Latest TV Season will be processed in the background");
+        };
+
+    public static string SuccessNotificationTitle { get; } = "Latest TV Season Updates";
+    public static string ErrorNotificationTitle { get; } = "Latest TV Season Updates Failed";
+}

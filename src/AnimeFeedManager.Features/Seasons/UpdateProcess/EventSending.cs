@@ -13,6 +13,7 @@ public static class EventSending
             .Map(d => d.SeasonData switch
             {
                 NoUpdateRequired or NoMatch => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.NoChanges),
+                NewSeason or ReplaceLatestSeason => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.New),
                 _ => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.Updated)
             })
             .Bind(r => domainPostman

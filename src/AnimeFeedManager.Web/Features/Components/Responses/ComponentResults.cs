@@ -1,10 +1,15 @@
 ﻿using AnimeFeedManager.Web.BlazorComponents.Toast;
+using AnimeFeedManager.Web.Common;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Components.Responses;
 
-public readonly record struct Notification(string Title, RenderFragment Message, ToastType Type, TimeSpan? CloseTime = null);
+public readonly record struct Notification(
+    string Title,
+    RenderFragment Message,
+    ToastType Type,
+    TimeSpan? CloseTime = null);
 
 internal static class ComponentResults
 {
@@ -23,5 +28,26 @@ internal static class ComponentResults
     {
         return (await result).ToComponentResult(onSuccess, onError);
     }
-  
+
+    internal static Task<RazorComponentResult> ToComponentNotification<T, TViewModel, TComponent>(
+        this Task<Result<T>> result,
+        TViewModel viewModel)
+        where TViewModel : class, new()
+        where TComponent : INotifiableComponent<TViewModel>
+    {
+        return result.ToComponentResult(
+            _ =>
+            [
+                TComponent.AsRenderFragment(viewModel),
+                Notifications.CreateNotificationToast(
+                    TComponent.SuccessNotificationTitle,
+                    TComponent.OkNotificationContent(viewModel))
+            ],
+            error =>
+            [
+                TComponent.AsRenderFragment(viewModel),
+                Notifications.CreateErrorToast(TComponent.ErrorNotificationTitle, error)
+            ]
+        );
+    }
 }

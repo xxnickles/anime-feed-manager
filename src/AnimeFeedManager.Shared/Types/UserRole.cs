@@ -2,8 +2,8 @@
 
 public record UserRole
 {
-    private const string UserValue = "User";
-    private const string AdminValue = "Admin";
+    public const string UserValue = "User";
+    public const string AdminValue = "Admin";
     private const string NoneValue = "None";
     
     private readonly string _value;

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.WebUtilities;
 using Passwordless;
 
 namespace AnimeFeedManager.Web.Bootstrapping;
@@ -13,7 +14,7 @@ internal class SignalROptions
 
 internal static class Registration
 {
-    internal static void RegisterSecurityServices(this  WebApplicationBuilder builder)
+    internal static void RegisterSecurityServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddCascadingAuthenticationState();
         builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
@@ -27,6 +28,67 @@ internal static class Registration
                 options.Cookie.MaxAge = options.ExpireTimeSpan;
                 options.SlidingExpiration = true;
                 options.Cookie.SameSite = SameSiteMode.Strict;
+
+                options.Events = new CookieAuthenticationEvents
+                {
+                    OnRedirectToLogin = ctx =>
+                    {
+                        // Using custom feature to determine the request type
+                        var requestType = ctx.HttpContext.Features.Get<HtmxRequestFeature>()?.RequestType ?? new Html();
+
+                        switch (requestType)
+                        {
+                            // AJAX equivalent. Maybe we can still use the full redirection 
+                            case Json:
+                                ctx.Response.Headers.Location = ctx.RedirectUri;
+                                ctx.Response.StatusCode = 401;
+                                break;
+                            // For HX form requests, customize the redirect path
+                            case HxForm hxForm:
+                            {
+                                var loginPath = QueryHelpers.AddQueryString(options.LoginPath,
+                                    options.ReturnUrlParameter, hxForm.CurrentPagePath);
+                                ctx.Response.Redirect(loginPath);
+                                break;
+                            }
+                            default:
+                                // Normal full-page navigation
+                                ctx.Response.Redirect(ctx.RedirectUri);
+                                break;
+                        }
+
+
+                        return Task.CompletedTask;
+                    },
+                    OnRedirectToAccessDenied = ctx =>
+                    {
+                        // Using custom feature to determine the request type
+                        var requestType = ctx.HttpContext.Features.Get<HtmxRequestFeature>()?.RequestType ?? new Html();
+
+                        switch (requestType)
+                        {
+                            // AJAX equivalent. Maybe we can still use the full redirection 
+                            case Json:
+                                ctx.Response.Headers.Location = ctx.RedirectUri;
+                                ctx.Response.StatusCode = 403;
+                                break;
+                            // For HX form requests, customize the redirect path
+                            case HxForm hxForm:
+                            {
+                                var loginPath = QueryHelpers.AddQueryString(options.LoginPath,
+                                    options.ReturnUrlParameter, hxForm.CurrentPagePath);
+                                ctx.Response.Redirect(loginPath);
+                                break;
+                            }
+                            default:
+                                // Normal full-page navigation
+                                ctx.Response.Redirect(ctx.RedirectUri);
+                                break;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
 
@@ -38,7 +100,10 @@ internal static class Registration
         builder.Services.Configure<SignalROptions>(builder.Configuration.GetSection("SignalR"));
 
         // Add Passwordless
-        builder.Services.AddPasswordlessSdk(options => { builder.Configuration.GetRequiredSection("Passwordless").Bind(options); });
+        builder.Services.AddPasswordlessSdk(options =>
+        {
+            builder.Configuration.GetRequiredSection("Passwordless").Bind(options);
+        });
 
         builder.Services.AddScoped<IUserProvider, UserProvider>();
     }

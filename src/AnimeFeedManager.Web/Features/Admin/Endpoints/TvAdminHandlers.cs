@@ -5,7 +5,7 @@ using AnimeFeedManager.Web.Features.Admin.TvCards;
 using AnimeFeedManager.Web.Features.Components.Responses;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace AnimeFeedManager.Web.Features.Admin.Enpoints;
+namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 
 internal static class TvAdminHandlers
 {
@@ -17,18 +17,16 @@ internal static class TvAdminHandlers
         return Validate(viewModel)
             .Bind(vm => domainPostman.SendMessage(new UpdateTvSeriesEvent(new SeasonParameters(vm.Season, vm.Year)),
                 cancellationToken))
-            .ToComponentResult(
-                _ =>
-                [
-                    TvSeasonalUpdate.AsRenderFragment(viewModel),
-                    Notifications.CreateNotificationToast(
-                        "TV Season Updates",
-                        TvSeasonalUpdate.OkNotificationContent(viewModel))
-                ],
-                error =>
-                [
-                    TvSeasonalUpdate.AsRenderFragment(viewModel),
-                    Notifications.CreateErrorToast("TV Season Updates failed", error)
-                ]);
+            .ToComponentNotification<Unit, BySeasonViewModel, TvSeasonalUpdate>(viewModel);
+    }
+
+
+    internal static Task<RazorComponentResult> Latest(
+        [FromForm] Noop noop,
+        [FromServices] IDomainPostman domainPostman,
+        CancellationToken cancellationToken)
+    {
+        return domainPostman.SendMessage(new UpdateTvSeriesEvent(), cancellationToken)
+            .ToComponentNotification<Unit, Noop, TvLatestSeasonUpdate>(new Noop());
     }
 }

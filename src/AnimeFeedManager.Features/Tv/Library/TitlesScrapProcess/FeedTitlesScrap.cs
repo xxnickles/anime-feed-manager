@@ -12,7 +12,7 @@ public static class FeedTitlesScrap
         {
             return season switch
             {
-                LatestSeason latest => (latest.Season.Season ?? string.Empty, latest.Season.Year, latest.Season.Latest)
+                CurrentLatestSeason latest => (latest.Season.Season ?? string.Empty, latest.Season.Year, latest.Season.Latest)
                     .ParseAsSeriesSeason()
                     .Map(latestSeason => new FeedTitleUpdateData(latestSeason, [], [])),
                 NoMatch => new OperationError(

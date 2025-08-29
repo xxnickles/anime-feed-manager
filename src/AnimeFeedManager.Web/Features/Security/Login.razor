@@ -230,7 +230,7 @@
     {
         await ViewModel.Id.ParseAsNonEmpty(nameof(ViewModel.Id))
             .AsResult()
-            .Bind(id => Users.GetById(TableClientFactory.ExistentUserGetterById(), id, CancellationToken.None))
+            .Bind(id => Users.GetById(TableClientFactory.TableStorageExistentUserGetterById(), id, CancellationToken.None))
             .Bind(TryToCreatePrincipal)
             .Match(CompleteLogin, ShowError);
     }

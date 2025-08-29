@@ -5,7 +5,7 @@ public delegate Task<Result<Unit>> EventUpdater(EventStorage systemEvent,
 
 public static class EventStore
 {
-    public static EventUpdater EventUpdater(this ITableClientFactory clientFactory) =>
+    public static EventUpdater TableStorageEventUpdater(this ITableClientFactory clientFactory) =>
         (systemEvent, cancellationToken) => clientFactory.GetClient<EventStorage>()
             .Bind(client => client.UpsertEvent(systemEvent, cancellationToken));
     

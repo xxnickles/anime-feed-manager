@@ -9,10 +9,12 @@ public sealed record NewSeason(SeasonStorage Season) : SeasonStorageData;
 
 public sealed record ExistentSeason(SeasonStorage Season) : SeasonStorageData;
 
-public sealed record LatestSeason(SeasonStorage Season) : SeasonStorageData;
+public sealed record ReplaceLatestSeason(SeasonStorage Season) : SeasonStorageData;
+
+public sealed record CurrentLatestSeason(SeasonStorage Season) : SeasonStorageData;
 
 public sealed record SeasonUpdateData(
     SeriesSeason SeasonToUpdate, 
     SeasonStorageData SeasonData, 
-    SeasonStorageData LatestSeasonData);
+    SeasonStorageData CurrentLatestSeasonData);
 

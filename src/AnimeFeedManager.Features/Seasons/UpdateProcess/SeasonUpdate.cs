@@ -5,7 +5,7 @@ public static class SeasonUpdate
     public static Task<Result<SeasonUpdateData>> CheckSeasonExist(SeasonGetter seasonGetter, SeriesSeason season,
         CancellationToken token) =>
         seasonGetter(season, token)
-            .Map(s => new SeasonUpdateData(season, s, s is not LatestSeason ? new NoMatch() : s));
+            .Map(s => new SeasonUpdateData(season, s, new NoMatch()));
 
 
     public static Task<Result<SeasonUpdateData>> CreateNewSeason(this Task<Result<SeasonUpdateData>> processData) =>
@@ -18,18 +18,18 @@ public static class SeasonUpdate
     public static Task<Result<SeasonUpdateData>> AddLatestSeasonData(this Task<Result<SeasonUpdateData>> processData,
         LatestSeasonGetter seasonGetter, CancellationToken token) =>
         processData.BindSeasonData(
-            data => seasonGetter(token).Map(latestSeason => data with {LatestSeasonData = latestSeason}),
-            WhenNewIsNotLatest);
+            data => seasonGetter(token).Map(latestSeason => data with {CurrentLatestSeasonData = latestSeason}),
+            WhenIsUpdating);
 
     public static Task<Result<SeasonUpdateData>> StoreUpdatedSeason(this Task<Result<SeasonUpdateData>> processData,
         SeasonUpdater seasonUpdater, CancellationToken token) =>
         processData.BindSeasonData(data => UpdateSeason(seasonUpdater, data.SeasonData, token).Map(_ => data),
-            WhenCanUpdate);
+            WhenIsUpdating);
 
     public static Task<Result<SeasonUpdateData>> DemoteCurrentLatest(this Task<Result<SeasonUpdateData>> processData,
         SeasonUpdater seasonUpdater, CancellationToken token) =>
         processData.BindSeasonData(
-            data => UpdateLatestSeason(seasonUpdater, data.LatestSeasonData, token).Map(_ => data),
+            data => UpdateCurrentLatestSeason(seasonUpdater, data.CurrentLatestSeasonData, token).Map(_ => data),
             WhenLastestIsReplaced);
 
 
@@ -38,7 +38,7 @@ public static class SeasonUpdate
         var newSeason = new SeasonStorage
         {
             RowKey = IdHelpers.GenerateAnimePartitionKey(data.SeasonToUpdate),
-            PartitionKey = data.SeasonToUpdate.IsLatest ? SeasonType.Latest : SeasonType.Season,
+            PartitionKey = SeasonStorage.SeasonPartition,
             Latest = data.SeasonToUpdate.IsLatest,
             Season = data.SeasonToUpdate.Season,
             Year = data.SeasonToUpdate.Year
@@ -46,7 +46,7 @@ public static class SeasonUpdate
 
         return data with
         {
-            SeasonData = data.SeasonToUpdate.IsLatest ? new LatestSeason(newSeason) : new NewSeason(newSeason)
+            SeasonData = new NewSeason(newSeason)
         };
     }
 
@@ -56,22 +56,23 @@ public static class SeasonUpdate
         CancellationToken cancellationToken) => data switch
     {
         ExistentSeason existent => seasonUpdater(existent.Season, cancellationToken),
-        LatestSeason latest => seasonUpdater(latest.Season, cancellationToken),
+        CurrentLatestSeason latest => seasonUpdater(latest.Season, cancellationToken),
         NewSeason newSeason => seasonUpdater(newSeason.Season, cancellationToken),
+        ReplaceLatestSeason newLatest => seasonUpdater(newLatest.Season, cancellationToken),
         _ => Task.FromResult<Result<Unit>>(new OperationError(
             $"{nameof(UpdateSeason)}-{nameof(SeasonStorageData)}",
             $"Season data is not selectable to be updated. Received {data.GetType().Name}"))
     };
 
-    private static Task<Result<Unit>> UpdateLatestSeason(
+    private static Task<Result<Unit>> UpdateCurrentLatestSeason(
         SeasonUpdater seasonUpdater,
         SeasonStorageData data,
         CancellationToken cancellationToken) => data switch
     {
-        LatestSeason latest => seasonUpdater(DemoteCurrentLatestSeason(latest.Season), cancellationToken),
+        CurrentLatestSeason latest => seasonUpdater(DemoteCurrentLatestSeason(latest.Season), cancellationToken),
         _ => Task.FromResult<Result<Unit>>(new OperationError(
-            $"{nameof(UpdateLatestSeason)}-{nameof(SeasonStorageData)}",
-            $"Season data is not selectable to be  updated. Received {data.GetType().Name}"))
+            $"{nameof(UpdateCurrentLatestSeason)}-{nameof(SeasonStorageData)}",
+            $"Season data is not selectable to be updated as is not the current lastest season. Received {data.GetType().Name}"))
     };
 
     private static SeasonStorage DemoteCurrentLatestSeason(SeasonStorage data)
@@ -80,19 +81,13 @@ public static class SeasonUpdate
         return data;
     }
 
-    private static bool WhenIsANewSeason(SeasonUpdateData data) =>
-        data.SeasonData is NoMatch;
-
-    private static bool WhenNewIsNotLatest(SeasonUpdateData data) =>
-        data.SeasonData is not NoUpdateRequired && data.LatestSeasonData is not LatestSeason;
-
-    private static bool WhenCanUpdate(SeasonUpdateData data) =>
+    private static bool WhenIsUpdating(SeasonUpdateData data) =>
         data.SeasonData is not NoUpdateRequired;
 
-    private static bool WhenLastestIsReplaced(SeasonUpdateData data) => (data.SeasonData, data.LatestSeasonData) switch
-    {
-        (LatestSeason updatedSeason, LatestSeason currentLatest) => !Utils.IsSameSeasonData(updatedSeason,
-            currentLatest),
-        _ => false,
-    };
+    private static bool WhenLastestIsReplaced(SeasonUpdateData data) =>
+        (data.SeasonData, LatestSeasonData: data.CurrentLatestSeasonData) switch
+        {
+            (ReplaceLatestSeason or NewSeason {Season.Latest: true}, CurrentLatestSeason) => true,
+            _ => false,
+        };
 }

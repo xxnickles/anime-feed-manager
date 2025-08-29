@@ -1,20 +1,25 @@
 ﻿@using AnimeFeedManager.Web.Features.Admin.Base
+@implements INotifiableComponent<BySeasonViewModel>
 
 <SeasonalUpdate ViewModel="@ViewModel"
                 FormName="@FormName"
                 Title="Update Seasonal Anime"
                 hx-swap="outerHTML"
                 hx-put="/admin/tv/season"
-                hx-confirm="Do you want to updated the selected TV season?">>
+                hx-confirm="Do you want to updated the selected TV season?">
 </SeasonalUpdate>
 
 @code {
 
     private const string FormName = "tv-seasonal-update-form";
 
-    // [SupplyParameterFromForm(FormName = FormName, Name = "")]
+
     [Parameter]
     public BySeasonViewModel ViewModel { get; set; } = BySeasonViewModel.Current;
+
+    // In case it is a form binding
+    // [SupplyParameterFromForm(FormName = FormName, Name = "")]
+    // private BySeasonViewModel? FormViewModel { get; set; }
 
     public static RenderFragment AsRenderFragment(BySeasonViewModel viewModel) =>
         builder =>
@@ -28,12 +33,13 @@
     public static RenderFragment OkNotificationContent(BySeasonViewModel viewModel) =>
         builder =>
         {
-            builder.AddContent(0, "Season ");
+            builder.AddContent(0, "TV Season ");
             builder.OpenElement(1, "b");
             builder.AddContent(2, $"{viewModel.Year}-{viewModel.Season}");
             builder.CloseElement();
             builder.AddContent(3, " will be processed in the background");
         };
 
-
+    public static string SuccessNotificationTitle { get; } = "TV Season Updates";
+    public static string ErrorNotificationTitle { get; } = "TV Season Updates Failed";
 }

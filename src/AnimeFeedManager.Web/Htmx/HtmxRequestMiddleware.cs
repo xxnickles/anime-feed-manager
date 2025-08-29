@@ -4,6 +4,7 @@ internal sealed class HtmxRequestFeature
 {
     internal HtmxRequestType RequestType { get; }
 
+
     internal HtmxRequestFeature(HtmxRequestType requestType)
     {
         RequestType = requestType;
@@ -38,18 +39,29 @@ internal sealed class HtmxRequestMiddleware
         if (context.Request.Headers.TryGetValue("Accept", out var acceptHeader) &&
             acceptHeader.ToString().Contains("application/json", StringComparison.OrdinalIgnoreCase))
         {
-            return HtmxRequestType.Json;
+            return new Json();
         }
 
         //...or if the request is an HTMX request
         if (context.Request.Headers.TryGetValue("HX-Request", out _))
         {
             return context.Request.Headers.TryGetValue("HX-Boosted", out _)
-                ? HtmxRequestType.HxBoosted
-                : HtmxRequestType.HxForm;
+                ? new HxBoosted()
+                : new HxForm(GetCurrentPageUrl(context)); // a single value is expected in the header, otherwise we just assign the root path
         }
 
         // Default to HTML
-        return HtmxRequestType.Html;
+        return new Html();
+    }
+
+    private static string GetCurrentPageUrl(HttpContext context)
+    {
+        if (context.Request.Headers.TryGetValue("HX-Current-URL", out var url) && url.FirstOrDefault() is { } currentUrl)
+        {
+            // if the headers come, it is url
+            return new Uri(currentUrl).PathAndQuery;
+        }
+
+        return "/";
     }
 }

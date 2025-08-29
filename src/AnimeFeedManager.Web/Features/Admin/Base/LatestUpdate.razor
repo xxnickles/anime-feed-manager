@@ -1,0 +1,18 @@
+﻿<AdminCardForm Title="@Title"
+               SubmitText="Update Latest Season"
+               ViewModel="@ViewModel"
+               AdditionalAttributes="@AdditionalAttributes"
+               FormName="@FormName">
+   
+</AdminCardForm>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string FormName { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public Noop ViewModel { get; set; } = new();
+    
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+}

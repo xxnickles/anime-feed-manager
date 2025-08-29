@@ -17,20 +17,20 @@ public delegate Task<Result<ImmutableList<SeriesSeason>>> Latest4SeasonsGetter(
 
 public static class ExistentSeasons
 {
-    public static LatestSeasonGetter LatestSeasonGetter(this ITableClientFactory clientFactory) =>
+    public static LatestSeasonGetter TableStorageLatestSeasonGetter(this ITableClientFactory clientFactory) =>
         cancellationToken => clientFactory.GetClient<SeasonStorage>()
             .Bind(client => client.GetLatestSeason(cancellationToken));
 
-    public static SeasonGetter SeasonGetter(this ITableClientFactory clientFactory) =>
+    public static SeasonGetter TableStorageSeasonGetter(this ITableClientFactory clientFactory) =>
         (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
             .Bind(client => client.GetSeason(season, cancellationToken));
 
-    public static AllSeasonsGetter AllSeasonsGetter(this ITableClientFactory clientFactory) =>
+    public static AllSeasonsGetter TableStorageAllSeasonsGetter(this ITableClientFactory clientFactory) =>
         cancellationToken => clientFactory.GetClient<SeasonStorage>()
             .Bind(client => GetAllSeasons(client, cancellationToken))
             .Map(seasons => seasons.TransformToSeriesSeason());
 
-    public static Latest4SeasonsGetter Latest4SeasonsGetter(this ITableClientFactory clientFactory) =>
+    public static Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(this ITableClientFactory clientFactory) =>
         cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
             .Bind(client => client.GetLast4Seasons(cancellationToken)
                 .Map(seasons => TransformToSeriesSeason(seasons, client.Logger)));
@@ -42,7 +42,7 @@ public static class ExistentSeasons
     {
         return tableClient.ExecuteQuery(client =>
             client.QueryAsync<SeasonStorage>(
-                storage => storage.PartitionKey == SeasonType.Season || storage.PartitionKey == SeasonType.Latest,
+                storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
                 cancellationToken: cancellationToken));
     }
 
@@ -50,10 +50,10 @@ public static class ExistentSeasons
         CancellationToken cancellationToken = default)
     {
         return tableClient.ExecuteQuery(client =>
-                client.QueryAsync<SeasonStorage>(storage => storage.PartitionKey == SeasonType.Latest,
+                client.QueryAsync<SeasonStorage>(storage => storage.PartitionKey == SeasonStorage.SeasonPartition && storage.Latest == true,
                     cancellationToken: cancellationToken))
             .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(seasons =>
-                !seasons.IsEmpty ? new LatestSeason(seasons.First()) : new NoMatch());
+                !seasons.IsEmpty ? new CurrentLatestSeason(seasons.First()) : new NoMatch());
     }
 
     private static Task<Result<SeasonStorageData>> GetSeason(this AppTableClient tableClient,
@@ -61,7 +61,7 @@ public static class ExistentSeasons
     {
         return tableClient.ExecuteQuery(client =>
                 client.QueryAsync<SeasonStorage>(
-                    storage => storage.PartitionKey == SeasonType.Season &&
+                    storage => storage.PartitionKey == SeasonStorage.SeasonPartition &&
                                storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season),
                     cancellationToken: cancellation))
             .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(matches =>
@@ -73,13 +73,19 @@ public static class ExistentSeasons
 
                 return (match.Latest, season.IsLatest) switch
                 {
-                    (true, true) => new NoUpdateRequired(),
-                    (true, false) => new LatestSeason(match),
+                    (true, true) or (true, false) => new NoUpdateRequired(), // Do not update if is the current latest season
+                    (false, true) => UpdateCurrentToLatest(match),
                     _ => match.Season == season.Season && match.Year == season.Year
                         ? new NoUpdateRequired()
                         : new ExistentSeason(match)
                 };
             });
+    }
+    
+    private static ReplaceLatestSeason UpdateCurrentToLatest(SeasonStorage storage)
+    {
+        storage.Latest = true;
+        return new ReplaceLatestSeason(storage);
     }
 
 

@@ -14,11 +14,11 @@ public delegate Task<Result<User>> ExistentUserGetterById(NoEmptyString id,
 
 public static class ExistentUser
 {
-    public static ExistentUserGetterByEmail ExistentUserGetterByEmail(this ITableClientFactory clientFactory) =>
+    public static ExistentUserGetterByEmail TableStorageExistentUserGetterByEmail(this ITableClientFactory clientFactory) =>
         (email, cancellationToken) => clientFactory.GetClient<UserStorage>()
             .Bind(client => client.GetByEmail(email, cancellationToken));
 
-    public static ExistentUserGetterById ExistentUserGetterById(this ITableClientFactory clientFactory) =>
+    public static ExistentUserGetterById TableStorageExistentUserGetterById(this ITableClientFactory clientFactory) =>
         (id, cancellationToken) => clientFactory.GetClient<UserStorage>()
             .Bind(client => client.GetById(id, cancellationToken));
 

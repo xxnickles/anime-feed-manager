@@ -1,8 +1,11 @@
 ﻿@page "/admin"
 @using AnimeFeedManager.Web.Features.Admin.TvCards
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = UserRole.AdminValue)]
 <h2 class="mb-8">Tv Series</h2>
-<section class="grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(350px,400px))] gap-10">
+<section class="grid items-stretch grid-cols-[repeat(auto-fit,minmax(350px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(350px,400px))] gap-10">
    <TvSeasonalUpdate></TvSeasonalUpdate>
+   <TvLatestSeasonUpdate></TvLatestSeasonUpdate>
 </section>
 
 <h2 class="my-8">OVAs</h2>

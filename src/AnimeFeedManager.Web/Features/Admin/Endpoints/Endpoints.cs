@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Web.Features.Admin.Enpoints;
+﻿namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 
 internal static class Endpoints
 {
@@ -6,6 +6,8 @@ internal static class Endpoints
     {
         group.MapPut("/admin/tv/season", TvAdminHandlers.BySeason)
             .RequireAuthorization(Policies.AdminRequired);
+
+        group.MapPut("/admin/tv/latest", TvAdminHandlers.Latest)
+            .RequireAuthorization(Policies.AdminRequired);
     }
-    
 }

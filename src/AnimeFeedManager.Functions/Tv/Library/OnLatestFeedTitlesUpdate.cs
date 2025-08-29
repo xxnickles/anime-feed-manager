@@ -31,7 +31,7 @@ public class OnLatestFeedTitlesUpdate
         UpdateLatestFeedTitlesEvent message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
-        await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.LatestSeasonGetter(), token)
+        await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeasonGetter(), token)
             .GetFeedTitles(_seasonFeedTitlesProvider)
             .UpdateSeries(_tableClientFactory.GetRawExistentStoredSeriesGetter(),
                 _tableClientFactory.GetTvLibraryUpdater(), token)

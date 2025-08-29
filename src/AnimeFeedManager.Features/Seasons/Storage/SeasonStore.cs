@@ -5,15 +5,21 @@ public delegate Task<Result<Unit>> SeasonUpdater(SeasonStorage seasonStorage, Ca
 public delegate Task<Result<Unit>> LastestSeasonsUpdater(LatestSeasonsStorage seasonsStorage,
     CancellationToken token = default);
 
+public delegate Task<Result<Unit>> SeasonRemover(string partition, string id, CancellationToken token = default);
+
 public static class SeasonStore
 {
-    public static SeasonUpdater SeasonUpdater(this ITableClientFactory clientFactory) =>
+    public static SeasonUpdater TableStorageSeasonUpdater(this ITableClientFactory clientFactory) =>
         (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
             .Bind(client => client.UpsertSeason(season, cancellationToken));
 
-    public static LastestSeasonsUpdater LastestSeasonsUpdater(this ITableClientFactory clientFactory) =>
+    public static LastestSeasonsUpdater TableStorageLastestSeasonsUpdater(this ITableClientFactory clientFactory) =>
         (seasons, cancellationToken) => clientFactory.GetClient<LatestSeasonsStorage>()
             .Bind(client => client.UpsertLatestSeasons(seasons, cancellationToken));
+
+    public static SeasonRemover TableStorageSeasonRemover(this ITableClientFactory clientFactory) =>
+        (partitionKey, id, token) => clientFactory.GetClient<SeasonStorage>()
+            .Bind(client => client.RemoveSeason(partitionKey, id, token));
 
 
     private static Task<Result<Unit>> UpsertSeason(
@@ -25,12 +31,22 @@ public static class SeasonStore
             .TryExecute<SeasonStorage>(client => client.UpsertEntityAsync(seasonStorage, cancellationToken: token))
             .WithDefaultMap();
     }
-    
+
     private static Task<Result<Unit>> UpsertLatestSeasons(this AppTableClient tableClient,
         LatestSeasonsStorage latestSeasonsStorage, CancellationToken token = default)
     {
         return tableClient
-            .TryExecute<LatestSeasonsStorage>(client => client.UpsertEntityAsync(latestSeasonsStorage, cancellationToken: token))
+            .TryExecute<LatestSeasonsStorage>(client =>
+                client.UpsertEntityAsync(latestSeasonsStorage, cancellationToken: token))
+            .WithDefaultMap();
+    }
+
+    private static Task<Result<Unit>> RemoveSeason(this AppTableClient tableClient,
+        string partitionKey, string rowKey, CancellationToken token = default)
+    {
+        return tableClient
+            .TryExecute<SeasonStorage>(client =>
+                client.DeleteEntityAsync(partitionKey, rowKey, cancellationToken: token))
             .WithDefaultMap();
     }
 }

@@ -5,22 +5,22 @@
     AdditionalAttributes="AggregatedAttributes">
     <DataAnnotationsValidator/>
     <HtmxRequestValidator/>
-    <div class="card bg-base-100 shadow-sm">
-        <div class="card-body">
+    <div class="card bg-base-100 shadow-sm h-full">
+        <div class="card-body flex flex-col">
             <div class="flex items-center justify-between">
                 <h3 class="card-title m-0">@Title</h3>
                 <span id="@_loaderId"
                       class="loading loading-spinner loading-xs htmx-indicator"></span>
             </div>
-            @ChildContent
-            <div class="card-actions justify-end">
+            <div class="flex-1 flex flex-col">
+                @ChildContent
+            </div>
+            <div class="card-actions justify-end mt-auto">
                 <button type="submit" class="btn btn-primary mt-4">@SubmitText</button>
             </div>
-
         </div>
     </div>
 </EditForm>
-
 
 @code {
 

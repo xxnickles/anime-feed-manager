@@ -17,10 +17,10 @@ public sealed class HtmxRedirectResponseMiddleware
     {
         context.Response.OnStarting(() =>
         {
-            var requestType = context.Features.Get<HtmxRequestFeature>()?.RequestType ?? HtmxRequestType.Html;
+            var requestType = context.Features.Get<HtmxRequestFeature>()?.RequestType ?? new Html();
             // Check if the response is a redirect (302 or 303) and the request is an HTMX request
             if (context.Response.StatusCode is not (302 or 303) ||
-                requestType is not (HtmxRequestType.HxBoosted or HtmxRequestType.HxForm)) return Task.CompletedTask;
+                requestType is not (HxBoosted or HxForm)) return Task.CompletedTask;
             // Set the "HX-Redirect" header to the location of the redirect
             var location = context.Response.Headers["Location"].ToString();
             context.Response.Headers["HX-Redirect"] = location;

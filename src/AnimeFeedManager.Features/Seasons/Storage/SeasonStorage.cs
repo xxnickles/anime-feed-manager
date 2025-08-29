@@ -2,12 +2,15 @@
 
 namespace AnimeFeedManager.Features.Seasons.Storage;
 
+
+
 [WithTableName(AzureTableMap.StoreTo.AvailableSeasons)]
 public sealed class SeasonStorage: ITableEntity
 {
+    public const string SeasonPartition = "Season";
     public string? Season { get; set; }
     public int Year { get; set; } // Azure tables only works with Int and Int64
-    public string? PartitionKey { get; set; }
+    public string PartitionKey { get; set; } = SeasonPartition;
     
     public bool Latest { get; set; }
     public string? RowKey { get; set; }

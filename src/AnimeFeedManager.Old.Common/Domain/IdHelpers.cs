@@ -12,7 +12,7 @@ public static partial class IdHelpers
 
     public static string GenerateAnimeId(string season, string year, string title)
     {
-        return $"{year}_{season}_{CleanAndFormatAnimeTitle(title)}".ToLowerInvariant();
+        return $"{year}_{season}_{CleanAndFormatAnimeTitle(title)}";
     }
 
     public static string CleanAndFormatAnimeTitle(string title)

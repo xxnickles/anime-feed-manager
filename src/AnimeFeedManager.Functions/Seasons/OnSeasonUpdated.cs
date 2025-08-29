@@ -27,12 +27,12 @@ public class OnSeasonUpdated
         CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnSeasonUpdated));
-        await SeasonUpdate.CheckSeasonExist(_tableClientFactory.SeasonGetter(), message.Season, token)
+        await SeasonUpdate.CheckSeasonExist(_tableClientFactory.TableStorageSeasonGetter(), message.Season, token)
             .CreateNewSeason()
-            .AddLatestSeasonData(_tableClientFactory.LatestSeasonGetter(), token)
-            .StoreUpdatedSeason(_tableClientFactory.SeasonUpdater(), token)
-            .DemoteCurrentLatest(_tableClientFactory.SeasonUpdater(), token)
-            .UpdateLast4Seasons(_tableClientFactory.AllSeasonsGetter(), _tableClientFactory.LastestSeasonsUpdater(),
+            .AddLatestSeasonData(_tableClientFactory.TableStorageLatestSeasonGetter(), token)
+            .StoreUpdatedSeason(_tableClientFactory.TableStorageSeasonUpdater(), token)
+            .DemoteCurrentLatest(_tableClientFactory.TableStorageSeasonUpdater(), token)
+            .UpdateLast4Seasons(_tableClientFactory.TableStorageAllSeasonsGetter(), _tableClientFactory.TableStorageLastestSeasonsUpdater(),
                 token)
             .SentEvents(_domainPostman, message.Season, token)
             .Match(r => LogSuccess(r, _logger),
