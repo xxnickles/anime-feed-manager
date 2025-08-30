@@ -33,13 +33,13 @@ public static class FeedTitlesScrap
 
     public static Task<Result<FeedTitleUpdateData>> UpdateSeries(
         this Task<Result<FeedTitleUpdateData>> data,
-        RawStoredSeriesGetter seriesGetter, TvLibraryStorageUpdater seriesUpdater, CancellationToken token) =>
+        TableStorageRawStoredSeries seriesGetter, TvLibraryStorageUpdater seriesUpdater, CancellationToken token) =>
         data.Bind(d => UpdateSeries(d, seriesGetter, seriesUpdater, token));
 
 
     private static Task<Result<FeedTitleUpdateData>> UpdateSeries(
         FeedTitleUpdateData data,
-        RawStoredSeriesGetter seriesGetter,
+        TableStorageRawStoredSeries seriesGetter,
         TvLibraryStorageUpdater updater,
         CancellationToken token)
     {

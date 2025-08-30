@@ -12,10 +12,10 @@ internal static class ScrapSteps
         feedTitles.Bind(titles => GetInitialProcessData(titles, season, puppeteerOptions));
 
     public static Task<Result<ScrapTvLibraryData>> AddDataFromStorage(this Task<Result<ScrapTvLibraryData>> data,
-        StoredSeriesGetter storedSeriesGetter,
+        TableStorageStoredSeries tableStorageStoredSeries,
         TimeProvider timeProvider,
         CancellationToken token = default) =>
-        data.Bind(d => AddExistentDataFromStorage(d, storedSeriesGetter, timeProvider, token));
+        data.Bind(d => AddExistentDataFromStorage(d, tableStorageStoredSeries, timeProvider, token));
 
     private static async Task<Result<ScrapTvLibraryData>> GetInitialProcessData(
         ImmutableList<string> titles,
@@ -66,13 +66,13 @@ internal static class ScrapSteps
 
     private static Task<Result<ScrapTvLibraryData>> AddExistentDataFromStorage(
         ScrapTvLibraryData scrapTvLibraryData,
-        StoredSeriesGetter storedSeriesGetter,
+        TableStorageStoredSeries tableStorageStoredSeries,
         TimeProvider timeProvider,
         CancellationToken token = default)
     {
         var isOldSeason = Utils.IsOldSeason(scrapTvLibraryData.Season, timeProvider);
 
-        return storedSeriesGetter(scrapTvLibraryData.Season, token)
+        return tableStorageStoredSeries(scrapTvLibraryData.Season, token)
             .Map(series => scrapTvLibraryData.SeriesData.Select(s =>
                 ProcessSeriesData(s, scrapTvLibraryData.FeedTitles, series, isOldSeason)))
             .Map(seriesData => scrapTvLibraryData with {SeriesData = seriesData});

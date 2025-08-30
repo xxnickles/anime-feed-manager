@@ -15,21 +15,21 @@ public sealed record TvSeriesInfoWithImage(
     SeriesStatus Status,
     string ImageUrl) : TvSeriesInfo(Title, FeedTitle, AlternativeTitles, Status);
 
-public delegate Task<Result<ImmutableList<TvSeriesInfo>>> StoredSeriesGetter(SeriesSeason season,
+public delegate Task<Result<ImmutableList<TvSeriesInfo>>> TableStorageStoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> RawStoredSeriesGetter(SeriesSeason season,
+public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> TableStorageRawStoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeries
 {
-    public static StoredSeriesGetter GetExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
+    public static TableStorageStoredSeries GetExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
         (season, token) =>
             clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.GetStoredSeries(season, token))
                 .Map(series => series.ConvertAll(Mapper));
 
-    public static RawStoredSeriesGetter GetRawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
+    public static TableStorageRawStoredSeries GetRawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
         (season, token) =>
             clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.GetStoredSeries(season, token));
@@ -45,6 +45,8 @@ public static class ExistentSeries
             series => series.PartitionKey == partitionKey,
             select:
             [
+                nameof(AnimeInfoStorage.RowKey),
+                nameof(AnimeInfoStorage.PartitionKey),
                 nameof(AnimeInfoStorage.Title),
                 nameof(AnimeInfoStorage.FeedTitle),
                 nameof(AnimeInfoStorage.AlternativeTitles),

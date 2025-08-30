@@ -29,4 +29,13 @@ internal static class TvAdminHandlers
         return domainPostman.SendMessage(new UpdateTvSeriesEvent(), cancellationToken)
             .ToComponentNotification<Unit, Noop, TvLatestSeasonUpdate>(new Noop());
     }
+
+    internal static Task<RazorComponentResult> Titles(
+        [FromForm] Noop noop,
+        [FromServices] IDomainPostman domainPostman,
+        CancellationToken cancellationToken)
+    {
+        return domainPostman.SendMessage(new UpdateLatestFeedTitlesEvent(), cancellationToken)
+            .ToComponentNotification<Unit, Noop, TvTitlesUpdate>(new Noop());
+    }
 }

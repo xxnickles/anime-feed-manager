@@ -9,5 +9,8 @@ internal static class Endpoints
 
         group.MapPut("/admin/tv/latest", TvAdminHandlers.Latest)
             .RequireAuthorization(Policies.AdminRequired);
+
+        group.MapPut("/admin/tv/titles", TvAdminHandlers.Titles)
+            .RequireAuthorization(Policies.AdminRequired);
     }
 }

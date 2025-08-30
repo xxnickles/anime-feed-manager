@@ -19,12 +19,12 @@ public static class SeasonUpdate
         LatestSeasonGetter seasonGetter, CancellationToken token) =>
         processData.BindSeasonData(
             data => seasonGetter(token).Map(latestSeason => data with {CurrentLatestSeasonData = latestSeason}),
-            WhenIsUpdating);
+            WhenNeedsUpdate);
 
     public static Task<Result<SeasonUpdateData>> StoreUpdatedSeason(this Task<Result<SeasonUpdateData>> processData,
         SeasonUpdater seasonUpdater, CancellationToken token) =>
         processData.BindSeasonData(data => UpdateSeason(seasonUpdater, data.SeasonData, token).Map(_ => data),
-            WhenIsUpdating);
+            WhenNeedsUpdate);
 
     public static Task<Result<SeasonUpdateData>> DemoteCurrentLatest(this Task<Result<SeasonUpdateData>> processData,
         SeasonUpdater seasonUpdater, CancellationToken token) =>
@@ -81,7 +81,7 @@ public static class SeasonUpdate
         return data;
     }
 
-    private static bool WhenIsUpdating(SeasonUpdateData data) =>
+    private static bool WhenNeedsUpdate(SeasonUpdateData data) =>
         data.SeasonData is not NoUpdateRequired;
 
     private static bool WhenLastestIsReplaced(SeasonUpdateData data) =>
