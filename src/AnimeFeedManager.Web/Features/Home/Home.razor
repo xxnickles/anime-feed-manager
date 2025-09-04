@@ -1,7 +1,40 @@
 ﻿@page "/"
+@using AnimeFeedManager.Features.Seasons.Queries
+@using AnimeFeedManager.Features.Seasons.Storage
+@using AnimeFeedManager.Features.Seasons.UpdateProcess
+@inject ITableClientFactory TableClientFactory;
+@inject NavigationManager NavManager
+@inject ILogger<Home> Logger;
 
-<PageTitle>Home</PageTitle>
+<PageTitle>@PageTitle("Home")</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (!_seasonAvailable)
+{
+    <WarnBanner Title="No latest season!" Description="There is no latest season data available at this time"/>
+}
 
-Welcome to your new app.
+@code {
+    private bool _seasonAvailable = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeasonGetter(), CancellationToken.None)
+            .LogErrors(Logger)
+            .Match(
+                VerifyLatestSeason,
+                _ => _seasonAvailable = false
+            );
+    }
+
+    private void VerifyLatestSeason(SeasonStorageData seasonStorageData)
+    {
+        if (seasonStorageData is CurrentLatestSeason cls)
+        {
+            NavManager.NavigateTo($"{cls.Season.Season}-{cls.Season.Year}/tv");
+        }
+        else
+        {
+            _seasonAvailable = false;
+        }
+    }
+}

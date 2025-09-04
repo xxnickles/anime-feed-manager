@@ -10,8 +10,6 @@ internal sealed record HxBoosted : HtmxRequestType;
 
 internal sealed record HxForm(string CurrentPagePath) : HtmxRequestType;
 
-
-
 internal static class HtmxExtensions
 {
     public static HtmxRequestType GetHtmxRequestType(this IHttpContextAccessor context)

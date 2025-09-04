@@ -1,0 +1,5 @@
+﻿<SeasonLinks SelectedSeason="Season"></SeasonLinks>
+
+@code {
+    [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = new(Shared.Types.Season.Current, Year.Current);
+}

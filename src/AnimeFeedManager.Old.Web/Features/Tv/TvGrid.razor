@@ -1,7 +1,6 @@
 ﻿@page "/{Season}/tv"
 @using AnimeFeedManager.Old.Common.Domain.Validators
 
-
 <PageTitle>@PageTitleForSeason(SeriesType.Tv, _selectedSeason)</PageTitle>
 <SeasonsSelector SeriesType="SeriesType.Tv" CurrentSeason="_selectedSeason"></SeasonsSelector>
 <TvGridComponent SeasonInfo="@_selectedSeason"></TvGridComponent>

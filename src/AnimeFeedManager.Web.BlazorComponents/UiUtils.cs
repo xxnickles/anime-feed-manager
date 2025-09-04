@@ -1,4 +1,6 @@
 ﻿using System.Text.RegularExpressions;
+using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Shared.Types;
 
 namespace AnimeFeedManager.Web.BlazorComponents;
 
@@ -7,8 +9,12 @@ public static class UiUtils
     public static string GetUniqueName(string baseName) => $"{baseName}-{Guid.CreateVersion7().ToString("N")[..5]}";
 
     public static string PageTitle(string titleMessage) => $"Anime Feed Manager | {titleMessage}";
-    public static string PageTitle() => PageTitle(string.Empty);
 
+    public static string PageTitleForInvalidSeason() => PageTitle("Invalid Season");
+    
+    public static string PageTitleForSeason(SeriesType type, SeriesSeason season) =>
+        PageTitle($"{type} {season.Season}-{season.Year}");
+    
     public static string RemoveTrailingPeriod(this string message)
     {
         return message.EndsWith('.') ? message.TrimEnd('.') : message;

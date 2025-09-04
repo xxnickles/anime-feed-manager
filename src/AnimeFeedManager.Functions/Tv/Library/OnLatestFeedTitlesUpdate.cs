@@ -33,7 +33,7 @@ public class OnLatestFeedTitlesUpdate
         using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
         await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeasonGetter(), token)
             .GetFeedTitles(_seasonFeedTitlesProvider)
-            .UpdateSeries(_tableClientFactory.GetRawExistentStoredSeriesGetter(),
+            .UpdateSeries(_tableClientFactory.RawExistentStoredSeriesGetter(),
                 _tableClientFactory.GetTvLibraryUpdater(), token)
             .SendEvents(_domainPostman, token)
             .Match(

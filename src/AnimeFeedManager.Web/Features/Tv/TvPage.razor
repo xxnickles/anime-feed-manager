@@ -1,0 +1,31 @@
+@page "/{Season}/tv"
+
+<PageTitle>@(_seasonError ? PageTitleForSeason(SeriesType.Tv, _season) : PageTitleForInvalidSeason())</PageTitle>
+@if (!_seasonError)
+{
+    <TvGrid Season="_season"></TvGrid>
+}
+else
+{
+    <WarnBanner Title="Invalid Season" Description="@($"Season string '{Season}' is invalid.")"></WarnBanner>
+}
+
+@code {
+    [Parameter] public string Season { get; set; } = string.Empty;
+    private SeriesSeason _season = new(Shared.Types.Season.Current, Year.Current);
+    bool _seasonError;
+
+    protected override void OnInitialized()
+    {
+        Season
+            .ParseAsSeriesSeason()
+            .Match(
+                season =>
+                {
+                    _season = season;
+                    _seasonError = false;
+                },
+                _ => { _seasonError = true; });
+    }
+
+}

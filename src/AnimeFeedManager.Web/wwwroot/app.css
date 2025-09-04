@@ -209,6 +209,7 @@
     overflow-y: hidden;
     overscroll-behavior: contain;
     z-index: 999;
+    scrollbar-gutter: auto;
     &::backdrop {
       display: none;
     }
@@ -236,7 +237,7 @@
     position: fixed;
     inset-inline-start: calc(0.25rem * 0);
     top: calc(0.25rem * 0);
-    z-index: 1;
+    z-index: 10;
     grid-column-start: 1;
     grid-row-start: 1;
     display: grid;
@@ -312,7 +313,6 @@
       opacity: 0%;
       font-size: 0.875rem;
       line-height: 1.25;
-      transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms;
       background-color: var(--tt-bg);
       width: max-content;
       pointer-events: none;
@@ -320,12 +320,21 @@
       --tw-content: attr(data-tip);
       content: var(--tw-content);
     }
+    @media (prefers-reduced-motion: no-preference) {
+      & > :where(.tooltip-content), &:where([data-tip]):before {
+        transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms;
+      }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      &:after {
+        transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms;
+      }
+    }
     &:after {
       position: absolute;
       position: absolute;
       opacity: 0%;
       background-color: var(--tt-bg);
-      transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms;
       content: "";
       pointer-events: none;
       width: 0.625rem;
@@ -340,7 +349,11 @@
       > .tooltip-content, &[data-tip]:before, &:after {
         opacity: 100%;
         --tt-pos: 0rem;
-        transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0s, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        & > .tooltip-content, &[data-tip]:before, &:after {
+          transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0s, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+        }
       }
     }
     > .tooltip-content, &[data-tip]:before {
@@ -399,13 +412,13 @@
         opacity: 0%;
       }
     }
-    &:checked, &:is(label:has(:checked)), &:is(.tab-active, [aria-selected="true"]) {
+    &:checked, &:is(label:has(:checked)), &:is(.tab-active, [aria-selected=true], [aria-current=true], [aria-current=page]) {
       & + .tab-content {
         display: block;
         height: calc(100% - var(--tab-height) + var(--border));
       }
     }
-    &:not(:checked, label:has(:checked), :hover, .tab-active, [aria-selected="true"]) {
+    &:not(:checked, label:has(:checked), :hover, .tab-active, [aria-selected=true], [aria-current=true], [aria-current=page]) {
       color: var(--color-base-content);
       @supports (color: color-mix(in lab, red, red)) {
         color: color-mix(in oklab, var(--color-base-content) 50%, transparent);
@@ -688,11 +701,13 @@
     }
     &[popover], .dropdown-content {
       z-index: 999;
-      animation: dropdown 0.2s;
-      transition-property: opacity, scale, display;
-      transition-behavior: allow-discrete;
-      transition-duration: 0.2s;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      @media (prefers-reduced-motion: no-preference) {
+        animation: dropdown 0.2s;
+        transition-property: opacity, scale, display;
+        transition-behavior: allow-discrete;
+        transition-duration: 0.2s;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
     }
     @starting-style {
       &[popover], .dropdown-content {
@@ -817,7 +832,7 @@
         }
       }
     }
-    &:focus-visible {
+    &:focus-visible, &:has(:focus-visible) {
       outline-width: 2px;
       outline-style: solid;
       isolation: isolate;
@@ -901,8 +916,10 @@
     border-radius: var(--radius-box, 1rem);
     width: 100%;
     grid-template-rows: max-content 0fr;
-    transition: grid-template-rows 0.2s;
     isolation: isolate;
+    @media (prefers-reduced-motion: no-preference) {
+      transition: grid-template-rows 0.2s;
+    }
     > input:is([type="checkbox"], [type="radio"]) {
       grid-column-start: 1;
       grid-row-start: 1;
@@ -938,19 +955,25 @@
     }
     &:is([open], :focus:not(.collapse-close)) > :where(.collapse-content), &:not(.collapse-close) > :where(input:is([type="checkbox"], [type="radio"]):checked ~ .collapse-content) {
       padding-bottom: 1rem;
-      transition: padding 0.2s ease-out, background-color 0.2s ease-out;
+      @media (prefers-reduced-motion: no-preference) {
+        transition: padding 0.2s ease-out, background-color 0.2s ease-out;
+      }
     }
     &:is([open]) {
       &.collapse-arrow {
         > .collapse-title:after {
-          transform: translateY(-50%) rotate(225deg);
+          @media (prefers-reduced-motion: no-preference) {
+            transform: translateY(-50%) rotate(225deg);
+          }
         }
       }
     }
     &.collapse-open {
       &.collapse-arrow {
         > .collapse-title:after {
-          transform: translateY(-50%) rotate(225deg);
+          @media (prefers-reduced-motion: no-preference) {
+            transform: translateY(-50%) rotate(225deg);
+          }
         }
       }
       &.collapse-plus {
@@ -1098,7 +1121,9 @@
     width: max-content;
     max-width: calc(100vw - 2rem);
     & > * {
-      animation: toast 0.25s ease-out;
+      @media (prefers-reduced-motion: no-preference) {
+        animation: toast 0.25s ease-out;
+      }
     }
     &:where(.toast-start) {
       inset-inline-start: calc(0.25rem * 4);
@@ -1635,7 +1660,8 @@
       appearance: none;
       padding-inline-start: calc(0.25rem * 4);
       padding-inline-end: calc(0.25rem * 7);
-      height: calc(100% - 2px);
+      height: calc(100% - calc(var(--border) * 2));
+      align-items: center;
       background: inherit;
       border-radius: inherit;
       border-style: none;
@@ -1680,6 +1706,64 @@
     }
     &:has(> select[disabled]) > select[disabled] {
       cursor: not-allowed;
+    }
+    &, & select {
+      @supports (appearance: base-select) {
+        appearance: base-select;
+      }
+      &::picker(select) {
+        @supports (appearance: base-select) {
+          appearance: base-select;
+        }
+        color: inherit;
+        max-height: 70dvh;
+        border: var(--border) solid var(--color-base-200);
+        margin-block: calc(0.25rem * 2);
+        border-radius: var(--radius-box);
+        padding: calc(0.25rem * 2);
+        background-color: inherit;
+        box-shadow: 0 2px calc(var(--depth) * 3px) -2px oklch(0% 0 0/0.2);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / calc(var(--depth) * 0.1)), 0 8px 10px -6px rgb(0 0 0 / calc(var(--depth) * 0.1));
+      }
+      &::picker-icon {
+        display: none;
+      }
+      optgroup {
+        padding-top: 0.5em;
+        option {
+          &:nth-child(1) {
+            margin-top: 0.5em;
+          }
+        }
+      }
+      option {
+        border-radius: var(--radius-field);
+        padding-inline: calc(0.25rem * 3);
+        padding-block: calc(0.25rem * 1.5);
+        transition-property: color, background-color;
+        transition-duration: 0.2s;
+        transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+        &:not(:disabled) {
+          &:hover, &:focus-visible {
+            cursor: pointer;
+            background-color: var(--color-base-content);
+            @supports (color: color-mix(in lab, red, red)) {
+              background-color: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+            }
+            --tw-outline-style: none;
+            outline-style: none;
+            @media (forced-colors: active) {
+              outline: 2px solid transparent;
+              outline-offset: 2px;
+            }
+          }
+          &:active {
+            background-color: var(--color-neutral);
+            color: var(--color-neutral-content);
+            box-shadow: 0 2px calc(var(--depth) * 3px) -2px var(--color-neutral);
+          }
+        }
+      }
     }
   }
   .card {
@@ -1770,9 +1854,11 @@
     > * {
       grid-column-start: 1;
       grid-row-start: 1;
-      transition-property: transform, rotate, opacity;
-      transition-duration: 0.2s;
-      transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+      @media (prefers-reduced-motion: no-preference) {
+        transition-property: transform, rotate, opacity;
+        transition-duration: 0.2s;
+        transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+      }
     }
     .swap-on, .swap-indeterminate, input:indeterminate ~ .swap-on {
       opacity: 0%;
@@ -1861,10 +1947,7 @@
       outline-offset: 2px;
     }
     &:checked, &[aria-checked="true"] {
-      background-color: var(--input-color, var(--color-base-content));
-      @supports (color: color-mix(in lab, red, red)) {
-        background-color: var(--input-color, color-mix(in oklab, var(--color-base-content) 20%, #0000));
-      }
+      background-color: var(--input-color, #0000);
       box-shadow: 0 0 #0000 inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px oklch(0% 0 0 / calc(var(--depth) * 0.1));
       &:before {
         clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
@@ -1936,9 +2019,11 @@
       outline: 2px solid currentColor;
     }
     &:checked, &[aria-checked="true"] {
-      animation: radio 0.2s ease-out;
       border-color: currentColor;
       background-color: var(--color-base-100);
+      @media (prefers-reduced-motion: no-preference) {
+        animation: radio 0.2s ease-out;
+      }
       &:before {
         background-color: currentColor;
         box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px oklch(0% 0 0 / calc(var(--depth) * 0.1));
@@ -1984,14 +2069,18 @@
       background-image: repeating-linear-gradient( 90deg, currentColor -1%, currentColor 10%, #0000 10%, #0000 90% );
       background-size: 200%;
       background-position-x: 15%;
-      animation: progress 5s ease-in-out infinite;
+      @media (prefers-reduced-motion: no-preference) {
+        animation: progress 5s ease-in-out infinite;
+      }
       @supports (-moz-appearance: none) {
         &::-moz-progress-bar {
           background-color: transparent;
-          background-image: repeating-linear-gradient( 90deg, currentColor -1%, currentColor 10%, #0000 10%, #0000 90% );
-          background-size: 200%;
-          background-position-x: 15%;
-          animation: progress 5s ease-in-out infinite;
+          @media (prefers-reduced-motion: no-preference) {
+            animation: progress 5s ease-in-out infinite;
+            background-image: repeating-linear-gradient( 90deg, currentColor -1%, currentColor 10%, #0000 10%, #0000 90% );
+            background-size: 200%;
+            background-position-x: 15%;
+          }
         }
       }
     }
@@ -2210,6 +2299,9 @@
   .m-0 {
     margin: calc(var(--spacing) * 0);
   }
+  .m-4 {
+    margin: calc(var(--spacing) * 4);
+  }
   .filter {
     display: flex;
     flex-wrap: wrap;
@@ -2254,6 +2346,9 @@
   }
   .mx-1 {
     margin-inline: calc(var(--spacing) * 1);
+  }
+  .mx-auto {
+    margin-inline: auto;
   }
   .my-2 {
     margin-block: calc(var(--spacing) * 2);
@@ -2617,6 +2712,9 @@
   .w-80 {
     width: calc(var(--spacing) * 80);
   }
+  .w-fit {
+    width: fit-content;
+  }
   .w-full {
     width: 100%;
   }
@@ -2907,6 +3005,9 @@
   }
   .normal-case {
     text-transform: none;
+  }
+  .uppercase {
+    text-transform: uppercase;
   }
   .link-hover {
     text-decoration-line: none;

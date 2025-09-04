@@ -23,13 +23,13 @@ public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> TableStorageRawSto
 
 public static class ExistentSeries
 {
-    public static TableStorageStoredSeries GetExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
+    public static TableStorageStoredSeries ExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
         (season, token) =>
             clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.GetStoredSeries(season, token))
                 .Map(series => series.ConvertAll(Mapper));
 
-    public static TableStorageRawStoredSeries GetRawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
+    public static TableStorageRawStoredSeries RawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
         (season, token) =>
             clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.GetStoredSeries(season, token));
