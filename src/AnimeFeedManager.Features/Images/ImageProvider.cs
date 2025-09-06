@@ -58,8 +58,7 @@ public class ImageProvider : IImageProvider
         CancellationToken cancellationToken = default)
     {
         var container = blobServiceClient.GetBlobContainerClient(Container);
-        var finalPath = Path.Combine(path, $"{fileName}.jpg");
-        var blob = container.GetBlobClient(finalPath);
+        var blob = container.GetBlobClient($"{path}/{fileName}.jpg");
         var blobHttpHeader = new BlobHttpHeaders {ContentType = "image/jpg"};
         await blob.UploadAsync(data, new BlobUploadOptions {HttpHeaders = blobHttpHeader}, cancellationToken);
         return blob.Uri;

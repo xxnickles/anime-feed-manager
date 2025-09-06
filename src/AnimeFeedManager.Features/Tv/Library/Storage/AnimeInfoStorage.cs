@@ -18,8 +18,6 @@ public sealed class AnimeInfoStorage : ITableEntity
     public string? Title { get; set; }
     public string? Synopsis { get; set; }
     public string? FeedTitle { get; set; }
-    public int Year { get; set; } // Azure tables only works with Int and Int64
-    public string? Season { get; set; }
     public DateTime? Date { get; set; }
     public string Status { get; set; } = SeriesStatus.NotAvailable;
     

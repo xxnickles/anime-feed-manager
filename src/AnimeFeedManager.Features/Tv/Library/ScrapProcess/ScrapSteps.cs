@@ -49,9 +49,7 @@ internal static class ScrapSteps
                         FeedTitle = string.Empty,
                         Date = SharedUtils.ParseDate(seriesContainer.Date, seriesContainer.SeasonInfo.Year)
                             ?.ToUniversalTime(),
-                        Status = SeriesStatus.NotAvailableValue,
-                        Season = seriesContainer.SeasonInfo.Season,
-                        Year = seriesContainer.SeasonInfo.Year
+                        Status = SeriesStatus.NotAvailableValue
                     },
                     Uri.TryCreate(seriesContainer.ImageUrl, UriKind.Absolute, out var validUri)
                         ? new ScrappedImageUrl(validUri)

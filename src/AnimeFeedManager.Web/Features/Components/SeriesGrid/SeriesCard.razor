@@ -1,0 +1,31 @@
+﻿@if (SeriesInfo is not null)
+{
+    <article class="card card-side bg-base-100 image-full shadow-sm group 
+        hover:shadow-xl transition-all duration-300">
+        <figure class="overflow-hidden">
+            <img             
+                src="@SeriesInfo.ImageUrl"
+                alt="@SeriesInfo.Title"
+                class="!brightness-[0.20] 
+                       group-hover:!brightness-[0.5] 
+                       group-hover:scale-105 
+                       group-hover:blur-[1.5px]
+                       transition-all duration-300"/>
+        </figure>
+        <div class="card-body">
+            <h2 class="card-title text-primary font-bold text-lg 
+        group-hover:[text-shadow:_1px_1px_0_black,_-1px_-1px_0_black,_1px_-1px_0_black,_-1px_1px_0_black]">
+                @SeriesInfo.Title
+            </h2>
+            <p class="group-hover:[text-shadow:_1px_1px_0_black,_-1px_-1px_0_black] group-hover:font-bold">
+                @SeriesInfo.Synopsis
+            </p>
+            <div class="card-actions justify-end">
+            </div>
+        </div>
+    </article>
+}
+
+@code {
+    [Parameter] public SeriesCardViewModel? SeriesInfo { get; set; }
+}

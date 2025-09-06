@@ -29,9 +29,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     Title = "Test Anime",
                     Synopsis = "Test synopsis",
                     FeedTitle = string.Empty,
-                    Status = SeriesStatus.NotAvailableValue,
-                    Season = "Spring",
-                    Year = 2025
+                    Status = SeriesStatus.NotAvailableValue
                 },
                 new NoImage());
 
@@ -86,9 +84,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     Title = "Test Anime",
                     Synopsis = "Test synopsis",
                     FeedTitle = string.Empty,
-                    Status = SeriesStatus.NotAvailableValue,
-                    Season = "Spring",
-                    Year = 2025
+                    Status = SeriesStatus.NotAvailableValue
                 },
                 new NoImage());
 
@@ -150,9 +146,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 Title = "Test Anime",
                 Synopsis = "Test synopsis",
                 FeedTitle = string.Empty,
-                Status = SeriesStatus.NotAvailableValue,
-                Season = Season.Spring(),
-                Year = 2023
+                Status = SeriesStatus.NotAvailableValue
             }, new NoImage());
 
             var scrapData = new ScrapTvLibraryData(ImmutableList.Create(processSeries), feedTitles, seriesSeason);

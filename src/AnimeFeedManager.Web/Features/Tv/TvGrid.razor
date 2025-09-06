@@ -1,5 +1,35 @@
-﻿<SeasonLinks SelectedSeason="Season"></SeasonLinks>
+﻿@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Tv.Library.Queries
+@using AnimeFeedManager.Features.Tv.Library.Storage
+@using AnimeFeedManager.Web.Features.Components.SeriesGrid
+@inject ITableClientFactory TableClientFactory
+@inject ILogger<TvGrid> Logger;
+<SeasonLinks SelectedSeason="Season"></SeasonLinks>
+@if (_series.Count > 0)
+{
+    <SeriesGrid>
+        @foreach (var series in _series)
+        {
+            <SeriesCard SeriesInfo="@series.AsSeriesCard()"></SeriesCard>
+        }
+    </SeriesGrid>
+} else
+{
+    <WarnBanner Title="Tv Series" Description="There are no series available for this season"></WarnBanner>
+}
+
 
 @code {
     [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = new(Shared.Types.Season.Current, Year.Current);
+    ImmutableList<TvSeries> _series = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LibraryQueries.GetTvLibrary(TableClientFactory.TvLibraryGetter(), Season, CancellationToken.None)
+            .LogErrors(Logger)
+            .Match(
+                series => { _series = series; },
+                _ => { _series = []; });
+    }
+
 }
