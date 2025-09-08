@@ -105,7 +105,7 @@ internal static class ScrapSteps
             if (currentInfo is not TvSeriesInfoWithImage withImage)
                 return storageSeries with {Series = baseSeries};
 
-            baseSeries.ImageUrl = withImage.ImageUrl;
+            baseSeries.ImagePath = withImage.ImageUrl;
             return new StorageData(baseSeries, new AlreadyExistInSystem());
         }
         // New series, there is a matching feed

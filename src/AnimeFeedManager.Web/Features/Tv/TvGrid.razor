@@ -2,8 +2,11 @@
 @using AnimeFeedManager.Features.Tv.Library.Queries
 @using AnimeFeedManager.Features.Tv.Library.Storage
 @using AnimeFeedManager.Web.Features.Components.SeriesGrid
+@using Azure.Storage.Blobs
 @inject ITableClientFactory TableClientFactory
+@inject BlobServiceClient BlobServiceClient;
 @inject ILogger<TvGrid> Logger;
+
 <SeasonLinks SelectedSeason="Season"></SeasonLinks>
 @if (_series.Count > 0)
 {
@@ -13,7 +16,8 @@
             <SeriesCard SeriesInfo="@series.AsSeriesCard()"></SeriesCard>
         }
     </SeriesGrid>
-} else
+}
+else
 {
     <WarnBanner Title="Tv Series" Description="There are no series available for this season"></WarnBanner>
 }
@@ -25,7 +29,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LibraryQueries.GetTvLibrary(TableClientFactory.TvLibraryGetter(), Season, CancellationToken.None)
+        await LibraryQueries.GetTvLibrary(
+                TableClientFactory.TvLibraryGetter(),
+                Season,
+                BlobServiceClient.Uri,
+                CancellationToken.None)
             .LogErrors(Logger)
             .Match(
                 series => { _series = series; },

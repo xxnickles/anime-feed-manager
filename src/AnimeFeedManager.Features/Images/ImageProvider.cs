@@ -16,7 +16,7 @@ public interface IImageProvider
 public class ImageProvider : IImageProvider
 {
     public const string Container = "images";
-    
+
     private readonly HttpClient _httpClient;
     private readonly BlobServiceClient _blobServiceClient;
     private readonly ILogger<ImageProvider> _logger;
@@ -32,7 +32,7 @@ public class ImageProvider : IImageProvider
     }
 
     public async Task<Result<Uri>> Process(
-        ImageProcessData data, 
+        ImageProcessData data,
         CancellationToken cancellationToken = default)
     {
         try
@@ -49,7 +49,7 @@ public class ImageProvider : IImageProvider
             return new HandledError();
         }
     }
-    
+
     private static async Task<Uri> Upload(
         BlobServiceClient blobServiceClient,
         string fileName,
@@ -58,9 +58,11 @@ public class ImageProvider : IImageProvider
         CancellationToken cancellationToken = default)
     {
         var container = blobServiceClient.GetBlobContainerClient(Container);
-        var blob = container.GetBlobClient($"{path}/{fileName}.jpg");
-        var blobHttpHeader = new BlobHttpHeaders {ContentType = "image/jpg"};
+        // Normalize path and file name to use forward slashes and .jpg extension
+        var blobName = $"{path.Trim('/').Replace('\\', '/')}/{fileName}.jpg";
+        var blob = container.GetBlobClient(blobName);
+        var blobHttpHeader = new BlobHttpHeaders {ContentType = "image/jpeg"};
         await blob.UploadAsync(data, new BlobUploadOptions {HttpHeaders = blobHttpHeader}, cancellationToken);
-        return blob.Uri;
+        return new Uri($"{Container}/{blobName}", UriKind.Relative);
     }
 }

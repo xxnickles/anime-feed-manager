@@ -60,7 +60,7 @@ internal static class TvImagesCollector
     private static StorageData AddUrl(StorageData storageData, Uri imageUrl)
     {
         var series = storageData.Series;
-        series.ImageUrl = imageUrl.ToString();
+        series.ImagePath = imageUrl.ToString();
         return storageData with { Series = series };
     }
 

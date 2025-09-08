@@ -23,7 +23,7 @@ public sealed record TvSeries(
     string? FeedTitle,
     string[] AlternativeTitles,
     SeriesStatus Status,
-    string? ImageUrl);
+    Uri? Image);
 
 public delegate Task<Result<ImmutableList<TvSeriesInfo>>> TableStorageStoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
@@ -31,7 +31,9 @@ public delegate Task<Result<ImmutableList<TvSeriesInfo>>> TableStorageStoredSeri
 public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> TableStorageRawStoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<TvSeries>>> TableStorageTvLibrary(SeriesSeason season,
+public delegate Task<Result<ImmutableList<TvSeries>>> TableStorageTvLibrary(
+    SeriesSeason season,
+    Uri publicBlobUri,
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeries
@@ -49,8 +51,9 @@ public static class ExistentSeries
 
 
     public static TableStorageTvLibrary TvLibraryGetter(this ITableClientFactory clientFactory) =>
-        (season, token) =>
-            clientFactory.GetClient<AnimeInfoStorage>().Bind(client => client.GetTvLibrary(season, token));
+        (season, blobUriBuilder, token) =>
+            clientFactory.GetClient<AnimeInfoStorage>()
+                .Bind(client => client.GetTvLibrary(season, blobUriBuilder, token));
 
     private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
         this AppTableClient tableClient,
@@ -68,23 +71,25 @@ public static class ExistentSeries
                 nameof(AnimeInfoStorage.FeedTitle),
                 nameof(AnimeInfoStorage.AlternativeTitles),
                 nameof(AnimeInfoStorage.Status),
-                nameof(AnimeInfoStorage.ImageUrl)
+                nameof(AnimeInfoStorage.ImagePath)
             ],
             cancellationToken: cancellationToken));
     }
 
-    private static Task<Result<ImmutableList<TvSeries>>> GetTvLibrary(this AppTableClient tableClient,
+    private static Task<Result<ImmutableList<TvSeries>>> GetTvLibrary(
+        this AppTableClient tableClient,
         SeriesSeason season,
+        Uri publicBlobUriBuilder,
         CancellationToken cancellationToken = default)
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);
         return tableClient.ExecuteQuery(client => client.QueryAsync<AnimeInfoStorage>(
                 series => series.PartitionKey == partitionKey,
                 cancellationToken: cancellationToken))
-            .Map(series => series.ConvertAll(LibraryMapper));
+            .Map(series => series.ConvertAll(s => LibraryMapper(s, publicBlobUriBuilder)));
     }
 
-    private static TvSeries LibraryMapper(AnimeInfoStorage entity) => new(
+    private static TvSeries LibraryMapper(AnimeInfoStorage entity, Uri publicBlobUri) => new(
         entity.RowKey ?? string.Empty,
         entity.PartitionKey ?? string.Empty,
         entity.Title ?? string.Empty,
@@ -92,10 +97,19 @@ public static class ExistentSeries
         entity.FeedTitle,
         ConvertAlternativeTitles(entity.AlternativeTitles),
         (SeriesStatus) entity.Status,
-        entity.ImageUrl);
+        entity.ImagePath is not null ? GetUri(publicBlobUri, entity.ImagePath) : null);
+
+    private static Uri GetUri(Uri publicBlobUri, string imagePath)
+    {
+        var baseAsDir = publicBlobUri.AbsoluteUri.EndsWith("/")
+            ? publicBlobUri
+            : new Uri(publicBlobUri.AbsoluteUri + "/");
+
+        return new Uri(baseAsDir, imagePath);
+    }
 
     private static TvSeriesInfo Mapper(AnimeInfoStorage entity)
-        => string.IsNullOrWhiteSpace(entity.ImageUrl)
+        => string.IsNullOrWhiteSpace(entity.ImagePath)
             ? new TvSeriesInfo(
                 entity.Title ?? string.Empty,
                 entity.FeedTitle,
@@ -105,7 +119,7 @@ public static class ExistentSeries
                 entity.FeedTitle,
                 ConvertAlternativeTitles(entity.AlternativeTitles),
                 (SeriesStatus) entity.Status,
-                entity.ImageUrl ?? string.Empty);
+                entity.ImagePath ?? string.Empty);
 
     private static string[] ConvertAlternativeTitles(string? alternativeTitles) =>
         alternativeTitles?.Split(SharedUtils.ArraySeparator) ?? [];

@@ -1,8 +1,9 @@
 ﻿<div @attributes="AdditionalAttributes" id="main-grid">
-    <section class="grid grid-cols-[repeat(auto-fit,minmax(375px,1fr))] auto-rows-min gap-10 px-2 md:px-10 py-2 md:py-4">
+     <section class="grid grid-cols-[repeat(auto-fit,minmax(360px,0.70fr))] justify-center auto-rows-min gap-10 px-2 md:px-10 py-2 md:py-4">
           @ChildContent
      </section>
 </div>
+
 
 @code {
      [Parameter(CaptureUnmatchedValues = true)]
