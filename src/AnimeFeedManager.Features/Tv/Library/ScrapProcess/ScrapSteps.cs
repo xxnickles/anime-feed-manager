@@ -94,11 +94,11 @@ internal static class ScrapSteps
             {
                 (SeriesStatus.NotAvailableValue, true) => SeriesStatus.OngoingValue,
                 (SeriesStatus.NotAvailableValue, false) => isOldSeason
-                    ? SeriesStatus.Completed
-                    : SeriesStatus.NotAvailable,
-                (SeriesStatus.OngoingValue, false) => SeriesStatus.Completed,
-                (SeriesStatus.OngoingValue, true) => SeriesStatus.Ongoing,
-                (_, _) => SeriesStatus.NotAvailable,
+                    ? SeriesStatus.Completed()
+                    : SeriesStatus.NotAvailable(),
+                (SeriesStatus.OngoingValue, false) => SeriesStatus.Completed(),
+                (SeriesStatus.OngoingValue, true) => SeriesStatus.Ongoing(),
+                (_, _) => SeriesStatus.NotAvailable(),
             };
             baseSeries.AlternativeTitles = currentInfo.AlternativeTitles.ArrayToString();
 
@@ -119,7 +119,7 @@ internal static class ScrapSteps
 
         if (!isOldSeason) return storageSeries;
 
-        baseSeries.Status = SeriesStatus.Completed;
+        baseSeries.Status = SeriesStatus.Completed();
         return storageSeries with {Series = baseSeries};
     }
 }

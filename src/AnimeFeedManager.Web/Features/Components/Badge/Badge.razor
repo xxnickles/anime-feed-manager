@@ -1,0 +1,13 @@
+﻿<div class="badge badge-soft @GetStyle()">
+    @Text
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public StatusType Type { get; set; } = StatusType.Neutral;
+
+    private string GetStyle()
+    {
+        return Constants.BadgeStylesMap.GetValueOrDefault(Type, "badge-neutral");
+    }
+}

@@ -1,0 +1,56 @@
+﻿
+/* FAB */
+
+/* Hide actions until hover/focus within the FAB container */
+.fab-actions { pointer-events: none; }
+
+/* Each direct child animates in with opacity/transform */
+.fab-actions > * {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+    transition: opacity 200ms ease, transform 200ms ease;
+    pointer-events: auto; /* Allow interaction when visible */
+}
+
+/* Open on hover or keyboard focus inside */
+.group\/fab:hover .fab-actions > *,
+.group\/fab:focus-within .fab-actions > * {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Staggered animation */
+.fab-actions > *:nth-child(1) { transition-delay: 40ms; }
+.fab-actions > *:nth-child(2) { transition-delay: 80ms; }
+.fab-actions > *:nth-child(3) { transition-delay: 120ms; }
+.fab-actions > *:nth-child(4) { transition-delay: 160ms; }
+.fab-actions > *:nth-child(5) { transition-delay: 200ms; }
+.fab-actions > *:nth-child(6) { transition-delay: 240ms; }
+
+/* Labeled action: keep button aligned with trigger; label floats left */
+.fab-action-labeled {
+    position: relative;
+    display: inline-block;
+}
+
+/* Only positioning/animation here; visual styles come from daisyUI classes on the element */
+.fab-action-label {
+    position: absolute;
+    right: 100%;
+    margin-right: 0.5rem; /* gap-2 */
+    top: 50%;
+    transform: translateY(-50%) translateX(0.25rem) scale(0.98);
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+/* Reveal labels when the menu is open (hover/focus within) */
+.group\/fab:hover .fab-action-label,
+.group\/fab:focus-within .fab-action-label {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+}
+
+/* Optional: slight stagger for label relative to its button */
+.fab-action-labeled .fab-action-label { transition-delay: 90ms; }

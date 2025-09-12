@@ -8,7 +8,6 @@ internal static class AzureTableMap
         internal const string AlternativeTitles = "AlternativeTitles";
         internal const string Subscriptions = "Subscriptions";
         internal const string AvailableSeasons = "AvailableSeasons";
-        internal const string InterestedSeries = "InterestedSeries";
         internal const string FeedTitles = "FeedTitles";
         internal const string ProcessedSubscriptions = "ProcessedSubscriptions";
         internal const string Users = "Users";

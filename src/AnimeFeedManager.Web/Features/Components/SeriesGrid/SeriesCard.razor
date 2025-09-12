@@ -3,13 +3,14 @@
     <article class="card card-side bg-base-100 image-full shadow-sm group 
         hover:shadow-xl transition-all duration-300">
         <figure class="overflow-hidden">
-            <img             
+            <img
                 src="@SeriesInfo.ImageUrl"
                 alt="@SeriesInfo.Title"
                 class="!brightness-[0.20] 
                        group-hover:!brightness-[0.6] 
                        group-hover:scale-105
-                       transition-all duration-300"/>
+                       transition-all duration-300"
+                loading="lazy"/>
         </figure>
         <div class="card-body">
             <h2 class="card-title text-primary font-bold text-lg 
@@ -17,14 +18,33 @@
                 @SeriesInfo.Title
             </h2>
             <p class="group-hover:[text-shadow:_1px_1px_0_black,_-1px_-1px_0_black] group-hover:font-bold">
-                @SeriesInfo.Synopsis
+                @if (!string.IsNullOrWhiteSpace(SeriesInfo.Synopsis))
+                {
+                    @SeriesInfo.Synopsis
+                }
+                else
+                {
+                    <span class="text-warning flex gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                 stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+            </svg>
+            Synopsis Not Available
+        </span>
+                }
             </p>
-            <div class="card-actions justify-end">
-            </div>
+            @if (CardControls is not null)
+            {
+                <div class="card-actions items-center justify-between">
+                    @CardControls
+                </div>
+            }
         </div>
     </article>
 }
 
 @code {
     [Parameter] public SeriesCardViewModel? SeriesInfo { get; set; }
+    [Parameter] public RenderFragment? CardControls { get; set; }
 }

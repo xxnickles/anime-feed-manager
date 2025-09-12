@@ -22,14 +22,14 @@ public readonly struct SeriesStatus : IEquatable<SeriesStatus>
 
     public static explicit operator SeriesStatus(string status) => status switch
     {
-        CompletedValue => Completed,
-        OngoingValue => Ongoing,
-        _ => NotAvailable
+        CompletedValue => Completed(),
+        OngoingValue => Ongoing(),
+        _ => NotAvailable()
     };
 
-    public static SeriesStatus Completed = new(CompletedValue);
-    public static SeriesStatus NotAvailable = new(NotAvailableValue);
-    public static SeriesStatus Ongoing = new(OngoingValue);
+    public static SeriesStatus Completed() => new(CompletedValue);
+    public static SeriesStatus NotAvailable() => new(NotAvailableValue);
+    public static SeriesStatus Ongoing() => new(OngoingValue);
 
     public bool Equals(SeriesStatus other)
     {

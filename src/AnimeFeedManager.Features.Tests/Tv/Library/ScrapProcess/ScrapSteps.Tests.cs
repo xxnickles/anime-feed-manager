@@ -44,7 +44,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     "Test Anime",
                     "Test Anime Feed",
                     ["Alt Title 1", "Alt Title 2"],
-                    SeriesStatus.Ongoing));
+                    SeriesStatus.Ongoing()));
+                    SeriesStatus.Ongoing();
 
             // Setup StoredSeriesGetter fake
             var storedSeriesGetter = A.Fake<TableStorageStoredSeries>();
@@ -127,7 +128,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
         [Fact]
         internal async Task Should_Set_Status_Completed_When_Exist_And_Is_OldSeason_And_NoMatchingFeed()
         {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, [], SeriesStatus.NotAvailable);
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, [], SeriesStatus.NotAvailable());
 
             await OldSeasonVerification(ImmutableList.Create(storedSeries));
         }

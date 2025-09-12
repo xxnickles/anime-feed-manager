@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.User.TvSubscriptions.Storage;
+﻿namespace AnimeFeedManager.Features.Tv.Subscriptions.Storage;
 
 [WithTableName(AzureTableMap.StoreTo.ProcessedSubscriptions)]
 public sealed class ProcessedSubscriptionsStorage : ITableEntity

@@ -1,0 +1,22 @@
+﻿@if (Label is not null)
+{
+    <div class="fab-action-labeled">
+        @ChildContent
+        <span class="fab-action-label bg-base-100 p-2 text-base-content rounded-full">@Label</span>
+    </div>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter] public string? Label { get; set; }
+
+    /// <summary>
+    /// Expected to be an HTML button
+    /// </summary>
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = @<text></text>;
+
+}

@@ -34,8 +34,18 @@ public static class EventSending
         new FeedTitlesUpdated(data.processData.Season, data.processData.FeedTitles.ToArray()),
         new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
             data.summary.AsEventPayload()),
+        GetCompletedSeriesEvent(data.processData),
         .. GetFeedUpdatedEvents(data.processData)
     ];
+
+
+    private static CompletedSeries GetCompletedSeriesEvent(ScrapTvLibraryData data)
+    {
+        var completedIds = data.SeriesData.Where(s => s.Series.Status == SeriesStatus.Completed())
+            .Select(s => s.Series.RowKey ?? string.Empty)
+            .ToArray();
+        return new CompletedSeries(completedIds);
+    }
 
     private static DomainMessage[] GetFeedUpdatedEvents(ScrapTvLibraryData data)
     {

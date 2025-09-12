@@ -104,7 +104,5 @@ internal static class Registration
         {
             builder.Configuration.GetRequiredSection("Passwordless").Bind(options);
         });
-
-        builder.Services.AddScoped<IUserProvider, UserProvider>();
     }
 }

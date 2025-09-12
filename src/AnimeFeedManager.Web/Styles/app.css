@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './fab.css';
 
 @source "../../AnimeFeedManager.Web.BlazorComponents";
 /*
@@ -81,3 +82,4 @@ label:has(.invalid) {
 [x-cloak] {
     display: none !important;
 }
+
