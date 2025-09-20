@@ -30,14 +30,14 @@ public static class ExistentSeasons
             .Bind(client => GetAllSeasons(client, cancellationToken))
             .Map(seasons => seasons.TransformToSeriesSeason());
 
-    public static Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(this ITableClientFactory clientFactory) =>
+    public static Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(this ITableClientFactory clientFactory, ILogger logger) =>
         cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
             .Bind(client => client.GetLast4Seasons(cancellationToken)
-                .Map(seasons => TransformToSeriesSeason(seasons, client.Logger)));
+                .Map(seasons => TransformToSeriesSeason(seasons, logger)));
 
 
     private static Task<Result<ImmutableList<SeasonStorage>>> GetAllSeasons(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         CancellationToken cancellationToken = default)
     {
         return tableClient.ExecuteQuery(client =>
@@ -46,7 +46,7 @@ public static class ExistentSeasons
                 cancellationToken: cancellationToken));
     }
 
-    private static Task<Result<SeasonStorageData>> GetLatestSeason(this AppTableClient tableClient,
+    private static Task<Result<SeasonStorageData>> GetLatestSeason(this TableClient tableClient,
         CancellationToken cancellationToken = default)
     {
         return tableClient.ExecuteQuery(client =>
@@ -56,7 +56,7 @@ public static class ExistentSeasons
                 !seasons.IsEmpty ? new CurrentLatestSeason(seasons.First()) : new NoMatch());
     }
 
-    private static Task<Result<SeasonStorageData>> GetSeason(this AppTableClient tableClient,
+    private static Task<Result<SeasonStorageData>> GetSeason(this TableClient tableClient,
         SeriesSeason season, CancellationToken cancellation = default)
     {
         return tableClient.ExecuteQuery(client =>
@@ -90,7 +90,7 @@ public static class ExistentSeasons
 
 
     private static Task<Result<LatestSeasonsStorage>> GetLast4Seasons(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         CancellationToken cancellationToken = default)
     {
         return tableClient.ExecuteQuery(client =>

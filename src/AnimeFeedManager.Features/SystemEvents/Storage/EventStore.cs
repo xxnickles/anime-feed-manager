@@ -11,7 +11,7 @@ public static class EventStore
     
     
     private static Task<Result<Unit>> UpsertEvent(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         EventStorage systemEvent,
         CancellationToken cancellationToken = default)
     {

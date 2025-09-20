@@ -2,10 +2,14 @@
 
 namespace AnimeFeedManager.Web.Common;
 
-internal interface INotifiableComponent<in T> where T : class, new()
+internal interface IRenderableComponent<in T> where T : class, new()
 {
-    // public T ViewModel { get; set; }
     public static abstract RenderFragment AsRenderFragment(T viewModel);
+}
+
+internal interface INotifiableComponent<in T> : IRenderableComponent<T> 
+    where T : class, new() 
+{
     public static abstract RenderFragment OkNotificationContent(T viewModel);
 
     public  static abstract string SuccessNotificationTitle { get; }

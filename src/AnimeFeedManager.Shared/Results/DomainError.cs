@@ -12,7 +12,7 @@ public abstract record DomainError(
     public string CallerMemberName { get; } = CallerMemberName;
     public string CallerFilePath { get; } = CallerFilePath;
     public int CallerLineNumber { get; } = CallerLineNumber;
-
+    private readonly List<KeyValuePair<string, object>> _additionalLogProperties = [];
 
     public override string ToString()
     {
@@ -52,8 +52,26 @@ public abstract record DomainError(
     }
 
     // Allow derived classes to add their own properties to the logging context
-    protected virtual void AddLogProperties(Dictionary<string, object> properties)
+    private void AddLogProperties(Dictionary<string, object> properties)
     {
-        // Default implementation does nothing
+        if (_additionalLogProperties is [])
+            return;
+        
+        foreach (var (key,value) in _additionalLogProperties)
+        {
+            properties.TryAdd(key, value);
+        }
+    }
+    
+    public DomainError WithLogProperty(string key, object value)
+    {   
+        _additionalLogProperties.Add(new KeyValuePair<string, object>(key, value));
+        return this;
+    }
+
+    public DomainError WithOperationName(string name)
+    {
+        _additionalLogProperties.Add(new KeyValuePair<string, object>("Operation", name));
+        return this;
     }
 }

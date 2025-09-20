@@ -17,8 +17,8 @@
     public static RenderFragment AsRenderFragment(Noop viewModel) =>
         builder =>
         {
-            builder.OpenComponent<TvTitlesUpdate>(1);
-            builder.AddAttribute(2, nameof(ViewModel), viewModel);
+            builder.OpenComponent<TvTitlesUpdate>(0);
+            builder.AddAttribute(1, nameof(ViewModel), viewModel);
             builder.CloseComponent();
         };
 

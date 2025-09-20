@@ -69,7 +69,9 @@ public sealed record ExceptionError : DomainError
         [CallerFilePath] string callerFilePath = "",
         [CallerLineNumber] int callerLineNumber = 0) => new(exn, callerMemberName, callerFilePath, callerLineNumber);
 
-    public static ExceptionError FromException(Exception exn, string additionalMessage,
+    public static ExceptionError FromExceptionWithMessage(
+        Exception exn,
+        string additionalMessage,
         [CallerMemberName] string callerMemberName = "",
         [CallerFilePath] string callerFilePath = "",
         [CallerLineNumber] int callerLineNumber = 0) => new(exn, additionalMessage, callerMemberName, callerFilePath, callerLineNumber);

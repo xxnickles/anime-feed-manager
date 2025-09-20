@@ -29,10 +29,11 @@ else
     [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = new(Shared.Types.Season.Current, Year.Current);
     ImmutableList<UserTvSeries> _series = [];
 
+    
     protected override async Task OnInitializedAsync()
     {
         var user = HttpContextAccessor.GetCurrentUser();
-        await TableClientFactory.TvLibraryGetter()
+        await TableClientFactory.TableStorageTvLibraryGetter()
                                 .GetTvLibrarySeries(Season, BlobServiceClient.Uri, CancellationToken.None)
                                 .GetTvLibraryForUser(user, TableClientFactory.TableStorageTvSubscriptions(), CancellationToken.None)
                                 .LogErrors(Logger)

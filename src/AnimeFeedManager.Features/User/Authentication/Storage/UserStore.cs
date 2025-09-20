@@ -11,7 +11,7 @@ public static class UserStore
                 .Bind(client => client.UpsertUser(email, userId, role, cancellationToken));
 
     private static Task<Result<Unit>> UpsertUser(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         Email email,
         string userId,
         UserRole role,

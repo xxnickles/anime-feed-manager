@@ -11,7 +11,7 @@ public static class FeedTitlesStore
             .Bind(client => client.UpsertFeedTitles(titles, token));
     
     private static Task<Result<Unit>> UpsertFeedTitles(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         FeedTitlesStorage titles,
         CancellationToken cancellationToken = default)
     {

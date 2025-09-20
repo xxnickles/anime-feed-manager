@@ -1,0 +1,42 @@
+﻿@implements IRenderableComponent<TvInterestedViewModel>
+@if (Model is not null)
+{
+    <ExpandableFab>
+        <Buttons>
+            <FabButtonContainer Label="Remove from Interested">
+                <EditForm Model="@Model"
+                          hx-post="tv/remove-interested"
+                          hx-target="closest .fab-container"
+                          hx-swap="outerHTML"
+                          hx-indicator="@Model.LoaderSelector"
+                          hx-confirm="@($"Do you want remove {Model.SeriesTitle} from your interested list?")">
+                    <input type="hidden" name="@nameof(Model.UserId)" value="@Model.UserId" />
+                    <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId" />
+                    <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle" />
+                    <input type="hidden" name="@nameof(Model.LoaderSelector)" value="@Model.LoaderSelector" />
+                    <input type="hidden" name="@nameof(Model.AdminView)" value="@(Model.AdminView.ToString())" />
+
+                 
+                    <button class="btn btn-sm btn-circle btn-success shadow-md"
+                            aria-label="Remove from Interested @Model.SeriesTitle">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m3 3 1.664 1.664M21 21l-1.5-1.5m-5.485-1.242L12 17.25 4.5 21V8.742m.164-4.078a2.15 2.15 0 0 1 1.743-1.342 48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185V19.5M4.664 4.664 19.5 19.5" />
+                        </svg>
+                    </button>
+                </EditForm>
+            </FabButtonContainer>
+        </Buttons>
+    </ExpandableFab>
+}
+
+@code {
+    [Parameter, EditorRequired] public TvInterestedViewModel? Model { get; set; }
+
+    public static RenderFragment AsRenderFragment(TvInterestedViewModel viewModel) => builder =>
+    {
+        builder.OpenComponent<ForInterestedRemoval>(0);
+        builder.AddAttribute(1, nameof(Model), viewModel);
+        builder.CloseComponent();
+    };
+
+}

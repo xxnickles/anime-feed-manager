@@ -25,8 +25,11 @@ internal static class Notifications
             builder.CloseElement();
         };
     }
-    
-    internal static RenderFragment CreateNotificationToast(string title, RenderFragment message, ToastType type = ToastType.Success) =>
+
+    internal static RenderFragment TextBody(string message) => builder => builder.AddContent(0, message);
+
+    internal static RenderFragment CreateNotificationToast(string title, RenderFragment message,
+        ToastType type = ToastType.Success) =>
         CreateToast(new Notification(title, message, type));
 
     internal static RenderFragment CreateErrorToast(string title, DomainError error) =>
@@ -67,7 +70,7 @@ internal static class Notifications
                 case Error basic:
                     builder.AddContent(1, basic.Message);
                     break;
-                
+
                 case FormDataValidationError:
                     builder.AddContent(1, "Form validation failed. Please check your input and try again.");
                     break;

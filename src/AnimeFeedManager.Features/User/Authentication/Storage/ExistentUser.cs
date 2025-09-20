@@ -24,7 +24,7 @@ public static class ExistentUser
 
 
     private static Task<Result<User>> GetByEmail(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         Email email,
         CancellationToken cancellationToken = default)
     {
@@ -37,7 +37,7 @@ public static class ExistentUser
 
 
     private static Task<Result<User>> GetById(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         NoEmptyString id,
         CancellationToken cancellationToken = default)
     {

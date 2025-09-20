@@ -4,6 +4,8 @@ namespace AnimeFeedManager.Shared.Results.Errors;
 
 public sealed record Error : DomainError
 {
+    private readonly List<KeyValuePair<string, object>> _logProperties = [];
+    
     private Error(
         string Message,
         string CallerMemberName,
@@ -22,4 +24,5 @@ public sealed record Error : DomainError
     {
         logger.LogError("{Message}", Message);
     }
+   
 }

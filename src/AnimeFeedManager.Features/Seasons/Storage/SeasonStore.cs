@@ -23,7 +23,7 @@ public static class SeasonStore
 
 
     private static Task<Result<Unit>> UpsertSeason(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         SeasonStorage seasonStorage,
         CancellationToken token = default)
     {
@@ -32,7 +32,7 @@ public static class SeasonStore
             .WithDefaultMap();
     }
 
-    private static Task<Result<Unit>> UpsertLatestSeasons(this AppTableClient tableClient,
+    private static Task<Result<Unit>> UpsertLatestSeasons(this TableClient tableClient,
         LatestSeasonsStorage latestSeasonsStorage, CancellationToken token = default)
     {
         return tableClient
@@ -41,7 +41,7 @@ public static class SeasonStore
             .WithDefaultMap();
     }
 
-    private static Task<Result<Unit>> RemoveSeason(this AppTableClient tableClient,
+    private static Task<Result<Unit>> RemoveSeason(this TableClient tableClient,
         string partitionKey, string rowKey, CancellationToken token = default)
     {
         return tableClient

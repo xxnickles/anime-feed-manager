@@ -2,42 +2,45 @@
 
 internal static class StorageClientExtensions
 {
+    private const string Context = "Context";
+
     public static async Task<Result<Response>> TryExecute<T>(
-        this AppTableClient client,
+        this TableClient client,
         Func<TableClient, Task<Response>> action,
         [CallerFilePath] string callerPath = "",
         [CallerMemberName] string callerName = "") where T : ITableEntity
     {
         try
         {
-            return Result<Response>.Success(await action(client.Client));
+            return Result<Response>.Success(await action(client));
         }
         catch (RequestFailedException ex)
         {
             var context = GetContextInfo<T>(callerPath, callerName);
-            client.Logger.LogError(ex, "An error occurred when executing a request to table storage service. {@Context}", context);
             return ex.Status == 404
                 ? NotFoundResult<Response>($"The entity of type {typeof(T).Name} was not found.")
-                : HandledErrorResult<Response>();
+                : ExceptionError.FromExceptionWithMessage(ex,
+                        "An error occurred when executing a request to table storage service")
+                    .WithLogProperty(Context, context);
         }
         catch (Exception e)
         {
             var context = GetContextInfo<T>(callerPath, callerName);
-            client.Logger.LogError(e, "An error occurred when executing a Table Client action. {@Context}", context);
             return e.Message == "Not Found"
                 ? NotFoundResult<Response>($"The entity of type {typeof(T).Name} was not found.")
-                : HandledErrorResult<Response>();
+                : ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing a Table Client action")
+                    .WithLogProperty(Context, context);
         }
     }
-    
-    public static async Task<Result<ImmutableList<T>>> ExecuteQuery<T>(this AppTableClient client,
+
+    public static async Task<Result<ImmutableList<T>>> ExecuteQuery<T>(this TableClient client,
         Func<TableClient, AsyncPageable<T>> query,
         [CallerFilePath] string callerPath = "",
         [CallerMemberName] string callerName = "") where T : ITableEntity
     {
         try
         {
-            var queryResults = query(client.Client);
+            var queryResults = query(client);
             var resultList = ImmutableList<T>.Empty;
             await foreach (var qEntity in queryResults)
             {
@@ -49,13 +52,13 @@ internal static class StorageClientExtensions
         catch (Exception e)
         {
             var context = GetContextInfo<T>(callerPath, callerName);
-            client.Logger.LogError(e, "An error occurred when executing a Table Client query. {@Context}", context);
-            return HandledErrorResult<ImmutableList<T>>();
+            return ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing a Table Client query")
+                .WithLogProperty(Context, context);
         }
     }
 
     public static async Task<Result<Unit>> AddBatch<T>(
-        this AppTableClient client,
+        this TableClient client,
         IEnumerable<T> entities,
         CancellationToken token,
         TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge,
@@ -77,7 +80,7 @@ internal static class StorageClientExtensions
                 const ushort limit = 99;
                 for (ushort i = 0; i < addEntitiesBatch.Count; i += limit)
                 {
-                    _ = await client.Client.SubmitTransactionAsync(addEntitiesBatch.Skip(i).Take(limit), token)
+                    _ = await client.SubmitTransactionAsync(addEntitiesBatch.Skip(i).Take(limit), token)
                         .ConfigureAwait(false);
                 }
             }
@@ -87,8 +90,8 @@ internal static class StorageClientExtensions
         catch (Exception e)
         {
             var context = GetContextInfo<T>(callerPath, callerName, entities.Count());
-            client.Logger.LogError(e, "An error occurred when executing add batch operation. {@Context}", context);
-            return HandledErrorResult<Unit>();
+            return ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing add batch operation")
+                .WithLogProperty(Context, context);
         }
     }
 
@@ -96,6 +99,20 @@ internal static class StorageClientExtensions
     {
         return result.Bind(x => x.IsEmpty
             ? Error.Create($"The collection of type {typeof(T).FullName} is empty")
+            : Result<T>.Success(x.First()));
+    }
+
+    public static Task<Result<T?>> SingleItemOrNull<T>(this Task<Result<ImmutableList<T>>> result)
+    {
+        return result.Bind(x => x.IsEmpty
+            ? Result<T?>.Success(default)
+            : Result<T?>.Success(x.First()));
+    }
+
+    public static Task<Result<T>> SingleItemOrNotFound<T>(this Task<Result<ImmutableList<T>>> result)
+    {
+        return result.Bind(x => x.IsEmpty
+            ? NotFoundResult<T>($"Not matches found for type {typeof(T).FullName}")
             : Result<T>.Success(x.First()));
     }
 
@@ -108,9 +125,12 @@ internal static class StorageClientExtensions
     {
         var fileName = Path.GetFileNameWithoutExtension(callerPath);
         var entityType = typeof(T).Name;
-        
+
         return batchCount.HasValue
-            ? new { EntityType = entityType, CallerFile = fileName, CallerMethod = callerName, BatchSize = batchCount.Value }
-            : new { EntityType = entityType, CallerFile = fileName, CallerMethod = callerName };
+            ? new
+            {
+                EntityType = entityType, CallerFile = fileName, CallerMethod = callerName, BatchSize = batchCount.Value
+            }
+            : new {EntityType = entityType, CallerFile = fileName, CallerMethod = callerName};
     }
 }

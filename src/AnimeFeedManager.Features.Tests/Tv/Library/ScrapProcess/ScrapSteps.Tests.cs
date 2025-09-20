@@ -48,7 +48,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     SeriesStatus.Ongoing();
 
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = A.Fake<TableStorageStoredSeries>();
+            var storedSeriesGetter = A.Fake<StoredSeries>();
             A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
                 .Returns(Task.FromResult(Result<ImmutableList<TvSeriesInfo>>.Success(storedSeries)));
 
@@ -98,7 +98,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var storedSeries = ImmutableList<TvSeriesInfo>.Empty;
 
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = A.Fake<TableStorageStoredSeries>();
+            var storedSeriesGetter = A.Fake<StoredSeries>();
             A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
                 .Returns(Task.FromResult(Result<ImmutableList<TvSeriesInfo>>.Success(storedSeries)));
 
@@ -158,7 +158,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var storedSeries = dbSeries;
 
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = A.Fake<TableStorageStoredSeries>();
+            var storedSeriesGetter = A.Fake<StoredSeries>();
             A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
                 .Returns(Task.FromResult(Result<ImmutableList<TvSeriesInfo>>.Success(storedSeries)));
 

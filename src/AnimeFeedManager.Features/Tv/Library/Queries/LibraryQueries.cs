@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Tv.Library.Queries;
 public static class LibraryQueries
 {
     public static Task<Result<ImmutableList<TvSeries>>> GetTvLibrarySeries(
-        this TableStorageTvLibrary libraryGetter,
+        this TvLibrary libraryGetter,
         SeriesSeason season,
         Uri publicBlobUri,
         CancellationToken cancellationToken) => libraryGetter(season, publicBlobUri, cancellationToken);
@@ -13,7 +13,7 @@ public static class LibraryQueries
     public static Task<Result<ImmutableList<UserTvSeries>>> GetTvLibraryForUser(
         this Task<Result<ImmutableList<TvSeries>>> librarySeries,
         AppUser user,
-        TableStorageTvSubscriptions subscriptionsGetter,
+        StorageTvSubscriptions subscriptionsGetter,
         CancellationToken cancellationToken
     ) => librarySeries.Bind(libraryData =>
         EnhanceLibraryData(libraryData, user, subscriptionsGetter, cancellationToken));
@@ -22,7 +22,7 @@ public static class LibraryQueries
     private static Task<Result<ImmutableList<UserTvSeries>>> EnhanceLibraryData(
         ImmutableList<TvSeries> libraryData,
         AppUser user,
-        TableStorageTvSubscriptions subscriptionsGetter,
+        StorageTvSubscriptions subscriptionsGetter,
         CancellationToken cancellationToken
     )
     {

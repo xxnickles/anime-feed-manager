@@ -1,10 +1,8 @@
 ﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
-public sealed record AppTableClient(TableClient Client, ILogger Logger);
-
 public interface ITableClientFactory
 {
-    Result<AppTableClient> GetClient<T>()  where T : ITableEntity;
+    Result<TableClient> GetClient<T>()  where T : ITableEntity;
 }
 
 public sealed class TableClientFactory : ITableClientFactory
@@ -19,22 +17,22 @@ public sealed class TableClientFactory : ITableClientFactory
     }
     
     
-    public Result<AppTableClient> GetClient<T>()  where T : ITableEntity
+    public Result<TableClient> GetClient<T>()  where T : ITableEntity
     {
         try
         {
             var client = _serviceClient.GetTableClient(AzureTableName.GetTableName<T>());
-            return new AppTableClient(client, _logger);
+            return client;
         }
         catch (KeyNotFoundException ex)
         {
             _logger.LogError(ex, "Table name not found for entity type {EntityType}", typeof(T).FullName);
-            return HandledErrorResult<AppTableClient>();
+            return HandledErrorResult<TableClient>();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occurred when creating a Table Client");
-            return HandledErrorResult<AppTableClient>();
+            return HandledErrorResult<TableClient>();
         }
     }
 }

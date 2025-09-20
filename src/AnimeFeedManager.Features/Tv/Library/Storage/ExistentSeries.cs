@@ -25,38 +25,49 @@ public sealed record TvSeries(
     SeriesStatus Status,
     Uri? Image);
 
-public delegate Task<Result<ImmutableList<TvSeriesInfo>>> TableStorageStoredSeries(SeriesSeason season,
+public delegate Task<Result<ImmutableList<TvSeriesInfo>>> StoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> TableStorageRawStoredSeries(SeriesSeason season,
+public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> RawStoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<TvSeries>>> TableStorageTvLibrary(
+public delegate Task<Result<ImmutableList<TvSeries>>> TvLibrary(
     SeriesSeason season,
+    Uri publicBlobUri,
+    CancellationToken cancellationToken = default);
+
+public delegate Task<Result<TvSeries>> TvLibrarySeries(
+    SeriesSeason season,
+    string id,
     Uri publicBlobUri,
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeries
 {
-    public static TableStorageStoredSeries ExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
+    public static StoredSeries TableStorageExistentStoredSeries(this ITableClientFactory clientFactory) =>
         (season, token) =>
             clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.GetStoredSeries(season, token))
                 .Map(series => series.ConvertAll(Mapper));
 
-    public static TableStorageRawStoredSeries RawExistentStoredSeriesGetter(this ITableClientFactory clientFactory) =>
+    public static RawStoredSeries TableStorageRawExistentStoredSeries(this ITableClientFactory clientFactory) =>
         (season, token) =>
             clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.GetStoredSeries(season, token));
 
 
-    public static TableStorageTvLibrary TvLibraryGetter(this ITableClientFactory clientFactory) =>
+    public static TvLibrary TableStorageTvLibraryGetter(this ITableClientFactory clientFactory) =>
         (season, blobUriBuilder, token) =>
             clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.GetTvLibrary(season, blobUriBuilder, token));
 
+
+    public static TvLibrarySeries TableStorageTvLibrarySeries(this ITableClientFactory clientFactory) =>
+        (season, id, blobUriBuilder, token) => clientFactory.GetClient<AnimeInfoStorage>()
+            .Bind(client => client.GetTvLibrarySeries(season, id, blobUriBuilder, token));
+
     private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         SeriesSeason season,
         CancellationToken cancellationToken = default)
     {
@@ -77,7 +88,7 @@ public static class ExistentSeries
     }
 
     private static Task<Result<ImmutableList<TvSeries>>> GetTvLibrary(
-        this AppTableClient tableClient,
+        this TableClient tableClient,
         SeriesSeason season,
         Uri publicBlobUriBuilder,
         CancellationToken cancellationToken = default)
@@ -88,6 +99,21 @@ public static class ExistentSeries
                 cancellationToken: cancellationToken))
             .Map(series => series.ConvertAll(s => LibraryMapper(s, publicBlobUriBuilder)));
     }
+
+    private static Task<Result<TvSeries>> GetTvLibrarySeries(
+        this TableClient tableClient,
+        SeriesSeason season,
+        string id,
+        Uri publicBlobUriBuilder,
+        CancellationToken cancellationToken = default)
+    {
+        var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);
+        return tableClient.ExecuteQuery(client => client.QueryAsync<AnimeInfoStorage>(
+                series => series.PartitionKey == partitionKey && series.RowKey == id,
+                cancellationToken: cancellationToken)).SingleItemOrNotFound()
+            .Map(s => LibraryMapper(s, publicBlobUriBuilder));
+    }
+
 
     private static TvSeries LibraryMapper(AnimeInfoStorage entity, Uri publicBlobUri) => new(
         entity.RowKey ?? string.Empty,

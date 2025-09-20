@@ -80,7 +80,7 @@
     protected override async Task OnInitializedAsync()
     {
         await SeasonQueries
-            .GetLast4Seasons(TableClientFactory.TableStorageLatest4SeasonsGetter(), CancellationToken.None)
+            .GetLast4Seasons(TableClientFactory.TableStorageLatest4SeasonsGetter(Logger), CancellationToken.None)
             .LogErrors(Logger)
             .Match(seasons => { _seasons = seasons; },
                 _ => { _seasons = []; });
