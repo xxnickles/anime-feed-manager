@@ -34,6 +34,7 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
 
 builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(functions)
+    .WaitFor(signalR)
     .WithReference(blobs)
     .WaitFor(blobs)
     .WithReference(queues)

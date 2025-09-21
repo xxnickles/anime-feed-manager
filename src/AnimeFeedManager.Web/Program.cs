@@ -46,6 +46,6 @@ var endpointsGroup = app
 
 endpointsGroup.MapSecurityEndpoints();
 endpointsGroup.MapAdminEndpoints();
-endpointsGroup.MapTvInterestedEndpoints();
+endpointsGroup.MapTvSubscriptionsEndpoints();
 
 app.Run();

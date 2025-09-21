@@ -12,6 +12,7 @@ internal static class InterestedHandlers
     internal static Task<RazorComponentResult> AddSeriesToInterested(
         [FromForm] TvInterestedViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
+        [FromServices] ILogger<ForInterested> logger,
         CancellationToken cancellationToken)
     {
         return Validate(viewModel)
@@ -19,6 +20,7 @@ internal static class InterestedHandlers
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
             .UpdateInterested(clientFactory.TableStorageTvSubscriptionsUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
+            .LogErrors(logger)
             .ToComponentResult(
                 // Render the ForInterestedRemoval component with a success notification
                 _ =>
@@ -39,6 +41,7 @@ internal static class InterestedHandlers
     internal static Task<RazorComponentResult> RemoveInterestedSeries(
         [FromForm] TvInterestedViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
+        [FromServices] ILogger<ForInterestedRemoval> logger,
         CancellationToken cancellationToken)
     {
         return Validate(viewModel)
@@ -46,6 +49,7 @@ internal static class InterestedHandlers
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
             .UpdateInterested(clientFactory.TableStorageTvSubscriptionsUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
+            .LogErrors(logger)
             .ToComponentResult(
                 // Render the ForInterested component with a success notification
                 _ =>

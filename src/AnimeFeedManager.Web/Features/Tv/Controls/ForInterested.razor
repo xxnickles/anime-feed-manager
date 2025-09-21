@@ -30,8 +30,8 @@
 
     public static RenderFragment AsRenderFragment(TvInterestedViewModel viewModel) => builder =>
     {
-        builder.OpenComponent<ForInterested>(1);
-        builder.AddAttribute(2, nameof(Model), viewModel);
+        builder.OpenComponent<ForInterested>(0);
+        builder.AddAttribute(1, nameof(Model), viewModel);
         builder.CloseComponent();
     };
 

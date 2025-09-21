@@ -1,15 +1,21 @@
-﻿@if (Model is not null)
+﻿@implements IRenderableComponent<TvSubscriptionViewModel>
+@if (Model is not null)
 {
-    <EditForm Model="@Model">
+    <EditForm Model="@Model"
+              hx-post="tv/subscribe"
+              hx-swap="outerHTML"
+              hx-indicator="@Model.LoaderSelector"
+              hx-confirm="@($"Do you want remove {Model.SeriesTitle} to your subscriptions?")">
         <input type="hidden" name="@nameof(Model.UserId)" value="@Model.UserId"/>
         <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
         <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>
         <input type="hidden" name="@nameof(Model.LoaderSelector)" value="@Model.LoaderSelector"/>
+        <input type="hidden" name="@nameof(Model.SeriesFeedTitle)" value="@Model.SeriesFeedTitle"/>
         <input type="hidden" name="@nameof(Model.AdminView)" value="@(Model.AdminView.ToString())"/>
-
+        
         <FabButtonContainer Label="Unsubscribe">
             <button class="btn btn-sm btn-circle btn-error shadow-md"
-                    aria-label="Unsubscribe @Model.SeriesTitle">
+                    aria-label="Unsubscribe to @Model.SeriesTitle">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                      stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -22,5 +28,12 @@
 }
 
 @code {
-    [Parameter, EditorRequired] public TvInterestedViewModel? Model { get; set; }
+    [Parameter, EditorRequired] public TvSubscriptionViewModel? Model { get; set; }
+    public static RenderFragment AsRenderFragment(TvSubscriptionViewModel viewModel) => builder =>
+    {
+        builder.OpenComponent<ForSubscriptionRemoval>(0);
+        builder.AddAttribute(1, nameof(Model), viewModel);
+        builder.CloseComponent();
+    };
+
 }
