@@ -3,7 +3,7 @@
 
 @if (Series is not null)
 {
-    <SeriesCard SeriesInfo="@Series.TvSeries.AsSeriesCard()" LoaderId="_loaderId">
+    <SeriesCard SeriesInfo="@Series.TvSeries.AsSeriesCard()" LoaderId="@_loaderId">
         <CardControls>
             @switch (Series)
             {
@@ -27,21 +27,25 @@
 
             @if (Series.User is AuthenticatedUser)
             {
-                @switch (Series)
-                {
-                    case AvailableForSubscription:
-                        <ForSubscription Model="@GetSubscriptionModel(Series)"></ForSubscription>
-                        break;
-                    case Subscribed:
-                        <ForSubscriptionRemoval Model="@GetSubscriptionModel(Series)"></ForSubscriptionRemoval>
-                        break;
-                    case AvailableForFuture:
-                        <ForInterested Model="@GetInterestedModel(Series)"></ForInterested>
-                        break;
-                    case Interested:
-                        <ForInterestedRemoval Model="@GetInterestedModel(Series)"></ForInterestedRemoval>
-                        break;
-                }
+                <ExpandableFab>
+                    <Buttons>
+                        @switch (Series)
+                        {
+                            case AvailableForSubscription:
+                                <ForSubscription Model="@GetSubscriptionModel(Series)"></ForSubscription>
+                                break;
+                            case Subscribed:
+                                <ForSubscriptionRemoval Model="@GetSubscriptionModel(Series)"></ForSubscriptionRemoval>
+                                break;
+                            case AvailableForFuture:
+                                <ForInterested Model="@GetInterestedModel(Series)"></ForInterested>
+                                break;
+                            case Interested:
+                                <ForInterestedRemoval Model="@GetInterestedModel(Series)"></ForInterestedRemoval>
+                                break;
+                        }
+                    </Buttons>
+                </ExpandableFab>
             }
 
         </CardControls>

@@ -1,28 +1,23 @@
 ﻿@if (Model is not null)
 {
-    <ExpandableFab>
-        <Buttons>
-            <FabButtonContainer Label="Subscribe">
-                <EditForm Model="@Model">
-                    <input type="hidden" name="@nameof(Model.UserId)" value="@Model.UserId" />
-                    <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId" />
-                    <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle" />
-                    <input type="hidden" name="@nameof(Model.LoaderSelector)" value="@Model.LoaderSelector" />
-                    <input type="hidden" name="@nameof(Model.AdminView)" value="@(Model.AdminView.ToString())" />
+    <EditForm Model="@Model">
+        <input type="hidden" name="@nameof(Model.UserId)" value="@Model.UserId"/>
+        <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
+        <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>
+        <input type="hidden" name="@nameof(Model.LoaderSelector)" value="@Model.LoaderSelector"/>
+        <input type="hidden" name="@nameof(Model.AdminView)" value="@(Model.AdminView.ToString())"/>
 
-                 
-                    <button class="btn btn-sm btn-circle btn-success shadow-md"
-                            aria-label="Subscribe @Model.SeriesTitle">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                        </svg>
-                    </button>
-                </EditForm>
-            </FabButtonContainer>
-        </Buttons>
-    </ExpandableFab>
+        <FabButtonContainer Label="Subscribe">
+            <button class="btn btn-sm btn-circle btn-success shadow-md"
+                    aria-label="Subscribe @Model.SeriesTitle">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                </svg>
+            </button>
+        </FabButtonContainer>
+    </EditForm>
 }
 
 @code {
