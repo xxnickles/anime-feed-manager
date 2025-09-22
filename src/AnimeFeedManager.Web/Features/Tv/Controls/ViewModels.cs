@@ -12,6 +12,10 @@ public class TvInterestedViewModel
     public string SeriesTitle { get; set; } = string.Empty;
     [Required(AllowEmptyStrings = false)]
     public string LoaderSelector { get; set; } = string.Empty;
+    
+    [Required(AllowEmptyStrings = false)]
+    public string CardBadgeId { get; set; } = string.Empty;
+    
     public bool AdminView { get; set; }
 }
 

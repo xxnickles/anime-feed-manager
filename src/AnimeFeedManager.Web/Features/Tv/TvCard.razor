@@ -9,19 +9,19 @@
             {
                 case Available:
                 case AvailableForSubscription:
-                    <Badge Text="Available" Type="StatusType.Success"></Badge>
+                    <Badge Id="@_cardBadgeId" Text="Available" Type="StatusType.Success"></Badge>
                     break;
                 case Subscribed:
-                    <Badge Text="Subscribed" Type="StatusType.Primary"></Badge>
+                    <Badge Id="@_cardBadgeId" Text="Subscribed" Type="StatusType.Primary"></Badge>
                     break;
                 case Interested:
-                    <Badge Text="Interested" Type="StatusType.Secondary"></Badge>
+                    <Badge Id="@_cardBadgeId" Text="Interested" Type="StatusType.Secondary"></Badge>
                     break;
                 case Completed:
-                    <Badge Text="Completed" Type="StatusType.Info"></Badge>
+                    <Badge Id="@_cardBadgeId" Text="Completed" Type="StatusType.Info"></Badge>
                     break;
                 default:
-                    <Badge Text="Not Available" Type="StatusType.Warning"></Badge>
+                    <Badge Id="@_cardBadgeId" Text="Not Available" Type="StatusType.Warning"></Badge>
                     break;
             }
 
@@ -54,7 +54,15 @@
 
 @code {
     [Parameter, EditorRequired] public UserTvSeries? Series { get; set; }
-    private readonly string _loaderId = IdHelpers.GetUniqueName("card-loader");
+    private string _loaderId = string.Empty;
+    private string _cardBadgeId = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _loaderId = IdHelpers.GetUniqueName("card-loader");
+        _cardBadgeId = IdHelpers.GetUniqueName("card-badge");
+    }
+
 
     private TvInterestedViewModel GetInterestedModel(UserTvSeries series)
     {
@@ -63,6 +71,7 @@
             SeriesTitle = series.TvSeries.Title,
             AdminView = series.User is AdminUser,
             LoaderSelector = $"#{_loaderId}",
+            CardBadgeId = _cardBadgeId,
             SeriesId = series.TvSeries.Id,
             UserId = series.User is AuthenticatedUser au ? au.UserId : string.Empty
         };
@@ -75,6 +84,7 @@
             SeriesTitle = series.TvSeries.Title,
             AdminView = series.User is AdminUser,
             LoaderSelector = $"#{_loaderId}",
+            CardBadgeId = _cardBadgeId,
             SeriesId = series.TvSeries.Id,
             UserId = series.User is AuthenticatedUser au ? au.UserId : string.Empty,
             SeriesFeedTitle = series.TvSeries.FeedTitle ?? string.Empty

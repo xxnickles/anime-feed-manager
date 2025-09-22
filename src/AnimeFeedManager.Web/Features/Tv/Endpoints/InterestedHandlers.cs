@@ -1,9 +1,6 @@
-﻿using AnimeFeedManager.Features.Infrastructure.TableStorage;
-using AnimeFeedManager.Features.Tv.Subscriptions.Management;
+﻿using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
-using AnimeFeedManager.Web.Features.Components.Responses;
 using AnimeFeedManager.Web.Features.Tv.Controls;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
@@ -27,7 +24,8 @@ internal static class InterestedHandlers
                 [
                     ForInterestedRemoval.AsRenderFragment(viewModel),
                     Notifications.CreateNotificationToast("Add Interested",
-                        Notifications.TextBody($"{viewModel.SeriesTitle} has been added to your interested list"))
+                        Notifications.TextBody($"{viewModel.SeriesTitle} has been added to your interested list")),
+                    Badge.AsOobFragment(StatusType.Secondary, "Interested", viewModel.CardBadgeId)
                 ],
                 // Render the ForInterested component again with an error notification
                 error =>
@@ -56,7 +54,8 @@ internal static class InterestedHandlers
                 [
                     ForInterested.AsRenderFragment(viewModel),
                     Notifications.CreateNotificationToast("Remove Interested",
-                        Notifications.TextBody($"{viewModel.SeriesTitle} has been removed from your interested list"))
+                        Notifications.TextBody($"{viewModel.SeriesTitle} has been removed from your interested list")),
+                    Badge.AsOobFragment(StatusType.Warning, "Not Available", viewModel.CardBadgeId)
                 ],
                 // Render the ForInterestedRemoval component again with an error notification
                 error =>

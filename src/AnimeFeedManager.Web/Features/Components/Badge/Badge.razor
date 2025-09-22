@@ -1,4 +1,4 @@
-﻿<div class="badge badge-soft @GetStyle()">
+﻿<div class="badge badge-soft @GetStyle()" id="@Id" @attributes="AdditionalAttributes">
     @Text
 </div>
 
@@ -6,8 +6,34 @@
     [Parameter, EditorRequired] public string Text { get; set; } = string.Empty;
     [Parameter, EditorRequired] public StatusType Type { get; set; } = StatusType.Neutral;
 
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Parameter] public string Id { get; set; } = string.Empty;
+
     private string GetStyle()
     {
         return Constants.BadgeStylesMap.GetValueOrDefault(Type, "badge-neutral");
     }
+
+    public static RenderFragment AsFragment(
+        StatusType type,
+        string text,
+        string id,
+        IReadOnlyDictionary<string, object>? additionalAttributes = null) => builder =>
+    {
+        builder.OpenComponent<Badge>(0);
+        builder.AddAttribute(1, nameof(Id), id);
+        builder.AddAttribute(2, nameof(Type), type);
+        builder.AddAttribute(3, nameof(Text), text);
+        builder.AddAttribute(4, nameof(AdditionalAttributes), additionalAttributes);
+        builder.CloseComponent();
+    };
+
+    public static RenderFragment AsOobFragment(
+        StatusType type,
+        string text,
+        string id) => AsFragment(type, text, id,
+        new Dictionary<string, object> {["hx-swap-oob"] = "true"});
+
 }

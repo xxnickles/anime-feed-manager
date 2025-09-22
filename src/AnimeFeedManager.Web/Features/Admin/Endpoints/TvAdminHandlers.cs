@@ -2,8 +2,6 @@
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Web.Features.Admin.TvCards;
-using AnimeFeedManager.Web.Features.Components.Responses;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 

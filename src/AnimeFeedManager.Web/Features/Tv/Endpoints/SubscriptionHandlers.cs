@@ -1,9 +1,6 @@
-﻿using AnimeFeedManager.Features.Infrastructure.TableStorage;
-using AnimeFeedManager.Features.Tv.Subscriptions.Management;
+﻿using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
-using AnimeFeedManager.Web.Features.Components.Responses;
 using AnimeFeedManager.Web.Features.Tv.Controls;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
@@ -31,7 +28,8 @@ internal static class SubscriptionHandlers
                 [
                     ForSubscriptionRemoval.AsRenderFragment(viewModel),
                     Notifications.CreateNotificationToast("TV Subscription",
-                        Notifications.TextBody($"{viewModel.SeriesTitle} has been added to your subscriptions"))
+                        Notifications.TextBody($"{viewModel.SeriesTitle} has been added to your subscriptions")),
+                    Badge.AsOobFragment(StatusType.Primary, "Subscribed", viewModel.CardBadgeId)
                 ],
                 // Render the ForSubscription component again with an error notification
                 error =>
@@ -64,7 +62,8 @@ internal static class SubscriptionHandlers
                 [
                     ForSubscription.AsRenderFragment(viewModel),
                     Notifications.CreateNotificationToast("Unsubscribe",
-                        Notifications.TextBody($"{viewModel.SeriesTitle} has been removed from your subscriptions"))
+                        Notifications.TextBody($"{viewModel.SeriesTitle} has been removed from your subscriptions")),
+                    Badge.AsOobFragment(StatusType.Success, "Available", viewModel.CardBadgeId)
                 ],
                 // Render the ForSubscriptionRemoval component again with an error notification
                 error =>
