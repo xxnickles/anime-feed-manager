@@ -29,6 +29,7 @@
             {
                 <ExpandableFab>
                     <Buttons>
+                      
                         @switch (Series)
                         {
                             case AvailableForSubscription:
@@ -44,6 +45,12 @@
                                 <ForInterestedRemoval Model="@GetInterestedModel(Series)"></ForInterestedRemoval>
                                 break;
                         }
+                        
+                        @if (Series.User is AdminUser)
+                        {
+                            <AlternativeTitlesEditorModal Model="GetAlternativeTitlesModel(Series)"></AlternativeTitlesEditorModal>
+                            <SeriesDelete></SeriesDelete>
+                        }
                     </Buttons>
                 </ExpandableFab>
             }
@@ -56,11 +63,13 @@
     [Parameter, EditorRequired] public UserTvSeries? Series { get; set; }
     private string _loaderId = string.Empty;
     private string _cardBadgeId = string.Empty;
+    private string _loaderSelector = string.Empty;
 
     protected override void OnInitialized()
     {
         _loaderId = IdHelpers.GetUniqueName("card-loader");
         _cardBadgeId = IdHelpers.GetUniqueName("card-badge");
+        _loaderSelector = $"#{_loaderId}";
     }
 
 
@@ -69,8 +78,7 @@
         return new TvInterestedViewModel
         {
             SeriesTitle = series.TvSeries.Title,
-            AdminView = series.User is AdminUser,
-            LoaderSelector = $"#{_loaderId}",
+            LoaderSelector = _loaderSelector,
             CardBadgeId = _cardBadgeId,
             SeriesId = series.TvSeries.Id,
             UserId = series.User is AuthenticatedUser au ? au.UserId : string.Empty
@@ -82,12 +90,22 @@
         return new TvSubscriptionViewModel
         {
             SeriesTitle = series.TvSeries.Title,
-            AdminView = series.User is AdminUser,
-            LoaderSelector = $"#{_loaderId}",
+            LoaderSelector = _loaderSelector,
             CardBadgeId = _cardBadgeId,
             SeriesId = series.TvSeries.Id,
             UserId = series.User is AuthenticatedUser au ? au.UserId : string.Empty,
             SeriesFeedTitle = series.TvSeries.FeedTitle ?? string.Empty
+        };
+    }
+
+    private static AlternativeTitlesViewModel GetAlternativeTitlesModel(UserTvSeries series)
+    {
+        return new AlternativeTitlesViewModel
+        {
+            AlternativeTitles = series.TvSeries.AlternativeTitles,
+            SeriesTitle = series.TvSeries.Title,
+            Season = series.TvSeries.SeasonString,
+            SeriesId = series.TvSeries.Id
         };
     }
 

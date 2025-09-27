@@ -45,7 +45,7 @@ public static class ResultExtensions
     {
         (await resultTask).Match(onSuccess, onError);
     }
-    
+
     public static async Task Match<T>(this Task<Result<T>> resultTask, Func<T, Task> onSuccess,
         Func<DomainError, Task> onError)
     {
@@ -87,6 +87,7 @@ public static class ResultExtensions
     {
         return await (await resultTask).Bind(binder);
     }
+   
 
     public static Result<T> LogErrors<T>(this Result<T> result, ILogger logger)
     {

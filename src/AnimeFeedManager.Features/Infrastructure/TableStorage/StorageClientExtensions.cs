@@ -2,7 +2,38 @@
 
 internal static class StorageClientExtensions
 {
-    private const string Context = "Context";
+    private const string Context = "TableContext";
+
+
+    public static async Task<Result<Response<T>>> TryExecute<T>(
+        this TableClient client,
+        Func<TableClient, Task<Response<T>>> action,
+        [CallerFilePath] string callerPath = "",
+        [CallerMemberName] string callerName = "") where T : ITableEntity
+    {
+        try
+        {
+            return Result<Response<T>>.Success(await action(client));
+        }
+        catch (RequestFailedException ex)
+        {
+            var context = GetContextInfo<T>(callerPath, callerName);
+            return ex.Status == 404
+                ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
+                    .WithLogProperty(Context, context)
+                : ExceptionError.FromExceptionWithMessage(ex,
+                        "An error occurred when executing a request to table storage service")
+                    .WithLogProperty(Context, context);
+        }
+        catch (Exception e)
+        {
+            var context = GetContextInfo<T>(callerPath, callerName);
+            return e.Message == "Not Found"
+                ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
+                : ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing a Table Client action")
+                    .WithLogProperty(Context, context);
+        }
+    }
 
     public static async Task<Result<Response>> TryExecute<T>(
         this TableClient client,
@@ -18,7 +49,8 @@ internal static class StorageClientExtensions
         {
             var context = GetContextInfo<T>(callerPath, callerName);
             return ex.Status == 404
-                ? NotFoundResult<Response>($"The entity of type {typeof(T).Name} was not found.")
+                ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
+                    .WithLogProperty(Context, context)
                 : ExceptionError.FromExceptionWithMessage(ex,
                         "An error occurred when executing a request to table storage service")
                     .WithLogProperty(Context, context);
@@ -27,7 +59,8 @@ internal static class StorageClientExtensions
         {
             var context = GetContextInfo<T>(callerPath, callerName);
             return e.Message == "Not Found"
-                ? NotFoundResult<Response>($"The entity of type {typeof(T).Name} was not found.")
+                ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
+                    .WithLogProperty(Context, context)
                 : ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing a Table Client action")
                     .WithLogProperty(Context, context);
         }
@@ -112,7 +145,7 @@ internal static class StorageClientExtensions
     public static Task<Result<T>> SingleItemOrNotFound<T>(this Task<Result<ImmutableList<T>>> result)
     {
         return result.Bind(x => x.IsEmpty
-            ? NotFoundResult<T>($"Not matches found for type {typeof(T).FullName}")
+            ? NotFoundError.Create($"Not matches found for type {typeof(T).FullName}")
             : Result<T>.Success(x.First()));
     }
 

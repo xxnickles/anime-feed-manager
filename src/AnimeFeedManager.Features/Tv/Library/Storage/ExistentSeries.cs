@@ -42,6 +42,9 @@ public delegate Task<Result<TvSeries>> TvLibrarySeries(
     Uri publicBlobUri,
     CancellationToken cancellationToken = default);
 
+public delegate Task<Result<AnimeInfoStorage>> TvSeriesGetter(string id, string season,
+    CancellationToken cancellationToken = default);
+
 public static class ExistentSeries
 {
     public static StoredSeries TableStorageExistentStoredSeries(this ITableClientFactory clientFactory) =>
@@ -65,6 +68,10 @@ public static class ExistentSeries
     public static TvLibrarySeries TableStorageTvLibrarySeries(this ITableClientFactory clientFactory) =>
         (season, id, blobUriBuilder, token) => clientFactory.GetClient<AnimeInfoStorage>()
             .Bind(client => client.GetTvLibrarySeries(season, id, blobUriBuilder, token));
+
+    public static TvSeriesGetter TableStorageTvSeriesGetter(this ITableClientFactory clientFactory) =>
+        (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
+            .Bind(client => client.GetAnimeInfo(id, season, token));
 
     private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
         this TableClient tableClient,
@@ -148,5 +155,20 @@ public static class ExistentSeries
                 entity.ImagePath ?? string.Empty);
 
     private static string[] ConvertAlternativeTitles(string? alternativeTitles) =>
-        alternativeTitles?.Split(SharedUtils.ArraySeparator) ?? [];
+        string.IsNullOrWhiteSpace(alternativeTitles) ? [] : alternativeTitles.Split(SharedUtils.ArraySeparator);
+
+    private static Task<Result<AnimeInfoStorage>> GetAnimeInfo(
+        this TableClient tableClient,
+        string id,
+        string seasonString,
+        CancellationToken cancellationToken = default)
+    {
+        return tableClient.TryExecute<AnimeInfoStorage>(client =>
+                client.GetEntityAsync<AnimeInfoStorage>(seasonString, id, cancellationToken: cancellationToken))
+            .Map(clientResult => clientResult.Value)
+            .MapError(error => error
+                .WithOperationName(nameof(GetAnimeInfo))
+                .WithLogProperty("Id", id)
+                .WithLogProperty("Season", seasonString));
+    }
 }

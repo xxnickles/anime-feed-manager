@@ -15,5 +15,8 @@ public static class Endpoints
         
         group.MapPost("/tv/unsubscribe",SubscriptionHandlers.Unsubscribe)
             .RequireAuthorization();
+        
+        group.MapPost("/tv/alternative-title",LibraryManagement.UpdateAlternativeSeries)
+            .RequireAuthorization(Policies.AdminRequired);
     }
 }

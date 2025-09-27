@@ -1,6 +1,6 @@
 ﻿@if (Label is not null)
 {
-    <div class="fab-action-labeled">
+    <div class="fab-action-labeled" @attributes="AdditionalAttributes">
         @ChildContent
         <span class="fab-action-label bg-base-100 p-2 text-base-content rounded-full">@Label</span>
     </div>
@@ -18,5 +18,7 @@ else
     /// </summary>
     [Parameter, EditorRequired]
     public RenderFragment ChildContent { get; set; } = @<text></text>;
-
+    
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 }

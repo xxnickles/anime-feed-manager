@@ -4,6 +4,8 @@ public delegate Task<Result<Unit>> TvSubscriptionsUpdater(SubscriptionStorage su
 
 public delegate Task<Result<Unit>> TvSubscriptionsRemover(string user, string seriesId, CancellationToken token);
 
+public delegate Task<Result<Unit>> TvAdditionalTitlesUpdater(string season, string seriesId, string[] titles, CancellationToken token);
+
 public static class TvSubscriptionsStore
 {
     public static TvSubscriptionsUpdater TableStorageTvSubscriptionsUpdater(this ITableClientFactory clientFactory) =>
@@ -29,4 +31,5 @@ public static class TvSubscriptionsStore
         tableClient.TryExecute<SubscriptionStorage>(client =>
                 client.DeleteEntityAsync(user, seriesId, cancellationToken: token))
             .WithDefaultMap();
+
 }

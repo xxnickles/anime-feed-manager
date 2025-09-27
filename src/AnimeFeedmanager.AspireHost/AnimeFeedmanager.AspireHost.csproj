@@ -11,11 +11,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.2" />
+        <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0" />
         <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="9.4.1-preview.1.25408.4" />
-        <PackageReference Include="Aspire.Hosting.Azure.SignalR" Version="9.4.2" />
-        <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.4.2" />
-        <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.4.2" />
+        <PackageReference Include="Aspire.Hosting.Azure.SignalR" Version="9.5.0" />
+        <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.5.0" />
+        <PackageReference Include="Aspire.Hosting.NodeJs" Version="9.5.0" />
     </ItemGroup>
 
     <ItemGroup>
