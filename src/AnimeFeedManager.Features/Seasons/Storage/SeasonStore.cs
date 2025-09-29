@@ -29,7 +29,10 @@ public static class SeasonStore
     {
         return tableClient
             .TryExecute<SeasonStorage>(client => client.UpsertEntityAsync(seasonStorage, cancellationToken: token))
-            .WithDefaultMap();
+            .WithDefaultMap()
+            .MapError(error => error
+                .WithLogProperty(nameof(SeasonStorage), seasonStorage)
+                .WithOperationName(nameof(UpsertSeason)));
     }
 
     private static Task<Result<Unit>> UpsertLatestSeasons(this TableClient tableClient,
@@ -38,7 +41,10 @@ public static class SeasonStore
         return tableClient
             .TryExecute<LatestSeasonsStorage>(client =>
                 client.UpsertEntityAsync(latestSeasonsStorage, cancellationToken: token))
-            .WithDefaultMap();
+            .WithDefaultMap()
+            .MapError(error => error
+                .WithLogProperty(nameof(LatestSeasonsStorage), latestSeasonsStorage)
+                .WithOperationName(nameof(UpsertLatestSeasons)));
     }
 
     private static Task<Result<Unit>> RemoveSeason(this TableClient tableClient,
@@ -47,6 +53,10 @@ public static class SeasonStore
         return tableClient
             .TryExecute<SeasonStorage>(client =>
                 client.DeleteEntityAsync(partitionKey, rowKey, cancellationToken: token))
-            .WithDefaultMap();
+            .WithDefaultMap()
+            .MapError(error => error
+                .WithLogProperty(nameof(SeasonStorage.PartitionKey), partitionKey)
+                .WithLogProperty(nameof(SeasonStorage.RowKey), rowKey)
+                .WithOperationName(nameof(RemoveSeason)));
     }
 }

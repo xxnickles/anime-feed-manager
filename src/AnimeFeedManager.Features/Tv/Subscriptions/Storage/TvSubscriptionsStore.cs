@@ -4,8 +4,6 @@ public delegate Task<Result<Unit>> TvSubscriptionsUpdater(SubscriptionStorage su
 
 public delegate Task<Result<Unit>> TvSubscriptionsRemover(string user, string seriesId, CancellationToken token);
 
-public delegate Task<Result<Unit>> TvAdditionalTitlesUpdater(string season, string seriesId, string[] titles, CancellationToken token);
-
 public static class TvSubscriptionsStore
 {
     public static TvSubscriptionsUpdater TableStorageTvSubscriptionsUpdater(this ITableClientFactory clientFactory) =>
@@ -21,7 +19,10 @@ public static class TvSubscriptionsStore
         SubscriptionStorage subscription, CancellationToken token) =>
         tableClient.TryExecute<SubscriptionStorage>(client =>
                 client.UpsertEntityAsync(subscription, cancellationToken: token))
-            .WithDefaultMap();
+            .WithDefaultMap()
+            .MapError(error => error
+                .WithLogProperty("Subscription", subscription)
+                .WithOperationName(nameof(TvSubscriptionsStore)));
 
     private static Task<Result<Unit>> RemoveSubscription(
         this TableClient tableClient,
@@ -30,6 +31,10 @@ public static class TvSubscriptionsStore
         CancellationToken token) =>
         tableClient.TryExecute<SubscriptionStorage>(client =>
                 client.DeleteEntityAsync(user, seriesId, cancellationToken: token))
-            .WithDefaultMap();
+            .WithDefaultMap()
+            .MapError(error => error
+                .WithLogProperty("User", user)
+                .WithLogProperty("SeriesId", seriesId)
+                .WithOperationName(nameof(RemoveSubscription)));
 
 }

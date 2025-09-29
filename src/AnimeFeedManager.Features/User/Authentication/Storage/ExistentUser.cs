@@ -14,7 +14,8 @@ public delegate Task<Result<User>> ExistentUserGetterById(NoEmptyString id,
 
 public static class ExistentUser
 {
-    public static ExistentUserGetterByEmail TableStorageExistentUserGetterByEmail(this ITableClientFactory clientFactory) =>
+    public static ExistentUserGetterByEmail TableStorageExistentUserGetterByEmail(
+        this ITableClientFactory clientFactory) =>
         (email, cancellationToken) => clientFactory.GetClient<UserStorage>()
             .Bind(client => client.GetByEmail(email, cancellationToken));
 
@@ -32,7 +33,8 @@ public static class ExistentUser
                 client.QueryAsync<UserStorage>(
                     storage => storage.PartitionKey == Constants.UserPartitionKey && storage.Email == email,
                     cancellationToken: cancellationToken))
-            .Bind(ParseAsUser);
+            .Bind(ParseAsUser)
+            .MapError(error => error.WithOperationName(nameof(GetByEmail)));
     }
 
 
@@ -45,7 +47,10 @@ public static class ExistentUser
                 client.QueryAsync<UserStorage>(
                     storage => storage.PartitionKey == Constants.UserPartitionKey && storage.RowKey == id,
                     cancellationToken: cancellationToken))
-            .Bind(ParseAsUser);
+            .Bind(ParseAsUser)
+            .MapError(error => error
+                .WithLogProperty("Id", id)
+                .WithOperationName(nameof(GetById)));;
     }
 
 

@@ -11,14 +11,14 @@ public static class Subscription
         string feedTitle,
         StorageTvSubscription subscriptionGetter,
         CancellationToken token) => subscriptionGetter(userId, seriesId, token)
-        .Bind(subscription => VerifyCurrentSubscription(subscription, userId, seriesId, seriesTitle,feedTitle));
+        .Map(subscription => VerifyCurrentSubscription(subscription, userId, seriesId, seriesTitle,feedTitle));
     
     public static Task<Result<Unit>> UpdateSubscription(this Task<Result<SubscriptionStorage>> storage,  
         TvSubscriptionsUpdater subscriptionsUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) => storage.Bind(s => ToggleSubscription(s, subscriptionsUpdater, subscriptionsRemover, token));
     
-    private static Result<SubscriptionStorage> VerifyCurrentSubscription(
+    private static SubscriptionStorage VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
         string userId,
         string seriesId,

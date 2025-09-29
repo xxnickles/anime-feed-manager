@@ -3,20 +3,22 @@
 public delegate Task<Result<Unit>> FeedTitlesUpdater(FeedTitlesStorage titles,
     CancellationToken cancellationToken = default);
 
-
 public static class FeedTitlesStore
 {
     public static FeedTitlesUpdater GetFeedTitlesUpdater(this ITableClientFactory clientFactory) => (titles, token) =>
         clientFactory.GetClient<FeedTitlesStorage>()
             .Bind(client => client.UpsertFeedTitles(titles, token));
-    
+
     private static Task<Result<Unit>> UpsertFeedTitles(
         this TableClient tableClient,
         FeedTitlesStorage titles,
         CancellationToken cancellationToken = default)
     {
-        return tableClient.TryExecute<FeedTitlesStorage>(client => client.UpsertEntityAsync(titles, cancellationToken: cancellationToken))
-            .WithDefaultMap();
-        
+        return tableClient.TryExecute<FeedTitlesStorage>(client =>
+                client.UpsertEntityAsync(titles, cancellationToken: cancellationToken))
+            .WithDefaultMap()
+            .MapError(error => error
+                .WithLogProperty("Titles", titles)
+                .WithOperationName(nameof(FeedTitlesStore)));
     }
 }

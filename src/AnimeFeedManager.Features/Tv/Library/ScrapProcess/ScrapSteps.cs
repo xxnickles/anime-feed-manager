@@ -33,7 +33,10 @@ internal static class ScrapSteps
                 .Map(seriesSeason => new ScrapTvLibraryData(
                     series.Select(Transform),
                     titles,
-                    seriesSeason));
+                    seriesSeason))
+                .MapError(error => error
+                    .WithLogProperty("Season", season)
+                    .WithOperationName(nameof(GetInitialProcessData)));
 
             // To keep it simple, we are using the season information coming from the scrapping instead of the parsed one
             // But at this point we are sure Season is valid as we have parsed the data scrapped 

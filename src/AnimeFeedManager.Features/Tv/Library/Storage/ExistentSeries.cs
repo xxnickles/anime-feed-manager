@@ -91,34 +91,46 @@ public static class ExistentSeries
                 nameof(AnimeInfoStorage.Status),
                 nameof(AnimeInfoStorage.ImagePath)
             ],
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken))
+            .MapError(error => error
+                .WithLogProperty("Season", season)
+                .WithOperationName(nameof(GetStoredSeries)));
     }
 
     private static Task<Result<ImmutableList<TvSeries>>> GetTvLibrary(
         this TableClient tableClient,
         SeriesSeason season,
-        Uri publicBlobUriBuilder,
+        Uri publicBlobUri,
         CancellationToken cancellationToken = default)
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);
         return tableClient.ExecuteQuery(client => client.QueryAsync<AnimeInfoStorage>(
                 series => series.PartitionKey == partitionKey,
                 cancellationToken: cancellationToken))
-            .Map(series => series.ConvertAll(s => LibraryMapper(s, publicBlobUriBuilder)));
+            .Map(series => series.ConvertAll(s => LibraryMapper(s, publicBlobUri)))
+            .MapError(error => error
+                .WithLogProperty("Season", season)
+                .WithLogProperty("PublicBlobUri", publicBlobUri)
+                .WithOperationName(nameof(GetTvLibrary)));
     }
 
     private static Task<Result<TvSeries>> GetTvLibrarySeries(
         this TableClient tableClient,
         SeriesSeason season,
         string id,
-        Uri publicBlobUriBuilder,
+        Uri publicBlobUri,
         CancellationToken cancellationToken = default)
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);
         return tableClient.ExecuteQuery(client => client.QueryAsync<AnimeInfoStorage>(
                 series => series.PartitionKey == partitionKey && series.RowKey == id,
                 cancellationToken: cancellationToken)).SingleItemOrNotFound()
-            .Map(s => LibraryMapper(s, publicBlobUriBuilder));
+            .Map(s => LibraryMapper(s, publicBlobUri))
+            .MapError(error => error
+                .WithLogProperty("Season", season)
+                .WithLogProperty("Id", id)
+                .WithLogProperty("publicBlobUri", publicBlobUri)
+                .WithOperationName(nameof(TvSeries)));
     }
 
 

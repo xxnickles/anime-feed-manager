@@ -36,9 +36,9 @@ public static class InterestedSeries
 
         if (subscription.Type == SubscriptionType.Subscribed)
             return Error.Create($"You are already subscribed to {seriesTitle}")
-                .WithLogProperty("User", userId)
-                .WithLogProperty("Series", seriesId)
-                .WithLogProperty("Operation", nameof(VerifyCurrentSubscription));
+                .WithLogProperty("UserId", userId)
+                .WithLogProperty("SeriesId", seriesId)
+                .WithOperationName(nameof(VerifyCurrentSubscription));
 
         return subscription;
     }

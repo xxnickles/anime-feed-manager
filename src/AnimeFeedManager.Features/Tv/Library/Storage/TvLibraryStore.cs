@@ -8,25 +8,34 @@ public delegate Task<Result<Unit>> TvSeriesStorageUpdater(AnimeInfoStorage serie
 
 public static class TvLibraryStore
 {
-    public static TvLibraryStorageUpdater GetTvLibraryUpdater(this ITableClientFactory clientFactory) => (series, token) =>
-        clientFactory.GetClient<AnimeInfoStorage>()
-            .Bind(client => client.UpsertSeries(series, token));
-    
-    public static TvSeriesStorageUpdater GetTvSeriesUpdater(this ITableClientFactory clientFactory) => (series, token) => 
-        clientFactory.GetClient<AnimeInfoStorage>().Bind(client => client.UpdateSeries(series, token));
-    
+    public static TvLibraryStorageUpdater GetTvLibraryUpdater(this ITableClientFactory clientFactory) =>
+        (series, token) =>
+            clientFactory.GetClient<AnimeInfoStorage>()
+                .Bind(client => client.UpsertSeries(series, token));
+
+    public static TvSeriesStorageUpdater GetTvSeriesUpdater(this ITableClientFactory clientFactory) =>
+        (series, token) =>
+            clientFactory.GetClient<AnimeInfoStorage>().Bind(client => client.UpdateSeries(series, token));
+
     private static Task<Result<Unit>> UpsertSeries(
         this TableClient tableClient,
         IEnumerable<AnimeInfoStorage> series,
         CancellationToken cancellationToken = default)
     {
-        return tableClient.AddBatch(series, cancellationToken);
+        return tableClient.AddBatch(series, cancellationToken)
+            .MapError(error => error
+                .WithLogProperty("Count", series.Count())
+                .WithOperationName(nameof(UpsertSeries)));
     }
 
     private static Task<Result<Unit>> UpdateSeries(
         this TableClient tableClient,
         AnimeInfoStorage series,
         CancellationToken token) =>
-        tableClient.TryExecute<AnimeInfoStorage>(client => client.UpdateEntityAsync(series, series.ETag, cancellationToken: token))
-            .WithDefaultMap();
+        tableClient.TryExecute<AnimeInfoStorage>(client =>
+                client.UpdateEntityAsync(series, series.ETag, cancellationToken: token))
+            .WithDefaultMap()
+            .MapError(error => error
+                .WithLogProperty("Series", series)
+                .WithOperationName(nameof(UpdateSeries)));
 }

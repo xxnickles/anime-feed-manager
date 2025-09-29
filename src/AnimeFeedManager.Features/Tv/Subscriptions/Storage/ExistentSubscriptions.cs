@@ -22,7 +22,10 @@ public static class ExistentSubscriptions
         CancellationToken cancellationToken = default) =>
         tableClient.ExecuteQuery(client => client.QueryAsync<SubscriptionStorage>(
             storage => storage.PartitionKey == userId && storage.Status != SubscriptionStatus.Expired,
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken))
+            .MapError(error => error
+                .WithLogProperty("UserId", userId)
+                .WithOperationName(nameof(GetTvSubscriptions)));
     
     
     private static Task<Result<SubscriptionStorage?>> GetTvSubscription(
@@ -32,5 +35,10 @@ public static class ExistentSubscriptions
         CancellationToken cancellationToken = default) =>
         tableClient.ExecuteQuery(client => client.QueryAsync<SubscriptionStorage>(
             storage => storage.PartitionKey == userId && storage.Status != SubscriptionStatus.Expired && storage.RowKey == seriesId,
-            cancellationToken: cancellationToken)).SingleItemOrNull();
+            cancellationToken: cancellationToken))
+            .SingleItemOrNull()
+            .MapError(error => error
+                .WithLogProperty("UserId", userId)
+                .WithLogProperty("SeriesId", seriesId)
+                .WithOperationName(nameof(GetTvSubscription)));
 }

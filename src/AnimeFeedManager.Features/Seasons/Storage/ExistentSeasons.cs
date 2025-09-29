@@ -30,7 +30,8 @@ public static class ExistentSeasons
             .Bind(client => GetAllSeasons(client, cancellationToken))
             .Map(seasons => seasons.TransformToSeriesSeason());
 
-    public static Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(this ITableClientFactory clientFactory, ILogger logger) =>
+    public static Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(this ITableClientFactory clientFactory,
+        ILogger logger) =>
         cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
             .Bind(client => client.GetLast4Seasons(cancellationToken)
                 .Map(seasons => TransformToSeriesSeason(seasons, logger)));
@@ -41,19 +42,22 @@ public static class ExistentSeasons
         CancellationToken cancellationToken = default)
     {
         return tableClient.ExecuteQuery(client =>
-            client.QueryAsync<SeasonStorage>(
-                storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
-                cancellationToken: cancellationToken));
+                client.QueryAsync<SeasonStorage>(
+                    storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
+                    cancellationToken: cancellationToken))
+            .MapError(error => error.WithOperationName(nameof(GetAllSeasons)));
     }
 
     private static Task<Result<SeasonStorageData>> GetLatestSeason(this TableClient tableClient,
         CancellationToken cancellationToken = default)
     {
         return tableClient.ExecuteQuery(client =>
-                client.QueryAsync<SeasonStorage>(storage => storage.PartitionKey == SeasonStorage.SeasonPartition && storage.Latest == true,
+                client.QueryAsync<SeasonStorage>(
+                    storage => storage.PartitionKey == SeasonStorage.SeasonPartition && storage.Latest == true,
                     cancellationToken: cancellationToken))
             .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(seasons =>
-                !seasons.IsEmpty ? new CurrentLatestSeason(seasons.First()) : new NoMatch());
+                !seasons.IsEmpty ? new CurrentLatestSeason(seasons.First()) : new NoMatch())
+            .MapError(error => error.WithOperationName(nameof(GetLatestSeason)));
     }
 
     private static Task<Result<SeasonStorageData>> GetSeason(this TableClient tableClient,
@@ -73,15 +77,19 @@ public static class ExistentSeasons
 
                 return (match.Latest, season.IsLatest) switch
                 {
-                    (true, true) or (true, false) => new NoUpdateRequired(), // Do not update if is the current latest season
+                    (true, true)
+                        or (true, false) => new NoUpdateRequired(), // Do not update if is the current latest season
                     (false, true) => UpdateCurrentToLatest(match),
                     _ => match.Season == season.Season && match.Year == season.Year
                         ? new NoUpdateRequired()
                         : new ExistentSeason(match)
                 };
-            });
+            })
+            .MapError(error => error
+                .WithLogProperty(nameof(SeriesSeason), season)
+                .WithOperationName(nameof(GetSeason)));
     }
-    
+
     private static ReplaceLatestSeason UpdateCurrentToLatest(SeasonStorage storage)
     {
         storage.Latest = true;
@@ -97,7 +105,11 @@ public static class ExistentSeasons
                 client.QueryAsync<LatestSeasonsStorage>(
                     storage => storage.PartitionKey == LatestSeasonsStorage.Partition &&
                                storage.RowKey == LatestSeasonsStorage.Key, cancellationToken: cancellationToken))
-            .SingleItem();
+            .SingleItem()
+            .MapError(error => error
+                .WithLogProperty(nameof(LatestSeasonsStorage.Partition), LatestSeasonsStorage.Partition)
+                .WithLogProperty(nameof(LatestSeasonsStorage.RowKey), LatestSeasonsStorage.Key)
+                .WithOperationName(nameof(GetLast4Seasons)));
     }
 
     private static ImmutableList<SeriesSeason> TransformToSeriesSeason(this LatestSeasonsStorage seasons,
