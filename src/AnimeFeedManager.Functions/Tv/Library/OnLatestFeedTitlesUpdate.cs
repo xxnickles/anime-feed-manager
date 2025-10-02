@@ -34,7 +34,7 @@ public class OnLatestFeedTitlesUpdate
         await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeasonGetter(), token)
             .GetFeedTitles(_seasonFeedTitlesProvider)
             .UpdateSeries(_tableClientFactory.TableStorageRawExistentStoredSeries(),
-                _tableClientFactory.GetTvLibraryUpdater(), token)
+                _tableClientFactory.TableStorageTvLibraryUpdater(), token)
             .SendEvents(_domainPostman, token)
             .Match(
                 results => _logger.LogInformation(

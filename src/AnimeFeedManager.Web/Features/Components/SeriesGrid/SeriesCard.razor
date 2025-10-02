@@ -1,7 +1,7 @@
 ﻿@if (SeriesInfo is not null)
 {
-    <article class="card card-side bg-base-100 image-full shadow-sm group 
-        hover:shadow-xl transition-all duration-300">
+    <article id="@Id" class="card card-side bg-base-100 image-full shadow-sm group 
+        hover:shadow-xl transition-all duration-300 series-card">
         <figure class="overflow-hidden">
             <img
                 src="@SeriesInfo.ImageUrl"
@@ -53,4 +53,5 @@
     [Parameter] public SeriesCardViewModel? SeriesInfo { get; set; }
     [Parameter] public RenderFragment? CardControls { get; set; }
     [Parameter, EditorRequired] public string LoaderId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
 }

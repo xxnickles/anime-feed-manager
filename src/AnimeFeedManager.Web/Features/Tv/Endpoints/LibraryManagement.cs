@@ -1,6 +1,6 @@
 ﻿using AnimeFeedManager.Features.Tv.Library.Storage;
 using AnimeFeedManager.Web.Features.Tv.Controls;
-using static AnimeFeedManager.Features.Tv.Library.Management.AlternativeTitles;
+using static AnimeFeedManager.Features.Tv.Library.Management.Series;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
@@ -11,25 +11,52 @@ internal static class LibraryManagement
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<AlternativeTitlesEditor> logger,
         CancellationToken cancellationToken)
-        => UpdateAlternativeTitles(
-                viewModel.SeriesId,
-                viewModel.Season,
-                viewModel.AlternativeTitles ?? [],
-                clientFactory.TableStorageTvSeriesGetter(),
-                clientFactory.GetTvSeriesUpdater(),
-                cancellationToken)
+        =>
+            Validate(viewModel).Bind(model => UpdateAlternativeTitles(
+                    model.SeriesId,
+                    model.Season,
+                    model.AlternativeTitles ?? [],
+                    clientFactory.TableStorageTvSeriesGetter(),
+                    clientFactory.TableStorageTvSeriesUpdater(),
+                    cancellationToken))
+                .LogErrors(logger)
+                .ToComponentResult(
+                    _ =>
+                    [
+                        AlternativeTitlesEditor.AsRenderFragment(viewModel),
+                        Notifications.CreateNotificationToast("Alternative Titles",
+                            Notifications.TextBody($"Alternative titles for {viewModel.SeriesTitle} has been updated"))
+                    ],
+                    error =>
+                    [
+                        AlternativeTitlesEditor.AsRenderFragment(viewModel),
+                        Notifications.CreateErrorToast("Alternative Titles", error)
+                    ]);
+
+    internal static Task<RazorComponentResult> RemoveSeries(
+        [FromForm] RemoveSeriesViewModel viewModel,
+        [FromServices] ITableClientFactory clientFactory,
+        [FromServices] ILogger<SeriesDeleter> logger,
+        HttpContext context,
+        CancellationToken token) =>
+        Validate(viewModel)
+            .Bind(model => DeleteSeries(viewModel.SeriesId, viewModel.Season,
+                clientFactory.TableStorageTvSeriesRemover(), token))
+            .Map(result =>
+            {
+                // Adds an event to trigger the remove o the series card
+                context.Response.Headers["HX-Trigger-After-Swap"] =
+                    $$$"""{"removeSeries": {"owner": "{{{viewModel.CardId}}}"}}""";
+                return result;
+            })
             .LogErrors(logger)
-            .ToComponentResult(
-                _ =>
+            .ToComponentResult(_ =>
                 [
-                    AlternativeTitlesEditor.AsRenderFragment(viewModel),
-                    Notifications.CreateNotificationToast("Alternative Titles",
-                        Notifications.TextBody($"Alternative titles for {viewModel.SeriesTitle} has been updated"))
+                    Notifications.CreateNotificationToast("Remove Series",
+                        Notifications.TextBody($"Series {viewModel.SeriesTitle} has been removed"))
                 ],
                 error =>
                 [
-                    AlternativeTitlesEditor.AsRenderFragment(viewModel),
                     Notifications.CreateErrorToast("Alternative Titles", error)
                 ]);
-
 }

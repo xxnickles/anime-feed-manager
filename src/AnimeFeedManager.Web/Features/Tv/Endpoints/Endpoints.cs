@@ -18,5 +18,8 @@ public static class Endpoints
         
         group.MapPost("/tv/alternative-title",LibraryManagement.UpdateAlternativeSeries)
             .RequireAuthorization(Policies.AdminRequired);
+        
+        group.MapPost("/tv/remove-series",LibraryManagement.RemoveSeries)
+            .RequireAuthorization(Policies.AdminRequired);
     }
 }

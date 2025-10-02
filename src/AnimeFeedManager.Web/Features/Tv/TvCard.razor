@@ -3,7 +3,7 @@
 
 @if (Series is not null)
 {
-    <SeriesCard SeriesInfo="@Series.TvSeries.AsSeriesCard()" LoaderId="@_loaderId">
+    <SeriesCard SeriesInfo="@Series.TvSeries.AsSeriesCard()" LoaderId="@_loaderId" Id="@_cardId">
         <CardControls>
             @switch (Series)
             {
@@ -29,7 +29,6 @@
             {
                 <ExpandableFab>
                     <Buttons>
-                      
                         @switch (Series)
                         {
                             case AvailableForSubscription:
@@ -49,7 +48,7 @@
                         @if (Series.User is AdminUser)
                         {
                             <AlternativeTitlesEditorModal Model="GetAlternativeTitlesModel(Series)"></AlternativeTitlesEditorModal>
-                            <SeriesDelete></SeriesDelete>
+                            <SeriesDeleter Model="GetRemoveSeries(Series)"></SeriesDeleter>
                         }
                     </Buttons>
                 </ExpandableFab>
@@ -64,15 +63,16 @@
     private string _loaderId = string.Empty;
     private string _cardBadgeId = string.Empty;
     private string _loaderSelector = string.Empty;
+    private string _cardId = string.Empty;
 
     protected override void OnInitialized()
     {
         _loaderId = IdHelpers.GetUniqueName("card-loader");
         _cardBadgeId = IdHelpers.GetUniqueName("card-badge");
+        _cardId = IdHelpers.GetUniqueName("card");
         _loaderSelector = $"#{_loaderId}";
     }
-
-
+    
     private TvInterestedViewModel GetInterestedModel(UserTvSeries series)
     {
         return new TvInterestedViewModel
@@ -109,4 +109,15 @@
         };
     }
 
+    private RemoveSeriesViewModel GetRemoveSeries(UserTvSeries series)
+    {
+        return new RemoveSeriesViewModel
+        {
+            SeriesTitle = series.TvSeries.Title,
+            Season = series.TvSeries.SeasonString,
+            SeriesId = series.TvSeries.Id,
+            LoaderSelector = _loaderSelector,
+            CardId = _cardId
+        };
+    }
 }

@@ -2072,6 +2072,16 @@
       opacity: 20%;
     }
   }
+  .navbar {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    padding: 0.5rem;
+    min-height: 4rem;
+    :where(&) {
+      position: relative;
+    }
+  }
   .drawer {
     position: relative;
     display: grid;
@@ -2584,13 +2594,6 @@
     height: var(--tabs-height);
     flex-direction: var(--tabs-direction);
   }
-  .navbar {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    padding: 0.5rem;
-    min-height: 4rem;
-  }
   .footer {
     display: grid;
     width: 100%;
@@ -2922,6 +2925,12 @@
   .-translate-x-1\/2 {
     --tw-translate-x: calc(calc(1/2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+  .scale-65 {
+    --tw-scale-x: 65%;
+    --tw-scale-y: 65%;
+    --tw-scale-z: 65%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
   }
   .scale-75 {
     --tw-scale-x: 75%;
@@ -3354,6 +3363,10 @@
   .duration-200 {
     --tw-duration: 200ms;
     transition-duration: 200ms;
+  }
+  .duration-250 {
+    --tw-duration: 250ms;
+    transition-duration: 250ms;
   }
   .duration-300 {
     --tw-duration: 300ms;

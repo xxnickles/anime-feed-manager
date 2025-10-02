@@ -38,7 +38,7 @@ public class OnTvLibraryUpdate
         await TryGetSeasonSelector(message.SeasonParameters)
             .ScrapTvSeries(_scrapper, token)
             .AddImagesLinks(_imageProvider, _logger, token)
-            .UpdateTvLibrary(_tableClientFactory.GetTvLibraryUpdater(), token)
+            .UpdateTvLibrary(_tableClientFactory.TableStorageTvLibraryUpdater(), token)
             .SendEvents(_domainPostman, message.SeasonParameters, token)
             .Match(
                 results => _logger.LogInformation(
