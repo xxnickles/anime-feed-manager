@@ -41,7 +41,33 @@
             </p>
             @if (CardControls is not null)
             {
-                <div class="card-actions items-center justify-between">
+               
+                <div class="card-actions items-center justify-between" x-data>
+                  
+                    <button class="btn btn-circle btn-ghost btn-sm" @click="$refs.modal.showModal()"
+                            aria-label="View image">
+                        <!-- Eye icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Modal -->
+                    <dialog x-ref="modal" class="modal">
+                        <div class="modal-box p-0">
+                            <img src="@SeriesInfo.ImageUrl"
+                                 alt="@SeriesInfo.Title"
+                                 class="w-full h-auto brightness-100 scale-100 object-contain"/>
+                        </div>
+                        <form method="dialog" class="modal-backdrop">
+                            <button aria-label="Close">close</button>
+                        </form>
+                    </dialog>
+                    
                     @CardControls
                 </div>
             }
@@ -54,4 +80,6 @@
     [Parameter] public RenderFragment? CardControls { get; set; }
     [Parameter, EditorRequired] public string LoaderId { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
+
+    private string ModalId => $"modal-{Id}";
 }
