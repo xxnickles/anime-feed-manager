@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Shared.Results;
 
 public static class ResultExtensions
 {
-    public static Result<ImmutableList<T>> Flattern<T>(this IEnumerable<Result<T>> results)
+    public static Result<ImmutableList<T>> Flatten<T>(this IEnumerable<Result<T>> results)
     {
         var oks = results.Count(x => x.IsSuccess);
         if (oks == results.Count())
@@ -30,6 +30,16 @@ public static class ResultExtensions
         ));
 
         return new AggregatedError(errors.ToImmutableList(), errorType);
+    }
+
+    public static async Task<Result<ImmutableList<T>>> Flatten<T>(this IEnumerable<Task<Result<T>>> results)
+    {
+       return (await Task.WhenAll(results.ToArray())).Flatten();
+    }
+
+    public static async Task<Result<ImmutableList<T>>> Flatten<T>(this Task<IEnumerable<Result<T>>> results)
+    {
+        return (await results).Flatten();
     }
 
     public static ImmutableList<T> GetSuccessValues<T>(this IEnumerable<Result<T>> results)
@@ -87,7 +97,7 @@ public static class ResultExtensions
     {
         return await (await resultTask).Bind(binder);
     }
-   
+
 
     public static Result<T> LogErrors<T>(this Result<T> result, ILogger logger)
     {

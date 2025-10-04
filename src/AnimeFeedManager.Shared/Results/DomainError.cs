@@ -36,7 +36,6 @@ public abstract record DomainError(
             ["CallerMemberName"] = CallerMemberName,
             ["CallerFilePath"] = CallerFilePath,
             ["CallerLineNumber"] = CallerLineNumber,
-            ["Caller"] = $"{CallerFilePath}:{CallerLineNumber}",
             ["ErrorType"] = GetType().Name
         };
 

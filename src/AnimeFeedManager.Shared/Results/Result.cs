@@ -23,7 +23,8 @@ public sealed record Result<T>
     public static Result<T> Success(T value) => new (true, value, null);
     public static Result<T> Failure(DomainError error) => new (false, default, error);
 
-
+  
+    
     public void Match(Action<T> onOk, Action<DomainError> onError)
     {
         if (IsSuccess)
@@ -39,8 +40,8 @@ public sealed record Result<T>
         else
             await onError(_errorValueValue!);
     }
-
-
+ 
+    
     public Result<TTarget> Map<TTarget>(Func<T, TTarget> mapper)
     {
         return IsSuccess

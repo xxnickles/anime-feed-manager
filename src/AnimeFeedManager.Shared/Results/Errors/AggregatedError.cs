@@ -21,7 +21,7 @@ public sealed record AggregatedError(
 
     protected override void LoggingBehavior(ILogger logger)
     {
-        logger.LogWarning("{Message}. {TypeMessage}", Message, TypeMessage(Type));
+        logger.LogError("{Message}. {TypeMessage}", Message, TypeMessage(Type));
         foreach (var error in Errors)
             error.LogError(logger);
         return;

@@ -2,9 +2,6 @@
 
 internal static class StorageClientExtensions
 {
-    private const string Context = "TableContext";
-
-
     public static async Task<Result<Response<T>>> TryExecute<T>(
         this TableClient client,
         Func<TableClient, Task<Response<T>>> action) where T : ITableEntity
@@ -30,9 +27,7 @@ internal static class StorageClientExtensions
 
     public static async Task<Result<Response>> TryExecute<T>(
         this TableClient client,
-        Func<TableClient, Task<Response>> action,
-        [CallerFilePath] string callerPath = "",
-        [CallerMemberName] string callerName = "") where T : ITableEntity
+        Func<TableClient, Task<Response>> action) where T : ITableEntity
     {
         try
         {
@@ -110,7 +105,7 @@ internal static class StorageClientExtensions
     public static Task<Result<T>> SingleItem<T>(this Task<Result<ImmutableList<T>>> result)
     {
         return result.Bind(x => x.IsEmpty
-            ? Error.Create($"The collection of type {typeof(T).FullName} is empty")
+            ? NotFoundError.Create($"Item of  type '{typeof(T).FullName}' not found")
             : Result<T>.Success(x.First()));
     }
 

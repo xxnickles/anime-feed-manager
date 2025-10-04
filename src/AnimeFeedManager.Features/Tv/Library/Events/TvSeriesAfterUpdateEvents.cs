@@ -40,8 +40,8 @@ public partial class SeriesFeedUpdatedContext : JsonSerializerContext;
 /// <summary>
 /// Event that represents series that have been completed. Will be used to Expire tv subscriptions.
 /// </summary>
-/// <param name="Ids">All series that have been marked as completed</param>
-public sealed record CompletedSeries(string[] Ids) : DomainMessage(new Box(TargetQueue))
+/// <param name="Id">All series that have been marked as completed</param>
+public sealed record CompletedSeries(string Id) : DomainMessage(new Box(TargetQueue))
 {
     public const string TargetQueue = "completed-series-events";
     public override BinaryData ToBinaryData()

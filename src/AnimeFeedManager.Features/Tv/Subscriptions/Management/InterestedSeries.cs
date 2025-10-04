@@ -8,8 +8,8 @@ public static class InterestedSeries
         string userId,
         string seriesId,
         string seriesTitle,
-        StorageTvSubscription subscriptionGetter,
-        CancellationToken token) => subscriptionGetter(userId, seriesId, token)
+        TvSubscriptionGetter subscriptionGetterGetter,
+        CancellationToken token) => subscriptionGetterGetter(userId, seriesId, token)
         .Bind(subscription => VerifyCurrentSubscription(subscription, userId, seriesId, seriesTitle));
 
 
