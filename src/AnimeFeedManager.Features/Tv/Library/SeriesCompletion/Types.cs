@@ -1,0 +1,5 @@
+﻿namespace AnimeFeedManager.Features.Tv.Library.SeriesCompletion;
+
+internal record CompleteOnGoingTvSeriesProcess(ImmutableList<AnimeInfoStorage> SeriesToComplete);
+
+public record CompleteOnGoingTvSeriesProcessResult(ImmutableList<AnimeInfoStorage> CompletedSereies);

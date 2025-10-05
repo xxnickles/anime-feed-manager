@@ -31,6 +31,9 @@ public delegate Task<Result<ImmutableList<TvSeriesInfo>>> StoredSeries(SeriesSea
 public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> RawStoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
+public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> OnGoingStoredTvSeries(
+    CancellationToken cancellationToken = default);
+
 public delegate Task<Result<ImmutableList<TvSeries>>> TvLibrary(
     SeriesSeason season,
     Uri publicBlobUri,
@@ -73,6 +76,10 @@ public static class ExistentSeries
         (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
             .Bind(client => client.GetAnimeInfo(id, season, token));
 
+    public static OnGoingStoredTvSeries TableStorageOnGoingStoredTvSeries(this ITableClientFactory clientFactory) =>
+        token => clientFactory.GetClient<AnimeInfoStorage>()
+            .Bind(client => client.GetOnGoingSeries(token));
+
     private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
         this TableClient tableClient,
         SeriesSeason season,
@@ -80,18 +87,18 @@ public static class ExistentSeries
     {
         var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);
         return tableClient.ExecuteQuery(client => client.QueryAsync<AnimeInfoStorage>(
-            series => series.PartitionKey == partitionKey,
-            select:
-            [
-                nameof(AnimeInfoStorage.RowKey),
-                nameof(AnimeInfoStorage.PartitionKey),
-                nameof(AnimeInfoStorage.Title),
-                nameof(AnimeInfoStorage.FeedTitle),
-                nameof(AnimeInfoStorage.AlternativeTitles),
-                nameof(AnimeInfoStorage.Status),
-                nameof(AnimeInfoStorage.ImagePath)
-            ],
-            cancellationToken: cancellationToken))
+                series => series.PartitionKey == partitionKey,
+                select:
+                [
+                    nameof(AnimeInfoStorage.RowKey),
+                    nameof(AnimeInfoStorage.PartitionKey),
+                    nameof(AnimeInfoStorage.Title),
+                    nameof(AnimeInfoStorage.FeedTitle),
+                    nameof(AnimeInfoStorage.AlternativeTitles),
+                    nameof(AnimeInfoStorage.Status),
+                    nameof(AnimeInfoStorage.ImagePath)
+                ],
+                cancellationToken: cancellationToken))
             .MapError(error => error
                 .WithLogProperty("Season", season)
                 .WithOperationName(nameof(GetStoredSeries)));
@@ -182,5 +189,17 @@ public static class ExistentSeries
                 .WithOperationName(nameof(GetAnimeInfo))
                 .WithLogProperty("Id", id)
                 .WithLogProperty("Season", seasonString));
+    }
+
+    private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetOnGoingSeries(
+        this TableClient tableClient,
+        CancellationToken cancellationToken = default)
+    {
+        return tableClient.ExecuteQuery(client => client.QueryAsync<AnimeInfoStorage>(
+                series => series.Status == SeriesStatus.Ongoing(),
+                cancellationToken: cancellationToken))
+            .MapError(error =>
+                error
+                    .WithOperationName(nameof(GetOnGoingSeries)));
     }
 }

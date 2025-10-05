@@ -13,6 +13,7 @@ internal static class ContentGenerator
         ScrapTvLibraryFailedResult scrappingFailedResult => TvLibraryFailure.ForTvLibraryScrapping(
             scrappingFailedResult),
         SeasonUpdateResult seasonUpdateResult => SeasonUpdate.ForSeasonUpdate(seasonUpdateResult),
+        CompletedTvSeriesResult completedTvSeriesResult => TvSeriesCompleted.ForTvSeriesCompleted(completedTvSeriesResult),
         _ => new OperationError(nameof(GetContent), "Unknown notification type")
     };
 }

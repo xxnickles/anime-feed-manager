@@ -38,7 +38,7 @@ public partial class SeriesFeedUpdatedContext : JsonSerializerContext;
 
 
 /// <summary>
-/// Event that represents series that have been completed. Will be used to Expire tv subscriptions.
+/// Event that represents a series that have been completed. Will be used to Expire tv subscriptions.
 /// </summary>
 /// <param name="Id">All series that have been marked as completed</param>
 public sealed record CompletedSeries(string Id) : DomainMessage(new Box(TargetQueue))
@@ -50,7 +50,24 @@ public sealed record CompletedSeries(string Id) : DomainMessage(new Box(TargetQu
     }
 }
 
-
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(CompletedSeries))]
 public partial class CompletedSeriesContext : JsonSerializerContext;
+
+
+/// <summary>
+/// Event to verify ongoing series and complete them if they are not in the current feed anymore
+/// </summary>
+/// <param name="Feed">Feed</param>
+public sealed record CompleteOngoingSeries(string[] Feed) : DomainMessage(new Box(TargetQueue))
+{
+    public const string TargetQueue = "complete-ongoing-series-events";
+    public override BinaryData ToBinaryData()
+    {
+        return BinaryData.FromObjectAsJson(this, CompleteOngoingSeriesContext.Default.CompleteOngoingSeries);
+    }
+}
+
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
+[JsonSerializable(typeof(CompleteOngoingSeries))]
+public partial class CompleteOngoingSeriesContext : JsonSerializerContext;

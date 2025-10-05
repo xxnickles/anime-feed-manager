@@ -8,7 +8,17 @@ public enum UpdateType
     Titles
 }
 
-public sealed record ScrapTvLibraryResult(SeriesSeason Season, int UpdatedSeries, int NewSeries, UpdateType UpdateType = UpdateType.FullLibrary)
+public enum ResultType
+{
+    Success,
+    Failed
+}
+
+public sealed record ScrapTvLibraryResult(
+    SeriesSeason Season,
+    int UpdatedSeries,
+    int NewSeries,
+    UpdateType UpdateType = UpdateType.FullLibrary)
     : SerializableEventPayload<ScrapTvLibraryResult>
 {
     public override JsonTypeInfo<ScrapTvLibraryResult> GetJsonTypeInfo() =>
@@ -20,7 +30,8 @@ public sealed record ScrapTvLibraryResult(SeriesSeason Season, int UpdatedSeries
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryResult))]
 public partial class ScrapTvLibraryResultContext : JsonSerializerContext;
 
-public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType UpdateType = UpdateType.FullLibrary) : SerializableEventPayload<ScrapTvLibraryFailedResult>
+public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType UpdateType = UpdateType.FullLibrary)
+    : SerializableEventPayload<ScrapTvLibraryFailedResult>
 {
     public override JsonTypeInfo<ScrapTvLibraryFailedResult> GetJsonTypeInfo() =>
         ScrapTvLibraryFailedResultContext.Default.ScrapTvLibraryFailedResult;
@@ -31,3 +42,14 @@ public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType Update
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryFailedResult))]
 public partial class ScrapTvLibraryFailedResultContext : JsonSerializerContext;
 
+public sealed record CompletedTvSeriesResult(string[] Titles, ResultType ResultType)
+    : SerializableEventPayload<CompletedTvSeriesResult>
+{
+    public override JsonTypeInfo<CompletedTvSeriesResult> GetJsonTypeInfo() =>
+        CompletedTvSeriesResultContext.Default.CompletedTvSeriesResult;
+}
+
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
+[JsonSerializable(typeof(CompletedTvSeriesResult))]
+[EventPayloadSerializerContext(typeof(CompletedTvSeriesResult))]
+public partial class CompletedTvSeriesResultContext : JsonSerializerContext;

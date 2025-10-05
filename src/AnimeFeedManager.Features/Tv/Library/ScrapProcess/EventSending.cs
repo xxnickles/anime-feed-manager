@@ -32,6 +32,7 @@ public static class EventSending
     [
         new SeasonUpdated(data.processData.Season),
         new FeedTitlesUpdated(data.processData.Season, data.processData.FeedTitles.ToArray()),
+        new CompleteOngoingSeries(data.processData.FeedTitles.ToArray()),
         new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
             data.summary.AsEventPayload()),
         .. GetCompletedSeriesEvent(data.processData),

@@ -29,6 +29,7 @@ public static class EventSending
     private static DomainMessage[] GetEvents((FeedTitleUpdateData processData, ScrapTvLibraryResult summary) data) =>
     [
         new FeedTitlesUpdated(data.processData.Season, data.processData.FeedTitles.ToArray()),
+        new CompleteOngoingSeries(data.processData.FeedTitles.ToArray()),
         new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
             data.summary.AsEventPayload()),
         .. GetFeedUpdatedEvents(data.processData)

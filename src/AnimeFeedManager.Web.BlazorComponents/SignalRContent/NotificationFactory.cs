@@ -3,9 +3,6 @@ using AnimeFeedManager.Web.BlazorComponents.Toast;
 
 namespace AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 
-public delegate Task<Result<string>> NotificationGenerator(SystemEvent notification,
-    PayloadDeserializer payloadDeserializer, BlazorRenderer renderer);
-
 public static class NotificationFactory
 {
     public static Task<Result<string>> GenerateNotificationContent(
