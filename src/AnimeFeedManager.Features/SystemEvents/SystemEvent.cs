@@ -27,7 +27,6 @@ public sealed record SystemEvent(
     public override BinaryData ToBinaryData()
     {
         return BinaryData.FromObjectAsJson(this, SystemEventContext.Default.SystemEvent);
-        ;
     }
 }
 

@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -92,6 +91,9 @@ public class EventPayloadSerializerGenerator : IIncrementalGenerator
             return result;
         }
 
+        var systemNotificationPayloadSymbol =
+            compilation.GetTypeByMetadataName("AnimeFeedManager.Features.SystemEvents.SystemNotificationPayload");
+
         foreach (var classDeclaration in classes)
         {
             context.CancellationToken.ThrowIfCancellationRequested();
@@ -132,6 +134,23 @@ public class EventPayloadSerializerGenerator : IIncrementalGenerator
                 if (payloadTypeArg.Value is not INamedTypeSymbol payloadType)
                     continue;
 
+                // Enforce that only SystemNotificationPayload payloads are processed
+                if (systemNotificationPayloadSymbol is not null && !InheritsFromOrEquals(payloadType, systemNotificationPayloadSymbol))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            id: "EPG002",
+                            title: "Invalid payload type",
+                            messageFormat:
+                                "EventPayloadSerializerContextAttribute payload type '{0}' must derive from SystemNotificationPayload",
+                            category: "EventPayloadGenerator",
+                            DiagnosticSeverity.Error,
+                            isEnabledByDefault: true),
+                        classDeclaration.GetLocation(),
+                        payloadType.ToDisplayString()));
+                    continue;
+                }
+
                 result.Add((
                     classSymbol.Name,
                     classSymbol.ContainingNamespace.ToDisplayString(),
@@ -160,6 +179,21 @@ public class EventPayloadSerializerGenerator : IIncrementalGenerator
             currentSymbol = currentSymbol.BaseType;
         }
 
+        return false;
+    }
+    
+    private static bool InheritsFromOrEquals(INamedTypeSymbol type, INamedTypeSymbol baseType)
+    {
+        if (SymbolEqualityComparer.Default.Equals(type, baseType))
+            return true;
+
+        var current = type.BaseType;
+        while (current is not null)
+        {
+            if (SymbolEqualityComparer.Default.Equals(current, baseType))
+                return true;
+            current = current.BaseType;
+        }
         return false;
     }
 

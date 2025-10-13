@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.SystemEvents;
 
@@ -14,16 +13,19 @@ public class EventPayloadTests
         var season = new SeriesSeason(Season.Fall(), Year.FromNumber(2025));
         var payload = new TestPayload(season);
         var sut = payload.AsEventPayload();
-        
-        
+
+
         var deserialize = JsonSerializer.Deserialize(sut.Payload, TestPayloadContext.Default.TestPayload);
         Assert.Equal(payload, deserialize);
     }
 }
 
-public record TestPayload(SeriesSeason Season) : SerializableEventPayload<TestPayload>
+public record TestPayload(SeriesSeason Season) : SystemNotificationPayload
 {
-    public override JsonTypeInfo<TestPayload> GetJsonTypeInfo() => TestPayloadContext.Default.TestPayload;
+    public override string AsJson()
+    {
+        return JsonSerializer.Serialize(this, TestPayloadContext.Default.TestPayload);
+    }
 }
 
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]

@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Web.BlazorComponents.SignalRContent.NotificationContent;
-using AnimeFeedManager.Web.BlazorComponents.Toast;
+﻿using AnimeFeedManager.Web.BlazorComponents.Toast;
 
 namespace AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 
@@ -11,12 +10,12 @@ public static class NotificationFactory
         BlazorRenderer renderer)
     {
         return payloadDeserializer(notification)
-            .Bind(data => ContentGenerator.GetContent(data.Instance))
+            .Map(data => data.AsNotificationComponent())
             .Map(content => renderer.RenderComponent<ClosableNotification>(new Dictionary<string, object?>
             {
                 {nameof(ClosableNotification.Type), Helpers.Map(notification.Type)},
                 {nameof(ClosableNotification.Title), content.Title},
-                {nameof(ClosableNotification.Message), content.Message},
+                {nameof(ClosableNotification.Message), content.Content},
                 {nameof(ClosableNotification.CloseTime), TimeSpan.FromSeconds(8)}
             }));
     }

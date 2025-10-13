@@ -4,7 +4,6 @@ public sealed record SeriesSeason(Season Season, Year Year, bool IsLatest = fals
 
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(SeriesSeason[]))]
-[EventPayloadSerializerContext(typeof(SeriesSeason))]
 public partial class SeriesSeasonContext : JsonSerializerContext;
 
 public static class SeriesSeasonExtensions

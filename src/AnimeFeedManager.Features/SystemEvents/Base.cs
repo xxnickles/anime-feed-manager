@@ -1,21 +1,21 @@
-using System.Text.Json.Serialization.Metadata;
+using Microsoft.AspNetCore.Components;
 
 namespace AnimeFeedManager.Features.SystemEvents;
 
-public abstract record SerializableEventPayload<TSelf>  where TSelf : SerializableEventPayload<TSelf>
+public abstract record SystemNotificationPayload
 {
-   public abstract JsonTypeInfo<TSelf> GetJsonTypeInfo();
-}
+    public abstract string AsJson();
 
+    public virtual (string Title, RenderFragment Content) AsNotificationComponent() => ("Not Implemented", builder => { });
+}
 
 public static class Extensions
 {
-   public static EventPayload AsEventPayload<T>(this SerializableEventPayload<T> eventPayload) where T : SerializableEventPayload<T>
-   {
-     return new EventPayload(
-         JsonSerializer.Serialize(eventPayload, eventPayload.GetJsonTypeInfo()),
-         typeof(T).Name
-      );
-   }
+    public static EventPayload AsEventPayload(this SystemNotificationPayload eventPayload)
+    {
+        return new EventPayload(
+            eventPayload.AsJson(),
+            eventPayload.GetType().Name
+        );
+    }
 }
-

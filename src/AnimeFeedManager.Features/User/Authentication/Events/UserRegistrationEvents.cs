@@ -1,10 +1,11 @@
-using System.Text.Json.Serialization.Metadata;
-
 namespace AnimeFeedManager.Features.User.Authentication.Events;
 
-public sealed record UserRegistered(Email Email, string Id) : SerializableEventPayload<UserRegistered>
+public sealed record UserRegistered(Email Email, string Id) : SystemNotificationPayload
 {
-    public override JsonTypeInfo<UserRegistered> GetJsonTypeInfo() => UserRegisteredContext.Default.UserRegistered;
+    public override string AsJson()
+    {
+       return JsonSerializer.Serialize(this, UserRegisteredContext.Default.UserRegistered);   
+    }
 }
 
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
