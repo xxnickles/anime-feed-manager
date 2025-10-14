@@ -17,42 +17,22 @@ public static class ExistentUser
     public static ExistentUserGetterByEmail TableStorageExistentUserGetterByEmail(
         this ITableClientFactory clientFactory) =>
         (email, cancellationToken) => clientFactory.GetClient<UserStorage>()
-            .Bind(client => client.GetByEmail(email, cancellationToken));
+            .Bind(client =>
+                client.ExecuteQuery<UserStorage>(
+                        storage => storage.PartitionKey == Constants.UserPartitionKey && storage.Email == email,
+                        cancellationToken)
+                    .Bind(ParseAsUser))
+            .MapError(error => error.WithOperationName(nameof(TableStorageExistentUserGetterByEmail)));
 
     public static ExistentUserGetterById TableStorageExistentUserGetterById(this ITableClientFactory clientFactory) =>
         (id, cancellationToken) => clientFactory.GetClient<UserStorage>()
-            .Bind(client => client.GetById(id, cancellationToken));
-
-
-    private static Task<Result<User>> GetByEmail(
-        this TableClient tableClient,
-        Email email,
-        CancellationToken cancellationToken = default)
-    {
-        return tableClient.ExecuteQuery(client =>
-                client.QueryAsync<UserStorage>(
-                    storage => storage.PartitionKey == Constants.UserPartitionKey && storage.Email == email,
-                    cancellationToken: cancellationToken))
-            .Bind(ParseAsUser)
-            .MapError(error => error.WithOperationName(nameof(GetByEmail)));
-    }
-
-
-    private static Task<Result<User>> GetById(
-        this TableClient tableClient,
-        NoEmptyString id,
-        CancellationToken cancellationToken = default)
-    {
-        return tableClient.ExecuteQuery(client =>
-                client.QueryAsync<UserStorage>(
+            .Bind(client =>
+                client.ExecuteQuery<UserStorage>(
                     storage => storage.PartitionKey == Constants.UserPartitionKey && storage.RowKey == id,
-                    cancellationToken: cancellationToken))
-            .Bind(ParseAsUser)
+                    cancellationToken).Bind(ParseAsUser))
             .MapError(error => error
                 .WithLogProperty("Id", id)
-                .WithOperationName(nameof(GetById)));;
-    }
-
+                .WithOperationName(nameof(TableStorageExistentUserGetterById)));
 
     private static Result<User> ParseAsUser(ImmutableList<UserStorage> storage)
     {

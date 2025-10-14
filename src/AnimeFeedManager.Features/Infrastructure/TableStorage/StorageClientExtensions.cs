@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
+﻿using System.Linq.Expressions;
+
+namespace AnimeFeedManager.Features.Infrastructure.TableStorage;
 
 internal static class StorageClientExtensions
 {
@@ -49,11 +51,11 @@ internal static class StorageClientExtensions
     }
 
     public static async Task<Result<ImmutableList<T>>> ExecuteQuery<T>(this TableClient client,
-        Func<TableClient, AsyncPageable<T>> query) where T : ITableEntity
+        Expression<Func<T, bool>> filter, CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity
     {
         try
         {
-            var queryResults = query(client);
+            var queryResults = client.QueryAsync(filter, select: select, cancellationToken: token);
             var resultList = ImmutableList<T>.Empty;
             await foreach (var qEntity in queryResults)
             {
