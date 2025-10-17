@@ -24,9 +24,9 @@ public class OnTvSeriesComplete
     CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnTvSeriesComplete));
-        await CompleteOngoing.CompleteOngoingSeries(_tableClientFactory, _domainPostman, message.Feed, token)
+        await CompleteOngoing.CompleteOngoingSeries( message.Feed,_tableClientFactory, _domainPostman, token)
             .Match(
-                r => _logger.LogInformation("TV Series have been completed {@Series}", r.CompletedSereies),
+                r => _logger.LogInformation("TV Series have been completed {@Series}", r.CompletedSeries),
                 e => e.LogError(_logger)
             );
 

@@ -15,7 +15,7 @@ internal static class InterestedHandlers
         return Validate(viewModel)
             .Bind(model => InterestedSeries.VerifyStorage(model.UserId, model.SeriesId, model.SeriesTitle,
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
-            .UpdateInterested(clientFactory.TableStorageTvSubscriptionsUpdater(),
+            .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
             .LogErrors(logger)
             .ToComponentResult(
@@ -45,7 +45,7 @@ internal static class InterestedHandlers
         return Validate(viewModel)
             .Bind(model => InterestedSeries.VerifyStorage(model.UserId, model.SeriesId, model.SeriesTitle,
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
-            .UpdateInterested(clientFactory.TableStorageTvSubscriptionsUpdater(),
+            .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
             .LogErrors(logger)
             .ToComponentResult(

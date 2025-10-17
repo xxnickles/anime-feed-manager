@@ -14,40 +14,40 @@ public static class Subscription
         .Map(subscription => VerifyCurrentSubscription(subscription, userId, seriesId, seriesTitle, feedTitle));
 
     public static Task<Result<Unit>> UpdateSubscription(this Task<Result<SubscriptionStorage>> storage,
-        TvSubscriptionsUpdater subscriptionsUpdater,
+        TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) =>
-        storage.Bind(s => ToggleSubscription(s, subscriptionsUpdater, subscriptionsRemover, token));
+        storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
 
 
-    public static Task<Result<ExpirationSummary>> ExpireSubscriptions(
+    public static Task<Result<Summary>> ExpireSubscriptions(
         string seriesId,
         TvSubscriptionsBySeries getter,
-        TvSubscriptionsUpdater subscriptionsUpdater,
+        TvSubscriptionUpdater subscriptionUpdater,
         CancellationToken token) => getter(seriesId, token)
         .Map(subscriptions => subscriptions.ConvertAll(MarkAsExpired))
-        .Bind(subscriptions => StoreUpdates(subscriptions, subscriptionsUpdater, token));
+        .Bind(subscriptions => StoreUpdates(subscriptions, subscriptionUpdater, token));
 
 
-    private static Task<Result<ExpirationSummary>> StoreUpdates(
+    private static Task<Result<Summary>> StoreUpdates(
         ImmutableList<SubscriptionStorage> subscriptions,
-        TvSubscriptionsUpdater subscriptionsUpdater,
+        TvSubscriptionUpdater subscriptionUpdater,
         CancellationToken token)
     {
        return subscriptions.Select(s =>
-            subscriptionsUpdater(s, token)
+            subscriptionUpdater(s, token)
                 .MapError(error => error
                     .WithLogProperty("Subscription", s)
                     .WithOperationName(nameof(StoreUpdates))
                 ))
            .Flatten()
-           .Map(r => new ExpirationSummary(r.Count));
+           .Map(r => new Summary(r.Count));
     }
 
 
     private static SubscriptionStorage MarkAsExpired(SubscriptionStorage storage)
     {
-        storage.Status = SubscriptionStatus.Expired;
+        storage.Status = nameof(SubscriptionStatus.Expired);
         return storage;
     }
 
@@ -63,8 +63,8 @@ public static class Subscription
             {
                 PartitionKey = userId,
                 RowKey = seriesId,
-                Type = SubscriptionType.None,
-                Status = SubscriptionStatus.Active,
+                Type = nameof(SubscriptionType.None),
+                Status = nameof(SubscriptionStatus.Active),
                 SeriesFeedTitle = feedTitle,
                 SeriesTitle = seriesTitle,
             };
@@ -74,19 +74,19 @@ public static class Subscription
 
     private static Task<Result<Unit>> ToggleSubscription(
         SubscriptionStorage storage,
-        TvSubscriptionsUpdater subscriptionsUpdater,
+        TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) => storage.Type switch
     {
-        SubscriptionType.None => subscriptionsUpdater(AddSubscribedValue(storage), token),
-        SubscriptionType.Subscribed => subscriptionsRemover(storage.PartitionKey ?? string.Empty,
+        nameof(SubscriptionType.None) => subscriptionUpdater(AddSubscribedValue(storage), token),
+        nameof(SubscriptionType.Subscribed) => subscriptionsRemover(storage.PartitionKey ?? string.Empty,
             storage.RowKey ?? string.Empty, token),
         _ => throw new ArgumentOutOfRangeException() // SubscriptionType.Interested should not be possible here
     };
 
     private static SubscriptionStorage AddSubscribedValue(SubscriptionStorage storage)
     {
-        storage.Type = SubscriptionType.Subscribed;
+        storage.Type = nameof(SubscriptionType.Subscribed);
         return storage;
     }
 }

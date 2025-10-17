@@ -31,7 +31,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     FeedTitle = string.Empty,
                     Status = SeriesStatus.NotAvailableValue
                 },
-                new NoImage());
+                new NoImage(),
+                Status.NewSeries);
 
             var seriesDataList = ImmutableList.Create(storageData);
             var scrapData = new ScrapTvLibraryData(seriesDataList, feedTitles, seriesSeason);
@@ -43,10 +44,9 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 new TvSeriesInfo(
                     "Test Anime",
                     "Test Anime Feed",
-                    ["Alt Title 1", "Alt Title 2"],
+                    new[] { "Alt Title 1", "Alt Title 2" },
                     SeriesStatus.Ongoing()));
-                    SeriesStatus.Ongoing();
-
+            // ... existing code ...
             // Setup StoredSeriesGetter fake
             var storedSeriesGetter = A.Fake<StoredSeries>();
             A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
@@ -87,7 +87,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     FeedTitle = string.Empty,
                     Status = SeriesStatus.NotAvailableValue
                 },
-                new NoImage());
+                new NoImage(),
+                Status.NewSeries);
 
             var seriesDataList = ImmutableList.Create(storageData);
             var scrapData = new ScrapTvLibraryData(seriesDataList, feedTitles, seriesSeason);
@@ -118,7 +119,6 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             });
         }
 
-
         [Fact]
         internal async Task Should_Set_Status_Completed_When_New_And_Is_OldSeason_And_NoMatchingFeed()
         {
@@ -128,8 +128,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
         [Fact]
         internal async Task Should_Set_Status_Completed_When_Exist_And_Is_OldSeason_And_NoMatchingFeed()
         {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, [], SeriesStatus.NotAvailable());
-
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, Array.Empty<string>(), SeriesStatus.NotAvailable());
             await OldSeasonVerification(ImmutableList.Create(storedSeries));
         }
 
@@ -148,7 +147,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 Synopsis = "Test synopsis",
                 FeedTitle = string.Empty,
                 Status = SeriesStatus.NotAvailableValue
-            }, new NoImage());
+            }, new NoImage(), Status.NewSeries);
 
             var scrapData = new ScrapTvLibraryData(ImmutableList.Create(processSeries), feedTitles, seriesSeason);
             var resultScrapData = Result<ScrapTvLibraryData>.Success(scrapData);

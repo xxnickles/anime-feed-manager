@@ -19,7 +19,7 @@ internal static class SubscriptionHandlers
                 model.SeriesTitle,
                 model.SeriesFeedTitle,
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
-            .UpdateSubscription(clientFactory.TableStorageTvSubscriptionsUpdater(),
+            .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
             .LogErrors(logger)
             .ToComponentResult(
@@ -53,7 +53,7 @@ internal static class SubscriptionHandlers
                 model.SeriesTitle,
                 model.SeriesFeedTitle,
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
-            .UpdateSubscription(clientFactory.TableStorageTvSubscriptionsUpdater(),
+            .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
             .LogErrors(logger)
             .ToComponentResult(

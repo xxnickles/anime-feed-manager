@@ -32,8 +32,16 @@ public static class EventSending
         new CompleteOngoingSeries(data.processData.FeedTitles.ToArray()),
         new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
             data.summary.AsEventPayload()),
+        .. GetUpdatedToOngoingEvents(data.processData),
         .. GetFeedUpdatedEvents(data.processData)
     ];
+
+    private static UpdatedToOngoing[] GetUpdatedToOngoingEvents(FeedTitleUpdateData data)
+    {
+        return data.FeedTitleUpdateInformation.Where(i => i.UpdateStatus == UpdateStatus.Updated)
+            .Select(i => new UpdatedToOngoing(i.Series.RowKey ?? string.Empty, i.Series.FeedTitle ?? string.Empty))
+            .ToArray();
+    }
 
     private static DomainMessage[] GetFeedUpdatedEvents(FeedTitleUpdateData data)
     {

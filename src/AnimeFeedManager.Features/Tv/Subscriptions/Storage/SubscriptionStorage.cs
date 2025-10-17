@@ -19,8 +19,8 @@ public sealed class SubscriptionStorage : ITableEntity
 {
     public string? PartitionKey { get; set; } // represents the user
     public string? RowKey { get; set; } // represents the series id
-    public SubscriptionType Type { get; set; } = SubscriptionType.None;
-    public SubscriptionStatus Status { get; set; } = SubscriptionStatus.None;
+    public string Type { get; set; } = nameof(SubscriptionType.None);
+    public string Status { get; set; } = nameof(SubscriptionStatus.None);
     public string SeriesTitle { get; set; } = string.Empty; 
     public string? SeriesFeedTitle { get; set; }
     public DateTimeOffset? Timestamp { get; set; }

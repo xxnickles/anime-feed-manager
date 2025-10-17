@@ -1,11 +1,13 @@
-﻿namespace AnimeFeedManager.Features.Tv.Library.SeriesCompletion;
+﻿using AnimeFeedManager.Features.Tv.Library.Events;
+
+namespace AnimeFeedManager.Features.Tv.Library.SeriesCompletion;
 
 public static class CompleteOngoing
 {
     public static Task<Result<CompleteOnGoingTvSeriesProcessResult>> CompleteOngoingSeries(
+        string[] updatedFeed,
         ITableClientFactory clientFactory,
         IDomainPostman domainPostman,
-        string[] updatedFeed,
         CancellationToken token)
     {
         return StartProcess(clientFactory.TableStorageOnGoingStoredTvSeries(), updatedFeed, token)
@@ -14,7 +16,7 @@ public static class CompleteOngoing
             .Map(r => new CompleteOnGoingTvSeriesProcessResult(r.SeriesToComplete));
     }
 
-    private static Task<Result<CompleteOnGoingTvSeriesProcess>> StartProcess(OnGoingStoredTvSeries seriesGetter,
+    internal static Task<Result<CompleteOnGoingTvSeriesProcess>> StartProcess(OnGoingStoredTvSeries seriesGetter,
         string[] updatedFeed,
         CancellationToken token)
     {
@@ -26,7 +28,7 @@ public static class CompleteOngoing
             .MapError(error => error.WithOperationName(nameof(StartProcess)));
     }
 
-    private static Task<Result<CompleteOnGoingTvSeriesProcess>> StoreChanges(
+    internal static Task<Result<CompleteOnGoingTvSeriesProcess>> StoreChanges(
         this Task<Result<CompleteOnGoingTvSeriesProcess>> process, TvLibraryStorageUpdater updater,
         CancellationToken token)
     {
@@ -36,6 +38,29 @@ public static class CompleteOngoing
                 .WithLogProperty("Series", p.SeriesToComplete))
         );
     }
+    
+    internal static Task<Result<CompleteOnGoingTvSeriesProcess>> SendEvents(
+        this Task<Result<CompleteOnGoingTvSeriesProcess>> processData,
+        IDomainPostman domainPostman,
+        CancellationToken token) => processData
+        .Bind(data => domainPostman.SendMessage(GetEvent(data), token)
+            .Map(_ => data))
+        .MapError(e => domainPostman
+            .SendMessage(
+                new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
+                    new CompletedTvSeriesResult([], ResultType.Failed).AsEventPayload()),
+                token)
+            .MatchToValue(_ => e, error => error));
+
+
+    private static SystemEvent GetEvent(CompleteOnGoingTvSeriesProcess data) =>
+    
+        new(
+            TargetConsumer.Admin(),
+            EventTarget.Both,
+            EventType.Completed,
+            new CompletedTvSeriesResult(data.SeriesToComplete.Select(d => d.Title ?? string.Empty).ToArray(),
+                ResultType.Success).AsEventPayload());
 
     private static AnimeInfoStorage Complete(AnimeInfoStorage series)
     {

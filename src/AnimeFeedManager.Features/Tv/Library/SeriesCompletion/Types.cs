@@ -2,4 +2,4 @@
 
 internal record CompleteOnGoingTvSeriesProcess(ImmutableList<AnimeInfoStorage> SeriesToComplete);
 
-public record CompleteOnGoingTvSeriesProcessResult(ImmutableList<AnimeInfoStorage> CompletedSereies);
+public record CompleteOnGoingTvSeriesProcessResult(ImmutableList<AnimeInfoStorage> CompletedSeries);

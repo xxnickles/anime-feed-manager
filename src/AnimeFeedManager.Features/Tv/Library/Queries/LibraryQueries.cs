@@ -55,17 +55,17 @@ public static class LibraryQueries
         return (series.Status.ToString(), GetSubscriptionType(subscriptions, series.Id)) switch
         {
             (SeriesStatus.CompletedValue, _) => new Completed(user, series),
-            (SeriesStatus.OngoingValue, SubscriptionType.Interested) => new Interested(user, series),
-            (SeriesStatus.OngoingValue, SubscriptionType.Subscribed) => new Subscribed(user, series),
-            (SeriesStatus.OngoingValue, SubscriptionType.None) => new AvailableForSubscription(user, series),
+            (SeriesStatus.OngoingValue, nameof(SubscriptionType.Subscribed)) => new Subscribed(user, series),
+            (SeriesStatus.OngoingValue, nameof(SubscriptionType.None)) => new AvailableForSubscription(user, series),
+            (_, nameof(SubscriptionType.Interested)) => new Interested(user, series),
             _ => new AvailableForFuture(user, series)
         };
     }
 
 
-    private static SubscriptionType GetSubscriptionType(ImmutableList<SubscriptionStorage> subscriptions,
+    private static string GetSubscriptionType(ImmutableList<SubscriptionStorage> subscriptions,
         string seriesId)
     {
-        return subscriptions.FirstOrDefault(s => s.RowKey == seriesId)?.Type ?? SubscriptionType.None;
+        return subscriptions.FirstOrDefault(s => s.RowKey == seriesId)?.Type ?? nameof(SubscriptionType.None);
     }
 }

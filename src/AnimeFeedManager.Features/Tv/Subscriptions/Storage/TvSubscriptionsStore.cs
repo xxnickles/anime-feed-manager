@@ -1,18 +1,25 @@
 namespace AnimeFeedManager.Features.Tv.Subscriptions.Storage;
 
-public delegate Task<Result<Unit>> TvSubscriptionsUpdater(SubscriptionStorage subscription, CancellationToken token);
+public delegate Task<Result<Unit>> TvSubscriptionUpdater(SubscriptionStorage subscription, CancellationToken token);
 
 public delegate Task<Result<Unit>> TvSubscriptionsRemover(string user, string seriesId, CancellationToken token);
 
+public delegate Task<Result<Unit>> TvSubscriptionsUpdater(IEnumerable<SubscriptionStorage> subscriptions, CancellationToken token);
+
 public static class TvSubscriptionsStore
 {
-    public static TvSubscriptionsUpdater TableStorageTvSubscriptionsUpdater(this ITableClientFactory clientFactory) =>
+    public static TvSubscriptionUpdater TableStorageTvSubscriptionUpdater(this ITableClientFactory clientFactory) =>
         (subscription, token) => clientFactory.GetClient<SubscriptionStorage>()
             .Bind(client => client.UpsertSubscription(subscription, token));
 
     public static TvSubscriptionsRemover TableStorageTvSubscriptionsRemover(this ITableClientFactory clientFactory) =>
         (user, seriesId, token) => clientFactory.GetClient<SubscriptionStorage>()
             .Bind(client => client.RemoveSubscription(user, seriesId, token));
+    
+    public static TvSubscriptionsUpdater TableStorageTvSubscriptionsUpdater(this ITableClientFactory clientFactory) => 
+        (subscriptions, token) => clientFactory.GetClient<SubscriptionStorage>()
+            .Bind(client => client.AddBatch(subscriptions, token));
+    
 
     private static Task<Result<Unit>> UpsertSubscription(
         this TableClient tableClient,

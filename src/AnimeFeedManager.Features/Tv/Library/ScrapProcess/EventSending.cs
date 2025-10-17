@@ -36,6 +36,7 @@ public static class EventSending
         new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
             data.summary.AsEventPayload()),
         .. GetCompletedSeriesEvent(data.processData),
+        .. GetUpdatedToOngoingEvents(data.processData),
         .. GetFeedUpdatedEvents(data.processData)
     ];
 
@@ -56,6 +57,10 @@ public static class EventSending
 
     private static ScrapTvLibraryResult ExtractResults(ScrapTvLibraryData data) =>
         new(data.Season,
-            data.SeriesData.Count(d => d.Image is AlreadyExistInSystem),
-            data.SeriesData.Count(d => d.Image is not AlreadyExistInSystem));
+            data.SeriesData.Count(d => d.Status is Status.UpdatedSeries),
+            data.SeriesData.Count(d => d.Status is Status.NewSeries));
+    
+    private static UpdatedToOngoing[] GetUpdatedToOngoingEvents(ScrapTvLibraryData data) => data.SeriesData.Where(d => d.Status is not Status.NoChanges && d.Series.Status == SeriesStatus.Ongoing())
+        .Select(d => new UpdatedToOngoing(d.Series.RowKey ?? string.Empty, d.Series.FeedTitle ?? string.Empty))
+        .ToArray(); 
 }

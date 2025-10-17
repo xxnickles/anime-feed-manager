@@ -1,3 +1,7 @@
-﻿namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
+﻿using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
 
-public record ExpirationSummary(int Changes);
+namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
+
+public record Summary(int Changes);
+
+public record AutoSubscriptionProcess(string SeriesId, ImmutableList<SubscriptionStorage> InterestedSeries);

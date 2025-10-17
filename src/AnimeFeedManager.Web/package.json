@@ -10,10 +10,10 @@
     "watch:css": "npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/app.css --watch",
     "build": "npm run build:css && npm run build:js",
     "watch": "concurrently \"npm run watch:css\" \"npm run watch:js\"",
-    "update:check": "ncu",
-    "update:packages": "ncu -u && npm install",
-    "update:interactive": "ncu -i",
-    "libman:update": "node libman-update.js"
+    "update:c": "ncu",
+    "update:p": "ncu -u && npm install",
+    "update:i": "ncu -i",
+    "libman:u": "node libman-update.js"
   },
   "author": "",
   "license": "ISC",
@@ -23,9 +23,9 @@
     "@tailwindcss/typography": "^0.5.19",
     "chokidar": "^4.0.3",
     "concurrently": "^9.2.1",
-    "daisyui": "^5.3.0",
+    "daisyui": "^5.3.7",
     "glob": "^11.0.3",
-    "npm-check-updates": "^19.1.0",
+    "npm-check-updates": "^19.1.1",
     "tailwindcss": "^4.1.14"
   }
 }

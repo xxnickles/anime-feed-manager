@@ -56,7 +56,8 @@ internal static class ScrapSteps
                     },
                     Uri.TryCreate(seriesContainer.ImageUrl, UriKind.Absolute, out var validUri)
                         ? new ScrappedImageUrl(validUri)
-                        : new NoImage());
+                        : new NoImage(),
+                    Status.NewSeries);
             }
         }
         catch (Exception e)
@@ -92,24 +93,13 @@ internal static class ScrapSteps
         // Series already exist
         if (currentInfo is not null)
         {
-            baseSeries.FeedTitle = currentInfo.FeedTitle;
-            baseSeries.Status = (currentInfo.Status.ToString(), processHasFeedTitle) switch
-            {
-                (SeriesStatus.NotAvailableValue, true) => SeriesStatus.OngoingValue,
-                (SeriesStatus.NotAvailableValue, false) => isOldSeason
-                    ? SeriesStatus.Completed()
-                    : SeriesStatus.NotAvailable(),
-                (SeriesStatus.OngoingValue, false) => SeriesStatus.Completed(),
-                (SeriesStatus.OngoingValue, true) => SeriesStatus.Ongoing(),
-                (_, _) => SeriesStatus.NotAvailable(),
-            };
-            baseSeries.AlternativeTitles = currentInfo.AlternativeTitles.ArrayToString();
-
-            if (currentInfo is not TvSeriesInfoWithImage withImage)
-                return storageSeries with {Series = baseSeries};
-
-            baseSeries.ImagePath = withImage.ImageUrl;
-            return new StorageData(baseSeries, new AlreadyExistInSystem());
+            return ProcessExistentSeries(
+                storageSeries,
+                baseSeries,
+                currentInfo,
+                feedTitleInProcess,
+                isOldSeason,
+                processHasFeedTitle);
         }
         // New series, there is a matching feed
 
@@ -117,12 +107,50 @@ internal static class ScrapSteps
         {
             baseSeries.Status = SeriesStatus.OngoingValue;
             baseSeries.FeedTitle = feedTitleInProcess;
-            return storageSeries with {Series = baseSeries};
+            return storageSeries with {Series = baseSeries, Status = Status.NewSeries};
         }
 
-        if (!isOldSeason) return storageSeries;
+        if (!isOldSeason) return storageSeries with {Status = Status.NewSeries};
 
         baseSeries.Status = SeriesStatus.Completed();
-        return storageSeries with {Series = baseSeries};
+        return storageSeries with {Series = baseSeries, Status = Status.NewSeries};
+    }
+
+    private static StorageData ProcessExistentSeries(
+        StorageData storageSeries,
+        AnimeInfoStorage baseSeries,
+        TvSeriesInfo currentInfo,
+        string feedTitleInProcess,
+        bool isOldSeason,
+        bool processHasFeedTitle)
+    {
+        var needToUpdateFeedTitle = string.IsNullOrWhiteSpace(currentInfo.FeedTitle) && processHasFeedTitle;
+        baseSeries.FeedTitle = needToUpdateFeedTitle
+            ? feedTitleInProcess
+            : currentInfo.FeedTitle;
+        baseSeries.Status = (currentInfo.Status.ToString(), processHasFeedTitle) switch
+        {
+            (SeriesStatus.NotAvailableValue, true) => SeriesStatus.OngoingValue,
+            (SeriesStatus.NotAvailableValue, false) => isOldSeason
+                ? SeriesStatus.Completed()
+                : SeriesStatus.NotAvailable(),
+            (SeriesStatus.OngoingValue, false) => SeriesStatus.Completed(),
+            (SeriesStatus.OngoingValue, true) => SeriesStatus.Ongoing(),
+            (_, _) => SeriesStatus.NotAvailable(),
+        };
+        baseSeries.AlternativeTitles = currentInfo.AlternativeTitles.ArrayToString();
+
+
+        if (currentInfo is not TvSeriesInfoWithImage withImage)
+            return storageSeries with
+            {
+                Series = baseSeries, 
+                Status = needToUpdateFeedTitle || baseSeries.Status != currentInfo.Status
+                    ? Status.UpdatedSeries
+                    : Status.NoChanges
+            };
+
+        baseSeries.ImagePath = withImage.ImageUrl;
+        return new StorageData(baseSeries, new AlreadyExistInSystem(), Status.UpdatedSeries);
     }
 }

@@ -12,7 +12,8 @@ public static class FeedTitlesScrap
         {
             return season switch
             {
-                CurrentLatestSeason latest => (latest.Season.Season ?? string.Empty, latest.Season.Year, latest.Season.Latest)
+                CurrentLatestSeason latest => (latest.Season.Season ?? string.Empty, latest.Season.Year,
+                        latest.Season.Latest)
                     .ParseAsSeriesSeason()
                     .Map(latestSeason => new FeedTitleUpdateData(latestSeason, [], [])),
                 NoMatch => new OperationError(
@@ -44,16 +45,22 @@ public static class FeedTitlesScrap
         CancellationToken token)
     {
         return seriesGetter(data.Season, token)
-            .Map(series => series.ConvertAll(s => Transform(s, data.FeedTitles)))
+            .Map(series => series.ConvertAll(s => Transform(s, data.FeedTitles))
+                .Where(s => s.UpdateStatus is UpdateStatus.Updated)
+                .ToImmutableList()) // Remove series that have no changes
             .Bind(seriesData => StoreChanges(seriesData, updater, token))
             .Map(seriesData => data with {FeedTitleUpdateInformation = seriesData});
     }
 
     private static FeedTitleUpdateInformation Transform(AnimeInfoStorage entity, ImmutableList<string> feedTitles)
     {
+        // Pass on series that already are ongoing
+        if(entity.Status == SeriesStatus.Ongoing())
+            return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
+        
         var alternativeTitles = entity.AlternativeTitles?.Split(SharedUtils.ArraySeparator) ?? [];
         var matchTitle = feedTitles.TryGetFeedTitle(entity.Title ?? string.Empty);
-         
+
         // If no match found with the main title, try with alternative titles
         if (string.IsNullOrWhiteSpace(matchTitle))
         {
@@ -61,14 +68,15 @@ public static class FeedTitlesScrap
             {
                 matchTitle = feedTitles.TryGetFeedTitle(altTitle);
                 if (!string.IsNullOrEmpty(matchTitle))
-                    break; 
+                    break;
             }
         }
-        
+
         if (string.IsNullOrWhiteSpace(matchTitle))
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
 
         entity.FeedTitle = matchTitle;
+        entity.Status = SeriesStatus.Ongoing();
         return new FeedTitleUpdateInformation(entity, UpdateStatus.Updated);
     }
 

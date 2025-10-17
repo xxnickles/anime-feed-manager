@@ -14,9 +14,9 @@ public static class InterestedSeries
 
 
     public static Task<Result<Unit>> UpdateInterested(this Task<Result<SubscriptionStorage>> storage,  
-        TvSubscriptionsUpdater subscriptionsUpdater,
+        TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
-        CancellationToken token) => storage.Bind(s => ToggleSubscription(s, subscriptionsUpdater, subscriptionsRemover, token));
+        CancellationToken token) => storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
     
     private static Result<SubscriptionStorage> VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
@@ -29,12 +29,12 @@ public static class InterestedSeries
             {
                 PartitionKey = userId,
                 RowKey = seriesId,
-                Type = SubscriptionType.None,
-                Status = SubscriptionStatus.Active,
+                Type = nameof(SubscriptionType.None),
+                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = seriesTitle,
             };
 
-        if (subscription.Type == SubscriptionType.Subscribed)
+        if (subscription.Type == nameof(SubscriptionType.Subscribed))
             return Error.Create($"You are already subscribed to {seriesTitle}")
                 .WithLogProperty("UserId", userId)
                 .WithLogProperty("SeriesId", seriesId)
@@ -46,12 +46,12 @@ public static class InterestedSeries
 
     private static Task<Result<Unit>> ToggleSubscription(
         SubscriptionStorage storage,
-        TvSubscriptionsUpdater subscriptionsUpdater,
+        TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) => storage.Type switch
     {
-        SubscriptionType.None => subscriptionsUpdater(AddInterestedValue(storage), token),
-        SubscriptionType.Interested => subscriptionsRemover(storage.PartitionKey ?? string.Empty,
+        nameof(SubscriptionType.None) => subscriptionUpdater(AddInterestedValue(storage), token),
+        nameof(SubscriptionType.Interested) => subscriptionsRemover(storage.PartitionKey ?? string.Empty,
             storage.RowKey ?? string.Empty, token),
         _ => throw new ArgumentOutOfRangeException() // SubscriptionType.Subscribed should not be possible here
     };
@@ -59,7 +59,7 @@ public static class InterestedSeries
 
     private static SubscriptionStorage AddInterestedValue(SubscriptionStorage storage)
     {
-        storage.Type = SubscriptionType.Interested;
+        storage.Type = nameof(SubscriptionType.Interested);
         return storage;
     }
 }
