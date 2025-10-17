@@ -46,7 +46,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     "Test Anime Feed",
                     new[] { "Alt Title 1", "Alt Title 2" },
                     SeriesStatus.Ongoing()));
-            // ... existing code ...
+            
             // Setup StoredSeriesGetter fake
             var storedSeriesGetter = A.Fake<StoredSeries>();
             A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
