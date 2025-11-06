@@ -4,25 +4,27 @@ using PuppeteerSharp;
 
 namespace AnimeFeedManager.Features.Scrapping.SubsPlease;
 
-public interface ISeasonFeedTitlesProvider
+public record FeedData(string Title, string Url);
+
+public interface ISeasonFeedDataProvider
 {
-    Task<Result<ImmutableList<string>>> Get();
+    Task<Result<ImmutableList<FeedData>>> Get();
 }
 
-public sealed class SeasonFeedTitlesProvider : ISeasonFeedTitlesProvider
+public sealed class SeasonFeedDataProvider : ISeasonFeedDataProvider
 {
     private readonly PuppeteerOptions _puppeteerOptions;
-    private readonly ILogger<SeasonFeedTitlesProvider> _logger;
+    private readonly ILogger<SeasonFeedDataProvider> _logger;
 
-    public SeasonFeedTitlesProvider(
+    public SeasonFeedDataProvider(
         PuppeteerOptions puppeteerOptions,
-        ILogger<SeasonFeedTitlesProvider> logger)
+        ILogger<SeasonFeedDataProvider> logger)
     {
         _puppeteerOptions = puppeteerOptions;
         _logger = logger;
     }
 
-    public async Task<Result<ImmutableList<string>>> Get()
+    public async Task<Result<ImmutableList<FeedData>>> Get()
     {
         try
         {
@@ -37,7 +39,7 @@ public sealed class SeasonFeedTitlesProvider : ISeasonFeedTitlesProvider
             await using var page = await browser.NewPageAsync();
             await page.GoToAsync("https://subsplease.org/schedule/");
             await page.WaitForSelectorAsync("table#full-schedule-table td.all-schedule-show");
-            var data = await page.EvaluateFunctionAsync<IEnumerable<string>>(ScrappingScript);
+            var data = await page.EvaluateFunctionAsync<FeedData[]>(ScrappingScript);
             await browser.CloseAsync();
             return data.ToImmutableList();
         }
@@ -51,7 +53,11 @@ public sealed class SeasonFeedTitlesProvider : ISeasonFeedTitlesProvider
     private const string ScrappingScript =
         """
         () => {
-            return Array.from(document.querySelectorAll('td.all-schedule-show a')).map(x => x.innerText);
+            return Array.from(document.querySelectorAll('td.all-schedule-show a'))
+                        .map(x => ({
+                            title : x.textContent.trim(),
+                            url : x.href
+                        }));
         }
         """;
 }

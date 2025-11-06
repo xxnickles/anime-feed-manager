@@ -1,5 +1,6 @@
 using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Scrapping.AniDb;
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
@@ -7,8 +8,10 @@ namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 internal static class ScrapSteps
 {
-    public static Task<Result<ScrapTvLibraryData>> ScrapSeries(this Task<Result<ImmutableList<string>>> feedTitles,
-        SeasonSelector season, PuppeteerOptions puppeteerOptions) =>
+    public static Task<Result<ScrapTvLibraryData>> ScrapSeries(
+        this Task<Result<ImmutableList<FeedData>>> feedTitles,
+        SeasonSelector season, 
+        PuppeteerOptions puppeteerOptions) =>
         feedTitles.Bind(titles => GetInitialProcessData(titles, season, puppeteerOptions));
 
     public static Task<Result<ScrapTvLibraryData>> AddDataFromStorage(this Task<Result<ScrapTvLibraryData>> data,
@@ -18,7 +21,7 @@ internal static class ScrapSteps
         data.Bind(d => AddExistentDataFromStorage(d, storedSeries, timeProvider, token));
 
     private static async Task<Result<ScrapTvLibraryData>> GetInitialProcessData(
-        ImmutableList<string> titles,
+        ImmutableList<FeedData> feedData,
         SeasonSelector season,
         PuppeteerOptions puppeteerOptions)
     {
@@ -32,7 +35,7 @@ internal static class ScrapSteps
                 .ParseAsSeriesSeason()
                 .Map(seriesSeason => new ScrapTvLibraryData(
                     series.Select(Transform),
-                    titles,
+                    feedData,
                     seriesSeason))
                 .MapError(error => error
                     .WithLogProperty("Season", season)
@@ -49,7 +52,8 @@ internal static class ScrapSteps
                         PartitionKey = IdHelpers.GenerateAnimePartitionKey(jsonSeason.Season, (ushort) jsonSeason.Year),
                         Title = seriesContainer.Title,
                         Synopsis = seriesContainer.Synopsys,
-                        FeedTitle = string.Empty,
+                        FeedTitle = null,
+                        FeedLink = null,
                         Date = SharedUtils.ParseDate(seriesContainer.Date, seriesContainer.SeasonInfo.Year)
                             ?.ToUniversalTime(),
                         Status = SeriesStatus.NotAvailableValue
@@ -76,19 +80,19 @@ internal static class ScrapSteps
 
         return storedSeries(scrapTvLibraryData.Season, token)
             .Map(series => scrapTvLibraryData.SeriesData.Select(s =>
-                ProcessSeriesData(s, scrapTvLibraryData.FeedTitles, series, isOldSeason)))
+                ProcessSeriesData(s, scrapTvLibraryData.FeedData, series, isOldSeason)))
             .Map(seriesData => scrapTvLibraryData with {SeriesData = seriesData});
     }
 
     private static StorageData ProcessSeriesData(
         StorageData storageSeries,
-        ImmutableList<string> feedTitles,
+        ImmutableList<FeedData> feedData,
         ImmutableList<TvSeriesInfo> existentSeries,
         bool isOldSeason)
     {
         var currentInfo = existentSeries.FirstOrDefault(s => s.Title == storageSeries.Series.Title);
-        var feedTitleInProcess = feedTitles.TryGetFeedTitle(storageSeries.Series.Title ?? string.Empty);
-        var processHasFeedTitle = !string.IsNullOrEmpty(feedTitleInProcess);
+        var feedDataInProcess = feedData.TryGetFeedMatch(storageSeries.Series.Title ?? string.Empty);
+        
         var baseSeries = storageSeries.Series;
         // Series already exist
         if (currentInfo is not null)
@@ -97,16 +101,16 @@ internal static class ScrapSteps
                 storageSeries,
                 baseSeries,
                 currentInfo,
-                feedTitleInProcess,
-                isOldSeason,
-                processHasFeedTitle);
+                feedDataInProcess,
+                isOldSeason);
         }
+        
         // New series, there is a matching feed
-
-        if (processHasFeedTitle)
+        if (feedDataInProcess is not null)
         {
             baseSeries.Status = SeriesStatus.OngoingValue;
-            baseSeries.FeedTitle = feedTitleInProcess;
+            baseSeries.FeedTitle = feedDataInProcess.Title;
+            baseSeries.FeedLink = feedDataInProcess.Url;
             return storageSeries with {Series = baseSeries, Status = Status.NewSeries};
         }
 
@@ -120,15 +124,26 @@ internal static class ScrapSteps
         StorageData storageSeries,
         AnimeInfoStorage baseSeries,
         TvSeriesInfo currentInfo,
-        string feedTitleInProcess,
-        bool isOldSeason,
-        bool processHasFeedTitle)
+        FeedData? feedDataInProcess,
+        bool isOldSeason)
     {
-        var needToUpdateFeedTitle = string.IsNullOrWhiteSpace(currentInfo.FeedTitle) && processHasFeedTitle;
-        baseSeries.FeedTitle = needToUpdateFeedTitle
-            ? feedTitleInProcess
-            : currentInfo.FeedTitle;
-        baseSeries.Status = (currentInfo.Status.ToString(), processHasFeedTitle) switch
+        // Copy existing feed info from storage if it exists. Checks both feed title and feed url as one of them can be empty
+        if (!string.IsNullOrWhiteSpace(currentInfo.FeedTitle) || !string.IsNullOrWhiteSpace(currentInfo.FeedUrl))
+        {
+            baseSeries.FeedTitle = currentInfo.FeedTitle;
+            baseSeries.FeedLink = currentInfo.FeedUrl;
+        }
+
+        // Updates feed info if needed (override with new feed data if current is empty and new data available)
+        var needToUpdateFeedTitle = string.IsNullOrWhiteSpace(currentInfo.FeedTitle) && feedDataInProcess is not null;
+        if (needToUpdateFeedTitle)
+        {
+            baseSeries.FeedTitle = feedDataInProcess?.Title;
+            baseSeries.FeedLink = feedDataInProcess?.Url;
+        }
+
+
+        baseSeries.Status = (currentInfo.Status.ToString(), feedDataInProcess is not null) switch
         {
             (SeriesStatus.NotAvailableValue, true) => SeriesStatus.OngoingValue,
             (SeriesStatus.NotAvailableValue, false) => isOldSeason

@@ -27,9 +27,9 @@ public static class FeedTitlesScrap
 
 
     public static Task<Result<FeedTitleUpdateData>> GetFeedTitles(this Task<Result<FeedTitleUpdateData>> data,
-        ISeasonFeedTitlesProvider seasonFeedTitlesProvider) =>
-        data.Bind(d => seasonFeedTitlesProvider.Get()
-            .Map(titles => d with {FeedTitles = titles}));
+        ISeasonFeedDataProvider seasonFeedDataProvider) =>
+        data.Bind(d => seasonFeedDataProvider.Get()
+            .Map(titles => d with {FeedData = titles}));
 
 
     public static Task<Result<FeedTitleUpdateData>> UpdateSeries(
@@ -45,37 +45,38 @@ public static class FeedTitlesScrap
         CancellationToken token)
     {
         return seriesGetter(data.Season, token)
-            .Map(series => series.ConvertAll(s => Transform(s, data.FeedTitles))
+            .Map(series => series.ConvertAll(s => Transform(s, data.FeedData))
                 .Where(s => s.UpdateStatus is UpdateStatus.Updated)
                 .ToImmutableList()) // Remove series that have no changes
             .Bind(seriesData => StoreChanges(seriesData, updater, token))
             .Map(seriesData => data with {FeedTitleUpdateInformation = seriesData});
     }
 
-    private static FeedTitleUpdateInformation Transform(AnimeInfoStorage entity, ImmutableList<string> feedTitles)
+    private static FeedTitleUpdateInformation Transform(AnimeInfoStorage entity, ImmutableList<FeedData> feedTitles)
     {
         // Pass on series that already are ongoing
         if(entity.Status == SeriesStatus.Ongoing())
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
         
         var alternativeTitles = entity.AlternativeTitles?.Split(SharedUtils.ArraySeparator) ?? [];
-        var matchTitle = feedTitles.TryGetFeedTitle(entity.Title ?? string.Empty);
+        var feedMatch = feedTitles.TryGetFeedMatch(entity.Title ?? string.Empty);
 
         // If no match found with the main title, try with alternative titles
-        if (string.IsNullOrWhiteSpace(matchTitle))
+        if (feedMatch is null)
         {
             foreach (var altTitle in alternativeTitles)
             {
-                matchTitle = feedTitles.TryGetFeedTitle(altTitle);
-                if (!string.IsNullOrEmpty(matchTitle))
+                feedMatch = feedTitles.TryGetFeedMatch(altTitle);
+                if (feedMatch is not null)
                     break;
             }
         }
 
-        if (string.IsNullOrWhiteSpace(matchTitle))
+        if (feedMatch is null)
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
 
-        entity.FeedTitle = matchTitle;
+        entity.FeedTitle = feedMatch.Title;
+        entity.FeedLink = feedMatch.Url;
         entity.Status = SeriesStatus.Ongoing();
         return new FeedTitleUpdateInformation(entity, UpdateStatus.Updated);
     }

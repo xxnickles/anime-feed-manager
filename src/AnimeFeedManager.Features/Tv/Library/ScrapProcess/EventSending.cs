@@ -28,17 +28,21 @@ public static class EventSending
         new ScrapTvLibraryFailedResult(parameters is not null ? $"{parameters.Year}-{parameters.Season}" : "Latest")
             .AsEventPayload();
 
-    private static DomainMessage[] GetEvents((ScrapTvLibraryData processData, ScrapTvLibraryResult summary) data) =>
-    [
-        new SeasonUpdated(data.processData.Season),
-        new FeedTitlesUpdated(data.processData.Season, data.processData.FeedTitles.ToArray()),
-        new CompleteOngoingSeries(data.processData.FeedTitles.ToArray()),
-        new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
-            data.summary.AsEventPayload()),
-        .. GetCompletedSeriesEvent(data.processData),
-        .. GetUpdatedToOngoingEvents(data.processData),
-        .. GetFeedUpdatedEvents(data.processData)
-    ];
+    private static DomainMessage[] GetEvents((ScrapTvLibraryData processData, ScrapTvLibraryResult summary) data)
+    {
+        var titles = data.processData.FeedData.Select(f => f.Title).ToArray();
+        return   [
+            new SeasonUpdated(data.processData.Season),
+            new FeedTitlesUpdated(data.processData.Season, titles),
+            new CompleteOngoingSeries(titles),
+            new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
+                data.summary.AsEventPayload()),
+            .. GetCompletedSeriesEvent(data.processData),
+            .. GetUpdatedToOngoingEvents(data.processData),
+            .. GetFeedUpdatedEvents(data.processData)
+        ];
+    }
+  
 
 
     private static CompletedSeries[] GetCompletedSeriesEvent(ScrapTvLibraryData data)

@@ -5,15 +5,17 @@ namespace AnimeFeedManager.Features.Tv.Library.Storage;
 public record TvSeriesInfo(
     string Title,
     string? FeedTitle,
+    string? FeedUrl,
     string[] AlternativeTitles,
     SeriesStatus Status);
 
 public sealed record TvSeriesInfoWithImage(
     string Title,
     string? FeedTitle,
+    string? FeedUrl,
     string[] AlternativeTitles,
     SeriesStatus Status,
-    string ImageUrl) : TvSeriesInfo(Title, FeedTitle, AlternativeTitles, Status);
+    string ImageUrl) : TvSeriesInfo(Title, FeedTitle, FeedUrl, AlternativeTitles, Status);
 
 public sealed record TvSeries(
     string Id,
@@ -149,10 +151,12 @@ public static class ExistentSeries
             ? new TvSeriesInfo(
                 entity.Title ?? string.Empty,
                 entity.FeedTitle,
+                entity.FeedLink,
                 ConvertAlternativeTitles(entity.AlternativeTitles),
                 (SeriesStatus) entity.Status)
             : new TvSeriesInfoWithImage(entity.Title ?? string.Empty,
                 entity.FeedTitle,
+                entity.FeedLink,
                 ConvertAlternativeTitles(entity.AlternativeTitles),
                 (SeriesStatus) entity.Status,
                 entity.ImagePath ?? string.Empty);

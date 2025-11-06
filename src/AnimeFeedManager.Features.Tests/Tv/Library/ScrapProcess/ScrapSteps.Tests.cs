@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Common.Scrapping;
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 
@@ -19,7 +20,9 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var seriesSeason = _defaultFixture
                 .Create<SeriesSeason>();
 
-            var feedTitles = ImmutableList.Create("Series 1", "Test Anime");
+            var feedTitles = ImmutableList.Create(
+                new FeedData("Series 1", "https://example.com/series-1"),
+                new FeedData("Test Anime", "https://example.com/test-anime"));
 
             var storageData = new StorageData(
                 new AnimeInfoStorage
@@ -44,6 +47,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 new TvSeriesInfo(
                     "Test Anime",
                     "Test Anime Feed",
+                    "https://example.com/test-anime-feed",
                     new[] { "Alt Title 1", "Alt Title 2" },
                     SeriesStatus.Ongoing()));
             
@@ -64,6 +68,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             {
                 var updatedSeries = r.SeriesData.First().Series;
                 Assert.Equal("Test Anime Feed", updatedSeries.FeedTitle);
+                Assert.Equal("https://example.com/test-anime-feed", updatedSeries.FeedLink);
                 Assert.Equal(SeriesStatus.OngoingValue, updatedSeries.Status);
                 Assert.Equal("Alt Title 1|Alt Title 2", updatedSeries.AlternativeTitles);
             });
@@ -75,7 +80,9 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             // Create initial ScrapTvLibraryData
             var seriesSeason = _defaultFixture
                 .Create<SeriesSeason>();
-            var feedTitles = ImmutableList.Create("Test Anime", "Series 2"); // Matching feed title
+            var feedTitles = ImmutableList.Create(
+                new FeedData("Test Anime", "https://example.com/test-anime"),
+                new FeedData("Series 2", "https://example.com/series-2")); // Matching feed title
 
             var storageData = new StorageData(
                 new AnimeInfoStorage
@@ -115,6 +122,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             {
                 var updatedSeries = r.SeriesData.First().Series;
                 Assert.Equal("Test Anime", updatedSeries.FeedTitle);
+                Assert.Equal("https://example.com/test-anime", updatedSeries.FeedLink);
                 Assert.Equal(SeriesStatus.OngoingValue, updatedSeries.Status);
             });
         }
@@ -128,7 +136,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
         [Fact]
         internal async Task Should_Set_Status_Completed_When_Exist_And_Is_OldSeason_And_NoMatchingFeed()
         {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, Array.Empty<string>(), SeriesStatus.NotAvailable());
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, Array.Empty<string>(), SeriesStatus.NotAvailable());
             await OldSeasonVerification(ImmutableList.Create(storedSeries));
         }
 
@@ -137,7 +145,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             // Create initial ScrapTvLibraryData
             // Season to scrap will be old
             var seriesSeason = new SeriesSeason(Season.Summer(), Year.FromNumber(2024));
-            var feedTitles = ImmutableList.Create("Other Series"); // No matching feed title
+            var feedTitles = ImmutableList.Create(
+                new FeedData("Other Series", "https://example.com/other-series")); // No matching feed title
 
             var processSeries = new StorageData(new AnimeInfoStorage
             {

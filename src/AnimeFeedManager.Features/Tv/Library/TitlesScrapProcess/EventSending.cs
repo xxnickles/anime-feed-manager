@@ -26,15 +26,19 @@ public static class EventSending
             0, UpdateType.Titles);
 
 
-    private static DomainMessage[] GetEvents((FeedTitleUpdateData processData, ScrapTvLibraryResult summary) data) =>
-    [
-        new FeedTitlesUpdated(data.processData.Season, data.processData.FeedTitles.ToArray()),
-        new CompleteOngoingSeries(data.processData.FeedTitles.ToArray()),
-        new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
-            data.summary.AsEventPayload()),
-        .. GetUpdatedToOngoingEvents(data.processData),
-        .. GetFeedUpdatedEvents(data.processData)
-    ];
+    private static DomainMessage[] GetEvents((FeedTitleUpdateData processData, ScrapTvLibraryResult summary) data)
+    {
+        var titles = data.processData.FeedData.Select(f => f.Title).ToArray();
+        return [
+            new FeedTitlesUpdated(data.processData.Season, titles),
+            new CompleteOngoingSeries(titles),
+            new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
+                data.summary.AsEventPayload()),
+            .. GetUpdatedToOngoingEvents(data.processData),
+            .. GetFeedUpdatedEvents(data.processData)
+        ];
+    }
+    
 
     private static UpdatedToOngoing[] GetUpdatedToOngoingEvents(FeedTitleUpdateData data)
     {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Tv.Library.Events;
@@ -19,10 +20,12 @@ public class FeedTitlesScrapTests
     public async Task Should_Update_Only_Series_Without_Feed_With_Matches()
     {
         var season = _fixture.Create<SeriesSeason>();
-        var feedTitles = ImmutableList.Create("Main Match", "Alt Match");
+        var feedTitles = ImmutableList.Create(
+            new FeedData("Sword Warriors", "https://example.com/sword-warriors"),
+            new FeedData("Magic Academy", "https://example.com/magic-academy"));
 
-        var s1 = MakeSeries("1", "Main Match", string.Empty, SeriesStatus.NotAvailable()); // update by main title
-        var s2 = MakeSeries("2", "Other Title", string.Empty, SeriesStatus.NotAvailable(), altTitles: "Alt Match"); // update by alt title
+        var s1 = MakeSeries("1", "Sword Warriors", string.Empty, SeriesStatus.NotAvailable()); // update by main title
+        var s2 = MakeSeries("2", "Other Title", string.Empty, SeriesStatus.NotAvailable(), altTitles: "Magic Academy"); // update by alt title
         var s3 = MakeSeries("3", "Already Ongoing", "existing", SeriesStatus.Ongoing()); // skip
         var s4 = MakeSeries("4", "Unrelated", string.Empty, SeriesStatus.NotAvailable()); // no changes
 
@@ -53,9 +56,11 @@ public class FeedTitlesScrapTests
         Assert.Equal(new[] {"1", "2"}, sentIds);
 
         // Validate transformations
-        Assert.Equal("Main Match", s1.FeedTitle);
+        Assert.Equal("Sword Warriors", s1.FeedTitle);
+        Assert.Equal("https://example.com/sword-warriors", s1.FeedLink);
         Assert.Equal(SeriesStatus.OngoingValue, s1.Status);
-        Assert.Equal("Alt Match", s2.FeedTitle);
+        Assert.Equal("Magic Academy", s2.FeedTitle);
+        Assert.Equal("https://example.com/magic-academy", s2.FeedLink);
         Assert.Equal(SeriesStatus.OngoingValue, s2.Status);
         Assert.Equal(SeriesStatus.OngoingValue, s3.Status); // unchanged ongoing
         Assert.Equal(string.Empty, s4.FeedTitle);
@@ -66,7 +71,9 @@ public class FeedTitlesScrapTests
     public async Task Should_Not_Update_When_No_Matches_Or_Already_Ongoing()
     {
         var season = _fixture.Create<SeriesSeason>();
-        var feedTitles = ImmutableList.Create("Other 1", "Other 2");
+        var feedTitles = ImmutableList.Create(
+            new FeedData("Other 1", "https://example.com/other-1"),
+            new FeedData("Other 2", "https://example.com/other-2"));
 
         var s1 = MakeSeries("1", "Title A", string.Empty, SeriesStatus.NotAvailable());
         var s2 = MakeSeries("2", "Title B", "has-feed", SeriesStatus.Ongoing());
@@ -96,7 +103,9 @@ public class FeedTitlesScrapTests
     public async Task Should_Create_Events_Only_For_Updated_Series()
     {
         var season = _fixture.Create<SeriesSeason>();
-        var feedTitles = ImmutableList.Create("T1", "T2");
+        var feedTitles = ImmutableList.Create(
+            new FeedData("T1", "https://example.com/t1"),
+            new FeedData("T2", "https://example.com/t2"));
 
         var s1 = MakeSeries("1", "T1", string.Empty, SeriesStatus.NotAvailable()); // updated
         var s2 = MakeSeries("2", "Nope", string.Empty, SeriesStatus.NotAvailable()); // no change

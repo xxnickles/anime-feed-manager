@@ -1,4 +1,4 @@
-/*! tailwindcss v4.1.14 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.16 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -229,6 +229,15 @@
           scale: 1;
           opacity: 1;
         }
+        :root:has(&) {
+          --page-has-backdrop: 1;
+          --page-overflow: hidden;
+          --page-scroll-bg: var(--page-scroll-bg-on);
+          --page-scroll-gutter: stable;
+          --page-scroll-transition: var(--page-scroll-transition-on);
+          animation: set-page-has-scroll forwards;
+          animation-timeline: scroll();
+        }
       }
       @starting-style {
         &.modal-open, &[open], &:target, .modal-toggle:checked + & {
@@ -260,6 +269,7 @@
       align-items: flex-start;
       justify-items: start;
       overscroll-behavior: contain;
+      background-color: transparent;
       opacity: 0%;
       transition: opacity 0.2s ease-out 0.1s allow-discrete, visibility 0.3s ease-out 0.1s allow-discrete;
       height: 100vh;
@@ -292,15 +302,32 @@
       width: calc(0.25rem * 0);
       appearance: none;
       opacity: 0%;
-      &:checked {
-        & ~ .drawer-side {
-          pointer-events: auto;
-          visibility: visible;
-          overflow-y: auto;
-          opacity: 100%;
-          & > *:not(.drawer-overlay) {
-            translate: 0%;
-          }
+    }
+    @layer daisyui.modifier.drawer {
+      :where(&:checked ~ .drawer-side) {
+        scrollbar-color: currentColor oklch(0 0 0 / calc(var(--page-has-backdrop, 0) * 0.4));
+        @supports (color: color-mix(in lab, red, red)) {
+          scrollbar-color: color-mix(in oklch, currentColor 35%, #0000) oklch(0 0 0 / calc(var(--page-has-backdrop, 0) * 0.4));
+        }
+      }
+      :where(:root:has(&:checked)) {
+        --page-has-backdrop: 1;
+        --page-overflow: hidden;
+        --page-scroll-bg: var(--page-scroll-bg-on);
+        --page-scroll-gutter: stable;
+        --page-scroll-transition: var(--page-scroll-transition-on);
+        animation: set-page-has-scroll forwards;
+        animation-timeline: scroll();
+      }
+    }
+    @layer daisyui.modifier {
+      :where(&:checked ~ .drawer-side) {
+        pointer-events: auto;
+        visibility: visible;
+        overflow-y: auto;
+        opacity: 100%;
+        & > *:not(.drawer-overlay) {
+          translate: 0%;
         }
       }
       &:focus-visible ~ .drawer-content label.drawer-button {
@@ -394,7 +421,7 @@
           color: var(--color-base-content);
         }
       }
-      --tab-p: 1rem;
+      --tab-p: 0.75rem;
       --tab-bg: var(--color-base-100);
       --tab-border-color: var(--color-base-300);
       --tab-radius-ss: 0;
@@ -403,6 +430,11 @@
       --tab-radius-ee: 0;
       --tab-order: 0;
       --tab-radius-min: calc(0.75rem - var(--border));
+      --tab-radius-limit: min(var(--radius-field), var(--tab-radius-min));
+      --tab-radius-grad: #0000 calc(69% - var(--border)),
+      var(--tab-border-color) calc(calc(69% - var(--border)) + 0.25px),
+      var(--tab-border-color) calc(calc(69% - var(--border)) + var(--border)),
+      var(--tab-bg) calc(calc(69% - var(--border)) + var(--border) + 0.25px);
       border-color: #0000;
       order: var(--tab-order);
       height: var(--tab-height);
@@ -412,7 +444,8 @@
       &:is(input[type="radio"]) {
         min-width: fit-content;
         &:after {
-          content: attr(aria-label);
+          --tw-content: attr(aria-label);
+          content: var(--tw-content);
         }
       }
       &:is(label) {
@@ -699,7 +732,7 @@
       position: relative;
       display: inline-block;
       position-area: var(--anchor-v, bottom) var(--anchor-h, span-right);
-      & > *:not(summary):focus {
+      & > *:not(:has(~ [class*="dropdown-content"])):focus {
         --tw-outline-style: none;
         outline-style: none;
         @media (forced-colors: active) {
@@ -791,6 +824,9 @@
         width: unset;
       }
     }
+    .prose & {
+      text-decoration-line: none;
+    }
     @layer daisyui.component {
       display: inline-flex;
       flex-shrink: 0;
@@ -842,9 +878,6 @@
       0 4px 3px -2px color-mix(in oklab, var(--btn-bg) calc(var(--depth) * 30%), #0000);
       }
       --btn-noise: var(--fx-noise);
-      .prose & {
-        text-decoration-line: none;
-      }
       @media (hover: hover) {
         &:hover {
           --btn-bg: var(--btn-color, var(--color-base-200));
@@ -873,7 +906,8 @@
       &:is(input[type="checkbox"], input[type="radio"]) {
         appearance: none;
         &::after {
-          content: attr(aria-label);
+          --tw-content: attr(aria-label);
+          content: var(--tw-content);
         }
       }
       &:where(input:checked:not(.filter .btn)) {
@@ -1028,8 +1062,11 @@
         grid-template-rows: max-content 1fr;
       }
       &:is( [open], [tabindex]:focus:not(.collapse-close), [tabindex]:focus-within:not(.collapse-close) ) > .collapse-content, &:not(.collapse-close) > :where(input:is([type="checkbox"], [type="radio"]):checked ~ .collapse-content) {
-        visibility: visible;
+        content-visibility: visible;
         min-height: fit-content;
+        @supports not (content-visibility: visible) {
+          visibility: visible;
+        }
       }
       &:focus-visible, &:has(> input:is([type="checkbox"], [type="radio"]):focus-visible), &:has(summary:focus-visible) {
         outline-color: var(--color-base-content);
@@ -1049,10 +1086,9 @@
       }
       &:is( [open], [tabindex]:focus:not(.collapse-close), [tabindex]:focus-within:not(.collapse-close) ) > :where(.collapse-content), &:not(.collapse-close) > :where(input:is([type="checkbox"], [type="radio"]):checked ~ .collapse-content) {
         padding-bottom: 1rem;
-        @media (prefers-reduced-motion: no-preference) {
-          transition: padding 0.2s ease-out, background-color 0.2s ease-out;
-        }
       }
+    }
+    @layer daisyui.modifier {
       &:is([open]) {
         &.collapse-arrow {
           > .collapse-title:after {
@@ -1072,7 +1108,8 @@
         }
         &.collapse-plus {
           > .collapse-title:after {
-            content: "−";
+            --tw-content: "−";
+            content: var(--tw-content);
           }
         }
       }
@@ -1089,18 +1126,21 @@
       &[open] {
         &.collapse-plus {
           > .collapse-title:after {
-            content: "−";
+            --tw-content: "−";
+            content: var(--tw-content);
           }
         }
       }
       &[tabindex].collapse-plus:focus:not(.collapse-close) {
         > .collapse-title:after {
-          content: "−";
+          --tw-content: "−";
+          content: var(--tw-content);
         }
       }
       &.collapse-plus:not(.collapse-close) {
         > input:is([type="checkbox"], [type="radio"]):checked ~ .collapse-title:after {
-          content: "−";
+          --tw-content: "−";
+          content: var(--tw-content);
         }
       }
     }
@@ -1108,15 +1148,13 @@
       @layer daisyui.component {
         width: 100%;
         @media (prefers-reduced-motion: no-preference) {
-          @supports (transition: content-visibility allow-discrete) and (interpolate-size: allow-keywords) {
-            &::details-content {
-              transition: content-visibility 0.2s allow-discrete, height 0.2s;
-              height: 0;
-              interpolate-size: allow-keywords;
-            }
-            &:where([open], .collapse-open)::details-content {
-              height: auto;
-            }
+          &::details-content {
+            transition: content-visibility 0.2s allow-discrete, visibility 0.2s allow-discrete, padding 0.2s ease-out, background-color 0.2s ease-out, height 0.2s;
+            height: 0;
+            interpolate-size: allow-keywords;
+          }
+          &:where([open])::details-content {
+            height: auto;
           }
         }
         & summary {
@@ -1125,6 +1163,9 @@
           &::-webkit-details-marker {
             display: none;
           }
+        }
+        & > .collapse-content {
+          content-visibility: visible;
         }
       }
     }
@@ -1154,9 +1195,13 @@
         }
         & ~ .validator-hint {
           visibility: visible;
-          display: block;
           color: var(--color-error);
         }
+      }
+    }
+    &:user-invalid, &:has(:user-invalid), &[aria-invalid]:not([aria-invalid="false"]), &:has([aria-invalid]:not([aria-invalid="false"])) {
+      & ~ .validator-hint {
+        display: revert-layer;
       }
     }
   }
@@ -1552,12 +1597,12 @@
           border: 1px solid;
           color: var(--step-bg);
           background-color: var(--step-bg);
-          --tw-content: "";
-          content: var(--tw-content);
+          content: "";
           margin-inline-start: -100%;
         }
         > .step-icon, &:not(:has(.step-icon)):after {
-          content: counter(step);
+          --tw-content: counter(step);
+          content: var(--tw-content);
           counter-increment: step;
           z-index: 1;
           color: var(--step-fg);
@@ -1574,10 +1619,12 @@
           border-radius: calc(infinity * 1px);
         }
         &:first-child:before {
-          content: none;
+          --tw-content: none;
+          content: var(--tw-content);
         }
         &[data-content]:after {
-          content: attr(data-content);
+          --tw-content: attr(data-content);
+          content: var(--tw-content);
         }
       }
     }
@@ -1686,7 +1733,7 @@
         position: relative;
         box-sizing: border-box;
         border-radius: calc(var(--radius-selector) + min(var(--range-p), var(--radius-selector-max)));
-        background-color: currentColor;
+        background-color: var(--range-thumb);
         height: var(--range-thumb-size);
         width: var(--range-thumb-size);
         border: var(--range-p) solid;
@@ -1773,6 +1820,7 @@
       }
       &[multiple] {
         height: auto;
+        overflow: auto;
         padding-block: calc(0.25rem * 3);
         padding-inline-end: calc(0.25rem * 3);
         background-image: none;
@@ -1978,7 +2026,8 @@
       }
       & > li > details > ul {
         &:before {
-          content: none;
+          --tw-content: none;
+          content: var(--tw-content);
         }
       }
       :where(& > li:not(.menu-title) > details > ul) {
@@ -2535,7 +2584,8 @@
         &.filter-reset {
           aspect-ratio: 1 / 1;
           &::after {
-            content: "×";
+            --tw-content: "×";
+            content: var(--tw-content);
           }
         }
       }
@@ -2799,7 +2849,7 @@
     }
   }
   .card-body {
-    @layer daisyui.modifier {
+    @layer daisyui.component {
       display: flex;
       flex: auto;
       flex-direction: column;
@@ -2854,7 +2904,7 @@
     }
   }
   .card-actions {
-    @layer daisyui.modifier {
+    @layer daisyui.component {
       display: flex;
       flex-wrap: wrap;
       align-items: flex-start;
@@ -2862,7 +2912,7 @@
     }
   }
   .card-title {
-    @layer daisyui.modifier {
+    @layer daisyui.component {
       display: flex;
       align-items: center;
       gap: calc(0.25rem * 2);
@@ -3672,43 +3722,43 @@
     }
   }
   .btn-error {
-    @layer daisyui.modifier {
+    @layer daisyui.modifier.color {
       --btn-color: var(--color-error);
       --btn-fg: var(--color-error-content);
     }
   }
   .btn-info {
-    @layer daisyui.modifier {
+    @layer daisyui.modifier.color {
       --btn-color: var(--color-info);
       --btn-fg: var(--color-info-content);
     }
   }
   .btn-neutral {
-    @layer daisyui.modifier {
+    @layer daisyui.modifier.color {
       --btn-color: var(--color-neutral);
       --btn-fg: var(--color-neutral-content);
     }
   }
   .btn-primary {
-    @layer daisyui.modifier {
+    @layer daisyui.modifier.color {
       --btn-color: var(--color-primary);
       --btn-fg: var(--color-primary-content);
     }
   }
   .btn-secondary {
-    @layer daisyui.modifier {
+    @layer daisyui.modifier.color {
       --btn-color: var(--color-secondary);
       --btn-fg: var(--color-secondary-content);
     }
   }
   .btn-success {
-    @layer daisyui.modifier {
+    @layer daisyui.modifier.color {
       --btn-color: var(--color-success);
       --btn-fg: var(--color-success-content);
     }
   }
   .btn-warning {
-    @layer daisyui.modifier {
+    @layer daisyui.modifier.color {
       --btn-color: var(--color-warning);
       --btn-fg: var(--color-warning-content);
     }
@@ -4232,34 +4282,29 @@ label:has(.invalid) {
   }
 }
 @layer base {
-  :root:has( .modal-open, .modal[open], .modal:target, .modal-toggle:checked, .drawer:not([class*="drawer-open"]) > .drawer-toggle:checked ) {
-    overflow: hidden;
+  :root:not(span) {
+    overflow: var(--page-overflow);
   }
 }
 @layer base {
-  :where( :root:has( .modal-open, .modal[open], .modal:target, .modal-toggle:checked, .drawer:not(.drawer-open) > .drawer-toggle:checked ) ) {
-    scrollbar-gutter: stable;
-    background-image: linear-gradient(var(--color-base-100), var(--color-base-100));
-    --root-bg: var(--color-base-100);
+  :root {
+    --page-scroll-bg-on: linear-gradient(var(--root-bg), var(--root-bg))
+    var(--root-bg);
     @supports (color: color-mix(in lab, red, red)) {
-      --root-bg: color-mix(in srgb, var(--color-base-100), oklch(0% 0 0) 40%);
+      --page-scroll-bg-on: linear-gradient(var(--root-bg), var(--root-bg))
+    color-mix(in srgb, var(--root-bg), oklch(0% 0 0) calc(var(--page-has-backdrop, 0) * 40%));
     }
+    --page-scroll-transition-on: background-color 0.3s ease-out;
+    transition: var(--page-scroll-transition);
+    scrollbar-gutter: var(--page-scroll-gutter, unset);
+    scrollbar-gutter: if(style(--page-has-scroll: 1): var(--page-scroll-gutter, unset) ; else: unset);
   }
-  :where(.modal[open], .modal-open, .modal-toggle:checked + .modal):not(.modal-start, .modal-end) {
-    scrollbar-gutter: stable;
+  :root:root {
+    background: var(--page-scroll-bg, var(--root-bg, var(--color-base-100)));
   }
-  @supports (width: if(else: 1px)) and (animation-timeline: scroll()) {
-    :root {
-      animation: set-page-has-scroll forwards;
-      animation-timeline: scroll();
-    }
-    @keyframes set-page-has-scroll {
-      0%, to {
-        --page-has-scroll: 1;
-      }
-    }
-    :where( :root:has( .modal-open, .modal[open], .modal:target, .modal-toggle:checked, .drawer:not(.drawer-open) > .drawer-toggle:checked ) ) {
-      scrollbar-gutter: if(style(--page-has-scroll: 1): stable; else: unset);
+  @keyframes set-page-has-scroll {
+    0%, to {
+      --page-has-scroll: 1;
     }
   }
 }
@@ -4267,6 +4312,9 @@ label:has(.invalid) {
   :root, [data-theme] {
     background-color: var(--root-bg, var(--color-base-100));
     color: var(--color-base-content);
+  }
+  :where(:root, [data-theme]) {
+    --root-bg: var(--color-base-100);
   }
 }
 @keyframes rating {

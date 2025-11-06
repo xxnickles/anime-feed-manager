@@ -1,4 +1,5 @@
 using AnimeFeedManager.Features.Common.Scrapping;
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
@@ -16,7 +17,7 @@ public sealed record StorageData(
 
 public sealed record ScrapTvLibraryData(
     IEnumerable<StorageData> SeriesData,
-    ImmutableList<string> FeedTitles,
+    ImmutableList<FeedData> FeedData,
     SeriesSeason Season);
 
 

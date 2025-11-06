@@ -9,18 +9,18 @@ namespace AnimeFeedManager.Functions.Tv.Library;
 public class OnLatestFeedTitlesUpdate
 {
     private readonly ITableClientFactory _tableClientFactory;
-    private readonly ISeasonFeedTitlesProvider _seasonFeedTitlesProvider;
+    private readonly ISeasonFeedDataProvider _seasonFeedDataProvider;
     private readonly IDomainPostman _domainPostman;
     private readonly ILogger<OnLatestFeedTitlesUpdate> _logger;
 
     public OnLatestFeedTitlesUpdate(
         ITableClientFactory tableClientFactory,
-        ISeasonFeedTitlesProvider seasonFeedTitlesProvider,
+        ISeasonFeedDataProvider seasonFeedDataProvider,
         IDomainPostman domainPostman,
         ILogger<OnLatestFeedTitlesUpdate> logger)
     {
         _tableClientFactory = tableClientFactory;
-        _seasonFeedTitlesProvider = seasonFeedTitlesProvider;
+        _seasonFeedDataProvider = seasonFeedDataProvider;
         _domainPostman = domainPostman;
         _logger = logger;
     }
@@ -32,7 +32,7 @@ public class OnLatestFeedTitlesUpdate
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
         await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeasonGetter(), token)
-            .GetFeedTitles(_seasonFeedTitlesProvider)
+            .GetFeedTitles(_seasonFeedDataProvider)
             .UpdateSeries(_tableClientFactory.TableStorageRawExistentStoredSeries(),
                 _tableClientFactory.TableStorageTvLibraryUpdater(), token)
             .SendEvents(_domainPostman, token)

@@ -2,6 +2,7 @@
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Features.SystemEvents;
@@ -133,7 +134,8 @@ public class EventSendingTests
 
     private static ScrapTvLibraryData CreateTestLibrary(IEnumerable<StorageData> items, SeriesSeason season, params string[] feedTitles)
     {
-        return new ScrapTvLibraryData(items.ToImmutableList(), feedTitles.ToImmutableList(), season);
+        var feedData = feedTitles.Select(title => new FeedData(title, $"https://example.com/{title.ToLowerInvariant().Replace(" ", "-")}")).ToImmutableList();
+        return new ScrapTvLibraryData(items.ToImmutableList(), feedData, season);
     }
 
 }

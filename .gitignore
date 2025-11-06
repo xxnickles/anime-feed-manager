@@ -270,3 +270,7 @@ __pycache__/
 
 # Node dotenv
 .env
+
+# claude code
+.claude/
+CLAUDE.md

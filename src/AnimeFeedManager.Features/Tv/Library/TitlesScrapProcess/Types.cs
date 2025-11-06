@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Features.Tv.Library.TitlesScrapProcess;
+﻿using AnimeFeedManager.Features.Scrapping.SubsPlease;
+
+namespace AnimeFeedManager.Features.Tv.Library.TitlesScrapProcess;
 
 public enum UpdateStatus
 {
@@ -10,5 +12,5 @@ public sealed record FeedTitleUpdateInformation(AnimeInfoStorage Series, UpdateS
 
 public sealed record FeedTitleUpdateData(
     SeriesSeason Season,
-    ImmutableList<string> FeedTitles,
+    ImmutableList<FeedData> FeedData,
     ImmutableList<FeedTitleUpdateInformation> FeedTitleUpdateInformation);

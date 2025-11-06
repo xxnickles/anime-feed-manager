@@ -29,7 +29,7 @@ public static class ExistentSeasons
 
     public static SeasonGetter TableStorageSeasonGetter(this ITableClientFactory clientFactory) =>
         (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
-            .Bind(client => client.ExecuteQuery<SeasonStorage>(storage =>
+            .Bind(client => client.ExecuteQuery<SeasonStorage>(storage => 
                     storage.PartitionKey == SeasonStorage.SeasonPartition &&
                     storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
                 .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(matches =>

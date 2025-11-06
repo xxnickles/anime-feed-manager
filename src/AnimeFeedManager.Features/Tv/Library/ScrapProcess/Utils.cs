@@ -1,20 +1,19 @@
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
-using Process = FuzzySharp.Process;
+using Raffinert.FuzzySharp;
+using Raffinert.FuzzySharp.PreProcess;
+
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 internal static class Utils
 {
-    internal static string TryGetFeedTitle(this ImmutableList<string> titleList, string animeTitle)
+    internal static FeedData? TryGetFeedMatch(this ImmutableList<FeedData> feedInfo, string animeTitle)
     {
-        if (titleList.IsEmpty) return string.Empty;
-        var result = Process.ExtractOne(animeTitle, titleList);
-        return result.Score switch
-        {
-            > 73 => result.Value,
-            _ => string.Empty
-        };
+        return feedInfo.IsEmpty ? null : feedInfo.FirstOrDefault(info => Fuzz.WeightedRatio(info.Title, animeTitle, PreprocessMode.Full) > 73);
     }
+    
+   
 
     internal static bool IsOldSeason(SeriesSeason seasonInformation, TimeProvider timeProvider)
     {

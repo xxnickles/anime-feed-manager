@@ -31,7 +31,7 @@ public static class Registration
         bool downloadToProjectFolder = false, bool runHeadless = true)
     {
         serviceCollection.RegisterPuppeteer(downloadToProjectFolder, runHeadless);
-        serviceCollection.TryAddScoped<ISeasonFeedTitlesProvider, SeasonFeedTitlesProvider>();
+        serviceCollection.TryAddScoped<ISeasonFeedDataProvider, SeasonFeedDataProvider>();
         return serviceCollection;
     }
 }
