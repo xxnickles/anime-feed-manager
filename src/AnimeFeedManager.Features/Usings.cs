@@ -14,6 +14,7 @@ global using AnimeFeedManager.Generated;
 global using AnimeFeedManager.Shared;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;
+global using AnimeFeedManager.Shared.Results.Extensions;
 global using AnimeFeedManager.Shared.Types;
 global using AnimeFeedManager.SourceGenerators.EventPayload;
 global using AnimeFeedManager.SourceGenerators.TableNames;

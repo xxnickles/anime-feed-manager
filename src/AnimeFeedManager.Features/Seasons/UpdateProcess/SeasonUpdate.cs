@@ -8,29 +8,29 @@ public static class SeasonUpdate
             .Map(s => new SeasonUpdateData(season, s, new NoMatch()));
 
 
-    public static Task<Result<SeasonUpdateData>> CreateNewSeason(this Task<Result<SeasonUpdateData>> processData) =>
-        processData.Map(data => data.SeasonData switch
-        {
-            NoMatch => CreateNewSeason(data),
-            _ => data
-        });
+    extension(Task<Result<SeasonUpdateData>> processData)
+    {
+        public Task<Result<SeasonUpdateData>> CreateNewSeason() =>
+            processData.Map(data => data.SeasonData switch
+            {
+                NoMatch => CreateNewSeason(data),
+                _ => data
+            });
 
-    public static Task<Result<SeasonUpdateData>> AddLatestSeasonData(this Task<Result<SeasonUpdateData>> processData,
-        LatestSeasonGetter seasonGetter, CancellationToken token) =>
-        processData.BindSeasonData(
-            data => seasonGetter(token).Map(latestSeason => data with {CurrentLatestSeasonData = latestSeason}),
-            WhenNeedsUpdate);
+        public Task<Result<SeasonUpdateData>> AddLatestSeasonData(LatestSeasonGetter seasonGetter, CancellationToken token) =>
+            processData.BindWhen(
+                data => seasonGetter(token).Map(latestSeason => data with {CurrentLatestSeasonData = latestSeason}),
+                WhenNeedsUpdate);
 
-    public static Task<Result<SeasonUpdateData>> StoreUpdatedSeason(this Task<Result<SeasonUpdateData>> processData,
-        SeasonUpdater seasonUpdater, CancellationToken token) =>
-        processData.BindSeasonData(data => UpdateSeason(seasonUpdater, data.SeasonData, token).Map(_ => data),
-            WhenNeedsUpdate);
+        public Task<Result<SeasonUpdateData>> StoreUpdatedSeason(SeasonUpdater seasonUpdater, CancellationToken token) =>
+            processData.BindWhen(data => UpdateSeason(seasonUpdater, data.SeasonData, token).Map(_ => data),
+                WhenNeedsUpdate);
 
-    public static Task<Result<SeasonUpdateData>> DemoteCurrentLatest(this Task<Result<SeasonUpdateData>> processData,
-        SeasonUpdater seasonUpdater, CancellationToken token) =>
-        processData.BindSeasonData(
-            data => UpdateCurrentLatestSeason(seasonUpdater, data.CurrentLatestSeasonData, token).Map(_ => data),
-            WhenLastestIsReplaced);
+        public Task<Result<SeasonUpdateData>> DemoteCurrentLatest(SeasonUpdater seasonUpdater, CancellationToken token) =>
+            processData.BindWhen(
+                data => UpdateCurrentLatestSeason(seasonUpdater, data.CurrentLatestSeasonData, token).Map(_ => data),
+                WhenLastestIsReplaced);
+    }
 
 
     private static SeasonUpdateData CreateNewSeason(SeasonUpdateData data)

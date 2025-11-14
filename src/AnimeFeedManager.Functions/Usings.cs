@@ -7,7 +7,7 @@ global using AnimeFeedManager.Features.SystemEvents;
 global using AnimeFeedManager.Features.Tv;
 global using AnimeFeedManager.Services.Shared;
 global using AnimeFeedManager.Shared.Results;
-global using AnimeFeedManager.Shared.Types;
+global using AnimeFeedManager.Shared.Results.Extensions;
 global using Microsoft.Azure.Functions.Worker;
 global using Microsoft.Extensions.Logging;
 global using System.Diagnostics;

@@ -8,3 +8,4 @@ global using AnimeFeedManager.Web.Htmx;
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.AspNetCore.Mvc;
 global using static AnimeFeedManager.Web.Common.Validation.ValidationHelpers;
+global using AnimeFeedManager.Shared.Results.Extensions;
