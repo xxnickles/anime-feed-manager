@@ -1,4 +1,4 @@
-/*! tailwindcss v4.1.16 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -362,11 +362,6 @@
         --tw-content: attr(data-tip);
         content: var(--tw-content);
       }
-      @media (prefers-reduced-motion: no-preference) {
-        & > .tooltip-content, &[data-tip]:before, &:after {
-          transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms;
-        }
-      }
       &:after {
         opacity: 0%;
         background-color: var(--tt-bg);
@@ -381,14 +376,19 @@
         --mask-tooltip: url("data:image/svg+xml,%3Csvg width='10' height='4' viewBox='0 0 8 4' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.500009 1C3.5 1 3.00001 4 5.00001 4C7 4 6.5 1 9.5 1C10 1 10 0.499897 10 0H0C-1.99338e-08 0.5 0 1 0.500009 1Z' fill='black'/%3E%3C/svg%3E%0A");
         mask-image: var(--mask-tooltip);
       }
-      &.tooltip-open, &[data-tip]:not([data-tip=""]):hover, &:not(:has(.tooltip-content:empty)):has(.tooltip-content):hover, &:has(:focus-visible) {
-        > .tooltip-content, &[data-tip]:before, &:after {
-          opacity: 100%;
-          --tt-pos: 0rem;
+      @media (prefers-reduced-motion: no-preference) {
+        & > .tooltip-content, &[data-tip]:before, &:after {
+          transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 75ms;
         }
-        @media (prefers-reduced-motion: no-preference) {
+      }
+      &:is([data-tip]:not([data-tip=""]), :has(.tooltip-content:not(:empty))) {
+        &.tooltip-open, &:hover, &:has(:focus-visible) {
           & > .tooltip-content, &[data-tip]:before, &:after {
-            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0s, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+            opacity: 100%;
+            --tt-pos: 0rem;
+            @media (prefers-reduced-motion: no-preference) {
+              transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0s, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+            }
           }
         }
       }
@@ -461,7 +461,6 @@
       &:checked, &:is(label:has(:checked)), &:is(.tab-active, [aria-selected="true"], [aria-current="true"], [aria-current="page"]) {
         & + .tab-content {
           display: block;
-          height: calc(100% - var(--tab-height) + var(--border));
         }
       }
       &:not( :checked, label:has(:checked), :hover, .tab-active, [aria-selected="true"], [aria-current="true"], [aria-current="page"] ) {
@@ -564,6 +563,22 @@
           box-shadow: 2px 2px inset;
           pointer-events: none;
         }
+      }
+      details {
+        overflow: hidden;
+        interpolate-size: allow-keywords;
+      }
+      details::details-content {
+        block-size: 0;
+        @media (prefers-reduced-motion: no-preference) {
+          transition-behavior: allow-discrete;
+          transition-property: block-size, content-visibility;
+          transition-duration: 0.2s;
+          transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+        }
+      }
+      details[open]::details-content {
+        block-size: auto;
       }
       :where(li > details[open] > summary):after, :where(li > .menu-dropdown-toggle.menu-dropdown-show):after {
         rotate: 45deg;
@@ -743,7 +758,7 @@
       .dropdown-content {
         position: absolute;
       }
-      &:not(details, .dropdown-open, .dropdown-hover:hover, :focus-within) .dropdown-content, &.dropdown-hover:not(:hover) [tabindex]:first-child:focus:not(:focus-visible) ~ .dropdown-content {
+      &.dropdown-close .dropdown-content, &:not(details, .dropdown-open, .dropdown-hover:hover, :focus-within) .dropdown-content, &.dropdown-hover:not(:hover) [tabindex]:first-child:focus:not(:focus-visible) ~ .dropdown-content {
         display: none;
         transform-origin: top;
         opacity: 0%;
@@ -765,18 +780,21 @@
           opacity: 0;
         }
       }
-      &.dropdown-open, &:not(.dropdown-hover):focus, &:focus-within {
-        > [tabindex]:first-child {
-          pointer-events: none;
+      &:not(.dropdown-close) {
+        &.dropdown-open, &:not(.dropdown-hover):focus, &:focus-within {
+          > [tabindex]:first-child {
+            pointer-events: none;
+          }
+          .dropdown-content {
+            opacity: 100%;
+            scale: 100%;
+          }
         }
-        .dropdown-content {
-          opacity: 100%;
-        }
-      }
-      &.dropdown-hover:hover {
-        .dropdown-content {
-          opacity: 100%;
-          scale: 100%;
+        &.dropdown-hover:hover {
+          .dropdown-content {
+            opacity: 100%;
+            scale: 100%;
+          }
         }
       }
       &:is(details) {
@@ -784,11 +802,6 @@
           &::-webkit-details-marker {
             display: none;
           }
-        }
-      }
-      &.dropdown-open, &:focus, &:focus-within {
-        .dropdown-content {
-          scale: 100%;
         }
       }
       &:where([popover]) {
@@ -799,7 +812,7 @@
         color: inherit;
         @supports not (position-area: bottom) {
           margin: auto;
-          &.dropdown-open:not(:popover-open) {
+          &.dropdown-close, &.dropdown-open:not(:popover-open) {
             display: none;
             transform-origin: top;
             opacity: 0%;
@@ -809,7 +822,7 @@
             background-color: color-mix(in oklab, #000 30%, #0000);
           }
         }
-        &:not(.dropdown-open, :popover-open) {
+        &.dropdown-close, &:not(.dropdown-open, :popover-open) {
           display: none;
           transform-origin: top;
           opacity: 0%;
@@ -823,9 +836,6 @@
       @layer daisyui.component {
         width: unset;
       }
-    }
-    .prose & {
-      text-decoration-line: none;
     }
     @layer daisyui.component {
       display: inline-flex;
@@ -932,20 +942,6 @@
         @supports (color: color-mix(in lab, red, red)) {
           --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
         }
-        @media (hover: hover) {
-          &:hover {
-            pointer-events: none;
-            background-color: var(--color-neutral);
-            @supports (color: color-mix(in lab, red, red)) {
-              background-color: color-mix(in oklab, var(--color-neutral) 20%, transparent);
-            }
-            --btn-border: #0000;
-            --btn-fg: var(--color-base-content);
-            @supports (color: color-mix(in lab, red, red)) {
-              --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
-            }
-          }
-        }
       }
     }
     &[disabled] {
@@ -963,20 +959,6 @@
         --btn-fg: var(--color-base-content);
         @supports (color: color-mix(in lab, red, red)) {
           --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
-        }
-        @media (hover: hover) {
-          &:hover {
-            pointer-events: none;
-            background-color: var(--color-neutral);
-            @supports (color: color-mix(in lab, red, red)) {
-              background-color: color-mix(in oklab, var(--color-neutral) 20%, transparent);
-            }
-            --btn-border: #0000;
-            --btn-fg: var(--color-base-content);
-            @supports (color: color-mix(in lab, red, red)) {
-              --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
-            }
-          }
         }
       }
     }
@@ -1010,20 +992,6 @@
       --btn-fg: var(--color-base-content);
       @supports (color: color-mix(in lab, red, red)) {
         --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
-      }
-      @media (hover: hover) {
-        &:hover {
-          pointer-events: none;
-          background-color: var(--color-neutral);
-          @supports (color: color-mix(in lab, red, red)) {
-            background-color: color-mix(in oklab, var(--color-neutral) 20%, transparent);
-          }
-          --btn-border: #0000;
-          --btn-fg: var(--color-base-content);
-          @supports (color: color-mix(in lab, red, red)) {
-            --btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
-          }
-        }
       }
     }
   }
@@ -1267,7 +1235,7 @@
           --list-grid-cols: minmax(0, auto) minmax(0, auto) minmax(0, auto) minmax(0, auto)
           minmax(0, auto) 1fr;
         }
-        :not(.list-col-wrap) {
+        > :not(.list-col-wrap) {
           grid-row-start: 1;
         }
       }
@@ -3573,23 +3541,24 @@
   }
   .btn-ghost {
     @layer daisyui.modifier {
-      &:not(.btn-active, :hover, :active:focus, :focus-visible) {
+      &:not(.btn-active, :hover, :active:focus, :focus-visible, input:checked:not(.filter .btn)) {
         --btn-shadow: "";
         --btn-bg: #0000;
         --btn-border: #0000;
         --btn-noise: none;
         &:not(:disabled, [disabled], .btn-disabled) {
           outline-color: currentcolor;
-          --btn-fg: currentColor;
+          --btn-fg: var(--btn-color, currentColor);
         }
       }
       @media (hover: none) {
-        &:hover:not(.btn-active, :active, :focus-visible, :disabled, [disabled], .btn-disabled) {
+        &:not(.btn-active, :active, :focus-visible, input:checked:not(.filter .btn)):hover {
+          outline-color: currentcolor;
           --btn-shadow: "";
           --btn-bg: #0000;
+          --btn-fg: var(--btn-color, currentColor);
           --btn-border: #0000;
           --btn-noise: none;
-          --btn-fg: currentColor;
         }
       }
     }
@@ -4344,6 +4313,17 @@ label:has(.invalid) {
   100% {
     scale: 1;
     opacity: 1;
+  }
+}
+@keyframes rotator {
+  89.9999%, 100% {
+    --first-item-position: 0 0%;
+  }
+  90%, 99.9999% {
+    --first-item-position: 0 calc(var(--items) * 100%);
+  }
+  100% {
+    translate: 0 -100%;
   }
 }
 @keyframes skeleton {

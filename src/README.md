@@ -9,6 +9,16 @@ Please refer to [this post](https://dev.to/azure/develop-azure-functions-using-n
 - [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
 - [docker](https://www.docker.com/)
 
+## Setup
+
+After cloning the repository, restore the required .NET tools:
+
+```bash
+dotnet tool restore
+```
+
+This installs libman (Library Manager) which is used to manage client-side libraries for the web application.
+
 ## Required Configuration Variables (Functions)
 
 The following are required configuration variables that need to be present when executing the host.
