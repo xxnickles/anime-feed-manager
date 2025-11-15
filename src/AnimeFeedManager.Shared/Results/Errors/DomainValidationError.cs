@@ -56,18 +56,27 @@ public sealed record DomainValidationErrors : DomainError
     }
 }
 
-public static class Extensions
+// C# 14 Extension members for DomainValidationErrors and DomainValidationError
+public static class DomainValidationErrorExtensions
 {
-    public static DomainValidationErrors AppendErrors(this DomainValidationErrors validationErrors,
-        DomainValidationErrors otherValidationErrors)
+    extension(DomainValidationErrors validationErrors)
     {
-        validationErrors.Errors.AddRange(otherValidationErrors.Errors);
-        return validationErrors;
+        public DomainValidationErrors AppendErrors(DomainValidationErrors otherValidationErrors)
+        {
+            validationErrors.Errors.AddRange(otherValidationErrors.Errors);
+            return validationErrors;
+        }
     }
 
-    public static DomainValidationErrors ToErrors(this DomainValidationError validationError) =>
-        DomainValidationErrors.Create([validationError]);
+    extension(DomainValidationError validationError)
+    {
+        public DomainValidationErrors ToErrors() =>
+            DomainValidationErrors.Create([validationError]);
+    }
 
-    public static DomainValidationErrors ToErrors(this IEnumerable<DomainValidationError> validationErrors) =>
-        DomainValidationErrors.Create(validationErrors);
+    extension(IEnumerable<DomainValidationError> validationErrors)
+    {
+        public DomainValidationErrors ToErrors() =>
+            DomainValidationErrors.Create(validationErrors);
+    }
 }

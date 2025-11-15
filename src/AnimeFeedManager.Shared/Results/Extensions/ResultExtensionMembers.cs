@@ -82,6 +82,29 @@ public static class ResultExtensionMembers
             => await (await resultTask).Bind(binder);
 
         /// <summary>
+        /// Executes a side effect action on the success value without modifying the result.
+        /// Useful for logging, debugging, or other side effects in a fluent chain.
+        /// </summary>
+        /// <param name="action">Action to execute on the success value</param>
+        /// <returns>The original result unchanged</returns>
+        public async Task<Result<T>> Tap(Action<T> action)
+            => (await resultTask).Tap(action);
+
+        /// <summary>
+        /// Executes an async side effect action on the success value without modifying the result.
+        /// Useful for async logging, debugging, or other side effects in a fluent chain.
+        /// </summary>
+        /// <param name="action">Async action to execute on the success value</param>
+        /// <returns>The original result unchanged</returns>
+        public async Task<Result<T>> Tap(Func<T, Task> action)
+        {
+            var r = await resultTask;
+            if (r.IsSuccess)
+                await r.Match(action, _ => Task.CompletedTask);
+            return r;
+        }
+
+        /// <summary>
         /// Conditionally applies the binder only if the predicate is true.
         /// If predicate is false, returns success with the original value.
         /// </summary>
@@ -188,6 +211,19 @@ public static class ResultExtensionMembers
         /// Gets whether the result represents a failure (opposite of <see cref="Result{T}.IsSuccess"/>)
         /// </summary>
         public bool IsFailure => !result.IsSuccess;
+
+        /// <summary>
+        /// Executes a side effect action on the success value without modifying the result.
+        /// Useful for logging, debugging, or other side effects in a fluent chain.
+        /// </summary>
+        /// <param name="action">Action to execute on the success value</param>
+        /// <returns>The original result unchanged</returns>
+        public Result<T> Tap(Action<T> action)
+        {
+            if (result.IsSuccess)
+                result.Match(action, _ => { });
+            return result;
+        }
 
         /// <summary>
         /// Conditionally applies the binder only if the predicate is true.

@@ -42,51 +42,37 @@ public sealed record Result<T>
     }
  
     
-    public Result<TTarget> Map<TTarget>(Func<T, TTarget> mapper)
-    {
-        return IsSuccess
+    public Result<TTarget> Map<TTarget>(Func<T, TTarget> mapper) =>
+        IsSuccess
             ? new Result<TTarget>(true, mapper(_resultValue!), null)
             : new Result<TTarget>(false, default, _errorValueValue);
-    }
 
-    public async Task<Result<TTarget>> Map<TTarget>(Func<T, Task<TTarget>> mapper)
-    {
-        return IsSuccess
+    public async Task<Result<TTarget>> Map<TTarget>(Func<T, Task<TTarget>> mapper) =>
+        IsSuccess
             ? new Result<TTarget>(true, await mapper(_resultValue!), null)
             : new Result<TTarget>(false, default, _errorValueValue);
-    }
 
-    public TTarget MatchToValue<TTarget>(Func<T, TTarget> onOk, Func<DomainError, TTarget> onError)
-    {
-        return IsSuccess
+    public TTarget MatchToValue<TTarget>(Func<T, TTarget> onOk, Func<DomainError, TTarget> onError) =>
+        IsSuccess
             ? onOk(_resultValue!)
             : onError(_errorValueValue!);
-    }
 
-    public Result<T> MapError(Func<DomainError, DomainError> mapper)
-    {
-        return IsSuccess
+    public Result<T> MapError(Func<DomainError, DomainError> mapper) =>
+        IsSuccess
             ? new Result<T>(true, _resultValue, null)
             : new Result<T>(false, default, mapper(_errorValueValue!));
-    }
 
-    public async Task<Result<T>> MapError(Func<DomainError, Task<DomainError>> mapper)
-    {
-        return IsSuccess
+    public async Task<Result<T>> MapError(Func<DomainError, Task<DomainError>> mapper) =>
+        IsSuccess
             ? new Result<T>(true, _resultValue, null)
             : new Result<T>(false, default, await mapper(_errorValueValue!));
-    }
 
 
-    public Result<TTarget> Bind<TTarget>(Func<T, Result<TTarget>> binder)
-    {
-        return IsSuccess ? binder(_resultValue!) : new Result<TTarget>(false, default, _errorValueValue);
-    }
+    public Result<TTarget> Bind<TTarget>(Func<T, Result<TTarget>> binder) =>
+        IsSuccess ? binder(_resultValue!) : new Result<TTarget>(false, default, _errorValueValue);
 
-    public async Task<Result<TTarget>> Bind<TTarget>(Func<T, Task<Result<TTarget>>> binder)
-    {
-        return IsSuccess ? await binder(_resultValue!) : new Result<TTarget>(false, default, _errorValueValue);
-    }
+    public async Task<Result<TTarget>> Bind<TTarget>(Func<T, Task<Result<TTarget>>> binder) =>
+        IsSuccess ? await binder(_resultValue!) : new Result<TTarget>(false, default, _errorValueValue);
 
     public Result<T> Apply(Action<T> func)
     {
