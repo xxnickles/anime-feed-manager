@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Seasons.Storage;
+using AnimeFeedManager.Features.Seasons.Storage.Stores;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
 
 namespace AnimeFeedManager.Features.Tests.Seasons.UpdateProcess;

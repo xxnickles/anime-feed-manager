@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Tv.Library.Events;
-using AnimeFeedManager.Features.Tv.Library.Storage;
+using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Library.TitlesScrapProcess;
 
 namespace AnimeFeedManager.Functions.Tv.Library;

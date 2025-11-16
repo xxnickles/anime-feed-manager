@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Storage;
+﻿using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
 namespace AnimeFeedManager.Web.Features.Components.SeriesGrid;
 

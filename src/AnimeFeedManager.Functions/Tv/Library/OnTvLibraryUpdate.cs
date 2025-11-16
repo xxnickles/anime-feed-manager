@@ -2,7 +2,7 @@
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
-using AnimeFeedManager.Features.Tv.Library.Storage;
+using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
 namespace AnimeFeedManager.Functions.Tv.Library;
 

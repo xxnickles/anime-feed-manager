@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.Tv.Library.Storage;
+﻿namespace AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
 public delegate Task<Result<Unit>> FeedTitlesUpdater(FeedTitlesStorage titles,
     CancellationToken cancellationToken = default);

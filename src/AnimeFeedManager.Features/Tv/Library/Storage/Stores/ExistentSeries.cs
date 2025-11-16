@@ -1,6 +1,6 @@
 using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
-namespace AnimeFeedManager.Features.Tv.Library.Storage;
+namespace AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
 public record TvSeriesInfo(
     string Title,
@@ -52,56 +52,58 @@ public delegate Task<Result<AnimeInfoStorage>> TvSeriesGetter(string id, string 
 
 public static class ExistentSeries
 {
-    public static StoredSeries TableStorageExistentStoredSeries(this ITableClientFactory clientFactory) =>
-        (season, token) =>
-            clientFactory.GetClient<AnimeInfoStorage>()
-                .Bind(client => client.GetStoredSeries(season, token))
-                .Map(series => series.ConvertAll(Mapper));
+    extension(ITableClientFactory clientFactory)
+    {
+        public StoredSeries TableStorageExistentStoredSeries() =>
+            (season, token) =>
+                clientFactory.GetClient<AnimeInfoStorage>()
+                    .Bind(client => client.GetStoredSeries(season, token))
+                    .Map(series => series.ConvertAll(Mapper));
 
-    public static RawStoredSeries TableStorageRawExistentStoredSeries(this ITableClientFactory clientFactory) =>
-        (season, token) =>
-            clientFactory.GetClient<AnimeInfoStorage>()
-                .Bind(client => client.GetStoredSeries(season, token));
+        public RawStoredSeries TableStorageRawExistentStoredSeries() =>
+            (season, token) =>
+                clientFactory.GetClient<AnimeInfoStorage>()
+                    .Bind(client => client.GetStoredSeries(season, token));
 
+        public TvLibrary TableStorageTvLibraryGetter() =>
+            (season, blobUri, token) =>
+                clientFactory.GetClient<AnimeInfoStorage>()
+                    .Bind(client => client
+                        .ExecuteQuery<AnimeInfoStorage>(
+                            series => series.PartitionKey ==
+                                      IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year), token)
+                        .Map(series => series.ConvertAll(s => LibraryMapper(s, blobUri))))
+                    .MapError(error => error
+                        .WithLogProperty("Season", season)
+                        .WithLogProperty("PublicBlobUri", blobUri)
+                        .WithOperationName(nameof(TableStorageTvLibraryGetter)));
 
-    public static TvLibrary TableStorageTvLibraryGetter(this ITableClientFactory clientFactory) =>
-        (season, blobUri, token) =>
-            clientFactory.GetClient<AnimeInfoStorage>()
+        public TvLibrarySeries TableStorageTvLibrarySeries() =>
+            (season, id, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client
                     .ExecuteQuery<AnimeInfoStorage>(
-                        series => series.PartitionKey ==
-                                  IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year), token)
-                    .Map(series => series.ConvertAll(s => LibraryMapper(s, blobUri))))
+                        series => series.PartitionKey == IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year) && series.RowKey == id, token)
+                    .SingleItemOrNotFound()
+                    .Map(s => LibraryMapper(s, blobUri)))
                 .MapError(error => error
                     .WithLogProperty("Season", season)
-                    .WithLogProperty("PublicBlobUri", blobUri)
-                    .WithOperationName(nameof(TableStorageTvLibraryGetter)));
+                    .WithLogProperty("Id", id)
+                    .WithLogProperty("BlobUri", blobUri)
+                    .WithOperationName(nameof(TableStorageTvLibrarySeries)));
 
+        public TvSeriesGetter TableStorageTvSeriesGetter() =>
+            (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
+                .Bind(client => client.GetAnimeInfo(id, season, token));
 
-    public static TvLibrarySeries TableStorageTvLibrarySeries(this ITableClientFactory clientFactory) =>
-        (season, id, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
-            .Bind(client => client
-                .ExecuteQuery<AnimeInfoStorage>(
-                    series => series.PartitionKey == IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year) && series.RowKey == id, token)
-                .SingleItemOrNotFound()
-                .Map(s => LibraryMapper(s, blobUri)))
-            .MapError(error => error
-                .WithLogProperty("Season", season)
-                .WithLogProperty("Id", id)
-                .WithLogProperty("BlobUri", blobUri)
-                .WithOperationName(nameof(TableStorageTvLibrarySeries)));
+        public OnGoingStoredTvSeries TableStorageOnGoingStoredTvSeries() =>
+            token => clientFactory.GetClient<AnimeInfoStorage>()
+                .Bind(client =>
+                    client.ExecuteQuery<AnimeInfoStorage>(series => series.Status == SeriesStatus.Ongoing(), token))
+                .MapError(error =>
+                    error
+                        .WithOperationName(nameof(TableStorageOnGoingStoredTvSeries)));
+    }
 
-    public static TvSeriesGetter TableStorageTvSeriesGetter(this ITableClientFactory clientFactory) =>
-        (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
-            .Bind(client => client.GetAnimeInfo(id, season, token));
-
-    public static OnGoingStoredTvSeries TableStorageOnGoingStoredTvSeries(this ITableClientFactory clientFactory) =>
-        token => clientFactory.GetClient<AnimeInfoStorage>()
-            .Bind(client =>
-                client.ExecuteQuery<AnimeInfoStorage>(series => series.Status == SeriesStatus.Ongoing(), token))
-            .MapError(error =>
-                error
-                    .WithOperationName(nameof(TableStorageOnGoingStoredTvSeries)));
 
     private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
         this TableClient tableClient,

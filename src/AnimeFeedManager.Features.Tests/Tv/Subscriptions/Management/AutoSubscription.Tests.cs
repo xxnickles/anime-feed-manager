@@ -3,6 +3,7 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.SystemEvents;
 using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
+using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Features.Tests.Tv.Subscriptions.Management;

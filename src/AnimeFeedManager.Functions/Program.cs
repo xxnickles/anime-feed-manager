@@ -1,4 +1,5 @@
 using AnimeFeedManager.Functions.Bootstraping;
+using AnimeFeedmanager.ServiceDefaults;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

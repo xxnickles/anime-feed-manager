@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Storage;
+﻿using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 using AnimeFeedManager.Web.Features.Tv.Controls;
 using static AnimeFeedManager.Features.Tv.Library.Management.Series;
 

@@ -4,6 +4,7 @@ using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage;
+using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
 {

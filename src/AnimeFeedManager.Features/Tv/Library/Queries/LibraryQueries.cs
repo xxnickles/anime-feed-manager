@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
+using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tv.Library.Queries;
 
