@@ -6,7 +6,6 @@
               hx-swap="outerHTML"
               hx-indicator="@Model.LoaderSelector"
               hx-confirm="@($"Do you want remove {Model.SeriesTitle} from your interested list?")">
-        <input type="hidden" name="@nameof(Model.UserId)" value="@Model.UserId"/>
         <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
         <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>
         <input type="hidden" name="@nameof(Model.LoaderSelector)" value="@Model.LoaderSelector"/>

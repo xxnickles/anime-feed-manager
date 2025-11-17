@@ -23,6 +23,7 @@ public sealed record TvSeries(
     string Title,
     string Synopsis,
     string? FeedTitle,
+    string? FeedUrl,
     string[] AlternativeTitles,
     SeriesStatus Status,
     Uri? Image);
@@ -135,6 +136,7 @@ public static class ExistentSeries
         entity.Title ?? string.Empty,
         entity.Synopsis ?? string.Empty,
         entity.FeedTitle,
+        entity.FeedLink,
         ConvertAlternativeTitles(entity.AlternativeTitles),
         (SeriesStatus) entity.Status,
         entity.ImagePath is not null ? GetUri(publicBlobUri, entity.ImagePath) : null);

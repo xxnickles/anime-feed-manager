@@ -19,11 +19,6 @@ public class TvInterestedViewModel : TvSeriesCardViewModel
     public string LoaderSelector { get; set; } = string.Empty;
     
     [Required(AllowEmptyStrings = false)]
-    public string UserId { get; set; } = string.Empty;
-   
-
-    
-    [Required(AllowEmptyStrings = false)]
     public string CardBadgeId { get; set; } = string.Empty;
 
 }
@@ -32,6 +27,9 @@ public class TvSubscriptionViewModel : TvInterestedViewModel
 {
     [Required(AllowEmptyStrings = false)]
     public string SeriesFeedTitle { get; set; } = string.Empty;
+    
+    [Required(AllowEmptyStrings = false)]
+    public string SeriesLink { get; set; } = string.Empty;
 }
 
 public class AlternativeTitlesViewModel : TvSeriesCardViewModel

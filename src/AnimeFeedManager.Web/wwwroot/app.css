@@ -192,7 +192,7 @@
 }
 @layer utilities {
   .modal {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       pointer-events: none;
       visibility: hidden;
       position: fixed;
@@ -217,7 +217,7 @@
         display: none;
       }
     }
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       &.modal-open, &[open], &:target, .modal-toggle:checked + & {
         pointer-events: auto;
         visibility: visible;
@@ -248,12 +248,12 @@
   }
   .drawer-side {
     :where(&) {
-      @layer daisyui.component {
+      @layer daisyui.l1.l2.l3 {
         overflow-x: hidden;
         overflow-y: hidden;
       }
     }
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       pointer-events: none;
       visibility: hidden;
       position: fixed;
@@ -296,14 +296,12 @@
     }
   }
   .drawer-toggle {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: fixed;
       height: calc(0.25rem * 0);
       width: calc(0.25rem * 0);
       appearance: none;
       opacity: 0%;
-    }
-    @layer daisyui.modifier.drawer {
       :where(&:checked ~ .drawer-side) {
         scrollbar-color: currentColor oklch(0 0 0 / calc(var(--page-has-backdrop, 0) * 0.4));
         @supports (color: color-mix(in lab, red, red)) {
@@ -320,7 +318,7 @@
         animation-timeline: scroll();
       }
     }
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       :where(&:checked ~ .drawer-side) {
         pointer-events: auto;
         visibility: visible;
@@ -337,7 +335,7 @@
     }
   }
   .tooltip {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: inline-block;
       --tt-bg: var(--color-neutral);
@@ -393,7 +391,7 @@
         }
       }
     }
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       > .tooltip-content, &[data-tip]:before {
         transform: translateX(-50%) translateY(var(--tt-pos, 0.25rem));
         inset: auto auto var(--tt-off) 50%;
@@ -405,7 +403,7 @@
     }
   }
   .tab {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: inline-flex;
       cursor: pointer;
@@ -492,7 +490,7 @@
     }
   }
   .menu {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: flex;
       width: fit-content;
       flex-direction: column;
@@ -669,7 +667,7 @@
     }
   }
   .floating-label {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: block;
       input {
@@ -743,7 +741,7 @@
     }
   }
   .dropdown {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: inline-block;
       position-area: var(--anchor-v, bottom) var(--anchor-h, span-right);
@@ -833,11 +831,11 @@
   }
   .btn {
     :where(&) {
-      @layer daisyui.component {
+      @layer daisyui.l1.l2.l3 {
         width: unset;
       }
     }
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: inline-flex;
       flex-shrink: 0;
       cursor: pointer;
@@ -915,7 +913,7 @@
       }
       &:is(input[type="checkbox"], input[type="radio"]) {
         appearance: none;
-        &::after {
+        &[aria-label]::after {
           --tw-content: attr(aria-label);
           content: var(--tw-content);
         }
@@ -927,7 +925,7 @@
       }
     }
     &:disabled {
-      @layer daisyui.modifier {
+      @layer daisyui.l1.l2 {
         &:not(.btn-link, .btn-ghost) {
           background-color: var(--color-base-content);
           @supports (color: color-mix(in lab, red, red)) {
@@ -945,7 +943,7 @@
       }
     }
     &[disabled] {
-      @layer daisyui.modifier {
+      @layer daisyui.l1.l2 {
         &:not(.btn-link, .btn-ghost) {
           background-color: var(--color-base-content);
           @supports (color: color-mix(in lab, red, red)) {
@@ -964,7 +962,7 @@
     }
   }
   .loading {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       pointer-events: none;
       display: inline-block;
       aspect-ratio: 1 / 1;
@@ -978,7 +976,7 @@
     }
   }
   .btn-disabled {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       &:not(.btn-link, .btn-ghost) {
         background-color: var(--color-base-content);
         @supports (color: color-mix(in lab, red, red)) {
@@ -1002,7 +1000,7 @@
     &:not(td, tr, colgroup) {
       visibility: revert-layer;
     }
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: grid;
       position: relative;
       overflow: hidden;
@@ -1056,7 +1054,7 @@
         padding-bottom: 1rem;
       }
     }
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       &:is([open]) {
         &.collapse-arrow {
           > .collapse-title:after {
@@ -1113,7 +1111,7 @@
       }
     }
     &:is(details) {
-      @layer daisyui.component {
+      @layer daisyui.l1.l2.l3 {
         width: 100%;
         @media (prefers-reduced-motion: no-preference) {
           &::details-content {
@@ -1138,20 +1136,20 @@
       }
     }
     &:is(details) summary {
-      @layer daisyui.component {
+      @layer daisyui.l1.l2.l3 {
         outline: none;
       }
     }
   }
   .validator-hint {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       visibility: hidden;
       margin-top: calc(0.25rem * 2);
       font-size: 0.75rem;
     }
   }
   .validator {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       &:user-valid, &:has(:user-valid) {
         &, &:focus, &:checked, &[aria-checked="true"], &:focus-within {
           --input-color: var(--color-success);
@@ -1183,7 +1181,7 @@
     visibility: visible;
   }
   .list {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: flex;
       flex-direction: column;
       font-size: 0.875rem;
@@ -1214,7 +1212,7 @@
         }
       }
     }
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       .list-row {
         &:has(.list-col-grow:nth-child(1)) {
           --list-grid-cols: 1fr;
@@ -1242,7 +1240,7 @@
     }
   }
   .toast {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: fixed;
       inset-inline-start: auto;
       inset-inline-end: calc(0.25rem * 4);
@@ -1263,7 +1261,7 @@
     }
   }
   .toggle {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       border: var(--border) solid currentColor;
       color: var(--input-color);
       position: relative;
@@ -1398,7 +1396,7 @@
     }
   }
   .input {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       cursor: text;
       border: var(--border) solid #0000;
       position: relative;
@@ -1521,7 +1519,7 @@
     }
   }
   .indicator {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: inline-flex;
       width: max-content;
@@ -1538,7 +1536,7 @@
     }
   }
   .steps {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: inline-grid;
       grid-auto-flow: column;
       overflow: hidden;
@@ -1596,7 +1594,7 @@
         }
       }
     }
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       .step-neutral {
         + .step-neutral:before, &:after, > .step-icon {
           --step-bg: var(--color-neutral);
@@ -1648,7 +1646,7 @@
     }
   }
   .range {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       appearance: none;
       webkit-appearance: none;
       --range-thumb: var(--color-base-100);
@@ -1743,7 +1741,7 @@
     }
   }
   .select {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       border: var(--border) solid #0000;
       position: relative;
       display: inline-flex;
@@ -1913,7 +1911,7 @@
     }
   }
   .image-full {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       display: grid;
       > * {
         grid-column-start: 1;
@@ -1935,7 +1933,7 @@
     }
   }
   .swap {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: inline-grid;
       cursor: pointer;
@@ -1982,15 +1980,38 @@
     border-width: 0;
   }
   .menu-horizontal {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       display: inline-flex;
       flex-direction: row;
-      & > li:not(.menu-title) > details > ul {
-        position: absolute;
-        margin-inline-start: calc(0.25rem * 0);
-        margin-top: calc(0.25rem * 4);
-        padding-block: calc(0.25rem * 2);
-        padding-inline-end: calc(0.25rem * 2);
+      & > li:not(.menu-title) > details {
+        & > ul {
+          position: absolute;
+          margin-inline-start: calc(0.25rem * 0);
+          margin-top: calc(0.25rem * 4);
+          transform-origin: top;
+          border-radius: var(--radius-box);
+          background-color: var(--color-base-100);
+          padding-block: calc(0.25rem * 2);
+          padding-inline-end: calc(0.25rem * 2);
+          opacity: 0%;
+          scale: 95%;
+          box-shadow: 0 1px 3px 0 oklch(0% 0 0/0.1), 0 1px 2px -1px oklch(0% 0 0/0.1);
+          @media (prefers-reduced-motion: no-preference) {
+            @starting-style {
+              scale: 95%;
+              opacity: 0;
+            }
+            animation: menu 0.2s;
+            transition-property: opacity, scale, display;
+            transition-behavior: allow-discrete;
+            transition-duration: 0.2s;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+          }
+        }
+        &[open] > ul {
+          opacity: 100%;
+          scale: 100%;
+        }
       }
       & > li > details > ul {
         &:before {
@@ -1998,15 +2019,10 @@
           content: var(--tw-content);
         }
       }
-      :where(& > li:not(.menu-title) > details > ul) {
-        border-radius: var(--radius-box);
-        background-color: var(--color-base-100);
-        box-shadow: 0 1px 3px 0 oklch(0% 0 0/0.1), 0 1px 2px -1px oklch(0% 0 0/0.1);
-      }
     }
   }
   .checkbox {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       border: var(--border) solid var(--input-color, var(--color-base-content));
       @supports (color: color-mix(in lab, red, red)) {
         border: var(--border) solid var(--input-color, color-mix(in oklab, var(--color-base-content) 20%, #0000));
@@ -2085,14 +2101,14 @@
       }
     }
     &:disabled {
-      @layer daisyui.modifier {
+      @layer daisyui.l1.l2 {
         cursor: not-allowed;
         opacity: 20%;
       }
     }
   }
   .radio {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: inline-block;
       flex-shrink: 0;
@@ -2149,14 +2165,14 @@
       }
     }
     &:disabled {
-      @layer daisyui.modifier {
+      @layer daisyui.l1.l2 {
         cursor: not-allowed;
         opacity: 20%;
       }
     }
   }
   .navbar {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: flex;
       width: 100%;
       align-items: center;
@@ -2164,13 +2180,13 @@
       min-height: 4rem;
     }
     :where(&) {
-      @layer daisyui.modifier {
+      @layer daisyui.l1.l2 {
         position: relative;
       }
     }
   }
   .drawer {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: grid;
       width: 100%;
@@ -2178,7 +2194,7 @@
     }
   }
   .card {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       display: flex;
       flex-direction: column;
@@ -2227,7 +2243,7 @@
     }
   }
   .progress {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       position: relative;
       height: calc(0.25rem * 2);
       width: 100%;
@@ -2289,7 +2305,7 @@
     position: sticky;
   }
   .tooltip-bottom {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       > .tooltip-content, &[data-tip]:before {
         transform: translateX(-50%) translateY(var(--tt-pos, -0.25rem));
         inset: var(--tt-off) auto auto 50%;
@@ -2301,7 +2317,7 @@
     }
   }
   .tooltip-top {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       > .tooltip-content, &[data-tip]:before {
         transform: translateX(-50%) translateY(var(--tt-pos, 0.25rem));
         inset: auto auto var(--tt-off) 50%;
@@ -2316,14 +2332,14 @@
     inset: calc(var(--spacing) * 0);
   }
   .toast-center {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       inset-inline-start: calc(1/2 * 100%);
       inset-inline-end: calc(1/2 * 100%);
       --toast-x: -50%;
     }
   }
   .dropdown-end {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --anchor-h: span-left;
       :where(.dropdown-content) {
         inset-inline-end: calc(0.25rem * 0);
@@ -2363,7 +2379,7 @@
     left: calc(1/2 * 100%);
   }
   .textarea {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       border: var(--border) solid #0000;
       min-height: calc(0.25rem * 20);
       flex-shrink: 1;
@@ -2438,7 +2454,7 @@
     }
   }
   .btn-active {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --btn-bg: var(--btn-color, var(--color-base-200));
       @supports (color: color-mix(in lab, red, red)) {
         --btn-bg: color-mix(in oklab, var(--btn-color, var(--color-base-200)), #000 7%);
@@ -2451,7 +2467,7 @@
     isolation: isolate;
   }
   .modal-backdrop {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       grid-column-start: 1;
       grid-row-start: 1;
       display: grid;
@@ -2483,7 +2499,7 @@
     z-index: 50;
   }
   .modal-box {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       grid-column-start: 1;
       grid-row-start: 1;
       max-height: 100vh;
@@ -2504,7 +2520,7 @@
     }
   }
   .drawer-content {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       grid-column-start: 2;
       grid-row-start: 1;
       min-width: calc(0.25rem * 0);
@@ -2535,7 +2551,7 @@
     margin: calc(var(--spacing) * 4);
   }
   .filter {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: flex;
       flex-wrap: wrap;
       input[type="radio"] {
@@ -2595,7 +2611,7 @@
     margin-block: calc(var(--spacing) * 8);
   }
   .label {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: inline-flex;
       align-items: center;
       gap: calc(0.25rem * 1.5);
@@ -2643,7 +2659,7 @@
     }
   }
   .modal-action {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       margin-top: calc(0.25rem * 6);
       display: flex;
       justify-content: flex-end;
@@ -2663,7 +2679,7 @@
     margin-top: auto;
   }
   .breadcrumbs {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       max-width: 100%;
       overflow-x: auto;
       padding-block: calc(0.25rem * 2);
@@ -2734,7 +2750,7 @@
     margin-left: calc(var(--spacing) * 2);
   }
   .status {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: inline-block;
       aspect-ratio: 1 / 1;
       width: calc(0.25rem * 2);
@@ -2759,7 +2775,7 @@
     }
   }
   .badge {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -2781,7 +2797,7 @@
     }
   }
   .tabs {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: flex;
       flex-wrap: wrap;
       --tabs-height: auto;
@@ -2792,7 +2808,7 @@
     }
   }
   .footer {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: grid;
       width: 100%;
       grid-auto-flow: row;
@@ -2817,7 +2833,7 @@
     }
   }
   .card-body {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: flex;
       flex: auto;
       flex-direction: column;
@@ -2832,7 +2848,7 @@
   .alert {
     border-width: var(--border);
     border-color: var(--alert-border-color, var(--color-base-200));
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       border-style: solid;
       --alert-border-color: var(--color-base-200);
       display: grid;
@@ -2862,7 +2878,7 @@
     }
   }
   .fieldset {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: grid;
       gap: calc(0.25rem * 1.5);
       padding-block: calc(0.25rem * 1);
@@ -2872,7 +2888,7 @@
     }
   }
   .card-actions {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: flex;
       flex-wrap: wrap;
       align-items: flex-start;
@@ -2880,7 +2896,7 @@
     }
   }
   .card-title {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: flex;
       align-items: center;
       gap: calc(0.25rem * 2);
@@ -2951,7 +2967,7 @@
     }
   }
   .mask {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       display: inline-block;
       vertical-align: middle;
       mask-size: contain;
@@ -2987,7 +3003,7 @@
     display: inline-flex;
   }
   .card-side {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       align-items: stretch;
       flex-direction: row;
       :where(figure:first-child) {
@@ -3015,7 +3031,7 @@
     }
   }
   .btn-circle {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       border-radius: calc(infinity * 1px);
       padding-inline: calc(0.25rem * 0);
       width: var(--size);
@@ -3023,7 +3039,7 @@
     }
   }
   .btn-square {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       padding-inline: calc(0.25rem * 0);
       width: var(--size);
       height: var(--size);
@@ -3060,17 +3076,17 @@
     min-height: 100vh;
   }
   .btn-block {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       width: 100%;
     }
   }
   .loading-sm {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       width: calc(var(--size-selector, 0.25rem) * 5);
     }
   }
   .loading-xs {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       width: calc(var(--size-selector, 0.25rem) * 4);
     }
   }
@@ -3157,7 +3173,7 @@
     animation: var(--animate-spin);
   }
   .link {
-    @layer daisyui.component {
+    @layer daisyui.l1.l2.l3 {
       cursor: pointer;
       text-decoration-line: underline;
       &:focus {
@@ -3184,7 +3200,7 @@
     resize: both;
   }
   .alert-vertical {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       justify-content: center;
       justify-items: center;
       grid-auto-flow: row;
@@ -3263,7 +3279,7 @@
     border-radius: calc(infinity * 1px);
   }
   .badge-soft {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       color: var(--badge-color, var(--color-base-content));
       background-color: var(--badge-color, var(--color-base-content));
       @supports (color: color-mix(in lab, red, red)) {
@@ -3301,7 +3317,7 @@
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
   .loading-spinner {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' stroke='black' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform-origin='center'%3E%3Ccircle cx='12' cy='12' r='9.5' fill='none' stroke-width='3' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='2s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dasharray' values='0,150;42,150;42,150' keyTimes='0;0.475;1' dur='1.5s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dashoffset' values='0;-16;-59' keyTimes='0;0.475;1' dur='1.5s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/g%3E%3C/svg%3E");
     }
   }
@@ -3412,35 +3428,35 @@
     letter-spacing: var(--tracking-wide);
   }
   .alert-error {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       color: var(--color-error-content);
       --alert-border-color: var(--color-error);
       --alert-color: var(--color-error);
     }
   }
   .alert-info {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       color: var(--color-info-content);
       --alert-border-color: var(--color-info);
       --alert-color: var(--color-info);
     }
   }
   .alert-success {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       color: var(--color-success-content);
       --alert-border-color: var(--color-success);
       --alert-color: var(--color-success);
     }
   }
   .alert-warning {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       color: var(--color-warning-content);
       --alert-border-color: var(--color-warning);
       --alert-color: var(--color-warning);
     }
   }
   .link-primary {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       color: var(--color-primary);
       @media (hover: hover) {
         &:hover {
@@ -3453,7 +3469,7 @@
     }
   }
   .tooltip-error {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --tt-bg: var(--color-error);
       > .tooltip-content, &[data-tip]:before {
         color: var(--color-error-content);
@@ -3501,7 +3517,7 @@
     font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
   }
   .link-hover {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       text-decoration-line: none;
       &:hover {
         @media (hover: hover) {
@@ -3540,7 +3556,7 @@
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .btn-ghost {
-    @layer daisyui.modifier {
+    @layer daisyui.l1 {
       &:not(.btn-active, :hover, :active:focus, :focus-visible, input:checked:not(.filter .btn)) {
         --btn-shadow: "";
         --btn-bg: #0000;
@@ -3629,118 +3645,118 @@
     transition-timing-function: var(--ease-out);
   }
   .btn-md {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --fontsize: 0.875rem;
       --btn-p: 1rem;
       --size: calc(var(--size-field, 0.25rem) * 10);
     }
   }
   .btn-sm {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --fontsize: 0.75rem;
       --btn-p: 0.75rem;
       --size: calc(var(--size-field, 0.25rem) * 8);
     }
   }
   .badge-accent {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --badge-color: var(--color-accent);
       --badge-fg: var(--color-accent-content);
     }
   }
   .badge-error {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --badge-color: var(--color-error);
       --badge-fg: var(--color-error-content);
     }
   }
   .badge-info {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --badge-color: var(--color-info);
       --badge-fg: var(--color-info-content);
     }
   }
   .badge-neutral {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --badge-color: var(--color-neutral);
       --badge-fg: var(--color-neutral-content);
     }
   }
   .badge-primary {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --badge-color: var(--color-primary);
       --badge-fg: var(--color-primary-content);
     }
   }
   .badge-secondary {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --badge-color: var(--color-secondary);
       --badge-fg: var(--color-secondary-content);
     }
   }
   .badge-success {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --badge-color: var(--color-success);
       --badge-fg: var(--color-success-content);
     }
   }
   .badge-warning {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       --badge-color: var(--color-warning);
       --badge-fg: var(--color-warning-content);
     }
   }
   .btn-error {
-    @layer daisyui.modifier.color {
+    @layer daisyui.l1.l2.l3 {
       --btn-color: var(--color-error);
       --btn-fg: var(--color-error-content);
     }
   }
   .btn-info {
-    @layer daisyui.modifier.color {
+    @layer daisyui.l1.l2.l3 {
       --btn-color: var(--color-info);
       --btn-fg: var(--color-info-content);
     }
   }
   .btn-neutral {
-    @layer daisyui.modifier.color {
+    @layer daisyui.l1.l2.l3 {
       --btn-color: var(--color-neutral);
       --btn-fg: var(--color-neutral-content);
     }
   }
   .btn-primary {
-    @layer daisyui.modifier.color {
+    @layer daisyui.l1.l2.l3 {
       --btn-color: var(--color-primary);
       --btn-fg: var(--color-primary-content);
     }
   }
   .btn-secondary {
-    @layer daisyui.modifier.color {
+    @layer daisyui.l1.l2.l3 {
       --btn-color: var(--color-secondary);
       --btn-fg: var(--color-secondary-content);
     }
   }
   .btn-success {
-    @layer daisyui.modifier.color {
+    @layer daisyui.l1.l2.l3 {
       --btn-color: var(--color-success);
       --btn-fg: var(--color-success-content);
     }
   }
   .btn-warning {
-    @layer daisyui.modifier.color {
+    @layer daisyui.l1.l2.l3 {
       --btn-color: var(--color-warning);
       --btn-fg: var(--color-warning-content);
     }
   }
   .input-error {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       &, &:focus, &:focus-within {
         --input-color: var(--color-error);
       }
     }
   }
   .input-success {
-    @layer daisyui.modifier {
+    @layer daisyui.l1.l2 {
       &, &:focus, &:focus-within {
         --input-color: var(--color-success);
       }
@@ -3891,7 +3907,7 @@
   }
   .sm\:alert-horizontal {
     @media (width >= 40rem) {
-      @layer daisyui.modifier {
+      @layer daisyui.l1.l2 {
         justify-content: start;
         justify-items: start;
         grid-auto-flow: column;
@@ -4054,7 +4070,7 @@
   }
 }
 label:has(.invalid) {
-  @layer daisyui.modifier {
+  @layer daisyui.l1.l2 {
     &, &:focus, &:focus-within {
       --input-color: var(--color-error);
     }
@@ -4332,6 +4348,11 @@ label:has(.invalid) {
   }
   100% {
     background-position: -50%;
+  }
+}
+@keyframes menu {
+  0% {
+    opacity: 0;
   }
 }
 @keyframes progress {

@@ -10,14 +10,17 @@ internal static class SubscriptionHandlers
         [FromForm] TvSubscriptionViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<ForSubscription> logger,
+        HttpContext context,
         CancellationToken cancellationToken)
     {
         return Validate(viewModel)
-            .Bind(model => Subscription.VerifyStorage(
-                model.UserId,
-                model.SeriesId, 
-                model.SeriesTitle,
-                model.SeriesFeedTitle,
+            .Bind(model => Data.AddUser(context, model))
+            .Bind(data => Subscription.VerifyStorage(
+                data.User,
+                data.Model.SeriesId, 
+                data.Model.SeriesTitle,
+                data.Model.SeriesFeedTitle,
+                data.Model.SeriesLink,
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
             .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
@@ -44,14 +47,17 @@ internal static class SubscriptionHandlers
         [FromForm] TvSubscriptionViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<ForSubscriptionRemoval> logger,
+        HttpContext context,
         CancellationToken cancellationToken)
     {
         return Validate(viewModel)
-            .Bind(model => Subscription.VerifyStorage(
-                model.UserId,
-                model.SeriesId,
-                model.SeriesTitle,
-                model.SeriesFeedTitle,
+            .Bind(model => Data.AddUser(context, model))
+            .Bind(data => Subscription.VerifyStorage(
+                data.User,
+                data.Model.SeriesId, 
+                data.Model.SeriesTitle,
+                data.Model.SeriesFeedTitle,
+                data.Model.SeriesLink,
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
             .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)

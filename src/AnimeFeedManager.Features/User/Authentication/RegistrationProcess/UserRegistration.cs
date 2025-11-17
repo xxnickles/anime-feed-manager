@@ -1,4 +1,4 @@
-using AnimeFeedManager.Features.User.Authentication.Storage;
+using AnimeFeedManager.Features.User.Authentication.Storage.Stores;
 using Passwordless;
 using Passwordless.Models;
 

@@ -81,7 +81,6 @@
             LoaderSelector = _loaderSelector,
             CardBadgeId = _cardBadgeId,
             SeriesId = series.TvSeries.Id,
-            UserId = series.User is AuthenticatedUser au ? au.UserId : string.Empty
         };
     }
 
@@ -93,8 +92,8 @@
             LoaderSelector = _loaderSelector,
             CardBadgeId = _cardBadgeId,
             SeriesId = series.TvSeries.Id,
-            UserId = series.User is AuthenticatedUser au ? au.UserId : string.Empty,
-            SeriesFeedTitle = series.TvSeries.FeedTitle ?? string.Empty
+            SeriesFeedTitle = series.TvSeries.FeedTitle ?? string.Empty,
+            SeriesLink = series.TvSeries.FeedUrl ?? string.Empty
         };
     }
 

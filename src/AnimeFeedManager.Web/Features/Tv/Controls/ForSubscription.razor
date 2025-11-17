@@ -6,12 +6,13 @@
               hx-swap="outerHTML"
               hx-indicator="@Model.LoaderSelector"
               hx-confirm="@($"Do you want add {Model.SeriesTitle} to your subscriptions?")">
-        <input type="hidden" name="@nameof(Model.UserId)" value="@Model.UserId"/>
         <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
         <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>
         <input type="hidden" name="@nameof(Model.LoaderSelector)" value="@Model.LoaderSelector"/>
         <input type="hidden" name="@nameof(Model.SeriesFeedTitle)" value="@Model.SeriesFeedTitle"/>
+        <input type="hidden" name="@nameof(Model.SeriesLink)" value="@Model.SeriesLink"/>
         <input type="hidden" name="@nameof(Model.CardBadgeId)" value="@Model.CardBadgeId"/>
+        
 
         <FabButtonContainer Label="Subscribe">
             <button class="btn btn-sm btn-circle btn-success shadow-md"

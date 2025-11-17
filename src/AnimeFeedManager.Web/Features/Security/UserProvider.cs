@@ -10,14 +10,14 @@ internal static class CustomClaimTypes
 
 internal static class UserProvider
 {
-    internal static AppUser GetCurrentUser(this IHttpContextAccessor contextAccessor)
+    internal static AppUser GetCurrentUser(this HttpContext context)
     {
-        if (contextAccessor.HttpContext?.User.Identity?.IsAuthenticated is null or false)
+        if (context.User.Identity?.IsAuthenticated is null or false)
             return new Anonymous();
 
-        var userId = contextAccessor.HttpContext?.User.FindFirstValue(CustomClaimTypes.Sub);
-        var email = contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email);
-        var role = UserRole.FromString(contextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Role) ??
+        var userId = context.User.FindFirstValue(CustomClaimTypes.Sub);
+        var email = context.User.FindFirstValue(ClaimTypes.Email);
+        var role = UserRole.FromString(context.User.FindFirstValue(ClaimTypes.Role) ??
                                        string.Empty);
 
         return (userId, email, role.IsAdmin()) switch

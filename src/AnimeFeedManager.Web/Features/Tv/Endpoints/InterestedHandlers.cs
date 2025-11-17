@@ -1,19 +1,25 @@
 ﻿using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
+using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Tv.Controls;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
-internal static class InterestedHandlers
+internal static partial class InterestedHandlers
 {
     internal static Task<RazorComponentResult> AddSeriesToInterested(
         [FromForm] TvInterestedViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<ForInterested> logger,
+        HttpContext context,
         CancellationToken cancellationToken)
     {
         return Validate(viewModel)
-            .Bind(model => InterestedSeries.VerifyStorage(model.UserId, model.SeriesId, model.SeriesTitle,
+            .Bind(model => Data.AddUser(context, model))
+            .Bind(data => InterestedSeries.VerifyStorage(
+                data.User,
+                data.Model.SeriesId,
+                data.Model.SeriesTitle,
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
             .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
@@ -40,10 +46,15 @@ internal static class InterestedHandlers
         [FromForm] TvInterestedViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<ForInterestedRemoval> logger,
+        HttpContext context,
         CancellationToken cancellationToken)
     {
         return Validate(viewModel)
-            .Bind(model => InterestedSeries.VerifyStorage(model.UserId, model.SeriesId, model.SeriesTitle,
+            .Bind(model => Data.AddUser(context, model))
+            .Bind(data => InterestedSeries.VerifyStorage(
+                data.User,
+                data.Model.SeriesId,
+                data.Model.SeriesTitle,
                 clientFactory.TableStorageTvSubscription(), cancellationToken))
             .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater(),
                 clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)

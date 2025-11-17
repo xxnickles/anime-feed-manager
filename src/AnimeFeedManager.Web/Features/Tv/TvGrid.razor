@@ -32,7 +32,7 @@ else
     
     protected override async Task OnInitializedAsync()
     {
-        var user = HttpContextAccessor.GetCurrentUser();
+        var user = HttpContextAccessor.HttpContext?.GetCurrentUser() ?? new Anonymous();
         await TableClientFactory.TableStorageTvLibraryGetter()
                                 .GetTvLibrarySeries(Season, BlobServiceClient.Uri, CancellationToken.None)
                                 .GetTvLibraryForUser(user, TableClientFactory.TableStorageTvSubscriptions(), CancellationToken.None)

@@ -25,4 +25,7 @@ public sealed class SubscriptionStorage : ITableEntity
     public string? SeriesFeedTitle { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
+    public string? NotifiedEpisodes { get; set; } // comma separated list of episode numbers
+    public string? SeriesLink { get; set; }
+    public string UserEmail { get; set; } = string.Empty;
 }

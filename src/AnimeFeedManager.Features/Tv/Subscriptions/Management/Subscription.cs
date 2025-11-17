@@ -6,13 +6,15 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 public static class Subscription
 {
     public static Task<Result<SubscriptionStorage>> VerifyStorage(
-        string userId,
+       AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
         string feedTitle,
+        string seriesLink,
         TvSubscriptionGetter subscriptionGetterGetter,
-        CancellationToken token) => subscriptionGetterGetter(userId, seriesId, token)
-        .Map(subscription => VerifyCurrentSubscription(subscription, userId, seriesId, seriesTitle, feedTitle));
+        CancellationToken token) => 
+        subscriptionGetterGetter(user.UserId, seriesId, token)
+        .Map(subscription => VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle, seriesLink));
 
     public static Task<Result<Unit>> UpdateSubscription(this Task<Result<SubscriptionStorage>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
@@ -54,20 +56,23 @@ public static class Subscription
 
     private static SubscriptionStorage VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
-        string userId,
+        AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
-        string feedTitle)
+        string feedTitle,
+        string seriesLink)
     {
         if (subscription is null)
             return new SubscriptionStorage
             {
-                PartitionKey = userId,
+                PartitionKey = user.UserId,
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.None),
                 Status = nameof(SubscriptionStatus.Active),
                 SeriesFeedTitle = feedTitle,
                 SeriesTitle = seriesTitle,
+                UserEmail = user.Email,
+                SeriesLink = seriesLink
             };
 
         return subscription;

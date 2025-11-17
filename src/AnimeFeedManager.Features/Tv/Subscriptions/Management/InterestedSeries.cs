@@ -6,24 +6,26 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 public static class InterestedSeries
 {
     public static Task<Result<SubscriptionStorage>> VerifyStorage(
-        string userId,
+        AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
         TvSubscriptionGetter subscriptionGetterGetter,
-        CancellationToken token) => subscriptionGetterGetter(userId, seriesId, token)
-        .Bind(subscription => VerifyCurrentSubscription(subscription, userId, seriesId, seriesTitle));
+        CancellationToken token) => subscriptionGetterGetter(user.UserId, seriesId, token)
+        .Bind(subscription => VerifyCurrentSubscription(subscription, user.UserId, seriesId, seriesTitle, user.Email));
 
 
-    public static Task<Result<Unit>> UpdateInterested(this Task<Result<SubscriptionStorage>> storage,  
+    public static Task<Result<Unit>> UpdateInterested(this Task<Result<SubscriptionStorage>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
-        CancellationToken token) => storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
-    
+        CancellationToken token) =>
+        storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
+
     private static Result<SubscriptionStorage> VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
         string userId,
         string seriesId,
-        string seriesTitle)
+        string seriesTitle,
+        string userEmail)
     {
         if (subscription is null)
             return new SubscriptionStorage
@@ -33,6 +35,7 @@ public static class InterestedSeries
                 Type = nameof(SubscriptionType.None),
                 Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = seriesTitle,
+                UserEmail = userEmail
             };
 
         if (subscription.Type == nameof(SubscriptionType.Subscribed))
