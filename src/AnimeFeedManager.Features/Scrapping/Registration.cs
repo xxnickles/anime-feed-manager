@@ -32,6 +32,7 @@ public static class Registration
     {
         serviceCollection.RegisterPuppeteer(downloadToProjectFolder, runHeadless);
         serviceCollection.TryAddScoped<ISeasonFeedDataProvider, SeasonFeedDataProvider>();
+        serviceCollection.TryAddScoped<IEpisodeFeedDataProvider, EpisodeFeedDataProvider>();
         return serviceCollection;
     }
 }

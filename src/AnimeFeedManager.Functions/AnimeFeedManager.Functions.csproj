@@ -39,5 +39,6 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Seasons\" />
+      <Folder Include="Tv\Notifications\" />
     </ItemGroup>
 </Project>

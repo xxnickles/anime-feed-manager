@@ -29,24 +29,24 @@ public static class AutoSubscription
         CancellationToken token) => seriesGetter(seriesId, token)
         .Map(series => new AutoSubscriptionProcess(seriesId, series.ConvertAll(s => Subscribe(s, feedTitle))));
 
-    internal static Task<Result<AutoSubscriptionProcess>> StoreChanges(
-        this Task<Result<AutoSubscriptionProcess>> process,
-        TvSubscriptionsUpdater updater, CancellationToken token)
+    extension(Task<Result<AutoSubscriptionProcess>> process)
     {
-        return process.Bind(p => updater(p.InterestedSeries, token)
-            .Map(_ => p));
-    }
+        internal Task<Result<AutoSubscriptionProcess>> StoreChanges(TvSubscriptionsUpdater updater, CancellationToken token)
+        {
+            return process.Bind(p => updater(p.InterestedSeries, token)
+                .Map(_ => p));
+        }
 
-    internal static Task<Result<Summary>> SendEvents(this Task<Result<AutoSubscriptionProcess>> process,
-        string seriesId,
-        IDomainPostman domainPostman,
-        CancellationToken token)
-    {
-        return process.Bind(data => domainPostman.SendMessage(GetEvent(data), token)
-                .Map(_ => new Summary(data.InterestedSeries.Count)))
-            .MapError(error =>
-                domainPostman.SendMessage(GetErrorEvent(seriesId), token)
-                    .MatchToValue(_ => error, e => e));
+        internal Task<Result<Summary>> SendEvents(string seriesId,
+            IDomainPostman domainPostman,
+            CancellationToken token)
+        {
+            return process.Bind(data => domainPostman.SendMessage(GetEvent(data), token)
+                    .Map(_ => new Summary(data.InterestedSeries.Count)))
+                .MapError(error =>
+                    domainPostman.SendMessage(GetErrorEvent(seriesId), token)
+                        .MatchToValue(_ => error, e => e));
+        }
     }
 
 
