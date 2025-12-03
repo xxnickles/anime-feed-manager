@@ -16,8 +16,8 @@ internal static class LibraryManagement
                     model.SeriesId,
                     model.Season,
                     model.AlternativeTitles ?? [],
-                    clientFactory.TableStorageTvSeriesGetter(),
-                    clientFactory.TableStorageTvSeriesUpdater(),
+                    clientFactory.TableStorageTvSeriesGetter,
+                    clientFactory.TableStorageTvSeriesUpdater,
                     cancellationToken))
                 .LogErrors(logger)
                 .ToComponentResult(
@@ -41,7 +41,7 @@ internal static class LibraryManagement
         CancellationToken token) =>
         Validate(viewModel)
             .Bind(model => DeleteSeries(viewModel.SeriesId, viewModel.Season,
-                clientFactory.TableStorageTvSeriesRemover(), token))
+                clientFactory.TableStorageTvSeriesRemover, token))
             .Map(result =>
             {
                 // Adds an event to trigger the remove o the series card

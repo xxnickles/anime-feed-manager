@@ -1,10 +1,8 @@
 using AnimeFeedManager.Features.Scrapping.Types;
 using PuppeteerSharp;
 
-
 namespace AnimeFeedManager.Features.Scrapping.SubsPlease;
 
-public record FeedData(string Title, string Url);
 
 public interface ISeasonFeedDataProvider
 {

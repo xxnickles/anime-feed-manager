@@ -1,6 +1,5 @@
 using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Scrapping.AniDb;
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
@@ -153,7 +152,7 @@ internal static class ScrapSteps
             (SeriesStatus.OngoingValue, true) => SeriesStatus.Ongoing(),
             (_, _) => SeriesStatus.NotAvailable(),
         };
-        baseSeries.AlternativeTitles = currentInfo.AlternativeTitles.ArrayToString();
+        baseSeries.AlternativeTitles = currentInfo.AlternativeTitles.AppArrayToString();
 
 
         if (currentInfo is not TvSeriesInfoWithImage withImage)

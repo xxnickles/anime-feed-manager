@@ -12,20 +12,27 @@ public delegate Task<Result<ImmutableList<SubscriptionStorage>>> TvSubscriptions
 public delegate Task<Result<ImmutableList<SubscriptionStorage>>> TvInterestedBySeries(string seriesId,
     CancellationToken cancellationToken = default);
 
+/// <summary>
+/// Gets Active subscription by user
+/// </summary>
+public delegate Task<Result<UserActiveSubscriptions[]>> TvUserActiveSubscriptions(IEnumerable<string> feedTitles,
+    CancellationToken token);
+
 public static class ExistentSubscriptions
 {
     extension(ITableClientFactory clientFactory)
     {
-        public TvSubscriptions TableStorageTvSubscriptions() =>
+        public TvSubscriptions TableStorageTvSubscriptions =>
             (userId, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
-                        storage => storage.PartitionKey == userId && storage.Status != nameof(SubscriptionStatus.Expired), token))
+                        storage => storage.PartitionKey == userId &&
+                                   storage.Status != nameof(SubscriptionStatus.Expired), token))
                 .MapError(error => error
                     .WithLogProperty("UserId", userId)
-                    .WithOperationName(nameof(TableStorageTvSubscriptions)));
+                    .WithOperationName("TableStorageTvSubscriptions"));
 
-        public TvSubscriptionGetter TableStorageTvSubscription() =>
+        public TvSubscriptionGetter TableStorageTvSubscription =>
             (userId, seriesId, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .Bind(client => client.ExecuteQuery<SubscriptionStorage>(storage => storage.PartitionKey == userId &&
                     storage.Status != nameof(SubscriptionStatus.Expired) &&
@@ -33,20 +40,44 @@ public static class ExistentSubscriptions
                 .MapError(error => error
                     .WithLogProperty("UserId", userId)
                     .WithLogProperty("SeriesId", seriesId)
-                    .WithOperationName(nameof(TableStorageTvSubscription)));
+                    .WithOperationName("TableStorageTvSubscription"));
 
-        public TvSubscriptionsBySeries TableStorageTvSubscriptionsBySeries() =>
+        public TvSubscriptionsBySeries TableStorageTvSubscriptionsBySeries =>
             (id, token) => clientFactory.GetClient<SubscriptionStorage>()
-                .Bind(client => client.ExecuteQuery<SubscriptionStorage>(storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Subscribed) && storage.Status != nameof(SubscriptionStatus.Expired), token)) 
+                .Bind(client =>
+                    client.ExecuteQuery<SubscriptionStorage>(
+                        storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Subscribed) &&
+                                   storage.Status != nameof(SubscriptionStatus.Expired), token))
                 .MapError(error => error
                     .WithLogProperty("SeriesId", id)
-                    .WithOperationName(nameof(TableStorageTvSubscriptionsBySeries)));
+                    .WithOperationName("TableStorageTvSubscriptionsBySeries"));
 
-        public TvInterestedBySeries TableStorageTvInterestedBySeries() =>
+        public TvInterestedBySeries TableStorageTvInterestedBySeries =>
             (id, token) => clientFactory.GetClient<SubscriptionStorage>()
-                .Bind(client => client.ExecuteQuery<SubscriptionStorage>(storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Interested) && storage.Status == nameof(SubscriptionStatus.Active), token)) 
+                .Bind(client =>
+                    client.ExecuteQuery<SubscriptionStorage>(
+                        storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Interested) &&
+                                   storage.Status == nameof(SubscriptionStatus.Active), token))
                 .MapError(error => error
                     .WithLogProperty("SeriesId", id)
-                    .WithOperationName(nameof(TableStorageTvSubscriptionsBySeries)));
+                    .WithOperationName("TableStorageTvInterestedBySeries"));
+
+        public TvUserActiveSubscriptions TableStorageTvUserActiveSubscriptions =>
+            (titles, token) => clientFactory.GetClient<SubscriptionStorage>()
+                .Bind(client =>
+                    client.ExecuteQuery<SubscriptionStorage>(
+                            storage => storage.Status == nameof(SubscriptionStatus.Active),
+                            token)
+                        .Map(subscriptions => subscriptions
+                            .Where(s => s.SeriesFeedTitle != null && titles.Contains(s.SeriesFeedTitle))
+                            .GroupBy(s => s.PartitionKey)
+                            .Select(g => new UserActiveSubscriptions(
+                                g.Key ?? string.Empty,
+                                g.First().UserEmail,
+                                g.Select(s => new ActiveSubscription(
+                                    s.SeriesFeedTitle ?? string.Empty,
+                                    (s.NotifiedEpisodes ?? string.Empty).StringToAppArray())).ToArray()))
+                            .ToArray()))
+                .MapError(error => error.WithOperationName("TableStorageTvActiveSubscribers"));
     }
 }

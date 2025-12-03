@@ -17,63 +17,65 @@ public delegate Task<Result<ImmutableList<SeriesSeason>>> Latest4SeasonsGetter(
 
 public static class ExistentSeasons
 {
-    public static LatestSeasonGetter TableStorageLatestSeasonGetter(this ITableClientFactory clientFactory) =>
-        cancellationToken => clientFactory.GetClient<SeasonStorage>()
-            .Bind(client =>
-                client.ExecuteQuery<SeasonStorage>(
-                        storage => storage.PartitionKey == SeasonStorage.SeasonPartition && storage.Latest == true,
-                        cancellationToken)
-                    .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(seasons =>
-                        !seasons.IsEmpty ? new CurrentLatestSeason(seasons.First()) : new NoMatch()))
-            .MapError(error => error.WithOperationName(nameof(TableStorageLatestSeasonGetter)));
+    extension(ITableClientFactory clientFactory)
+    {
+        public LatestSeasonGetter TableStorageLatestSeason =>
+            cancellationToken => clientFactory.GetClient<SeasonStorage>()
+                .Bind(client =>
+                    client.ExecuteQuery<SeasonStorage>(
+                            storage => storage.PartitionKey == SeasonStorage.SeasonPartition && storage.Latest == true,
+                            cancellationToken)
+                        .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(seasons =>
+                            !seasons.IsEmpty ? new CurrentLatestSeason(seasons.First()) : new NoMatch()))
+                .MapError(error => error.WithOperationName("TableStorageLatestSeason"));
 
-    public static SeasonGetter TableStorageSeasonGetter(this ITableClientFactory clientFactory) =>
-        (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
-            .Bind(client => client.ExecuteQuery<SeasonStorage>(storage => 
-                    storage.PartitionKey == SeasonStorage.SeasonPartition &&
-                    storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
-                .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(matches =>
-                {
-                    if (matches.IsEmpty)
-                        return new NoMatch();
-
-                    var match = matches.First();
-
-                    return (match.Latest, season.IsLatest) switch
+        public SeasonGetter TableStorageSeason =>
+            (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
+                .Bind(client => client.ExecuteQuery<SeasonStorage>(storage => 
+                        storage.PartitionKey == SeasonStorage.SeasonPartition &&
+                        storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
+                    .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(matches =>
                     {
-                        (true, true)
-                            or (true, false) => new NoUpdateRequired(), // Do not update if is the current latest season
-                        (false, true) => UpdateCurrentToLatest(match),
-                        _ => match.Season == season.Season && match.Year == season.Year
-                            ? new NoUpdateRequired()
-                            : new ExistentSeason(match)
-                    };
-                }))
-            .MapError(error => error
-                .WithLogProperty(nameof(SeriesSeason), season)
-                .WithOperationName(nameof(TableStorageSeasonGetter)));
+                        if (matches.IsEmpty)
+                            return new NoMatch();
 
-    public static AllSeasonsGetter TableStorageAllSeasonsGetter(this ITableClientFactory clientFactory) =>
-        cancellationToken => clientFactory.GetClient<SeasonStorage>()
-            .Bind(client =>
-                client.ExecuteQuery<SeasonStorage>(storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
-                    cancellationToken))
-            .Map(seasons => seasons.TransformToSeriesSeason())
-            .MapError(error => error.WithOperationName(nameof(TableStorageAllSeasonsGetter)));
+                        var match = matches.First();
 
-    public static Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(this ITableClientFactory clientFactory,
-        ILogger logger) =>
-        cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
-            .Bind(client => client.ExecuteQuery<LatestSeasonsStorage>(storage =>
-                    storage.PartitionKey == LatestSeasonsStorage.Partition &&
-                    storage.RowKey == LatestSeasonsStorage.Key, cancellationToken)
-                .SingleItem()
-            )
-            .Map(seasons => TransformToSeriesSeason(seasons, logger))
-            .MapError(error => error
-                .WithLogProperty(nameof(LatestSeasonsStorage.Partition), LatestSeasonsStorage.Partition)
-                .WithLogProperty(nameof(LatestSeasonsStorage.RowKey), LatestSeasonsStorage.Key)
-                .WithOperationName(nameof(TableStorageLatest4SeasonsGetter)));
+                        return (match.Latest, season.IsLatest) switch
+                        {
+                            (true, true)
+                                or (true, false) => new NoUpdateRequired(), // Do not update if is the current latest season
+                            (false, true) => UpdateCurrentToLatest(match),
+                            _ => match.Season == season.Season && match.Year == season.Year
+                                ? new NoUpdateRequired()
+                                : new ExistentSeason(match)
+                        };
+                    }))
+                .MapError(error => error
+                    .WithLogProperty(nameof(SeriesSeason), season)
+                    .WithOperationName("TableStorageSeason"));
+
+        public AllSeasonsGetter TableStorageAllSeasonsGetter =>
+            cancellationToken => clientFactory.GetClient<SeasonStorage>()
+                .Bind(client =>
+                    client.ExecuteQuery<SeasonStorage>(storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
+                        cancellationToken))
+                .Map(seasons => seasons.TransformToSeriesSeason())
+                .MapError(error => error.WithOperationName("AllSeasonsGetter"));
+
+        public Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(ILogger logger) =>
+            cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
+                .Bind(client => client.ExecuteQuery<LatestSeasonsStorage>(storage =>
+                        storage.PartitionKey == LatestSeasonsStorage.Partition &&
+                        storage.RowKey == LatestSeasonsStorage.Key, cancellationToken)
+                    .SingleItem()
+                )
+                .Map(seasons => TransformToSeriesSeason(seasons, logger))
+                .MapError(error => error
+                    .WithLogProperty(nameof(LatestSeasonsStorage.Partition), LatestSeasonsStorage.Partition)
+                    .WithLogProperty(nameof(LatestSeasonsStorage.RowKey), LatestSeasonsStorage.Key)
+                    .WithOperationName(nameof(TableStorageLatest4SeasonsGetter)));
+    }
 
     private static ReplaceLatestSeason UpdateCurrentToLatest(SeasonStorage storage)
     {

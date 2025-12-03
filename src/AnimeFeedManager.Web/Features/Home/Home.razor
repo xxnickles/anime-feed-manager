@@ -18,7 +18,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeasonGetter(), CancellationToken.None)
+        await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeason, CancellationToken.None)
             .LogErrors(Logger)
             .Match(
                 VerifyLatestSeason,

@@ -1,17 +1,9 @@
+using AnimeFeedManager.Features.Scrapping.Types;
+using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
+
 namespace AnimeFeedManager.Features.Tv.Feed;
 
-public enum LinkType
-{
-    None,
-    TorrentFile,
-    Magnet
-}
+public record FeedProcessData(DailySeriesFeed[] DailyFeed, UserActiveSubscriptions[] Subscriptions);
 
-public readonly record struct TorrentLink(LinkType Type, string Link);
+public record FeedProcessSummary(int UsersToNotify);
 
-public readonly record struct FeedInfo(
-    string AnimeTitle,
-    string FeedTitle,
-    DateTime PublicationDate,
-    IImmutableList<TorrentLink> Links,
-    string EpisodeInfo);

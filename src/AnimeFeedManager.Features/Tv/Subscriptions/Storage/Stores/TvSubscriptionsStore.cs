@@ -10,15 +10,15 @@ public static class TvSubscriptionsStore
 {
     extension(ITableClientFactory clientFactory)
     {
-        public TvSubscriptionUpdater TableStorageTvSubscriptionUpdater() =>
+        public TvSubscriptionUpdater TableStorageTvSubscriptionUpdater =>
             (subscription, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .Bind(client => client.UpsertSubscription(subscription, token));
 
-        public TvSubscriptionsRemover TableStorageTvSubscriptionsRemover() =>
+        public TvSubscriptionsRemover TableStorageTvSubscriptionsRemover =>
             (user, seriesId, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .Bind(client => client.RemoveSubscription(user, seriesId, token));
 
-        public TvSubscriptionsUpdater TableStorageTvSubscriptionsUpdater() => 
+        public TvSubscriptionsUpdater TableStorageTvSubscriptionsUpdater => 
             (subscriptions, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .Bind(client => client.AddBatch(subscriptions, token));
     }

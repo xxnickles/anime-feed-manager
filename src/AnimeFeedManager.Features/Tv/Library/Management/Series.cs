@@ -24,7 +24,7 @@ public static class Series
         AnimeInfoStorage storage,
         string[] alternativeTitles)
     {
-        storage.AlternativeTitles = alternativeTitles.Length > 0 ? alternativeTitles.ArrayToString() : string.Empty;
+        storage.AlternativeTitles = alternativeTitles.Length > 0 ? alternativeTitles.AppArrayToString() : string.Empty;
         return storage;
     }
 }

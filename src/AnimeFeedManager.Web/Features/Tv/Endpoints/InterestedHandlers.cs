@@ -20,9 +20,9 @@ internal static partial class InterestedHandlers
                 data.User,
                 data.Model.SeriesId,
                 data.Model.SeriesTitle,
-                clientFactory.TableStorageTvSubscription(), cancellationToken))
-            .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater(),
-                clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
+                clientFactory.TableStorageTvSubscription, cancellationToken))
+            .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater,
+                clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
             .LogErrors(logger)
             .ToComponentResult(
                 // Render the ForInterestedRemoval component with a success notification
@@ -55,9 +55,9 @@ internal static partial class InterestedHandlers
                 data.User,
                 data.Model.SeriesId,
                 data.Model.SeriesTitle,
-                clientFactory.TableStorageTvSubscription(), cancellationToken))
-            .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater(),
-                clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
+                clientFactory.TableStorageTvSubscription, cancellationToken))
+            .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater,
+                clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
             .LogErrors(logger)
             .ToComponentResult(
                 // Render the ForInterested component with a success notification

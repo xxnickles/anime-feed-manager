@@ -31,10 +31,10 @@ public class OnLatestFeedTitlesUpdate
         UpdateLatestFeedTitlesEvent message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
-        await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeasonGetter(), token)
+        await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeason, token)
             .GetFeedTitles(_seasonFeedDataProvider)
             .UpdateSeries(_tableClientFactory.TableStorageRawExistentStoredSeries(),
-                _tableClientFactory.TableStorageTvLibraryUpdater(), token)
+                _tableClientFactory.TableStorageTvLibraryUpdater, token)
             .SendEvents(_domainPostman, token)
             .Match(
                 results => _logger.LogInformation(

@@ -1,4 +1,5 @@
 ﻿using AnimeFeedManager.Features.Scrapping.SubsPlease;
+using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
@@ -58,7 +59,7 @@ public static class FeedTitlesScrap
         if(entity.Status == SeriesStatus.Ongoing())
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
         
-        var alternativeTitles = entity.AlternativeTitles?.Split(SharedUtils.ArraySeparator) ?? [];
+        var alternativeTitles = entity.AlternativeTitles?.StringToAppArray() ?? [];
         var feedMatch = feedTitles.TryGetFeedMatch(entity.Title ?? string.Empty);
 
         // If no match found with the main title, try with alternative titles

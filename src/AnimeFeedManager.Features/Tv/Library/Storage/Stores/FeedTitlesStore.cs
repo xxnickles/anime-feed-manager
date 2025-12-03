@@ -5,9 +5,13 @@ public delegate Task<Result<Unit>> FeedTitlesUpdater(FeedTitlesStorage titles,
 
 public static class FeedTitlesStore
 {
-    public static FeedTitlesUpdater GetFeedTitlesUpdater(this ITableClientFactory clientFactory) => (titles, token) =>
-        clientFactory.GetClient<FeedTitlesStorage>()
-            .Bind(client => client.UpsertFeedTitles(titles, token));
+    extension(ITableClientFactory clientFactory)
+    {
+        public FeedTitlesUpdater TableStorageFeedTitlesUpdater => (titles, token) =>
+            clientFactory.GetClient<FeedTitlesStorage>()
+                .Bind(client => client.UpsertFeedTitles(titles, token));
+    }
+
 
     private static Task<Result<Unit>> UpsertFeedTitles(
         this TableClient tableClient,

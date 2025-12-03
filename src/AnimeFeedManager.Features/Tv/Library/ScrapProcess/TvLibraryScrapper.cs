@@ -32,7 +32,7 @@ internal sealed class TvLibraryScrapper : ITvLibraryScrapper
         return _seasonFeedDataProvider.Get()
             .ScrapSeries(season, _puppeteerOptions)
             .AddDataFromStorage(
-                _tableClientFactory.TableStorageExistentStoredSeries(),
+                _tableClientFactory.TableStorageExistentStoredSeries,
                 _timeProvider,
                 token);
     }

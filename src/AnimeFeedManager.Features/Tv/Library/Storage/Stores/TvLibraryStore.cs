@@ -12,16 +12,16 @@ public static class TvLibraryStore
 {
     extension(ITableClientFactory clientFactory)
     {
-        public TvLibraryStorageUpdater TableStorageTvLibraryUpdater() =>
+        public TvLibraryStorageUpdater TableStorageTvLibraryUpdater =>
             (series, token) =>
                 clientFactory.GetClient<AnimeInfoStorage>()
                     .Bind(client => client.UpsertSeries(series, token));
 
-        public TvSeriesStorageUpdater TableStorageTvSeriesUpdater() =>
+        public TvSeriesStorageUpdater TableStorageTvSeriesUpdater =>
             (series, token) =>
                 clientFactory.GetClient<AnimeInfoStorage>().Bind(client => client.UpdateSeries(series, token));
 
-        public TvSeriesRemover TableStorageTvSeriesRemover() =>
+        public TvSeriesRemover TableStorageTvSeriesRemover =>
             (id, seasonString, token) => clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.RemoveSeries(id, seasonString, token));
     }

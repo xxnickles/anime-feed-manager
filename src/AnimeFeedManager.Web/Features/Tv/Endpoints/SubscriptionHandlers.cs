@@ -21,9 +21,9 @@ internal static class SubscriptionHandlers
                 data.Model.SeriesTitle,
                 data.Model.SeriesFeedTitle,
                 data.Model.SeriesLink,
-                clientFactory.TableStorageTvSubscription(), cancellationToken))
-            .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater(),
-                clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
+                clientFactory.TableStorageTvSubscription, cancellationToken))
+            .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
+                clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
             .LogErrors(logger)
             .ToComponentResult(
                 // Render the ForSubscriptionRemoval component with a success notification
@@ -58,9 +58,9 @@ internal static class SubscriptionHandlers
                 data.Model.SeriesTitle,
                 data.Model.SeriesFeedTitle,
                 data.Model.SeriesLink,
-                clientFactory.TableStorageTvSubscription(), cancellationToken))
-            .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater(),
-                clientFactory.TableStorageTvSubscriptionsRemover(), cancellationToken)
+                clientFactory.TableStorageTvSubscription, cancellationToken))
+            .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
+                clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
             .LogErrors(logger)
             .ToComponentResult(
                 // Render the ForSubscription component with a success notification

@@ -1,4 +1,3 @@
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using Raffinert.FuzzySharp;
 using Raffinert.FuzzySharp.PreProcess;

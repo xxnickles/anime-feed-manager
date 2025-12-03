@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
+using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Tv.Library.Events;

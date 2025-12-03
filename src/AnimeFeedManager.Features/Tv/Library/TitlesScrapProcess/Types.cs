@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Scrapping.SubsPlease;
+﻿using AnimeFeedManager.Features.Scrapping.Types;
 
 namespace AnimeFeedManager.Features.Tv.Library.TitlesScrapProcess;
 

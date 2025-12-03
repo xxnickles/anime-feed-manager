@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Common.Scrapping;
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
+using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;

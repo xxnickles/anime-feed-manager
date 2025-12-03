@@ -2,7 +2,6 @@
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Features.SystemEvents;

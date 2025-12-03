@@ -12,12 +12,25 @@ public static partial class SharedUtils
         var result = DateTime.TryParse($"{dateCleaned} {year}", out var date);
         return result ? date : null;
     }
-    
+
     public const char ArraySeparator = '|';
-    
-    public static string ArrayToString(this string[] array) => string.Join(ArraySeparator, array);
-    
+
+    /// <summary>
+    /// Uses '|' as separator
+    /// </summary>
+    /// <param name="array"></param>
+    /// <returns></returns>
+    public static string AppArrayToString(this string[] array) => string.Join(ArraySeparator, array);
+
+    /// <summary>
+    /// Assumes the array is separated by '|'
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    public static string[] StringToAppArray(this string str) => str.Split(ArraySeparator,
+        StringSplitOptions.RemoveEmptyEntries);
+
+
     [GeneratedRegex("(?<!^)(?=[A-Z])")]
     private static partial Regex CaseRegex();
-    
 }

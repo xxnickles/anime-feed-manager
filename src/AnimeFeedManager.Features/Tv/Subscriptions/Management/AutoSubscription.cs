@@ -13,8 +13,8 @@ public static class AutoSubscription
         IDomainPostman domainPostman,
         CancellationToken token)
     {
-        return StartProcess(seriesId, feedTitle, clientFactory.TableStorageTvInterestedBySeries(), token)
-            .StoreChanges(clientFactory.TableStorageTvSubscriptionsUpdater(), token)
+        return StartProcess(seriesId, feedTitle, clientFactory.TableStorageTvInterestedBySeries, token)
+            .StoreChanges(clientFactory.TableStorageTvSubscriptionsUpdater, token)
             .SendEvents(seriesId, domainPostman, token)
             .MapError(error => error
                 .WithOperationName(nameof(TryToSubscribe))

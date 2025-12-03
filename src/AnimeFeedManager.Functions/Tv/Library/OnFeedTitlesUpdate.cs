@@ -31,7 +31,7 @@ public class OnFeedTitlesUpdate
             _logger.LogError("No titles where sent with the update for season {Year}-{Season}", message.Season.Year, message.Season.Season);
          
         await FeedTitlesUpdate.StoreTitles(new FeedTitleUpdateData(message.Season, message.FeedTitles ?? []),
-                _tableClientFactory.GetFeedTitlesUpdater(), token)
+                _tableClientFactory.TableStorageFeedTitlesUpdater, token)
             .SentEvents(_domainPostman, message.Season, token)
             .Match(
                 _ => _logger.LogInformation("Feed titles have been updated"),

@@ -24,8 +24,8 @@ public class OnSeriesCompleted
     {
         await Subscription.ExpireSubscriptions(
             message.Id,
-            _tableClientFactory.TableStorageTvSubscriptionsBySeries(),
-            _tableClientFactory.TableStorageTvSubscriptionUpdater(),
+            _tableClientFactory.TableStorageTvSubscriptionsBySeries,
+            _tableClientFactory.TableStorageTvSubscriptionUpdater,
             token).Match(
             r => _logger.LogInformation("{Count} subscriptions has been expired for the {Series}", r.Changes,
                 message.Id),

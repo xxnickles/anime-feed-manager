@@ -11,15 +11,15 @@ public static class SeasonStore
 {
     extension(ITableClientFactory clientFactory)
     {
-        public SeasonUpdater TableStorageSeasonUpdater() =>
+        public SeasonUpdater TableStorageSeasonUpdater =>
             (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
                 .Bind(client => client.UpsertSeason(season, cancellationToken));
 
-        public LastestSeasonsUpdater TableStorageLastestSeasonsUpdater() =>
+        public LastestSeasonsUpdater TableStorageLastestSeasonsUpdater =>
             (seasons, cancellationToken) => clientFactory.GetClient<LatestSeasonsStorage>()
                 .Bind(client => client.UpsertLatestSeasons(seasons, cancellationToken));
 
-        public SeasonRemover TableStorageSeasonRemover() =>
+        public SeasonRemover TableStorageSeasonRemover =>
             (partitionKey, id, token) => clientFactory.GetClient<SeasonStorage>()
                 .Bind(client => client.RemoveSeason(partitionKey, id, token));
     }

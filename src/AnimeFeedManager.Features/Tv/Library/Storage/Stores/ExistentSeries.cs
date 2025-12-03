@@ -55,7 +55,7 @@ public static class ExistentSeries
 {
     extension(ITableClientFactory clientFactory)
     {
-        public StoredSeries TableStorageExistentStoredSeries() =>
+        public StoredSeries TableStorageExistentStoredSeries =>
             (season, token) =>
                 clientFactory.GetClient<AnimeInfoStorage>()
                     .Bind(client => client.GetStoredSeries(season, token))
@@ -66,7 +66,7 @@ public static class ExistentSeries
                 clientFactory.GetClient<AnimeInfoStorage>()
                     .Bind(client => client.GetStoredSeries(season, token));
 
-        public TvLibrary TableStorageTvLibraryGetter() =>
+        public TvLibrary TableStorageTvLibraryGetter =>
             (season, blobUri, token) =>
                 clientFactory.GetClient<AnimeInfoStorage>()
                     .Bind(client => client
@@ -77,9 +77,9 @@ public static class ExistentSeries
                     .MapError(error => error
                         .WithLogProperty("Season", season)
                         .WithLogProperty("PublicBlobUri", blobUri)
-                        .WithOperationName(nameof(TableStorageTvLibraryGetter)));
+                        .WithOperationName("TableStorageTvLibrary"));
 
-        public TvLibrarySeries TableStorageTvLibrarySeries() =>
+        public TvLibrarySeries TableStorageTvLibrarySeries =>
             (season, id, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client
                     .ExecuteQuery<AnimeInfoStorage>(
@@ -90,19 +90,19 @@ public static class ExistentSeries
                     .WithLogProperty("Season", season)
                     .WithLogProperty("Id", id)
                     .WithLogProperty("BlobUri", blobUri)
-                    .WithOperationName(nameof(TableStorageTvLibrarySeries)));
+                    .WithOperationName("TableStorageTvLibrarySeries"));
 
-        public TvSeriesGetter TableStorageTvSeriesGetter() =>
+        public TvSeriesGetter TableStorageTvSeriesGetter =>
             (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client => client.GetAnimeInfo(id, season, token));
 
-        public OnGoingStoredTvSeries TableStorageOnGoingStoredTvSeries() =>
+        public OnGoingStoredTvSeries TableStorageOnGoingStoredTvSeries =>
             token => clientFactory.GetClient<AnimeInfoStorage>()
                 .Bind(client =>
                     client.ExecuteQuery<AnimeInfoStorage>(series => series.Status == SeriesStatus.Ongoing(), token))
                 .MapError(error =>
                     error
-                        .WithOperationName(nameof(TableStorageOnGoingStoredTvSeries)));
+                        .WithOperationName("TableStorageOnGoingStoredTvSeries"));
     }
 
 

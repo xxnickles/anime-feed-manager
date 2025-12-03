@@ -20,8 +20,9 @@ if (!libmanConfig.libraries || libmanConfig.libraries.length === 0) {
 
 console.log(`\n🔄 Updating ${libmanConfig.libraries.length} libraries...\n`);
 
-let successCount = 0;
-let errorCount = 0;
+const updated = [];
+const alreadyUpToDate = [];
+const errors = [];
 
 libmanConfig.libraries.forEach((lib, index) => {
     const libraryName = lib.library || lib;
@@ -35,16 +36,35 @@ libmanConfig.libraries.forEach((lib, index) => {
     console.log(`[${index + 1}/${libmanConfig.libraries.length}] Updating ${libraryNameWithoutVersion}...`);
 
     try {
-        execSync(`libman update ${libraryNameWithoutVersion}`, { stdio: 'inherit' });
-        successCount++;
+        const output = execSync(`libman update ${libraryNameWithoutVersion}`, { encoding: 'utf8' });
+        
+        // Check if library was already up to date (case-insensitive)
+        if (/up to date/i.test(output)) {
+            alreadyUpToDate.push(libraryNameWithoutVersion);
+        } else {
+            updated.push(libraryNameWithoutVersion);
+        }
     } catch (error) {
         console.error(`❌ Error updating ${libraryNameWithoutVersion}`);
-        errorCount++;
+        errors.push(libraryNameWithoutVersion);
     }
 });
 
-console.log('\n✅ Update complete!');
-console.log(`   Success: ${successCount}`);
-if (errorCount > 0) {
-    console.log(`   Errors: ${errorCount}`);
+console.log('\n✅ Update complete!\n');
+
+if (updated.length > 0) {
+    console.log(`📦 Updated (${updated.length}):`);
+    updated.forEach(lib => console.log(`   - ${lib}`));
+    console.log('');
+}
+
+if (alreadyUpToDate.length > 0) {
+    console.log(`✓ Already up-to-date (${alreadyUpToDate.length}):`);
+    alreadyUpToDate.forEach(lib => console.log(`   - ${lib}`));
+    console.log('');
+}
+
+if (errors.length > 0) {
+    console.log(`❌ Errors (${errors.length}):`);
+    errors.forEach(lib => console.log(`   - ${lib}`));
 }
