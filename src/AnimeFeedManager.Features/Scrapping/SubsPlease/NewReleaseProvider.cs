@@ -46,7 +46,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
         }
     }
 
-    private async Task<Result<DailySeriesFeed[]>> FetchEpisodesForAllShows(IPage page, ImmutableList<FeedData> shows)
+    private async Task<Result<DailySeriesFeed[]>> FetchEpisodesForAllShows(IPage page, FeedData[] shows)
     {
         var showsWithEpisodes = new List<DailySeriesFeed>();
 
@@ -65,7 +65,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
         return showsWithEpisodes.ToArray();
     }
 
-    private async Task<Result<ImmutableList<FeedData>>> ScrapeNewReleasesFromHomepage(IPage page)
+    private async Task<Result<FeedData[]>> ScrapeNewReleasesFromHomepage(IPage page)
     {
         try
         {
@@ -79,7 +79,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
 
             var data = await page.EvaluateFunctionAsync<FeedData[]>(HomepageScrappingScript);
 
-            return data.ToImmutableList();
+            return data ?? [];
         }
         catch (Exception exception)
         {
@@ -88,7 +88,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
         }
     }
 
-    private async Task<Result<ImmutableList<EpisodeData>>> ScrapeEpisodesForShow(IPage page, string showUrl)
+    private async Task<Result<EpisodeData[]>> ScrapeEpisodesForShow(IPage page, string showUrl)
     {
         try
         {
@@ -105,7 +105,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
 
             var data = await page.EvaluateFunctionAsync<EpisodeData[]>(EpisodeScrappingScript);
 
-            return data.ToImmutableList();
+            return data ?? [];
         }
         catch (Exception exception)
         {
@@ -154,8 +154,8 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
         () => {
             const episodes = [];
 
-            // Find all TD elements with class show-release-item
-            const episodeCells = document.querySelectorAll('td.show-release-item');
+            // Find all TD elements with class show-release-item, limited to 10 matches per serie
+            const episodeCells = Array.from(document.querySelectorAll('td.show-release-item')).slice(0, 10);
 
             episodeCells.forEach(td => {
                 // Find the episode-title element
@@ -218,10 +218,10 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
                 // Only add episode if both magnet and torrent links are found
                 if (magnetLink && torrentLink) {
                     episodes.push({
-                        EpisodeNumber: episodeNumber,
-                        MagnetLink: magnetLink,
-                        TorrentLink: torrentLink,
-                        IsNew: isNew
+                        episodeNumber,
+                        magnetLink,
+                        torrentLink,
+                        isNew
                     });
                 }
             });

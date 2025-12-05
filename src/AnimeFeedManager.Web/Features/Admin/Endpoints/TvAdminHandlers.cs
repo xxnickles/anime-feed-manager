@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.Types;
+using AnimeFeedManager.Features.Tv.Feed.Events;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Web.Features.Admin.TvCards;
 
@@ -36,4 +37,14 @@ internal static class TvAdminHandlers
         return domainPostman.SendMessage(new UpdateLatestFeedTitlesEvent(), cancellationToken)
             .ToComponentNotification<Unit, Noop, TvTitlesUpdate>(new Noop());
     }
+    
+    internal static Task<RazorComponentResult> TriggerNotificationProcess(
+        [FromForm] Noop noop,
+        [FromServices] IDomainPostman domainPostman,
+        CancellationToken cancellationToken)
+    {
+        return domainPostman.SendMessage(new RunFeedNotification(), cancellationToken)
+            .ToComponentNotification<Unit, Noop, TvNotificationsTrigger>(new Noop());
+    }
+        
 }

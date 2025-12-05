@@ -1,11 +1,9 @@
-using System.Collections.Immutable;
 using System.Diagnostics;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Feed;
 using AnimeFeedManager.Features.Tv.Feed.Events;
-using AnimeFeedManager.Features.Tv.Feed.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 using AnimeFeedManager.Shared.Results.Errors;
@@ -35,23 +33,16 @@ public class FeedProcessTests
             CreateUser("user3", "user3@example.com", ["Anime 1", "Anime 2"])
         };
 
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        result.AssertOnSuccess(summary =>
-        {
-            Assert.Equal(3, summary.UsersToNotify);
-        });
+        result.AssertOnSuccess(summary => { Assert.Equal(3, summary.UsersToNotify); });
 
         Assert.Equal(3, postman.SentNotifications.Count);
     }
@@ -71,23 +62,16 @@ public class FeedProcessTests
             CreateUser("user3", "user3@example.com", ["Anime 3"])
         };
 
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        result.AssertOnSuccess(summary =>
-        {
-            Assert.Equal(1, summary.UsersToNotify);
-        });
+        result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
 
         Assert.Single(postman.SentNotifications);
         Assert.Equal("user1", postman.SentNotifications[0].Subscriptions.UserId);
@@ -108,15 +92,11 @@ public class FeedProcessTests
             CreateUser("user1", "user1@example.com", ["Anime 1", "Anime 2", "Anime 3"])
         };
 
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
@@ -140,15 +120,11 @@ public class FeedProcessTests
             CreateUser("user1", "user1@example.com", ["Anime 1"])
         };
 
-        var releaseProvider = CreateReleaseProvider(emptyFeed);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(emptyFeed).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
@@ -168,15 +144,11 @@ public class FeedProcessTests
 
         var emptyUsers = Array.Empty<UserActiveSubscriptions>();
 
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter(emptyUsers);
         var postman = CreatePostman();
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
@@ -189,21 +161,16 @@ public class FeedProcessTests
     #region Error Handling Tests
 
     [Fact]
-    public async Task Should_Fail_When_ReleaseProvider_Fails()
+    public async Task Should_Fail_When_Feed_Is_Failure()
     {
         var error = new HandledError();
-        var releaseProvider = A.Fake<INewReleaseProvider>();
-        A.CallTo(() => releaseProvider.Get())
-            .Returns(Task.FromResult(Result<DailySeriesFeed[]>.Failure(error)));
+        var failedFeed = Result<DailySeriesFeed[]>.Failure(error);
 
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter([]);
         var postman = CreatePostman();
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await failedFeed.RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
@@ -211,36 +178,6 @@ public class FeedProcessTests
         result.Match(
             _ => Assert.Fail("Expected failure but got success"),
             error => Assert.IsType<HandledError>(error)
-        );
-
-        Assert.False(feedUpdater.WasCalled);
-    }
-
-    [Fact]
-    public async Task Should_Fail_When_FeedUpdater_Fails()
-    {
-        var dailyFeeds = new[]
-        {
-            CreateDailyFeed("Anime 1", "https://example.com/anime-1", 3)
-        };
-
-        var error = Error.Create("Storage error");
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFailingFeedUpdater(error);
-        var subscriptionsGetter = CreateSubscriptionsGetter([]);
-        var postman = CreatePostman();
-
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
-            subscriptionsGetter,
-            releaseProvider,
-            postman,
-            CancellationToken.None);
-
-        Assert.False(result.IsSuccess);
-        result.Match(
-            _ => Assert.Fail("Expected failure but got success"),
-            error => Assert.Equal("Storage error", error.Message)
         );
     }
 
@@ -253,15 +190,11 @@ public class FeedProcessTests
         };
 
         var error = Error.Create("Database error");
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateFailingSubscriptionsGetter(error);
         var postman = CreatePostman();
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
@@ -286,15 +219,11 @@ public class FeedProcessTests
         };
 
         var error = MessagesNotDelivered.Create("Queue error", []);
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreateFailingPostman(error);
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
@@ -333,16 +262,12 @@ public class FeedProcessTests
             })
             .ToArray();
 
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
         var stopwatch = Stopwatch.StartNew();
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
         stopwatch.Stop();
@@ -376,23 +301,16 @@ public class FeedProcessTests
             .Select(i => CreateUser($"user{i}", $"user{i}@example.com", seriesTitles.Take(10).ToArray()))
             .ToArray();
 
-        var releaseProvider = CreateReleaseProvider(dailyFeeds);
-        var feedUpdater = CreateFeedUpdater();
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await FeedProcess.GetProcess(
-            feedUpdater,
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
-            releaseProvider,
             postman,
             CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        result.AssertOnSuccess(summary =>
-        {
-            Assert.Equal(userCount, summary.UsersToNotify);
-        });
+        result.AssertOnSuccess(summary => { Assert.Equal(userCount, summary.UsersToNotify); });
 
         Assert.Equal(userCount, postman.SentNotifications.Count);
         Assert.All(postman.SentNotifications, n => Assert.Equal(10, n.Feeds.Length));
@@ -410,7 +328,7 @@ public class FeedProcessTests
                 $"magnet:?xt=urn:btih:example{i}",
                 $"https://example.com/torrent/{i}",
                 true))
-            .ToImmutableList();
+            .ToArray();
 
         return new DailySeriesFeed(title, url, episodes);
     }
@@ -430,13 +348,6 @@ public class FeedProcessTests
         A.CallTo(() => provider.Get())
             .Returns(Task.FromResult(Result<DailySeriesFeed[]>.Success(feeds)));
         return provider;
-    }
-
-    private static TestFeedUpdater CreateFeedUpdater() => new();
-
-    private static DailyFeedUpdater CreateFailingFeedUpdater(DomainError error)
-    {
-        return (_, _) => Task.FromResult(Result<Unit>.Failure(error));
     }
 
     private static TvUserActiveSubscriptions CreateSubscriptionsGetter(UserActiveSubscriptions[] users)
@@ -463,19 +374,6 @@ public class FeedProcessTests
 
     #region Test Helpers
 
-    private class TestFeedUpdater
-    {
-        public bool WasCalled { get; private set; }
-
-        public DailyFeedUpdater Delegate => (feeds, token) =>
-        {
-            WasCalled = true;
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
-        };
-
-        public static implicit operator DailyFeedUpdater(TestFeedUpdater wrapper) => wrapper.Delegate;
-    }
-
     private class TestPostman : IDomainPostman
     {
         public List<FeedNotification> SentNotifications { get; } = new();
@@ -489,7 +387,8 @@ public class FeedProcessTests
             return Task.FromResult(Result<Unit>.Success(new Unit()));
         }
 
-        public Task<Result<Unit>> SendMessages<T>(IEnumerable<T> messages, CancellationToken cancellationToken = default)
+        public Task<Result<Unit>> SendMessages<T>(IEnumerable<T> messages,
+            CancellationToken cancellationToken = default)
             where T : DomainMessage
         {
             SentNotifications.AddRange(messages.OfType<FeedNotification>());

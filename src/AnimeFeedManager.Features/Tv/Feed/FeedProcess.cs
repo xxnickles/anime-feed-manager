@@ -1,35 +1,38 @@
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Feed.Events;
-using AnimeFeedManager.Features.Tv.Feed.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tv.Feed;
 
 public static class FeedProcess
 {
-    public static Task<Result<FeedProcessSummary>> GetProcess(
-        DailyFeedUpdater dailyFeedUpdater,
+    public static Task<Result<FeedProcessSummary>> RunProcess(
+        this Result<DailySeriesFeed[]> dailyFeed,
         TvUserActiveSubscriptions tvUserActiveSubscriptions,
-        INewReleaseProvider releaseProvider,
         IDomainPostman domainPostman,
         CancellationToken cancellationToken = default)
     {
         // 1. Go to subs please and get the latest version of the feed
-        return releaseProvider.Get()
+        // This needs to be blocked as we need to wait for the scraping process to be completed
+        return dailyFeed
             .InitializeProcess()
-            // 2. Store the feed in storage TODO: remove if is not used anywhere
-            .StoreLatestFeed(dailyFeedUpdater, cancellationToken)
-            // 3. Add users to notify 
+            // 2. Add users to notify 
             .AddUsersToNotify(tvUserActiveSubscriptions, cancellationToken)
-            // 4. Aggregate notifications
+            // 3. Aggregate notifications
             .AggregateNotifications()
-            // 5. Sent them!;
+            // 4. Sent them!;
             .SendMessages(domainPostman, cancellationToken);
+    }
+    
+    private static Task<Result<FeedProcessData>> AddUsersToNotify(this Result<FeedProcessData> data, TvUserActiveSubscriptions getter,
+        CancellationToken token)
+    {
+        return data.Bind(d => getter(d.DailyFeed.Select(x => x.Title), token)
+            .Map(subscriptions => d with {Subscriptions = subscriptions}));
     }
 
 
-    private static Task<Result<FeedProcessData>> InitializeProcess(this Task<Result<DailySeriesFeed[]>> processData)
+    private static Result<FeedProcessData> InitializeProcess(this Result<DailySeriesFeed[]> processData)
     {
         return processData.Map(data => new FeedProcessData(data, []));
     }
@@ -46,17 +49,7 @@ public static class FeedProcess
 
     extension(Task<Result<FeedProcessData>> data)
     {
-        private Task<Result<FeedProcessData>> StoreLatestFeed(DailyFeedUpdater updater, CancellationToken token)
-        {
-            return data.Bind(d => updater(d.DailyFeed, token).Map(_ => d));
-        }
-
-        private Task<Result<FeedProcessData>> AddUsersToNotify(TvUserActiveSubscriptions getter,
-            CancellationToken token)
-        {
-            return data.Bind(d => getter(d.DailyFeed.Select(x => x.Title), token)
-                .Map(subscriptions => d with {Subscriptions = subscriptions}));
-        }
+       
 
         private Task<Result<FeedNotification[]>> AggregateNotifications()
         {
@@ -71,6 +64,4 @@ public static class FeedProcess
                 .ToArray());
         }
     }
-
- 
 }

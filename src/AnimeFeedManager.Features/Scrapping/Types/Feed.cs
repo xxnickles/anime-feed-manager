@@ -11,7 +11,7 @@ public record EpisodeData(
 public record DailySeriesFeed(
     string Title,
     string Url,
-    ImmutableList<EpisodeData> Episodes);
+    EpisodeData[] Episodes);
     
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(DailySeriesFeed[]))]

@@ -36,9 +36,5 @@
       <ProjectReference Include="..\AnimeFeedmanager.ServiceDefaults\AnimeFeedmanager.ServiceDefaults.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Services.Shared\AnimeFeedManager.Services.Shared.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Seasons\" />
-      <Folder Include="Tv\Notifications\" />
-    </ItemGroup>
+    </ItemGroup>    
 </Project>

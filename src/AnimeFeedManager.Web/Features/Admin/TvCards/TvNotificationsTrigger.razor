@@ -1,0 +1,30 @@
+@using AnimeFeedManager.Web.Features.Admin.Base
+@implements INotifiableComponent<Noop>
+<AdminCardForm ViewModel="@ViewModel"
+               FormName="@FormName"
+               Title="Run TV Feed Notification Process"
+               SubmitText="Run"
+               hx-swap="outerHTML"
+               hx-post="admin/tv/run-notifications"
+               hx-confirm="Do you want to run the the TV feed notification process?"></AdminCardForm>
+
+@code {
+
+    private const string FormName = "tv-notifications-trigger-form";
+
+    [Parameter] public Noop ViewModel { get; set; } = new();
+
+    public static RenderFragment AsRenderFragment(Noop viewModel) =>
+        builder =>
+        {
+            builder.OpenComponent<TvNotificationsTrigger>(0);
+            builder.AddAttribute(1, nameof(ViewModel), viewModel);
+            builder.CloseComponent();
+        };
+
+    public static RenderFragment OkNotificationContent(Noop viewModel) =>
+        builder => { builder.AddContent(0, "TV feed notification process will run in the background"); };
+
+    public static string SuccessNotificationTitle { get; } = "TV feed notification process has been scheduled";
+    public static string ErrorNotificationTitle { get; } = "TV feed notification process has failed";
+}
