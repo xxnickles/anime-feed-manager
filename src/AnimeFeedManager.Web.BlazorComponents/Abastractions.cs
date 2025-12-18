@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace AnimeFeedManager.Web.Common;
+namespace AnimeFeedManager.Web.BlazorComponents;
 
-internal interface IRenderableComponent<in T> where T : class, new()
+public interface IRenderableComponent<in T> where T : class
 {
     public static abstract RenderFragment AsRenderFragment(T viewModel);
 }
 
-internal interface INotifiableComponent<in T> : IRenderableComponent<T> 
+public interface INotifiableComponent<in T> : IRenderableComponent<T> 
     where T : class, new() 
 {
     public static abstract RenderFragment OkNotificationContent(T viewModel);

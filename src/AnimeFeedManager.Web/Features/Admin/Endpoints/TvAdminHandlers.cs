@@ -1,7 +1,7 @@
 ﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.Types;
-using AnimeFeedManager.Features.Tv.Feed.Events;
 using AnimeFeedManager.Features.Tv.Library.Events;
+using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using AnimeFeedManager.Web.Features.Admin.TvCards;
 
 namespace AnimeFeedManager.Web.Features.Admin.Endpoints;

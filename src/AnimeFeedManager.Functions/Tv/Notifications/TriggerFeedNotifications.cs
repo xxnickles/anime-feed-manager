@@ -1,7 +1,7 @@
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
-using AnimeFeedManager.Features.Tv.Feed;
-using AnimeFeedManager.Features.Tv.Feed.Events;
+using AnimeFeedManager.Features.Tv.Subscriptions.Feed;
+using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
 namespace AnimeFeedManager.Functions.Tv.Notifications;

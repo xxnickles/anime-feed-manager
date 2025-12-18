@@ -2,13 +2,13 @@ using System.Diagnostics;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
-using AnimeFeedManager.Features.Tv.Feed;
-using AnimeFeedManager.Features.Tv.Feed.Events;
+using AnimeFeedManager.Features.Tv.Subscriptions.Feed;
+using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 using AnimeFeedManager.Shared.Results.Errors;
 
-namespace AnimeFeedManager.Features.Tests.Tv.Feed;
+namespace AnimeFeedManager.Features.Tests.Tv.Subscriptions.Feed;
 
 public class FeedProcessTests
 {
@@ -105,6 +105,169 @@ public class FeedProcessTests
 
         Assert.Single(postman.SentNotifications);
         Assert.Equal(3, postman.SentNotifications[0].Feeds.Length);
+    }
+
+    [Fact]
+    public async Task Should_Filter_Already_Notified_Episodes()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", 3)
+        };
+
+        var notifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["1", "2"]
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1"], notifiedEpisodes)
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
+
+        Assert.Single(postman.SentNotifications);
+        var notification = postman.SentNotifications[0];
+        Assert.Single(notification.Feeds);
+        Assert.Single(notification.Feeds[0].Episodes);
+        Assert.Equal("3", notification.Feeds[0].Episodes[0].EpisodeNumber);
+    }
+
+    [Fact]
+    public async Task Should_Not_Send_Notification_When_All_Episodes_Already_Notified()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", 2)
+        };
+
+        var notifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["1", "2"]
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1"], notifiedEpisodes)
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        result.AssertOnSuccess(summary => { Assert.Equal(0, summary.UsersToNotify); });
+
+        Assert.Empty(postman.SentNotifications);
+    }
+
+    [Fact]
+    public async Task Should_Handle_Mixed_Notified_Episodes_Across_Multiple_Series()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", 3),
+            CreateDailyFeed("Anime 2", "https://example.com/anime-2", 2)
+        };
+
+        var notifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["1", "2"],
+            ["Anime 2"] = []
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1", "Anime 2"], notifiedEpisodes)
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
+
+        Assert.Single(postman.SentNotifications);
+        var notification = postman.SentNotifications[0];
+        Assert.Equal(2, notification.Feeds.Length);
+
+        var anime1Feed = notification.Feeds.First(f => f.Title == "Anime 1");
+        Assert.Single(anime1Feed.Episodes);
+        Assert.Equal("3", anime1Feed.Episodes[0].EpisodeNumber);
+
+        var anime2Feed = notification.Feeds.First(f => f.Title == "Anime 2");
+        Assert.Equal(2, anime2Feed.Episodes.Length);
+        Assert.Equal("1", anime2Feed.Episodes[0].EpisodeNumber);
+        Assert.Equal("2", anime2Feed.Episodes[1].EpisodeNumber);
+    }
+
+    [Fact]
+    public async Task Should_Handle_Partial_Notified_Episodes_For_Multiple_Users()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", 3),
+            CreateDailyFeed("Anime 2", "https://example.com/anime-2", 2)
+        };
+
+        var user1NotifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["1"]
+        };
+
+        var user2NotifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["1", "2", "3"]
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1"], user1NotifiedEpisodes),
+            CreateUser("user2", "user2@example.com", ["Anime 1"], user2NotifiedEpisodes),
+            CreateUser("user3", "user3@example.com", ["Anime 2"])
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        result.AssertOnSuccess(summary => { Assert.Equal(2, summary.UsersToNotify); });
+
+        Assert.Equal(2, postman.SentNotifications.Count);
+
+        var user1Notification = postman.SentNotifications.First(n => n.Subscriptions.UserId == "user1");
+        Assert.Single(user1Notification.Feeds);
+        Assert.Equal(2, user1Notification.Feeds[0].Episodes.Length);
+        Assert.Equal("2", user1Notification.Feeds[0].Episodes[0].EpisodeNumber);
+        Assert.Equal("3", user1Notification.Feeds[0].Episodes[1].EpisodeNumber);
+
+        var user3Notification = postman.SentNotifications.First(n => n.Subscriptions.UserId == "user3");
+        Assert.Single(user3Notification.Feeds);
+        Assert.Equal(2, user3Notification.Feeds[0].Episodes.Length);
     }
 
     #endregion
@@ -333,10 +496,19 @@ public class FeedProcessTests
         return new DailySeriesFeed(title, url, episodes);
     }
 
-    private static UserActiveSubscriptions CreateUser(string userId, string email, string[] subscribedSeries)
+    private static UserActiveSubscriptions CreateUser(
+        string userId,
+        string email,
+        string[] subscribedSeries,
+        Dictionary<string, string[]>? notifiedEpisodesByTitle = null)
     {
         var subscriptions = subscribedSeries
-            .Select(series => new ActiveSubscription(series, Array.Empty<string>()))
+            .Select(series =>
+            {
+                var notifiedEpisodes = notifiedEpisodesByTitle?.GetValueOrDefault(series) ?? Array.Empty<string>();
+                var seriesId = series.Replace(" ", "-").ToLowerInvariant();
+                return new ActiveSubscription(seriesId, series, notifiedEpisodes);
+            })
             .ToArray();
 
         return new UserActiveSubscriptions(userId, email, subscriptions);

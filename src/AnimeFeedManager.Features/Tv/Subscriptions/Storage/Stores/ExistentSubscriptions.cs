@@ -75,6 +75,7 @@ public static class ExistentSubscriptions
                                 g.Key ?? string.Empty,
                                 g.First().UserEmail,
                                 g.Select(s => new ActiveSubscription(
+                                    s.RowKey ?? string.Empty,
                                     s.SeriesFeedTitle ?? string.Empty,
                                     (s.NotifiedEpisodes ?? string.Empty).StringToAppArray())).ToArray()))
                             .ToArray()))

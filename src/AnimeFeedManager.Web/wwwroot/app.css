@@ -1,4 +1,4 @@
-/*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -285,7 +285,7 @@
         grid-column-start: 1;
         grid-row-start: 1;
       }
-      > *:not(.drawer-overlay) {
+      > :not(.drawer-overlay) {
         will-change: transform;
         transition: translate 0.3s ease-out, width 0.2s ease-out;
         translate: -100%;
@@ -324,7 +324,7 @@
         visibility: visible;
         overflow-y: auto;
         opacity: 100%;
-        & > *:not(.drawer-overlay) {
+        > :not(.drawer-overlay) {
           translate: 0%;
         }
       }
@@ -430,15 +430,14 @@
       --tab-radius-min: calc(0.75rem - var(--border));
       --tab-radius-limit: min(var(--radius-field), var(--tab-radius-min));
       --tab-radius-grad: #0000 calc(69% - var(--border)),
-      var(--tab-border-color) calc(calc(69% - var(--border)) + 0.25px),
-      var(--tab-border-color) calc(calc(69% - var(--border)) + var(--border)),
-      var(--tab-bg) calc(calc(69% - var(--border)) + var(--border) + 0.25px);
+      var(--tab-border-color) calc(69% - var(--border) + 0.25px),
+      var(--tab-border-color) 69%,
+      var(--tab-bg) calc(69% + 0.25px);
       border-color: #0000;
       order: var(--tab-order);
       height: var(--tab-height);
       font-size: 0.875rem;
-      padding-inline-start: var(--tab-p);
-      padding-inline-end: var(--tab-p);
+      padding-inline: var(--tab-p);
       &:is(input[type="radio"]) {
         min-width: fit-content;
         &:after {
@@ -1115,7 +1114,7 @@
         width: 100%;
         @media (prefers-reduced-motion: no-preference) {
           &::details-content {
-            transition: content-visibility 0.2s allow-discrete, visibility 0.2s allow-discrete, padding 0.2s ease-out, background-color 0.2s ease-out, height 0.2s;
+            transition: content-visibility 0.2s allow-discrete, visibility 0.2s allow-discrete, min-height 0.2s ease-out allow-discrete, padding 0.1s ease-out 20ms, background-color 0.2s ease-out, height 0.2s;
             height: 0;
             interpolate-size: allow-keywords;
           }
@@ -1233,7 +1232,7 @@
           --list-grid-cols: minmax(0, auto) minmax(0, auto) minmax(0, auto) minmax(0, auto)
           minmax(0, auto) 1fr;
         }
-        > :not(.list-col-wrap) {
+        > * {
           grid-row-start: 1;
         }
       }
@@ -1708,9 +1707,9 @@
         top: 50%;
         color: var(--range-progress);
         transform: translateY(-50%);
-        box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px currentColor, 0 0 0 2rem var(--range-thumb) inset, calc((var(--range-dir, 1) * -100rem) - (var(--range-dir, 1) * var(--range-thumb-size) / 2)) 0 0 calc(100rem * var(--range-fill));
+        box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px currentColor, 0 0 0 2rem var(--range-thumb) inset, calc((var(--range-dir, 1) * -100cqw) - (var(--range-dir, 1) * var(--range-thumb-size) / 2)) 0 0 calc(100cqw * var(--range-fill));
         @supports (color: color-mix(in lab, red, red)) {
-          box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px color-mix(in oklab, currentColor calc(var(--depth) * 10%), #0000), 0 0 0 2rem var(--range-thumb) inset, calc((var(--range-dir, 1) * -100rem) - (var(--range-dir, 1) * var(--range-thumb-size) / 2)) 0 0 calc(100rem * var(--range-fill));
+          box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px color-mix(in oklab, currentColor calc(var(--depth) * 10%), #0000), 0 0 0 2rem var(--range-thumb) inset, calc((var(--range-dir, 1) * -100cqw) - (var(--range-dir, 1) * var(--range-thumb-size) / 2)) 0 0 calc(100cqw * var(--range-fill));
         }
       }
       &::-moz-range-track {
@@ -1729,9 +1728,9 @@
         border: var(--range-p) solid;
         top: 50%;
         color: var(--range-progress);
-        box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px currentColor, 0 0 0 2rem var(--range-thumb) inset, calc((var(--range-dir, 1) * -100rem) - (var(--range-dir, 1) * var(--range-thumb-size) / 2)) 0 0 calc(100rem * var(--range-fill));
+        box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px currentColor, 0 0 0 2rem var(--range-thumb) inset, calc((var(--range-dir, 1) * -100cqw) - (var(--range-dir, 1) * var(--range-thumb-size) / 2)) 0 0 calc(100cqw * var(--range-fill));
         @supports (color: color-mix(in lab, red, red)) {
-          box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px color-mix(in oklab, currentColor calc(var(--depth) * 10%), #0000), 0 0 0 2rem var(--range-thumb) inset, calc((var(--range-dir, 1) * -100rem) - (var(--range-dir, 1) * var(--range-thumb-size) / 2)) 0 0 calc(100rem * var(--range-fill));
+          box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px color-mix(in oklab, currentColor calc(var(--depth) * 10%), #0000), 0 0 0 2rem var(--range-thumb) inset, calc((var(--range-dir, 1) * -100cqw) - (var(--range-dir, 1) * var(--range-thumb-size) / 2)) 0 0 calc(100cqw * var(--range-fill));
         }
       }
       &:disabled {
@@ -2786,7 +2785,6 @@
       border: var(--border) solid var(--badge-color, var(--color-base-200));
       font-size: 0.875rem;
       width: fit-content;
-      padding-inline: calc(0.25rem * 3 - var(--border));
       background-size: auto, calc(var(--noise) * 100%);
       background-image: none, var(--fx-noise);
       background-color: var(--badge-bg);
@@ -2794,6 +2792,7 @@
       --badge-fg: var(--color-base-content);
       --size: calc(var(--size-selector, 0.25rem) * 6);
       height: var(--size);
+      padding-inline: calc(var(--size) / 2 - var(--border));
     }
   }
   .tabs {
@@ -3277,6 +3276,10 @@
   }
   .rounded-full {
     border-radius: calc(infinity * 1px);
+  }
+  .border {
+    border-style: var(--tw-border-style);
+    border-width: 1px;
   }
   .badge-soft {
     @layer daisyui.l1.l2 {
@@ -4273,19 +4276,17 @@ label:has(.invalid) {
 }
 @layer base {
   :root {
-    --page-scroll-bg-on: linear-gradient(var(--root-bg), var(--root-bg))
-    var(--root-bg);
+    background: var(--page-scroll-bg, var(--root-bg));
+    --page-scroll-bg-on: linear-gradient(var(--root-bg, #0000), var(--root-bg, #0000))
+    var(--root-bg, #0000);
     @supports (color: color-mix(in lab, red, red)) {
-      --page-scroll-bg-on: linear-gradient(var(--root-bg), var(--root-bg))
-    color-mix(in srgb, var(--root-bg), oklch(0% 0 0) calc(var(--page-has-backdrop, 0) * 40%));
+      --page-scroll-bg-on: linear-gradient(var(--root-bg, #0000), var(--root-bg, #0000))
+    color-mix(in srgb, var(--root-bg, #0000), oklch(0% 0 0) calc(var(--page-has-backdrop, 0) * 40%));
     }
     --page-scroll-transition-on: background-color 0.3s ease-out;
     transition: var(--page-scroll-transition);
     scrollbar-gutter: var(--page-scroll-gutter, unset);
     scrollbar-gutter: if(style(--page-has-scroll: 1): var(--page-scroll-gutter, unset) ; else: unset);
-  }
-  :root:root {
-    background: var(--page-scroll-bg, var(--root-bg, var(--color-base-100)));
   }
   @keyframes set-page-has-scroll {
     0%, to {
@@ -4295,7 +4296,7 @@ label:has(.invalid) {
 }
 @layer base {
   :root, [data-theme] {
-    background-color: var(--root-bg, var(--color-base-100));
+    background: var(--page-scroll-bg, var(--root-bg));
     color: var(--color-base-content);
   }
   :where(:root, [data-theme]) {
@@ -4414,6 +4415,11 @@ label:has(.invalid) {
   syntax: "*";
   inherits: false;
   initial-value: 0;
+}
+@property --tw-border-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
 }
 @property --tw-gradient-position {
   syntax: "*";
@@ -4678,6 +4684,7 @@ label:has(.invalid) {
       --tw-skew-x: initial;
       --tw-skew-y: initial;
       --tw-space-x-reverse: 0;
+      --tw-border-style: solid;
       --tw-gradient-position: initial;
       --tw-gradient-from: #0000;
       --tw-gradient-via: #0000;

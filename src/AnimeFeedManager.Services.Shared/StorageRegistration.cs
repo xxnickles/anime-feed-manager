@@ -25,10 +25,11 @@ public static class ServerNotifications
 
 public static class StorageRegistration
 {
-    public static void RegisterStorageServices(this IHostApplicationBuilder builder) {
+    public static IHostApplicationBuilder RegisterStorageServices(this IHostApplicationBuilder builder) {
         builder.AddAzureBlobServiceClient(StorageRegistrationConstants.BlobConnection);
         builder.AddAzureQueueServiceClient(StorageRegistrationConstants.QueueConnection);
         builder.AddAzureTableServiceClient(StorageRegistrationConstants.TablesConnection);
         
+        return builder;
     }
 }

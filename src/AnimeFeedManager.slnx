@@ -25,4 +25,7 @@
     <Project Path="AnimeFeedManager.Old.Web.BlazorComponents/AnimeFeedManager.Old.Web.BlazorComponents.csproj" />
     <Project Path="AnimeFeedManager.Old.Web/AnimeFeedManager.Old.Web.csproj" />
   </Folder>
+  <Folder Name="/SolutionItems/">
+    <File Path="Directory.Packages.props" />
+  </Folder>
 </Solution>

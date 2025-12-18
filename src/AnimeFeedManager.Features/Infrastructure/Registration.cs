@@ -14,5 +14,5 @@ public static class Registration
     public static void RegisterResourceCreator(this IServiceCollection services)
     {
         services.TryAddSingleton<ResourceCreator>();
-    } 
+    }
 }

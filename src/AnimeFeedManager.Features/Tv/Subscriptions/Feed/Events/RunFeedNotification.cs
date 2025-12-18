@@ -1,4 +1,4 @@
-namespace AnimeFeedManager.Features.Tv.Feed.Events;
+namespace AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 
 
 // We cannot send empty records to the queue, the payload is just there for the sake of it

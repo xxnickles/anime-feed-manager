@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Web.BlazorComponents.Toast;
+﻿using AnimeFeedManager.Web.BlazorComponents;
+using AnimeFeedManager.Web.BlazorComponents.Toast;
 using AnimeFeedManager.Web.Common;
 using Microsoft.AspNetCore.Components;
 

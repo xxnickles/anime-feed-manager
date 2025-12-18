@@ -1,6 +1,7 @@
 namespace AnimeFeedManager.Features.Tv.Subscriptions.Storage;
 
 public record ActiveSubscription(
+    string SeriesId,
     string SeriesFeedTitle, 
     string[] NotifiedEpisodes);
 

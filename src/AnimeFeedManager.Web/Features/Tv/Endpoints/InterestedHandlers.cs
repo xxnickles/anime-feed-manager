@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
-using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Tv.Controls;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;

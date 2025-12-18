@@ -1,14 +1,16 @@
 ﻿using AnimeFeedManager.Web.BlazorComponents;
+using AnimeFeedManager.Web.BlazorComponents.Email;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace AnimeFeedManager.Functions.Bootstraping;
 
 internal static class Registration
 {
-    internal static IServiceCollection RegisterAppDependencies(this IServiceCollection services)
+    internal static IHostApplicationBuilder RegisterAppDependencies(this IHostApplicationBuilder builder)
     {
-        services.RegisterResourceCreator();
+        builder.Services.RegisterResourceCreator();
 
         // Puppeteer
         _ = bool.TryParse(Environment.GetEnvironmentVariable("DownloadChromiumToProjectFolder"),
@@ -17,16 +19,17 @@ internal static class Registration
         _ = bool.TryParse(Environment.GetEnvironmentVariable("RunHeadless"),
             out var runHeadless);
 
-        services.RegisterScrappingServices(downloadChromiumToProjectFolder, runHeadless);
-        services.AddScoped<HtmlRenderer>();
-        services.AddScoped<BlazorRenderer>();
+        builder.Services.RegisterScrappingServices(downloadChromiumToProjectFolder, runHeadless);
+        builder.Services.AddScoped<HtmlRenderer>();
+        builder.Services.AddScoped<BlazorRenderer>();
 
         // App
-        services.RegisterStorageBasedServices();
-        services.RegisterImageServices();
-        services.RegisterTvScrappingServices();
+        builder.Services.RegisterStorageBasedServices();
+        builder.Services.RegisterImageServices();
+        builder.Services.RegisterTvScrappingServices();
+        builder.Services.RegisterEmailSender(builder.Configuration);
    
 
-        return services;
+        return builder;
     }
 }

@@ -26,13 +26,14 @@ else
     builder.AddServiceDefaults();
 }
 
-builder.RegisterStorageServices();
+// App dependencies
+builder.RegisterStorageServices()
+    .RegisterAppDependencies();
 
 builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services
-    .AddHttpClient()
-    .RegisterAppDependencies();
+    .AddHttpClient();
 
 builder.ConfigureFunctionsWebApplication();
 

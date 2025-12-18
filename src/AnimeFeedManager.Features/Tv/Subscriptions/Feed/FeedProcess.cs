@@ -1,8 +1,8 @@
 using AnimeFeedManager.Features.Scrapping.Types;
-using AnimeFeedManager.Features.Tv.Feed.Events;
+using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
-namespace AnimeFeedManager.Features.Tv.Feed;
+namespace AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 
 public static class FeedProcess
 {
@@ -49,14 +49,33 @@ public static class FeedProcess
 
     extension(Task<Result<FeedProcessData>> data)
     {
-       
 
         private Task<Result<FeedNotification[]>> AggregateNotifications()
         {
             return data.Map(d => d.Subscriptions.Select(user =>
                 {
-                    var userTitles = new HashSet<string>(user.Subscriptions.Select(s => s.SeriesFeedTitle));
-                    var relevantFeeds = d.DailyFeed.Where(feed => userTitles.Contains(feed.Title)).ToArray();
+                    // Create a mapping of series title to notified episodes for this user
+                    var notifiedEpisodesByTitle = user.Subscriptions
+                        .ToDictionary(
+                            sub => sub.SeriesFeedTitle,
+                            sub => new HashSet<string>(sub.NotifiedEpisodes));
+
+                    // Filter feeds to user's subscriptions and remove already-notified episodes
+                    var relevantFeeds = d.DailyFeed
+                        .Where(feed => notifiedEpisodesByTitle.ContainsKey(feed.Title))
+                        .Select(feed =>
+                        {
+                            var notifiedEpisodes = notifiedEpisodesByTitle[feed.Title];
+                            var newEpisodes = feed.Episodes
+                                .Where(ep => !notifiedEpisodes.Contains(ep.EpisodeNumber))
+                                .ToArray();
+
+                            return new { Feed = feed, NewEpisodes = newEpisodes };
+                        })
+                        .Where(x => x.NewEpisodes.Length > 0)
+                        .Select(x => x.Feed with {Episodes = x.NewEpisodes})
+                        .ToArray();
+
                     return new {User = user, Feeds = relevantFeeds};
                 })
                 .Where(pair => pair.Feeds.Length > 0)
