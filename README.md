@@ -7,52 +7,70 @@
 Anime Feed Manager
 =================
 
-Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/)*  as data sources. Simple API using [azure functions isolated](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide), Azure Storage (Tables) and [SendGrid](https://sendgrid.com). The are a couple of clients app based on Blazor [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor):
+Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/) as data sources. Backend powered by [Azure Functions (isolated worker)](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide) and Azure Storage (Tables/Queues).
 
-- **Blazor SSR (AnimeFeedManager.Web):** Using The SSR part of Blazor with [HTMX](https://htmx.org/) and [AlpineJS](https://alpinejs.dev/) for client interaction
-
-
-_(*) This project used to use [HorribleSubs](https://horriblesubs.info/), but it closed. Then [Erai-Raws](https://spa.erai-raws.info/) was used, but their site has had multiple stability problems recently. [LiveChart](https://www.livechart.me/) has been replaced because of they moved behind to Cloudflare, which is not scrapping friendly_
-
-## Projects
-
-- src: Azure Functions base back-end and Blazor clients
+**Blazor SSR (AnimeFeedManager.Web):** The web application uses Blazor SSR with [HTMX](https://htmx.org/) and [AlpineJS](https://alpinejs.dev/) for client interaction.
 
 ## Dev Requirements
 
-- [.NET 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-- [docker](https://www.docker.com/)
+- [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+- [.NET Aspire workload](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling)
+- [Docker](https://www.docker.com/) (for Aspire emulators)
 
-## Functions local.setting.json
+## Quick Start
 
-To run the [functions project](https://github.com/xxnickles/anime-feed-manager/tree/main/src/AnimeFeedManager.Functions), you need to create a local config with the following settings (assuming the provided docker compose is used)
+1. Clone the repository
+2. Restore .NET tools: `dotnet tool restore`
+3. Configure secrets (see Configuration below)
+4. Run the Aspire host: `dotnet run --project src/AnimeFeedmanager.AspireHost`
 
-```json
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": {
-      "IsEncrypted": false,
-      "Values": {
-        "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10001/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10002/devstoreaccount1;TableEndpoint=http://127.0.0.1:10003/devstoreaccount1;",
-        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "Sandbox": true,
-        "SendGridKey": ""
+The Aspire host will automatically:
+- Start Azurite (Azure Storage emulator) with persistent data
+- Start Azure SignalR emulator
+- Build and watch frontend assets (JS/CSS)
+- Launch the Functions backend
+- Launch the Blazor SSR web application
 
-      },
-      "Host": {
-        "CORS": "*"
-      }
-    },
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "Sandbox": true,
-    "SendGridKey": ""
+## Configuration
 
-  },
-  "Host": {
-    "CORS": "*"
-  }
-}
+The application requires certain configuration values to run. Aspire automatically configures Azure Storage and SignalR connections, but you need to provide:
+
+### Web Application (User Secrets)
+
+```bash
+cd src/AnimeFeedManager.Web
+dotnet user-secrets set "Passwordless:ApiKey" "[your-api-key]"
+dotnet user-secrets set "Passwordless:ApiSecret" "[your-api-secret]"
 ```
 
+| Setting | Description |
+|---------|-------------|
+| `Passwordless:ApiKey` | [Passwordless.dev](https://bitwarden.com/products/passwordless/) API key |
+| `Passwordless:ApiSecret` | Passwordless.dev API secret |
 
+### Functions (User Secrets - Optional for Email)
+
+```bash
+cd src/AnimeFeedManager.Functions
+dotnet user-secrets set "Gmail:FromEmail" "[your-gmail]"
+dotnet user-secrets set "Gmail:FromName" "[sender-name]"
+dotnet user-secrets set "Gmail:AppPassword" "[app-password]"
+```
+
+| Setting | Description |
+|---------|-------------|
+| `Gmail:FromEmail` | Gmail address for sending notifications |
+| `Gmail:FromName` | Display name for email sender |
+| `Gmail:AppPassword` | Gmail [App Password](https://support.google.com/accounts/answer/185833) (not regular password) |
+
+## Projects
+
+See [src/README.md](src/README.md) for detailed project structure and configuration.
+
+## Deployment
+
+Deployment uses GitHub Actions with Bicep templates:
+- `.github/workflows/amf-infrastructure.yml` - Infrastructure
+- `.github/workflows/amf-backend-functions.yml` - Functions
+- `.github/workflows/amf-blazor-ssr.yml` - Web app
+- `deployment/` - Bicep templates for Azure resources
