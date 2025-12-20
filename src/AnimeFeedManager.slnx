@@ -15,16 +15,7 @@
     <Project Path="AnimeFeedManager.Web.BlazorComponents/AnimeFeedManager.Web.BlazorComponents.csproj" />
     <Project Path="AnimeFeedManager.Web/AnimeFeedManager.Web.csproj" />
   </Folder>
-  <Folder Name="/OldBackend/">
-    <Project Path="AnimeFeedManager.Old.Common/AnimeFeedManager.Old.Common.csproj" />
-    <Project Path="AnimeFeedManager.Old.Features.Tests/AnimeFeedManager.Old.Features.Tests.csproj" />
-    <Project Path="AnimeFeedManager.Old.Features/AnimeFeedManager.Old.Features.csproj" />
-    <Project Path="AnimeFeedManager.Old.Functions/AnimeFeedManager.Old.Functions.csproj" />
-  </Folder>
-  <Folder Name="/OldBlazor/">
-    <Project Path="AnimeFeedManager.Old.Web.BlazorComponents/AnimeFeedManager.Old.Web.BlazorComponents.csproj" />
-    <Project Path="AnimeFeedManager.Old.Web/AnimeFeedManager.Old.Web.csproj" />
-  </Folder>
+
   <Folder Name="/SolutionItems/">
     <File Path="Directory.Packages.props" />
   </Folder>
