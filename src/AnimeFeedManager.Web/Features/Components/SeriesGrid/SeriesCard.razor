@@ -1,73 +1,70 @@
 ﻿@if (SeriesInfo is not null)
 {
-    <article id="@Id" class="card card-side bg-base-100 image-full shadow-sm group 
-        hover:shadow-xl transition-all duration-300 series-card">
+    <article id="@Id" class="card card-side bg-base-100 image-full shadow-sm group
+        hover:shadow-xl transition-all duration-300 overflow-hidden series-card aspect-3/4"
+        x-data="{ showImage: false }">
         <figure class="overflow-hidden">
-            <img
-                src="@SeriesInfo.ImageUrl"
-                alt="@SeriesInfo.Title"
-                class="!brightness-[0.20] 
-                       group-hover:!brightness-[0.6] 
-                       group-hover:scale-105
-                       transition-all duration-300"
-                loading="lazy"/>
+            <img :class="showImage
+                    ? 'brightness-100 scale-100'
+                    : 'brightness-[0.20]! group-hover:brightness-[0.6]! group-hover:scale-105'" alt="@SeriesInfo.Title" class="transition-all duration-300" loading="lazy" src="@SeriesInfo.ImageUrl" />
         </figure>
-        <div class="card-body">
+        <div class="card-body min-w-0 flex flex-col overflow-hidden">
             <div id="@LoaderId" class="absolute top-0 right-0 mr-3 mt-1 htmx-indicator">
                 <span class="loading loading-spinner"></span>
             </div>
 
-            <h2 class="card-title text-primary font-bold text-lg 
-        group-hover:[text-shadow:_1px_1px_0_black,_-1px_-1px_0_black,_1px_-1px_0_black,_-1px_1px_0_black]">
-                @SeriesInfo.Title
-            </h2>
+            <div class="transition-opacity duration-300 flex flex-col min-h-0 flex-1 overflow-hidden"
+                 :class="showImage ? 'opacity-0' : 'opacity-100'">
+                <h2 class="card-title text-primary font-bold text-lg wrap-break-word shrink-0
+            group-hover:[text-shadow:1px_1px_0_black,-1px_-1px_0_black,1px_-1px_0_black,-1px_1px_0_black] mb-2">
+                    @SeriesInfo.Title
+                </h2>
 
-            <p class="group-hover:[text-shadow:_1px_1px_0_black,_-1px_-1px_0_black] group-hover:font-bold">
-                @if (!string.IsNullOrWhiteSpace(SeriesInfo.Synopsis))
-                {
-                    @SeriesInfo.Synopsis
-                }
-                else
-                {
-                    <span class="text-warning flex gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                             stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
-                        </svg>
-                        Synopsis Not Available
-                    </span>
-                }
-            </p>
+                <p class="group-hover:[text-shadow:1px_1px_0_black,-1px_-1px_0_black] group-hover:font-bold wrap-break-word overflow-y-auto flex-1 min-h-0">
+                    @if (!string.IsNullOrWhiteSpace(SeriesInfo.Synopsis))
+                    {
+                        @SeriesInfo.Synopsis
+                    }
+                    else
+                    {
+                        <span class="text-warning flex gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                 stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+                            </svg>
+                            Synopsis Not Available
+                        </span>
+                    }
+                </p>
+            </div>
+
             @if (CardControls is not null)
             {
-               
-                <div class="card-actions items-center justify-between" x-data>
-                  
-                    <button class="btn btn-circle btn-ghost btn-sm" @click="$refs.modal.showModal()"
-                            aria-label="View image">
-                        <!-- Eye icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                        </svg>
-                    </button>
+                <div class="card-actions items-center justify-between mt-auto">
+                    <div class="tooltip tooltip-right" :data-tip="showImage ? 'Show content' : 'Show image'">
+                        <button class="btn btn-circle btn-sm"
+                                :class="showImage ? 'btn-info' : 'btn-ghost'"
+                                @click="showImage = !showImage"
+                                :aria-label="showImage ? 'Show content' : 'Show image'"
+                                :aria-pressed="showImage">
+                            <!-- Eye icon (shown when image is hidden) -->
+                            <svg x-show="!showImage" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="1.5" stroke="currentColor" class="size-5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                            </svg>
+                            <!-- Eye slash icon (shown when image is visible) -->
+                            <svg x-show="showImage" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="1.5" stroke="currentColor" class="size-5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"/>
+                            </svg>
+                        </button>
+                    </div>
 
-                    <!-- Modal -->
-                    <dialog x-ref="modal" class="modal">
-                        <div class="modal-box p-0">
-                            <img src="@SeriesInfo.ImageUrl"
-                                 alt="@SeriesInfo.Title"
-                                 class="w-full h-auto brightness-100 scale-100 object-contain"/>
-                        </div>
-                        <form method="dialog" class="modal-backdrop">
-                            <button aria-label="Close">close</button>
-                        </form>
-                    </dialog>
-                    
                     @CardControls
                 </div>
             }
@@ -80,6 +77,4 @@
     [Parameter] public RenderFragment? CardControls { get; set; }
     [Parameter, EditorRequired] public string LoaderId { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string Id { get; set; } = string.Empty;
-
-    private string ModalId => $"modal-{Id}";
 }

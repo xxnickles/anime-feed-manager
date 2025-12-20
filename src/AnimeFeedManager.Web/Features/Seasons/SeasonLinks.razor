@@ -18,16 +18,17 @@
                                  href="@GetLink(season, SeriesType.Tv)" Match="NavLinkMatch.All">
                             TV
                         </NavLink>
-                        <NavLink class="link link-hover text-xs"
-                                 ActiveClass="link-primary font-bold text-secondary-focus"
-                                 href="@GetLink(season, SeriesType.Ova)" Match="NavLinkMatch.All">
-                            OVAS
-                        </NavLink>
-                        <NavLink class="link link-hover text-xs"
-                                 ActiveClass="link-primary font-bold text-secondary-focus"
-                                 href="@GetLink(season, SeriesType.Movie)" Match="NavLinkMatch.All">
-                            MOVIES
-                        </NavLink>
+                        @* TODO: For this version we will not support other series than TV *@
+                        @* <NavLink class="link link-hover text-xs" *@
+                        @*          ActiveClass="link-primary font-bold text-secondary-focus" *@
+                        @*          href="@GetLink(season, SeriesType.Ova)" Match="NavLinkMatch.All"> *@
+                        @*     OVAS *@
+                        @* </NavLink> *@
+                        @* <NavLink class="link link-hover text-xs" *@
+                        @*          ActiveClass="link-primary font-bold text-secondary-focus" *@
+                        @*          href="@GetLink(season, SeriesType.Movie)" Match="NavLinkMatch.All"> *@
+                        @*     MOVIES *@
+                        @* </NavLink> *@
                     </span>
 
                 </li>
@@ -52,18 +53,19 @@
                         TV
                     </NavLink>
                 </li>
-                <li>
-                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus"
-                             href="@GetLink(SelectedSeason, SeriesType.Ova)" Match="NavLinkMatch.All">
-                        Ovas
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus"
-                             href="@GetLink(SelectedSeason, SeriesType.Movie)" Match="NavLinkMatch.All">
-                        Movies
-                    </NavLink>
-                </li>
+                @* TODO: For this version we will not support other series than TV *@
+                @* <li> *@
+                @*     <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" *@
+                @*              href="@GetLink(SelectedSeason, SeriesType.Ova)" Match="NavLinkMatch.All"> *@
+                @*         Ovas *@
+                @*     </NavLink> *@
+                @* </li> *@
+                @* <li> *@
+                @*     <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus" *@
+                @*              href="@GetLink(SelectedSeason, SeriesType.Movie)" Match="NavLinkMatch.All"> *@
+                @*         Movies *@
+                @*     </NavLink> *@
+                @* </li> *@
 
             </ul>
         </div>

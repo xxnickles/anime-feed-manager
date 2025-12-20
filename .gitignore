@@ -273,4 +273,5 @@ __pycache__/
 
 # claude code
 .claude/
+.playwright-mcp/
 CLAUDE.md

@@ -11,7 +11,7 @@ internal static class Endpoints
         group.MapGet("/verify-signin", (
                 [FromQuery] string token,
                 IPasswordlessClient passwordlessClient,
-                ILogger<Login> logger,
+                ILogger<LoginPage> logger,
                 CancellationToken cancellationToken) =>
             passwordlessClient.GetLoginInformation(token, cancellationToken)
                 .ToJsonResponse(logger));

@@ -12,7 +12,7 @@
 */
 
 @plugin "daisyui" {
-    themes: nord --default, dim --prefersdark;
+    themes: emerald --default, dim --prefersdark;
 }
 
 @theme {
