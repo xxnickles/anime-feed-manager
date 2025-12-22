@@ -35,23 +35,47 @@ public class OnTvLibraryUpdate
         CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnTvLibraryUpdate));
-        await TryGetSeasonSelector(message.SeasonParameters)
-            .ScrapTvSeries(_scrapper, token)
-            .AddImagesLinks(_imageProvider, _logger, token)
-            .UpdateTvLibrary(_tableClientFactory.TableStorageTvLibraryUpdater, token)
-            .SendEvents(_domainPostman, message.SeasonParameters, token)
+        await RunScraper(message.SeasonParameters, token)
             .Match(
                 results => _logger.LogInformation(
-                    "Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
-                    results.Season.Year, results.Season.Season, results.UpdatedSeries, results.NewSeries),
+                    "(OnDemand) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
+                    results.Season.Year, 
+                    results.Season.Season, 
+                    results.UpdatedSeries,
+                    results.NewSeries),
                 e => e.LogError(_logger)
             );
     }
 
+    [Function("ScheduledTvLibraryUpdate")]
+    public async Task RunScheduled([TimerTrigger("%ScrapingSchedule%")] TimerInfo myTimer,
+        CancellationToken token)
+    {
+        await RunScraper(null, token)
+            .Match(
+                results => _logger.LogInformation(
+                    "(Scheduled) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added. Next run will happen at {Time}",
+                    results.Season.Year,
+                    results.Season.Season,
+                    results.UpdatedSeries, 
+                    results.NewSeries,
+                    myTimer.ScheduleStatus?.Next),
+                e => e.LogError(_logger)
+            );
+    }
+
+    private Task<Result<ScrapTvLibraryResult>> RunScraper(
+        SeasonParameters? seasonParameters,
+        CancellationToken token) =>
+        TryGetSeasonSelector(seasonParameters).ScrapTvSeries(_scrapper, token)
+            .AddImagesLinks(_imageProvider, _logger, token)
+            .UpdateTvLibrary(_tableClientFactory.TableStorageTvLibraryUpdater, token)
+            .SendEvents(_domainPostman, seasonParameters, token);
+
     private static Result<SeasonSelector> TryGetSeasonSelector(SeasonParameters? season)
     {
         if (season is null)
-            return Result<SeasonSelector>.Success(new Latest());
+            return new Latest();
 
         return (season.Season, season.Year, false)
             .ParseAsSeriesSeason()
