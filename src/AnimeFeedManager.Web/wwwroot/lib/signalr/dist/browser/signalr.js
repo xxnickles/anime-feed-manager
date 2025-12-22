@@ -304,7 +304,7 @@ class NullLogger {
 NullLogger.instance = new NullLogger();
 
 ;// ./src/pkg-version.ts
-const VERSION = '9.0.6';
+const VERSION = '10.0.0';
 
 ;// ./src/Utils.ts
 // Licensed to the .NET Foundation under one or more agreements.
@@ -381,7 +381,7 @@ function formatArrayBuffer(data) {
         str += `0x${pad}${num.toString(16)} `;
     });
     // Trim of trailing space.
-    return str.substr(0, str.length - 1);
+    return str.substring(0, str.length - 1);
 }
 // Also in signalr-protocol-msgpack/Utils.ts
 /** @private */
@@ -1712,23 +1712,24 @@ class HubConnection {
         if (!this.connection.features || !this.connection.features.inherentKeepAlive) {
             // Set the timeout timer
             this._timeoutHandle = setTimeout(() => this.serverTimeout(), this.serverTimeoutInMilliseconds);
+            // Immediately fire Keep-Alive ping if nextPing is overdue to avoid dependency on JS timers
+            let nextPing = this._nextKeepAlive - new Date().getTime();
+            if (nextPing < 0) {
+                if (this._connectionState === HubConnectionState.Connected) {
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                    this._trySendPingMessage();
+                }
+                return;
+            }
             // Set keepAlive timer if there isn't one
             if (this._pingServerHandle === undefined) {
-                let nextPing = this._nextKeepAlive - new Date().getTime();
                 if (nextPing < 0) {
                     nextPing = 0;
                 }
                 // The timer needs to be set from a networking callback to avoid Chrome timer throttling from causing timers to run once a minute
                 this._pingServerHandle = setTimeout(async () => {
                     if (this._connectionState === HubConnectionState.Connected) {
-                        try {
-                            await this._sendMessage(this._cachedPingMessage);
-                        }
-                        catch {
-                            // We don't care about the error. It should be seen elsewhere in the client.
-                            // The connection is probably in a bad or closed state now, cleanup the timer so it stops triggering
-                            this._cleanupPingTimer();
-                        }
+                        await this._trySendPingMessage();
                     }
                 }, nextPing);
             }
@@ -1852,7 +1853,7 @@ class HubConnection {
         const reconnectStartTime = Date.now();
         let previousReconnectAttempts = 0;
         let retryError = error !== undefined ? error : new Error("Attempting to reconnect due to a unknown error.");
-        let nextRetryDelay = this._getNextRetryDelay(previousReconnectAttempts++, 0, retryError);
+        let nextRetryDelay = this._getNextRetryDelay(previousReconnectAttempts, 0, retryError);
         if (nextRetryDelay === null) {
             this._logger.log(LogLevel.Debug, "Connection not reconnecting because the IRetryPolicy returned null on the first reconnect attempt.");
             this._completeClose(error);
@@ -1879,7 +1880,7 @@ class HubConnection {
             }
         }
         while (nextRetryDelay !== null) {
-            this._logger.log(LogLevel.Information, `Reconnect attempt number ${previousReconnectAttempts} will start in ${nextRetryDelay} ms.`);
+            this._logger.log(LogLevel.Information, `Reconnect attempt number ${previousReconnectAttempts + 1} will start in ${nextRetryDelay} ms.`);
             await new Promise((resolve) => {
                 this._reconnectDelayHandle = setTimeout(resolve, nextRetryDelay);
             });
@@ -1912,8 +1913,9 @@ class HubConnection {
                     }
                     return;
                 }
+                previousReconnectAttempts++;
                 retryError = e instanceof Error ? e : new Error(e.toString());
-                nextRetryDelay = this._getNextRetryDelay(previousReconnectAttempts++, Date.now() - reconnectStartTime, retryError);
+                nextRetryDelay = this._getNextRetryDelay(previousReconnectAttempts, Date.now() - reconnectStartTime, retryError);
             }
         }
         this._logger.log(LogLevel.Information, `Reconnect retries have been exhausted after ${Date.now() - reconnectStartTime} ms and ${previousReconnectAttempts} failed attempts. Connection disconnecting.`);
@@ -2102,6 +2104,16 @@ class HubConnection {
     }
     _createCloseMessage() {
         return { type: MessageType.Close };
+    }
+    async _trySendPingMessage() {
+        try {
+            await this._sendMessage(this._cachedPingMessage);
+        }
+        catch {
+            // We don't care about the error. It should be seen elsewhere in the client.
+            // The connection is probably in a bad or closed state now, cleanup the timer so it stops triggering
+            this._cleanupPingTimer();
+        }
     }
 }
 

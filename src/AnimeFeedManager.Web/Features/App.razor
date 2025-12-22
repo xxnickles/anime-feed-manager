@@ -26,25 +26,25 @@
 
     <RenderOnEnviroment Exclude="[Environments.Development]">
         <script defer src="@Assets["webcomponents/htmx-error-alert.min.js"]"></script>
-        <script defer src="@Assets["lib/htmx/htmx.min.js"]"></script>
+        <script defer src="@Assets["lib/htmx/dist/htmx.min.js"]"></script>
         <script defer src="@Assets["scripts/form-submit-locker.min.js"]" type="text/javascript"></script>
         <script defer src="@Assets["scripts/invalid-cleaner.min.js"]" type="text/javascript"></script>
-        <script defer src="@Assets["lib/alpinejs/cdn.min.js"]"></script>
+        <script defer src="@Assets["lib/alpinejs/dist/cdn.min.js"]"></script>
         <script defer
-                src="@Assets["lib/passwordlessdev/passwordless-client/dist/umd/passwordless.umd.min.js"]"></script>
-        <script defer src="@Assets["lib/microsoft-signalr/signalr.min.js"]"></script>
+                src="@Assets["lib/passwordless-client/dist/umd/passwordless.umd.min.js"]"></script>
+        <script defer src="@Assets["lib/signalr/dist/browser/signalr.min.js"]"></script>
         <script defer src="@Assets["scripts/hx-signalr.min.js"]" type="module"></script>
         <script src="@Assets["scripts/grid-filter.min.js"]" type="text/javascript"></script>
     </RenderOnEnviroment>
 
     <RenderOnEnviroment Include="[Environments.Development]">
         <script defer src="@Assets["webcomponents/htmx-error-alert.min.js"]"></script>
-        <script defer src="@Assets["lib/htmx/htmx.js"]"></script>
+        <script defer src="@Assets["lib/htmx/dist/htmx.js"]"></script>
         <script defer src="@Assets["scripts/form-submit-locker.js"]" type="text/javascript"></script>
         <script defer src="@Assets["scripts/invalid-cleaner.js"]" type="text/javascript"></script>
-        <script defer src="@Assets["lib/alpinejs/cdn.js"]"></script>
-        <script defer src="@Assets["lib/passwordlessdev/passwordless-client/dist/umd/passwordless.umd.js"]"></script>
-        <script defer src="@Assets["lib/microsoft-signalr/signalr.js"]"></script>
+        <script defer src="@Assets["lib/alpinejs/dist/cdn.js"]"></script>
+        <script defer src="@Assets["lib/passwordless-client/dist/umd/passwordless.umd.js"]"></script>
+        <script defer src="@Assets["lib/signalr/dist/browser/signalr.js"]"></script>
         <script defer src="@Assets["scripts/hx-signalr.js"]" type="module"></script>
         <script src="@Assets["scripts/grid-filter.js"]" type="text/javascript"></script>
     </RenderOnEnviroment>

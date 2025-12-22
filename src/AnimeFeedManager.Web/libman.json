@@ -1,35 +1,38 @@
 {
   "version": "1.0",
-  "defaultProvider": "cdnjs",
+  "defaultProvider": "jsdelivr",
   "libraries": [
     {
-      "library": "htmx@2.0.7",
+      "library": "htmx.org@2.0.8",
       "destination": "wwwroot/lib/htmx/",
       "files": [
-        "htmx.min.js",
-        "htmx.js"
+        "dist/htmx.min.js",
+        "dist/htmx.js"
       ]
     },
     {
-      "library": "alpinejs@3.15.0",
+      "library": "alpinejs@3.15.3",
       "destination": "wwwroot/lib/alpinejs/",
       "files": [
-        "cdn.js",
-        "cdn.min.js",
-        "module.cjs.js",
-        "module.cjs.min.js",
-        "module.esm.js",
-        "module.esm.min.js"
+        "dist/cdn.js",
+        "dist/cdn.min.js",
+        "dist/module.cjs.js",
+        "dist/module.cjs.min.js",
+        "dist/module.esm.js",
+        "dist/module.esm.min.js"
       ]
     },
     {
-      "library": "microsoft-signalr@9.0.6",
-      "destination": "wwwroot\\lib\\microsoft-signalr"
+      "library": "@microsoft/signalr@10.0.0",
+      "destination": "wwwroot/lib/signalr",
+      "files": [
+        "dist/browser/signalr.js",
+        "dist/browser/signalr.min.js"
+      ]
     },
     {
-      "provider": "jsdelivr",
       "library": "@passwordlessdev/passwordless-client@1.2.4",
-      "destination": "wwwroot/lib/passwordlessdev/passwordless-client",
+      "destination": "wwwroot/lib/passwordless-client",
       "files": [
         "dist/umd/passwordless.umd.js",
         "dist/umd/passwordless.umd.min.js",
