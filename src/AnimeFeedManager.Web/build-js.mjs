@@ -18,6 +18,7 @@ const FOLDERS_TO_PROCESS = [
 const config = {
     minify: true,
     sourceMaps: true,
+    isModule: false,  // Treat as script, not ES module - preserves IIFE wrappers
     jsc: {
         minify: {
             compress: {
@@ -25,7 +26,8 @@ const config = {
                 drop_debugger: true,
                 unused: false,      // Don't remove "unused" functions
                 dead_code: false,   // Don't remove "dead" code
-                toplevel: false     // Don't assume file is a module
+                toplevel: false,    // Don't assume file is a module
+                module: false       // Explicitly not a module - prevents IIFE unwrapping
             },
             mangle: true,
             keep_fnames: false,     // Set to true if you need function names preserved
