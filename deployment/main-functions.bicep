@@ -1,7 +1,8 @@
-var sharedVariables = loadJsonContent('./modules/shared-variables.json')
-resource functionApp 'Microsoft.Web/sites@2023-01-01' existing = {
-  name: sharedVariables.functionAppName
-}
+// Reference file for Functions deployment workflow
+// Used to retrieve the Function App name after infrastructure deployment
 
-output endpoint string = '${functionApp.name}.azurewebsites.net'
-output appname string = functionApp.name
+// Load shared variables
+var config = loadJsonContent('modules/shared-variables.json')
+
+// Output the function app name for deployment
+output functionAppName string = config.functionAppName

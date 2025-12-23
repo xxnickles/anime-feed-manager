@@ -1,60 +1,78 @@
-# If there is no infrastructure created, you want to run this action or associated bicep first to avoid issues with the app deployments
+name: AMF Infrastructure
 
-name: AFM Infrastructure Deployment
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the 'main' branch
   push:
+    branches: [main]
     paths:
-      - "deployment/*"
-    branches:
-      - main
-
-  # Allows you to run this workflow manually from the Actions tab
+      - 'deployment/**'
   workflow_dispatch:
 
-# login with OIDC permissions
 permissions:
   id-token: write
   contents: read
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+env:
+  RESOURCE_GROUP: amf-rg
+  LOCATION: eastus
+
 jobs:
-  deploy-infrastructure:
-    # The type of runner that the job will run on
+  deploy:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout GitHub Action
-        uses: actions/checkout@v4.1.6
-        with:
-          submodules: true
-          clean: true
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Azure Login
-        uses: azure/login@v2.1.1
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2.2.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
 
-
-      # Deploys infrastructure
-      - name: Deploy Azure Infrastructure
-        uses: Azure/arm-deploy@v2
-        id: infrastructure
+      - name: Create Resource Group
+        uses: azure/cli@v2
         with:
-          scope: resourcegroup
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: ${{ secrets.AZURE_RG }}
-          template: ./deployment/main.bicep
-          parameters: sendgridKey=${{ secrets.SENDGRID_KEY }} email=${{ secrets.SENDER_EMAIL }} passwordlessApiKey=${{ secrets.PASSWORDLESS_APIKEY }} passwordlessApiSecret=${{ secrets.PASSWORDLESS_APISECRET }}
-          failOnStdErr: false
+          inlineScript: |
+            az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
 
-      - name: logout
-        run: |
-          az logout
+      - name: Deploy Bicep
+        uses: azure/arm-deploy@v2
+        with:
+          resourceGroupName: ${{ env.RESOURCE_GROUP }}
+          template: ./deployment/main.bicep
+          parameters: >
+            gmailFromEmail="${{ secrets.GMAIL_FROM_EMAIL }}"
+            gmailAppPassword="${{ secrets.GMAIL_APP_PASSWORD }}"
+            passwordlessApiKey="${{ secrets.PASSWORDLESS_API_KEY }}"
+            passwordlessApiSecret="${{ secrets.PASSWORDLESS_API_SECRET }}"
+            gmailFromName="Anime Feed Manager"
+            feedNotificationSchedule="0 0 * * * *"
+            scrapingSchedule="0 0 0 * * *"
+
+      - name: Seed Admin User
+        uses: azure/cli@v2
+        env:
+          ADMIN_USER_ID: ${{ secrets.ADMIN_USER_ID }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        with:
+          inlineScript: |
+            # Create Users table if it doesn't exist
+            az storage table create --name Users --account-name amfstorage --auth-mode login --only-show-errors || true
+
+            # Trim any whitespace/newlines from secrets
+            ADMIN_USER_ID=$(echo "$ADMIN_USER_ID" | tr -d '[:space:]')
+            ADMIN_EMAIL=$(echo "$ADMIN_EMAIL" | tr -d '\n\r' | xargs)
+
+            echo "Checking for admin user with RowKey: $ADMIN_USER_ID"
+
+            # Check if admin user already exists
+            if az storage entity show --table-name Users --account-name amfstorage --auth-mode login --partition-key user-group --row-key "$ADMIN_USER_ID" 2>/dev/null; then
+              echo "Admin user already exists, skipping seed"
+            else
+              echo "Seeding admin user with email: $ADMIN_EMAIL"
+              az storage entity insert --table-name Users --account-name amfstorage --auth-mode login \
+                --entity PartitionKey=user-group RowKey="$ADMIN_USER_ID" Email="$ADMIN_EMAIL" Role=Admin
+            fi
+
+      - name: Logout
+        run: az logout

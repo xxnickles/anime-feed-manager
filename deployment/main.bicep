@@ -1,51 +1,70 @@
-@description('Location for all resources.')
+@description('Azure region for all resources')
 param location string = resourceGroup().location
 
-@description('SendGrid Key')
-param sendgridKey string
-
-@description('Deafult Email Sender')
-param email string
-
-@description('Passworless Api Key')
 @secure()
+@description('Gmail sender email address')
+param gmailFromEmail string
+
+@secure()
+@description('Gmail app password')
+param gmailAppPassword string
+
+@secure()
+@description('Passwordless API key')
 param passwordlessApiKey string
 
-@description('Passworless Api Secret')
 @secure()
+@description('Passwordless API secret')
 param passwordlessApiSecret string
 
-@description('Optional Git Repo URL')
-param repoUrl string = ' '
+@description('Gmail sender display name')
+param gmailFromName string = 'Anime Feed Manager'
 
+@description('Cron schedule for feed notifications (NCrontab 6-field format)')
+param feedNotificationSchedule string = '0 0 * * * *'
 
-module common './modules/common.bicep' = {
-  name: 'common-deploy'
+@description('Cron schedule for library scraping (NCrontab 6-field format)')
+param scrapingSchedule string = '0 0 0 * * *'
+
+// Deploy common resources (Storage Account, Application Insights)
+module common 'modules/common.bicep' = {
+  name: 'common'
   params: {
     location: location
   }
 }
 
-module functions './modules/functions.bicep' = {
-  name: 'functionDeploy'
+// Deploy Functions (Function App, SignalR, RBAC)
+module functions 'modules/functions.bicep' = {
+  name: 'functions'
   params: {
     location: location
-    sendgridKey: sendgridKey
-    email: email
-    instrumentationKey: common.outputs.instrumentationKey
-    storageAccountName: common.outputs.storageAccountName    
+    storageAccountName: common.outputs.storageAccountName
+    appInsightsConnectionString: common.outputs.appInsightsConnectionString
+    gmailFromEmail: gmailFromEmail
+    gmailAppPassword: gmailAppPassword
+    gmailFromName: gmailFromName
+    feedNotificationSchedule: feedNotificationSchedule
+    scrapingSchedule: scrapingSchedule
   }
 }
 
-module blazor './modules/blazor-app.bicep' = {
-  name: 'blazorDeploy'
+// Deploy Blazor Web App (App Service, RBAC)
+module blazorApp 'modules/blazor-app.bicep' = {
+  name: 'blazor-app'
   params: {
-    location: location  
-    storageAccountName: common.outputs.storageAccountName    
-    instrumentationKey: common.outputs.instrumentationKey
+    location: location
+    storageAccountName: common.outputs.storageAccountName
+    appInsightsConnectionString: common.outputs.appInsightsConnectionString
+    signalREndpoint: functions.outputs.signalREndpoint
     passwordlessApiKey: passwordlessApiKey
     passwordlessApiSecret: passwordlessApiSecret
-    repoUrl: repoUrl
-    signalREnpoint: functions.outputs.signalREndpoint
   }
 }
+
+// Outputs
+output storageAccountName string = common.outputs.storageAccountName
+output functionAppName string = functions.outputs.functionAppName
+output webAppName string = blazorApp.outputs.webAppName
+output webAppUrl string = blazorApp.outputs.webAppUrl
+output signalREndpoint string = functions.outputs.signalREndpoint

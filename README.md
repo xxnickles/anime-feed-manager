@@ -1,8 +1,8 @@
 |Project| Branch |Status|
 |---|--------|---|
-|Infrastructure | main | [![AFM Infrastructure Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-infrastructure.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-infrastructure.yml) |
-|Functions | main | [![AFM Backend Functions Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-backend-functions.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-backend-functions.yml) |
-|Blazor SSR | main | [![AFM Blazor SSR Deployment](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-blazor-ssr.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-blazor-ssr.yml) |
+|Infrastructure | main | [![AMF Infrastructure](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-infrastructure.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-infrastructure.yml) |
+|Functions | main | [![AMF Functions](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-functions.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-functions.yml) |
+|Blazor Web | main | [![AMF Blazor Web](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-blazor.yml/badge.svg)](https://github.com/xxnickles/anime-feed-manager/actions/workflows/amf-blazor.yml) |
 
 Anime Feed Manager
 =================
@@ -71,6 +71,8 @@ See [src/README.md](src/README.md) for detailed project structure and configurat
 
 Deployment uses GitHub Actions with Bicep templates:
 - `.github/workflows/amf-infrastructure.yml` - Infrastructure
-- `.github/workflows/amf-backend-functions.yml` - Functions
-- `.github/workflows/amf-blazor-ssr.yml` - Web app
+- `.github/workflows/amf-functions.yml` - Functions
+- `.github/workflows/amf-blazor.yml` - Web app
 - `deployment/` - Bicep templates for Azure resources
+
+See [deployment/README.md](deployment/README.md) for full deployment configuration guide.

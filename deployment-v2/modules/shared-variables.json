@@ -1,9 +1,0 @@
-{
-  "storageAccountName": "amfstorage",
-  "functionAppName": "amf-functions",
-  "webAppName": "amf-web-manager",
-  "signalRName": "amf-signalr",
-  "appInsightsName": "amf-insights",
-  "functionsPlanName": "amf-functions-plan",
-  "webPlanName": "amf-web-manager-plan"
-}

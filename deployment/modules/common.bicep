@@ -1,25 +1,43 @@
-@description('Location for all resources.')
+@description('Azure region for all resources')
 param location string = resourceGroup().location
 
-var applicationInsightsName  = 'anime-manager'
-var storageAccountName = 'animefeedmanagerstorage'
-var storageAccountType = 'Standard_LRS'
+// Load shared variables
+var config = loadJsonContent('shared-variables.json')
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storageAccountName
+// Storage Account
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+  name: config.storageAccountName
   location: location
   sku: {
-    name: storageAccountType
+    name: 'Standard_LRS'
   }
   kind: 'StorageV2'
   properties: {
     supportsHttpsTrafficOnly: true
-    }
-
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+    accessTier: 'Hot'
+  }
 }
 
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: applicationInsightsName
+// Blob Services (needed for deployment container)
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+// Deployment container for Flex Consumption Function App
+resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobServices
+  name: 'deployments'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+// Application Insights
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: config.appInsightsName
   location: location
   kind: 'web'
   properties: {
@@ -28,6 +46,6 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-
-output instrumentationKey string = applicationInsights.properties.InstrumentationKey
+// Outputs
 output storageAccountName string = storageAccount.name
+output appInsightsConnectionString string = appInsights.properties.ConnectionString

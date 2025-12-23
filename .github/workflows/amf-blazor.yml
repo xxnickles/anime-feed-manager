@@ -1,14 +1,14 @@
-name: AMF V2 - Functions
+name: AMF Blazor Web
 
 on:
-  # push:
-  #   branches: [rewrite]
-  #   paths:
-  #     - 'src/AnimeFeedManager.Functions/**'
-  #     - 'src/AnimeFeedManager.Features/**'
-  #     - 'src/AnimeFeedManager.Shared/**'
-  #     - 'src/AnimeFeedManager.Services.Shared/**'
-  #     - 'src/AnimeFeedManager.Web.BlazorComponents/**'
+  push:
+    branches: [main]
+    paths:
+      - 'src/AnimeFeedManager.Web/**'
+      - 'src/AnimeFeedManager.Web.BlazorComponents/**'
+      - 'src/AnimeFeedManager.Features/**'
+      - 'src/AnimeFeedManager.Shared/**'
+      - 'src/AnimeFeedManager.Services.Shared/**'
   workflow_dispatch:
 
 permissions:
@@ -18,14 +18,25 @@ permissions:
 env:
   RESOURCE_GROUP: amf-rg
   DOTNET_VERSION: '10.0.x'
+  APP_PATH: './src/AnimeFeedManager.Web'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/rewrite'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.2.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Build CSS
+        working-directory: ${{ env.APP_PATH }}
+        run: |
+          npm install
+          npm run build-prod:css
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -33,16 +44,16 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore src/AnimeFeedManager.Functions
+        run: dotnet restore ${{ env.APP_PATH }}
 
       - name: Build
-        run: dotnet build src/AnimeFeedManager.Functions -c Release --no-restore
+        run: dotnet build ${{ env.APP_PATH }} -c Release --no-restore
 
       - name: Test
         run: dotnet test src/AnimeFeedManager.Features.Tests -c Release --verbosity normal
 
       - name: Publish
-        run: dotnet publish src/AnimeFeedManager.Functions -c Release -o ./output
+        run: dotnet publish ${{ env.APP_PATH }} -c Release -o ./output
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2.2.0
@@ -51,19 +62,18 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Get Function App Name
+      - name: Get Web App Name
         id: getname
         uses: azure/arm-deploy@v2
         with:
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./deployment-v2/main-functions.bicep
+          template: ./deployment/main-blazor.bicep
 
-      - name: Deploy to Azure Functions (Flex Consumption)
-        uses: azure/functions-action@v1.5.2
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ steps.getname.outputs.functionAppName }}
+          app-name: ${{ steps.getname.outputs.webAppName }}
           package: ./output
-          remote-build: false
 
       - name: Logout
         run: az logout

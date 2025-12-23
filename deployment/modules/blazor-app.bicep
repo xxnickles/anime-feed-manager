@@ -1,110 +1,135 @@
-@description('Optional Git Repo URL')
-param repoUrl string = ' '
+@description('Azure region for all resources')
+param location string = resourceGroup().location
 
-@description('Storage Account Name')
+@description('Storage account name')
 param storageAccountName string
 
-@description('Instrumentation Key')
-param instrumentationKey string
+@description('Application Insights connection string')
+param appInsightsConnectionString string
+
+@description('SignalR endpoint URL')
+param signalREndpoint string
 
 @secure()
+@description('Passwordless API key')
 param passwordlessApiKey string
 
 @secure()
+@description('Passwordless API secret')
 param passwordlessApiSecret string
 
-@description('SignalR Endpoint')
-param signalREnpoint string
+// Load shared variables
+var config = loadJsonContent('shared-variables.json')
 
-
-@description('Location for all resources.')
-param location string = resourceGroup().location
-
-var sharedVariables = loadJsonContent('./shared-variables.json')
-var webAppHostingPlanName = 'afm-blazor-hosting'
-
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+// Reference to existing storage account
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
   name: storageAccountName
-  scope: resourceGroup()
 }
 
-resource blazorHostingPlan 'Microsoft.Web/serverfarms@2023-01-01' = {
-  name: webAppHostingPlanName
+// RBAC Role Definition IDs
+var storageBlobDataContributorRole = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+var storageQueueDataContributorRole = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
+var storageTableDataContributorRole = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
+
+// App Service Plan for Web App (Free tier)
+resource webPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
+  name: config.webPlanName
   location: location
   kind: 'linux'
+  sku: {
+    name: 'F1'
+    tier: 'Free'
+  }
   properties: {
     reserved: true
   }
-  sku: {
-    name: 'F1'
-  }
 }
 
-resource blazorAppService 'Microsoft.Web/sites@2023-01-01' = {
-  name: sharedVariables.webAppname
+// Web App (Blazor SSR)
+resource webApp 'Microsoft.Web/sites@2023-12-01' = {
+  name: config.webAppName
   location: location
+  kind: 'app,linux'
   identity: {
     type: 'SystemAssigned'
   }
   properties: {
-    serverFarmId: blazorHostingPlan.id
+    serverFarmId: webPlan.id
+    reserved: true
+    siteConfig: {
+      linuxFxVersion: 'DOTNETCORE|10.0'
+      ftpsState: 'Disabled'
+      minTlsVersion: '1.2'
+      http20Enabled: true
+      alwaysOn: false // Free tier doesn't support always on
+      appSettings: [
+        {
+          name: 'ConnectionStrings__BlobConnection'
+          value: 'https://${storageAccountName}.blob.${environment().suffixes.storage}'
+        }
+        {
+          name: 'ConnectionStrings__QueueConnection'
+          value: 'https://${storageAccountName}.queue.${environment().suffixes.storage}'
+        }
+        {
+          name: 'ConnectionStrings__TablesConnection'
+          value: 'https://${storageAccountName}.table.${environment().suffixes.storage}'
+        }
+        {
+          name: 'Passwordless__ApiKey'
+          value: passwordlessApiKey
+        }
+        {
+          name: 'Passwordless__ApiSecret'
+          value: passwordlessApiSecret
+        }
+        {
+          name: 'SignalR__Endpoint'
+          value: signalREndpoint
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: appInsightsConnectionString
+        }
+      ]
+    }
     httpsOnly: true
-
   }
 }
 
-resource siteConfig 'Microsoft.Web/sites/config@2023-01-01' = {
-  name: 'web'
-  parent: blazorAppService
-  properties: {
-    appSettings: [
-      {
-        name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-        value: instrumentationKey
-      }
-      {
-        name: 'StorageAccountName'
-        value: storageAccountName
-      }
-      {
-        name: 'Passwordless__ApiKey'
-        value: passwordlessApiKey
-      }
-      {
-        name: 'Passwordless__ApiSecret'
-        value: passwordlessApiSecret
-      }
-      {
-        name: 'SignalR__Endpoint'
-        value: signalREnpoint
-      }
-    ]
-    linuxFxVersion: 'DOTNETCORE|9.0'
-    http20Enabled: true    
-  }
-}
-
-var roleDefinitionIds = [
-  '974c5e8b-45b9-4653-ba55-5f855dd0fb88' //Storage Queue Data Contributor
-  '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3' //Storage Table Data Contributor
-  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' //Storage Blob Data Contributor
-]
-
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for roleDefinitionId in roleDefinitionIds: {
+// RBAC: Storage Blob Data Contributor for Web App
+resource blobRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storageAccount.id, webApp.id, storageBlobDataContributorRole)
   scope: storageAccount
-  name: guid(storageAccount.id, 'amf-blazor-identity', roleDefinitionId)
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
-    principalId: blazorAppService.identity.principalId
-  }
-}]
-
-resource webAppSourceControl 'Microsoft.Web/sites/sourcecontrols@2023-01-01' = if (contains(repoUrl, 'http')) {
-  name: 'web'
-  parent: blazorAppService
-  properties: {
-    repoUrl: repoUrl
-    branch: 'main'
-    isManualIntegration: true
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRole)
+    principalId: webApp.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
+
+// RBAC: Storage Queue Data Contributor for Web App
+resource queueRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storageAccount.id, webApp.id, storageQueueDataContributorRole)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageQueueDataContributorRole)
+    principalId: webApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// RBAC: Storage Table Data Contributor for Web App
+resource tableRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storageAccount.id, webApp.id, storageTableDataContributorRole)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageTableDataContributorRole)
+    principalId: webApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Outputs
+output webAppName string = webApp.name
+output webAppUrl string = 'https://${webApp.properties.defaultHostName}'
