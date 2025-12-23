@@ -1,0 +1,79 @@
+name: AMF V2 - Infrastructure
+
+on:
+  # push:
+  #   branches: [rewrite]
+  #   paths:
+  #     - 'deployment-v2/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  RESOURCE_GROUP: amf-rg
+  LOCATION: eastus
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/rewrite'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2.2.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create Resource Group
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
+
+      - name: Deploy Bicep
+        uses: azure/arm-deploy@v2
+        with:
+          resourceGroupName: ${{ env.RESOURCE_GROUP }}
+          template: ./deployment-v2/main.bicep
+          parameters: >
+            gmailFromEmail="${{ secrets.GMAIL_FROM_EMAIL }}"
+            gmailAppPassword="${{ secrets.GMAIL_APP_PASSWORD }}"
+            passwordlessApiKey="${{ secrets.PASSWORDLESS_API_KEY }}"
+            passwordlessApiSecret="${{ secrets.PASSWORDLESS_API_SECRET }}"
+            gmailFromName="${{ vars.GMAIL_FROM_NAME }}"
+            feedNotificationSchedule="${{ vars.FEED_NOTIFICATION_SCHEDULE }}"
+            scrapingSchedule="${{ vars.SCRAPING_SCHEDULE }}"
+
+      - name: Seed Admin User
+        uses: azure/cli@v2
+        env:
+          ADMIN_USER_ID: ${{ secrets.ADMIN_USER_ID }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        with:
+          inlineScript: |
+            # Create Users table if it doesn't exist
+            az storage table create --name Users --account-name amfstorage --auth-mode login --only-show-errors || true
+
+            # Trim any whitespace/newlines from secrets
+            ADMIN_USER_ID=$(echo "$ADMIN_USER_ID" | tr -d '[:space:]')
+            ADMIN_EMAIL=$(echo "$ADMIN_EMAIL" | tr -d '\n\r' | xargs)
+
+            echo "Checking for admin user with RowKey: $ADMIN_USER_ID"
+
+            # Check if admin user already exists
+            if az storage entity show --table-name Users --account-name amfstorage --auth-mode login --partition-key user-group --row-key "$ADMIN_USER_ID" 2>/dev/null; then
+              echo "Admin user already exists, skipping seed"
+            else
+              echo "Seeding admin user with email: $ADMIN_EMAIL"
+              az storage entity insert --table-name Users --account-name amfstorage --auth-mode login \
+                --entity PartitionKey=user-group RowKey="$ADMIN_USER_ID" Email="$ADMIN_EMAIL" Role=Admin
+            fi
+
+      - name: Logout
+        run: az logout
