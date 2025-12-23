@@ -40,17 +40,15 @@ To create a Gmail app password:
 | `ADMIN_USER_ID` | Passwordless user ID for the admin user |
 | `ADMIN_EMAIL` | Admin user email address |
 
-## GitHub Variables (Optional)
+## Optional Parameters (Hardcoded Defaults)
 
-These can be configured as **Repository Variables** in GitHub (Settings > Secrets and variables > Actions > Variables).
+These values are hardcoded in the infrastructure workflow (`.github/workflows/amf-v2-infrastructure.yml`). Edit the workflow file to change them.
 
-If not set, default values will be used.
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `GMAIL_FROM_NAME` | `Anime Feed Manager` | Email sender display name |
-| `FEED_NOTIFICATION_SCHEDULE` | `0 0 * * * *` | Cron schedule for feed notifications |
-| `SCRAPING_SCHEDULE` | `0 0 0 * * *` | Cron schedule for library scraping |
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `gmailFromName` | `Anime Feed Manager` | Email sender display name |
+| `feedNotificationSchedule` | `0 0 * * * *` | Cron schedule for feed notifications |
+| `scrapingSchedule` | `0 0 0 * * *` | Cron schedule for library scraping |
 
 ### Cron Schedule Format
 
@@ -78,14 +76,30 @@ Schedules use Azure Functions NCrontab format with **6 fields**:
 1. **Configure GitHub Secrets** - Add all required secrets listed above
 2. **Configure GitHub Variables** (optional) - Override defaults if needed
 3. **Run Infrastructure Workflow** - Deploy Azure resources (see [Manual Triggering](#manual-workflow-triggering))
+   - This creates the storage account and other resources
+   - **Note:** This run will fail at the "Seed Admin User" step because RBAC roles aren't set yet
 4. **Grant RBAC to OIDC Principal** - Required for admin seeding and Functions deployment (see below)
-5. **Re-run Infrastructure Workflow** - Seeds admin user
-6. **Deploy Functions** - Run the Functions workflow manually
-7. **Deploy Web App** - Run the Blazor workflow manually
+   - Storage Table Data Contributor (for admin seeding)
+   - Storage Blob Data Contributor (for Functions deployment)
+5. **Wait 5 minutes** - RBAC role propagation takes time
+6. **Re-run Infrastructure Workflow** - This time admin user seeding will succeed
+7. **Deploy Functions** - Run the Functions workflow manually
+8. **Deploy Web App** - Run the Blazor workflow manually
 
 ## RBAC Setup for Deployer
 
-After the first infrastructure deployment, grant the OIDC service principal (deployer) these storage roles:
+The OIDC service principal (deployer) needs these Azure RBAC roles:
+
+### Subscription/Resource Group Level (required before first deployment)
+
+| Role | Purpose |
+|------|---------|
+| Contributor | Create and manage Azure resources |
+| User Access Administrator | Assign RBAC roles to Function App and Web App managed identities |
+
+### Storage Account Level (required after first deployment)
+
+After the first infrastructure deployment creates the storage account, grant these additional roles:
 
 ### Storage Table Data Contributor (for admin seeding)
 
@@ -115,8 +129,10 @@ Wait 5 minutes for RBAC propagation before running the workflows.
 |----------|------|-----|
 | Resource Group | `amf-rg` | - |
 | Storage Account | `amfstorage` | Standard_LRS |
-| Function App | `amf-functions` | Consumption (Y1) |
-| Web App | `amf-web` | Free (F1) |
+| Function App Plan | `amf-functions-plan` | Flex Consumption (FC1) |
+| Function App | `amf-functions` | - |
+| Web App Plan | `amf-web-manager-plan` | Free (F1) |
+| Web App | `amf-web-manager` | - |
 | SignalR Service | `amf-signalr` | Free_F1 |
 | Application Insights | `amf-insights` | - |
 

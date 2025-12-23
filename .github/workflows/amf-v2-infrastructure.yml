@@ -46,9 +46,9 @@ jobs:
             gmailAppPassword="${{ secrets.GMAIL_APP_PASSWORD }}"
             passwordlessApiKey="${{ secrets.PASSWORDLESS_API_KEY }}"
             passwordlessApiSecret="${{ secrets.PASSWORDLESS_API_SECRET }}"
-            gmailFromName="${{ vars.GMAIL_FROM_NAME }}"
-            feedNotificationSchedule="${{ vars.FEED_NOTIFICATION_SCHEDULE }}"
-            scrapingSchedule="${{ vars.SCRAPING_SCHEDULE }}"
+            gmailFromName="Anime Feed Manager"
+            feedNotificationSchedule="0 0 * * * *"
+            scrapingSchedule="0 0 0 * * *"
 
       - name: Seed Admin User
         uses: azure/cli@v2

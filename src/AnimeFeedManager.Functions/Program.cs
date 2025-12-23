@@ -1,8 +1,11 @@
 using AnimeFeedManager.Functions.Bootstraping;
-using AnimeFeedmanager.ServiceDefaults;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Azure.Functions.Worker.OpenTelemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -14,16 +17,27 @@ builder.Services.Configure<ServiceProviderOptions>(options =>
     options.ValidateScopes = true;
 });
 
-// Aspire local dev exposes the OTEL Endpoint 
-if (builder.Configuration["AzureFunctionsJobHost:telemetryMode"] is not "OpenTelemetry")
+// Configure OpenTelemetry logging to include formatted messages
+builder.Logging.AddOpenTelemetry(logging =>
 {
-    builder.Services
-        .AddApplicationInsightsTelemetryWorkerService()
-        .ConfigureFunctionsApplicationInsights();
+    logging.IncludeFormattedMessage = true;
+    logging.IncludeScopes = true;
+});
+
+// OpenTelemetry configuration (telemetryMode is set in host.json)
+var otelBuilder = builder.Services.AddOpenTelemetry()
+    .UseFunctionsWorkerDefaults();
+
+// Export to Azure Monitor when connection string is available (production)
+if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+{
+    otelBuilder.UseAzureMonitorExporter();
 }
-else
+
+// Export to OTLP when endpoint is available (local dev with Aspire)
+if (!string.IsNullOrEmpty(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
 {
-    builder.AddServiceDefaults();
+    otelBuilder.UseOtlpExporter();
 }
 
 // App dependencies

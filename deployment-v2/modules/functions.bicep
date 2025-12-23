@@ -4,9 +4,6 @@ param location string = resourceGroup().location
 @description('Storage account name')
 param storageAccountName string
 
-@description('Storage account resource ID')
-param storageAccountId string
-
 @description('Application Insights connection string')
 param appInsightsConnectionString string
 

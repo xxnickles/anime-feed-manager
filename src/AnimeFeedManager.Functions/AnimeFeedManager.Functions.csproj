@@ -9,9 +9,10 @@
     </PropertyGroup>
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-        <!-- Application Insights isn't enabled by default. See https://aka.ms/AAt8mw4. -->
-        <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" />
+        <!-- OpenTelemetry for Azure Functions -->
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.OpenTelemetry" />
+        <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker"/>
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore"/>
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.SignalRService"  />
@@ -33,7 +34,6 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
-      <ProjectReference Include="..\AnimeFeedmanager.ServiceDefaults\AnimeFeedmanager.ServiceDefaults.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Services.Shared\AnimeFeedManager.Services.Shared.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
     </ItemGroup>    

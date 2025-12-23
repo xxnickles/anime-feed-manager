@@ -40,7 +40,6 @@ module functions 'modules/functions.bicep' = {
   params: {
     location: location
     storageAccountName: common.outputs.storageAccountName
-    storageAccountId: common.outputs.storageAccountId
     appInsightsConnectionString: common.outputs.appInsightsConnectionString
     gmailFromEmail: gmailFromEmail
     gmailAppPassword: gmailAppPassword
@@ -56,7 +55,6 @@ module blazorApp 'modules/blazor-app.bicep' = {
   params: {
     location: location
     storageAccountName: common.outputs.storageAccountName
-    storageAccountId: common.outputs.storageAccountId
     appInsightsConnectionString: common.outputs.appInsightsConnectionString
     signalREndpoint: functions.outputs.signalREndpoint
     passwordlessApiKey: passwordlessApiKey

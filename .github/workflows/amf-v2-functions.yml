@@ -63,7 +63,7 @@ jobs:
         with:
           app-name: ${{ steps.getname.outputs.functionAppName }}
           package: ./output
-          remote-build: true
+          remote-build: false
 
       - name: Logout
         run: az logout
