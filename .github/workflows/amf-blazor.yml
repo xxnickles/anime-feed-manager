@@ -36,7 +36,7 @@ jobs:
         working-directory: ${{ env.APP_PATH }}
         run: |
           npm install
-          npm run build-prod:css
+          npm run build:css
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
