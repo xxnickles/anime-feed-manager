@@ -41,11 +41,23 @@ resource chromeApp 'Microsoft.Web/sites@2023-12-01' = {
         }
         {
           name: 'CONCURRENT'
+          value: '3'
+        }
+        {
+          name: 'QUEUED'
           value: '5'
         }
         {
-          name: 'MAX_QUEUE_LENGTH'
-          value: '10'
+          name: 'HEALTH'
+          value: 'true'
+        }
+        {
+          name: 'MAX_MEMORY_PERCENT'
+          value: '80'
+        }
+        {
+          name: 'MAX_CPU_PERCENT'
+          value: '80'
         }
       ]
     }

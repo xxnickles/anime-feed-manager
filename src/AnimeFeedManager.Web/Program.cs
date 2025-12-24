@@ -40,6 +40,7 @@ app.UseAntiforgery();
 
 
 
+app.MapDefaultEndpoints();
 app.MapRazorComponents<App>();
 
 var endpointsGroup = app

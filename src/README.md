@@ -42,6 +42,7 @@ dotnet run --project AnimeFeedmanager.AspireHost
 This starts all services with proper configuration, including:
 - Azurite (Azure Storage emulator)
 - Azure SignalR emulator
+- Browserless Chrome container (for web scraping)
 - Frontend asset watch (Tailwind CSS/JS)
 - Functions backend
 - Web application
@@ -59,12 +60,19 @@ Create `local.settings.json` in `AnimeFeedManager.Functions`:
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10001/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10002/devstoreaccount1;TableEndpoint=http://127.0.0.1:10003/devstoreaccount1;",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "Chrome__RemoteEndpoint": "http://localhost:3000",
+    "Chrome__Token": "local-dev-token"
   },
   "Host": {
     "CORS": "*"
   }
 }
+```
+
+**Note:** Chrome settings require running the browserless container separately:
+```bash
+docker run -p 3000:3000 -e TOKEN=local-dev-token ghcr.io/browserless/chromium:latest
 ```
 
 For email notifications, add Gmail configuration via user secrets:
@@ -93,9 +101,11 @@ dotnet user-secrets set "SignalR:Endpoint" "http://localhost:7071/api/"
 
 | Setting | Description | Required |
 |---------|-------------|----------|
-| `AzureWebJobsStorage` | Azure Storage connection string | Yes |
+| `AzureWebJobsStorage` | Azure Storage connection string (local) or account name (Azure) | Yes |
 | `FUNCTIONS_WORKER_RUNTIME` | Must be `dotnet-isolated` | Yes |
 | `SignalRConnectionString` | Azure SignalR connection (provided by Aspire) | Yes |
+| `Chrome:RemoteEndpoint` | Browserless Chrome WebSocket endpoint (provided by Aspire) | Yes |
+| `Chrome:Token` | Authentication token for Chrome container | Yes |
 | `Gmail:FromEmail` | Gmail address for notifications | No |
 | `Gmail:FromName` | Email sender display name | No |
 | `Gmail:AppPassword` | Gmail App Password | No |
@@ -105,6 +115,8 @@ dotnet user-secrets set "SignalR:Endpoint" "http://localhost:7071/api/"
 | Setting | Description | Required |
 |---------|-------------|----------|
 | `ConnectionStrings:TablesConnection` | Azure Table Storage connection | Yes |
+| `ConnectionStrings:BlobConnection` | Azure Blob Storage connection | Yes |
+| `ConnectionStrings:QueueConnection` | Azure Queue Storage connection | Yes |
 | `Passwordless:ApiKey` | Passwordless.dev API key | Yes |
 | `Passwordless:ApiSecret` | Passwordless.dev API secret | Yes |
 | `SignalR:Endpoint` | Functions SignalR endpoint | Yes |

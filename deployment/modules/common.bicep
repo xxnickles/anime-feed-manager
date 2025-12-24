@@ -15,7 +15,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   properties: {
     supportsHttpsTrafficOnly: true
     minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: false
+    allowBlobPublicAccess: true // Required for public image access
     accessTier: 'Hot'
   }
 }
@@ -32,6 +32,15 @@ resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/con
   name: 'deployments'
   properties: {
     publicAccess: 'None'
+  }
+}
+
+// Images container (public read access for serving images)
+resource imagesContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobServices
+  name: 'images'
+  properties: {
+    publicAccess: 'Blob' // Anonymous read for blobs only (can't list)
   }
 }
 

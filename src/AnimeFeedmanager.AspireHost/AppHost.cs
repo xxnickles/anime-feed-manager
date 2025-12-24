@@ -28,8 +28,9 @@ var chrome = builder.AddContainer("chrome", "ghcr.io/browserless/chromium", "lat
     .WithHttpEndpoint(port: 3000, targetPort: 3000, name: "http")
     .WithEnvironment("TOKEN", chromeDevToken)
     .WithEnvironment("TIMEOUT", "120000")
-    .WithEnvironment("CONCURRENT", "5")
-    .WithEnvironment("MAX_QUEUE_LENGTH", "10");
+    .WithEnvironment("CONCURRENT", "3")
+    .WithEnvironment("QUEUED", "5")
+    .WithEnvironment("HEALTH", "true");
 
 var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Functions>("functions")
     .WithExternalHttpEndpoints()

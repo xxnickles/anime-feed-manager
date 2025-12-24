@@ -27,13 +27,14 @@ Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://an
 The Aspire host will automatically:
 - Start Azurite (Azure Storage emulator) with persistent data
 - Start Azure SignalR emulator
+- Start browserless Chrome container (for web scraping)
 - Build and watch frontend assets (JS/CSS)
 - Launch the Functions backend
 - Launch the Blazor SSR web application
 
 ## Configuration
 
-The application requires certain configuration values to run. Aspire automatically configures Azure Storage and SignalR connections, but you need to provide:
+The application requires certain configuration values to run. Aspire automatically configures Azure Storage, SignalR, and Chrome connections, but you need to provide:
 
 ### Web Application (User Secrets)
 

@@ -141,13 +141,29 @@ Wait 5 minutes for RBAC propagation before running the workflows.
 | Storage Account | `amfstorage` | Standard_LRS |
 | Function App Plan | `amf-functions-plan` | Flex Consumption (FC1) |
 | Function App | `amf-functions` | - |
-| Web App Plan | `amf-web-manager-plan` | Basic (B1) |
+| Web App Plan | `amf-web-manager-plan` | Basic (B2) |
 | Web App | `amf-web-manager` | - |
 | Chrome Web App | `amf-chrome` | (shared plan) |
 | SignalR Service | `amf-signalr` | Free_F1 |
 | Application Insights | `amf-insights` | - |
 
-**Note:** The Web App Plan was upgraded from Free (F1) to Basic (B1) to support the containerized Chrome app. Both `amf-web-manager` and `amf-chrome` share the same plan.
+**Notes:**
+- The Web App Plan uses Basic B2 (2 cores, 3.5 GB RAM) to support Chrome container concurrency needs. Both `amf-web-manager` and `amf-chrome` share the same plan.
+- Web App has health checks enabled at `/health` endpoint for Azure monitoring.
+- Chrome container is configured with `CONCURRENT=3`, `QUEUED=5`, and health checks (`HEALTH=true`, `MAX_MEMORY_PERCENT=80`, `MAX_CPU_PERCENT=80`).
+- Storage account has `allowBlobPublicAccess: true` to serve images publicly. The `images` container is set to `Blob` access (anonymous read, no listing).
+
+### Manual: Enable Public Blob Access
+
+If images aren't loading (409 Public access not permitted), run these commands:
+
+```bash
+# Step 1: Enable public access on storage account
+az storage account update --name amfstorage --resource-group amf-rg --allow-blob-public-access true
+
+# Step 2: Set images container to public blob access
+az storage container set-permission --name images --account-name amfstorage --public-access blob --account-key $(az storage account keys list --account-name amfstorage --resource-group amf-rg --query "[0].value" -o tsv)
+```
 
 ## Workflows
 
