@@ -14,50 +14,5 @@
     </article>
 </section>
 
-<script defer>
-    document.addEventListener('registration-token-ready', async () => {
-        const tokenInput = document.getElementById('registration-token');
-        const statusDiv = document.getElementById('passkey-status');
-
-        if (!tokenInput || !statusDiv) return;
-
-        const token = tokenInput.value;
-        const Client = Passwordless.Client;
-        const p = new Client({ apiKey: API_KEY });
-
-        try {
-            const { token: credential, error } = await p.register(token);
-
-            if (credential) {
-                statusDiv.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-success h-16 w-16" fill="none" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p class="text-center text-lg font-semibold">Account created successfully!</p>
-                    <a class="btn btn-primary" href="/login">Login now</a>
-                `;
-            } else {
-                const errorMsg = error?.title || error?.message || 'Passkey registration failed';
-                statusDiv.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-error h-16 w-16" fill="none" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p class="text-center text-error">${errorMsg}</p>
-                    <a class="btn btn-outline" href="/register">Try again</a>
-                `;
-            }
-        } catch (e) {
-            console.error('Passkey registration error:', e);
-            statusDiv.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-error h-16 w-16" fill="none" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <p class="text-center text-error">${e.message || 'An unexpected error occurred'}</p>
-                <a class="btn btn-outline" href="/register">Try again</a>
-            `;
-        }
-    });
-</script>
-
 @code {
 }

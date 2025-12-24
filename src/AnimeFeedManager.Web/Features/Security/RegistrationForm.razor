@@ -1,11 +1,49 @@
 @if (Model.Token is not null)
 {
-    <div id="registration-form" class="card-body">
-        <input type="hidden" id="registration-token" value="@Model.Token" name="@nameof(Model.Token)"/>
-        <input type="hidden" id="registration-user-id" value="@Model.UserId" name="@nameof(Model.UserId)"/>
-        <div id="passkey-status" class="flex flex-col items-center gap-4">
+    <div id="registration-form"
+         class="card-body"
+         x-data="{
+             status: 'loading',
+             error: '',
+             async register() {
+                 try {
+                     const p = new Passwordless.Client({ apiKey: API_KEY });
+                     const { token: credential, error } = await p.register('@Model.Token');
+
+                     if (credential) {
+                         this.status = 'success';
+                     } else {
+                         this.error = error?.title || error?.message || 'Passkey registration failed';
+                         this.status = 'error';
+                     }
+                 } catch (e) {
+                     console.error('Passkey registration error:', e);
+                     this.error = e.message || 'An unexpected error occurred';
+                     this.status = 'error';
+                 }
+             }
+         }"
+         x-init="register()">
+
+        <div x-show="status === 'loading'" class="flex flex-col items-center gap-4">
             <span class="loading loading-spinner loading-lg text-primary"></span>
             <p class="text-center">Setting up your passkey...</p>
+        </div>
+
+        <div x-show="status === 'success'" x-cloak class="flex flex-col items-center gap-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-success h-16 w-16" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-center text-lg font-semibold">Account created successfully!</p>
+            <a class="btn btn-primary" href="/login">Login now</a>
+        </div>
+
+        <div x-show="status === 'error'" x-cloak class="flex flex-col items-center gap-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-error h-16 w-16" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-center text-error" x-text="error"></p>
+            <a class="btn btn-outline" href="/register">Try again</a>
         </div>
     </div>
 }

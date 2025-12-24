@@ -20,7 +20,6 @@ internal static class Endpoints
 
         group.MapPost("/create-token", (
             [FromForm] RegisterViewModel viewModel,
-            HttpContext context,
             ITableClientFactory tableClientFactory,
             IPasswordlessClient passwordlessClient,
             ILogger<Register> logger,
@@ -34,7 +33,6 @@ internal static class Endpoints
                 cancellationToken)
             .Map(result =>
             {
-                context.Response.Headers["HX-Trigger-After-Swap"] = "registration-token-ready";
                 viewModel.Token = result.Token.Token;
                 viewModel.UserId = result.UserId;
                 return viewModel;
@@ -48,7 +46,6 @@ internal static class Endpoints
         
         group.MapPost("/add-credential", (
             [FromForm] AddCredentialsViewModel viewModel,
-            HttpContext context,
             ITableClientFactory tableClientFactory,
             IPasswordlessClient passwordlessClient,
             ILogger<AddCredential> logger,
@@ -60,7 +57,6 @@ internal static class Endpoints
                 cancellationToken)
             .Map(result =>
             {
-                context.Response.Headers["HX-Trigger-After-Swap"] = "registration-token-ready";
                 viewModel.Token = result.Token.Token;
                 return viewModel;
             })
