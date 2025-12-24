@@ -1,0 +1,102 @@
+@if (Model.Token is not null)
+{
+    <div id="registration-form" class="card-body">
+        <input type="hidden" id="registration-token" value="@Model.Token" name="@nameof(Model.Token)"/>
+        <input type="hidden" id="registration-user-id" value="@Model.UserId" name="@nameof(Model.UserId)"/>
+        <div id="passkey-status" class="flex flex-col items-center gap-4">
+            <span class="loading loading-spinner loading-lg text-primary"></span>
+            <p class="text-center">Setting up your passkey...</p>
+        </div>
+    </div>
+}
+else
+{
+    <EditForm id="registration-form"
+              Model="Model"
+              hx-post="/create-token"
+              hx-swap="outerHTML"
+              hx-indicator="#registration-loader"
+              class="card-body">
+
+        <fieldset class="form-control">
+            <label class="floating-label validator" for="email-input">
+                <InputText
+                    id="email-input"
+                    name="@nameof(Model.Email)"
+                    @bind-Value="Model.Email"
+                    required
+                    type="email"
+                    placeholder="Enter your email"
+                    class="@($"input input-bordered w-full {(HasError ? "input-error" : "")}")"/>
+                <span class="label-text">Email</span>
+            </label>
+        </fieldset>
+
+        <fieldset class="form-control mt-4">
+            <label class="floating-label validator" for="display-name-input">
+                <InputText
+                    id="display-name-input"
+                    name="@nameof(Model.DisplayName)"
+                    @bind-Value="Model.DisplayName"
+                    required
+                    minlength="2"
+                    placeholder="Enter your display name"
+                    class="@($"input input-bordered w-full {(HasError ? "input-error" : "")}")"/>
+                <span class="label-text">Display Name</span>
+            </label>
+        </fieldset>
+
+        <fieldset class="form-control mt-6">
+            <button type="submit" class="btn btn-primary">
+                Register
+            </button>
+            <span id="registration-loader" class="loading loading-spinner loading-sm htmx-indicator mt-2 mx-auto"></span>
+        </fieldset>
+
+        @if (HasError && Error is not null)
+        {
+            <div class="alert alert-error mt-4" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>@ErrorMessage</span>
+            </div>
+        }
+
+        <div class="text-center mt-4">
+            <span class="text-sm">Already have an account? </span>
+            <a class="link link-primary text-sm font-semibold" href="/login">Login</a>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public RegisterViewModel Model { get; set; } = new();
+    [Parameter] public DomainError? Error { get; set; }
+
+    private bool HasError => Error is not null;
+
+    private string ErrorMessage => Error switch
+    {
+        DomainValidationErrors validationErrors => string.Join(", ",
+            validationErrors.Errors.SelectMany(e => e.Errors)),
+       not null => Error.Message,
+        _ =>  "Registration failed. Please try again."
+    };
+
+    public static RenderFragment AsRenderFragment(RegisterViewModel model, DomainError? error = null) => builder =>
+    {
+        builder.OpenComponent<RegistrationForm>(0);
+        builder.AddAttribute(1, nameof(Model), model);
+        builder.AddAttribute(2, nameof(Error), error);
+        builder.CloseComponent();
+    };
+
+    public static RenderFragment ErrorFragment(RegisterViewModel model, DomainError error) =>
+        AsRenderFragment(model, error);
+
+    public static RenderFragment SuccessFragment(RegisterViewModel model) =>
+        AsRenderFragment(model);
+}

@@ -6,13 +6,27 @@ namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
 public static class UserRegistration
 {
-    public static Task<Result<RegistrationProcessData>> VerifyData(
+    public static Task<Result<UserRegistrationResult>> TryToRegister(
+        string displayName,
+        string email,
+        IPasswordlessClient passwordlessClient,
+        UserUpdater updater,
+        ExistentUserGetterByEmail userGetter,
+        CancellationToken cancellationToken
+    )
+    {
+        return VerifyData(userGetter, displayName, email, cancellationToken)
+            .CreateUser(passwordlessClient, updater, cancellationToken);
+    }
+   
+    
+    private static Task<Result<RegistrationProcessData>> VerifyData(
         ExistentUserGetterByEmail userGetter,
         string displayName,
         string email,
         CancellationToken cancellationToken)
     {
-        return (displayName, email).AsUserRegistration()
+        return (email, displayName).AsUserRegistration()
             .Bind(userData => userGetter(userData.Email, cancellationToken)
                 .Map(user => new RegistrationProcessData(userData, user,
                     new RegisterOptions(userData.UserId, userData.Email)

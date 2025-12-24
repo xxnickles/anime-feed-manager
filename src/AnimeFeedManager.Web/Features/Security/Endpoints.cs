@@ -1,4 +1,6 @@
 ﻿using AnimeFeedManager.Features.User.Authentication.Queries;
+using AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
+using AnimeFeedManager.Features.User.Authentication.Storage.Stores;
 using AnimeFeedManager.Web.Common;
 using Passwordless;
 
@@ -15,5 +17,57 @@ internal static class Endpoints
                 CancellationToken cancellationToken) =>
             passwordlessClient.GetLoginInformation(token, cancellationToken)
                 .ToJsonResponse(logger));
+
+        group.MapPost("/create-token", (
+            [FromForm] RegisterViewModel viewModel,
+            HttpContext context,
+            ITableClientFactory tableClientFactory,
+            IPasswordlessClient passwordlessClient,
+            ILogger<Register> logger,
+            CancellationToken cancellationToken
+        ) => UserRegistration.TryToRegister(
+                viewModel.DisplayName,
+                viewModel.Email,
+                passwordlessClient,
+                tableClientFactory.TableStorageUserUpdater(),
+                tableClientFactory.TableStorageExistentUserGetterByEmail(),
+                cancellationToken)
+            .Map(result =>
+            {
+                context.Response.Headers["HX-Trigger-After-Swap"] = "registration-token-ready";
+                viewModel.Token = result.Token.Token;
+                viewModel.UserId = result.UserId;
+                return viewModel;
+            })
+            .LogErrors(logger)
+            .ToComponentResult(
+                model => [RegistrationForm.SuccessFragment(model)],
+                error => [RegistrationForm.ErrorFragment(viewModel, error)]
+            ));
+        
+        
+        group.MapPost("/add-credential", (
+            [FromForm] AddCredentialsViewModel viewModel,
+            HttpContext context,
+            ITableClientFactory tableClientFactory,
+            IPasswordlessClient passwordlessClient,
+            ILogger<AddCredential> logger,
+            CancellationToken cancellationToken
+        ) => UserCredentialRegistration.TryAddCredential(
+                viewModel.Id,
+                tableClientFactory.TableStorageExistentUserGetterById(),
+                passwordlessClient,
+                cancellationToken)
+            .Map(result =>
+            {
+                context.Response.Headers["HX-Trigger-After-Swap"] = "registration-token-ready";
+                viewModel.Token = result.Token.Token;
+                return viewModel;
+            })
+            .LogErrors(logger)
+            .ToComponentResult(
+                model => [AddCredentialForm.SuccessFragment(model)],
+                error => [AddCredentialForm.ErrorFragment(viewModel, error)]
+            ));
     }
 }

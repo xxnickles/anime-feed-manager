@@ -5,7 +5,7 @@ public delegate Task<Result<Unit>> UserUpdater(Email email, string userId, UserR
 
 public static class UserStore
 {
-    public static UserUpdater GetUserUpdater(this ITableClientFactory clientFactory) =>
+    public static UserUpdater TableStorageUserUpdater(this ITableClientFactory clientFactory) =>
         (email, userId, role, cancellationToken) =>
             clientFactory.GetClient<UserStorage>()
                 .Bind(client => client.UpsertUser(email, userId, role, cancellationToken));
