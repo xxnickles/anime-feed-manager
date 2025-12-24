@@ -31,7 +31,8 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
                 Browser = SupportedBrowser.Chrome,
                 Headless = _puppeteerOptions.RunHeadless,
                 DefaultViewport = new ViewPortOptions {Height = 1080, Width = 1920},
-                ExecutablePath = _puppeteerOptions.Path
+                ExecutablePath = _puppeteerOptions.Path,
+                Args = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
             });
 
             await using var page = await browser.NewPageAsync();

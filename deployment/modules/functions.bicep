@@ -25,7 +25,7 @@ param feedNotificationSchedule string = '0 0 * * * *'
 param scrapingSchedule string = '0 0 0 * * *'
 
 @description('Web app URL for CORS')
-param webAppUrl string = 'https://amf-web.azurewebsites.net'
+param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
 
 // Load shared variables
 var config = loadJsonContent('shared-variables.json')

@@ -12,8 +12,8 @@ internal static class AniDbScrapper
         {
             Headless = puppeteerOptions.RunHeadless,
             DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
-            ExecutablePath = puppeteerOptions.Path
-
+            ExecutablePath = puppeteerOptions.Path,
+            Args = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
         });
         
         await using var page = await browser.NewPageAsync();
