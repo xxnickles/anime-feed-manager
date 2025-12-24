@@ -27,6 +27,13 @@ param scrapingSchedule string = '0 0 0 * * *'
 @description('Web app URL for CORS')
 param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
 
+@description('Chrome remote endpoint URL')
+param chromeEndpoint string
+
+@secure()
+@description('Chrome authentication token')
+param chromeToken string
+
 // Load shared variables
 var config = loadJsonContent('shared-variables.json')
 
@@ -135,6 +142,10 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2024-04-01' = {
     RunHeadless: 'true'
     FeedNotificationSchedule: feedNotificationSchedule
     ScrapingSchedule: scrapingSchedule
+
+    // Remote Chrome (browserless) configuration
+    Chrome__RemoteEndpoint: chromeEndpoint
+    Chrome__Token: chromeToken
   }
 }
 

@@ -40,6 +40,17 @@ To create a Gmail app password:
 | `ADMIN_USER_ID` | Passwordless user ID for the admin user |
 | `ADMIN_EMAIL` | Admin user email address |
 
+### Chrome (Browserless)
+
+| Secret | Description |
+|--------|-------------|
+| `CHROME_TOKEN` | Authentication token for browserless Chrome container |
+
+To generate a secure token:
+```bash
+openssl rand -base64 32
+```
+
 ## Optional Parameters (Hardcoded Defaults)
 
 These values are hardcoded in the infrastructure workflow (`.github/workflows/amf-infrastructure.yml`). Edit the workflow file to change them.
@@ -130,10 +141,13 @@ Wait 5 minutes for RBAC propagation before running the workflows.
 | Storage Account | `amfstorage` | Standard_LRS |
 | Function App Plan | `amf-functions-plan` | Flex Consumption (FC1) |
 | Function App | `amf-functions` | - |
-| Web App Plan | `amf-web-manager-plan` | Free (F1) |
+| Web App Plan | `amf-web-manager-plan` | Basic (B1) |
 | Web App | `amf-web-manager` | - |
+| Chrome Web App | `amf-chrome` | (shared plan) |
 | SignalR Service | `amf-signalr` | Free_F1 |
 | Application Insights | `amf-insights` | - |
+
+**Note:** The Web App Plan was upgraded from Free (F1) to Basic (B1) to support the containerized Chrome app. Both `amf-web-manager` and `amf-chrome` share the same plan.
 
 ## Workflows
 

@@ -2,6 +2,7 @@
   "storageAccountName": "amfstorage",
   "functionAppName": "amf-functions",
   "webAppName": "amf-web-manager",
+  "chromeName": "amf-chrome",
   "signalRName": "amf-signalr",
   "appInsightsName": "amf-insights",
   "functionsPlanName": "amf-functions-plan",

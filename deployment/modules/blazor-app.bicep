@@ -31,14 +31,14 @@ var storageBlobDataContributorRole = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageQueueDataContributorRole = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 var storageTableDataContributorRole = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
 
-// App Service Plan for Web App (Free tier)
+// App Service Plan for Web App and Chrome (Basic tier - required for containers)
 resource webPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   name: config.webPlanName
   location: location
   kind: 'linux'
   sku: {
-    name: 'F1'
-    tier: 'Free'
+    name: 'B1'
+    tier: 'Basic'
   }
   properties: {
     reserved: true
@@ -133,3 +133,4 @@ resource tableRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01
 // Outputs
 output webAppName string = webApp.name
 output webAppUrl string = 'https://${webApp.properties.defaultHostName}'
+output webPlanId string = webPlan.id
