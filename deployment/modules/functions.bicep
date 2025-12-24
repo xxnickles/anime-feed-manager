@@ -104,10 +104,28 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2024-04-01' = {
   parent: functionApp
   name: 'appsettings'
   properties: {
+    // Host storage (managed identity)
     AzureWebJobsStorage__accountName: storageAccountName
-    ConnectionStrings__BlobConnection: 'https://${storageAccountName}.blob.${environment().suffixes.storage}'
-    ConnectionStrings__QueueConnection: 'https://${storageAccountName}.queue.${environment().suffixes.storage}'
-    ConnectionStrings__TablesConnection: 'https://${storageAccountName}.table.${environment().suffixes.storage}'
+
+    // Storage connections for Aspire SDK clients
+    // Uses explicit Aspire configuration sections instead of ConnectionStrings__* format
+    //
+    // WHY NOT ConnectionStrings__*?
+    // Azure Functions triggers check ConnectionStrings__<name> BEFORE <name>__queueServiceUri
+    // If ConnectionStrings__QueueConnection exists, triggers try to parse the URI as a connection string
+    // and fail with "Settings must be of the form 'name=value'"
+    //
+    // Aspire SDK client lookup order:
+    // 1. ConnectionStrings:<name> (we skip this to avoid trigger conflicts)
+    // 2. Aspire:Azure:Storage:Blobs:<name>:ServiceUri (we use this)
+    Aspire__Azure__Storage__Blobs__BlobConnection__ServiceUri: 'https://${storageAccountName}.blob.${environment().suffixes.storage}'
+    Aspire__Azure__Storage__Queues__QueueConnection__ServiceUri: 'https://${storageAccountName}.queue.${environment().suffixes.storage}'
+    Aspire__Azure__Data__Tables__TablesConnection__ServiceUri: 'https://${storageAccountName}.table.${environment().suffixes.storage}'
+
+    // Azure Functions trigger connections (managed identity format)
+    // Queue triggers use Connection = "QueueConnection" which looks for __queueServiceUri
+    QueueConnection__queueServiceUri: 'https://${storageAccountName}.queue.${environment().suffixes.storage}'
+
     SignalRConnectionString: signalR.listKeys().primaryConnectionString
     Gmail__FromEmail: gmailFromEmail
     Gmail__FromName: gmailFromName
