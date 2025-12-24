@@ -12,14 +12,22 @@ internal static class Registration
     {
         builder.Services.RegisterResourceCreator();
 
-        // Puppeteer
+        // Puppeteer - prefer remote Chrome endpoint if available, fallback to local
+        var chromeEndpoint = builder.Configuration["Chrome:RemoteEndpoint"];
+        var chromeToken = builder.Configuration["Chrome:Token"];
+
         _ = bool.TryParse(Environment.GetEnvironmentVariable("DownloadChromiumToProjectFolder"),
             out var downloadChromiumToProjectFolder);
 
         _ = bool.TryParse(Environment.GetEnvironmentVariable("RunHeadless"),
             out var runHeadless);
 
-        builder.Services.RegisterScrappingServices(downloadChromiumToProjectFolder, runHeadless);
+        builder.Services.RegisterScrappingServices(
+            remoteEndpoint: chromeEndpoint,
+            remoteToken: chromeToken,
+            downloadToProjectFolder: downloadChromiumToProjectFolder,
+            runHeadless: runHeadless);
+
         builder.Services.AddScoped<HtmlRenderer>();
         builder.Services.AddScoped<BlazorRenderer>();
 

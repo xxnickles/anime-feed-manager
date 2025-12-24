@@ -16,7 +16,7 @@ internal static class Utils
 
     internal static bool IsOldSeason(SeriesSeason seasonInformation, TimeProvider timeProvider)
     {
-        var reference = timeProvider.GetUtcNow().AddMonths(-6);
+        var reference = timeProvider.GetUtcNow().AddMonths(-5);
         var referenceSeason = reference.Month switch
         {
             < 4 => Season.Winter(),

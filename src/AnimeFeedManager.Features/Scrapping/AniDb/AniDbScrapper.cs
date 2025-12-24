@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Scrapping.Types;
+using AnimeFeedManager.Features.Scrapping.Types;
 using PuppeteerSharp;
 using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
@@ -8,14 +8,8 @@ internal static class AniDbScrapper
 {
     internal static async Task<ScrapResult> Scrap(string url, PuppeteerOptions puppeteerOptions)
     {
-        await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-        {
-            Headless = puppeteerOptions.RunHeadless,
-            DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
-            ExecutablePath = puppeteerOptions.Path,
-            Args = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
-        });
-        
+        await using var browser = await BrowserConnection.GetBrowserAsync(puppeteerOptions);
+
         await using var page = await browser.NewPageAsync();
         await page.GoToAsync(url);
         await page.WaitForSelectorAsync("div.g_bubblewrap.g_bubble.container", new WaitForSelectorOptions {});

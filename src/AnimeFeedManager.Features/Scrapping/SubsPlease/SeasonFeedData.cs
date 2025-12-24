@@ -1,5 +1,4 @@
 using AnimeFeedManager.Features.Scrapping.Types;
-using PuppeteerSharp;
 
 namespace AnimeFeedManager.Features.Scrapping.SubsPlease;
 
@@ -26,14 +25,7 @@ public sealed class SeasonFeedDataProvider : ISeasonFeedDataProvider
     {
         try
         {
-            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            {
-                Browser = SupportedBrowser.Chrome,
-                Headless = _puppeteerOptions.RunHeadless,
-                DefaultViewport = new ViewPortOptions { Height = 1080, Width = 1920 },
-                ExecutablePath = _puppeteerOptions.Path,
-                Args = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
-            });
+            await using var browser = await BrowserConnection.GetBrowserAsync(_puppeteerOptions);
 
             await using var page = await browser.NewPageAsync();
             await page.GoToAsync("https://subsplease.org/schedule/");

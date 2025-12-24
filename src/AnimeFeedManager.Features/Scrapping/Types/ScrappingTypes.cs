@@ -1,7 +1,14 @@
 ﻿namespace AnimeFeedManager.Features.Scrapping.Types;
 
-// Used for configuration
-public sealed record PuppeteerOptions(string Path, bool RunHeadless = true);
+// Used for configuration - supports both local Chrome path and remote WebSocket endpoint
+public sealed record PuppeteerOptions(
+    string? LocalPath = null,
+    string? RemoteEndpoint = null,
+    string Token = "",
+    bool RunHeadless = true)
+{
+    public bool UseRemote => !string.IsNullOrEmpty(RemoteEndpoint);
+}
 
 public sealed record JsonSeasonInfo(string Season, int Year);
 
