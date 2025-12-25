@@ -9,6 +9,7 @@ on:
       - 'src/AnimeFeedManager.Shared/**'
       - 'src/AnimeFeedManager.Services.Shared/**'
       - 'src/AnimeFeedManager.Web.BlazorComponents/**'
+      - '!src/**/*.md'
   workflow_dispatch:
 
 permissions:

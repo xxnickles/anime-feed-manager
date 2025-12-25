@@ -109,6 +109,9 @@ dotnet user-secrets set "SignalR:Endpoint" "http://localhost:7071/api/"
 | `Gmail:FromEmail` | Gmail address for notifications | No |
 | `Gmail:FromName` | Email sender display name | No |
 | `Gmail:AppPassword` | Gmail App Password | No |
+| `FeedNotificationSchedule` | Cron schedule for feed notifications (default: `0 0 * * * *` hourly) | No |
+| `ScrapingSchedule` | Cron schedule for library scraping (default: `0 0 4 * * 6` weekly) | No |
+| `FeedTitlesUpdateSchedule` | Cron schedule for feed titles update (default: `0 0 0 1 1 *` disabled) | No |
 
 ### Web Application
 
