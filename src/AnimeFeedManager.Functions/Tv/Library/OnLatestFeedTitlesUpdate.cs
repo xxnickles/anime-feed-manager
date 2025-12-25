@@ -27,20 +27,40 @@ public class OnLatestFeedTitlesUpdate
 
     [Function(nameof(OnLatestFeedTitlesUpdate))]
     public async Task Run(
-        [QueueTrigger(UpdateLatestFeedTitlesEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
+        [QueueTrigger(UpdateLatestFeedTitlesEvent.TargetQueue,
+            Connection = StorageRegistrationConstants.QueueConnection)]
         UpdateLatestFeedTitlesEvent message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
-        await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeason, token)
+        await RunProcess(token)
+            .Match(
+                results => _logger.LogInformation(
+                    "(OnDemand) Season {Year}-{Season} tv series titles has been updated. {UpdatedSeries} has been updated",
+                    results.Season.Year, results.Season.Season, results.UpdatedSeries),
+                e => e.LogError(_logger)
+            );
+    }
+
+    [Function("ScheduledFeedTitlesUpdate")]
+    public async Task RunScheduled([TimerTrigger("%FeedTitlesUpdateSchedule%")] TimerInfo myTimer,
+        CancellationToken token)
+    {
+        await RunProcess(token)
+            .Match(
+                results => _logger.LogInformation(
+                    "(Scheduled) Feed titles updated for {Year}-{Season}. {UpdatedSeries} series updated. Next run: {Time}",
+                    results.Season.Year, results.Season.Season, results.UpdatedSeries,
+                    myTimer.ScheduleStatus?.Next),
+                e => e.LogError(_logger)
+            );
+    }
+
+    public Task<Result<ScrapTvLibraryResult>> RunProcess(CancellationToken token)
+    {
+        return FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeason, token)
             .GetFeedTitles(_seasonFeedDataProvider)
             .UpdateSeries(_tableClientFactory.TableStorageRawExistentStoredSeries(),
                 _tableClientFactory.TableStorageTvLibraryUpdater, token)
-            .SendEvents(_domainPostman, token)
-            .Match(
-                results => _logger.LogInformation(
-                    "Season {Year}-{Season} tv series titles has been updated. {UpdatedSeries} has been updated",
-                    results.Season.Year, results.Season.Season, results.UpdatedSeries),
-                e => e.LogError(_logger)
-            );;
+            .SendEvents(_domainPostman, token);
     }
 }

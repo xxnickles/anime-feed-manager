@@ -48,7 +48,8 @@ jobs:
             chromeToken="${{ secrets.CHROME_TOKEN }}"
             gmailFromName="Anime Feed Manager"
             feedNotificationSchedule="0 0 * * * *"
-            scrapingSchedule="0 0 0 * * *"
+            scrapingSchedule="0 0 4 * * 6"
+            feedTitlesUpdateSchedule="0 0 0 1 1 *"
 
       - name: Seed Admin User
         uses: azure/cli@v2
