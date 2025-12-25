@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'deployment/**'
+      - '!deployment/**/*.md'
   workflow_dispatch:
 
 permissions:
