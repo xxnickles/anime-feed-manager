@@ -24,6 +24,9 @@ param feedNotificationSchedule string = '0 0 * * * *'
 @description('Cron schedule for library scraping (NCrontab 6-field format)')
 param scrapingSchedule string = '0 0 0 * * *'
 
+@description('Cron schedule for feed titles update (NCrontab 6-field format)')
+param feedTitlesUpdateSchedule string = '0 0 0 1 1 *'
+
 @description('Web app URL for CORS')
 param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
 
@@ -142,6 +145,7 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2024-04-01' = {
     RunHeadless: 'true'
     FeedNotificationSchedule: feedNotificationSchedule
     ScrapingSchedule: scrapingSchedule
+    FeedTitlesUpdateSchedule: feedTitlesUpdateSchedule
 
     // Remote Chrome (browserless) configuration
     Chrome__RemoteEndpoint: chromeEndpoint

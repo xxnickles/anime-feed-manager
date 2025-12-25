@@ -58,8 +58,9 @@ These values are hardcoded in the infrastructure workflow (`.github/workflows/am
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `gmailFromName` | `Anime Feed Manager` | Email sender display name |
-| `feedNotificationSchedule` | `0 0 * * * *` | Cron schedule for feed notifications |
-| `scrapingSchedule` | `0 0 0 * * *` | Cron schedule for library scraping |
+| `feedNotificationSchedule` | `0 0 * * * *` | Cron schedule for feed notifications (hourly) |
+| `scrapingSchedule` | `0 0 4 * * 6` | Cron schedule for full library scraping (weekly Saturday 4 AM UTC) |
+| `feedTitlesUpdateSchedule` | `0 0 0 1 1 *` | Cron schedule for feed titles update (disabled - once per year) |
 
 ### Cron Schedule Format
 
@@ -78,9 +79,63 @@ Schedules use Azure Functions NCrontab format with **6 fields**:
 
 **Examples:**
 - `0 0 * * * *` - Every hour at minute 0 (default for notifications)
-- `0 0 0 * * *` - Every day at midnight UTC (default for scraping)
+- `0 0 0 * * *` - Every day at midnight UTC
+- `0 0 4 * * 6` - Every Saturday at 4 AM UTC (default for scraping)
 - `0 30 8 * * *` - Every day at 8:30 AM UTC
 - `0 0 */6 * * *` - Every 6 hours
+
+### Season Rush Mode
+
+During anime season transitions (~1 day before to ~20 days after season start), enable "rush mode" to catch new series faster.
+
+**Season start dates:** Winter (Jan 1), Spring (Apr 1), Summer (Jul 1), Fall (Oct 1)
+
+#### Schedule Presets
+
+| Mode | `scrapingSchedule` | `feedTitlesUpdateSchedule` | Description |
+|------|-------------------|---------------------------|-------------|
+| **Normal** | `0 0 4 * * 6` | `0 0 0 1 1 *` | Weekly scraping, titles update disabled |
+| **Rush** | `0 0 4 * * *` | `0 0 */4 * * *` | Daily scraping (4 AM UTC), titles every 4 hours |
+
+#### CLI Commands
+
+**Switch to Rush Mode:**
+
+```bash
+az functionapp config appsettings set \
+  --name amf-functions \
+  --resource-group amf-rg \
+  --settings \
+    "ScrapingSchedule=0 0 4 * * *" \
+    "FeedTitlesUpdateSchedule=0 0 */4 * * *"
+```
+
+**Switch to Normal Mode:**
+
+```bash
+az functionapp config appsettings set \
+  --name amf-functions \
+  --resource-group amf-rg \
+  --settings \
+    "ScrapingSchedule=0 0 4 * * 6" \
+    "FeedTitlesUpdateSchedule=0 0 0 1 1 *"
+```
+
+**Check Current Settings:**
+
+```bash
+az functionapp config appsettings list \
+  --name amf-functions \
+  --resource-group amf-rg \
+  --query "[?name=='ScrapingSchedule' || name=='FeedTitlesUpdateSchedule' || name=='FeedNotificationSchedule'].{name:name, value:value}" \
+  --output table
+```
+
+**Notes:**
+- Feed titles update is lighter than full scraping (only hits SubsPlease schedule page)
+- Both still use Chrome container - avoid overlapping schedules too closely
+- App settings changes trigger automatic Function App restart (~30 seconds)
+- Schedule changes take effect immediately after restart
 
 ## Deployment Order
 
