@@ -22,7 +22,7 @@ internal static class Endpoints
             [FromForm] RegisterViewModel viewModel,
             ITableClientFactory tableClientFactory,
             IPasswordlessClient passwordlessClient,
-            ILogger<Register> logger,
+            ILogger<RegisterPage> logger,
             CancellationToken cancellationToken
         ) => UserRegistration.TryToRegister(
                 viewModel.DisplayName,
@@ -48,7 +48,7 @@ internal static class Endpoints
             [FromForm] AddCredentialsViewModel viewModel,
             ITableClientFactory tableClientFactory,
             IPasswordlessClient passwordlessClient,
-            ILogger<AddCredential> logger,
+            ILogger<AddCredentialPage> logger,
             CancellationToken cancellationToken
         ) => UserCredentialRegistration.TryAddCredential(
                 viewModel.Id,
