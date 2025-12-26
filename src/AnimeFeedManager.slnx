@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/Aspire/">
-    <Project Path="AnimeFeedmanager.AspireHost/AnimeFeedmanager.AspireHost.csproj" />
-    <Project Path="AnimeFeedmanager.ServiceDefaults/AnimeFeedmanager.ServiceDefaults.csproj" />
+    <Project Path="AnimeFeedManager.AspireHost/AnimeFeedManager.AspireHost.csproj" />
+    <Project Path="AnimeFeedManager.ServiceDefaults/AnimeFeedManager.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/Backend/">
     <Project Path="AnimeFeedManager.Features.Tests/AnimeFeedManager.Features.Tests.csproj" />
