@@ -18,7 +18,7 @@ var blobs = storage.AddBlobs("BlobConnection");
 var queues = storage.AddQueues("QueueConnection");
 var tables = storage.AddTables("TablesConnection");
 
-builder.AddNpmApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
+builder.AddJavaScriptApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 
 // Chrome container for web scraping (browserless)
 // Token for local development - production uses GitHub secret

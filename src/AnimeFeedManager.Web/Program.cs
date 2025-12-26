@@ -1,5 +1,5 @@
 using AnimeFeedManager.Features.Infrastructure;
-using AnimeFeedmanager.ServiceDefaults;
+using AnimeFeedManager.ServiceDefaults;
 using AnimeFeedManager.Services.Shared;
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
