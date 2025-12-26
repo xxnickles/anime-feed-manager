@@ -1,0 +1,44 @@
+@page "/status-code/{StatusCode:int}"
+@layout Layout.MainLayout
+
+<PageTitle>@PageTitle(GetPageTitle())</PageTitle>
+
+<div class="hero min-h-[60vh]">
+    <div class="hero-content text-center flex-col">
+        @if (StatusCode == 404)
+        {
+            <img src="images/404.svg" alt="Page not found" class="max-w-xs md:max-w-sm" />
+           
+            <div class="max-w-md">
+                <h1 class="text-5xl font-bold">Not Found</h1>
+                <p class="py-6">Sorry, the page you are looking for does not exist.</p>
+                <a href="/" class="btn btn-primary">Go Home</a>
+            </div>
+            <p class="text-xs opacity-50">
+                <a href="https://www.vecteezy.com/" target="_blank" rel="noopener noreferrer" class="link">
+                    Illustration by Vecteezy
+                </a>
+            </p>
+           
+        }
+        else
+        {
+            <div class="max-w-md">
+                <h1 class="text-5xl font-bold">@StatusCode</h1>
+                <p class="py-6">An error occurred while processing your request.</p>
+                <a href="/" class="btn btn-primary">Go Home</a>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int StatusCode { get; set; }
+
+    private string GetPageTitle() => StatusCode switch
+    {
+        404 => "Page Not Found",
+        _ => $"Error {StatusCode}"
+    };
+}

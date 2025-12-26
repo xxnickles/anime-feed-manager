@@ -55,7 +55,7 @@ public class OnLatestFeedTitlesUpdate
             );
     }
 
-    public Task<Result<ScrapTvLibraryResult>> RunProcess(CancellationToken token)
+    private Task<Result<ScrapTvLibraryResult>> RunProcess(CancellationToken token)
     {
         return FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeason, token)
             .GetFeedTitles(_seasonFeedDataProvider)

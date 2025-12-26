@@ -29,6 +29,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/status-code/{0}");
+
 // Custom middlewares to add HTMX feature to the request and control behavior of HX- related request
 app.UseHtmx();
 
