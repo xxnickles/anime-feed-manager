@@ -26,9 +26,9 @@ public sealed record ScrapTvLibraryResult(
         return JsonSerializer.Serialize(this, ScrapTvLibraryResultContext.Default.ScrapTvLibraryResult);
     }
 
-    public override (string Title, RenderFragment Content) AsNotificationComponent()
+    public override NotificationComponent AsNotificationComponent()
     {
-        return ($"TV library for {Season.Year}-{Season.Season} has been scrapped successfully",
+        return new NotificationComponent ($"TV library for {Season.Year}-{Season.Season} has been scrapped successfully",
             builder =>
             {
                 // First strong element

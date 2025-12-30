@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Results.Errors;
-
 namespace AnimeFeedManager.Features.Tests.Shared.Results.Extensions;
 
 public class BindExtensionsTests
@@ -10,7 +8,6 @@ public class BindExtensionsTests
         var result = Result<int>.Success(42)
             .Bind(x => Result<string>.Success(x.ToString()));
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(value => Assert.Equal("42", value));
     }
 
@@ -26,7 +23,7 @@ public class BindExtensionsTests
                 return Result<string>.Success(x.ToString());
             });
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
         Assert.False(binderCalled);
     }
 
@@ -42,7 +39,7 @@ public class BindExtensionsTests
                 return Result<int>.Success(x * 2);
             });
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
         Assert.False(secondBinderCalled);
     }
 
@@ -54,7 +51,6 @@ public class BindExtensionsTests
             .Bind(x => Result<int>.Success(x + 10))
             .Bind(x => Result<string>.Success(x.ToString()));
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(value => Assert.Equal("20", value));
     }
 
@@ -71,7 +67,6 @@ public class BindExtensionsTests
                 },
                 x => x > 5);
 
-        Assert.True(result.IsSuccess);
         Assert.True(binderCalled);
         result.AssertOnSuccess(value => Assert.Equal(20, value));
     }
@@ -89,7 +84,6 @@ public class BindExtensionsTests
                 },
                 x => x > 5);
 
-        Assert.True(result.IsSuccess);
         Assert.False(binderCalled);
         result.AssertOnSuccess(value => Assert.Equal(3, value));
     }
@@ -113,7 +107,7 @@ public class BindExtensionsTests
                     return true;
                 });
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
         Assert.False(binderCalled);
         Assert.False(predicateCalled);
     }
@@ -121,7 +115,7 @@ public class BindExtensionsTests
     [Fact]
     public void Should_Use_BindWhen_For_Conditional_Validation()
     {
-        var ValidatePositive = (int x) =>
+        var validatePositive = (int x) =>
             x > 0
                 ? Result<int>.Success(x)
                 : Result<int>.Failure(DomainValidationErrors.Create([
@@ -129,9 +123,8 @@ public class BindExtensionsTests
                 ]));
 
         var result = Result<int>.Success(10)
-            .BindWhen(ValidatePositive, x => x != 0);
+            .BindWhen(validatePositive, x => x != 0);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(value => Assert.Equal(10, value));
     }
 }

@@ -1,6 +1,7 @@
 ﻿global using AnimeFeedManager.Features.Tests.Helpers;
 global using AnimeFeedManager.Shared.Results;
-global using AnimeFeedManager.Shared.Results.Extensions;
+global using AnimeFeedManager.Shared.Results.Static;
+global using AnimeFeedManager.Shared.Results.Errors;
 global using AnimeFeedManager.Shared.Types;
 global using AutoFixture;
 global using AutoFixture.AutoFakeItEasy;

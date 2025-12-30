@@ -46,7 +46,6 @@ public class FeedTitlesScrapTests
         var result = await Task.FromResult(input)
             .UpdateSeries(getter, updater, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(d =>
         {
             var updated = d.FeedTitleUpdateInformation.Where(x => x.UpdateStatus == UpdateStatus.Updated).Select(x => x.Series.RowKey).OrderBy(x => x).ToArray();
@@ -95,7 +94,6 @@ public class FeedTitlesScrapTests
         var result = await Task.FromResult(input)
             .UpdateSeries(getter, updater, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         Assert.Empty(captured); // nothing to persist
         result.AssertOnSuccess(d => Assert.All(d.FeedTitleUpdateInformation, x => Assert.Equal(UpdateStatus.NoChanges, x.UpdateStatus)));
     }
@@ -127,9 +125,9 @@ public class FeedTitlesScrapTests
         var result = await Task.FromResult(Result<FeedTitleUpdateData>.Success(new FeedTitleUpdateData(season, feedTitles, [])))
             .UpdateSeries(getter, updater, CancellationToken.None)
             .SendEvents(postman, CancellationToken.None);
-
-        Assert.True(result.IsSuccess);
-
+        
+        result.AssertSuccess();
+        
         // Extract UpdatedToOngoing and SeriesFeedUpdated
         var updatedToOngoing = postman.Sent.OfType<UpdatedToOngoing>().Select(x => x.Series).ToArray();
         var feedUpdated = postman.Sent.OfType<SeriesFeedUpdated>().Select(x => x.SeriesId).ToArray();
@@ -145,7 +143,7 @@ public class FeedTitlesScrapTests
     {
         LatestSeasonGetter seasonGetter = _ => Task.FromResult<Result<SeasonStorageData>>(new NoMatch());
         var result = await FeedTitlesScrap.StartFeedUpdateProcess(seasonGetter, CancellationToken.None);
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     private static AnimeInfoStorage MakeSeries(string id, string? title, string? feedTitle, string status,

@@ -6,7 +6,6 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
-using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Features.Tests.Tv.Subscriptions.Feed;
 
@@ -41,7 +40,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(3, summary.UsersToNotify); });
 
         Assert.Equal(3, postman.SentNotifications.Count);
@@ -70,7 +68,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
 
         Assert.Single(postman.SentNotifications);
@@ -100,7 +97,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
 
         Assert.Single(postman.SentNotifications);
@@ -133,7 +129,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
 
         Assert.Single(postman.SentNotifications);
@@ -169,7 +164,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(0, summary.UsersToNotify); });
 
         Assert.Empty(postman.SentNotifications);
@@ -203,7 +197,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
 
         Assert.Single(postman.SentNotifications);
@@ -254,7 +247,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(2, summary.UsersToNotify); });
 
         Assert.Equal(2, postman.SentNotifications.Count);
@@ -291,7 +283,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(0, summary.UsersToNotify); });
 
         Assert.Empty(postman.SentNotifications);
@@ -315,7 +306,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(0, summary.UsersToNotify); });
     }
 
@@ -337,11 +327,7 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
-        result.Match(
-            _ => Assert.Fail("Expected failure but got success"),
-            error => Assert.IsType<HandledError>(error)
-        );
+        result.AssertOnError(domainError => Assert.IsType<HandledError>(domainError));
     }
 
     [Fact]
@@ -361,11 +347,7 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
-        result.Match(
-            _ => Assert.Fail("Expected failure but got success"),
-            error => Assert.Equal("Database error", error.Message)
-        );
+        result.AssertOnError(domainError => Assert.Equal("Database error", domainError.Message));
     }
 
     [Fact]
@@ -390,11 +372,7 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
-        result.Match(
-            _ => Assert.Fail("Expected failure but got success"),
-            error => Assert.IsType<MessagesNotDelivered>(error)
-        );
+        result.AssertOnError(domainError => Assert.IsType<MessagesNotDelivered>(domainError));
     }
 
     #endregion
@@ -435,7 +413,6 @@ public class FeedProcessTests
             CancellationToken.None);
         stopwatch.Stop();
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary =>
         {
             Assert.True(summary.UsersToNotify > 0);
@@ -472,7 +449,6 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary => { Assert.Equal(userCount, summary.UsersToNotify); });
 
         Assert.Equal(userCount, postman.SentNotifications.Count);

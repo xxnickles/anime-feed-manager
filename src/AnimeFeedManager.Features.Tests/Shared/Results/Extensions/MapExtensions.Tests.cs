@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Results.Errors;
-
 namespace AnimeFeedManager.Features.Tests.Shared.Results.Extensions;
 
 public class MapExtensionsTests
@@ -10,7 +8,6 @@ public class MapExtensionsTests
         var result = Result<int>.Success(42)
             .Map(x => x.ToString());
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(value => Assert.Equal("42", value));
     }
 
@@ -21,7 +18,7 @@ public class MapExtensionsTests
         var result = Result<int>.Failure(error)
             .Map(x => x.ToString());
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -32,7 +29,6 @@ public class MapExtensionsTests
             .Map(x => x + 10)
             .Map(x => x.ToString());
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(value => Assert.Equal("20", value));
     }
 
@@ -45,7 +41,7 @@ public class MapExtensionsTests
             .Map(x => x + 10)
             .Map(x => x.ToString());
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -55,7 +51,7 @@ public class MapExtensionsTests
         var result = Result<int>.Failure(originalError)
             .MapError(error => new OperationError("MapTest", "Mapped error"));
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -69,7 +65,6 @@ public class MapExtensionsTests
                 return error;
             });
 
-        Assert.True(result.IsSuccess);
         Assert.False(mapErrorCalled);
         result.AssertOnSuccess(value => Assert.Equal(42, value));
     }
@@ -81,6 +76,6 @@ public class MapExtensionsTests
         var result = Result<int>.Failure(originalError)
             .MapError(error => new OperationError("Wrap", $"Wrapped: {error.Message}"));
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 }

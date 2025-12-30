@@ -1,9 +1,9 @@
 using AnimeFeedManager.Shared.Results.Errors;
 using Microsoft.Extensions.Logging;
 
-namespace AnimeFeedManager.Shared.Results.Extensions;
+namespace AnimeFeedManager.Shared.Results.Static;
 
-public static class ResultExtensionMembers
+public static class ResultTaskExtensionMembers
 {
     /// <summary>
     /// Extension members for <see cref="Task{TResult}"/> of <see cref="Result{T}"/> - provides async operations for Result chaining

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-
-namespace AnimeFeedManager.Features.Tv.Library.Events;
+﻿namespace AnimeFeedManager.Features.Tv.Library.Events;
 
 public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType UpdateType = UpdateType.FullLibrary)
     : SystemNotificationPayload
@@ -10,9 +8,9 @@ public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType Update
         return JsonSerializer.Serialize(this, ScrapTvLibraryFailedResultContext.Default.ScrapTvLibraryFailedResult);
     }
 
-    public override (string Title, RenderFragment Content) AsNotificationComponent()
+    public override NotificationComponent AsNotificationComponent()
     {
-        return (
+        return new NotificationComponent(
             $"TV library for {Season} has been failed",
             builder =>
             {

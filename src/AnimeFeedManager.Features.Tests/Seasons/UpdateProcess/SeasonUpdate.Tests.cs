@@ -28,10 +28,9 @@ public class SeasonUpdateTests
             .StoreUpdatedSeason(seasonUpdater, token)
             .DemoteCurrentLatest(seasonUpdater, token);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(data =>
         {
-            Assert.IsType<NoUpdateRequired>(data.SeasonData);
+             Assert.IsType<NoUpdateRequired>(data.SeasonData);
         });
 
         A.CallTo(() => seasonUpdater(A<SeasonStorage>._, A<CancellationToken>._)).MustNotHaveHappened();
@@ -70,7 +69,6 @@ public class SeasonUpdateTests
             .AddLatestSeasonData(latestGetter, token)
             .StoreUpdatedSeason(seasonUpdater, token);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(data =>
         {
             var newData = Assert.IsType<NewSeason>(data.SeasonData);
@@ -110,7 +108,6 @@ public class SeasonUpdateTests
             .CreateNewSeason()
             .StoreUpdatedSeason(seasonUpdater, token);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(data => Assert.IsType<ExistentSeason>(data.SeasonData));
 
         A.CallTo(() => seasonUpdater(existingStorage, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
@@ -151,7 +148,6 @@ public class SeasonUpdateTests
             .StoreUpdatedSeason(seasonUpdater, token) // store new latest
             .DemoteCurrentLatest(seasonUpdater, token); // demote previous latest
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(data =>
         {
             Assert.IsType<NewSeason>(data.SeasonData);
@@ -187,7 +183,6 @@ public class SeasonUpdateTests
             .StoreUpdatedSeason(seasonUpdater, token)
             .DemoteCurrentLatest(seasonUpdater, token);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(data =>
         {
             Assert.IsType<NewSeason>(data.SeasonData);

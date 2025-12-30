@@ -1,5 +1,4 @@
 using AnimeFeedManager.Features.Infrastructure.Email;
-using AnimeFeedManager.Shared.Results.Extensions;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;

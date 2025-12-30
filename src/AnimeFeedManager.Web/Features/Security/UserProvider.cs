@@ -33,7 +33,7 @@ internal static class UserProvider
         return email.ParseAsEmail()
             .And(userId.ParseAsNonEmpty())
             .AsResult()
-            .MatchToValue<AppUser>(r => new RegularUser(
+            .MatchToValue<(Email, NoEmptyString),AppUser>(r => new RegularUser(
                     r.Item1,
                     r.Item2),
                 _ => new Anonymous());
@@ -44,7 +44,7 @@ internal static class UserProvider
         return email.ParseAsEmail()
             .And(userId.ParseAsNonEmpty())
             .AsResult()
-            .MatchToValue<AppUser>(r => new AdminUser(
+            .MatchToValue<(Email, NoEmptyString),AppUser>(r => new AdminUser(
                     r.Item1,
                     r.Item2),
                 _ => new Anonymous());

@@ -4,7 +4,6 @@ using AnimeFeedManager.Features.SystemEvents;
 using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
-using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Features.Tests.Tv.Subscriptions.Management;
 
@@ -46,7 +45,6 @@ public class AutoSubscriptionTests
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(process =>
         {
             Assert.Equal(seriesId, process.SeriesId);
@@ -73,7 +71,6 @@ public class AutoSubscriptionTests
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(process =>
         {
             Assert.Equal(seriesId, process.SeriesId);
@@ -94,7 +91,7 @@ public class AutoSubscriptionTests
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -122,7 +119,7 @@ public class AutoSubscriptionTests
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
+       result.AssertSuccess();
         A.CallTo(() => updater(
             A<IEnumerable<SubscriptionStorage>>.That.Matches(
                 subs => subs.Count() == 1 && subs.First().PartitionKey == "user-1"
@@ -156,7 +153,7 @@ public class AutoSubscriptionTests
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -169,7 +166,7 @@ public class AutoSubscriptionTests
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
         A.CallTo(() => updater(A<IEnumerable<SubscriptionStorage>>._, A<CancellationToken>._))
             .MustNotHaveHappened();
     }
@@ -192,7 +189,6 @@ public class AutoSubscriptionTests
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary =>
         {
             Assert.Equal(2, summary.Changes);
@@ -223,7 +219,6 @@ public class AutoSubscriptionTests
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary =>
         {
             Assert.Equal(0, summary.Changes);
@@ -243,7 +238,7 @@ public class AutoSubscriptionTests
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
 
         A.CallTo(() => domainPostman.SendMessage(
             A<SystemEvent>.That.Matches(e =>
@@ -269,7 +264,7 @@ public class AutoSubscriptionTests
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+       result.AssertError();
     }
 
     [Fact]
@@ -307,7 +302,6 @@ public class AutoSubscriptionTests
             .StoreChanges(updater, CancellationToken.None)
             .SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary =>
         {
             Assert.Equal(1, summary.Changes);
@@ -347,7 +341,7 @@ public class AutoSubscriptionTests
             .StoreChanges(updater, CancellationToken.None)
             .SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
         Assert.Single(capturedEvents);
         Assert.Equal(EventType.Error, capturedEvents[0].Type);
         return;
@@ -398,7 +392,6 @@ public class AutoSubscriptionTests
             .StoreChanges(Updater, CancellationToken.None)
             .SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(summary =>
         {
             Assert.Equal(3, summary.Changes);
