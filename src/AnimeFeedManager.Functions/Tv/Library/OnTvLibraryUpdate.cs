@@ -39,8 +39,8 @@ public class OnTvLibraryUpdate
             .Match(
                 results => _logger.LogInformation(
                     "(OnDemand) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
-                    results.Season.Year, 
-                    results.Season.Season, 
+                    results.Season.Year,
+                    results.Season.Season,
                     results.UpdatedSeries,
                     results.NewSeries),
                 e => e.LogError(_logger)
@@ -57,7 +57,7 @@ public class OnTvLibraryUpdate
                     "(Scheduled) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added. Next run will happen at {Time}",
                     results.Season.Year,
                     results.Season.Season,
-                    results.UpdatedSeries, 
+                    results.UpdatedSeries,
                     results.NewSeries,
                     myTimer.ScheduleStatus?.Next),
                 e => e.LogError(_logger)
@@ -79,6 +79,6 @@ public class OnTvLibraryUpdate
 
         return (season.Season, season.Year, false)
             .ParseAsSeriesSeason()
-            .Map<SeasonSelector>(parsedSeason => new BySeason(parsedSeason.Season, parsedSeason.Year));
+            .Map<SeriesSeason, SeasonSelector>(parsedSeason => new BySeason(parsedSeason.Season, parsedSeason.Year));
     }
 }

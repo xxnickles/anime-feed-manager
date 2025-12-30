@@ -64,7 +64,6 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
 
             var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);
 
-            Assert.True(result.IsSuccess);
             result.AssertOnSuccess(r =>
             {
                 var updatedSeries = r.SeriesData.First().Series;
@@ -118,7 +117,6 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
 
             var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);
 
-            Assert.True(result.IsSuccess);
             result.AssertOnSuccess(r =>
             {
                 var updatedSeries = r.SeriesData.First().Series;
@@ -178,7 +176,6 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
 
             var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);
 
-            Assert.True(result.IsSuccess);
             result.AssertOnSuccess(r =>
             {
                 var updatedSeries = r.SeriesData.First().Series;

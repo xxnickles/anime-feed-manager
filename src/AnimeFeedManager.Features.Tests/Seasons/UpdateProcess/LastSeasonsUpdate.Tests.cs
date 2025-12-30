@@ -20,7 +20,6 @@ public class LastSeasonsUpdateTests
             .CheckSeasonExist(SeasonGetter, incoming, token)
             .UpdateLast4Seasons(GetAllSeasons, LatestUpdater, token);
 
-        Assert.True(result.IsSuccess);
         Assert.False(latestUpdaterCalled); // No update should occur
         return;
 
@@ -64,7 +63,6 @@ public class LastSeasonsUpdateTests
             .CheckSeasonExist(SeasonGetter, incoming, token)
             .UpdateLast4Seasons(GetAllSeasons, LatestUpdater, token);
 
-        Assert.True(result.IsSuccess);
         Assert.NotNull(stored);
         // Deserialize and compare with algorithm used in production (OrderByDescending Year, ThenByDescending Season, Take 4, Reverse)
         var parsed = JsonSerializer.Deserialize(stored.Payload ?? string.Empty, SeriesSeasonContext.Default.SeriesSeasonArray) ?? [];

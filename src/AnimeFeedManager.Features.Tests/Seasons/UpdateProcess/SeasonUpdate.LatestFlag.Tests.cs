@@ -21,7 +21,7 @@ public class SeasonUpdateLatestFlagTests
             .AddLatestSeasonData(LatestGetter, token)
             .StoreUpdatedSeason(SeasonUpdater, token);
 
-        Assert.True(result.IsSuccess);
+        result.AssertSuccess();
         Assert.NotNull(stored);
         Assert.False(stored.Latest);
         Assert.Equal(incoming.Season.ToString(), stored.Season);
@@ -77,7 +77,7 @@ public class SeasonUpdateLatestFlagTests
             .StoreUpdatedSeason(seasonUpdater, token)
             .DemoteCurrentLatest(seasonUpdater, token);
 
-        Assert.True(result.IsSuccess);
+        result.AssertSuccess();
         Assert.Equal(2, calls.Count);
         var storedNewLatest = calls[0];
         var demoted = calls[1];
@@ -128,7 +128,7 @@ public class SeasonUpdateLatestFlagTests
             .StoreUpdatedSeason(seasonUpdater, token)
             .DemoteCurrentLatest(seasonUpdater, token);
 
-        Assert.True(result.IsSuccess);
+        result.AssertSuccess();
         Assert.Equal(0, calls); // No updates nor demotions should be performed
         // Ensure latestGetter and demotion not invoked
         A.CallTo(() => latestGetter(A<CancellationToken>._)).MustNotHaveHappened();
@@ -177,7 +177,7 @@ public class SeasonUpdateLatestFlagTests
             .StoreUpdatedSeason(seasonUpdater, token)
             .DemoteCurrentLatest(seasonUpdater, token);
 
-        Assert.True(result.IsSuccess);
+        result.AssertSuccess();
         Assert.Equal(2, calls.Count);
         var storedPromoted = calls[0];
         var demoted = calls[1];

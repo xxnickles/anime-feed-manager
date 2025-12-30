@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Results.Errors;
-
 namespace AnimeFeedManager.Features.Tests.Shared.Results.Extensions;
 
 public class CollectionExtensionsTests
@@ -16,7 +14,6 @@ public class CollectionExtensionsTests
 
         var flattened = results.Flatten();
 
-        Assert.True(flattened.IsSuccess);
         flattened.AssertOnSuccess(list =>
         {
             Assert.Equal(3, list.Count);
@@ -35,8 +32,7 @@ public class CollectionExtensionsTests
         };
 
         var flattened = results.Flatten();
-
-        Assert.False(flattened.IsSuccess);
+        flattened.AssertError();
     }
 
     [Fact]
@@ -50,8 +46,7 @@ public class CollectionExtensionsTests
         };
 
         var flattened = results.Flatten();
-
-        Assert.False(flattened.IsSuccess);
+        flattened.AssertError();
     }
 
     [Fact]
@@ -61,7 +56,6 @@ public class CollectionExtensionsTests
 
         var flattened = results.Flatten();
 
-        Assert.True(flattened.IsSuccess);
         flattened.AssertOnSuccess(list => Assert.Empty(list));
     }
 
@@ -133,7 +127,6 @@ public class CollectionExtensionsTests
             .Select(r => r.Map(x => x * 2))
             .Flatten();
 
-        Assert.True(results.IsSuccess);
         results.AssertOnSuccess(list => Assert.Equal([2, 4, 6, 8, 10], list));
     }
 

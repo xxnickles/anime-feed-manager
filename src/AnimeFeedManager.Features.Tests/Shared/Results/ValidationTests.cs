@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Results.Errors;
-
 namespace AnimeFeedManager.Features.Tests.Shared.Results;
 
 public class ValidationTests
@@ -10,7 +8,7 @@ public class ValidationTests
         var validation = Validation<int>.Valid(42);
         var result = validation.AsResult();
 
-        Assert.True(result.IsSuccess);
+        result.AssertSuccess();
     }
 
     [Fact]
@@ -22,7 +20,7 @@ public class ValidationTests
         var validation = Validation<int>.Invalid(error);
         var result = validation.AsResult();
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -32,7 +30,6 @@ public class ValidationTests
             .Map(x => x.ToString());
 
         var result = validation.AsResult();
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(value => Assert.Equal("42", value));
     }
 
@@ -46,7 +43,7 @@ public class ValidationTests
             .Map(x => x.ToString());
 
         var result = validation.AsResult();
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -55,7 +52,6 @@ public class ValidationTests
         var validation = Validation<int>.Valid(42);
         var result = validation.AsResult();
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(value => Assert.Equal(42, value));
     }
 
@@ -64,7 +60,6 @@ public class ValidationTests
     {
         Result<int> result = Validation<int>.Valid(42);
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(value => Assert.Equal(42, value));
     }
 
@@ -77,7 +72,6 @@ public class ValidationTests
         var combined = validation1.And(validation2);
         var result = combined.AsResult();
 
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(tuple =>
         {
             Assert.Equal(10, tuple.Item1);
@@ -101,7 +95,7 @@ public class ValidationTests
         var combined = validation1.And(validation2);
         var result = combined.AsResult();
 
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -116,8 +110,7 @@ public class ValidationTests
 
         var combined = validation1.And(validation2);
         var result = combined.AsResult();
-
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -132,8 +125,7 @@ public class ValidationTests
 
         var combined = validation1.And(validation2);
         var result = combined.AsResult();
-
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -148,7 +140,6 @@ public class ValidationTests
             .And(validation3);
 
         var result = combined.AsResult();
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(tuple =>
         {
             Assert.Equal(10, tuple.Item1);
@@ -171,7 +162,6 @@ public class ValidationTests
             .And(validation4);
 
         var result = combined.AsResult();
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(tuple =>
         {
             Assert.Equal(1, tuple.Item1);
@@ -200,7 +190,6 @@ public class ValidationTests
             .And(validations[4]);
 
         var result = combined.AsResult();
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(tuple =>
         {
             Assert.Equal(1, tuple.Item1);
@@ -232,7 +221,6 @@ public class ValidationTests
             .And(validations[5]);
 
         var result = combined.AsResult();
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(tuple =>
         {
             Assert.Equal(1, tuple.Item1);
@@ -267,7 +255,6 @@ public class ValidationTests
             .And(validations[6]);
 
         var result = combined.AsResult();
-        Assert.True(result.IsSuccess);
         result.AssertOnSuccess(tuple =>
         {
             Assert.Equal(1, tuple.Item1);
@@ -298,31 +285,30 @@ public class ValidationTests
             .And(Validation<int>.Invalid(error3));
 
         var result = combined.AsResult();
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
     public void Should_Use_Validation_For_Form_Data_Validation()
     {
-        var ValidateName = (string name) =>
+        var validateName = (string name) =>
             string.IsNullOrWhiteSpace(name)
                 ? Validation<string>.Invalid(DomainValidationErrors.Create([
                     DomainValidationError.Create("name", "Name is required")
                 ]))
                 : Validation<string>.Valid(name);
 
-        var ValidateAge = (int age) =>
+        var validateAge = (int age) =>
             age < 0 || age > 150
                 ? Validation<int>.Invalid(DomainValidationErrors.Create([
                     DomainValidationError.Create("age", "Age must be between 0 and 150")
                 ]))
                 : Validation<int>.Valid(age);
 
-        var validResult = ValidateName("John")
-            .And(ValidateAge(30))
+        var validResult = validateName("John")
+            .And(validateAge(30))
             .AsResult();
 
-        Assert.True(validResult.IsSuccess);
         validResult.AssertOnSuccess(tuple =>
         {
             Assert.Equal("John", tuple.Item1);
@@ -333,24 +319,24 @@ public class ValidationTests
     [Fact]
     public void Should_Collect_All_Validation_Errors_In_Form()
     {
-        var ValidateName = (string name) =>
+        var validateName = (string name) =>
             string.IsNullOrWhiteSpace(name)
                 ? Validation<string>.Invalid(DomainValidationErrors.Create([
                     DomainValidationError.Create("name", "Name is required")
                 ]))
                 : Validation<string>.Valid(name);
 
-        var ValidateAge = (int age) =>
+        var validateAge = (int age) =>
             age < 0 || age > 150
                 ? Validation<int>.Invalid(DomainValidationErrors.Create([
                     DomainValidationError.Create("age", "Age must be between 0 and 150")
                 ]))
                 : Validation<int>.Valid(age);
 
-        var invalidResult = ValidateName("")
-            .And(ValidateAge(-5))
+        var invalidResult = validateName("")
+            .And(validateAge(-5))
             .AsResult();
 
-        Assert.False(invalidResult.IsSuccess);
+        invalidResult.AssertError();
     }
 }

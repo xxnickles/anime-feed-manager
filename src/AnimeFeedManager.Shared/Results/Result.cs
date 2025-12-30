@@ -5,81 +5,20 @@ public readonly record struct Unit;
 // ReSharper disable NullableWarningSuppressionIsUsed
 public sealed record Result<T>
 {
-    private readonly T? _resultValue;
-    private readonly DomainError? _errorValueValue;
+    internal T? ResultValue { get; }
+    internal  DomainError? ErrorValue { get; }
+    internal bool IsSuccess { get; }
 
-    private Result(bool isSuccess, T? resultValue, DomainError? errorValueValue) =>
-        (IsSuccess, _resultValue, _errorValueValue) = (isSuccess, resultValue, errorValueValue);
-
-
-    public bool IsSuccess { get; }
+    internal Result(bool isSuccess, T? resultValue, DomainError? errorValueValue) =>
+        (IsSuccess, ResultValue, ErrorValue) = (isSuccess, resultValue, errorValueValue);
 
     public static implicit operator Result<T>(T value) => Success(value);
 
     public static implicit operator Result<T>(DomainError error) => Failure(error);
-    
-
 
     public static Result<Unit> Success() => new Unit();
+    
     public static Result<T> Success(T value) => new (true, value, null);
+    
     public static Result<T> Failure(DomainError error) => new (false, default, error);
-    
-
-  
-    
-    public void Match(Action<T> onOk, Action<DomainError> onError)
-    {
-        if (IsSuccess)
-            onOk(_resultValue!);
-        else
-            onError(_errorValueValue!);
-    }
-
-    public async Task Match(Func<T, Task> onOk, Func<DomainError, Task> onError)
-    {
-        if (IsSuccess)
-            await onOk(_resultValue!);
-        else
-            await onError(_errorValueValue!);
-    }
- 
-    
-    public Result<TTarget> Map<TTarget>(Func<T, TTarget> mapper) =>
-        IsSuccess
-            ? new Result<TTarget>(true, mapper(_resultValue!), null)
-            : new Result<TTarget>(false, default, _errorValueValue);
-
-    public async Task<Result<TTarget>> Map<TTarget>(Func<T, Task<TTarget>> mapper) =>
-        IsSuccess
-            ? new Result<TTarget>(true, await mapper(_resultValue!), null)
-            : new Result<TTarget>(false, default, _errorValueValue);
-
-    public TTarget MatchToValue<TTarget>(Func<T, TTarget> onOk, Func<DomainError, TTarget> onError) =>
-        IsSuccess
-            ? onOk(_resultValue!)
-            : onError(_errorValueValue!);
-
-    public Result<T> MapError(Func<DomainError, DomainError> mapper) =>
-        IsSuccess
-            ? new Result<T>(true, _resultValue, null)
-            : new Result<T>(false, default, mapper(_errorValueValue!));
-
-    public async Task<Result<T>> MapError(Func<DomainError, Task<DomainError>> mapper) =>
-        IsSuccess
-            ? new Result<T>(true, _resultValue, null)
-            : new Result<T>(false, default, await mapper(_errorValueValue!));
-
-
-    public Result<TTarget> Bind<TTarget>(Func<T, Result<TTarget>> binder) =>
-        IsSuccess ? binder(_resultValue!) : new Result<TTarget>(false, default, _errorValueValue);
-
-    public async Task<Result<TTarget>> Bind<TTarget>(Func<T, Task<Result<TTarget>>> binder) =>
-        IsSuccess ? await binder(_resultValue!) : new Result<TTarget>(false, default, _errorValueValue);
-
-    public Result<T> Apply(Action<T> func)
-    {
-        if (IsSuccess)
-            func(_resultValue!);
-        return this;
-    }
 }

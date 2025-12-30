@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-
-namespace AnimeFeedManager.Features.Seasons.Events;
+﻿namespace AnimeFeedManager.Features.Seasons.Events;
 
 public enum SeasonUpdateStatus
 {
@@ -19,9 +17,9 @@ public sealed record SeasonUpdateResult(SeriesSeason Season, SeasonUpdateStatus 
        return JsonSerializer.Serialize(this, SeasonUpdatedResultContext.Default.SeasonUpdateResult);
     }
 
-    public override (string Title, RenderFragment Content) AsNotificationComponent()
+    public override NotificationComponent AsNotificationComponent()
     {
-        return (GetNotificationTitle(),
+        return new NotificationComponent(GetNotificationTitle(),
             builder =>
             {
                 // First strong element

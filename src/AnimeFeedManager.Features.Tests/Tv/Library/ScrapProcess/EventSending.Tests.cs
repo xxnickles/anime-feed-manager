@@ -41,7 +41,7 @@ public class EventSendingTests
         var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(data))
             .SendEvents(postman, new SeasonParameters(season.Season.ToString(), (ushort) season.Year), CancellationToken.None);
 
-        Assert.True(result.IsSuccess);
+       result.AssertSuccess();
 
         // Gather messages sent
         var messages = postman.Sent;
@@ -84,7 +84,7 @@ public class EventSendingTests
         var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(data))
             .SendEvents(postman, parameters, CancellationToken.None);
 
-        Assert.False(result.IsSuccess);
+      result.AssertError();
         // When SendMessages fails, SendEvents should try to send a SystemEvent of type Error
         Assert.Contains(postman.Sent, m => m is SystemEvent {Type: EventType.Error});
     }

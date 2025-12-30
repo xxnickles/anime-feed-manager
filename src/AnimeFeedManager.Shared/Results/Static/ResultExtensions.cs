@@ -1,9 +1,9 @@
-namespace AnimeFeedManager.Shared.Results.Extensions;
+namespace AnimeFeedManager.Shared.Results.Static;
 
 /// <summary>
 /// Provides helper extension methods for constructing <see cref="Result{T}"/> instances, including both successful and failed results.
 /// </summary>
-public static class ResultConstructors
+public static class ResultExtensions
 {
     extension<T>(DomainError error)
     {

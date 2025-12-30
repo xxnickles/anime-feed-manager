@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Results.Errors;
-
 namespace AnimeFeedManager.Features.Tests.Shared.Results.Extensions;
 
 public class TapExtensionsTests
@@ -16,7 +14,7 @@ public class TapExtensionsTests
             });
 
         Assert.True(executed);
-        Assert.True(result.IsSuccess);
+        result.AssertSuccess();
     }
 
     [Fact]
@@ -28,7 +26,7 @@ public class TapExtensionsTests
             .Tap(x => executed = true);
 
         Assert.False(executed);
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -52,7 +50,7 @@ public class TapExtensionsTests
             });
 
         Assert.True(executed);
-        Assert.True(result.IsSuccess);
+        result.AssertSuccess();
     }
 
     [Fact]
@@ -64,7 +62,7 @@ public class TapExtensionsTests
             .Tap(x => executed = true);
 
         Assert.False(executed);
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -80,7 +78,7 @@ public class TapExtensionsTests
             });
 
         Assert.True(executed);
-        Assert.True(result.IsSuccess);
+        result.AssertSuccess();
     }
 
     [Fact]
@@ -96,7 +94,7 @@ public class TapExtensionsTests
             });
 
         Assert.False(executed);
-        Assert.False(result.IsSuccess);
+        result.AssertError();
     }
 
     [Fact]
@@ -110,7 +108,6 @@ public class TapExtensionsTests
             .Map(x => x + 10)
             .Tap(x => log.Add(x));
 
-        Assert.True(result.IsSuccess);
         Assert.Equal([10, 20], log);
         result.AssertOnSuccess(value => Assert.Equal(20, value));
     }
@@ -130,7 +127,6 @@ public class TapExtensionsTests
                 log.Add(x);
             });
 
-        Assert.True(result.IsSuccess);
         Assert.Equal([10, 20], log);
         result.AssertOnSuccess(value => Assert.Equal(20, value));
     }
