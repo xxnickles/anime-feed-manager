@@ -1,15 +1,12 @@
 namespace AnimeFeedManager.Features.Infrastructure.Messaging;
 
-internal sealed record MessagesNotDelivered(string Reason, IEnumerable<DomainMessage> Messages,
-    [CallerMemberName] string CallerMemberName = "",
-    [CallerFilePath] string CallerFilePath = "",
-    [CallerLineNumber] int CallerLineNumber = 0) : DomainError(Reason, CallerMemberName, CallerFilePath, CallerLineNumber)
+internal sealed record MessagesNotDelivered(string Reason, IEnumerable<DomainMessage> Messages) : DomainError(Reason)
 {
-    protected override void LoggingBehavior(ILogger logger)
+    public override Action<ILogger> LogAction() => logger =>
     {
         logger.LogError("Domain messages could not be delivered because of {Reason}. Messages missed (Types): {Types}",
             Reason, string.Join(", ", Messages.Select(m => m.GetType().Name)));
-    }
+    };
     
     public static MessagesNotDelivered Create(string reason, IEnumerable<DomainMessage> messages) => new(reason, messages);
     public static MessagesNotDelivered Create(string reason, DomainMessage message) => new(reason, [message]);

@@ -24,10 +24,11 @@ public static class UserStore
                 Email = email,
                 Role = role.ToString()
             }, cancellationToken: cancellationToken))
-            .WithDefaultMap()
-            .MapError(error => error
-                .WithLogProperty("UserId", userId)
-                .WithLogProperty("Role", role)
-                .WithOperationName(nameof(UpsertUser)));
+            .WithOperationName(nameof(UpsertUser))
+            .WithLogProperties([
+                new KeyValuePair<string, object>(nameof(userId), userId),
+                new KeyValuePair<string, object>(nameof(role), role)
+            ])
+            .WithDefaultMap();
     }
 }

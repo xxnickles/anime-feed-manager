@@ -5,14 +5,9 @@ namespace AnimeFeedManager.Shared.Results.Errors;
 /// <summary>
 /// Passthrough error that doesn't log anything
 /// </summary>
-public sealed record HandledError(
-    [CallerMemberName] string CallerMemberName = "",
-    [CallerFilePath] string CallerFilePath = "",
-    [CallerLineNumber] int CallerLineNumber = 0)
-    : DomainError(string.Empty, CallerMemberName, CallerFilePath, CallerLineNumber)
+public sealed record HandledError()
+    : DomainError(string.Empty)
 {
-    protected override void LoggingBehavior(ILogger logger)
-    {
-        // Does nothing
-    }
+    // Does nothing
+    public override Action<ILogger> LogAction() => _ => { };
 }

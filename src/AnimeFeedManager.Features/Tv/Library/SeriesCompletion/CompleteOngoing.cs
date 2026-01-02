@@ -21,11 +21,11 @@ public static class CompleteOngoing
         CancellationToken token)
     {
         return seriesGetter(token)
+            .WithOperationName(nameof(StartProcess))
             .Map(ongoingSeries => ongoingSeries
                 .Where(s => !updatedFeed.Contains(s.FeedTitle))
                 .Select(Complete))
-            .Map(series => new CompleteOnGoingTvSeriesProcess(series.ToImmutableList()))
-            .MapError(error => error.WithOperationName(nameof(StartProcess)));
+            .Map(series => new CompleteOnGoingTvSeriesProcess(series.ToImmutableList()));
     }
 
     extension(Task<Result<CompleteOnGoingTvSeriesProcess>> process)
@@ -34,9 +34,9 @@ public static class CompleteOngoing
             CancellationToken token)
         {
             return process.Bind(p => updater(p.SeriesToComplete, token)
+                .WithOperationName(nameof(StoreChanges))
+                .WithLogProperty("Series", p.SeriesToComplete)
                 .Map(_ => p)
-                .MapError(e => e.WithOperationName(nameof(StoreChanges))
-                    .WithLogProperty("Series", p.SeriesToComplete))
             );
         }
 

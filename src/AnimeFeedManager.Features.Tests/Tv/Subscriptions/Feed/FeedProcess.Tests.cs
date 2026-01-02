@@ -347,7 +347,7 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        result.AssertOnError(domainError => Assert.Equal("Database error", domainError.Message));
+        result.AssertOnError(domainError => Assert.Equal("Database error", domainError.ErrorMessage));
     }
 
     [Fact]

@@ -9,22 +9,20 @@ public static class FeedTitlesScrap
 {
     public static Task<Result<FeedTitleUpdateData>> StartFeedUpdateProcess(LatestSeasonGetter seasonGetter,
         CancellationToken token) =>
-        seasonGetter(token).Bind(season =>
-        {
-            return season switch
+        seasonGetter(token)
+            .WithOperationName(nameof(StartFeedUpdateProcess))
+            .Bind(season =>
             {
-                CurrentLatestSeason latest => (latest.Season.Season ?? string.Empty, latest.Season.Year,
-                        latest.Season.Latest)
-                    .ParseAsSeriesSeason()
-                    .Map(latestSeason => new FeedTitleUpdateData(latestSeason, [], [])),
-                NoMatch => new OperationError(
-                    $"{nameof(StartFeedUpdateProcess)}",
-                    "There is no latest season data in storage."),
-                _ => new OperationError(
-                    $"{nameof(StartFeedUpdateProcess)}-{nameof(seasonGetter)}",
-                    $"Season is not latest. Received {season.GetType().Name}")
-            };
-        });
+                return season switch
+                {
+                    CurrentLatestSeason latest => (latest.Season.Season ?? string.Empty, latest.Season.Year,
+                            latest.Season.Latest)
+                        .ParseAsSeriesSeason()
+                        .Map(latestSeason => new FeedTitleUpdateData(latestSeason, [], [])),
+                    NoMatch => Error.Create("There is no latest season data in storage."),
+                    _ => Error.Create($"Season is not latest. Received {season.GetType().Name}")
+                };
+            });
 
 
     public static Task<Result<FeedTitleUpdateData>> GetFeedTitles(this Task<Result<FeedTitleUpdateData>> data,
@@ -56,9 +54,9 @@ public static class FeedTitlesScrap
     private static FeedTitleUpdateInformation Transform(AnimeInfoStorage entity, ImmutableList<FeedData> feedTitles)
     {
         // Pass on series that already are ongoing
-        if(entity.Status == SeriesStatus.Ongoing())
+        if (entity.Status == SeriesStatus.Ongoing())
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
-        
+
         var alternativeTitles = entity.AlternativeTitles?.StringToAppArray() ?? [];
         var feedMatch = feedTitles.TryGetFeedMatch(entity.Title ?? string.Empty);
 

@@ -18,8 +18,8 @@ public static class UserRegistration
         return VerifyData(userGetter, displayName, email, cancellationToken)
             .CreateUser(passwordlessClient, updater, cancellationToken);
     }
-   
-    
+
+
     private static Task<Result<RegistrationProcessData>> VerifyData(
         ExistentUserGetterByEmail userGetter,
         string displayName,
@@ -42,7 +42,9 @@ public static class UserRegistration
         UserUpdater updater,
         CancellationToken cancellationToken)
     {
-        return data.Bind(d => TryToCreate(d, passwordlessClient, updater, cancellationToken)
+        return data
+            .WithOperationName(nameof(CreateUser))
+            .Bind(d => TryToCreate(d, passwordlessClient, updater, cancellationToken)
             .Map(token => new UserRegistrationResult(d.Registration.Email, d.Registration.UserId, token)));
     }
 
@@ -55,8 +57,9 @@ public static class UserRegistration
     {
         return data.StorageUser switch
         {
-            ValidUser user => Task.FromResult<Result<RegisterTokenResponse>>(
-                new OperationError(nameof(CreateUser), $"Email '{user.Email}' already exist in the system")),
+            ValidUser user => Task
+                .FromResult<Result<RegisterTokenResponse>>(
+                    Error.Create($"Email '{user.Email}' already exist in the system")),
             _ => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
                 .Bind(token =>
                     updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)

@@ -60,15 +60,8 @@ internal static class Notifications
                     builder.AddContent(1, "An internal server error occurred. Please try again later.");
                     break;
 
-                case OperationError op:
-                    builder.OpenElement(1, "strong");
-                    builder.AddContent(2, $"Operation '{op.Operation}' failed");
-                    builder.CloseElement();
-                    builder.AddContent(3, $": {op.Message}");
-                    break;
-
                 case Error basic:
-                    builder.AddContent(1, basic.Message);
+                    builder.AddContent(1, basic.ErrorMessage);
                     break;
 
                 case FormDataValidationError:

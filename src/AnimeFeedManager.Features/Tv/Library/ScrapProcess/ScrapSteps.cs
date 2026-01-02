@@ -9,7 +9,7 @@ internal static class ScrapSteps
 {
     public static Task<Result<ScrapTvLibraryData>> ScrapSeries(
         this Task<Result<ImmutableList<FeedData>>> feedTitles,
-        SeasonSelector season, 
+        SeasonSelector season,
         PuppeteerOptions puppeteerOptions) =>
         feedTitles.Bind(titles => GetInitialProcessData(titles, season, puppeteerOptions));
 
@@ -32,13 +32,15 @@ internal static class ScrapSteps
 
             return (jsonSeason.Season, jsonSeason.Year, season is Latest)
                 .ParseAsSeriesSeason()
+                .WithOperationName(nameof(GetInitialProcessData))
+                .AddLogOnSuccess((seriesSeason => logger =>
+                    logger.LogInformation("{Count} series has been scrapped for season {Season}", series.Count(),
+                        seriesSeason)))
+                .WithLogProperty("Season", season)
                 .Map(seriesSeason => new ScrapTvLibraryData(
                     series.Select(Transform),
                     feedData,
-                    seriesSeason))
-                .MapError(error => error
-                    .WithLogProperty("Season", season)
-                    .WithOperationName(nameof(GetInitialProcessData)));
+                    seriesSeason));
 
             // To keep it simple, we are using the season information coming from the scrapping instead of the parsed one
             // But at this point we are sure Season is valid as we have parsed the data scrapped 
@@ -91,7 +93,7 @@ internal static class ScrapSteps
     {
         var currentInfo = existentSeries.FirstOrDefault(s => s.Title == storageSeries.Series.Title);
         var feedDataInProcess = feedData.TryGetFeedMatch(storageSeries.Series.Title ?? string.Empty);
-        
+
         var baseSeries = storageSeries.Series;
         // Series already exist
         if (currentInfo is not null)
@@ -103,7 +105,7 @@ internal static class ScrapSteps
                 feedDataInProcess,
                 isOldSeason);
         }
-        
+
         // New series, there is a matching feed
         if (feedDataInProcess is not null)
         {
@@ -158,7 +160,7 @@ internal static class ScrapSteps
         if (currentInfo is not TvSeriesInfoWithImage withImage)
             return storageSeries with
             {
-                Series = baseSeries, 
+                Series = baseSeries,
                 Status = needToUpdateFeedTitle || baseSeries.Status != currentInfo.Status
                     ? Status.UpdatedSeries
                     : Status.NoChanges

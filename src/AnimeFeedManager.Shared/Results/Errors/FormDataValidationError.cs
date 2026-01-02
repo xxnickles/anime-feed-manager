@@ -4,21 +4,17 @@ using Microsoft.Extensions.Logging;
 namespace AnimeFeedManager.Shared.Results.Errors;
 
 public abstract record FormDataValidationError(
-    ICollection<ValidationResult> ValidationResults,
-    string CallerMemberName,
-    string CallerFilePath,
-    int CallerLineNumber) : DomainError("Form validation issues has been found", CallerMemberName, CallerFilePath,
-    CallerLineNumber)
+    ICollection<ValidationResult> ValidationResults) : DomainError("Form validation issues has been found")
 {
     protected abstract string GetTypeName();
 
-    protected override void LoggingBehavior(ILogger logger)
+    public override Action<ILogger> LogAction() => logger =>
     {
         var validationErrors = ValidationResults
             .Where(vr => !string.IsNullOrEmpty(vr.ErrorMessage))
             .Select(vr => new
             {
-                ErrorMessage = vr.ErrorMessage,
+                vr.ErrorMessage,
                 MemberNames = vr.MemberNames?.ToArray() ?? Array.Empty<string>(),
                 MemberNamesText = string.Join(", ", vr.MemberNames ?? Enumerable.Empty<string>())
             })
@@ -47,15 +43,13 @@ public abstract record FormDataValidationError(
                 error.ErrorMessage,
                 error.MemberNamesText);
         }
-    }
+    };
+
 }
 
 public sealed record FormDataValidationError<T>(
-    ICollection<ValidationResult> ValidationResults,
-    [CallerMemberName] string CallerMemberName = "",
-    [CallerFilePath] string CallerFilePath = "",
-    [CallerLineNumber] int CallerLineNumber = 0)
-    : FormDataValidationError(ValidationResults, CallerMemberName, CallerFilePath, CallerLineNumber)
+    ICollection<ValidationResult> ValidationResults)
+    : FormDataValidationError(ValidationResults)
 {
     protected override string GetTypeName() => typeof(T).Name;
 }

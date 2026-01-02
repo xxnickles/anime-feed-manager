@@ -51,6 +51,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         await TableClientFactory.TableStorageAllSeasonsGetter(CancellationToken.None)
+            .WriteLogs(Logger)
             .Match(
                 seasons => { 
                     _seasons = seasons
@@ -63,8 +64,7 @@ else
                         .ToArray();
                     _errorFetching = false;
                 },
-                error => { 
-                    error.LogError(Logger);
+                _ => { 
                     _errorFetching = true;
                 });
     }

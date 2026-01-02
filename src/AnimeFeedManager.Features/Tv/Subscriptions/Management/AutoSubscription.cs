@@ -14,11 +14,10 @@ public static class AutoSubscription
         CancellationToken token)
     {
         return StartProcess(seriesId, feedTitle, clientFactory.TableStorageTvInterestedBySeries, token)
+            .WithOperationName(nameof(TryToSubscribe))
+            .WithLogProperty("SeriesId", seriesId)
             .StoreChanges(clientFactory.TableStorageTvSubscriptionsUpdater, token)
-            .SendEvents(seriesId, domainPostman, token)
-            .MapError(error => error
-                .WithOperationName(nameof(TryToSubscribe))
-                .WithLogProperty("SeriesId", seriesId));
+            .SendEvents(seriesId, domainPostman, token);
     }
 
 

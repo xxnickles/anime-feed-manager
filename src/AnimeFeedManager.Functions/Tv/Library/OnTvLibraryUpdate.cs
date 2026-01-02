@@ -36,15 +36,14 @@ public class OnTvLibraryUpdate
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnTvLibraryUpdate));
         await RunScraper(message.SeasonParameters, token)
-            .Match(
-                results => _logger.LogInformation(
-                    "(OnDemand) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
-                    results.Season.Year,
-                    results.Season.Season,
-                    results.UpdatedSeries,
-                    results.NewSeries),
-                e => e.LogError(_logger)
-            );
+            .AddLogOnSuccess(results => logger => logger.LogInformation(
+                "(OnDemand) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
+                results.Season.Year,
+                results.Season.Season,
+                results.UpdatedSeries,
+                results.NewSeries))
+            .WriteLogs(_logger)
+            .Done();
     }
 
     [Function("ScheduledTvLibraryUpdate")]
@@ -52,16 +51,15 @@ public class OnTvLibraryUpdate
         CancellationToken token)
     {
         await RunScraper(null, token)
-            .Match(
-                results => _logger.LogInformation(
-                    "(Scheduled) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added. Next run will happen at {Time}",
-                    results.Season.Year,
-                    results.Season.Season,
-                    results.UpdatedSeries,
-                    results.NewSeries,
-                    myTimer.ScheduleStatus?.Next),
-                e => e.LogError(_logger)
-            );
+            .AddLogOnSuccess(results => logger => logger.LogInformation(
+                "(Scheduled) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added. Next run will happen at {Time}",
+                results.Season.Year,
+                results.Season.Season,
+                results.UpdatedSeries,
+                results.NewSeries,
+                myTimer.ScheduleStatus?.Next))
+            .WriteLogs(_logger)
+            .Done();
     }
 
     private Task<Result<ScrapTvLibraryResult>> RunScraper(

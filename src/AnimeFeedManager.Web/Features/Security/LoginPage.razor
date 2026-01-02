@@ -232,6 +232,7 @@
             .AsResult()
             .Bind(id => Users.GetById(TableClientFactory.TableStorageExistentUserGetterById(), id, CancellationToken.None))
             .Bind(TryToCreatePrincipal)
+            .WriteLogs(Logger)
             .Match(CompleteLogin, ShowError);
     }
 
@@ -243,11 +244,10 @@
 
     private Task ShowError(DomainError error)
     {
-        error.LogError(Logger);
         ServerError = true;
         _errorText = error switch
         {
-            Error e => e.Message,
+            Error e => e.ErrorMessage,
             DomainValidationErrors e => e.ToString(),
             _ => "An error has occurred. Please try again."
         };

@@ -40,12 +40,9 @@ public class OnSystemEvent
                 return NotificationFactory.GenerateNotificationContent(result.Event,
                         EventPayloadDeserializer.Deserialize, _blazorRenderer)
                     .Map<string, SignalRMessageAction?>(CreateSignalRMessage);
-            }).MatchToValue(r => r,
-                error =>
-                {
-                    error.LogError(_logger);
-                    return null;
-                });
+            })
+            .WriteLogs(_logger)
+            .MatchToValue(r => r, _ => null);
     }
 
     private static SignalRMessageAction CreateSignalRMessage(string content) =>

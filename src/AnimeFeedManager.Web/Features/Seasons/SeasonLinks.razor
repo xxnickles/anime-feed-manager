@@ -83,7 +83,7 @@
     {
         await SeasonQueries
             .GetLast4Seasons(TableClientFactory.TableStorageLatest4SeasonsGetter(Logger), CancellationToken.None)
-            .LogErrors(Logger)
+            .WriteLogs(Logger)
             .Match(seasons => { _seasons = seasons; },
                 _ => { _seasons = []; });
     }

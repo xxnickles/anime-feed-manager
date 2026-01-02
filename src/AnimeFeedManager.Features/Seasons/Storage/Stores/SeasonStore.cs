@@ -32,21 +32,20 @@ public static class SeasonStore
         {
             return tableClient
                 .TryExecute<SeasonStorage>(client => client.UpsertEntityAsync(seasonStorage, cancellationToken: token))
-                .WithDefaultMap()
-                .MapError(error => error
-                    .WithLogProperty(nameof(SeasonStorage), seasonStorage)
-                    .WithOperationName(nameof(UpsertSeason)));
+                .WithOperationName(nameof(UpsertSeason))
+                .WithLogProperty("Season", seasonStorage)
+                .WithDefaultMap();
         }
 
-        private Task<Result<Unit>> UpsertLatestSeasons(LatestSeasonsStorage latestSeasonsStorage, CancellationToken token = default)
+        private Task<Result<Unit>> UpsertLatestSeasons(LatestSeasonsStorage latestSeasonsStorage,
+            CancellationToken token = default)
         {
             return tableClient
                 .TryExecute<LatestSeasonsStorage>(client =>
                     client.UpsertEntityAsync(latestSeasonsStorage, cancellationToken: token))
-                .WithDefaultMap()
-                .MapError(error => error
-                    .WithLogProperty(nameof(LatestSeasonsStorage), latestSeasonsStorage)
-                    .WithOperationName(nameof(UpsertLatestSeasons)));
+                .WithOperationName(nameof(LatestSeasonsStorage))
+                .WithLogProperty(nameof(LatestSeasonsStorage), latestSeasonsStorage)
+                .WithDefaultMap();
         }
 
         private Task<Result<Unit>> RemoveSeason(string partitionKey, string rowKey, CancellationToken token = default)
@@ -54,11 +53,12 @@ public static class SeasonStore
             return tableClient
                 .TryExecute<SeasonStorage>(client =>
                     client.DeleteEntityAsync(partitionKey, rowKey, cancellationToken: token))
-                .WithDefaultMap()
-                .MapError(error => error
-                    .WithLogProperty(nameof(SeasonStorage.PartitionKey), partitionKey)
-                    .WithLogProperty(nameof(SeasonStorage.RowKey), rowKey)
-                    .WithOperationName(nameof(RemoveSeason)));
+                .WithOperationName(nameof(RemoveSeason))
+                .WithLogProperties([
+                    new KeyValuePair<string, object>(nameof(SeasonStorage.PartitionKey), partitionKey),
+                    new KeyValuePair<string, object>(nameof(SeasonStorage.RowKey), rowKey)
+                ])
+                .WithDefaultMap();
         }
     }
 }

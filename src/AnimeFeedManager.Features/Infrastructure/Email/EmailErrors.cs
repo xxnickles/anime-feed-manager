@@ -6,24 +6,16 @@ namespace AnimeFeedManager.Features.Infrastructure.Email;
 public sealed record EmailSendError : DomainError
 {
     private EmailSendError(
-        string message,
-        string callerMemberName,
-        string callerFilePath,
-        int callerLineNumber) : base(message, callerMemberName, callerFilePath, callerLineNumber)
+        string errorMessage) : base(errorMessage)
     {
     }
 
     public static EmailSendError Create(
-        string message,
-        [CallerMemberName] string callerMemberName = "",
-        [CallerFilePath] string callerFilePath = "",
-        [CallerLineNumber] int callerLineNumber = 0) =>
-        new(message, callerMemberName, callerFilePath, callerLineNumber);
+        string message) => new(message);
 
-    protected override void LoggingBehavior(ILogger logger)
-    {
-        logger.LogError("Failed to send email: {Message}", Message);
-    }
+
+    public override Action<ILogger> LogAction() =>
+        logger => logger.LogError("Failed to send email: {Message}", ErrorMessage);
 }
 
 /// <summary>
@@ -32,22 +24,15 @@ public sealed record EmailSendError : DomainError
 public sealed record EmailRenderError : DomainError
 {
     private EmailRenderError(
-        string message,
-        string callerMemberName,
-        string callerFilePath,
-        int callerLineNumber) : base(message, callerMemberName, callerFilePath, callerLineNumber)
+        string errorMessage) : base(errorMessage)
     {
     }
 
     public static EmailRenderError Create(
-        string message,
-        [CallerMemberName] string callerMemberName = "",
-        [CallerFilePath] string callerFilePath = "",
-        [CallerLineNumber] int callerLineNumber = 0) =>
-        new(message, callerMemberName, callerFilePath, callerLineNumber);
+        string message) =>
+        new(message);
 
-    protected override void LoggingBehavior(ILogger logger)
-    {
-        logger.LogError("Failed to render email template: {Message}", Message);
-    }
+
+    public override Action<ILogger> LogAction() => logger =>
+        logger.LogError("Failed to render email template: {Message}", ErrorMessage);
 }
