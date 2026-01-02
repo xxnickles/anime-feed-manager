@@ -12,7 +12,7 @@ internal static class Data
         return user switch
         {
             AuthenticatedUser au => (au, viewModel),
-            _ => Error.Create("User can not be anonymous").WithOperationName(nameof(AddUser))
+            _ => Error.Create("User can not be anonymous")
         };
     }
     
@@ -24,7 +24,7 @@ internal static class Data
         return user switch
         {
             AuthenticatedUser au => (au, viewModel),
-            _ => Error.Create("User can not be anonymous").WithOperationName(nameof(AddUser))
+            _ => Error.Create("User can not be anonymous")
         };
     }
 }

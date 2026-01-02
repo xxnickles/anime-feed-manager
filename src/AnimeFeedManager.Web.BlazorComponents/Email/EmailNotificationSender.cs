@@ -36,14 +36,10 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         {
             return RenderTemplate(templateFactory, model)
                 .Bind(html => SendEmailAsync(to, subject, html, cancellationToken));
-
-
         }
         catch (Exception ex)
         {
             return EmailSendError.Create($"Unexpected error: {ex.Message}")
-                .WithOperationName(nameof(Send))
-                .WithLogProperty("To", to)
                 .AsTaskFailure<Unit>();
         }
     }
@@ -64,9 +60,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         }
         catch (Exception ex)
         {
-            return EmailRenderError.Create($"Template rendering failed: {ex.Message}")
-                .WithOperationName(nameof(RenderTemplate))
-                .WithLogProperty("Model", model);
+            return EmailRenderError.Create($"Template rendering failed: {ex.Message}");
         }
     }
 
@@ -100,9 +94,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         }
         catch (Exception ex)
         {
-            return EmailSendError.Create($"SMTP send failed: {ex.Message}")
-                .WithOperationName(nameof(SendEmailAsync))
-                .WithLogProperty("To", to);
+            return EmailSendError.Create($"SMTP send failed: {ex.Message}");
         }
     }
 }

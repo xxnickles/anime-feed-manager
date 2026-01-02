@@ -33,15 +33,16 @@ public class OnSeasonUpdated
             .AddLatestSeasonData(_tableClientFactory.TableStorageLatestSeason, token)
             .StoreUpdatedSeason(_tableClientFactory.TableStorageSeasonUpdater, token)
             .DemoteCurrentLatest(_tableClientFactory.TableStorageSeasonUpdater, token)
-            .UpdateLast4Seasons(_tableClientFactory.TableStorageAllSeasonsGetter, 
+            .UpdateLast4Seasons(_tableClientFactory.TableStorageAllSeasonsGetter,
                 _tableClientFactory.TableStorageLastestSeasonsUpdater,
                 token)
             .SentEvents(_domainPostman, message.Season, token)
-            .Match(r => LogSuccess(r, _logger),
-                e => e.LogError(_logger));
+            .AddLogOnSuccess(LogSuccess)
+            .WriteLogs(_logger)
+            .Done();
     }
 
-    private static void LogSuccess(SeasonUpdateResult data, ILogger logger)
+    private static Action<ILogger> LogSuccess(SeasonUpdateResult data) => logger =>
     {
         switch (data.SeasonUpdateStatus, data.Season.IsLatest)
         {
@@ -53,7 +54,7 @@ public class OnSeasonUpdated
                 logger.LogInformation("{Year}-{Season} has been added to the system as latest season",
                     data.Season.Year, data.Season.Season);
                 break;
-            case  (SeasonUpdateStatus.New, false):
+            case (SeasonUpdateStatus.New, false):
                 logger.LogInformation("{Year}-{Season} has been added to the system as new season",
                     data.Season.Year, data.Season.Season);
                 break;
@@ -62,5 +63,5 @@ public class OnSeasonUpdated
                     data.Season.Year, data.Season.Season);
                 break;
         }
-    }
+    };
 }

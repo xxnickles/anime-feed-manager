@@ -9,6 +9,8 @@ public static class FeedTitlesStore
     {
         public FeedTitlesUpdater TableStorageFeedTitlesUpdater => (titles, token) =>
             clientFactory.GetClient<FeedTitlesStorage>()
+                .WithOperationName(nameof(FeedTitlesStore))
+                .WithLogProperty("Titles", titles)
                 .Bind(client => client.UpsertFeedTitles(titles, token));
     }
 
@@ -20,9 +22,6 @@ public static class FeedTitlesStore
     {
         return tableClient.TryExecute<FeedTitlesStorage>(client =>
                 client.UpsertEntityAsync(titles, cancellationToken: cancellationToken))
-            .WithDefaultMap()
-            .MapError(error => error
-                .WithLogProperty("Titles", titles)
-                .WithOperationName(nameof(FeedTitlesStore)));
+            .WithDefaultMap();
     }
 }

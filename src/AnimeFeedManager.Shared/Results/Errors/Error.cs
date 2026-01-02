@@ -4,25 +4,13 @@ namespace AnimeFeedManager.Shared.Results.Errors;
 
 public sealed record Error : DomainError
 {
-    private readonly List<KeyValuePair<string, object>> _logProperties = [];
-    
     private Error(
-        string Message,
-        string CallerMemberName,
-        string CallerFilePath,
-        int CallerLineNumber) : base(Message, CallerMemberName, CallerFilePath, CallerLineNumber)
+        string ErrorMessage) : base(ErrorMessage)
     {
     }
 
-    public static Error Create(string message,
-        [CallerMemberName] string callerMemberName = "",
-        [CallerFilePath] string callerFilePath = "",
-        [CallerLineNumber] int callerLineNumber = 0) =>
-        new(message, callerMemberName, callerFilePath, callerLineNumber);
+    public static Error Create(string message) =>
+        new(message);
 
-    protected override void LoggingBehavior(ILogger logger)
-    {
-        logger.LogError("{Message}", Message);
-    }
-   
+    public override Action<ILogger> LogAction() => logger => logger.LogError("{Message}", ErrorMessage);
 }

@@ -69,28 +69,31 @@ public static class ExistentSeries
         public TvLibrary TableStorageTvLibraryGetter =>
             (season, blobUri, token) =>
                 clientFactory.GetClient<AnimeInfoStorage>()
+                    .WithOperationName("TableStorageTvLibraryGetter")
+                    .WithLogProperties([
+                        new KeyValuePair<string, object>("Season", season),
+                        new KeyValuePair<string, object>("PublicBlobUri", blobUri)
+                    ])
                     .Bind(client => client
                         .ExecuteQuery<AnimeInfoStorage>(
                             series => series.PartitionKey ==
                                       IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year), token)
-                        .Map(series => series.ConvertAll(s => LibraryMapper(s, blobUri))))
-                    .MapError(error => error
-                        .WithLogProperty("Season", season)
-                        .WithLogProperty("PublicBlobUri", blobUri)
-                        .WithOperationName("TableStorageTvLibrary"));
+                        .Map(series => series.ConvertAll(s => LibraryMapper(s, blobUri))));
 
         public TvLibrarySeries TableStorageTvLibrarySeries =>
             (season, id, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
+                .WithOperationName("TableStorageTvLibrarySeries")
+                .WithLogProperties([
+                    new KeyValuePair<string, object>("Season", season),
+                    new KeyValuePair<string, object>("BlobUri", blobUri),
+                ])
                 .Bind(client => client
                     .ExecuteQuery<AnimeInfoStorage>(
-                        series => series.PartitionKey == IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year) && series.RowKey == id, token)
+                        series =>
+                            series.PartitionKey == IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year) &&
+                            series.RowKey == id, token)
                     .SingleItemOrNotFound()
-                    .Map(s => LibraryMapper(s, blobUri)))
-                .MapError(error => error
-                    .WithLogProperty("Season", season)
-                    .WithLogProperty("Id", id)
-                    .WithLogProperty("BlobUri", blobUri)
-                    .WithOperationName("TableStorageTvLibrarySeries"));
+                    .Map(s => LibraryMapper(s, blobUri)));
 
         public TvSeriesGetter TableStorageTvSeriesGetter =>
             (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
@@ -98,11 +101,9 @@ public static class ExistentSeries
 
         public OnGoingStoredTvSeries TableStorageOnGoingStoredTvSeries =>
             token => clientFactory.GetClient<AnimeInfoStorage>()
+                .WithOperationName("TableStorageOnGoingStoredTvSeries")
                 .Bind(client =>
-                    client.ExecuteQuery<AnimeInfoStorage>(series => series.Status == SeriesStatus.Ongoing(), token))
-                .MapError(error =>
-                    error
-                        .WithOperationName("TableStorageOnGoingStoredTvSeries"));
+                    client.ExecuteQuery<AnimeInfoStorage>(series => series.Status == SeriesStatus.Ongoing(), token));
     }
 
 
@@ -124,9 +125,8 @@ public static class ExistentSeries
                     nameof(AnimeInfoStorage.Status),
                     nameof(AnimeInfoStorage.ImagePath)
                 ])
-            .MapError(error => error
-                .WithLogProperty("Season", season)
-                .WithOperationName(nameof(GetStoredSeries)));
+            .WithOperationName("GetStoredSeries")
+            .WithLogProperty("Season", season);
     }
 
 
@@ -176,10 +176,11 @@ public static class ExistentSeries
     {
         return tableClient.TryExecute<AnimeInfoStorage>(client =>
                 client.GetEntityAsync<AnimeInfoStorage>(seasonString, id, cancellationToken: cancellationToken))
-            .Map(clientResult => clientResult.Value)
-            .MapError(error => error
-                .WithOperationName(nameof(GetAnimeInfo))
-                .WithLogProperty("Id", id)
-                .WithLogProperty("Season", seasonString));
+            .WithOperationName(nameof(GetAnimeInfo))
+            .WithLogProperties([
+                new KeyValuePair<string, object>("Id", id),
+                new KeyValuePair<string, object>("Season", seasonString)
+            ])
+            .Map(clientResult => clientResult.Value);
     }
 }

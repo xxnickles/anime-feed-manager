@@ -24,46 +24,45 @@ public static class ExistentSubscriptions
     {
         public TvSubscriptions TableStorageTvSubscriptions =>
             (userId, token) => clientFactory.GetClient<SubscriptionStorage>()
+                .WithOperationName("TableStorageTvSubscriptions")
+                .WithLogProperty("UserId", userId)
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
                         storage => storage.PartitionKey == userId &&
-                                   storage.Status != nameof(SubscriptionStatus.Expired), token))
-                .MapError(error => error
-                    .WithLogProperty("UserId", userId)
-                    .WithOperationName("TableStorageTvSubscriptions"));
+                                   storage.Status != nameof(SubscriptionStatus.Expired), token));
 
         public TvSubscriptionGetter TableStorageTvSubscription =>
             (userId, seriesId, token) => clientFactory.GetClient<SubscriptionStorage>()
+                .WithOperationName("TableStorageTvSubscription")
+                .WithLogProperties([
+                    new KeyValuePair<string, object>("UserId", userId),
+                    new KeyValuePair<string, object>("SeriesId", seriesId)
+                ])
                 .Bind(client => client.ExecuteQuery<SubscriptionStorage>(storage => storage.PartitionKey == userId &&
                     storage.Status != nameof(SubscriptionStatus.Expired) &&
-                    storage.RowKey == seriesId, token).SingleItemOrNull())
-                .MapError(error => error
-                    .WithLogProperty("UserId", userId)
-                    .WithLogProperty("SeriesId", seriesId)
-                    .WithOperationName("TableStorageTvSubscription"));
+                    storage.RowKey == seriesId, token).SingleItemOrNull());
 
         public TvSubscriptionsBySeries TableStorageTvSubscriptionsBySeries =>
             (id, token) => clientFactory.GetClient<SubscriptionStorage>()
+                .WithOperationName("TableStorageTvSubscriptionsBySeries")
+                .WithLogProperty("SeriesId", id)
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
                         storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Subscribed) &&
-                                   storage.Status != nameof(SubscriptionStatus.Expired), token))
-                .MapError(error => error
-                    .WithLogProperty("SeriesId", id)
-                    .WithOperationName("TableStorageTvSubscriptionsBySeries"));
+                                   storage.Status != nameof(SubscriptionStatus.Expired), token));
 
         public TvInterestedBySeries TableStorageTvInterestedBySeries =>
             (id, token) => clientFactory.GetClient<SubscriptionStorage>()
+                .WithOperationName("TableStorageTvInterestedBySeries")
+                .WithLogProperty("SeriesId", id)
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
                         storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Interested) &&
-                                   storage.Status == nameof(SubscriptionStatus.Active), token))
-                .MapError(error => error
-                    .WithLogProperty("SeriesId", id)
-                    .WithOperationName("TableStorageTvInterestedBySeries"));
+                                   storage.Status == nameof(SubscriptionStatus.Active), token));
 
         public TvUserActiveSubscriptions TableStorageTvUserActiveSubscriptions =>
             (titles, token) => clientFactory.GetClient<SubscriptionStorage>()
+                .WithOperationName("TableStorageTvActiveSubscribers")
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
                             storage => storage.Status == nameof(SubscriptionStatus.Active),
@@ -78,7 +77,6 @@ public static class ExistentSubscriptions
                                     s.RowKey ?? string.Empty,
                                     s.SeriesFeedTitle ?? string.Empty,
                                     (s.NotifiedEpisodes ?? string.Empty).StringToAppArray())).ToArray()))
-                            .ToArray()))
-                .MapError(error => error.WithOperationName("TableStorageTvActiveSubscribers"));
+                            .ToArray()));
     }
 }

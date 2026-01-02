@@ -33,9 +33,8 @@ public static class TvLibraryStore
             CancellationToken cancellationToken = default)
         {
             return tableClient.AddBatch(series, cancellationToken)
-                .MapError(error => error
-                    .WithLogProperty("Count", series.Count())
-                    .WithOperationName(nameof(UpsertSeries)));
+                .WithOperationName(nameof(UpsertSeries))
+                .WithLogProperty("Count", series.Count());
         }
 
         private Task<Result<Unit>> UpdateSeries(AnimeInfoStorage series,
@@ -43,9 +42,8 @@ public static class TvLibraryStore
             tableClient.TryExecute<AnimeInfoStorage>(client =>
                     client.UpdateEntityAsync(series, series.ETag, cancellationToken: token))
                 .WithDefaultMap()
-                .MapError(error => error
-                    .WithLogProperty("Series", series)
-                    .WithOperationName(nameof(UpdateSeries)));
+                .WithOperationName(nameof(UpdateSeries))
+                .WithLogProperty("Series", series);
 
         private Task<Result<Unit>> RemoveSeries(string id,
             string seasonString,
@@ -53,9 +51,10 @@ public static class TvLibraryStore
             tableClient.TryExecute<AnimeInfoStorage>(client =>
                     client.DeleteEntityAsync(seasonString, id, cancellationToken: token))
                 .WithDefaultMap()
-                .MapError(error => error
-                    .WithLogProperty("Id", id)
-                    .WithLogProperty("Season", seasonString)
-                    .WithOperationName(nameof(RemoveSeries)));
+                .WithOperationName(nameof(RemoveSeries))
+                .WithLogProperties([
+                    new KeyValuePair<string, object>("Id", id),
+                    new KeyValuePair<string, object>("Season", seasonString)
+                ]);
     }
 }

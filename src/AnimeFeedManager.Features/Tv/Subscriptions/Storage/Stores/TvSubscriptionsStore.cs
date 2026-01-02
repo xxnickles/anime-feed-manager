@@ -4,7 +4,8 @@ public delegate Task<Result<Unit>> TvSubscriptionUpdater(SubscriptionStorage sub
 
 public delegate Task<Result<Unit>> TvSubscriptionsRemover(string user, string seriesId, CancellationToken token);
 
-public delegate Task<Result<Unit>> TvSubscriptionsUpdater(IEnumerable<SubscriptionStorage> subscriptions, CancellationToken token);
+public delegate Task<Result<Unit>> TvSubscriptionsUpdater(IEnumerable<SubscriptionStorage> subscriptions,
+    CancellationToken token);
 
 public static class TvSubscriptionsStore
 {
@@ -18,7 +19,7 @@ public static class TvSubscriptionsStore
             (user, seriesId, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .Bind(client => client.RemoveSubscription(user, seriesId, token));
 
-        public TvSubscriptionsUpdater TableStorageTvSubscriptionsUpdater => 
+        public TvSubscriptionsUpdater TableStorageTvSubscriptionsUpdater =>
             (subscriptions, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .Bind(client => client.AddBatch(subscriptions, token));
     }
@@ -29,20 +30,20 @@ public static class TvSubscriptionsStore
         private Task<Result<Unit>> UpsertSubscription(SubscriptionStorage subscription, CancellationToken token) =>
             tableClient.TryExecute<SubscriptionStorage>(client =>
                     client.UpsertEntityAsync(subscription, cancellationToken: token))
-                .WithDefaultMap()
-                .MapError(error => error
-                    .WithLogProperty("Subscription", subscription)
-                    .WithOperationName(nameof(TvSubscriptionsStore)));
+                .WithOperationName(nameof(TvSubscriptionsStore))
+                .WithLogProperty("Subscription", subscription)
+                .WithDefaultMap();
 
         private Task<Result<Unit>> RemoveSubscription(string user,
             string seriesId,
             CancellationToken token) =>
             tableClient.TryExecute<SubscriptionStorage>(client =>
                     client.DeleteEntityAsync(user, seriesId, cancellationToken: token))
-                .WithDefaultMap()
-                .MapError(error => error
-                    .WithLogProperty("User", user)
-                    .WithLogProperty("SeriesId", seriesId)
-                    .WithOperationName(nameof(RemoveSubscription)));
+                .WithOperationName(nameof(RemoveSubscription))
+                .WithLogProperties([
+                    new KeyValuePair<string, object>("User", user),
+                    new KeyValuePair<string, object>("SeriesId", seriesId)
+                ])
+                .WithDefaultMap();
     }
 }

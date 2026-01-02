@@ -56,9 +56,7 @@ public class AzureQueuePostman : IDomainPostman
         catch (Exception e)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
-            return MessagesNotDelivered.Create(e.Message, message) 
-                .WithLogProperty("Message", message)
-                .WithOperationName(nameof(SendMessage));
+            return MessagesNotDelivered.Create(e.Message, message);
         }
     }
 
@@ -86,9 +84,7 @@ public class AzureQueuePostman : IDomainPostman
         {
             _logger.LogError(e, "An occurred when trying to send multiple messages to {Queues}",
                 string.Join(", ", processMessages.Select(m => m.MessageBox)));
-            return MessagesNotDelivered.Create(e.Message, processMessages)
-                .WithLogProperty("Count",  processMessages.Count)
-                .WithOperationName(nameof(SendMessages));
+            return MessagesNotDelivered.Create(e.Message, processMessages);
         }
     }
 
@@ -106,9 +102,7 @@ public class AzureQueuePostman : IDomainPostman
         catch (Exception e)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
-            return MessagesNotDelivered.Create(e.Message, message)
-                .WithLogProperty("Message", message)
-                .WithOperationName(nameof(SendDelayedMessage));
+            return MessagesNotDelivered.Create(e.Message, message);
         }
     }
 

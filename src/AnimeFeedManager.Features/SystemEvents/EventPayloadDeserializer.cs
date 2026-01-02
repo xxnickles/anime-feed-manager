@@ -8,21 +8,19 @@ public static class EventPayloadDeserializer
     {
         var info = EventPayloadContextMap.GetPayloadContextInfo(systemEvent.Payload.PayloadTypeName);
         var typeInfo = info.Context.GetTypeInfo(info.PayloadType);
-        
+
         if (typeInfo is null)
-            return new OperationError(nameof(Deserialize),
+            return Error.Create(
                 $"There is not json type information available for the provided type. Type received was {info.PayloadType.FullName}");
-        
+
         var result = JsonSerializer.Deserialize(systemEvent.Payload.Payload, typeInfo);
-        
+
         if (result is null)
-            return new OperationError(nameof(Deserialize), 
-                $"Payload of type {info.PayloadType.FullName} is null.");
-        
+            return Error.Create($"Payload of type {info.PayloadType.FullName} is null.");
+
         if (result is not SystemNotificationPayload payload)
-            return new OperationError(nameof(Deserialize),
-                $"Payload of type {info.PayloadType.FullName} does not implement {nameof(SystemNotificationPayload)}.");
-        
+            return Error.Create($"Payload of type {info.PayloadType.FullName} does not implement {nameof(SystemNotificationPayload)}.");
+
         return payload;
     }
 }

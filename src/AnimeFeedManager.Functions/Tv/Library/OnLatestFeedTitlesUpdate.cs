@@ -33,12 +33,11 @@ public class OnLatestFeedTitlesUpdate
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
         await RunProcess(token)
-            .Match(
-                results => _logger.LogInformation(
-                    "(OnDemand) Season {Year}-{Season} tv series titles has been updated. {UpdatedSeries} has been updated",
-                    results.Season.Year, results.Season.Season, results.UpdatedSeries),
-                e => e.LogError(_logger)
-            );
+            .AddLogOnSuccess(results => logger => logger.LogInformation(
+                "(OnDemand) Season {Year}-{Season} tv series titles has been updated. {UpdatedSeries} has been updated",
+                results.Season.Year, results.Season.Season, results.UpdatedSeries))
+            .WriteLogs(_logger)
+            .Done();
     }
 
     [Function("ScheduledFeedTitlesUpdate")]
@@ -46,13 +45,12 @@ public class OnLatestFeedTitlesUpdate
         CancellationToken token)
     {
         await RunProcess(token)
-            .Match(
-                results => _logger.LogInformation(
-                    "(Scheduled) Feed titles updated for {Year}-{Season}. {UpdatedSeries} series updated. Next run: {Time}",
-                    results.Season.Year, results.Season.Season, results.UpdatedSeries,
-                    myTimer.ScheduleStatus?.Next),
-                e => e.LogError(_logger)
-            );
+            .AddLogOnSuccess(results => logger => logger.LogInformation(
+                "(Scheduled) Feed titles updated for {Year}-{Season}. {UpdatedSeries} series updated. Next run: {Time}",
+                results.Season.Year, results.Season.Season, results.UpdatedSeries,
+                myTimer.ScheduleStatus?.Next))
+            .WriteLogs(_logger)
+            .Done();
     }
 
     private Task<Result<ScrapTvLibraryResult>> RunProcess(CancellationToken token)

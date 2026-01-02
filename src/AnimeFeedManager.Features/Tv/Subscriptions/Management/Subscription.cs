@@ -6,15 +6,21 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 public static class Subscription
 {
     public static Task<Result<SubscriptionStorage>> VerifyStorage(
-       AuthenticatedUser user,
+        AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
         string feedTitle,
         string seriesLink,
         TvSubscriptionGetter subscriptionGetterGetter,
-        CancellationToken token) => 
+        CancellationToken token) =>
         subscriptionGetterGetter(user.UserId, seriesId, token)
-        .Map(subscription => VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle, seriesLink));
+            .WithOperationName(nameof(VerifyStorage))
+            .WithLogProperties([
+                new KeyValuePair<string, object>(nameof(seriesId), seriesId),
+                new KeyValuePair<string, object>(nameof(user), user.UserId)
+            ])
+            .Map(subscription =>
+                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle, seriesLink));
 
     public static Task<Result<Unit>> UpdateSubscription(this Task<Result<SubscriptionStorage>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
@@ -37,14 +43,13 @@ public static class Subscription
         TvSubscriptionUpdater subscriptionUpdater,
         CancellationToken token)
     {
-       return subscriptions.Select(s =>
-            subscriptionUpdater(s, token)
-                .MapError(error => error
-                    .WithLogProperty("Subscription", s)
+        return subscriptions.Select(s =>
+                subscriptionUpdater(s, token)
                     .WithOperationName(nameof(StoreUpdates))
-                ))
-           .Flatten()
-           .Map(r => new Summary(r.Count));
+                    .WithLogProperty("Subscription", s)
+            )
+            .Flatten()
+            .Map(r => new Summary(r.Count));
     }
 
 

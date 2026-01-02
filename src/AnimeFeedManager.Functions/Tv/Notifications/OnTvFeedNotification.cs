@@ -41,9 +41,8 @@ public class OnTvFeedNotification
                 _tableClientFactory.TableStorageTvSubscriptionsUpdater,
                 _domainPostman,
                 cancellationToken))
-            .Match(
-                summary => _logger.LogInformation("{NotificationCount} have been sent to {User}",
-                    summary.NotificationsSent, summary.UserId),
-                error => error.LogError(_logger));
+            .AddLogOnSuccess(summary => logger => logger.LogInformation("{NotificationCount} have been sent to {User}", summary.NotificationsSent, summary.UserId))
+            .WriteLogs(_logger)
+            .Done();
     }
 }

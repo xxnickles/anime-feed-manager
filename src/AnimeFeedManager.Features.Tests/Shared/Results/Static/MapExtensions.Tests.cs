@@ -49,7 +49,7 @@ public class MapExtensionsTests
     {
         var originalError = NotFoundError.Create("Original error");
         var result = Result<int>.Failure(originalError)
-            .MapError(error => new OperationError("MapTest", "Mapped error"));
+            .MapError(_ => Error.Create("Mapped error"));
 
         result.AssertError();
     }
@@ -74,7 +74,7 @@ public class MapExtensionsTests
     {
         var originalError = NotFoundError.Create("Not found");
         var result = Result<int>.Failure(originalError)
-            .MapError(error => new OperationError("Wrap", $"Wrapped: {error.Message}"));
+            .MapError(error => Error.Create($"Wrapped: {error.ErrorMessage}"));
 
         result.AssertError();
     }

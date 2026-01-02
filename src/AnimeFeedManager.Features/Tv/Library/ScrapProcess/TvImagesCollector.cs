@@ -68,7 +68,7 @@ internal static class TvImagesCollector
     {
         logger.LogError("Couldn't process image for {AnimeTitle}", storageData.Series.RowKey);
         if (error is not HandledError)
-            error.LogError(logger);
+            error.WriteError(logger);
         return storageData;
     }
 }

@@ -17,23 +17,24 @@ public static class ExistentUser
     extension(ITableClientFactory clientFactory)
     {
         public ExistentUserGetterByEmail TableStorageExistentUserGetterByEmail() =>
-            (email, cancellationToken) => clientFactory.GetClient<UserStorage>()
-                .Bind(client =>
-                    client.ExecuteQuery<UserStorage>(
-                            storage => storage.PartitionKey == Constants.UserPartitionKey && storage.Email == email,
-                            cancellationToken)
-                        .Bind(ParseAsUser))
-                .MapError(error => error.WithOperationName(nameof(TableStorageExistentUserGetterByEmail)));
+            (email, cancellationToken) =>
+                clientFactory.GetClient<UserStorage>()
+                    .WithOperationName(nameof(TableStorageExistentUserGetterByEmail))
+                    .Bind(client =>
+                        client.ExecuteQuery<UserStorage>(
+                                storage => storage.PartitionKey == Constants.UserPartitionKey && storage.Email == email,
+                                cancellationToken)
+                            .Bind(ParseAsUser));
 
         public ExistentUserGetterById TableStorageExistentUserGetterById() =>
-            (id, cancellationToken) => clientFactory.GetClient<UserStorage>()
-                .Bind(client =>
-                    client.ExecuteQuery<UserStorage>(
-                        storage => storage.PartitionKey == Constants.UserPartitionKey && storage.RowKey == id,
-                        cancellationToken).Bind(ParseAsUser))
-                .MapError(error => error
-                    .WithLogProperty("Id", id)
-                    .WithOperationName(nameof(TableStorageExistentUserGetterById)));
+            (id, cancellationToken) =>
+                clientFactory.GetClient<UserStorage>()
+                    .WithOperationName(nameof(TableStorageExistentUserGetterById))
+                    .WithLogProperty(nameof(id), id)
+                    .Bind(client =>
+                        client.ExecuteQuery<UserStorage>(
+                            storage => storage.PartitionKey == Constants.UserPartitionKey && storage.RowKey == id,
+                            cancellationToken).Bind(ParseAsUser));
     }
 
     private static Result<User> ParseAsUser(ImmutableList<UserStorage> storage)

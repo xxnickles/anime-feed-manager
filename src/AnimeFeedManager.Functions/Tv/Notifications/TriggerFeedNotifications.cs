@@ -30,12 +30,11 @@ public class TriggerFeedNotifications
         CancellationToken cancellationToken)
     {
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
-            .Match(
-                summary => _logger.LogInformation(
-                    "{UserCount} users will be notified about new releases. Next run will occur at {Time}",
-                    summary.UsersToNotify, myTimer.ScheduleStatus?.Next),
-                e => e.LogError(_logger)
-            );
+            .AddLogOnSuccess(summary => logger => logger.LogInformation(
+                "{UserCount} users will be notified about new releases. Next run will occur at {Time}",
+                summary.UsersToNotify, myTimer.ScheduleStatus?.Next))
+            .WriteLogs(_logger)
+            .Done();
     }
 
     [Function("ManualTriggerFeedNotifications")]
@@ -45,12 +44,11 @@ public class TriggerFeedNotifications
     {
         using var tracedActivity = message.StartTracedActivity("ManualTriggerFeedNotifications");
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
-            .Match(
-                summary => _logger.LogInformation(
-                    "{UserCount} users will be notified about new releases. This is a manually triggered run",
-                    summary.UsersToNotify),
-                e => e.LogError(_logger)
-            );
+            .AddLogOnSuccess(summary => logger => logger.LogInformation(
+                "{UserCount} users will be notified about new releases. This is a manually triggered run",
+                summary.UsersToNotify))
+            .WriteLogs(_logger)
+            .Done();
     }
 
     private Task<Result<FeedProcessSummary>> RunProcess(Result<DailySeriesFeed[]> feed, CancellationToken token)

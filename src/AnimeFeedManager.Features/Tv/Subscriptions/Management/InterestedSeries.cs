@@ -11,6 +11,12 @@ public static class InterestedSeries
         string seriesTitle,
         TvSubscriptionGetter subscriptionGetterGetter,
         CancellationToken token) => subscriptionGetterGetter(user.UserId, seriesId, token)
+        .WithOperationName(nameof(VerifyStorage))
+        .WithLogProperties([
+            new KeyValuePair<string, object>("UserId", user.UserId),
+            new KeyValuePair<string, object>("SeriesId", seriesId),
+            new KeyValuePair<string, object>("SeriesTitle", seriesTitle)
+        ])
         .Bind(subscription => VerifyCurrentSubscription(subscription, user.UserId, seriesId, seriesTitle, user.Email));
 
 
@@ -39,10 +45,7 @@ public static class InterestedSeries
             };
 
         if (subscription.Type == nameof(SubscriptionType.Subscribed))
-            return Error.Create($"You are already subscribed to {seriesTitle}")
-                .WithLogProperty("UserId", userId)
-                .WithLogProperty("SeriesId", seriesId)
-                .WithOperationName(nameof(VerifyCurrentSubscription));
+            return Error.Create($"You are already subscribed to {seriesTitle}");
 
         return subscription;
     }

@@ -23,12 +23,12 @@ public class OnSeriesCompleted
         CancellationToken token)
     {
         await Subscription.ExpireSubscriptions(
-            message.Id,
-            _tableClientFactory.TableStorageTvSubscriptionsBySeries,
-            _tableClientFactory.TableStorageTvSubscriptionUpdater,
-            token).Match(
-            r => _logger.LogInformation("{Count} subscriptions has been expired for the {Series}", r.Changes,
-                message.Id),
-            e => e.LogError(_logger));
+                message.Id,
+                _tableClientFactory.TableStorageTvSubscriptionsBySeries,
+                _tableClientFactory.TableStorageTvSubscriptionUpdater,
+                token)
+            .AddLogOnSuccess(r => logger => logger.LogInformation("{Count} subscriptions has been expired for the {Series}", r.Changes, message.Id))
+            .WriteLogs(_logger)
+            .Done();
     }
 }

@@ -58,8 +58,8 @@ public static class NotificationProcess
             .Where(x => x is not null)
             .Cast<SubscriptionStorage>();
 
-        return updater(storagesToUpdate, token).MapError(error => error
-            .WithOperationName(nameof(UpdateUserSubscription)));
+        return updater(storagesToUpdate, token)
+            .WithOperationName(nameof(UpdateUserSubscription));
     }
 
     private static UserNotificationResult ToUserNotificationResult(FeedNotification updateNotification)
@@ -91,7 +91,7 @@ public static class NotificationProcess
 
         return domainPostman.SendMessages(messages)
             .Map(_ => result)
-            .MapError(error => error.WithOperationName(nameof(SendNotifications)));
+            .WithOperationName(nameof(SendNotifications));
     }
     
     private static Task<Result<UserNotificationSummary>> Summarize(this Task<Result<UserNotificationResult>> result) =>

@@ -10,19 +10,13 @@ public sealed record ExceptionError : DomainError
 
     private string? AdditionalMessage { get; }
 
-    private ExceptionError(Exception exn,
-        string callerMemberName,
-        string callerFilePath,
-        int callerLineNumber) : base(exn.Message, callerMemberName, callerFilePath, callerLineNumber)
+    private ExceptionError(Exception exn) : base(exn.Message)
     {
         Exception = exn;
     }
 
-    private ExceptionError(Exception exn, 
-        string additionalMessage,
-        string callerMemberName,
-        string callerFilePath,
-        int callerLineNumber) : base(exn.Message, callerMemberName, callerFilePath, callerLineNumber)
+    private ExceptionError(Exception exn,
+        string additionalMessage) : base(exn.Message)
     {
         Exception = exn;
         AdditionalMessage = additionalMessage;
@@ -33,7 +27,7 @@ public sealed record ExceptionError : DomainError
     {
         var builder = new StringBuilder();
         var innerErrors = ExtractErrors(Exception);
-        builder.AppendLine(Message);
+        builder.AppendLine(ErrorMessage);
         if (AdditionalMessage != null)
         {
             builder.AppendLine(AdditionalMessage);
@@ -49,10 +43,8 @@ public sealed record ExceptionError : DomainError
         return builder.ToString();
     }
 
-    protected override void LoggingBehavior(ILogger logger)
-    {
+    public override Action<ILogger> LogAction() => logger =>
         logger.LogError(Exception, "{Error} {Additional}", Exception.Message, AdditionalMessage);
-    }
 
     [Pure]
     private static ImmutableList<string> ExtractErrors(Exception exn)
@@ -64,15 +56,9 @@ public sealed record ExceptionError : DomainError
         return lst;
     }
 
-    public static ExceptionError FromException(Exception exn,
-        [CallerMemberName] string callerMemberName = "",
-        [CallerFilePath] string callerFilePath = "",
-        [CallerLineNumber] int callerLineNumber = 0) => new(exn, callerMemberName, callerFilePath, callerLineNumber);
+    public static ExceptionError FromException(Exception exn) => new(exn);
 
     public static ExceptionError FromExceptionWithMessage(
         Exception exn,
-        string additionalMessage,
-        [CallerMemberName] string callerMemberName = "",
-        [CallerFilePath] string callerFilePath = "",
-        [CallerLineNumber] int callerLineNumber = 0) => new(exn, additionalMessage, callerMemberName, callerFilePath, callerLineNumber);
+        string additionalMessage) => new(exn, additionalMessage);
 }

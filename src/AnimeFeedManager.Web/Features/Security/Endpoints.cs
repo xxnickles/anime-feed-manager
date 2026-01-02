@@ -37,7 +37,7 @@ internal static class Endpoints
                 viewModel.UserId = result.UserId;
                 return viewModel;
             })
-            .LogErrors(logger)
+            .WriteLogs(logger)
             .ToComponentResult(
                 model => [RegistrationForm.SuccessFragment(model)],
                 error => [RegistrationForm.ErrorFragment(viewModel, error)]
@@ -60,7 +60,7 @@ internal static class Endpoints
                 viewModel.Token = result.Token.Token;
                 return viewModel;
             })
-            .LogErrors(logger)
+            .WriteLogs(logger)
             .ToComponentResult(
                 model => [AddCredentialForm.SuccessFragment(model)],
                 error => [AddCredentialForm.ErrorFragment(viewModel, error)]
