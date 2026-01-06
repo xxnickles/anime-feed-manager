@@ -40,10 +40,11 @@ public static class CompleteOngoing
             );
         }
 
-        internal Task<Result<CompleteOnGoingTvSeriesProcess>> SendEvents(IDomainPostman domainPostman,
+        private Task<Result<CompleteOnGoingTvSeriesProcess>> SendEvents(IDomainPostman domainPostman,
             CancellationToken token) => process
-            .Bind(data => domainPostman.SendMessage(GetEvent(data), token)
-                .Map(_ => data))
+            .BindWhen(
+                data => domainPostman.SendMessage(GetEvent(data), token).Map(_ => data),  
+                data => data.SeriesToComplete.Count > 0)
             .MapError(e => domainPostman
                 .SendMessage(
                     new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
