@@ -78,7 +78,24 @@ public static class ResultTaskExtensionMembers
             Func<T, Task<Result<T>>> binder,
             Func<T, bool> predicate)
             => resultTask.Bind(v =>
-                predicate(v) ? binder(v) : Task.FromResult(Result<T>.Success(v)));
+                predicate(v) ? binder(v) : resultTask);
+
+
+        /// <summary>
+        /// Conditionally chains a new operation that returns a <see cref="Result{T}"/> and maps the result.
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindWhen{T,TTarget}(Result{T}, Func{T, Result{T}}, Func{T, TTarget}, Func{T, bool})"/>.
+        /// </summary>
+        /// <typeparam name="TTarget">The type of the new result.</typeparam>
+        /// <param name="binder">Async function to bind the success value.</param>
+        /// <param name="mapper">Function to transform the success value.</param>
+        /// <param name="predicate">Function to test whether to apply the binder.</param>
+        /// <returns>A new <see cref="Result{T}"/> from the binder mapped if predicate is true, otherwise the mapped original value.</returns>
+        public Task<Result<TTarget>> BindWhen<TTarget>(
+            Func<T, Task<Result<T>>> binder,
+            Func<T, TTarget> mapper,
+            Func<T, bool> predicate) => resultTask.Bind(v =>
+            predicate(v) ? binder(v).Map(mapper) : resultTask.Map(mapper));
+
 
         // ──────────────────────────────────────────────────────────────────
         // Side Effects - Tap

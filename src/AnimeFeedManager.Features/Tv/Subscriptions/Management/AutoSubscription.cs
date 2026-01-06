@@ -30,7 +30,8 @@ public static class AutoSubscription
 
     extension(Task<Result<AutoSubscriptionProcess>> process)
     {
-        internal Task<Result<AutoSubscriptionProcess>> StoreChanges(TvSubscriptionsUpdater updater, CancellationToken token)
+        internal Task<Result<AutoSubscriptionProcess>> StoreChanges(TvSubscriptionsUpdater updater,
+            CancellationToken token)
         {
             return process.Bind(p => updater(p.InterestedSeries, token)
                 .Map(_ => p));
@@ -40,8 +41,10 @@ public static class AutoSubscription
             IDomainPostman domainPostman,
             CancellationToken token)
         {
-            return process.Bind(data => domainPostman.SendMessage(GetEvent(data), token)
-                    .Map(_ => new Summary(data.InterestedSeries.Count)))
+            return process.BindWhen(
+                    data => domainPostman.SendMessage(GetEvent(data), token).Map(_ => data),
+                    data => new Summary(data.InterestedSeries.Count),
+                    data => data.InterestedSeries.Count > 0)
                 .MapError(error =>
                     domainPostman.SendMessage(GetErrorEvent(seriesId), token)
                         .MatchToValue(_ => error, e => e));
