@@ -37,9 +37,7 @@ public static class EmailExtensions
 {
     public static Validation<Email> ParseAsEmail(this string value) => Email.IsEmail(value)
         ? Validation<Email>.Valid(Email.FromString(value))
-        : Validation<Email>.Invalid(
-            DomainValidationError.Create<Email>($"'{value}' is not a valid email")
-                .ToErrors());
+        : Validation<Email>.Invalid($"'{value}' is not a valid email");
 }
 
 
