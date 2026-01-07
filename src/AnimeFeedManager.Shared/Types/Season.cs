@@ -106,9 +106,7 @@ public static class SeasonExtensions
     public static Validation<Season> ParseAsSeason(this string value) =>
         Season.IsValid(value)
             ? Validation<Season>.Valid(Season.FromString(value))
-            : Validation<Season>.Invalid(
-                DomainValidationError.Create<Season>($"'{value}' is not a valid Season")
-                    .ToErrors());
+            : Validation<Season>.Invalid($"'{value}' is not a valid Season");
 }
 
 public class SeasonJsonConverter : JsonConverter<Season>
