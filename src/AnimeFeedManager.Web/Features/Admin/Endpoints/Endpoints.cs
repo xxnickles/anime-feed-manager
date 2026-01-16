@@ -4,15 +4,16 @@ internal static class Endpoints
 {
     internal static void MapAdminEndpoints(this RouteGroupBuilder group)
     {
-        var adminGroup = group.MapGroup("/admin/tv")
+        var adminGroup = group.MapGroup("/admin")
             .RequireAuthorization(Policies.AdminRequired);
 
-        adminGroup.MapPut("/season", TvAdminHandlers.BySeason);
+        var tvGroup = adminGroup.MapGroup("/tv");
+        tvGroup.MapPut("/season", TvAdminHandlers.BySeason);
+        tvGroup.MapPut("/latest", TvAdminHandlers.Latest);
+        tvGroup.MapPut("/titles", TvAdminHandlers.Titles);
+        tvGroup.MapPost("/run-notifications", TvAdminHandlers.TriggerNotificationProcess);
 
-        adminGroup.MapPut("/latest", TvAdminHandlers.Latest);
-
-        adminGroup.MapPut("/titles", TvAdminHandlers.Titles);
-        
-        adminGroup.MapPost("/run-notifications", TvAdminHandlers.TriggerNotificationProcess);
+        var chartsGroup = adminGroup.MapGroup("/charts");
+        chartsGroup.MapGet("/scrap-library", ChartHandlers.ScrapLibrarySummary);
     }
 }

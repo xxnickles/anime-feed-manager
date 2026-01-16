@@ -5,6 +5,17 @@
 
 <PageTitle>@PageTitle("Admin")</PageTitle>
 
+<h2 class="mb-8">Summary</h2>
+<section>
+   <h2 class="mb-8">Tv Series</h2>
+   <ChartSkeleton ChartId="library-scrap"
+                  Title="Events Timeline"
+                  Endpoint="/admin/charts/scrap-library"
+                  TriggerEvent="period-changed"/>
+   
+</section>
+
+
 <h2 class="mb-8">Tv Series</h2>
 <section
    class="grid items-stretch grid-cols-[repeat(auto-fit,minmax(300px,1fr))] lg:grid-cols-[repeat(auto-fit,minmax(350px,400px))] gap-10">

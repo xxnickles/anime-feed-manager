@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AnimeFeedManager.Shared.Results;
-using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Shared.Types;
 

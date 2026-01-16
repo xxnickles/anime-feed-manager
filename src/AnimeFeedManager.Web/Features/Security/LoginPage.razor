@@ -216,7 +216,11 @@
 @code {
 
     [SupplyParameterFromForm(FormName = "login", Name = "")]
-    public LoginViewModel ViewModel { get; set; } = new();
+    public LoginViewModel ViewModel
+    {
+        get => field ??= new LoginViewModel();
+        set;
+    }
 
     [SupplyParameterFromQuery(Name = "returnUrl")]
     public string ReturnUrl { get; set; } = "";

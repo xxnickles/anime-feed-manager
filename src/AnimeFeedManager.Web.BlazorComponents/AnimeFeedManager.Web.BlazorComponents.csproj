@@ -19,4 +19,10 @@
       <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Charts\ChartContent.razor" />
+      <AdditionalFiles Include="Charts\ChartError.razor" />
+      <AdditionalFiles Include="Charts\ChartSkeleton.razor" />
+    </ItemGroup>
+
 </Project>

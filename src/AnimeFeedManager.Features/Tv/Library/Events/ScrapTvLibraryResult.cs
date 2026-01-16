@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-
-namespace AnimeFeedManager.Features.Tv.Library.Events;
+﻿namespace AnimeFeedManager.Features.Tv.Library.Events;
 
 public enum UpdateType
 {

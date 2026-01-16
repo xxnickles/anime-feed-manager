@@ -3,6 +3,14 @@
   "defaultProvider": "jsdelivr",
   "libraries": [
     {
+      "library": "chart.js@4.5.1",
+      "destination": "wwwroot/lib/chartjs/",
+      "files": [
+        "dist/chart.umd.min.js",
+        "dist/chart.umd.min.js.map"
+      ]
+    },
+    {
       "library": "htmx.org@2.0.8",
       "destination": "wwwroot/lib/htmx/",
       "files": [
@@ -11,15 +19,11 @@
       ]
     },
     {
-      "library": "alpinejs@3.15.3",
+      "library": "alpinejs@3.15.4",
       "destination": "wwwroot/lib/alpinejs/",
       "files": [
         "dist/cdn.js",
-        "dist/cdn.min.js",
-        "dist/module.cjs.js",
-        "dist/module.cjs.min.js",
-        "dist/module.esm.js",
-        "dist/module.esm.min.js"
+        "dist/cdn.min.js"
       ]
     },
     {
@@ -27,7 +31,8 @@
       "destination": "wwwroot/lib/signalr",
       "files": [
         "dist/browser/signalr.js",
-        "dist/browser/signalr.min.js"
+        "dist/browser/signalr.min.js",
+        "dist/browser/signalr.min.js.map"
       ]
     },
     {
@@ -35,9 +40,7 @@
       "destination": "wwwroot/lib/passwordless-client",
       "files": [
         "dist/umd/passwordless.umd.js",
-        "dist/umd/passwordless.umd.min.js",
-        "dist/esm/passwordless.mjs",
-        "dist/esm/passwordless.min.mjs"
+        "dist/umd/passwordless.umd.min.js"
       ]
     }
   ]

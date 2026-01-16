@@ -1,4 +1,4 @@
-﻿namespace AnimeFeedManager.Features.SystemEvents.Storage;
+﻿namespace AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 
 public delegate Task<Result<Unit>> EventUpdater(EventStorage systemEvent,
     CancellationToken cancellationToken = default);

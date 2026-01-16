@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using System.Collections.Immutable;
 
 namespace AnimeFeedManager.Shared.Results;
 

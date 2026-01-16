@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Shared.Results.Static;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Shared.Results;
 

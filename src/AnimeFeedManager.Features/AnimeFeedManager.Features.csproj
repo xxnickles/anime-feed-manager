@@ -26,9 +26,5 @@
         <InternalsVisibleTo Include="$(AssemblyName).Tests" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="SystemEvents\Reporting\" />
-    </ItemGroup>
-
 
 </Project>

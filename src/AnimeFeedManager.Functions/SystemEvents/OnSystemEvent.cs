@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.SystemEvents.Storage;
+﻿using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 using AnimeFeedManager.Features.SystemEvents.UpdateProcess;
 using AnimeFeedManager.Web.BlazorComponents;
 using AnimeFeedManager.Web.BlazorComponents.SignalRContent;

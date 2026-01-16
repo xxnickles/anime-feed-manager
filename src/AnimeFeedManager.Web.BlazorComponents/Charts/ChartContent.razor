@@ -1,0 +1,48 @@
+<div class="card-body">
+    <header>
+        <h3 class="card-title text-lg">@Title</h3>
+    </header>
+    <figure x-data="{
+                chart: null,
+                init() {
+                    const data = JSON.parse(this.$el.dataset.chartData);
+                    this.chart = new Chart(this.$refs.canvas, {
+                        type: '@ChartType',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } }
+                        }
+                    });
+                },
+                destroy() {
+                    this.chart?.destroy();
+                }
+            }"
+            data-chart-data="@Data.ToChartJsData().ToJson()"
+            class="h-64">
+        <canvas x-ref="canvas" role="img" aria-label="@Title"></canvas>
+    </figure>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required string Title { get; set; }
+    [Parameter, EditorRequired] public required Chart Data { get; set; }
+
+    private string ChartType => Data switch
+    {
+        Chart<LineDataset> => "line",
+        Chart<BarDataset> => "bar",
+        _ => throw new InvalidOperationException($"Unsupported chart type: {Data.GetType().Name}")
+    };
+
+
+    public static RenderFragment AsRenderFragment(string title, Chart data) => builder =>
+    {
+        builder.OpenComponent<ChartContent>(0);
+        builder.AddAttribute(1, nameof(Title), title);
+        builder.AddAttribute(2, nameof(Data), data);
+        builder.CloseComponent();
+    };
+}
