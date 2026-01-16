@@ -2,7 +2,6 @@
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using AnimeFeedManager.Shared.Results;
-using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Shared.Types;
 

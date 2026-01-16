@@ -1,0 +1,23 @@
+<div class="card-body">
+    <div class="h-64 flex items-center justify-center" role="alert">
+        <div class="alert alert-error">
+            <span>@Message</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Message { get; set; } = DefaultMessage;
+
+    private const string DefaultMessage = "Failed to load chart";
+    
+    public static RenderFragment AsRenderFragment() => AsRenderFragment(DefaultMessage);
+    
+    public static RenderFragment AsRenderFragment(string message) => builder =>
+    {
+        builder.OpenComponent<ChartError>(0);
+        builder.AddAttribute(1, nameof(message), message);
+        builder.CloseComponent();
+    };
+
+}
