@@ -6,8 +6,25 @@
                 chart: null,
                 init() {
                     this.$nextTick(() => {
+                        const canvas = this.$refs.canvas;
+                        const container = this.$el;
+
+                        // Set canvas size to match container before Chart.js init
+                        canvas.width = container.clientWidth;
+                        canvas.height = container.clientHeight;
+
                         const config = JSON.parse(this.$el.dataset.chartConfig);
-                        this.chart = new Chart(this.$refs.canvas, config);
+                        // Start with responsive disabled so animations work
+                        config.options = config.options || {};
+                        config.options.responsive = false;
+
+                        this.chart = new Chart(canvas, config);
+
+                        // After Alpine's next DOM update cycle, enable responsiveness
+                        this.$nextTick(() => {
+                            this.chart.options.responsive = true;
+                            this.chart.resize();
+                        });
                     });
                 },
                 destroy() {
@@ -15,7 +32,7 @@
                 }
             }"
             data-chart-config="@Data.ToChartJsConfig(Options).ToJson()"
-            class="h-64">
+            class="relative h-64">
         <canvas x-ref="canvas" role="img" aria-label="@Title"></canvas>
     </figure>
 </div>
