@@ -17,8 +17,9 @@
         <option value="90d">Last 90 days</option>
     </select>
 </label>
-<section
-    class="grid items-stretch grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-10 mb-8">
+
+<!-- Grid with min-w-0 fix per Chart.js docs -->
+<section class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-10 mb-8">
     <ChartSkeleton ChartId="library-scrap"
                    Endpoint="/admin/charts/scrap-library"
                    TriggerEvent="period-changed"/>
@@ -26,11 +27,7 @@
     <ChartSkeleton ChartId="notifications"
                    Endpoint="/admin/charts/notifications"
                    TriggerEvent="period-changed"/>
-
 </section>
-
-
-
 
 <h2 class="mb-8">Tv Series</h2>
 <section
@@ -42,8 +39,3 @@
 </section>
 
 <h2 class="my-8">OVAs</h2>
-
-
-@code {
-
-}

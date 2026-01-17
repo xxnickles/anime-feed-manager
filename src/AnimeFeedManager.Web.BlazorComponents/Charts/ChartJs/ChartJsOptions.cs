@@ -3,8 +3,11 @@ namespace AnimeFeedManager.Web.BlazorComponents.Charts.ChartJs;
 /// <summary>
 /// Chart.js options contract. Null properties are omitted during serialization.
 /// </summary>
-/// <param name="Responsive">Whether the chart resizes with its container. Default: true.</param>
-/// <param name="MaintainAspectRatio">Whether to maintain aspect ratio when resizing. Default: false.</param>
+/// <param name="Responsive">Whether the chart resizes with its container. Default: true.
+/// Note: ChartContent.razor temporarily sets this to false during initialization to enable
+/// animations in dynamic CSS containers (grid, flexbox), then re-enables it.</param>
+/// <param name="MaintainAspectRatio">Whether to maintain aspect ratio when resizing. Default: false
+/// to fill fixed-height containers (like dashboard cards) with variable widths.</param>
 /// <param name="Plugins">Plugin configuration (legend, tooltip, etc.).</param>
 /// <param name="Scales">Axis scale configuration. Null by default (opt-in).</param>
 public record ChartJsOptions(
@@ -17,8 +20,11 @@ public record ChartJsOptions(
 {
     /// <summary>
     /// Default options with legend at bottom. Animation uses Chart.js defaults.
+    /// Configured for fixed-height containers with dynamic widths.
     /// </summary>
     public static ChartJsOptions Default => new(
+        Responsive: true,
+        MaintainAspectRatio: false,
         Plugins: new ChartJsPlugins(Legend: new ChartJsLegend())
     );
 
