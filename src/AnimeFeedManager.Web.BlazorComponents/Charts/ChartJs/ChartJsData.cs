@@ -1,19 +1,14 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace AnimeFeedManager.Shared.Charts.ChartJs;
+namespace AnimeFeedManager.Web.BlazorComponents.Charts.ChartJs;
 
 /// <summary>
 /// Chart.js data contract. Use <see cref="ToJson"/> for serialization.
 /// </summary>
 /// <param name="Labels">X-axis labels.</param>
 /// <param name="Datasets">One or more datasets to display.</param>
-public record ChartJsData(string[] Labels, ChartJsDataset[] Datasets)
-{
-    /// <summary>
-    /// Serializes to Chart.js compatible JSON using source-generated serializer.
-    /// </summary>
-    public string ToJson() => JsonSerializer.Serialize(this, ChartJsJsonContext.Default.ChartJsData);
-}
+public record ChartJsData(string[] Labels, ChartJsDataset[] Datasets);
 
 /// <summary>
 /// Chart.js dataset contract. Null properties are omitted during serialization.

@@ -1,19 +1,31 @@
-namespace AnimeFeedManager.Shared.Charts.ChartJs.Static;
+using AnimeFeedManager.Shared.Charts;
+
+namespace AnimeFeedManager.Web.BlazorComponents.Charts.ChartJs;
 
 /// <summary>
-/// Provides mapping extensions from chart types to <see cref="ChartJsData"/>.
+/// Provides mapping extensions from domain chart types to Chart.js data format.
 /// </summary>
-public static class ChartJsDataExtensionMembers
+public static class ChartJsDataExtensions
 {
     extension(Chart chart)
     {
         /// <summary>
         /// Maps any chart type to Chart.js data format.
         /// </summary>
-        public ChartJsData ToChartJsData() => chart switch
+        internal ChartJsData ToChartJsData() => chart switch
         {
             LineChart line => line.ToChartJsData(),
             BarChart bar => bar.ToChartJsData(),
+            _ => throw new InvalidOperationException($"Unsupported chart type: {chart.GetType().Name}")
+        };
+
+        /// <summary>
+        /// Determines the Chart.js chart type string.
+        /// </summary>
+        internal string ToChartJsType() => chart switch
+        {
+            Chart<LineDataset> => "line",
+            Chart<BarDataset> => "bar",
             _ => throw new InvalidOperationException($"Unsupported chart type: {chart.GetType().Name}")
         };
     }
@@ -23,7 +35,7 @@ public static class ChartJsDataExtensionMembers
         /// <summary>
         /// Maps a line chart to Chart.js data format.
         /// </summary>
-        public ChartJsData ToChartJsData() => new(
+        private ChartJsData ToChartJsData() => new(
             chart.Labels,
             chart.Datasets.Select(d => new ChartJsDataset(
                 d.Label,
@@ -41,7 +53,7 @@ public static class ChartJsDataExtensionMembers
         /// <summary>
         /// Maps a bar chart to Chart.js data format.
         /// </summary>
-        public ChartJsData ToChartJsData() => new(
+        private ChartJsData ToChartJsData() => new(
             chart.Labels,
             chart.Datasets.Select(d => new ChartJsDataset(
                 d.Label,

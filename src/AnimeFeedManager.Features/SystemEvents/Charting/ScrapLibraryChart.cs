@@ -1,7 +1,8 @@
 using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Library.Events;
+using static AnimeFeedManager.Features.SystemEvents.Charting.Utils;
 
-namespace AnimeFeedManager.Features.SystemEvents.Reporting;
+namespace AnimeFeedManager.Features.SystemEvents.Charting;
 
 public static class ScrapLibraryChart
 {
@@ -39,23 +40,17 @@ public static class ScrapLibraryChart
             [
                 new LineDataset(
                     Label: "Completed",
-                    Data: allDates.Select(d => (float)(byDay.TryGetValue(d, out var counts) ? counts.Completed : 0)).ToArray(),
+                    Data: allDates.Select(dateTime => (float)(byDay.TryGetValue(dateTime, out var counts) ? counts.Completed : 0)).ToArray(),
                     BorderColor: ChartColor.Success
                 ),
                 new LineDataset(
                     Label: "Errors",
-                    Data: allDates.Select(d => (float)(byDay.TryGetValue(d, out var counts) ? counts.Errors : 0)).ToArray(),
+                    Data: allDates.Select(dateTime => (float)(byDay.TryGetValue(dateTime, out var counts) ? counts.Errors : 0)).ToArray(),
                     BorderColor: ChartColor.Error
                 )
             ]
         );
     }
 
-    private static IEnumerable<DateTime> GenerateDateRange(DateTime from, DateTime to)
-    {
-        for (var date = from; date <= to; date = date.AddDays(1))
-        {
-            yield return date;
-        }
-    }
+   
 }

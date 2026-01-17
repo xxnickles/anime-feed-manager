@@ -1,7 +1,6 @@
 ﻿global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Shared.Charts;
-global using AnimeFeedManager.Shared.Charts.ChartJs;
-global using AnimeFeedManager.Shared.Charts.ChartJs.Static;
+global using AnimeFeedManager.Web.BlazorComponents.Charts.ChartJs;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Static;
 global using AnimeFeedManager.Shared.Results.Errors;

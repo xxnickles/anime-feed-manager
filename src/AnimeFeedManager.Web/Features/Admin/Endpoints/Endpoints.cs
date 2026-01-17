@@ -15,5 +15,6 @@ internal static class Endpoints
 
         var chartsGroup = adminGroup.MapGroup("/charts");
         chartsGroup.MapGet("/scrap-library", ChartHandlers.ScrapLibrarySummary);
+        chartsGroup.MapGet("/notifications", ChartHandlers.NotificationSummary);
     }
 }

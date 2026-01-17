@@ -6,9 +6,8 @@
          hx-ext="event-params"
          data-param-name="@ParamName">
     <div class="card-body">
-        <header class="flex justify-between items-center mb-4">
-            <h3 class="card-title text-lg">@Title</h3>
-            <div class="skeleton h-8 w-32" aria-hidden="true"></div>
+        <header>
+            <div class="skeleton h-6 w-32" aria-hidden="true"></div>
         </header>
         <div class="h-64 flex items-center justify-center" role="status" aria-label="Loading chart">
             <span class="loading loading-spinner loading-lg"></span>
@@ -18,7 +17,6 @@
 
 @code {
     [Parameter, EditorRequired] public required string ChartId { get; set; }
-    [Parameter, EditorRequired] public required string Title { get; set; }
     [Parameter, EditorRequired] public required string Endpoint { get; set; }
     [Parameter] public string? TriggerEvent { get; set; }
     [Parameter] public string ParamName { get; set; } = "period";

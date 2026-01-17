@@ -6,10 +6,18 @@ internal static class ComponentResponseHelpers
 {
     internal static RazorComponentResult AggregateComponents(this RenderFragment[] fragments)
     {
-        return new RazorComponentResult<AggregatorComponent>(new Dictionary<string, object?>
+        return new RazorComponentResult<FragmentContainer>(new Dictionary<string, object?>
         {
-            { nameof(AggregatorComponent.Fragments), fragments }
+            { nameof(FragmentContainer.ChildContent), Combine(fragments) }
         });
     }
+
+    private static RenderFragment Combine(RenderFragment[] fragments) => builder =>
+    {
+        for (var i = 0; i < fragments.Length; i++)
+        {
+            builder.AddContent(0, fragments[i]);
+        }
+    };
 
 }

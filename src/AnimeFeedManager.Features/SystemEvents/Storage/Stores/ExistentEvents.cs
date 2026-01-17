@@ -7,6 +7,10 @@ public delegate Task<Result<ImmutableList<EventData<T>>>> SystemEventsGetter<T>(
     DateTimeOffset from,
     CancellationToken cancellationToken) where T : SystemNotificationPayload;
 
+public delegate Task<Result<ImmutableList<EventData<T>>>> SystemEventsBroadGetter<T>(
+    DateTimeOffset from,
+    CancellationToken cancellationToken) where T : SystemNotificationPayload;
+
 public static class ExistentEvents
 {
     extension(ITableClientFactory clientFactory)
@@ -17,9 +21,21 @@ public static class ExistentEvents
                 .WithOperationName(nameof(TableStorageEvents))
                 .Bind(client =>
                     client.ExecuteQuery<EventStorage>(storage =>
-                        storage.PartitionKey == consumer
-                        && storage.PayloadTypeName == typeof(T).Name
+                        storage.PartitionKey == consumer &&
+                        storage.PayloadTypeName == typeof(T).Name
                         && storage.Timestamp >= from, cancellationToken))
+                .Bind(Convert<T>);
+        }
+
+
+        public SystemEventsBroadGetter<T> TableStorageBroadEvents<T>() where T : SystemNotificationPayload
+        {
+            return (from, cancellationToken) => clientFactory.GetClient<EventStorage>()
+                .WithOperationName(nameof(TableStorageEvents))
+                .Bind(client =>
+                    client.ExecuteQuery<EventStorage>(storage =>
+                        storage.PayloadTypeName == typeof(T).Name &&
+                        storage.Timestamp >= from, cancellationToken))
                 .Bind(Convert<T>);
         }
 
