@@ -10,4 +10,5 @@ public record NotificationSent(string Title, string Url, string[] Episodes) : Sy
 
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 [JsonSerializable(typeof(NotificationSent))]
+[EventPayloadSerializerContext(typeof(NotificationSent))]
 public partial class NotificationSentContext : JsonSerializerContext;

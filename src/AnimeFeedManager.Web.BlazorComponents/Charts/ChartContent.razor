@@ -5,22 +5,16 @@
     <figure x-data="{
                 chart: null,
                 init() {
-                    const data = JSON.parse(this.$el.dataset.chartData);
-                    this.chart = new Chart(this.$refs.canvas, {
-                        type: '@ChartType',
-                        data: data,
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { position: 'bottom' } }
-                        }
+                    this.$nextTick(() => {
+                        const config = JSON.parse(this.$el.dataset.chartConfig);
+                        this.chart = new Chart(this.$refs.canvas, config);
                     });
                 },
                 destroy() {
                     this.chart?.destroy();
                 }
             }"
-            data-chart-data="@Data.ToChartJsData().ToJson()"
+            data-chart-config="@Data.ToChartJsConfig(Options).ToJson()"
             class="h-64">
         <canvas x-ref="canvas" role="img" aria-label="@Title"></canvas>
     </figure>
@@ -29,20 +23,14 @@
 @code {
     [Parameter, EditorRequired] public required string Title { get; set; }
     [Parameter, EditorRequired] public required Chart Data { get; set; }
+    [Parameter] public ChartJsOptions? Options { get; set; }
 
-    private string ChartType => Data switch
-    {
-        Chart<LineDataset> => "line",
-        Chart<BarDataset> => "bar",
-        _ => throw new InvalidOperationException($"Unsupported chart type: {Data.GetType().Name}")
-    };
-
-
-    public static RenderFragment AsRenderFragment(string title, Chart data) => builder =>
+    public static RenderFragment AsRenderFragment(string title, Chart data, ChartJsOptions? options = null) => builder =>
     {
         builder.OpenComponent<ChartContent>(0);
         builder.AddAttribute(1, nameof(Title), title);
         builder.AddAttribute(2, nameof(Data), data);
+        builder.AddAttribute(3, nameof(Options), options);
         builder.CloseComponent();
     };
 }
