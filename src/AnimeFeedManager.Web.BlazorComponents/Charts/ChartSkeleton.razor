@@ -18,10 +18,10 @@
 @code {
     [Parameter, EditorRequired] public required string ChartId { get; set; }
     [Parameter, EditorRequired] public required string Endpoint { get; set; }
-    [Parameter] public string? TriggerEvent { get; set; }
+    [Parameter] public string? UpdateTriggerEvent { get; set; }
     [Parameter] public string ParamName { get; set; } = "period";
 
-    private string GetTrigger() => string.IsNullOrEmpty(TriggerEvent)
+    private string GetTrigger() => string.IsNullOrEmpty(UpdateTriggerEvent)
         ? "load"
-        : $"load, {TriggerEvent} from:body";
+        : $"load, {UpdateTriggerEvent} from:body";
 }

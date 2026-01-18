@@ -3066,9 +3066,6 @@
   .my-3 {
     margin-block: calc(var(--spacing) * 3);
   }
-  .my-8 {
-    margin-block: calc(var(--spacing) * 8);
-  }
   .label {
     @layer daisyui.l1.l2.l3 {
       display: inline-flex;
