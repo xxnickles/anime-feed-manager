@@ -7,10 +7,14 @@
          data-param-name="@ParamName">
     <div class="card-body">
         <header>
-            <div class="skeleton h-6 w-32" aria-hidden="true"></div>
+            <div class="skeleton h-6 w-full" aria-hidden="true"></div>
         </header>
-        <div class="h-64 flex items-center justify-center" role="status" aria-label="Loading chart">
-            <span class="loading loading-spinner loading-lg"></span>
+        <div class="h-64 grid grid-cols-1 grid-rows-1 place-items-center" role="status" aria-label="Loading chart">
+            <!-- Layer 1: The Skeleton (Background) -->
+            <div class="skeleton h-full w-full col-start-1 row-start-1"></div>
+            
+            <!-- Layer 2: The Spinner (Foreground) -->
+            <span class="loading loading-spinner loading-lg col-start-1 row-start-1"></span>
         </div>
     </div>
 </article>
