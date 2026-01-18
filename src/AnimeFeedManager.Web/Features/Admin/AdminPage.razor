@@ -6,28 +6,8 @@
 <PageTitle>@PageTitle("Admin")</PageTitle>
 
 <h2 class="mb-8">Charts</h2>
+<Charts/>
 
-<label class="select mb-2">
-    <span class="label">Period</span>
-    <select class="select" x-data @change="$dispatch('period-changed', { value: $el.value })">
-        <option value="7d">Last Week</option>
-        <option value="14d">Last 2 Weeks</option>
-        <option value="30d" selected>Last Month</option>
-        <option value="60d">Last 2 Months</option>
-        <option value="90d">Last 90 days</option>
-    </select>
-</label>
-
-<!-- Grid with min-w-0 fix per Chart.js docs -->
-<section class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-10 mb-8">
-    <ChartSkeleton ChartId="library-scrap"
-                   Endpoint="/admin/charts/scrap-library"
-                   TriggerEvent="period-changed"/>
-
-    <ChartSkeleton ChartId="notifications"
-                   Endpoint="/admin/charts/notifications"
-                   TriggerEvent="period-changed"/>
-</section>
 
 <h2 class="mb-8">Tv Series</h2>
 <section
@@ -37,5 +17,3 @@
     <TvTitlesUpdate/>
     <TvNotificationsTrigger/>
 </section>
-
-<h2 class="my-8">OVAs</h2>

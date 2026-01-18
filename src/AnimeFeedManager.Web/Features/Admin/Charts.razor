@@ -1,0 +1,27 @@
+<label for="period-selector" class="select mb-2">
+    <span class="label">Period</span>
+    <select id="period-selector" class="select" x-data @change="$dispatch('period-changed', { value: $el.value })">
+        <option value="7d">Last Week</option>
+        <option value="14d">Last 2 Weeks</option>
+        <option value="30d" selected>Last Month</option>
+        <option value="60d">Last 2 Months</option>
+        <option value="90d">Last 90 days</option>
+    </select>
+</label>
+
+<!-- Grid with min-w-0 fix per Chart.js docs -->
+<section class="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-10 mb-8">
+    
+    <ChartSkeleton ChartId="library-scrap"
+                   Endpoint="/admin/charts/scrap-library"
+                   UpdateTriggerEvent="period-changed"/>
+
+    <ChartSkeleton ChartId="notifications"
+                   Endpoint="/admin/charts/notifications"
+                   UpdateTriggerEvent="period-changed"/>
+    
+    <ChartSkeleton ChartId="feed-updates"
+                   Endpoint="/admin/charts/feed-updates"
+                   UpdateTriggerEvent="period-changed"/>
+</section>
+

@@ -5,26 +5,24 @@
     <figure x-data="{
                 chart: null,
                 init() {
+                    const canvas = this.$refs.canvas;
+                    const container = this.$el;
+
+                    // Set canvas size to match container before Chart.js init
+                    canvas.width = container.clientWidth;
+                    canvas.height = container.clientHeight;
+
+                    const config = JSON.parse(this.$el.dataset.chartConfig);
+                    // Start with responsive disabled so animations work
+                    config.options = config.options || {};
+                    config.options.responsive = false;
+
+                    this.chart = new Chart(canvas, config);
+
+                    // After Alpine's next DOM update cycle, enable responsiveness
                     this.$nextTick(() => {
-                        const canvas = this.$refs.canvas;
-                        const container = this.$el;
-
-                        // Set canvas size to match container before Chart.js init
-                        canvas.width = container.clientWidth;
-                        canvas.height = container.clientHeight;
-
-                        const config = JSON.parse(this.$el.dataset.chartConfig);
-                        // Start with responsive disabled so animations work
-                        config.options = config.options || {};
-                        config.options.responsive = false;
-
-                        this.chart = new Chart(canvas, config);
-
-                        // After Alpine's next DOM update cycle, enable responsiveness
-                        this.$nextTick(() => {
-                            this.chart.options.responsive = true;
-                            this.chart.resize();
-                        });
+                        this.chart.options.responsive = true;
+                        this.chart.resize();
                     });
                 },
                 destroy() {
@@ -50,4 +48,5 @@
         builder.AddAttribute(3, nameof(Options), options);
         builder.CloseComponent();
     };
+
 }

@@ -44,4 +44,22 @@ internal static class ChartHandlers
                 data => [ChartContent.AsRenderFragment("Notifications Sent", data, ChartJsOptions.IntegerScale)],
                 error => [ChartError.AsRenderFragment(error.ErrorMessage)]);
     }
+    
+    internal static Task<RazorComponentResult> FeedUpdatesSummary(
+        [FromQuery] string? period,
+        [FromServices] ITableClientFactory clientFactory,
+        [FromServices] ILogger<AdminPage> logger,
+        CancellationToken cancellationToken)
+    {
+        var range = ChartDateRange.FromPeriod(period);
+        return FeedUpdatesChart.Get(
+                clientFactory.TableStorageEvents<FeedTitlesUpdateResult>(),
+                range.From,
+                range.To,
+                cancellationToken)
+            .WriteLogs(logger)
+            .ToComponentResult(
+                data => [ChartContent.AsRenderFragment("Feed Updates", data, ChartJsOptions.IntegerScale)],
+                error => [ChartError.AsRenderFragment(error.ErrorMessage)]);
+    }
 }
