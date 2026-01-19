@@ -1,0 +1,14 @@
+@* Wrapper component for card filtering *@
+<div class="card-filter-wrapper" @attributes="GetDataAttributes()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired] public Dictionary<string, bool> FilterAttributes { get; set; } = [];
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = default!;
+
+    private Dictionary<string, object> GetDataAttributes() =>
+        FilterAttributes.ToDictionary(
+            kv => $"data-{kv.Key}",
+            kv => (object)kv.Value.ToString().ToLowerInvariant());
+}

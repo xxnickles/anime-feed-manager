@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Charts;
-
 namespace AnimeFeedManager.Web.BlazorComponents.Charts.ChartJs;
 
 /// <summary>

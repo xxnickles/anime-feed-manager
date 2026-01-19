@@ -1,0 +1,17 @@
+/* ==========================================================================
+   Grid Filter - Show/hide cards based on filter selection
+   ========================================================================== */
+
+/* Hidden state: hide cards when filter is active and item doesn't match */
+#main-grid[data-filter]:not([data-filter=""]) .card-filter-wrapper {
+    display: none;
+}
+
+/* Show items matching the selected filter */
+#main-grid[data-filter="available"] .card-filter-wrapper[data-available="true"],
+#main-grid[data-filter="subscribed"] .card-filter-wrapper[data-subscribed="true"],
+#main-grid[data-filter="interested"] .card-filter-wrapper[data-interested="true"],
+#main-grid[data-filter="completed"] .card-filter-wrapper[data-completed="true"],
+#main-grid[data-filter="not-available"] .card-filter-wrapper[data-not-available="true"] {
+    display: block;
+}

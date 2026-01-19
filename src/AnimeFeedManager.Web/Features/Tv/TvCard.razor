@@ -3,59 +3,62 @@
 
 @if (Series is not null)
 {
-    <SeriesCard SeriesInfo="@Series.TvSeries.AsSeriesCard()" LoaderId="@_loaderId" Id="@_cardId">
-        <CardControls>
-            @switch (Series)
-            {
-                case Available:
-                case AvailableForSubscription:
-                    <Badge Id="@_cardBadgeId" Text="Available" Type="StatusType.Success"></Badge>
-                    break;
-                case Subscribed:
-                    <Badge Id="@_cardBadgeId" Text="Subscribed" Type="StatusType.Primary"></Badge>
-                    break;
-                case Interested:
-                    <Badge Id="@_cardBadgeId" Text="Interested" Type="StatusType.Secondary"></Badge>
-                    break;
-                case Completed:
-                    <Badge Id="@_cardBadgeId" Text="Completed" Type="StatusType.Info"></Badge>
-                    break;
-                default:
-                    <Badge Id="@_cardBadgeId" Text="Not Available" Type="StatusType.Warning"></Badge>
-                    break;
-            }
+    <CardWrapper FilterAttributes="@FilterAttributesHelper.GetFilterAttributes(Series)">
+        <SeriesCard SeriesInfo="@Series.TvSeries.AsSeriesCard()" LoaderId="@_loaderId" Id="@_cardId">
+            <CardControls>
+                @switch (Series)
+                {
+                    case Available:
+                    case AvailableForSubscription:
+                        <Badge Id="@_cardBadgeId" Text="Available" Type="StatusType.Success"></Badge>
+                        break;
+                    case Subscribed:
+                        <Badge Id="@_cardBadgeId" Text="Subscribed" Type="StatusType.Primary"></Badge>
+                        break;
+                    case Interested:
+                        <Badge Id="@_cardBadgeId" Text="Interested" Type="StatusType.Secondary"></Badge>
+                        break;
+                    case Completed:
+                        <Badge Id="@_cardBadgeId" Text="Completed" Type="StatusType.Info"></Badge>
+                        break;
+                    default:
+                        <Badge Id="@_cardBadgeId" Text="Not Available" Type="StatusType.Warning"></Badge>
+                        break;
+                }
 
-            @if (Series.User is AuthenticatedUser)
-            {
-                <ExpandableFab>
-                    <Buttons>
-                        @switch (Series)
-                        {
-                            case AvailableForSubscription:
-                                <ForSubscription Model="@GetSubscriptionModel(Series)"></ForSubscription>
-                                break;
-                            case Subscribed:
-                                <ForSubscriptionRemoval Model="@GetSubscriptionModel(Series)"></ForSubscriptionRemoval>
-                                break;
-                            case AvailableForFuture:
-                                <ForInterested Model="@GetInterestedModel(Series)"></ForInterested>
-                                break;
-                            case Interested:
-                                <ForInterestedRemoval Model="@GetInterestedModel(Series)"></ForInterestedRemoval>
-                                break;
-                        }
-                        
-                        @if (Series.User is AdminUser)
-                        {
-                            <AlternativeTitlesEditorModal Model="GetAlternativeTitlesModel(Series)"></AlternativeTitlesEditorModal>
-                            <SeriesDeleter Model="GetRemoveSeries(Series)"></SeriesDeleter>
-                        }
-                    </Buttons>
-                </ExpandableFab>
-            }
+                @if (Series.User is AuthenticatedUser)
+                {
+                    <ExpandableFab>
+                        <Buttons>
+                            @switch (Series)
+                            {
+                                case AvailableForSubscription:
+                                    <ForSubscription Model="@GetSubscriptionModel(Series)"></ForSubscription>
+                                    break;
+                                case Subscribed:
+                                    <ForSubscriptionRemoval
+                                        Model="@GetSubscriptionModel(Series)"></ForSubscriptionRemoval>
+                                    break;
+                                case AvailableForFuture:
+                                    <ForInterested Model="@GetInterestedModel(Series)"></ForInterested>
+                                    break;
+                                case Interested:
+                                    <ForInterestedRemoval Model="@GetInterestedModel(Series)"></ForInterestedRemoval>
+                                    break;
+                            }
 
-        </CardControls>
-    </SeriesCard>
+                            @if (Series.User is AdminUser)
+                            {
+                                <AlternativeTitlesEditorModal
+                                    Model="GetAlternativeTitlesModel(Series)"></AlternativeTitlesEditorModal>
+                                <SeriesDeleter Model="GetRemoveSeries(Series)"></SeriesDeleter>
+                            }
+                        </Buttons>
+                    </ExpandableFab>
+                }
+            </CardControls>
+        </SeriesCard>
+    </CardWrapper>
 }
 
 @code {
@@ -72,7 +75,7 @@
         _cardId = IdHelpers.GetUniqueName("card");
         _loaderSelector = $"#{_loaderId}";
     }
-    
+
     private TvInterestedViewModel GetInterestedModel(UserTvSeries series)
     {
         return new TvInterestedViewModel
@@ -119,4 +122,5 @@
             CardId = _cardId
         };
     }
+
 }

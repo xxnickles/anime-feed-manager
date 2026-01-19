@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnimeFeedManager.Shared.Charts;
 
 namespace AnimeFeedManager.Web.BlazorComponents.Charts.ChartJs;
 
