@@ -31,6 +31,12 @@ This installs libman (Library Manager) which is used to manage client-side libra
 | **AnimeFeedManager.Web** | Blazor SSR web application |
 | **AnimeFeedManager.Web.BlazorComponents** | Shared Blazor components and email templates |
 
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Custom JavaScript Events](AnimeFeedManager.Web/docs/CUSTOM-EVENTS.md) | Reference for all custom JS events used in the Web project (HTMX triggers, Alpine.js events, SignalR events) |
+
 ## Running Locally
 
 The preferred way to run locally is using the Aspire host:
