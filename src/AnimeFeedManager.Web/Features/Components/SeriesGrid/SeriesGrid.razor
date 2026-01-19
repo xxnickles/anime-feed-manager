@@ -1,14 +1,30 @@
-﻿<div @attributes="AdditionalAttributes" id="main-grid">
-     <section class="grid grid-cols-[repeat(auto-fit,minmax(370px,0.75fr))] justify-center auto-rows-min gap-10 px-2 md:px-10 py-2 md:py-4">
-          @ChildContent
-     </section>
+@*
+    Alpine.js State:
+    - selectedFilter: string - Current filter value (empty string = "All")
+    - Filter values: "available", "subscribed", "interested", "completed", "not-available"
+    - State is updated via 'filter-changed' event dispatched from GridFilter component
+    - The data-filter attribute is used by CSS selectors to show/hide cards
+*@
+<div @attributes="AdditionalAttributes"
+     id="main-grid"
+     x-data="{ selectedFilter: '' }"
+     x-bind:data-filter="selectedFilter"
+     x-on:filter-changed="selectedFilter = $event.detail.filter">
+    <div class="fixed top-20 right-4 z-20">
+        <GridFilter IsAuthenticated="IsAuthenticated" />
+    </div>
+    <section class="grid grid-cols-[repeat(auto-fit,minmax(370px,0.75fr))] lg:grid-cols-[repeat(auto-fit,minmax(370px,450px))] justify-center auto-rows-min gap-10 px-2 md:px-10 py-2 md:py-4">
+        @ChildContent
+    </section>
 </div>
 
 
 @code {
-     [Parameter(CaptureUnmatchedValues = true)]
-     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
-     [Parameter, EditorRequired]
-     public RenderFragment ChildContent { get; set; } = @<span>No content here!</span>;
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = @<span>No content here!</span>;
+
+    [Parameter] public bool IsAuthenticated { get; set; }
 }

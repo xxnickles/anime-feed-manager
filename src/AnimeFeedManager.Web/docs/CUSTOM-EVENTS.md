@@ -17,6 +17,7 @@ Custom events dispatched using Alpine.js `$dispatch()`.
 | Event | Description | Payload | Dispatched From | Listened By |
 |-------|-------------|---------|-----------------|-------------|
 | `period-changed` | Fired when user selects a different time period for charts | `{ value: '7d'\|'14d'\|'30d'\|'60d'\|'90d' }` | `Charts.razor:3` | ChartSkeleton components - triggers chart reload with new period |
+| `filter-changed` | Fired when user changes the grid filter selection | `{ filter: string }` | `GridFilter.razor:4` | `SeriesGrid.razor:12` - updates selectedFilter state, CSS handles show/hide |
 | `alt-titles:saving` | Fired when alternative titles are being saved | - | Alternative titles editor | `AlternativeTitlesEditorModal.razor:14` - closes the dialog |
 
 ## SignalR Connection Events

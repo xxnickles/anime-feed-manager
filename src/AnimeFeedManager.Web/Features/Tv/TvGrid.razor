@@ -12,10 +12,10 @@
 <SeasonLinks SelectedSeason="Season"></SeasonLinks>
 @if (_series.Count > 0)
 {
-    <SeriesGrid>
+    <SeriesGrid IsAuthenticated="@(_user is AuthenticatedUser)">
         @foreach (var series in _series)
         {
-           <TvCard Series="series"></TvCard>
+            <TvCard Series="series"></TvCard>
         }
     </SeriesGrid>
 }
@@ -28,18 +28,18 @@ else
 @code {
     [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = new(Shared.Types.Season.Current, Year.Current);
     ImmutableList<UserTvSeries> _series = [];
+    AppUser _user = new Anonymous();
 
-    
     protected override async Task OnInitializedAsync()
     {
-        var user = HttpContextAccessor.HttpContext?.GetCurrentUser() ?? new Anonymous();
+        _user = HttpContextAccessor.HttpContext?.GetCurrentUser() ?? new Anonymous();
         await TableClientFactory.TableStorageTvLibraryGetter
-                                .GetTvLibrarySeries(Season, BlobServiceClient.Uri, CancellationToken.None)
-                                .GetTvLibraryForUser(user, TableClientFactory.TableStorageTvSubscriptions, CancellationToken.None)
-                                .WriteLogs(Logger)
-                                .Match(
-                                    series => { _series = series; },
-                                    _ => { _series = []; });
+            .GetTvLibrarySeries(Season, BlobServiceClient.Uri, CancellationToken.None)
+            .GetTvLibraryForUser(_user, TableClientFactory.TableStorageTvSubscriptions, CancellationToken.None)
+            .WriteLogs(Logger)
+            .Match(
+                series => { _series = series; },
+                _ => { _series = []; });
     }
 
 }

@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './fab.css';
+@import './grid-filter.css';
 
 @source "../../AnimeFeedManager.Web.BlazorComponents";
 /*

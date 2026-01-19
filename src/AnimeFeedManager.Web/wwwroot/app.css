@@ -2419,6 +2419,9 @@
   .absolute {
     position: absolute;
   }
+  .fixed {
+    position: fixed;
+  }
   .relative {
     position: relative;
   }
@@ -2437,6 +2440,18 @@
       &:after {
         transform: translateX(-50%) translateY(var(--tt-pos, -0.25rem)) rotate(180deg);
         inset: var(--tt-tail) auto auto 50%;
+      }
+    }
+  }
+  .tooltip-left {
+    @layer daisyui.l1.l2 {
+      > .tooltip-content, &[data-tip]:before {
+        transform: translateX(calc(var(--tt-pos, 0.25rem) - 0.25rem)) translateY(-50%);
+        inset: 50% var(--tt-off) auto auto;
+      }
+      &:after {
+        transform: translateX(var(--tt-pos, 0.25rem)) translateY(-50%) rotate(-90deg);
+        inset: 50% calc(var(--tt-tail) + 1px) auto auto;
       }
     }
   }
@@ -2505,8 +2520,14 @@
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
+  .top-20 {
+    top: calc(var(--spacing) * 20);
+  }
   .right-0 {
     right: calc(var(--spacing) * 0);
+  }
+  .right-4 {
+    right: calc(var(--spacing) * 4);
   }
   .bottom-0 {
     bottom: calc(var(--spacing) * 0);
@@ -3011,6 +3032,9 @@
   }
   .m-0 {
     margin: calc(var(--spacing) * 0);
+  }
+  .m-1 {
+    margin: calc(var(--spacing) * 1);
   }
   .m-4 {
     margin: calc(var(--spacing) * 4);
@@ -3534,6 +3558,9 @@
   }
   .w-16 {
     width: calc(var(--spacing) * 16);
+  }
+  .w-52 {
+    width: calc(var(--spacing) * 52);
   }
   .w-60 {
     width: calc(var(--spacing) * 60);
@@ -4096,6 +4123,10 @@
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
+  .shadow-xl {
+    --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
   .btn-ghost {
     @layer daisyui.l1 {
       &:not(.btn-active, :hover, :active:focus, :focus-visible, input:checked:not(.filter .btn)) {
@@ -4639,6 +4670,11 @@
       min-width: 25vw;
     }
   }
+  .lg\:grid-cols-\[repeat\(auto-fit\,minmax\(370px\,450px\)\)\] {
+    @media (width >= 64rem) {
+      grid-template-columns: repeat(auto-fit,minmax(370px,450px));
+    }
+  }
 }
 .fab-actions {
   pointer-events: none;
@@ -4691,6 +4727,12 @@
 }
 .fab-action-labeled .fab-action-label {
   transition-delay: 90ms;
+}
+#main-grid[data-filter]:not([data-filter=""]) .card-filter-wrapper {
+  display: none;
+}
+#main-grid[data-filter="available"] .card-filter-wrapper[data-available="true"], #main-grid[data-filter="subscribed"] .card-filter-wrapper[data-subscribed="true"], #main-grid[data-filter="interested"] .card-filter-wrapper[data-interested="true"], #main-grid[data-filter="completed"] .card-filter-wrapper[data-completed="true"], #main-grid[data-filter="not-available"] .card-filter-wrapper[data-not-available="true"] {
+  display: block;
 }
 @layer base {
   *, ::after, ::before, ::backdrop, ::file-selector-button {
