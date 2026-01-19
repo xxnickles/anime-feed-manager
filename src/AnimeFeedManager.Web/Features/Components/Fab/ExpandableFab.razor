@@ -2,12 +2,11 @@
 
 <div class="fab-container group/fab relative inline-block">
     @* Main FAB *@
-    <div tabindex="0"
-         role="button"
-         class="btn btn-circle btn-primary btn-sm shadow-lg relative z-20
-                transition-transform duration-200
-                group-hover/fab:rotate-45 group-focus-within/fab:rotate-45"
-         aria-label="@(MainAriaLabel ?? "Open actions")">
+    <button type="button"
+            class="btn btn-circle btn-primary btn-sm shadow-lg relative z-20
+                   transition-transform duration-200
+                   group-hover/fab:rotate-45 group-focus-within/fab:rotate-45"
+            aria-label="@(MainAriaLabel ?? "Open actions")">
         @if (MainIcon is not null)
         {
             @MainIcon
@@ -19,7 +18,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
             </svg>
         }
-    </div>
+    </button>
 
     @* Actions (stack upward, centered under trigger; labels grow to the left) *@
     <div class="fab-actions absolute bottom-0 left-1/2 -translate-x-1/2 pb-14
