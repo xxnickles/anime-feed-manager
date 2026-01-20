@@ -79,6 +79,29 @@ public static class ResultCollectionExtensionMembers
         /// </returns>
         public async Task<Result<ImmutableList<T>>> Flatten()
             => (await Task.WhenAll(results.ToArray())).Flatten();
+
+        /// <summary>
+        /// Awaits tasks in batches and flattens the resulting collection into a single result.
+        /// Uses <see cref="Enumerable.Chunk{TSource}"/> to split tasks into batches,
+        /// processing each batch with <see cref="Task.WhenAll"/> before moving to the next.
+        /// This limits concurrent execution, useful for rate-limited APIs or resource-constrained operations.
+        /// </summary>
+        /// <param name="batchSize">The maximum number of tasks to execute concurrently in each batch.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> containing a <see cref="Result{T}"/> with an <see cref="ImmutableList{T}"/>
+        /// of all success values, or an <see cref="AggregatedError"/> with all failures.
+        /// </returns>
+        public async Task<Result<ImmutableList<T>>> FlattenBatched(int batchSize)
+        {
+            var all = new List<Result<T>>();
+            foreach (var batch in results.Chunk(batchSize))
+            {
+                var batchResults = await Task.WhenAll(batch);
+                all.AddRange(batchResults);
+            }
+
+            return all.Flatten();
+        }  
     }
 
     // ──────────────────────────────────────────────────────────────────
