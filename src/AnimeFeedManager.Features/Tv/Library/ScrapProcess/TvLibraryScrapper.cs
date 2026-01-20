@@ -1,7 +1,10 @@
 ﻿using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
+using AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
+
+public delegate Task<Result<ScrapTvLibraryData>> TvScrapper(SeasonSelector season, CancellationToken token);
 
 public interface ITvLibraryScrapper
 {

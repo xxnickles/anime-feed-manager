@@ -18,6 +18,10 @@ public readonly record struct Delay
     }
 }
 
+public delegate Task<Result<Unit>> DomainCollectionSender(IEnumerable<DomainMessage> message,
+    CancellationToken cancellationToken = default);
+
+
 public interface IDomainPostman
 {
     Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;

@@ -3,6 +3,7 @@ using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
+using AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 

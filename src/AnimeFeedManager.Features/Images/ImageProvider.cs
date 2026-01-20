@@ -13,6 +13,8 @@ public interface IImageProvider
     Task<Result<Uri>> Process(ImageProcessData data, CancellationToken cancellationToken = default);
 }
 
+public delegate Task<Result<Uri>> ImageProcessor(ImageProcessData data, CancellationToken cancellationToken = default);
+
 public class ImageProvider : IImageProvider
 {
     public const string Container = "images";

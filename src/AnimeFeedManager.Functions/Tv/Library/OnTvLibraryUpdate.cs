@@ -3,6 +3,7 @@ using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
+using static AnimeFeedManager.Features.Tv.Library.ScrapProcess.TvScrapProcess;
 
 namespace AnimeFeedManager.Functions.Tv.Library;
 
@@ -65,10 +66,14 @@ public class OnTvLibraryUpdate
     private Task<Result<ScrapTvLibraryResult>> RunScraper(
         SeasonParameters? seasonParameters,
         CancellationToken token) =>
-        TryGetSeasonSelector(seasonParameters).ScrapTvSeries(_scrapper, token)
-            .AddImagesLinks(_imageProvider, _logger, token)
-            .UpdateTvLibrary(_tableClientFactory.TableStorageTvLibraryUpdater, token)
+        ScrapTvSeries(
+                seasonParameters,
+                _scrapper.ScrapTvSeries,
+                _imageProvider.Process,
+                _tableClientFactory.TableStorageTvLibraryUpdater,
+                token)
             .SendEvents(_domainPostman, seasonParameters, token);
+
 
     private static Result<SeasonSelector> TryGetSeasonSelector(SeasonParameters? season)
     {
