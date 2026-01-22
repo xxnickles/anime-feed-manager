@@ -7,7 +7,7 @@ public static class CompleteOngoing
     public static Task<Result<CompleteOnGoingTvSeriesProcessResult>> CompleteOngoingSeries(
         string[] updatedFeed,
         ITableClientFactory clientFactory,
-        IDomainPostman domainPostman,
+        DomainCollectionSender domainPostman,
         CancellationToken token)
     {
         return StartProcess(clientFactory.TableStorageOnGoingStoredTvSeries, updatedFeed, token)
@@ -40,22 +40,22 @@ public static class CompleteOngoing
             );
         }
 
-        private Task<Result<CompleteOnGoingTvSeriesProcess>> SendEvents(IDomainPostman domainPostman,
+        private Task<Result<CompleteOnGoingTvSeriesProcess>> SendEvents(DomainCollectionSender domainPostman,
             CancellationToken token) => process
             .BindWhen(
-                data => domainPostman.SendMessage(GetEvent(data), token).Map(_ => data),  
+                data => domainPostman([GetEvent(data)], token).Map(_ => data),
                 data => data.SeriesToComplete.Count > 0)
-            .MapError(e => domainPostman
-                .SendMessage(
-                    new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
-                        new CompletedTvSeriesResult([], ResultType.Failed).AsEventPayload()),
+            .MapError(e => domainPostman(
+                    [
+                        new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
+                            new CompletedTvSeriesResult([], ResultType.Failed).AsEventPayload())
+                    ],
                     token)
                 .MatchToValue(_ => e, error => error));
     }
 
 
     private static SystemEvent GetEvent(CompleteOnGoingTvSeriesProcess data) =>
-    
         new(
             TargetConsumer.Admin(),
             EventTarget.Both,

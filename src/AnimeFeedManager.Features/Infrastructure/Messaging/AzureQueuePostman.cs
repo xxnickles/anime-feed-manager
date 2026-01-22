@@ -18,13 +18,11 @@ public readonly record struct Delay
     }
 }
 
-public delegate Task<Result<Unit>> DomainCollectionSender(IEnumerable<DomainMessage> message,
+public delegate Task<Result<Unit>> DomainCollectionSender(IEnumerable<DomainMessage> messages,
     CancellationToken cancellationToken = default);
 
 
-public interface IDomainPostman
-{
-    Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage;
+public interface IDomainPostman{
 
     Task<Result<Unit>> SendMessages<T>(IEnumerable<T> message, CancellationToken cancellationToken = default)
         where T : DomainMessage;
@@ -45,28 +43,15 @@ public class AzureQueuePostman : IDomainPostman
         _queueServiceClient = queueServiceClient;
         _logger = logger;
     }
-
-    public async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
-        where T : DomainMessage
-    {
-        if (message.MessageBox.HasNoTarget())
-            return Error.Create($"{typeof(T).FullName} has not a target box");
-
-        try
-        {
-            await SendMessage(message, message.MessageBox, null, cancellationToken);
-            return new Unit();
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Error sending message {Message}", message);
-            return MessagesNotDelivered.Create(e.Message, message);
-        }
-    }
+   
 
     public async Task<Result<Unit>> SendMessages<T>(IEnumerable<T> messages,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
+        // If there is only one message, send it directly
+        if (messages.Count() is 1)
+            return await SendMessage(messages.First(), cancellationToken);
+        
         var processMessages = new Queue<T>(messages);
         try
         {
@@ -101,6 +86,24 @@ public class AzureQueuePostman : IDomainPostman
         try
         {
             await SendMessage(message, message.MessageBox, delay.Value, cancellationToken);
+            return new Unit();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error sending message {Message}", message);
+            return MessagesNotDelivered.Create(e.Message, message);
+        }
+    }
+    
+    private async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
+        where T : DomainMessage
+    {
+        if (message.MessageBox.HasNoTarget())
+            return Error.Create($"{typeof(T).FullName} has not a target box");
+
+        try
+        {
+            await SendMessage(message, message.MessageBox, null, cancellationToken);
             return new Unit();
         }
         catch (Exception e)

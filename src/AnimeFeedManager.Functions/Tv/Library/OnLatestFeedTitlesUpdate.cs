@@ -59,6 +59,6 @@ public class OnLatestFeedTitlesUpdate
             .GetFeedTitles(_seasonFeedDataProvider)
             .UpdateSeries(_tableClientFactory.TableStorageRawExistentStoredSeries(),
                 _tableClientFactory.TableStorageTvLibraryUpdater, token)
-            .SendEvents(_domainPostman, token);
+            .SendEvents(_domainPostman.SendMessages, token);
     }
 }

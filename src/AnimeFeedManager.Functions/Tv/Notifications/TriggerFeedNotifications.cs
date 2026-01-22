@@ -55,7 +55,7 @@ public class TriggerFeedNotifications
     {
         return feed.RunProcess(
             _tableClientFactory.TableStorageTvUserActiveSubscriptions,
-            _domainPostman,
+            _domainPostman.SendMessages,
             token);
     }
 }

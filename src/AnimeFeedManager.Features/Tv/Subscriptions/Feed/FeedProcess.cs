@@ -9,7 +9,7 @@ public static class FeedProcess
     public static Task<Result<FeedProcessSummary>> RunProcess(
         this Result<DailySeriesFeed[]> dailyFeed,
         TvUserActiveSubscriptions tvUserActiveSubscriptions,
-        IDomainPostman domainPostman,
+        DomainCollectionSender domainPostman,
         CancellationToken cancellationToken = default)
     {
         // 1. Go to subs please and get the latest version of the feed
@@ -39,11 +39,11 @@ public static class FeedProcess
     
     private static Task<Result<FeedProcessSummary>> SendMessages(
         this Task<Result<FeedNotification[]>> notifications,
-        IDomainPostman postman,
+        DomainCollectionSender domainPostman,
         CancellationToken token)
     {
         return notifications.Bind(n => 
-            postman.SendMessages(n, token)
+            domainPostman(n, token)
                 .Map(_ => new FeedProcessSummary(n.Length)));
     }
 

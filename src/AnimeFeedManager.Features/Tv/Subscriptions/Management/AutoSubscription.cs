@@ -10,7 +10,7 @@ public static class AutoSubscription
         string seriesId,
         string feedTitle,
         ITableClientFactory clientFactory,
-        IDomainPostman domainPostman,
+        DomainCollectionSender domainPostman,
         CancellationToken token)
     {
         return StartProcess(seriesId, feedTitle, clientFactory.TableStorageTvInterestedBySeries, token)
@@ -38,15 +38,15 @@ public static class AutoSubscription
         }
 
         internal Task<Result<Summary>> SendEvents(string seriesId,
-            IDomainPostman domainPostman,
+            DomainCollectionSender domainPostman,
             CancellationToken token)
         {
             return process.BindWhen(
-                    data => domainPostman.SendMessage(GetEvent(data), token).Map(_ => data),
+                    data => domainPostman([GetEvent(data)], token).Map(_ => data),
                     data => new Summary(data.InterestedSeries.Count),
                     data => data.InterestedSeries.Count > 0)
                 .MapError(error =>
-                    domainPostman.SendMessage(GetErrorEvent(seriesId), token)
+                    domainPostman([GetErrorEvent(seriesId)], token)
                         .MatchToValue(_ => error, e => e));
         }
     }

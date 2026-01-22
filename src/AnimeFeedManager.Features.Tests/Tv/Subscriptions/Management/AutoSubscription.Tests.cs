@@ -183,9 +183,12 @@ public class AutoSubscriptionTests
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
 
-        var domainPostman = A.Fake<IDomainPostman>();
-        A.CallTo(() => domainPostman.SendMessage(A<SystemEvent>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+        var capturedEvents = new List<SystemEvent>();
+        DomainCollectionSender domainPostman = (messages, _) =>
+        {
+            capturedEvents.AddRange(messages.OfType<SystemEvent>());
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
@@ -194,14 +197,11 @@ public class AutoSubscriptionTests
             Assert.Equal(2, summary.Changes);
         });
 
-        A.CallTo(() => domainPostman.SendMessage(
-            A<SystemEvent>.That.Matches(e =>
-                e.Consumer == TargetConsumer.Admin() &&
-                e.Target == EventTarget.LocalStorage &&
-                e.Type == EventType.Completed
-            ),
-            A<CancellationToken>._
-        )).MustHaveHappenedOnceExactly();
+        Assert.Single(capturedEvents);
+        var evt = capturedEvents[0];
+        Assert.Equal(TargetConsumer.Admin(), evt.Consumer);
+        Assert.Equal(EventTarget.LocalStorage, evt.Target);
+        Assert.Equal(EventType.Completed, evt.Type);
     }
 
     [Fact]
@@ -213,9 +213,8 @@ public class AutoSubscriptionTests
         var process = new AutoSubscriptionProcess(seriesId, emptySubscriptions);
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
 
-        var domainPostman = A.Fake<IDomainPostman>();
-        A.CallTo(() => domainPostman.SendMessage(A<SystemEvent>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+        DomainCollectionSender domainPostman = (messages, _) =>
+            Task.FromResult(Result<Unit>.Success(new Unit()));
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
@@ -232,22 +231,22 @@ public class AutoSubscriptionTests
         var originalError = Error.Create("Process failed");
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Failure(originalError));
 
-        var domainPostman = A.Fake<IDomainPostman>();
-        A.CallTo(() => domainPostman.SendMessage(A<SystemEvent>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+        var capturedEvents = new List<SystemEvent>();
+        DomainCollectionSender domainPostman = (messages, _) =>
+        {
+            capturedEvents.AddRange(messages.OfType<SystemEvent>());
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
         result.AssertError();
 
-        A.CallTo(() => domainPostman.SendMessage(
-            A<SystemEvent>.That.Matches(e =>
-                e.Consumer == TargetConsumer.Admin() &&
-                e.Target == EventTarget.LocalStorage &&
-                e.Type == EventType.Error
-            ),
-            A<CancellationToken>._
-        )).MustHaveHappenedOnceExactly();
+        Assert.Single(capturedEvents);
+        var evt = capturedEvents[0];
+        Assert.Equal(TargetConsumer.Admin(), evt.Consumer);
+        Assert.Equal(EventTarget.LocalStorage, evt.Target);
+        Assert.Equal(EventType.Error, evt.Type);
     }
 
     [Fact]
@@ -258,9 +257,8 @@ public class AutoSubscriptionTests
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Failure(originalError));
 
         var errorEventError = Error.Create("Failed to send error event");
-        var domainPostman = A.Fake<IDomainPostman>();
-        A.CallTo(() => domainPostman.SendMessage(A<SystemEvent>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<Unit>.Failure(errorEventError)));
+        DomainCollectionSender domainPostman = (messages, _) =>
+            Task.FromResult(Result<Unit>.Failure(errorEventError));
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
@@ -290,13 +288,11 @@ public class AutoSubscriptionTests
         };
 
         var capturedEvents = new List<SystemEvent>();
-        var domainPostman = A.Fake<IDomainPostman>();
-        A.CallTo(() => domainPostman.SendMessage(A<SystemEvent>._, A<CancellationToken>._))
-            .ReturnsLazily((SystemEvent evt, CancellationToken _) =>
-            {
-                capturedEvents.Add(evt);
-                return Task.FromResult(Result<Unit>.Success(new Unit()));
-            });
+        DomainCollectionSender domainPostman = (messages, _) =>
+        {
+            capturedEvents.AddRange(messages.OfType<SystemEvent>());
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, SeriesGetter, CancellationToken.None)
             .StoreChanges(updater, CancellationToken.None)
@@ -326,13 +322,11 @@ public class AutoSubscriptionTests
         var error = Error.Create("Database error");
 
         var capturedEvents = new List<SystemEvent>();
-        var domainPostman = A.Fake<IDomainPostman>();
-        A.CallTo(() => domainPostman.SendMessage(A<SystemEvent>._, A<CancellationToken>._))
-            .ReturnsLazily((SystemEvent evt, CancellationToken _) =>
-            {
-                capturedEvents.Add(evt);
-                return Task.FromResult(Result<Unit>.Success(new Unit()));
-            });
+        DomainCollectionSender domainPostman = (messages, _) =>
+        {
+            capturedEvents.AddRange(messages.OfType<SystemEvent>());
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
 
         TvSubscriptionsUpdater updater = (subs, token) =>
             Task.FromResult(Result<Unit>.Success(new Unit()));
@@ -384,9 +378,8 @@ public class AutoSubscriptionTests
 
         var capturedSubscriptions = new List<SubscriptionStorage>();
 
-        var domainPostman = A.Fake<IDomainPostman>();
-        A.CallTo(() => domainPostman.SendMessage(A<SystemEvent>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+        DomainCollectionSender domainPostman = (messages, _) =>
+            Task.FromResult(Result<Unit>.Success(new Unit()));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, SeriesGetter, CancellationToken.None)
             .StoreChanges(Updater, CancellationToken.None)

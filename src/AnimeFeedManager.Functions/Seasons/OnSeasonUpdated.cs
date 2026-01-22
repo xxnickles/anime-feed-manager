@@ -36,7 +36,7 @@ public class OnSeasonUpdated
             .UpdateLast4Seasons(_tableClientFactory.TableStorageAllSeasonsGetter,
                 _tableClientFactory.TableStorageLastestSeasonsUpdater,
                 token)
-            .SentEvents(_domainPostman, message.Season, token)
+            .SentEvents(_domainPostman.SendMessages, message.Season, token)
             .AddLogOnSuccess(LogSuccess)
             .WriteLogs(_logger)
             .Done();

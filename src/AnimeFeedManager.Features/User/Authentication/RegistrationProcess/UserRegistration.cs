@@ -12,11 +12,13 @@ public static class UserRegistration
         IPasswordlessClient passwordlessClient,
         UserUpdater updater,
         ExistentUserGetterByEmail userGetter,
+        DomainCollectionSender domainPostman,
         CancellationToken cancellationToken
     )
     {
         return VerifyData(userGetter, displayName, email, cancellationToken)
-            .CreateUser(passwordlessClient, updater, cancellationToken);
+            .CreateUser(passwordlessClient, updater, cancellationToken)
+            .SendEvents(domainPostman, cancellationToken);
     }
 
 

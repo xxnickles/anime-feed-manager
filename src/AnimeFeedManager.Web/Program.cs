@@ -4,6 +4,7 @@ using AnimeFeedManager.Services.Shared;
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
+using AnimeFeedManager.Web.Features.Security.Endpoints;
 using AnimeFeedManager.Web.Features.Tv.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);

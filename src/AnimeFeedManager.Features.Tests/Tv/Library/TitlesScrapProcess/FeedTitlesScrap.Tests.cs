@@ -160,26 +160,16 @@ public class FeedTitlesScrapTests
         };
     }
 
-    private sealed class TestDomainPostman : IDomainPostman
+    private sealed class TestDomainPostman
     {
         public readonly List<DomainMessage> Sent = new();
 
-        public Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage
+        public DomainCollectionSender Delegate => (messages, cancellationToken) =>
         {
-            Sent.Add(message);
+            Sent.AddRange(messages);
             return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
+        };
 
-        public Task<Result<Unit>> SendMessages<T>(IEnumerable<T> message, CancellationToken cancellationToken = default) where T : DomainMessage
-        {
-            Sent.AddRange(message.Cast<DomainMessage>());
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
-
-        public Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay, CancellationToken cancellationToken = default) where T : DomainMessage
-        {
-            Sent.Add(message);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
+        public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;
     }
 }

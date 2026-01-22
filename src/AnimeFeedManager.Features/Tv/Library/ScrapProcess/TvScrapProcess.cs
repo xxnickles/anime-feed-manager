@@ -17,12 +17,8 @@ public static class TvScrapProcess
             .AddImagesLinks(imagesProvider, token)
             .UpdateTvLibrary(libraryStorageUpdater, token);
     }
-
-
-    private static Task<Result<ScrapTvLibraryData>> GetTvSeries(
-        this Result<SeasonSelector> seasonSelector,
-        TvScrapper scrapper,
-        CancellationToken token) => seasonSelector.Bind(season => scrapper(season, token));
+    
+    // Just combinators to make the code more readable
     
     private static Result<SeasonSelector> TryGetSeasonSelector(SeasonParameters? season)
     {
@@ -34,7 +30,13 @@ public static class TvScrapProcess
             .Map<SeriesSeason, SeasonSelector>(parsedSeason => new BySeason(parsedSeason.Season, parsedSeason.Year));
     }
     
-    // Just combinators to make the code more readable
+    
+    private static Task<Result<ScrapTvLibraryData>> GetTvSeries(
+        this Result<SeasonSelector> seasonSelector,
+        TvScrapper scrapper,
+        CancellationToken token) => seasonSelector.Bind(season => scrapper(season, token));
+    
+   
     extension(Task<Result<ScrapTvLibraryData>> processData)
     {
         private Task<Result<ScrapTvLibraryData>> AddImagesLinks(ImageProcessor imagesProvider,
