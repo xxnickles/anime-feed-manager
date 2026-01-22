@@ -2,13 +2,13 @@ using AnimeFeedManager.Features.User.Authentication.Events;
 
 namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
-public static class EventSending
+internal static class EventSending
 {
-    public static Task<Result<UserRegistrationResult>> SendEvents(
-        this Result<UserRegistrationResult> processData,
-        IDomainPostman domainPostman,
+    internal static Task<Result<UserRegistrationResult>> SendEvents(
+        this Task<Result<UserRegistrationResult>> processData,
+        DomainCollectionSender domainPostman,
         CancellationToken token) => processData
-        .Bind(data => domainPostman.SendMessages(GetEvents(new UserRegistered(data.Email, data.UserId)), token)
+        .Bind(data => domainPostman(GetEvents(new UserRegistered(data.Email, data.UserId)), token)
         .Map(_ => data));
 
 

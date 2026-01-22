@@ -32,7 +32,7 @@ public class OnFeedTitlesUpdate
          
         await FeedTitlesUpdate.StoreTitles(new FeedTitleUpdateData(message.Season, message.FeedTitles ?? []),
                 _tableClientFactory.TableStorageFeedTitlesUpdater, token)
-            .SentEvents(_domainPostman, message.Season, token)
+            .SentEvents(_domainPostman.SendMessages, message.Season, token)
             .AddLogOnSuccess(_ => logger => logger.LogInformation("Feed titles have been updated"))
             .WriteLogs(_logger)
             .Done();

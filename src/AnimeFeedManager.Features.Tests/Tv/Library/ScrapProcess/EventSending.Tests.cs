@@ -78,7 +78,7 @@ public class EventSendingTests
     {
         var season = new SeriesSeason(Season.Spring(), Year.FromNumber(2025));
         var data = CreateTestLibrary([], season);
-        var postman = new TestDomainPostman { FailOnSendMessages = true };
+        var postman = new TestDomainPostman { FailOnFirstSend = true };
 
         var parameters = new SeasonParameters(season.Season.ToString(), (ushort) season.Year);
         var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(data))
@@ -89,32 +89,24 @@ public class EventSendingTests
         Assert.Contains(postman.Sent, m => m is SystemEvent {Type: EventType.Error});
     }
     
-    private sealed class TestDomainPostman : IDomainPostman
+    private sealed class TestDomainPostman
     {
         public readonly List<DomainMessage> Sent = new();
-        public bool FailOnSendMessages { get; set; }
+        public bool FailOnFirstSend { get; set; }
+        private bool _firstCallDone;
 
-        public Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default) where T : DomainMessage
+        public DomainCollectionSender Delegate => (messages, cancellationToken) =>
         {
-            Sent.Add(message);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
-
-        public Task<Result<Unit>> SendMessages<T>(IEnumerable<T> message, CancellationToken cancellationToken = default) where T : DomainMessage
-        {
-            if (FailOnSendMessages)
+            if (FailOnFirstSend && !_firstCallDone)
             {
-                return Task.FromResult<Result<Unit>>(MessagesNotDelivered.Create("forced failure", message));
+                _firstCallDone = true;
+                return Task.FromResult<Result<Unit>>(MessagesNotDelivered.Create("forced failure", messages));
             }
-            Sent.AddRange(message.Cast<DomainMessage>());
+            Sent.AddRange(messages);
             return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
+        };
 
-        public Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay, CancellationToken cancellationToken = default) where T : DomainMessage
-        {
-            Sent.Add(message);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
+        public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;
     }
 
     private static StorageData MakeSeries(string id, string? title, string? feedTitle, string seriesStatus, Status processStatus)

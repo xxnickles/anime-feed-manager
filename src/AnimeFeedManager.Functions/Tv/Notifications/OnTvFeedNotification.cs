@@ -39,7 +39,7 @@ public class OnTvFeedNotification
                 cancellationToken)
             .Bind(_ => NotificationProcess.UpdateUserSubscriptions(notification,
                 _tableClientFactory.TableStorageTvSubscriptionsUpdater,
-                _domainPostman,
+                _domainPostman.SendMessages,
                 cancellationToken))
             .AddLogOnSuccess(summary => logger => logger.LogInformation("{NotificationCount} have been sent to {User}", summary.NotificationsSent, summary.UserId))
             .WriteLogs(_logger)

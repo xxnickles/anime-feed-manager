@@ -72,7 +72,7 @@ public class OnTvLibraryUpdate
                 _imageProvider.Process,
                 _tableClientFactory.TableStorageTvLibraryUpdater,
                 token)
-            .SendEvents(_domainPostman, seasonParameters, token);
+            .SendEvents(_domainPostman.SendMessages, seasonParameters, token);
 
 
     private static Result<SeasonSelector> TryGetSeasonSelector(SeasonParameters? season)

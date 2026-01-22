@@ -8,16 +8,17 @@ public static class EventSending
 {
     public static Task<Result<ScrapTvLibraryResult>> SendEvents(
         this Task<Result<ScrapTvLibraryData>> processData,
-        IDomainPostman domainPostman,
+        DomainCollectionSender domainPostman,
         SeasonParameters? parameters,
         CancellationToken token) => processData
         .Map(data => (processData: data, Summary: ExtractResults(data)))
-        .Bind(data => domainPostman.SendMessages(GetEvents(data), token)
+        .Bind(data => domainPostman(GetEvents(data), token)
             .Map(_ => data.Summary)
-        ).MapError(e => domainPostman
-            .SendMessage(
-                new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
-                    GetErrorPayload(parameters)),
+        ).MapError(e => domainPostman(
+                [
+                    new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
+                        GetErrorPayload(parameters))
+                ],
                 token)
             .MatchToValue(_ => e, error => error)
         );
@@ -30,7 +31,8 @@ public static class EventSending
     private static DomainMessage[] GetEvents((ScrapTvLibraryData processData, ScrapTvLibraryResult summary) data)
     {
         var titles = data.processData.FeedData.Select(f => f.Title).ToArray();
-        return   [
+        return
+        [
             new SeasonUpdated(data.processData.Season),
             new FeedTitlesUpdated(data.processData.Season, titles),
             new CompleteOngoingSeries(titles),
@@ -41,12 +43,11 @@ public static class EventSending
             .. GetFeedUpdatedEvents(data.processData)
         ];
     }
-  
 
 
     private static CompletedSeries[] GetCompletedSeriesEvent(ScrapTvLibraryData data)
     {
-       return data.SeriesData.Where(s => s.Series.Status == SeriesStatus.Completed())
+        return data.SeriesData.Where(s => s.Series.Status == SeriesStatus.Completed())
             .Select(s => new CompletedSeries(s.Series.RowKey ?? string.Empty))
             .ToArray();
     }
@@ -62,8 +63,9 @@ public static class EventSending
         new(data.Season,
             data.SeriesData.Count(d => d.Status is Status.UpdatedSeries),
             data.SeriesData.Count(d => d.Status is Status.NewSeries));
-    
-    private static UpdatedToOngoing[] GetUpdatedToOngoingEvents(ScrapTvLibraryData data) => data.SeriesData.Where(d => d.Status is not Status.NoChanges && d.Series.Status == SeriesStatus.Ongoing())
+
+    private static UpdatedToOngoing[] GetUpdatedToOngoingEvents(ScrapTvLibraryData data) => data.SeriesData.Where(d =>
+            d.Status is not Status.NoChanges && d.Series.Status == SeriesStatus.Ongoing())
         .Select(d => new UpdatedToOngoing(d.Series.RowKey ?? string.Empty, d.Series.FeedTitle ?? string.Empty))
-        .ToArray(); 
+        .ToArray();
 }

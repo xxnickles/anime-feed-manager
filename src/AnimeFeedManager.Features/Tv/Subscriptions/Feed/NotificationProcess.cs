@@ -9,7 +9,7 @@ public static class NotificationProcess
     public static Task<Result<UserNotificationSummary>> UpdateUserSubscriptions(
         FeedNotification updateNotification,
         TvSubscriptionsUpdater updater,
-        IDomainPostman domainPostman,
+        DomainCollectionSender domainPostman,
         CancellationToken token)
     {
         return UpdateUserSubscription(updateNotification, updater, token)
@@ -80,7 +80,7 @@ public static class NotificationProcess
         );
     }
 
-    private static Task<Result<UserNotificationResult>> SendNotifications(IDomainPostman domainPostman, UserNotificationResult result)
+    private static Task<Result<UserNotificationResult>> SendNotifications(DomainCollectionSender domainPostman, UserNotificationResult result)
     {
         var messages = result.Notifications.Select(n =>
             new SystemEvent(
@@ -89,7 +89,7 @@ public static class NotificationProcess
                 EventType.Completed,
                 n.AsEventPayload()));
 
-        return domainPostman.SendMessages(messages)
+        return domainPostman(messages)
             .Map(_ => result)
             .WithOperationName(nameof(SendNotifications));
     }

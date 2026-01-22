@@ -14,7 +14,7 @@ internal static class TvAdminHandlers
         CancellationToken cancellationToken)
     {
         return Validate(viewModel)
-            .Bind(vm => domainPostman.SendMessage(new UpdateTvSeriesEvent(new SeasonParameters(vm.Season, vm.Year)),
+            .Bind(vm => domainPostman.SendMessages([new UpdateTvSeriesEvent(new SeasonParameters(vm.Season, vm.Year))],
                 cancellationToken))
             .ToComponentNotification<Unit, BySeasonViewModel, TvSeasonalUpdate>(viewModel);
     }
@@ -25,7 +25,7 @@ internal static class TvAdminHandlers
         [FromServices] IDomainPostman domainPostman,
         CancellationToken cancellationToken)
     {
-        return domainPostman.SendMessage(new UpdateTvSeriesEvent(), cancellationToken)
+        return domainPostman.SendMessages([new UpdateTvSeriesEvent()], cancellationToken)
             .ToComponentNotification<Unit, Noop, TvLatestSeasonUpdate>(new Noop());
     }
 
@@ -34,7 +34,7 @@ internal static class TvAdminHandlers
         [FromServices] IDomainPostman domainPostman,
         CancellationToken cancellationToken)
     {
-        return domainPostman.SendMessage(new UpdateLatestFeedTitlesEvent(), cancellationToken)
+        return domainPostman.SendMessages([new UpdateLatestFeedTitlesEvent()], cancellationToken)
             .ToComponentNotification<Unit, Noop, TvTitlesUpdate>(new Noop());
     }
     
@@ -43,8 +43,7 @@ internal static class TvAdminHandlers
         [FromServices] IDomainPostman domainPostman,
         CancellationToken cancellationToken)
     {
-        return domainPostman.SendMessage(new RunFeedNotification(), cancellationToken)
+        return domainPostman.SendMessages([new RunFeedNotification()], cancellationToken)
             .ToComponentNotification<Unit, Noop, TvNotificationsTrigger>(new Noop());
     }
-        
 }

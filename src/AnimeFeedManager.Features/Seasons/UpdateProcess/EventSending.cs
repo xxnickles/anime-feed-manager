@@ -6,7 +6,7 @@ public static class EventSending
 {
     public static Task<Result<SeasonUpdateResult>> SentEvents(
         this Task<Result<SeasonUpdateData>> result,
-        IDomainPostman domainPostman,
+        DomainCollectionSender domainPostman,
         SeriesSeason seriesSeason,
         CancellationToken cancellationToken) =>
         result
@@ -16,11 +16,9 @@ public static class EventSending
                 NewSeason or ReplaceLatestSeason => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.New),
                 _ => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.Updated)
             })
-            .Bind(r => domainPostman
-                .SendMessage(GetOnCompletedEvent(r), cancellationToken)
+            .Bind(r => domainPostman([GetOnCompletedEvent(r)], cancellationToken)
                 .Map(_ => r))
-            .MapError(e => domainPostman
-                .SendMessage(GetOnErrorEvent(seriesSeason), cancellationToken)
+            .MapError(e => domainPostman([GetOnErrorEvent(seriesSeason)], cancellationToken)
                 .MatchToValue(_ => e, error => error));
 
 

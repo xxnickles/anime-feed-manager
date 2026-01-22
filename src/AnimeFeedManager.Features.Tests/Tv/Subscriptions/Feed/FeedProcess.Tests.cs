@@ -510,47 +510,24 @@ public class FeedProcessTests
 
     private static TestPostman CreatePostman() => new();
 
-    private static IDomainPostman CreateFailingPostman(DomainError error)
-    {
-        var postman = A.Fake<IDomainPostman>();
-        A.CallTo(() => postman.SendMessages(A<IEnumerable<FeedNotification>>._, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<Unit>.Failure(error)));
-        return postman;
-    }
+    private static DomainCollectionSender CreateFailingPostman(DomainError error) =>
+        (messages, cancellationToken) => Task.FromResult(Result<Unit>.Failure(error));
 
     #endregion
 
     #region Test Helpers
 
-    private class TestPostman : IDomainPostman
+    private class TestPostman
     {
         public List<FeedNotification> SentNotifications { get; } = new();
 
-        public Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
-            where T : DomainMessage
-        {
-            if (message is FeedNotification notification)
-                SentNotifications.Add(notification);
-
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
-
-        public Task<Result<Unit>> SendMessages<T>(IEnumerable<T> messages,
-            CancellationToken cancellationToken = default)
-            where T : DomainMessage
+        public DomainCollectionSender Delegate => (messages, cancellationToken) =>
         {
             SentNotifications.AddRange(messages.OfType<FeedNotification>());
             return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
+        };
 
-        public Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
-            CancellationToken cancellationToken = default) where T : DomainMessage
-        {
-            if (message is FeedNotification notification)
-                SentNotifications.Add(notification);
-
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
-        }
+        public static implicit operator DomainCollectionSender(TestPostman wrapper) => wrapper.Delegate;
     }
 
     #endregion

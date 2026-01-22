@@ -6,15 +6,17 @@ public static class EventSending
 {
     public static Task<Result<FeedTitlesUpdateResult>> SentEvents(
         this Task<Result<FeedTitlesUpdateResult>> processData,
-        IDomainPostman domainPostman,
+        DomainCollectionSender domainPostman,
         SeriesSeason defaultSeriesSeason,
         CancellationToken token) => processData
-        .Bind(data => domainPostman.SendMessages(GetEvents(data), token).Map(_ => data))
-        .MapError(e => domainPostman
-            .SendMessage(
-                new SystemEvent(TargetConsumer.Admin(), EventTarget.LocalStorage, EventType.Error,
-                    GetErrorPayload(defaultSeriesSeason)),
-                token)
+        .Bind(data => domainPostman(GetEvents(data), token).Map(_ => data))
+        .MapError(e => domainPostman(
+                [
+                    new SystemEvent(TargetConsumer.Admin(), EventTarget.LocalStorage, EventType.Error,
+                        GetErrorPayload(defaultSeriesSeason))
+                ],
+                token
+            )
             .MatchToValue(_ => e, error => error)
         );
 

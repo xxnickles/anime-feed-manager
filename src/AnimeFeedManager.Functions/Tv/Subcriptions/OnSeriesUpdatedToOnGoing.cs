@@ -25,7 +25,7 @@ public class OnSeriesUpdatedToOnGoing
         UpdatedToOngoing message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnSeriesUpdatedToOnGoing));
-        await AutoSubscription.TryToSubscribe(message.Series, message.Feed, _tableClientFactory, _domainPostman, token)
+        await AutoSubscription.TryToSubscribe(message.Series, message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .AddLogOnSuccess(summary => logger => logger.LogInformation("{Count} Automatic Subscriptions for {Series} has been created", summary.Changes, message.Series))
             .WriteLogs(_logger)
             .Done();
