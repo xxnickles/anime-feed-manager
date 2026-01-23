@@ -14,6 +14,8 @@ These must be configured as **Repository Secrets** in GitHub (Settings > Secrets
 | `AZURE_TENANT_ID` | Azure AD tenant ID |
 | `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
 
+For detailed OIDC setup instructions, see [OIDC-SETUP.md](OIDC-SETUP.md).
+
 ### Passwordless Authentication
 
 | Secret | Description |
@@ -103,8 +105,8 @@ During anime season transitions (~1 day before to ~20 days after season start), 
 
 ```bash
 az functionapp config appsettings set \
-  --name amf-functions \
-  --resource-group amf-rg \
+  --name <FUNCTION_APP_NAME> \
+  --resource-group <RESOURCE_GROUP> \
   --settings \
     "ScrapingSchedule=0 0 4 * * *" \
     "FeedTitlesUpdateSchedule=0 0 */4 * * *"
@@ -114,8 +116,8 @@ az functionapp config appsettings set \
 
 ```bash
 az functionapp config appsettings set \
-  --name amf-functions \
-  --resource-group amf-rg \
+  --name <FUNCTION_APP_NAME> \
+  --resource-group <RESOURCE_GROUP> \
   --settings \
     "ScrapingSchedule=0 0 4 * * 6" \
     "FeedTitlesUpdateSchedule=0 0 0 1 1 *"
@@ -125,8 +127,8 @@ az functionapp config appsettings set \
 
 ```bash
 az functionapp config appsettings list \
-  --name amf-functions \
-  --resource-group amf-rg \
+  --name <FUNCTION_APP_NAME> \
+  --resource-group <RESOURCE_GROUP> \
   --query "[?name=='ScrapingSchedule' || name=='FeedTitlesUpdateSchedule' || name=='FeedNotificationSchedule'].{name:name, value:value}" \
   --output table
 ```
@@ -143,7 +145,7 @@ az functionapp config appsettings list \
 2. **Run Infrastructure Workflow** - Deploy Azure resources
    - This creates the storage account and other resources
    - **Note:** This run will fail at the "Seed Admin User" step because RBAC roles aren't set yet
-3. **Grant RBAC to OIDC Principal** - Required for admin seeding and Functions deployment (see below)
+3. **Grant RBAC to OIDC Principal** - Required for admin seeding and Functions deployment (see [OIDC-SETUP.md](OIDC-SETUP.md))
    - Storage Table Data Contributor (for admin seeding)
    - Storage Blob Data Contributor (for Functions deployment)
 4. **Wait 5 minutes** - RBAC role propagation takes time
@@ -190,20 +192,22 @@ Wait 5 minutes for RBAC propagation before running the workflows.
 
 ## Resources Created
 
-| Resource | Name | SKU |
-|----------|------|-----|
-| Resource Group | `amf-rg` | - |
-| Storage Account | `amfstorage` | Standard_LRS |
-| Function App Plan | `amf-functions-plan` | Flex Consumption (FC1) |
-| Function App | `amf-functions` | - |
-| Web App Plan | `amf-web-manager-plan` | Basic (B2) |
-| Web App | `amf-web-manager` | - |
-| Chrome Web App | `amf-chrome` | (shared plan) |
-| SignalR Service | `amf-signalr` | Free_F1 |
-| Application Insights | `amf-insights` | - |
+The Bicep templates create the following Azure resources:
+
+| Resource | Description | SKU |
+|----------|-------------|-----|
+| Resource Group | Container for all resources | - |
+| Storage Account | Tables, queues, and blobs | Standard_LRS |
+| Function App Plan | Hosting plan for Functions | Flex Consumption (FC1) |
+| Function App | Backend processing | - |
+| Web App Plan | Hosting plan for Web App | Basic (B2) |
+| Web App | Blazor SSR frontend | - |
+| Chrome Web App | Browserless Chrome container | (shared plan) |
+| SignalR Service | Real-time notifications | Free_F1 |
+| Application Insights | Monitoring and diagnostics | - |
 
 **Notes:**
-- The Web App Plan uses Basic B2 (2 cores, 3.5 GB RAM) to support Chrome container concurrency needs. Both `amf-web-manager` and `amf-chrome` share the same plan.
+- The Web App Plan uses Basic B2 (2 cores, 3.5 GB RAM) to support Chrome container concurrency needs. Both the web app and Chrome container share the same plan.
 - Web App has health checks enabled at `/health` endpoint for Azure monitoring.
 - Chrome container is configured with `CONCURRENT=3`, `QUEUED=5`, and health checks (`HEALTH=true`, `MAX_MEMORY_PERCENT=80`, `MAX_CPU_PERCENT=80`).
 - Storage account has `allowBlobPublicAccess: true` to serve images publicly. The `images` container is set to `Blob` access (anonymous read, no listing).
@@ -214,10 +218,10 @@ If images aren't loading (409 Public access not permitted), run these commands:
 
 ```bash
 # Step 1: Enable public access on storage account
-az storage account update --name amfstorage --resource-group amf-rg --allow-blob-public-access true
+az storage account update --name <STORAGE_ACCOUNT> --resource-group <RESOURCE_GROUP> --allow-blob-public-access true
 
 # Step 2: Set images container to public blob access
-az storage container set-permission --name images --account-name amfstorage --public-access blob --account-key $(az storage account keys list --account-name amfstorage --resource-group amf-rg --query "[0].value" -o tsv)
+az storage container set-permission --name images --account-name <STORAGE_ACCOUNT> --public-access blob --account-key $(az storage account keys list --account-name <STORAGE_ACCOUNT> --resource-group <RESOURCE_GROUP> --query "[0].value" -o tsv)
 ```
 
 ## Workflows
@@ -231,45 +235,6 @@ az storage container set-permission --name images --account-name amfstorage --pu
 All workflows:
 - Trigger automatically on push to `main` when relevant paths change
 - Support `workflow_dispatch` for manual triggering via GitHub Actions UI
-
----
-
-## OIDC Authentication Setup
-
-### Overview
-
-GitHub Actions authenticate to Azure using OpenID Connect (OIDC) with federated credentials. This approach:
-- Requires no secrets to store or rotate
-- GitHub provides a short-lived token for each workflow run
-- Azure validates the token against configured trust conditions
-
-### Federated Credential Configuration
-
-Federated credentials are configured on the **App Registration** in Azure.
-
-**Location:** Azure Portal > Microsoft Entra ID > App registrations > `amf-deployer` > Certificates & secrets > Federated credentials
-
-#### Branch-Based Credential
-
-| Field | Value |
-|-------|-------|
-| Federated credential scenario | GitHub Actions deploying Azure resources |
-| Organization | `xxnickles` |
-| Repository | `anime-feed-manager` |
-| Entity type | Branch |
-| Branch name | `main` |
-| Name | `github-main-branch` |
-
-**Subject identifier generated:** `repo:xxnickles/anime-feed-manager:ref:refs/heads/main`
-
-### Required RBAC Roles Summary
-
-| Role | Scope | Purpose |
-|------|-------|---------|
-| Contributor | Subscription or Resource Group | Create/manage Azure resources |
-| User Access Administrator | Subscription or Resource Group | Assign RBAC roles to managed identities |
-| Storage Blob Data Contributor | Storage Account | Upload deployment packages for Functions |
-| Storage Table Data Contributor | Storage Account | Seed admin user during infrastructure deployment |
 
 ---
 
