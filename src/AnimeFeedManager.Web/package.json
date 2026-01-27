@@ -16,14 +16,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@swc/core": "^1.15.8",
+    "@swc/core": "^1.15.10",
     "@tailwindcss/cli": "^4.1.18",
     "@tailwindcss/typography": "^0.5.19",
     "chokidar": "^5.0.0",
     "concurrently": "^9.2.1",
     "daisyui": "^5.5.14",
     "glob": "^13.0.0",
-    "npm-check-updates": "^19.3.1",
+    "npm-check-updates": "^19.3.2",
     "tailwindcss": "^4.1.18"
   }
 }
