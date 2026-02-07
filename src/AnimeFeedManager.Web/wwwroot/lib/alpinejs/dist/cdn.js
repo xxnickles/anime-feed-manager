@@ -4,8 +4,16 @@
   var flushing = false;
   var queue = [];
   var lastFlushedIndex = -1;
+  var transactionActive = false;
   function scheduler(callback) {
     queueJob(callback);
+  }
+  function startTransaction() {
+    transactionActive = true;
+  }
+  function commitTransaction() {
+    transactionActive = false;
+    queueFlush();
   }
   function queueJob(job) {
     if (!queue.includes(job))
@@ -19,6 +27,8 @@
   }
   function queueFlush() {
     if (!flushing && !flushPending) {
+      if (transactionActive)
+        return;
       flushPending = true;
       queueMicrotask(flushJobs);
     }
@@ -92,16 +102,26 @@
       let value = getter();
       JSON.stringify(value);
       if (!firstTime) {
-        queueMicrotask(() => {
-          callback(value, oldValue);
-          oldValue = value;
-        });
-      } else {
-        oldValue = value;
+        if (typeof value === "object" || value !== oldValue) {
+          let previousValue = oldValue;
+          queueMicrotask(() => {
+            callback(value, previousValue);
+          });
+        }
       }
+      oldValue = value;
       firstTime = false;
     });
     return () => release(effectReference);
+  }
+  async function transaction(callback) {
+    startTransaction();
+    try {
+      await callback();
+      await Promise.resolve();
+    } finally {
+      commitTransaction();
+    }
   }
 
   // packages/alpinejs/src/mutation.js
@@ -1708,7 +1728,10 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     get raw() {
       return raw;
     },
-    version: "3.15.5",
+    get transaction() {
+      return transaction;
+    },
+    version: "3.15.8",
     flushAndStopDeferringMutations,
     dontAutoEvaluateFunctions,
     disableEffectScheduling,
@@ -2759,6 +2782,14 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       handler4 = wrapHandler(handler4, (next, e) => {
         e.target === el && next(e);
       });
+    if (event === "submit") {
+      handler4 = wrapHandler(handler4, (next, e) => {
+        if (e.target._x_pendingModelUpdates) {
+          e.target._x_pendingModelUpdates.forEach((fn) => fn());
+        }
+        next(e);
+      });
+    }
     if (isKeyEvent(event) || isClickEvent(event)) {
       handler4 = wrapHandler(handler4, (next, e) => {
         if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
@@ -2911,6 +2942,13 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       }
       if (hasBlurModifier) {
         listeners.push(on(el, "blur", modifiers, syncValue));
+        if (el.form) {
+          let syncCallback = () => syncValue({ target: el });
+          if (!el.form._x_pendingModelUpdates)
+            el.form._x_pendingModelUpdates = [];
+          el.form._x_pendingModelUpdates.push(syncCallback);
+          cleanup2(() => el.form._x_pendingModelUpdates.splice(el.form._x_pendingModelUpdates.indexOf(syncCallback), 1));
+        }
       }
       if (hasEnterModifier) {
         listeners.push(on(el, "keydown", modifiers, (e) => {

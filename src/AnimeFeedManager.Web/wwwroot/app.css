@@ -892,6 +892,9 @@
         width: unset;
       }
     }
+    .prose :where(a&:not(.btn-link)):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+      text-decoration-line: none;
+    }
     @layer daisyui.l1.l2.l3 {
       display: inline-flex;
       flex-shrink: 0;
@@ -1396,6 +1399,7 @@
         grid-row-start: 1;
         aspect-ratio: 1 / 1;
         height: 100%;
+        width: 100%;
         border-radius: var(--radius-selector);
         background-color: currentcolor;
         translate: 0;
