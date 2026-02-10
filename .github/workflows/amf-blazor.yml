@@ -9,6 +9,7 @@ on:
       - 'src/AnimeFeedManager.Features/**'
       - 'src/AnimeFeedManager.Shared/**'
       - 'src/AnimeFeedManager.Services.Shared/**'
+      - 'src/Directory.Packages.props'
       - '!src/**/*.md'
   workflow_dispatch:
 
