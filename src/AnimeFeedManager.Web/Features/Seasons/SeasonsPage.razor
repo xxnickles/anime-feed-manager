@@ -11,26 +11,18 @@
         <section class="grid grid-cols-[repeat(auto-fit,minmax(300px,0.9fr))] justify-center gap-8 px-2 md:px-10 py-2 md:py-4 mt-8">
             @foreach (var season in _seasons)
             {
-                <article class="card rounded-2xl shadow-lg overflow-hidden min-h-48 bg-base-100">
-                    <div class="card-body">
-                        <div class="flex items-center gap-2">
-                            @GetSeasonIcon(season.Season)
-                            <h2 class="@($"card-title uppercase text-2xl {GetSeasonColor(season.Season)}")">
-                                @season.Season
-                            </h2>
-                        </div>
+                <article class="card rounded-2xl overflow-hidden min-h-72 bg-cover bg-center"
+                         style="background-image: url('/images/seasons/@(GetSeasonImage(season.Season))')">
+                    <div class="card-body relative mt-auto bg-base-100/30 text-gray-900">
+                        <h2 class="badge badge-neutral badge-xl uppercase text-xl font-normal">
+                            @season.Season
+                        </h2>
                         <div class="flex flex-wrap gap-2 mt-2">
                             @foreach (var year in season.Years)
                             {
-                                <NavLink class="@($"btn btn-sm btn-outline {GetSeasonButtonStyle(season.Season)}")"
+                                <NavLink class="@($"btn btn-sm {(IsCurrentSeason(season.Season, year) ? "btn-primary" : "")}")"
                                          href="@GetSeasonLink(season.Season, year)">
                                     @year.ToString()
-                                    @if (IsCurrentSeason(season.Season, year))
-                                    {
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
-                                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" />
-                                        </svg>
-                                    }
                                 </NavLink>
                             }
                         </div>
@@ -71,43 +63,13 @@ else
     
     private static string GetSeasonLink(Season season, Year year) => $"{season}-{year}/tv";
 
-    private static string GetSeasonColor(Season season) => season switch
+    private static string GetSeasonImage(Season season) => season switch
     {
-        _ when season == Season.Winter() => "text-[#6B8AAD]",
-        _ when season == Season.Spring() => "text-[#4CAF50]",
-        _ when season == Season.Summer() => "text-[#FF9800]",
-        _ when season == Season.Fall() => "text-[#FF7043]",
-        _ => "text-gray-500"
-    };
-
-    private static string GetSeasonButtonStyle(Season season) => season switch
-    {
-        _ when season == Season.Winter() => "border-[#6B8AAD] text-[#6B8AAD] hover:bg-[#6B8AAD] hover:text-white hover:border-[#6B8AAD]",
-        _ when season == Season.Spring() => "border-[#4CAF50] text-[#4CAF50] hover:bg-[#4CAF50] hover:text-white hover:border-[#4CAF50]",
-        _ when season == Season.Summer() => "border-[#FF9800] text-[#FF9800] hover:bg-[#FF9800] hover:text-white hover:border-[#FF9800]",
-        _ when season == Season.Fall() => "border-[#FF7043] text-[#FF7043] hover:bg-[#FF7043] hover:text-white hover:border-[#FF7043]",
-        _ => ""
+        _ when season == Season.Fall() => "autumn.svg",
+        _ => $"{season}.svg"
     };
 
     private static bool IsCurrentSeason(Season season, Year year) =>
         season == Season.Current && year.Value == DateTime.UtcNow.Year;
 
-    private static RenderFragment GetSeasonIcon(Season season) => season switch
-    {
-        _ when season == Season.Winter() => @<svg xmlns="http://www.w3.org/2000/svg" class="size-8 text-[#6B8AAD]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07M12 6l-1.5 2.5L12 11l1.5-2.5L12 6zM12 13l-1.5 2.5L12 18l1.5-2.5L12 13zM6 12l2.5-1.5L11 12l-2.5 1.5L6 12zM13 12l2.5-1.5L18 12l-2.5 1.5L13 12z"/>
-        </svg>,
-        _ when season == Season.Spring() => @<svg xmlns="http://www.w3.org/2000/svg" class="size-8 text-[#4CAF50]" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C13.5 5 16 6 19 6C19 9 18 11.5 16 13C18 13.5 20 15 21 18C18 18 15.5 17 13 15C13 18 12.5 20 12 22C11.5 20 11 18 11 15C8.5 17 6 18 3 18C4 15 6 13.5 8 13C6 11.5 5 9 5 6C8 6 10.5 5 12 2Z"/>
-        </svg>,
-        _ when season == Season.Summer() => @<svg xmlns="http://www.w3.org/2000/svg" class="size-8 text-[#FF9800]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/>
-        </svg>,
-        _ when season == Season.Fall() => @<svg xmlns="http://www.w3.org/2000/svg" class="size-8 text-[#FF7043]" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8 20C19 20 22 3 22 3C21 5 14 5.25 9 6.25C4 7.25 2 11.5 2 13.5C2 15.5 3.75 17.25 3.75 17.25C7 8 17 8 17 8Z"/>
-        </svg>,
-        _ => @<svg xmlns="http://www.w3.org/2000/svg" class="size-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
-        </svg>
-    };
 }
