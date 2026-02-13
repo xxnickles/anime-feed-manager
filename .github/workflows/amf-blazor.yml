@@ -10,6 +10,7 @@ on:
       - 'src/AnimeFeedManager.Shared/**'
       - 'src/AnimeFeedManager.Services.Shared/**'
       - 'src/Directory.Packages.props'
+      - 'src/Directory.Build.props'
       - '!src/**/*.md'
   workflow_dispatch:
 
@@ -71,11 +72,35 @@ jobs:
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./deployment/main-blazor.bicep
 
+      - name: Compute version info
+        id: version
+        run: |
+          echo "build_version=4.$(date +%y%m).${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ steps.getname.outputs.webAppName }}
           package: ./output
+
+      - name: Set App Version Settings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: ${{ steps.getname.outputs.webAppName }}
+          app-settings-json: |
+            [
+              {
+                "name": "AppVersion__Version",
+                "value": "${{ steps.version.outputs.build_version }}",
+                "slotSetting": false
+              },
+              {
+                "name": "AppVersion__CommitSha",
+                "value": "${{ steps.version.outputs.commit_sha }}",
+                "slotSetting": false
+              }
+            ]
 
       - name: Logout
         run: az logout

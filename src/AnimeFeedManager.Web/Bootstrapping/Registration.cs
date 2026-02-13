@@ -9,7 +9,15 @@ namespace AnimeFeedManager.Web.Bootstrapping;
 
 internal class SignalROptions
 {
+    public const string SectionName = "SignalR";
     public string Endpoint { get; set; } = string.Empty;
+}
+
+internal class AppVersionOptions
+{
+    public const string SectionName = "AppVersion";
+    public string Version { get; set; } = "local";
+    public string CommitSha { get; set; } = string.Empty;
 }
 
 internal static class Registration
@@ -95,14 +103,15 @@ internal static class Registration
         builder.Services.AddAuthorizationBuilder()
             .AddPolicy(Policies.AdminRequired, policy => policy.RequireRole(UserRole.Admin()));
 
-        // bind section Passwordless to the object PassworlessOptions
-        builder.Services.Configure<PasswordlessOptions>(builder.Configuration.GetSection("Passwordless"));
-        builder.Services.Configure<SignalROptions>(builder.Configuration.GetSection("SignalR"));
+        const string passwordlessSection = "Passwordless";
+        builder.Services.Configure<PasswordlessOptions>(builder.Configuration.GetSection(passwordlessSection));
+        builder.Services.Configure<SignalROptions>(builder.Configuration.GetSection(SignalROptions.SectionName));
+        builder.Services.Configure<AppVersionOptions>(builder.Configuration.GetSection(AppVersionOptions.SectionName));
 
         // Add Passwordless
         builder.Services.AddPasswordlessSdk(options =>
         {
-            builder.Configuration.GetRequiredSection("Passwordless").Bind(options);
+            builder.Configuration.GetRequiredSection(passwordlessSection).Bind(options);
         });
     }
 }

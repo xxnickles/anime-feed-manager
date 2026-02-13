@@ -47,6 +47,8 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
     .WithEnvironment("Chrome__RemoteEndpoint", chrome.GetEndpoint("http"))
     .WithEnvironment("Chrome__Token", chromeDevToken);
 
+var commitSha = GetLocalCommitSha();
+
 builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(functions)
     .WaitFor(signalR)
@@ -56,7 +58,34 @@ builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(queues)
     .WithReference(tables)
     .WaitFor(tables)
-    .WithEnvironment("SignalR__Endpoint", "http://localhost:7071/api");
+    .WithEnvironment("SignalR__Endpoint", "http://localhost:7071/api")
+    .WithEnvironment("AppVersion__CommitSha", commitSha);
 
 
 builder.Build().Run();
+
+static string GetLocalCommitSha()
+{
+    try
+    {
+        var process = new System.Diagnostics.Process
+        {
+            StartInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "git",
+                Arguments = "rev-parse --short HEAD",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
+        process.Start();
+        var sha = process.StandardOutput.ReadToEnd().Trim();
+        process.WaitForExit();
+        return process.ExitCode == 0 ? sha : string.Empty;
+    }
+    catch
+    {
+        return string.Empty;
+    }
+}

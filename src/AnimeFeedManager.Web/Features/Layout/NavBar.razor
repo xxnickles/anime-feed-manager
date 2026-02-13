@@ -10,11 +10,12 @@
             </svg>
         </label>
     </div>
-    <div class="flex-1">
+    <div class="flex-1 flex items-baseline gap-2">
         @if (ShowBrand)
         {
             <BrandLink></BrandLink>
         }
+        <AppVersion />
 
         @* <ul class="menu menu-horizontal px-1 hidden lg:inline-flex"> *@
         @*     <li> *@
