@@ -22,7 +22,7 @@
     "chokidar": "^5.0.0",
     "concurrently": "^9.2.1",
     "daisyui": "^5.5.18",
-    "glob": "^13.0.1",
+    "glob": "^13.0.3",
     "npm-check-updates": "^19.3.2",
     "tailwindcss": "^4.1.18"
   }
