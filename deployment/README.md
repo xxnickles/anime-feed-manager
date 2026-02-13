@@ -230,11 +230,12 @@ az storage container set-permission --name images --account-name <STORAGE_ACCOUN
 |----------|---------|-------------|
 | `amf-infrastructure.yml` | `deployment/**` changes | Deploys Bicep templates and seeds admin user |
 | `amf-functions.yml` | Functions/Features code changes | Builds and deploys Azure Functions |
-| `amf-blazor.yml` | Web/Features code changes | Builds CSS and deploys Blazor Web App |
+| `amf-blazor.yml` | Web/Features code changes | Builds CSS, deploys Blazor Web App, and sets version info |
+| `amf-chrome-refresh.yml` | Manual only | Restarts Chrome App Service to pull latest container image |
 
 All workflows:
-- Trigger automatically on push to `main` when relevant paths change
 - Support `workflow_dispatch` for manual triggering via GitHub Actions UI
+- Infrastructure, Functions, and Blazor workflows also trigger automatically on push to `main` when relevant paths change
 
 ---
 

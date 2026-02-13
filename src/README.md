@@ -129,6 +129,8 @@ dotnet user-secrets set "SignalR:Endpoint" "http://localhost:7071/api/"
 | `Passwordless:ApiKey` | Passwordless.dev API key | Yes |
 | `Passwordless:ApiSecret` | Passwordless.dev API secret | Yes |
 | `SignalR:Endpoint` | Functions SignalR endpoint | Yes |
+| `AppVersion:Version` | Build version displayed in navbar (default: `local`) | No |
+| `AppVersion:CommitSha` | Short commit SHA for navbar link (injected by Aspire locally) | No |
 
 ## Build Commands
 
