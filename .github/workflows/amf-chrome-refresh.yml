@@ -1,0 +1,32 @@
+name: Refresh Chrome Container
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  RESOURCE_GROUP: amf-rg
+  CHROME_APP_NAME: amf-chrome
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2.2.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Restart Chrome App Service
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az webapp restart --name ${{ env.CHROME_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
+
+      - name: Logout
+        run: az logout

@@ -74,6 +74,7 @@ Deployment uses GitHub Actions with Bicep templates:
 - `.github/workflows/amf-infrastructure.yml` - Infrastructure
 - `.github/workflows/amf-functions.yml` - Functions
 - `.github/workflows/amf-blazor.yml` - Web app
+- `.github/workflows/amf-chrome-refresh.yml` - Chrome container image refresh (manual)
 - `deployment/` - Bicep templates for Azure resources
 
 See [deployment/README.md](deployment/README.md) for full deployment configuration guide.
