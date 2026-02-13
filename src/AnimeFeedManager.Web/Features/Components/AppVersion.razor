@@ -1,0 +1,25 @@
+@using AnimeFeedManager.Web.Bootstrapping
+@using Microsoft.Extensions.Options
+@inject IOptions<AppVersionOptions> VersionOptions
+
+@{
+    var version = VersionOptions.Value.Version;
+    var commitSha = VersionOptions.Value.CommitSha;
+    var hasCommit = !string.IsNullOrEmpty(commitSha);
+    var commitUrl = hasCommit ? $"https://github.com/xxnickles/anime-feed-manager/commit/{commitSha}" : "";
+}
+
+<div class="text-xs opacity-60 hidden md:flex items-center gap-1 mx-2 font-mono">
+    <span>v@(version)</span>
+    @if (hasCommit)
+    {
+        <span class="opacity-40">|</span>
+        <a href="@commitUrl"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="link link-hover opacity-80 hover:opacity-100"
+           title="View commit @commitSha on GitHub">
+            @commitSha
+        </a>
+    }
+</div>
