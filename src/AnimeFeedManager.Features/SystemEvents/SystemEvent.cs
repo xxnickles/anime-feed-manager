@@ -26,10 +26,6 @@ public sealed record SystemEvent(
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, SystemEventContext.Default.SystemEvent);
+        return BinaryData.FromObjectAsJson(this, SystemEventsJsonContext.Default.SystemEvent);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(SystemEvent))]
-public partial class SystemEventContext : JsonSerializerContext;

@@ -8,13 +8,9 @@ public sealed record UpdateTvSeriesEvent(SeasonParameters? SeasonParameters = nu
     
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, UpdateTvSeriesEventContext.Default.UpdateTvSeriesEvent);
+        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.UpdateTvSeriesEvent);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(UpdateTvSeriesEvent))]
-public partial class UpdateTvSeriesEventContext : JsonSerializerContext;
 
 public sealed record UpdateLatestFeedTitlesEvent(bool Update = true) : DomainMessage(new Box(TargetQueue))
 {
@@ -22,10 +18,6 @@ public sealed record UpdateLatestFeedTitlesEvent(bool Update = true) : DomainMes
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, UpdateLatestFeedTitlesEventContext.Default.UpdateLatestFeedTitlesEvent);;
+        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.UpdateLatestFeedTitlesEvent);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(UpdateLatestFeedTitlesEvent))]
-public partial class UpdateLatestFeedTitlesEventContext : JsonSerializerContext;

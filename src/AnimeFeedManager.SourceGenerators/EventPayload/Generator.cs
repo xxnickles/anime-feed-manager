@@ -21,7 +21,7 @@ public class EventPayloadSerializerGenerator : IIncrementalGenerator
         /// Marks a JsonSerializerContext as a serializer context for an event payload type.
         /// The context will be registered in the auto-generated EventPayloadContextMap.
         /// </summary>
-        [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false)]
+        [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
         [Microsoft.CodeAnalysis.Embedded]
         internal sealed class EventPayloadSerializerContextAttribute : System.Attribute
         {
@@ -71,7 +71,8 @@ public class EventPayloadSerializerGenerator : IIncrementalGenerator
             .ForAttributeWithMetadataName(
                 fullyQualifiedMetadataName: "AnimeFeedManager.SourceGenerators.EventPayload.EventPayloadSerializerContextAttribute",
                 predicate: static (node, _) => node is ClassDeclarationSyntax,
-                transform: static (ctx, _) => GetPayloadContextInfo(ctx))
+                transform: static (ctx, _) => GetPayloadContextInfos(ctx))
+            .SelectMany(static (items, _) => items)
             .Where(static m => m.HasValue)
             .Select(static (m, _) => m!.Value);
 
@@ -83,44 +84,47 @@ public class EventPayloadSerializerGenerator : IIncrementalGenerator
             static (spc, source) => Execute(source.Left, source.Right, spc));
     }
 
-    private static (string ContextTypeName, string ContextNamespace, string PayloadTypeName, string PayloadTypeFullName,
-        Location Location, bool InheritsFromJsonSerializerContext, bool PayloadInheritsFromSystemNotificationPayload)?
-        GetPayloadContextInfo(GeneratorAttributeSyntaxContext context)
+    private static ImmutableArray<(string ContextTypeName, string ContextNamespace, string PayloadTypeName, string PayloadTypeFullName,
+        Location Location, bool InheritsFromJsonSerializerContext, bool PayloadInheritsFromSystemNotificationPayload)?>
+        GetPayloadContextInfos(GeneratorAttributeSyntaxContext context)
     {
         var classDeclaration = (ClassDeclarationSyntax)context.TargetNode;
         var classSymbol = (INamedTypeSymbol)context.TargetSymbol;
 
-        // Check if inherits from JsonSerializerContext
+        // Check if inherits from JsonSerializerContext (once per class)
         var jsonSerializerContextSymbol = context.SemanticModel.Compilation
             .GetTypeByMetadataName("System.Text.Json.Serialization.JsonSerializerContext");
 
         var inheritsFromJsonSerializerContext = jsonSerializerContextSymbol != null &&
                                                  InheritsFrom(classSymbol, jsonSerializerContextSymbol);
 
-        // Get payload type from attribute
-        var attribute = context.Attributes.FirstOrDefault();
-        if (attribute?.ConstructorArguments.Length > 0 &&
-            attribute.ConstructorArguments[0].Value is INamedTypeSymbol payloadType)
+        var systemNotificationPayloadSymbol = context.SemanticModel.Compilation
+            .GetTypeByMetadataName("AnimeFeedManager.Features.SystemEvents.SystemNotificationPayload");
+
+        var results = ImmutableArray.CreateBuilder<(string, string, string, string, Location, bool, bool)?>();
+
+        // Iterate all [EventPayloadSerializerContext] attributes on this class
+        foreach (var attribute in context.Attributes)
         {
-            // Check if payload inherits from SystemNotificationPayload
-            var systemNotificationPayloadSymbol = context.SemanticModel.Compilation
-                .GetTypeByMetadataName("AnimeFeedManager.Features.SystemEvents.SystemNotificationPayload");
+            if (attribute.ConstructorArguments.Length > 0 &&
+                attribute.ConstructorArguments[0].Value is INamedTypeSymbol payloadType)
+            {
+                var payloadInheritsFromSystemNotificationPayload = systemNotificationPayloadSymbol == null ||
+                                                                    InheritsFromOrEquals(payloadType, systemNotificationPayloadSymbol);
 
-            var payloadInheritsFromSystemNotificationPayload = systemNotificationPayloadSymbol == null ||
-                                                                InheritsFromOrEquals(payloadType, systemNotificationPayloadSymbol);
-
-            return (
-                classSymbol.Name,
-                classSymbol.ContainingNamespace.ToDisplayString(),
-                payloadType.Name,
-                payloadType.ToDisplayString(),
-                classDeclaration.GetLocation(),
-                inheritsFromJsonSerializerContext,
-                payloadInheritsFromSystemNotificationPayload
-            );
+                results.Add((
+                    classSymbol.Name,
+                    classSymbol.ContainingNamespace.ToDisplayString(),
+                    payloadType.Name,
+                    payloadType.ToDisplayString(),
+                    classDeclaration.GetLocation(),
+                    inheritsFromJsonSerializerContext,
+                    payloadInheritsFromSystemNotificationPayload
+                ));
+            }
         }
 
-        return null;
+        return results.ToImmutable();
     }
 
     private static bool InheritsFrom(INamedTypeSymbol classSymbol, INamedTypeSymbol baseType)

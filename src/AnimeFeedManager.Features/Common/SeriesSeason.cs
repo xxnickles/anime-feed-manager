@@ -2,10 +2,6 @@
 
 public sealed record SeriesSeason(Season Season, Year Year, bool IsLatest = false);
 
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(SeriesSeason[]))]
-public partial class SeriesSeasonContext : JsonSerializerContext;
-
 public static class SeriesSeasonExtensions
 {
     public static Result<SeriesSeason> ParseAsSeriesSeason(this (string season, int year, bool isLatest) target)

@@ -21,7 +21,7 @@ public sealed record ScrapTvLibraryResult(
 {
     public override string AsJson()
     {
-        return JsonSerializer.Serialize(this, ScrapTvLibraryResultContext.Default.ScrapTvLibraryResult);
+        return JsonSerializer.Serialize(this, TvJsonContext.Default.ScrapTvLibraryResult);
     }
 
     public override NotificationComponent AsNotificationComponent()
@@ -44,8 +44,3 @@ public sealed record ScrapTvLibraryResult(
             });
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(ScrapTvLibraryResult))]
-[EventPayloadSerializerContext(typeof(ScrapTvLibraryResult))]
-public partial class ScrapTvLibraryResultContext : JsonSerializerContext;

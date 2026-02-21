@@ -4,11 +4,6 @@ public record NotificationSent(string Title, string Url, string[] Episodes) : Sy
 {
     public override string AsJson()
     {
-        return JsonSerializer.Serialize(this, NotificationSentContext.Default.NotificationSent);
+        return JsonSerializer.Serialize(this, TvJsonContext.Default.NotificationSent);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(NotificationSent))]
-[EventPayloadSerializerContext(typeof(NotificationSent))]
-public partial class NotificationSentContext : JsonSerializerContext;

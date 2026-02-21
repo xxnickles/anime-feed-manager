@@ -4,11 +4,6 @@ public sealed record FeedTitlesUpdateError(SeriesSeason Season) : SystemNotifica
 {
     public override string AsJson()
     {
-        return JsonSerializer.Serialize(this, FeedTitlesUpdateErrorContext.Default.FeedTitlesUpdateError);
+        return JsonSerializer.Serialize(this, TvJsonContext.Default.FeedTitlesUpdateError);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(FeedTitlesUpdateError))]
-[EventPayloadSerializerContext(typeof(FeedTitlesUpdateError))]
-public partial class FeedTitlesUpdateErrorContext : JsonSerializerContext;

@@ -9,10 +9,6 @@ public record RunFeedNotification(bool RunFeedNotificationProcess = true) : Doma
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, RunFeedNotificationContext.Default.RunFeedNotification);
+        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.RunFeedNotification);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(RunFeedNotification))]
-public partial class RunFeedNotificationContext : JsonSerializerContext;

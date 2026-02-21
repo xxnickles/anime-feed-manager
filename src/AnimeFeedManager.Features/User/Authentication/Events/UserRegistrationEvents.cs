@@ -4,11 +4,6 @@ public sealed record UserRegistered(Email Email, string Id) : SystemNotification
 {
     public override string AsJson()
     {
-       return JsonSerializer.Serialize(this, UserRegisteredContext.Default.UserRegistered);   
+       return JsonSerializer.Serialize(this, UserJsonContext.Default.UserRegistered);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(UserRegistered))]
-[EventPayloadSerializerContext(typeof(UserRegistered))]
-public partial class UserRegisteredContext : JsonSerializerContext;

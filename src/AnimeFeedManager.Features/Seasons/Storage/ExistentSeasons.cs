@@ -1,6 +1,6 @@
 ﻿using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
-using SeriesSeasonContext = AnimeFeedManager.Features.Common.SeriesSeasonContext;
+using CommonJsonContext = AnimeFeedManager.Features.Common.CommonJsonContext;
 
 namespace AnimeFeedManager.Features.Seasons.Storage;
 
@@ -90,7 +90,7 @@ public static class ExistentSeasons
         try
         {
             return (JsonSerializer.Deserialize(seasons.Payload ?? string.Empty,
-                SeriesSeasonContext.Default.SeriesSeasonArray) ?? []).ToImmutableList();
+                CommonJsonContext.Default.SeriesSeasonArray) ?? []).ToImmutableList();
         }
         catch (Exception e)
         {

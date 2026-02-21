@@ -1,6 +1,6 @@
 using System.Text.Json;
 using AnimeFeedManager.Features.Common;
-using SeriesSeasonContext = AnimeFeedManager.Features.Common.SeriesSeasonContext;
+using CommonJsonContext = AnimeFeedManager.Features.Common.CommonJsonContext;
 
 namespace AnimeFeedManager.Features.Tests.Shared.Types;
 
@@ -12,8 +12,8 @@ public class SeriesStatusTests
         var sut = ("fall", 2025, false).ParseAsSeriesSeason();
         sut.AssertOnSuccess(s =>
         {
-            var serialized = JsonSerializer.Serialize(s, SeriesSeasonContext.Default.SeriesSeason);
-            var deserialized = JsonSerializer.Deserialize(serialized, SeriesSeasonContext.Default.SeriesSeason);
+            var serialized = JsonSerializer.Serialize(s, CommonJsonContext.Default.SeriesSeason);
+            var deserialized = JsonSerializer.Deserialize(serialized, CommonJsonContext.Default.SeriesSeason);
             Assert.Equal(s, deserialized);
         });
     }
@@ -28,8 +28,8 @@ public class SeriesStatusTests
             new(Season.Spring(), Year.FromNumber(2025))
         ];
 
-        var serialized = JsonSerializer.Serialize(sut, SeriesSeasonContext.Default.SeriesSeasonArray);
-        var deserialized = JsonSerializer.Deserialize(serialized, SeriesSeasonContext.Default.SeriesSeasonArray);
+        var serialized = JsonSerializer.Serialize(sut, CommonJsonContext.Default.SeriesSeasonArray);
+        var deserialized = JsonSerializer.Deserialize(serialized, CommonJsonContext.Default.SeriesSeasonArray);
         Assert.Equivalent(sut, deserialized);
     }
 
@@ -40,7 +40,7 @@ public class SeriesStatusTests
     public void Should_Not_Deserialize_Incorrect_Values(string seasonString)
     {
         Assert.Throws<JsonException>(() =>
-            JsonSerializer.Deserialize<SeriesSeason>(seasonString, SeriesSeasonContext.Default.SeriesSeason)
+            JsonSerializer.Deserialize<SeriesSeason>(seasonString, CommonJsonContext.Default.SeriesSeason)
         );
     }
 
@@ -56,7 +56,7 @@ public class SeriesStatusTests
     public void Should_Not_Deserialize_Incorrect_Array_Values(string seasonString)
     {
         Assert.Throws<JsonException>(() =>
-            JsonSerializer.Deserialize<SeriesSeason[]>(seasonString, SeriesSeasonContext.Default.SeriesSeasonArray)
+            JsonSerializer.Deserialize<SeriesSeason[]>(seasonString, CommonJsonContext.Default.SeriesSeasonArray)
         );
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
 using AnimeFeedManager.Features.Common;
+using CommonJsonContext = AnimeFeedManager.Features.Common.CommonJsonContext;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
 
@@ -65,7 +66,7 @@ public class LastSeasonsUpdateTests
 
         Assert.NotNull(stored);
         // Deserialize and compare with algorithm used in production (OrderByDescending Year, ThenByDescending Season, Take 4, Reverse)
-        var parsed = JsonSerializer.Deserialize(stored.Payload ?? string.Empty, SeriesSeasonContext.Default.SeriesSeasonArray) ?? [];
+        var parsed = JsonSerializer.Deserialize(stored.Payload ?? string.Empty, CommonJsonContext.Default.SeriesSeasonArray) ?? [];
         Assert.Equal(4, parsed.Length);
         var expected = seasons
             .OrderByDescending(s => s.Year)

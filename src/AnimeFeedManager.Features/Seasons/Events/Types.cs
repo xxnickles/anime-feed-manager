@@ -14,7 +14,7 @@ public sealed record SeasonUpdateResult(SeriesSeason Season, SeasonUpdateStatus 
 {
     public override string AsJson()
     {
-       return JsonSerializer.Serialize(this, SeasonUpdatedResultContext.Default.SeasonUpdateResult);
+       return JsonSerializer.Serialize(this, SeasonsJsonContext.Default.SeasonUpdateResult);
     }
 
     public override NotificationComponent AsNotificationComponent()
@@ -57,8 +57,3 @@ public sealed record SeasonUpdateResult(SeriesSeason Season, SeasonUpdateStatus 
                 status, $"Unknown '{status}' status")
         };
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(SeasonUpdateResult))]
-[EventPayloadSerializerContext(typeof(SeasonUpdateResult))]
-public partial class SeasonUpdatedResultContext : JsonSerializerContext;
