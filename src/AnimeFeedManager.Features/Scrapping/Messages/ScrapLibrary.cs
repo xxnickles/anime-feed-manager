@@ -18,10 +18,6 @@ public sealed record ScrapLibrary(
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, ScrapLibraryContext.Default.ScrapLibrary);
+        return BinaryData.FromObjectAsJson(this, ScrappingJsonContext.Default.ScrapLibrary);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(ScrapLibrary))]
-public partial class ScrapLibraryContext : JsonSerializerContext;

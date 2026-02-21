@@ -12,7 +12,3 @@ public record DailySeriesFeed(
     string Title,
     string Url,
     EpisodeData[] Episodes);
-    
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(DailySeriesFeed[]))]
-public partial class DailyFeedContext : JsonSerializerContext;

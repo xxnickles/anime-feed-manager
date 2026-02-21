@@ -5,7 +5,7 @@ public sealed record CompletedTvSeriesResult(string[] Titles, ResultType ResultT
 {
     public override string AsJson()
     {
-        return JsonSerializer.Serialize(this, CompletedTvSeriesResultContext.Default.CompletedTvSeriesResult);
+        return JsonSerializer.Serialize(this, TvJsonContext.Default.CompletedTvSeriesResult);
     }
 
     public override NotificationComponent AsNotificationComponent()
@@ -38,8 +38,3 @@ public sealed record CompletedTvSeriesResult(string[] Titles, ResultType ResultT
         };
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(CompletedTvSeriesResult))]
-[EventPayloadSerializerContext(typeof(CompletedTvSeriesResult))]
-public partial class CompletedTvSeriesResultContext : JsonSerializerContext;

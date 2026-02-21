@@ -5,7 +5,7 @@ public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType Update
 {
     public override string AsJson()
     {
-        return JsonSerializer.Serialize(this, ScrapTvLibraryFailedResultContext.Default.ScrapTvLibraryFailedResult);
+        return JsonSerializer.Serialize(this, TvJsonContext.Default.ScrapTvLibraryFailedResult);
     }
 
     public override NotificationComponent AsNotificationComponent()
@@ -19,8 +19,3 @@ public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType Update
             });
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(ScrapTvLibraryFailedResult))]
-[EventPayloadSerializerContext(typeof(ScrapTvLibraryFailedResult))]
-public partial class ScrapTvLibraryFailedResultContext : JsonSerializerContext;

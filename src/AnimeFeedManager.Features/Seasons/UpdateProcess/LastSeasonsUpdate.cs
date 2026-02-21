@@ -1,4 +1,4 @@
-using SeriesSeasonContext = AnimeFeedManager.Features.Common.SeriesSeasonContext;
+using CommonJsonContext = AnimeFeedManager.Features.Common.CommonJsonContext;
 
 namespace AnimeFeedManager.Features.Seasons.UpdateProcess;
 
@@ -33,7 +33,7 @@ public static class LastSeasonsUpdate
     {
         return latestSeasonUpdater(new LatestSeasonsStorage
         {
-            Payload = JsonSerializer.Serialize(seasons.ToArray(), SeriesSeasonContext.Default.SeriesSeasonArray)
+            Payload = JsonSerializer.Serialize(seasons.ToArray(), CommonJsonContext.Default.SeriesSeasonArray)
         }, cancellationToken);
     }
 }

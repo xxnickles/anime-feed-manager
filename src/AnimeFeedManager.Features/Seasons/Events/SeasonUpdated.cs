@@ -5,11 +5,7 @@ public sealed record SeasonUpdated(SeriesSeason Season) : DomainMessage(new Box(
     public const string TargetQueue = "season-updated-events";
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, SeasonUpdatedContext.Default.SeasonUpdated);
+        return BinaryData.FromObjectAsJson(this, SeasonsJsonContext.Default.SeasonUpdated);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(SeasonUpdated))]
-public partial class SeasonUpdatedContext : JsonSerializerContext;
 

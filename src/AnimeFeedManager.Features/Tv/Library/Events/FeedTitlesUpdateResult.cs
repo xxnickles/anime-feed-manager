@@ -4,12 +4,7 @@ public sealed record FeedTitlesUpdateResult(SeriesSeason Season, int UpdatedFeed
 {
     public override string AsJson()
     {
-        return JsonSerializer.Serialize(this, FeedTitlesUpdateResultContext.Default.FeedTitlesUpdateResult);
+        return JsonSerializer.Serialize(this, TvJsonContext.Default.FeedTitlesUpdateResult);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(FeedTitlesUpdateResult))]
-[EventPayloadSerializerContext(typeof(FeedTitlesUpdateResult))]
-public partial class FeedTitlesUpdateResultContext : JsonSerializerContext;
 

@@ -5,10 +5,6 @@ public sealed record AutoSubscriptionResult(string SeriesId, int Count)
 {
     public override string AsJson()
     {
-       return JsonSerializer.Serialize(this, AutoSubscriptionResultContext.Default.AutoSubscriptionResult);
+       return JsonSerializer.Serialize(this, TvJsonContext.Default.AutoSubscriptionResult);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(AutoSubscriptionResult))]
-public partial class AutoSubscriptionResultContext : JsonSerializerContext;

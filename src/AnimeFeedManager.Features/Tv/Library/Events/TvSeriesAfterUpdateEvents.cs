@@ -11,13 +11,9 @@ public sealed record FeedTitlesUpdated(SeriesSeason Season, string[] FeedTitles)
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, FeedTitlesUpdatedContext.Default.FeedTitlesUpdated);
+        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.FeedTitlesUpdated);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(FeedTitlesUpdated))]
-public partial class FeedTitlesUpdatedContext : JsonSerializerContext;
 
 /// <summary>
 /// Event that represents updates made to the feed of a specific series. It will be used to change the status of the subscriptions from interested to subscribed.
@@ -30,13 +26,9 @@ public sealed record SeriesFeedUpdated(string SeriesId, string SeriesFeed) : Dom
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, SeriesFeedUpdatedContext.Default.SeriesFeedUpdated);
+        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.SeriesFeedUpdated);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(SeriesFeedUpdated))]
-public partial class SeriesFeedUpdatedContext : JsonSerializerContext;
 
 /// <summary>
 /// Event that represents a series that have been completed. Will be used to Expire tv subscriptions.
@@ -48,13 +40,9 @@ public sealed record CompletedSeries(string Id) : DomainMessage(new Box(TargetQu
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, CompletedSeriesContext.Default.CompletedSeries);
+        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.CompletedSeries);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(CompletedSeries))]
-public partial class CompletedSeriesContext : JsonSerializerContext;
 
 /// <summary>
 /// Event to verify ongoing series and complete them if they are not in the current feed anymore
@@ -66,14 +54,9 @@ public sealed record CompleteOngoingSeries(string[] Feed) : DomainMessage(new Bo
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, CompleteOngoingSeriesContext.Default.CompleteOngoingSeries);
+        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.CompleteOngoingSeries);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(CompleteOngoingSeries))]
-public partial class CompleteOngoingSeriesContext : JsonSerializerContext;
-
 
 /// <summary>
 /// Event risen when a series is updated to ongoing
@@ -85,10 +68,6 @@ public sealed record UpdatedToOngoing(string Series, string Feed) : DomainMessag
 
     public override BinaryData ToBinaryData()
     {
-        return BinaryData.FromObjectAsJson(this, UpdatedToOngoingContext.Default.UpdatedToOngoing);
+        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.UpdatedToOngoing);
     }
 }
-
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
-[JsonSerializable(typeof(UpdatedToOngoing))]
-public partial class UpdatedToOngoingContext : JsonSerializerContext;
