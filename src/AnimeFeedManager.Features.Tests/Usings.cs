@@ -6,4 +6,6 @@ global using AnimeFeedManager.Shared.Types;
 global using AutoFixture;
 global using AutoFixture.AutoFakeItEasy;
 global using FakeItEasy;
+global using Microsoft.Extensions.Logging;
+global using System.Collections.Immutable;
 global using Xunit;
