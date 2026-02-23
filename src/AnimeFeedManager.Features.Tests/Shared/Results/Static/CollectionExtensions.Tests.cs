@@ -1,9 +1,9 @@
-namespace AnimeFeedManager.Features.Tests.Shared.Results.Extensions;
+namespace AnimeFeedManager.Features.Tests.Shared.Results.Static;
 
 public class CollectionExtensionsTests
 {
     [Fact]
-    public void Should_Flatten_All_Success_Results()
+    public void Should_Return_CompletedBulkResult_When_All_Results_Succeed()
     {
         var results = new[]
         {
@@ -12,12 +12,12 @@ public class CollectionExtensionsTests
             Result<int>.Success(3)
         };
 
-        var flattened = results.Flatten();
+        var flattened = results.Flatten(items => items.ToList());
 
-        flattened.AssertOnSuccess(list =>
+        flattened.AssertOnSuccess(bulk =>
         {
-            Assert.Equal(3, list.Count);
-            Assert.Equal([1, 2, 3], list);
+            var completed = Assert.IsType<CompletedBulkResult<List<int>>>(bulk);
+            Assert.Equal([1, 2, 3], completed.Value);
         });
     }
 
@@ -31,13 +31,19 @@ public class CollectionExtensionsTests
             Result<int>.Failure(NotFoundError.Create("Error 3"))
         };
 
-        var flattened = results.Flatten();
-        flattened.AssertError();
+        var flattened = results.Flatten(items => items.ToList());
+
+        flattened.AssertOnError(error =>
+        {
+            var aggregated = Assert.IsType<AggregatedError>(error);
+            Assert.Equal(3, aggregated.Errors.Length);
+        });
     }
 
     [Fact]
-    public void Should_Return_AggregatedError_When_Some_Results_Fail()
+    public void Should_Return_PartialSuccessBulkResult_When_Some_Results_Fail()
     {
+        // Partial success is a SUCCESS result, not an error — key semantic of BulkResult
         var results = new[]
         {
             Result<int>.Success(1),
@@ -45,40 +51,32 @@ public class CollectionExtensionsTests
             Result<int>.Success(3)
         };
 
-        var flattened = results.Flatten();
-        flattened.AssertError();
+        var flattened = results.Flatten(items => items.ToList());
+
+        flattened.AssertOnSuccess(bulk =>
+        {
+            var partial = Assert.IsType<PartialSuccessBulkResult<List<int>>>(bulk);
+            Assert.Equal([1, 3], partial.Value);
+            Assert.Equal(1, partial.Errors.Length);
+        });
     }
 
     [Fact]
-    public void Should_Flatten_Empty_Collection()
+    public void Should_Return_CompletedBulkResult_For_Empty_Collection()
     {
         var results = Array.Empty<Result<int>>();
 
-        var flattened = results.Flatten();
+        var flattened = results.Flatten(items => items.ToList());
 
-        flattened.AssertOnSuccess(list => Assert.Empty(list));
-    }
-
-    [Fact]
-    public void Should_GetSuccessValues_From_Mixed_Results()
-    {
-        var results = new[]
+        flattened.AssertOnSuccess(bulk =>
         {
-            Result<int>.Success(1),
-            Result<int>.Failure(NotFoundError.Create("Error")),
-            Result<int>.Success(3),
-            Result<int>.Failure(NotFoundError.Create("Error 2")),
-            Result<int>.Success(5)
-        };
-
-        var successValues = results.GetSuccessValues();
-
-        Assert.Equal(3, successValues.Count);
-        Assert.Equal([1, 3, 5], successValues);
+            var completed = Assert.IsType<CompletedBulkResult<List<int>>>(bulk);
+            Assert.Empty(completed.Value);
+        });
     }
 
     [Fact]
-    public void Should_GetSuccessValues_From_All_Success_Results()
+    public void Should_Apply_FlattenFunc_To_Collected_Successes()
     {
         var results = new[]
         {
@@ -87,47 +85,51 @@ public class CollectionExtensionsTests
             Result<int>.Success(30)
         };
 
-        var successValues = results.GetSuccessValues();
+        var flattened = results.Flatten(items => items.Sum());
 
-        Assert.Equal(3, successValues.Count);
-        Assert.Equal([10, 20, 30], successValues);
+        flattened.AssertOnSuccess(bulk =>
+        {
+            var completed = Assert.IsType<CompletedBulkResult<int>>(bulk);
+            Assert.Equal(60, completed.Value);
+        });
     }
 
     [Fact]
-    public void Should_GetSuccessValues_Return_Empty_When_All_Failures()
+    public void Should_Partial_Value_Contain_Only_Successful_Items()
     {
         var results = new[]
         {
-            Result<int>.Failure(NotFoundError.Create("Error 1")),
+            Result<int>.Success(2),
+            Result<int>.Failure(NotFoundError.Create("Error")),
+            Result<int>.Success(4),
             Result<int>.Failure(NotFoundError.Create("Error 2"))
         };
 
-        var successValues = results.GetSuccessValues();
+        var flattened = results.Flatten(items => items.ToList());
 
-        Assert.Empty(successValues);
+        flattened.AssertOnSuccess(bulk =>
+        {
+            var partial = Assert.IsType<PartialSuccessBulkResult<List<int>>>(bulk);
+            Assert.Equal([2, 4], partial.Value);
+            Assert.Equal(2, partial.Errors.Length);
+        });
     }
 
     [Fact]
-    public void Should_GetSuccessValues_From_Empty_Collection()
-    {
-        var results = Array.Empty<Result<int>>();
-
-        var successValues = results.GetSuccessValues();
-
-        Assert.Empty(successValues);
-    }
-
-    [Fact]
-    public void Should_Use_Flatten_After_Map_Operations()
+    public void Should_Preserve_Transformed_Values_After_Map_And_Flatten()
     {
         var numbers = new[] { 1, 2, 3, 4, 5 };
 
-        var results = numbers
+        var flattened = numbers
             .Select(n => Result<int>.Success(n))
             .Select(r => r.Map(x => x * 2))
-            .Flatten();
+            .Flatten(items => items.ToList());
 
-        results.AssertOnSuccess(list => Assert.Equal([2, 4, 6, 8, 10], list));
+        flattened.AssertOnSuccess(bulk =>
+        {
+            var completed = Assert.IsType<CompletedBulkResult<List<int>>>(bulk);
+            Assert.Equal([2, 4, 6, 8, 10], completed.Value);
+        });
     }
 
     [Fact]

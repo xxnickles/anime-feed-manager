@@ -1,4 +1,4 @@
-namespace AnimeFeedManager.Features.Tests.Shared.Results.Extensions;
+namespace AnimeFeedManager.Features.Tests.Shared.Results.Static;
 
 public class MapExtensionsTests
 {
