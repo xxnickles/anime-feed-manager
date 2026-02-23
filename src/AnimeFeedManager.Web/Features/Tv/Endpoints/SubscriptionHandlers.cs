@@ -24,7 +24,7 @@ internal static class SubscriptionHandlers
                 clientFactory.TableStorageTvSubscription, cancellationToken))
             .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
                 clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 // Render the ForSubscriptionRemoval component with a success notification
                 _ =>
@@ -61,7 +61,7 @@ internal static class SubscriptionHandlers
                 clientFactory.TableStorageTvSubscription, cancellationToken))
             .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
                 clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 // Render the ForSubscription component with a success notification
                 _ =>

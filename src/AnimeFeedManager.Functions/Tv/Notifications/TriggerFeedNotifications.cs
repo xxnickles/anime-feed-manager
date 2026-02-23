@@ -33,8 +33,7 @@ public class TriggerFeedNotifications
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
                 "{UserCount} users will be notified about new releases. Next run will occur at {Time}",
                 summary.UsersToNotify, myTimer.ScheduleStatus?.Next))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 
     [Function("ManualTriggerFeedNotifications")]
@@ -47,8 +46,7 @@ public class TriggerFeedNotifications
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
                 "{UserCount} users will be notified about new releases. This is a manually triggered run",
                 summary.UsersToNotify))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 
     private Task<Result<FeedProcessSummary>> RunProcess(Result<DailySeriesFeed[]> feed, CancellationToken token)

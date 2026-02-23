@@ -28,7 +28,6 @@ public class OnSeriesCompleted
                 _tableClientFactory.TableStorageTvSubscriptionUpdater,
                 token)
             .AddLogOnSuccess(r => logger => logger.LogInformation("{Count} subscriptions has been expired for the {Series}", r.Changes, message.Id))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 }

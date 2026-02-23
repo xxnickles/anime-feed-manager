@@ -45,7 +45,7 @@ public class MatchExtensionsTests
         var result = Result<int>.Success(42)
             .MatchToValue(
                 onOk: value => $"Success: {value}",
-                onError: error => $"Error: {error.ErrorMessage}");
+                onError: error => $"Error: {error.Message}");
 
         Assert.Equal("Success: 42", result);
     }
@@ -57,7 +57,7 @@ public class MatchExtensionsTests
         var result = Result<int>.Failure(error)
             .MatchToValue(
                 onOk: value => $"Success: {value}",
-                onError: error => $"Error: {error.ErrorMessage}");
+                onError: error => $"Error: {error.Message}");
 
         Assert.Equal("Error: Not found", result);
     }
@@ -92,7 +92,7 @@ public class MatchExtensionsTests
 
         Result<int>.Success(42).Match(
             onOk: value => log.Add($"Processed: {value}"),
-            onError: error => log.Add($"Failed: {error.ErrorMessage}"));
+            onError: error => log.Add($"Failed: {error.Message}"));
 
         Assert.Single(log);
         Assert.Equal("Processed: 42", log[0]);
@@ -108,7 +108,7 @@ public class MatchExtensionsTests
             .Bind(x => Result<int>.Success(x + 10))
             .Match(
                 onOk: value => result.Add($"Final: {value}"),
-                onError: error => result.Add($"Error: {error.ErrorMessage}"));
+                onError: error => result.Add($"Error: {error.Message}"));
 
         Assert.Single(result);
         Assert.Equal("Final: 20", result[0]);

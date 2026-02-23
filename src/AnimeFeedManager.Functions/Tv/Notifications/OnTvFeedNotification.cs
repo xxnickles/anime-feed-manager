@@ -42,7 +42,6 @@ public class OnTvFeedNotification
                 _domainPostman.SendMessages,
                 cancellationToken))
             .AddLogOnSuccess(summary => logger => logger.LogInformation("{NotificationCount} have been sent to {User}", summary.NotificationsSent, summary.UserId))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 }

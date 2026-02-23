@@ -41,7 +41,7 @@ internal static class SecurityHandlers
                 viewModel.UserId = result.UserId;
                 return viewModel;
             })
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 model => [RegistrationForm.SuccessFragment(model)],
                 error => [RegistrationForm.ErrorFragment(viewModel, error)]
@@ -64,7 +64,7 @@ internal static class SecurityHandlers
                 viewModel.Token = result.Token.Token;
                 return viewModel;
             })
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 model => [AddCredentialForm.SuccessFragment(model)],
                 error => [AddCredentialForm.ErrorFragment(viewModel, error)]

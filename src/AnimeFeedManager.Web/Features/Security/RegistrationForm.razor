@@ -120,7 +120,7 @@ else
     {
         DomainValidationErrors validationErrors => string.Join(", ",
             validationErrors.Errors.SelectMany(e => e.Errors)),
-       not null => Error.ErrorMessage,
+       not null => Error.Message,
         _ =>  "Registration failed. Please try again."
     };
 

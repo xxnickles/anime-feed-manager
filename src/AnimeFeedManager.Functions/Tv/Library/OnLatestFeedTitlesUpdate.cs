@@ -36,8 +36,7 @@ public class OnLatestFeedTitlesUpdate
             .AddLogOnSuccess(results => logger => logger.LogInformation(
                 "(OnDemand) Season {Year}-{Season} tv series titles has been updated. {UpdatedSeries} has been updated",
                 results.Season.Year, results.Season.Season, results.UpdatedSeries))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 
     [Function("ScheduledFeedTitlesUpdate")]
@@ -49,8 +48,7 @@ public class OnLatestFeedTitlesUpdate
                 "(Scheduled) Feed titles updated for {Year}-{Season}. {UpdatedSeries} series updated. Next run: {Time}",
                 results.Season.Year, results.Season.Season, results.UpdatedSeries,
                 myTimer.ScheduleStatus?.Next))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 
     private Task<Result<ScrapTvLibraryResult>> RunProcess(CancellationToken token)

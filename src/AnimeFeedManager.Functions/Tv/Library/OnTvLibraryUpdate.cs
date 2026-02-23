@@ -43,8 +43,7 @@ public class OnTvLibraryUpdate
                 results.Season.Season,
                 results.UpdatedSeries,
                 results.NewSeries))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 
     [Function("ScheduledTvLibraryUpdate")]
@@ -59,8 +58,7 @@ public class OnTvLibraryUpdate
                 results.UpdatedSeries,
                 results.NewSeries,
                 myTimer.ScheduleStatus?.Next))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 
     private Task<Result<ScrapTvLibraryResult>> RunScraper(

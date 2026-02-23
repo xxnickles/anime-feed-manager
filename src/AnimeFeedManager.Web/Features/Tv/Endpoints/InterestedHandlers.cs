@@ -22,7 +22,7 @@ internal static partial class InterestedHandlers
                 clientFactory.TableStorageTvSubscription, cancellationToken))
             .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater,
                 clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 // Render the ForInterestedRemoval component with a success notification
                 _ =>
@@ -57,7 +57,7 @@ internal static partial class InterestedHandlers
                 clientFactory.TableStorageTvSubscription, cancellationToken))
             .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater,
                 clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 // Render the ForInterested component with a success notification
                 _ =>

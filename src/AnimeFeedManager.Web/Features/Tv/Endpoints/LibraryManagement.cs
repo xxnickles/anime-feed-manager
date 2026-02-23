@@ -19,7 +19,7 @@ internal static class LibraryManagement
                     clientFactory.TableStorageTvSeriesGetter,
                     clientFactory.TableStorageTvSeriesUpdater,
                     cancellationToken))
-                .WriteLogs(logger)
+                .FlushLogs(logger)
                 .ToComponentResult(
                     _ =>
                     [
@@ -49,7 +49,7 @@ internal static class LibraryManagement
                     $$$"""{"removeSeries": {"owner": "{{{viewModel.CardId}}}"}}""";
                 return result;
             })
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(_ =>
                 [
                     Notifications.CreateNotificationToast("Remove Series",
