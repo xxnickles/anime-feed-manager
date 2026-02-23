@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace AnimeFeedManager.Shared.Results.Errors;
+﻿namespace AnimeFeedManager.Shared.Results.Errors;
 
 public sealed record NotFoundError : DomainError
 {
     private NotFoundError(
-        string errorMessage) : base(errorMessage)
+        string message) : base(message)
     {
     }
 
@@ -13,5 +11,5 @@ public sealed record NotFoundError : DomainError
         new(message);
 
 
-    public override Action<ILogger> LogAction() => logger => logger.LogError("{Message}", ErrorMessage);
+    public override Action<ILogger> LogAction() => logger => logger.LogError("{Message}", Message);
 }

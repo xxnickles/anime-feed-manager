@@ -36,7 +36,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
         catch (Exception exception)
         {
             LogAnErrorOccurredWhenScrappingNewReleasesFromSubsplease(exception);
-            return new HandledError();
+            return HandledError.Create();
         }
     }
 
@@ -78,7 +78,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
         catch (Exception exception)
         {
             LogHomePageScrappingException(exception);
-            return new HandledError();
+            return HandledError.Create();
         }
     }
 
@@ -104,7 +104,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
         catch (Exception exception)
         {
             LogExceptionProcessingSeries(exception, showUrl);
-            return new HandledError();
+            return HandledError.Create();
         }
     }
 

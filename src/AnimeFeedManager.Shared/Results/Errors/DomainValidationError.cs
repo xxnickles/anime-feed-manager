@@ -1,7 +1,4 @@
-﻿using System.Text;
-using Microsoft.Extensions.Logging;
-
-namespace AnimeFeedManager.Shared.Results.Errors;
+﻿namespace AnimeFeedManager.Shared.Results.Errors;
 
 public sealed record DomainValidationError(string Field, string[] Errors)
 {
@@ -30,7 +27,7 @@ public sealed record DomainValidationErrors : DomainError
     public override string ToString()
     {
         var builder = new StringBuilder();
-        builder.AppendLine(ErrorMessage);
+        builder.AppendLine(Message);
         builder.AppendLine("Validation Errors");
         foreach (var (key, value) in Errors)
         {
@@ -42,7 +39,7 @@ public sealed record DomainValidationErrors : DomainError
 
     public override Action<ILogger> LogAction() => logger =>
     {
-        logger.LogWarning("{Error}", ErrorMessage);
+        logger.LogWarning("{Error}", Message);
 
         foreach (var validationError in Errors)
             logger.LogWarning("Field: {Field} Messages: {Messages}", validationError.Field,

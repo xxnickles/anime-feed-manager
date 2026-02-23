@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace AnimeFeedManager.Shared.Results.Static;
 
 /// <summary>
@@ -37,7 +35,7 @@ public static class DomainErrorExtensionMembers
         /// <summary>
         /// Writes the error directly to the provided logger using the error's defined log action.
         /// Use this for immediate error logging outside of a result chain.
-        /// For logging within result chains, prefer <see cref="ResultExtensionMembers.WriteLogs{T}"/>.
+        /// For logging within result chains, prefer <see cref="ResultExtensionMembers.FlushLogs{T}"/>.
         /// </summary>
         /// <param name="logger">The logger to write the error to.</param>
         public void WriteError(ILogger logger) => error.LogAction().Invoke(logger);
