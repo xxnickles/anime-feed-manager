@@ -38,18 +38,22 @@ public static class Subscription
         .Bind(subscriptions => StoreUpdates(subscriptions, subscriptionUpdater, token));
 
 
-    private static Task<Result<Summary>> StoreUpdates(
+    private static async Task<Result<Summary>> StoreUpdates(
         ImmutableList<SubscriptionStorage> subscriptions,
         TvSubscriptionUpdater subscriptionUpdater,
         CancellationToken token)
     {
-        return subscriptions.Select(s =>
+        var results = await Task.WhenAll(
+            subscriptions.Select(s =>
                 subscriptionUpdater(s, token)
                     .WithOperationName(nameof(StoreUpdates))
-                    .WithLogProperty("Subscription", s)
-            )
-            .Flatten()
-            .Map(r => new Summary(r.Count));
+                    .WithLogProperty("Subscription", s)));
+
+        return results
+            .Flatten(units => units.Count())
+            .AddLogOnSuccess(LogFactories.LogBulkResult<int>(
+                (count, logger) => logger.LogInformation("{Count} subscriptions expired", count)))
+            .Map(bulk => new Summary(bulk.Value));
     }
 
 

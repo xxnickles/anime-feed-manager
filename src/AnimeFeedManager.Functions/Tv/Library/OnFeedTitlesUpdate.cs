@@ -34,7 +34,6 @@ public class OnFeedTitlesUpdate
                 _tableClientFactory.TableStorageFeedTitlesUpdater, token)
             .SentEvents(_domainPostman.SendMessages, message.Season, token)
             .AddLogOnSuccess(_ => logger => logger.LogInformation("Feed titles have been updated"))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 }

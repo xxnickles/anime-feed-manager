@@ -101,5 +101,6 @@ public static class ExistentSeasons
 
     private static ImmutableList<SeriesSeason> TransformToSeriesSeason(this ImmutableList<SeasonStorage> seasons) =>
         seasons.ConvertAll(s => (s.Season ?? string.Empty, s.Year, s.Latest).ParseAsSeriesSeason())
-            .GetSuccessValues();
+            .Flatten(list => list.ToImmutableList())
+            .MatchToValue(bulk => bulk.Value, _ => ImmutableList<SeriesSeason>.Empty);
 }

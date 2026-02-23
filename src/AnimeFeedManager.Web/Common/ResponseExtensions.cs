@@ -61,14 +61,12 @@ internal static class ResponseExtensions
                 statusCode: 400,
                 type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1"),
             AggregatedError aggregatedError => TypedResults.Problem(
-                detail: string.Join("; ", aggregatedError.Errors.Select(e => e.ErrorMessage)),
-                title: aggregatedError.FailureType == FailureType.Partial
-                    ? "Some operations failed"
-                    : "All operations failed",
-                statusCode: aggregatedError.FailureType == FailureType.Partial ? 207 : 500,
+                detail: string.Join("; ", aggregatedError.Errors.Select(e => e.Message)),
+                title: "All operations failed",
+                statusCode: 500,
                 type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"),
             Error basicError => TypedResults.Problem(
-                detail: basicError.ErrorMessage,
+                detail: basicError.Message,
                 title: "An error occurred",
                 statusCode: 500,
                 type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"),

@@ -8,16 +8,26 @@ internal static class TvImagesCollector
 {
     private const int BatchSize = 10;
 
-    public static Task<Result<ScrapTvLibraryData>> AddImagesLink(
+    public static async Task<Result<ScrapTvLibraryData>> AddImagesLink(
         this ImageProcessor imageProvider,
         ScrapTvLibraryData data,
         CancellationToken token = default)
     {
         var targetDirectory = $"{data.Season.Year}/{data.Season.Season}";
-        return data.SeriesData
-            .Select(s => AddImageLink(imageProvider, s, targetDirectory, token))
-            .FlattenBatched(BatchSize)
-            .Map(results => data with { SeriesData = results });
+        var all = new List<Result<StorageData>>();
+
+        foreach (var batch in data.SeriesData.Chunk(BatchSize))
+        {
+            var batchResults = await Task.WhenAll(
+                batch.Select(s => AddImageLink(imageProvider, s, targetDirectory, token)));
+            all.AddRange(batchResults);
+        }
+
+        return all
+            .Flatten(items => items.ToImmutableList())
+            .AddLogOnSuccess(LogFactories.LogBulkResult<ImmutableList<StorageData>>(
+                (items, logger) => logger.LogInformation("{Count} images processed", items.Count)))
+            .Map(bulk => data with { SeriesData = bulk.Value });
     }
 
     private static async Task<Result<StorageData>> AddImageLink(

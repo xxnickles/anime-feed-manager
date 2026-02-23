@@ -36,7 +36,7 @@ else
         await TableClientFactory.TableStorageTvLibraryGetter
             .GetTvLibrarySeries(Season, BlobServiceClient.Uri, CancellationToken.None)
             .GetTvLibraryForUser(_user, TableClientFactory.TableStorageTvSubscriptions, CancellationToken.None)
-            .WriteLogs(Logger)
+            .FlushLogs(Logger)
             .Match(
                 series => { _series = series; },
                 _ => { _series = []; });

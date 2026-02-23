@@ -38,8 +38,7 @@ public class OnSeasonUpdated
                 token)
             .SentEvents(_domainPostman.SendMessages, message.Season, token)
             .AddLogOnSuccess(LogSuccess)
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 
     private static Action<ILogger> LogSuccess(SeasonUpdateResult data) => logger =>

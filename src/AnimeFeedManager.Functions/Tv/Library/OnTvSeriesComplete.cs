@@ -26,7 +26,6 @@ public class OnTvSeriesComplete
         using var tracedActivity = message.StartTracedActivity(nameof(OnTvSeriesComplete));
         await CompleteOngoing.CompleteOngoingSeries(message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .AddLogOnSuccess(r => logger => logger.LogInformation("TV Series have been completed {@Series}", r.CompletedSeries))
-            .WriteLogs(_logger)
-            .Done();
+            .Complete(_logger);
     }
 }

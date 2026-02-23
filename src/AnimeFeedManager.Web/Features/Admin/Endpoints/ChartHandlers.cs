@@ -20,10 +20,10 @@ internal static class ChartHandlers
                 range.From,
                 range.To,
                 cancellationToken)
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 data => [ChartContent.AsRenderFragment("Scraping Events", data, ChartJsOptions.IntegerScale)],
-                error => [ChartError.AsRenderFragment(error.ErrorMessage)]
+                error => [ChartError.AsRenderFragment(error.Message)]
             );
     }
 
@@ -39,10 +39,10 @@ internal static class ChartHandlers
                 range.From,
                 range.To,
                 cancellationToken)
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 data => [ChartContent.AsRenderFragment("Notifications Sent", data, ChartJsOptions.IntegerScale)],
-                error => [ChartError.AsRenderFragment(error.ErrorMessage)]);
+                error => [ChartError.AsRenderFragment(error.Message)]);
     }
     
     internal static Task<RazorComponentResult> FeedUpdatesSummary(
@@ -57,9 +57,9 @@ internal static class ChartHandlers
                 range.From,
                 range.To,
                 cancellationToken)
-            .WriteLogs(logger)
+            .FlushLogs(logger)
             .ToComponentResult(
                 data => [ChartContent.AsRenderFragment("Feed Updates", data, ChartJsOptions.IntegerScale)],
-                error => [ChartError.AsRenderFragment(error.ErrorMessage)]);
+                error => [ChartError.AsRenderFragment(error.Message)]);
     }
 }

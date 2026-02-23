@@ -61,7 +61,7 @@ internal static class Notifications
                     break;
 
                 case Error basic:
-                    builder.AddContent(1, basic.ErrorMessage);
+                    builder.AddContent(1, basic.Message);
                     break;
 
                 case FormDataValidationError:

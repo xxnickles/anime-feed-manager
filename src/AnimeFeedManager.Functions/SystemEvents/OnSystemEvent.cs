@@ -41,7 +41,7 @@ public class OnSystemEvent
                         EventPayloadDeserializer.Deserialize, _blazorRenderer)
                     .Map<string, SignalRMessageAction?>(CreateSignalRMessage);
             })
-            .WriteLogs(_logger)
+            .FlushLogs(_logger)
             .MatchToValue(r => r, _ => null);
     }
 
