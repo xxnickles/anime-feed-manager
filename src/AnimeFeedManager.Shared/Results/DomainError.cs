@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿namespace AnimeFeedManager.Shared.Results;
 
-namespace AnimeFeedManager.Shared.Results;
-
-public abstract record DomainError(string ErrorMessage)
+public abstract record DomainError(string Message)
 {
-    public override string ToString() => ErrorMessage;
+    public override string ToString() => Message;
 
     /// <summary>
     /// Returns the single log action for this error type.

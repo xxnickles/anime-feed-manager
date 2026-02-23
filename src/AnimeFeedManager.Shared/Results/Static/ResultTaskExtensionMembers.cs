@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace AnimeFeedManager.Shared.Results.Static;
 
 /// <summary>
@@ -159,12 +157,7 @@ public static class ResultTaskExtensionMembers
             Func<DomainError, TTarget> onError)
             => (await resultTask).MatchToValue(onSuccess, onError);
 
-        /// <summary>
-        /// Terminates a result chain. Use after <see cref="WriteLogs"/> when no further processing is needed.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Done{T}(Result{T})"/>.
-        /// </summary>
-        public async Task Done() => (await resultTask).Done();
-
+       
         // ──────────────────────────────────────────────────────────────────
         // Logging - Trace Context
         // ──────────────────────────────────────────────────────────────────
@@ -207,12 +200,43 @@ public static class ResultTaskExtensionMembers
             => (await resultTask).WithLogProperties(props);
 
         /// <summary>
-        /// Writes all accumulated logs to the provided logger.
-        /// Async wrapper for <see cref="ResultExtensionMembers.WriteLogs{T}(Result{T}, ILogger)"/>.
+        /// Flushes all accumulated logs to the provided logger and clears the trace context.
+        /// Async wrapper for <see cref="ResultExtensionMembers.FlushLogs{T}(Result{T}, ILogger)"/>.
         /// </summary>
         /// <param name="logger">The logger to write to.</param>
-        /// <returns>The result unchanged (for chaining).</returns>
-        public async Task<Result<T>> WriteLogs(ILogger logger)
-            => (await resultTask).WriteLogs(logger);
+        /// <returns>The result with an empty trace context.</returns>
+        public async Task<Result<T>> FlushLogs(ILogger logger)
+            => (await resultTask).FlushLogs(logger);
+        
+        /// <summary>
+        /// Terminal operation that finalizes the async Result pipeline by writing all accumulated logs.
+        /// Async wrapper for <see cref="ResultExtensionMembers.Complete"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Use <c>Complete</c> as the final call in a Result chain when no further operations are needed.
+        /// It flushes all logs accumulated via <c>AddLog</c>, <c>AddLogOnSuccess</c>,
+        /// and <c>AddLogOnFailure</c> to the provided logger and clears the trace context.
+        /// </para>
+        /// <para>
+        /// On failure, the error's <see cref="DomainError.LogAction"/> is automatically included in the output.
+        /// </para>
+        /// <para>
+        /// Note: Unlike the sync version which returns void, this async version returns
+        /// <see cref="Task{TResult}"/> of <see cref="Result{T}"/> with an empty trace context.
+        /// The returned result carries only the value/error for aggregation purposes.
+        /// </para>
+        /// </remarks>
+        /// <param name="logger">The logger to write accumulated logs to.</param>
+        /// <returns>The result unchanged (for async compatibility).</returns>
+        /// <example>
+        /// <code>
+        /// await GetLease(name)
+        ///     .Bind(_ => ProcessDataAsync(...))
+        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {Stats}", stats))
+        ///     .Complete(logger);  // Terminal - writes all logs
+        /// </code>
+        /// </example>
+        public async Task<Result<T>> Complete(ILogger logger) => (await resultTask).FlushLogs(logger);
     }
 }

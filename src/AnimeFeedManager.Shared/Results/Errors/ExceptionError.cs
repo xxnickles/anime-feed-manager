@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics.Contracts;
-using System.Text;
-using Microsoft.Extensions.Logging;
 
 namespace AnimeFeedManager.Shared.Results.Errors;
 
@@ -27,7 +25,7 @@ public sealed record ExceptionError : DomainError
     {
         var builder = new StringBuilder();
         var innerErrors = ExtractErrors(Exception);
-        builder.AppendLine(ErrorMessage);
+        builder.AppendLine(Message);
         if (AdditionalMessage != null)
         {
             builder.AppendLine(AdditionalMessage);

@@ -48,7 +48,7 @@ public class ImageProvider : IImageProvider
         catch (Exception e)
         {
             _logger.LogError(e, "An error occurred when processing image {ImageName}", data.FileName);
-            return new HandledError();
+            return HandledError.Create();
         }
     }
 

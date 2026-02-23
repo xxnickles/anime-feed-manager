@@ -2,8 +2,8 @@
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.Types;
-using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Seasons.Storage;
+using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;

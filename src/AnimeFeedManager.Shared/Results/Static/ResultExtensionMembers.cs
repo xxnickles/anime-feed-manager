@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace AnimeFeedManager.Shared.Results.Static;
 
 /// <summary>
@@ -192,21 +190,14 @@ public static class ResultExtensionMembers
                 ? onOk(result.ResultValue!)
                 : onError(result.ErrorValue!);
 
-        /// <summary>
-        /// Terminates a result chain. Use after <see cref="WriteLogs"/> when no further processing is needed.
-        /// This is a no-op that exists for fluent API readability.
-        /// </summary>
-        public void Done()
-        {
-        }
-
+      
         // ──────────────────────────────────────────────────────────────────
         // Logging - Trace Context
         // ──────────────────────────────────────────────────────────────────
 
         /// <summary>
         /// Adds a log action to the result's trace context.
-        /// The action will be executed when <see cref="WriteLogs"/> is called.
+        /// The action will be executed when <see cref="FlushLogs"/> is called.
         /// </summary>
         /// <param name="logAction">The logging action to add.</param>
         /// <returns>The result with the added log action.</returns>
@@ -261,20 +252,48 @@ public static class ResultExtensionMembers
             result with {TraceContext = result.TraceContext.WithProperties(props)};
 
         /// <summary>
-        /// Writes all accumulated logs to the provided logger.
+        /// Flushes all accumulated logs to the provided logger and clears the trace context.
         /// On failure, the error's log action is automatically included.
         /// Properties are written as a logging scope.
         /// </summary>
         /// <param name="logger">The logger to write to.</param>
-        /// <returns>The result unchanged (for chaining).</returns>
-        public Result<T> WriteLogs(ILogger logger)
+        /// <returns>The result with an empty trace context.</returns>
+        public Result<T> FlushLogs(ILogger logger)
         {
             var contextToWrite = result.IsSuccess
                 ? result.TraceContext
                 : result.TraceContext.AddLog(result.ErrorValue!.LogAction());
 
             contextToWrite.Write(logger);
-            return result;
+            return result with { TraceContext = TraceContext.Empty };
+        }
+
+        /// <summary>
+        /// Terminal operation that finalizes the Result pipeline by writing all accumulated logs.
+        /// Unlike <see cref="FlushLogs"/>, this method returns void to signal chain termination.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Use <c>Complete</c> as the final call in a Result chain when no further operations are needed.
+        /// It writes all logs accumulated via <see cref="AddLog"/>, <see cref="AddLogOnSuccess"/>,
+        /// and <see cref="AddLogOnFailure"/> to the provided logger.
+        /// </para>
+        /// <para>
+        /// On failure, the error's <see cref="DomainError.LogAction"/> is automatically included in the output.
+        /// </para>
+        /// </remarks>
+        /// <param name="logger">The logger to write accumulated logs to.</param>
+        /// <example>
+        /// <code>
+        /// await GetLease(name)
+        ///     .Bind(_ => ProcessData(...))
+        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {Stats}", stats))
+        ///     .Complete(logger);  // Terminal - writes all logs, returns void
+        /// </code>
+        /// </example>
+        public void Complete(ILogger logger)
+        {
+            result.FlushLogs(logger);
         }
     }
 }

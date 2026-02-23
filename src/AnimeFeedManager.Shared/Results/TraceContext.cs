@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace AnimeFeedManager.Shared.Results;
 
 public sealed record TraceContext

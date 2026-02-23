@@ -1,9 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
 using AnimeFeedManager.Features.Common;
-using CommonJsonContext = AnimeFeedManager.Features.Common.CommonJsonContext;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
+using CommonJsonContext = AnimeFeedManager.Features.Common.CommonJsonContext;
 
 namespace AnimeFeedManager.Features.Tests.Seasons.UpdateProcess;
 

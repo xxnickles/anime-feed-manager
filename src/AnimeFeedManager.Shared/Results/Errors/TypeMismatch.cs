@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace AnimeFeedManager.Shared.Results.Errors;
+﻿namespace AnimeFeedManager.Shared.Results.Errors;
 
 public sealed record TypeMismatch(
     Type TargetType,
@@ -9,6 +7,6 @@ public sealed record TypeMismatch(
 {
     public override Action<ILogger> LogAction() => logger =>
         logger.LogError(
-            "{Message}. Expected an object of type {TargetType}, but got {Type}", ErrorMessage,
+            "{Message}. Expected an object of type {TargetType}, but got {Type}", Message,
             TargetType.FullName, Received.GetType().FullName);
 }

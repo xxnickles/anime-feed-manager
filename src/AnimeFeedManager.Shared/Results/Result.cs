@@ -23,4 +23,5 @@ public sealed record Result<T>
     public static Result<T> Success(T value) => new(value, null,true);
 
     public static Result<T> Failure(DomainError error) => new(default, error,false);
+    
 }

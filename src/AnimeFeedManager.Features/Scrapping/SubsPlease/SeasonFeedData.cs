@@ -37,7 +37,7 @@ public sealed class SeasonFeedDataProvider : ISeasonFeedDataProvider
         catch(Exception exception)
         {
             _logger.LogError(exception, "An error occurred when scrapping titles from SubsPlease");
-            return new HandledError();
+            return HandledError.Create();;
         }
     }
 
