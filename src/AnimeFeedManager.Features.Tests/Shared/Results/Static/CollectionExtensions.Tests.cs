@@ -57,7 +57,7 @@ public class CollectionExtensionsTests
         {
             var partial = Assert.IsType<PartialSuccessBulkResult<List<int>>>(bulk);
             Assert.Equal([1, 3], partial.Value);
-            Assert.Equal(1, partial.Errors.Length);
+            Assert.Single(partial.Errors);
         });
     }
 

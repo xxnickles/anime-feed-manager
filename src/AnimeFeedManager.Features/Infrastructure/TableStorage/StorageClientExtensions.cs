@@ -115,12 +115,6 @@ internal static class StorageClientExtensions
                 : Result<T?>.Success(x[0]));
         }
 
-        public Task<Result<T>> SingleItemOrNotFound()
-        {
-            return result.Bind(x => x.IsEmpty
-                ? NotFoundError.Create($"Not matches found for type {typeof(T).FullName}")
-                : Result<T>.Success(x[0]));
-        }
     }
 
     internal static Task<Result<Unit>> WithDefaultMap(this Task<Result<Response>> result)

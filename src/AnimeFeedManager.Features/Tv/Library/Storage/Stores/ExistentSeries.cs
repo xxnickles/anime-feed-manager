@@ -92,7 +92,7 @@ public static class ExistentSeries
                         series =>
                             series.PartitionKey == IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year) &&
                             series.RowKey == id, token)
-                    .SingleItemOrNotFound()
+                    .SingleItem()
                     .Map(s => LibraryMapper(s, blobUri)));
 
         public TvSeriesGetter TableStorageTvSeriesGetter =>
