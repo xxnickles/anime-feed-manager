@@ -27,7 +27,7 @@ public static class ExistentSeasons
                             storage => storage.PartitionKey == SeasonStorage.SeasonPartition && storage.Latest == true,
                             cancellationToken)
                         .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(seasons =>
-                            !seasons.IsEmpty ? new CurrentLatestSeason(seasons.First()) : new NoMatch()));
+                            !seasons.IsEmpty ? new CurrentLatestSeason(seasons[0]) : new NoMatch()));
 
         public SeasonGetter TableStorageSeason =>
             (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
@@ -41,7 +41,7 @@ public static class ExistentSeasons
                         if (matches.IsEmpty)
                             return new NoMatch();
 
-                        var match = matches.First();
+                        var match = matches[0];
 
                         return (match.Latest, season.IsLatest) switch
                         {

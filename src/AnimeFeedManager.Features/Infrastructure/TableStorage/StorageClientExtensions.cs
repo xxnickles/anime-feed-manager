@@ -13,19 +13,9 @@ internal static class StorageClientExtensions
             {
                 return Result<Response<T>>.Success(await action(client));
             }
-            catch (RequestFailedException ex)
-            {
-                return ex.Status == 404
-                    ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
-                    : ExceptionError.FromExceptionWithMessage(ex,
-                        "An error occurred when executing a request to table storage service");
-            }
             catch (Exception e)
             {
-                return e.Message == "Not Found"
-                    ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
-                    : ExceptionError.FromExceptionWithMessage(e,
-                        "An error occurred when executing a Table Client action");
+                return TableClient.HandleEntityException<Response<T>, T>(e);
             }
         }
 
@@ -36,21 +26,25 @@ internal static class StorageClientExtensions
             {
                 return Result<Response>.Success(await action(client));
             }
-            catch (RequestFailedException ex)
-            {
-                return ex.Status == 404
-                    ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
-                    : ExceptionError.FromExceptionWithMessage(ex,
-                        "An error occurred when executing a request to table storage service");
-            }
             catch (Exception e)
             {
-                return e.Message == "Not Found"
-                    ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
-                    : ExceptionError.FromExceptionWithMessage(e,
-                        "An error occurred when executing a Table Client action");
+                return TableClient.HandleEntityException<Response, T>(e);
             }
         }
+
+        private static Result<TResult> HandleEntityException<TResult, TEntity>(Exception e)
+            where TEntity : ITableEntity => e switch
+        {
+            RequestFailedException { Status: 404 } =>
+                NotFoundError.Create($"The entity of type {typeof(TEntity).Name} was not found."),
+            { Message: "Not Found" } =>
+                NotFoundError.Create($"The entity of type {typeof(TEntity).Name} was not found."),
+            RequestFailedException =>
+                ExceptionError.FromExceptionWithMessage(e,
+                    "An error occurred when executing a request to table storage service"),
+            _ => ExceptionError.FromExceptionWithMessage(e,
+                "An error occurred when executing a Table Client action")
+        };
 
         public async Task<Result<ImmutableArray<T>>> ExecuteQuery<T>(Expression<Func<T, bool>> filter,
             CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity
@@ -85,14 +79,12 @@ internal static class StorageClientExtensions
                 // Create batches based on partition keys, as this is a restriction in azure tables
                 foreach (var groupedEntities in entities.GroupBy(e => e.PartitionKey))
                 {
-                    var addEntitiesBatch = new List<TableTransactionAction>();
-                    addEntitiesBatch.AddRange(
-                        groupedEntities.Select(tableEntity =>
-                            new TableTransactionAction(actionType, tableEntity)));
-                    const ushort limit = 99;
-                    for (ushort i = 0; i < addEntitiesBatch.Count; i += limit)
+                    var actions = groupedEntities.Select(tableEntity =>
+                        new TableTransactionAction(actionType, tableEntity));
+
+                    foreach (var batch in actions.Chunk(99))
                     {
-                        _ = await client.SubmitTransactionAsync(addEntitiesBatch.Skip(i).Take(limit), token)
+                        _ = await client.SubmitTransactionAsync(batch, token)
                             .ConfigureAwait(false);
                     }
                 }
@@ -112,22 +104,22 @@ internal static class StorageClientExtensions
         public Task<Result<T>> SingleItem()
         {
             return result.Bind(x => x.IsEmpty
-                ? NotFoundError.Create($"Item of  type '{typeof(T).FullName}' not found")
-                : Result<T>.Success(x.First()));
+                ? NotFoundError.Create($"Item of type '{typeof(T).FullName}' not found")
+                : Result<T>.Success(x[0]));
         }
 
         public Task<Result<T?>> SingleItemOrNull()
         {
             return result.Bind(x => x.IsEmpty
                 ? Result<T?>.Success(default)
-                : Result<T?>.Success(x.First()));
+                : Result<T?>.Success(x[0]));
         }
 
         public Task<Result<T>> SingleItemOrNotFound()
         {
             return result.Bind(x => x.IsEmpty
                 ? NotFoundError.Create($"Not matches found for type {typeof(T).FullName}")
-                : Result<T>.Success(x.First()));
+                : Result<T>.Success(x[0]));
         }
     }
 

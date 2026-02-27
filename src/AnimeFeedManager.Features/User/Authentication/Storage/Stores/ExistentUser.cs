@@ -44,7 +44,7 @@ public static class ExistentUser
             return new NotAUser();
 
         // we can guarantee at least a match
-        var matchingStorage = storage.First();
+        var matchingStorage = storage[0];
 
         return matchingStorage.Email.ParseAsEmail()
             .And((matchingStorage.RowKey ?? string.Empty).ParseAsNonEmpty())
