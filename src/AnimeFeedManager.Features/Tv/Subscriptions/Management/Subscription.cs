@@ -34,12 +34,12 @@ public static class Subscription
         TvSubscriptionsBySeries getter,
         TvSubscriptionUpdater subscriptionUpdater,
         CancellationToken token) => getter(seriesId, token)
-        .Map(subscriptions => subscriptions.ConvertAll(MarkAsExpired))
+        .Map(subscriptions => subscriptions.Select(MarkAsExpired).ToImmutableArray())
         .Bind(subscriptions => StoreUpdates(subscriptions, subscriptionUpdater, token));
 
 
     private static async Task<Result<Summary>> StoreUpdates(
-        ImmutableList<SubscriptionStorage> subscriptions,
+        ImmutableArray<SubscriptionStorage> subscriptions,
         TvSubscriptionUpdater subscriptionUpdater,
         CancellationToken token)
     {

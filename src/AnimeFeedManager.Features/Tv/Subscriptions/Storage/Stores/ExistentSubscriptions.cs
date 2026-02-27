@@ -1,15 +1,15 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
-public delegate Task<Result<ImmutableList<SubscriptionStorage>>> TvSubscriptions(string userId,
+public delegate Task<Result<ImmutableArray<SubscriptionStorage>>> TvSubscriptions(string userId,
     CancellationToken cancellationToken = default);
 
 public delegate Task<Result<SubscriptionStorage?>> TvSubscriptionGetter(string userId, string seriesId,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<SubscriptionStorage>>> TvSubscriptionsBySeries(string seriesId,
+public delegate Task<Result<ImmutableArray<SubscriptionStorage>>> TvSubscriptionsBySeries(string seriesId,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<SubscriptionStorage>>> TvInterestedBySeries(string seriesId,
+public delegate Task<Result<ImmutableArray<SubscriptionStorage>>> TvInterestedBySeries(string seriesId,
     CancellationToken cancellationToken = default);
 
 /// <summary>

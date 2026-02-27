@@ -22,7 +22,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var seriesSeason = _defaultFixture
                 .Create<SeriesSeason>();
 
-            var feedTitles = ImmutableList.Create(
+            var feedTitles = ImmutableArray.Create(
                 new FeedData("Series 1", "https://example.com/series-1"),
                 new FeedData("Test Anime", "https://example.com/test-anime"));
 
@@ -39,13 +39,13 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 new NoImage(),
                 Status.NewSeries);
 
-            var seriesDataList = ImmutableList.Create(storageData);
+            var seriesDataList = ImmutableArray.Create(storageData);
             var scrapData = new ScrapTvLibraryData(seriesDataList, feedTitles, seriesSeason);
             var resultScrapData = Result<ScrapTvLibraryData>.Success(scrapData);
             var initialData = Task.FromResult(resultScrapData);
 
             // Create stored series
-            var storedSeries = ImmutableList.Create(
+            var storedSeries = ImmutableArray.Create(
                 new TvSeriesInfo(
                     "Test Anime",
                     "Test Anime Feed",
@@ -56,7 +56,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             // Setup StoredSeriesGetter fake
             var storedSeriesGetter = A.Fake<StoredSeries>();
             A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
-                .Returns(Task.FromResult(Result<ImmutableList<TvSeriesInfo>>.Success(storedSeries)));
+                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
             // Setup TimeProvider fake
             var timeProvider = A.Fake<TimeProvider>();
@@ -81,7 +81,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             // Create initial ScrapTvLibraryData
             var seriesSeason = _defaultFixture
                 .Create<SeriesSeason>();
-            var feedTitles = ImmutableList.Create(
+            var feedTitles = ImmutableArray.Create(
                 new FeedData("Test Anime", "https://example.com/test-anime"),
                 new FeedData("Series 2", "https://example.com/series-2")); // Matching feed title
 
@@ -98,18 +98,18 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 new NoImage(),
                 Status.NewSeries);
 
-            var seriesDataList = ImmutableList.Create(storageData);
+            var seriesDataList = ImmutableArray.Create(storageData);
             var scrapData = new ScrapTvLibraryData(seriesDataList, feedTitles, seriesSeason);
             var resultScrapData = Result<ScrapTvLibraryData>.Success(scrapData);
             var initialData = Task.FromResult(resultScrapData);
 
             // Empty stored series (no existing series)
-            var storedSeries = ImmutableList<TvSeriesInfo>.Empty;
+            var storedSeries = ImmutableArray<TvSeriesInfo>.Empty;
 
             // Setup StoredSeriesGetter fake
             var storedSeriesGetter = A.Fake<StoredSeries>();
             A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
-                .Returns(Task.FromResult(Result<ImmutableList<TvSeriesInfo>>.Success(storedSeries)));
+                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
             // Setup TimeProvider fake - current season
             var timeProvider = A.Fake<TimeProvider>();
@@ -130,22 +130,22 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
         [Fact]
         internal async Task Should_Set_Status_Completed_When_New_And_Is_OldSeason_And_NoMatchingFeed()
         {
-            await OldSeasonVerification(ImmutableList<TvSeriesInfo>.Empty);
+            await OldSeasonVerification(ImmutableArray<TvSeriesInfo>.Empty);
         }
 
         [Fact]
         internal async Task Should_Set_Status_Completed_When_Exist_And_Is_OldSeason_And_NoMatchingFeed()
         {
             var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, Array.Empty<string>(), SeriesStatus.NotAvailable());
-            await OldSeasonVerification(ImmutableList.Create(storedSeries));
+            await OldSeasonVerification(ImmutableArray.Create(storedSeries));
         }
 
-        private async Task OldSeasonVerification(ImmutableList<TvSeriesInfo> dbSeries)
+        private async Task OldSeasonVerification(ImmutableArray<TvSeriesInfo> dbSeries)
         {
             // Create initial ScrapTvLibraryData
             // Season to scrap will be old
             var seriesSeason = new SeriesSeason(Season.Summer(), Year.FromNumber(2024));
-            var feedTitles = ImmutableList.Create(
+            var feedTitles = ImmutableArray.Create(
                 new FeedData("Other Series", "https://example.com/other-series")); // No matching feed title
 
             var processSeries = new StorageData(new AnimeInfoStorage
@@ -158,7 +158,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 Status = SeriesStatus.NotAvailableValue
             }, new NoImage(), Status.NewSeries);
 
-            var scrapData = new ScrapTvLibraryData(ImmutableList.Create(processSeries), feedTitles, seriesSeason);
+            var scrapData = new ScrapTvLibraryData(ImmutableArray.Create(processSeries), feedTitles, seriesSeason);
             var resultScrapData = Result<ScrapTvLibraryData>.Success(scrapData);
             var initialData = Task.FromResult(resultScrapData);
 
@@ -168,7 +168,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             // Setup StoredSeriesGetter fake
             var storedSeriesGetter = A.Fake<StoredSeries>();
             A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
-                .Returns(Task.FromResult(Result<ImmutableList<TvSeriesInfo>>.Success(storedSeries)));
+                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
             // Setup TimeProvider fake with a date in the future against the scrapped seasoon
             var timeProvider = A.Fake<TimeProvider>();

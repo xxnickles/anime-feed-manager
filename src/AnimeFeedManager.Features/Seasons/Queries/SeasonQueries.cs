@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Features.Seasons.Queries;
 
 public static class SeasonQueries
 {
-    public static Task<Result<ImmutableList<SeriesSeason>>> GetLast4Seasons(Latest4SeasonsGetter seasonsGetter,
+    public static Task<Result<ImmutableArray<SeriesSeason>>> GetLast4Seasons(Latest4SeasonsGetter seasonsGetter,
         CancellationToken cancellationToken) =>
         seasonsGetter(cancellationToken);
     

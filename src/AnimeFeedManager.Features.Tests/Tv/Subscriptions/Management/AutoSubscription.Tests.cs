@@ -20,7 +20,7 @@ public class AutoSubscriptionTests
         const string userId1 = "user-1";
         const string userId2 = "user-2";
 
-        var interestedSubscriptions = ImmutableList.Create(
+        var interestedSubscriptions = ImmutableArray.Create(
             new SubscriptionStorage
             {
                 PartitionKey = userId1,
@@ -41,14 +41,14 @@ public class AutoSubscriptionTests
 
         var seriesGetter = A.Fake<TvInterestedBySeries>();
         A.CallTo(() => seriesGetter(seriesId, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<ImmutableList<SubscriptionStorage>>.Success(interestedSubscriptions)));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success(interestedSubscriptions)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
         result.AssertOnSuccess(process =>
         {
             Assert.Equal(seriesId, process.SeriesId);
-            Assert.Equal(2, process.InterestedSeries.Count);
+            Assert.Equal(2, process.InterestedSeries.Length);
 
             foreach (var subscription in process.InterestedSeries)
             {
@@ -63,11 +63,11 @@ public class AutoSubscriptionTests
     {
         const string seriesId = "test-series-123";
         const string feedTitle = "Test Anime Feed";
-        var emptySubscriptions = ImmutableList<SubscriptionStorage>.Empty;
+        var emptySubscriptions = ImmutableArray<SubscriptionStorage>.Empty;
 
         var seriesGetter = A.Fake<TvInterestedBySeries>();
         A.CallTo(() => seriesGetter(seriesId, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<ImmutableList<SubscriptionStorage>>.Success(emptySubscriptions)));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success(emptySubscriptions)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
@@ -87,7 +87,7 @@ public class AutoSubscriptionTests
 
         var seriesGetter = A.Fake<TvInterestedBySeries>();
         A.CallTo(() => seriesGetter(seriesId, A<CancellationToken>._))
-            .Returns(Task.FromResult(Result<ImmutableList<SubscriptionStorage>>.Failure(error)));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Failure(error)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
@@ -98,7 +98,7 @@ public class AutoSubscriptionTests
     public async Task StoreChanges_Should_Call_Updater_With_InterestedSeries()
     {
         const string seriesId = "test-series-123";
-        var interestedSubscriptions = ImmutableList.Create(
+        var interestedSubscriptions = ImmutableArray.Create(
             new SubscriptionStorage
             {
                 PartitionKey = "user-1",
@@ -119,10 +119,10 @@ public class AutoSubscriptionTests
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
 
-       result.AssertSuccess();
+        result.AssertSuccess();
         A.CallTo(() => updater(
-            A<IEnumerable<SubscriptionStorage>>.That.Matches(
-                subs => subs.Count() == 1 && subs.First().PartitionKey == "user-1"
+            A<IEnumerable<SubscriptionStorage>>.That.Matches(subs =>
+                subs.Count() == 1 && subs.First().PartitionKey == "user-1"
             ),
             A<CancellationToken>._
         )).MustHaveHappenedOnceExactly();
@@ -132,7 +132,7 @@ public class AutoSubscriptionTests
     public async Task StoreChanges_Should_Return_Failure_When_Updater_Fails()
     {
         const string seriesId = "test-series-123";
-        var interestedSubscriptions = ImmutableList.Create(
+        var interestedSubscriptions = ImmutableArray.Create(
             new SubscriptionStorage
             {
                 PartitionKey = "user-1",
@@ -175,9 +175,9 @@ public class AutoSubscriptionTests
     public async Task SendEvents_Should_Send_Success_Event_When_Process_Succeeds()
     {
         var seriesId = "test-series-123";
-        var interestedSubscriptions = ImmutableList.Create(
-            new SubscriptionStorage { PartitionKey = "user-1", RowKey = seriesId },
-            new SubscriptionStorage { PartitionKey = "user-2", RowKey = seriesId }
+        var interestedSubscriptions = ImmutableArray.Create(
+            new SubscriptionStorage {PartitionKey = "user-1", RowKey = seriesId},
+            new SubscriptionStorage {PartitionKey = "user-2", RowKey = seriesId}
         );
 
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
@@ -192,10 +192,7 @@ public class AutoSubscriptionTests
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        result.AssertOnSuccess(summary =>
-        {
-            Assert.Equal(2, summary.Changes);
-        });
+        result.AssertOnSuccess(summary => { Assert.Equal(2, summary.Changes); });
 
         Assert.Single(capturedEvents);
         var evt = capturedEvents[0];
@@ -208,7 +205,7 @@ public class AutoSubscriptionTests
     public async Task SendEvents_Should_Send_Success_Event_With_Zero_Count_When_No_Subscriptions()
     {
         const string seriesId = "test-series-123";
-        var emptySubscriptions = ImmutableList<SubscriptionStorage>.Empty;
+        var emptySubscriptions = ImmutableArray<SubscriptionStorage>.Empty;
 
         var process = new AutoSubscriptionProcess(seriesId, emptySubscriptions);
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
@@ -218,10 +215,7 @@ public class AutoSubscriptionTests
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        result.AssertOnSuccess(summary =>
-        {
-            Assert.Equal(0, summary.Changes);
-        });
+        result.AssertOnSuccess(summary => { Assert.Equal(0, summary.Changes); });
     }
 
     [Fact]
@@ -262,7 +256,7 @@ public class AutoSubscriptionTests
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-       result.AssertError();
+        result.AssertError();
     }
 
     [Fact]
@@ -298,10 +292,7 @@ public class AutoSubscriptionTests
             .StoreChanges(updater, CancellationToken.None)
             .SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        result.AssertOnSuccess(summary =>
-        {
-            Assert.Equal(1, summary.Changes);
-        });
+        result.AssertOnSuccess(summary => { Assert.Equal(1, summary.Changes); });
 
         Assert.Single(capturedSubscriptions);
         Assert.Equal(nameof(SubscriptionType.Subscribed), capturedSubscriptions[0].Type);
@@ -311,7 +302,9 @@ public class AutoSubscriptionTests
         Assert.Equal(EventType.Completed, capturedEvents[0].Type);
         return;
 
-        Task<Result<ImmutableList<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) => Task.FromResult(Result<ImmutableList<SubscriptionStorage>>.Success(ImmutableList.Create(interestedSubscription)));
+        Task<Result<ImmutableArray<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) =>
+            Task.FromResult(
+                Result<ImmutableArray<SubscriptionStorage>>.Success(ImmutableArray.Create(interestedSubscription)));
     }
 
     [Fact]
@@ -340,7 +333,8 @@ public class AutoSubscriptionTests
         Assert.Equal(EventType.Error, capturedEvents[0].Type);
         return;
 
-        Task<Result<ImmutableList<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) => Task.FromResult(Result<ImmutableList<SubscriptionStorage>>.Failure(error));
+        Task<Result<ImmutableArray<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) =>
+            Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Failure(error));
     }
 
     [Fact]
@@ -349,7 +343,7 @@ public class AutoSubscriptionTests
         const string seriesId = "test-series-123";
         const string feedTitle = "Test Anime Feed";
 
-        var interestedSubscriptions = ImmutableList.Create(
+        var interestedSubscriptions = ImmutableArray.Create(
             new SubscriptionStorage
             {
                 PartitionKey = "user-1",
@@ -385,10 +379,7 @@ public class AutoSubscriptionTests
             .StoreChanges(Updater, CancellationToken.None)
             .SendEvents(seriesId, domainPostman, CancellationToken.None);
 
-        result.AssertOnSuccess(summary =>
-        {
-            Assert.Equal(3, summary.Changes);
-        });
+        result.AssertOnSuccess(summary => { Assert.Equal(3, summary.Changes); });
 
         Assert.Equal(3, capturedSubscriptions.Count);
         Assert.All(capturedSubscriptions, sub =>
@@ -404,6 +395,7 @@ public class AutoSubscriptionTests
             return Task.FromResult(Result<Unit>.Success(new Unit()));
         }
 
-        Task<Result<ImmutableList<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) => Task.FromResult(Result<ImmutableList<SubscriptionStorage>>.Success(interestedSubscriptions));
+        Task<Result<ImmutableArray<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) =>
+            Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success(interestedSubscriptions));
     }
 }

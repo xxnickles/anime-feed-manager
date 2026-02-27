@@ -25,7 +25,7 @@ public static class CompleteOngoing
             .Map(ongoingSeries => ongoingSeries
                 .Where(s => !updatedFeed.Contains(s.FeedTitle))
                 .Select(Complete))
-            .Map(series => new CompleteOnGoingTvSeriesProcess(series.ToImmutableList()));
+            .Map(series => new CompleteOnGoingTvSeriesProcess(series.ToImmutableArray()));
     }
 
     extension(Task<Result<CompleteOnGoingTvSeriesProcess>> process)
@@ -44,7 +44,7 @@ public static class CompleteOngoing
             CancellationToken token) => process
             .BindWhen(
                 data => domainPostman([GetEvent(data)], token).Map(_ => data),
-                data => data.SeriesToComplete.Count > 0)
+                data => data.SeriesToComplete.Length > 0)
             .MapError(e => domainPostman(
                     [
                         new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,

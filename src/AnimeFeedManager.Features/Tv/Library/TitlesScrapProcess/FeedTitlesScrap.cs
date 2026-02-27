@@ -44,14 +44,14 @@ public static class FeedTitlesScrap
         CancellationToken token)
     {
         return seriesGetter(data.Season, token)
-            .Map(series => series.ConvertAll(s => Transform(s, data.FeedData))
+            .Map(series => series.Select(s => Transform(s, data.FeedData))
                 .Where(s => s.UpdateStatus is UpdateStatus.Updated)
-                .ToImmutableList()) // Remove series that have no changes
+                .ToImmutableArray()) // Remove series that have no changes
             .Bind(seriesData => StoreChanges(seriesData, updater, token))
             .Map(seriesData => data with {FeedTitleUpdateInformation = seriesData});
     }
 
-    private static FeedTitleUpdateInformation Transform(AnimeInfoStorage entity, ImmutableList<FeedData> feedTitles)
+    private static FeedTitleUpdateInformation Transform(AnimeInfoStorage entity, ImmutableArray<FeedData> feedTitles)
     {
         // Pass on series that already are ongoing
         if (entity.Status == SeriesStatus.Ongoing())
@@ -80,8 +80,8 @@ public static class FeedTitlesScrap
         return new FeedTitleUpdateInformation(entity, UpdateStatus.Updated);
     }
 
-    private static Task<Result<ImmutableList<FeedTitleUpdateInformation>>> StoreChanges(
-        ImmutableList<FeedTitleUpdateInformation> data, TvLibraryStorageUpdater updater, CancellationToken token)
+    private static Task<Result<ImmutableArray<FeedTitleUpdateInformation>>> StoreChanges(
+        ImmutableArray<FeedTitleUpdateInformation> data, TvLibraryStorageUpdater updater, CancellationToken token)
     {
         return updater(data.Where(d => d.UpdateStatus == UpdateStatus.Updated)
             .Select(d => d.Series), token).Map(_ => data);

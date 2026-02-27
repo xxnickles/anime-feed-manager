@@ -10,7 +10,7 @@
 
 
 <SeasonLinks SelectedSeason="Season"></SeasonLinks>
-@if (_series.Count > 0)
+@if (_series.Length > 0)
 {
     <SeriesGrid IsAuthenticated="@(_user is AuthenticatedUser)">
         @foreach (var series in _series)
@@ -27,7 +27,7 @@ else
 
 @code {
     [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = new(Shared.Types.Season.Current, Year.Current);
-    ImmutableList<UserTvSeries> _series = [];
+    ImmutableArray<UserTvSeries> _series = [];
     AppUser _user = new Anonymous();
 
     protected override async Task OnInitializedAsync()

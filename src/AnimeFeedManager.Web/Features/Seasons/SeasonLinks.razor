@@ -4,7 +4,7 @@
 @inject ITableClientFactory TableClientFactory
 @inject ILogger<SeasonLinks> Logger;
 
-@if (_seasons.Count > 0)
+@if (_seasons.Length > 0)
 {
     <nav class="text-center">
         <ul tabindex="0" class="justify-center items-center space-x-5 hidden md:flex">
@@ -76,7 +76,7 @@
 
 @code {
 
-    private ImmutableList<SeriesSeason> _seasons = ImmutableList<SeriesSeason>.Empty;
+    private ImmutableArray<SeriesSeason> _seasons = ImmutableArray<SeriesSeason>.Empty;
     [Parameter, EditorRequired] public SeriesSeason SelectedSeason { get; set; } = new(Season.Current, Year.Current);
 
     protected override async Task OnInitializedAsync()

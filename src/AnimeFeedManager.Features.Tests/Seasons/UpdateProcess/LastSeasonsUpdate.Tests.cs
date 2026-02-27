@@ -34,8 +34,8 @@ public class LastSeasonsUpdateTests
             return Task.FromResult(Result<Unit>.Success());
         }
 
-        Task<Result<ImmutableList<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
-            Task.FromResult(Result<ImmutableList<SeriesSeason>>.Success(ImmutableList<SeriesSeason>.Empty));
+        Task<Result<ImmutableArray<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
+            Task.FromResult(Result<ImmutableArray<SeriesSeason>>.Success(ImmutableArray<SeriesSeason>.Empty));
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public class LastSeasonsUpdateTests
             return Task.FromResult(Result<Unit>.Success());
         }
 
-        Task<Result<ImmutableList<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
-            Task.FromResult(Result<ImmutableList<SeriesSeason>>.Success(seasons.ToImmutableList()));
+        Task<Result<ImmutableArray<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
+            Task.FromResult(Result<ImmutableArray<SeriesSeason>>.Success(seasons.ToImmutableArray()));
     }
 }

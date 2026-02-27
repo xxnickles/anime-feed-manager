@@ -5,14 +5,14 @@ namespace AnimeFeedManager.Features.Tv.Library.Queries;
 
 public static class LibraryQueries
 {
-    public static Task<Result<ImmutableList<TvSeries>>> GetTvLibrarySeries(
+    public static Task<Result<ImmutableArray<TvSeries>>> GetTvLibrarySeries(
         this TvLibrary libraryGetter,
         SeriesSeason season,
         Uri publicBlobUri,
         CancellationToken cancellationToken) => libraryGetter(season, publicBlobUri, cancellationToken);
 
-    public static Task<Result<ImmutableList<UserTvSeries>>> GetTvLibraryForUser(
-        this Task<Result<ImmutableList<TvSeries>>> librarySeries,
+    public static Task<Result<ImmutableArray<UserTvSeries>>> GetTvLibraryForUser(
+        this Task<Result<ImmutableArray<TvSeries>>> librarySeries,
         AppUser user,
         TvSubscriptions subscriptionsGetter,
         CancellationToken cancellationToken
@@ -20,8 +20,8 @@ public static class LibraryQueries
         EnhanceLibraryData(libraryData, user, subscriptionsGetter, cancellationToken));
 
 
-    private static Task<Result<ImmutableList<UserTvSeries>>> EnhanceLibraryData(
-        ImmutableList<TvSeries> libraryData,
+    private static Task<Result<ImmutableArray<UserTvSeries>>> EnhanceLibraryData(
+        ImmutableArray<TvSeries> libraryData,
         AppUser user,
         TvSubscriptions subscriptionsGetter,
         CancellationToken cancellationToken
@@ -30,11 +30,11 @@ public static class LibraryQueries
         if (user is AuthenticatedUser au)
         {
             return subscriptionsGetter(au.UserId, cancellationToken)
-                .Map(subscriptions => libraryData.ConvertAll(s => MapForUser(s, subscriptions, user)));
+                .Map(subscriptions => libraryData.Select(s => MapForUser(s, subscriptions, user)).ToImmutableArray());
         }
 
         return Task.FromResult(
-            Result<ImmutableList<UserTvSeries>>.Success(libraryData.ConvertAll(s => MapForAnonymous(s, user))));
+            Result<ImmutableArray<UserTvSeries>>.Success(libraryData.Select(s => MapForAnonymous(s, user)).ToImmutableArray()));
     }
 
 
@@ -50,7 +50,7 @@ public static class LibraryQueries
 
     private static UserTvSeries MapForUser(
         TvSeries series,
-        ImmutableList<SubscriptionStorage> subscriptions,
+        ImmutableArray<SubscriptionStorage> subscriptions,
         AppUser user)
     {
         return (series.Status.ToString(), GetSubscriptionType(subscriptions, series.Id)) switch
@@ -64,7 +64,7 @@ public static class LibraryQueries
     }
 
 
-    private static string GetSubscriptionType(ImmutableList<SubscriptionStorage> subscriptions,
+    private static string GetSubscriptionType(ImmutableArray<SubscriptionStorage> subscriptions,
         string seriesId)
     {
         return subscriptions.FirstOrDefault(s => s.RowKey == seriesId)?.Type ?? nameof(SubscriptionType.None);

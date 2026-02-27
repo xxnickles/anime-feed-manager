@@ -12,5 +12,5 @@ public sealed record FeedTitleUpdateInformation(AnimeInfoStorage Series, UpdateS
 
 public sealed record FeedTitleUpdateData(
     SeriesSeason Season,
-    ImmutableList<FeedData> FeedData,
-    ImmutableList<FeedTitleUpdateInformation> FeedTitleUpdateInformation);
+    ImmutableArray<FeedData> FeedData,
+    ImmutableArray<FeedTitleUpdateInformation> FeedTitleUpdateInformation);

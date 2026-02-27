@@ -24,9 +24,9 @@ internal static class TvImagesCollector
         }
 
         return all
-            .Flatten(items => items.ToImmutableList())
-            .AddLogOnSuccess(LogFactories.LogBulkResult<ImmutableList<StorageData>>(
-                (items, logger) => logger.LogInformation("{Count} images processed", items.Count)))
+            .Flatten(items => items.ToImmutableArray())
+            .AddLogOnSuccess(LogFactories.LogBulkResult<ImmutableArray<StorageData>>(
+                (items, logger) => logger.LogInformation("{Count} images processed", items.Length)))
             .Map(bulk => data with { SeriesData = bulk.Value });
     }
 

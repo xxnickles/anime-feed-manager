@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Scrapping.SubsPlease;
 
 public interface ISeasonFeedDataProvider
 {
-    Task<Result<ImmutableList<FeedData>>> Get();
+    Task<Result<ImmutableArray<FeedData>>> Get();
 }
 
 public sealed class SeasonFeedDataProvider : ISeasonFeedDataProvider
@@ -21,7 +21,7 @@ public sealed class SeasonFeedDataProvider : ISeasonFeedDataProvider
         _logger = logger;
     }
 
-    public async Task<Result<ImmutableList<FeedData>>> Get()
+    public async Task<Result<ImmutableArray<FeedData>>> Get()
     {
         try
         {
@@ -32,7 +32,7 @@ public sealed class SeasonFeedDataProvider : ISeasonFeedDataProvider
             await page.WaitForSelectorAsync("table#full-schedule-table td.all-schedule-show");
             var data = await page.EvaluateFunctionAsync<FeedData[]>(ScrappingScript);
             await browser.CloseAsync();
-            return data.ToImmutableList();
+            return data.ToImmutableArray();
         }
         catch(Exception exception)
         {

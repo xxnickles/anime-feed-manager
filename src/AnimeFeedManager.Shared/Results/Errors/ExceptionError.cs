@@ -45,13 +45,17 @@ public sealed record ExceptionError : DomainError
         logger.LogError(Exception, "{Error} {Additional}", Exception.Message, AdditionalMessage);
 
     [Pure]
-    private static ImmutableList<string> ExtractErrors(Exception exn)
+    private static ImmutableArray<string> ExtractErrors(Exception exn)
     {
-        var lst = ImmutableList<string>.Empty;
-        lst = lst.Add(exn.Message);
-        if (exn.InnerException != null)
-            lst = lst.AddRange(ExtractErrors(exn.InnerException));
-        return lst;
+        var builder = ImmutableArray.CreateBuilder<string>();
+        var current = exn;
+        while (current != null)
+        {
+            builder.Add(current.Message);
+            current = current.InnerException;
+        }
+
+        return builder.DrainToImmutable();
     }
 
     public static ExceptionError FromException(Exception exn) => new(exn);
