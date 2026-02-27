@@ -28,8 +28,8 @@ internal static class TvStorageEnrichment
 
     private static StorageData ProcessSeriesData(
         StorageData storageSeries,
-        ImmutableList<FeedData> feedData,
-        ImmutableList<TvSeriesInfo> existentSeries,
+        ImmutableArray<FeedData> feedData,
+        ImmutableArray<TvSeriesInfo> existentSeries,
         bool isOldSeason)
     {
         var currentInfo = existentSeries.FirstOrDefault(s => s.Title == storageSeries.Series.Title);

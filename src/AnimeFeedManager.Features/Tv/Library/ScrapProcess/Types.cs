@@ -17,7 +17,7 @@ public sealed record StorageData(
 
 public sealed record ScrapTvLibraryData(
     IEnumerable<StorageData> SeriesData,
-    ImmutableList<FeedData> FeedData,
+    ImmutableArray<FeedData> FeedData,
     SeriesSeason Season);
 
 

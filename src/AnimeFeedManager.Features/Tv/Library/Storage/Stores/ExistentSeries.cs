@@ -28,16 +28,16 @@ public sealed record TvSeries(
     SeriesStatus Status,
     Uri? Image);
 
-public delegate Task<Result<ImmutableList<TvSeriesInfo>>> StoredSeries(SeriesSeason season,
+public delegate Task<Result<ImmutableArray<TvSeriesInfo>>> StoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> RawStoredSeries(SeriesSeason season,
+public delegate Task<Result<ImmutableArray<AnimeInfoStorage>>> RawStoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<AnimeInfoStorage>>> OnGoingStoredTvSeries(
+public delegate Task<Result<ImmutableArray<AnimeInfoStorage>>> OnGoingStoredTvSeries(
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<TvSeries>>> TvLibrary(
+public delegate Task<Result<ImmutableArray<TvSeries>>> TvLibrary(
     SeriesSeason season,
     Uri publicBlobUri,
     CancellationToken cancellationToken = default);
@@ -59,7 +59,7 @@ public static class ExistentSeries
             (season, token) =>
                 clientFactory.GetClient<AnimeInfoStorage>()
                     .Bind(client => client.GetStoredSeries(season, token))
-                    .Map(series => series.ConvertAll(Mapper));
+                    .Map(series => series.Select(Mapper).ToImmutableArray());
 
         public RawStoredSeries TableStorageRawExistentStoredSeries() =>
             (season, token) =>
@@ -78,7 +78,7 @@ public static class ExistentSeries
                         .ExecuteQuery<AnimeInfoStorage>(
                             series => series.PartitionKey ==
                                       IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year), token)
-                        .Map(series => series.ConvertAll(s => LibraryMapper(s, blobUri))));
+                        .Map(series => series.Select(s => LibraryMapper(s, blobUri)).ToImmutableArray()));
 
         public TvLibrarySeries TableStorageTvLibrarySeries =>
             (season, id, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
@@ -107,7 +107,7 @@ public static class ExistentSeries
     }
 
 
-    private static Task<Result<ImmutableList<AnimeInfoStorage>>> GetStoredSeries(
+    private static Task<Result<ImmutableArray<AnimeInfoStorage>>> GetStoredSeries(
         this TableClient tableClient,
         SeriesSeason season,
         CancellationToken cancellationToken = default)

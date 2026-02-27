@@ -7,12 +7,12 @@ namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 internal static class Utils
 {
-    internal static FeedData? TryGetFeedMatch(this ImmutableList<FeedData> feedInfo, string animeTitle)
+    internal static FeedData? TryGetFeedMatch(this ImmutableArray<FeedData> feedInfo, string animeTitle)
     {
-        return feedInfo.IsEmpty ? null : feedInfo.FirstOrDefault(info => Fuzz.WeightedRatio(info.Title, animeTitle, PreprocessMode.Full) > 73);
+        return feedInfo.IsEmpty
+            ? null
+            : feedInfo.FirstOrDefault(info => Fuzz.WeightedRatio(info.Title, animeTitle, PreprocessMode.Full) > 73);
     }
-    
-   
 
     internal static bool IsOldSeason(SeriesSeason seasonInformation, TimeProvider timeProvider)
     {

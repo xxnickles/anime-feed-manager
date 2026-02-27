@@ -13,7 +13,6 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess;
 
 public class EventSendingTests
 {
-    
     [Fact]
     public async Task Should_Send_Only_Completed_And_UpdatedToOngoing_And_FeedUpdated_Correctly()
     {
@@ -39,17 +38,20 @@ public class EventSendingTests
         var postman = new TestDomainPostman();
 
         var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(data))
-            .SendEvents(postman, new SeasonParameters(season.Season.ToString(), (ushort) season.Year), CancellationToken.None);
+            .SendEvents(postman, new SeasonParameters(season.Season.ToString(), (ushort) season.Year),
+                CancellationToken.None);
 
-       result.AssertSuccess();
+        result.AssertSuccess();
 
         // Gather messages sent
         var messages = postman.Sent;
 
         // Always-present high-level events
         Assert.Contains(messages, m => m is SeasonUpdated su && su.Season.Equals(season));
-        Assert.Contains(messages, m => m is FeedTitlesUpdated ftu && ftu.FeedTitles.SequenceEqual(new[] {"feed-a", "feed-b"}));
-        Assert.Contains(messages, m => m is CompleteOngoingSeries cos && cos.Feed.SequenceEqual(new[] {"feed-a", "feed-b"}));
+        Assert.Contains(messages,
+            m => m is FeedTitlesUpdated ftu && ftu.FeedTitles.SequenceEqual(new[] {"feed-a", "feed-b"}));
+        Assert.Contains(messages,
+            m => m is CompleteOngoingSeries cos && cos.Feed.SequenceEqual(new[] {"feed-a", "feed-b"}));
         Assert.Contains(messages, m => m is SystemEvent se && se.Type == EventType.Completed);
 
         // CompletedSeries only for items with Series.Status == Completed
@@ -61,8 +63,9 @@ public class EventSendingTests
         Assert.Equal(new[] {"o-1"}, updatedToOngoing);
 
         // SeriesFeedUpdated emitted for any item with non-empty FeedTitle
-        var feedUpdated = messages.OfType<SeriesFeedUpdated>().Select(x => (x.SeriesId, x.SeriesFeed)).OrderBy(x => x.SeriesId).ToArray();
-        Assert.Equal(new[] { ("n-1", "NAA-Feed"), ("o-1", "OngoingA-Feed"), ("o-2", "OngoingB-Feed") }, feedUpdated);
+        var feedUpdated = messages.OfType<SeriesFeedUpdated>().Select(x => (x.SeriesId, x.SeriesFeed))
+            .OrderBy(x => x.SeriesId).ToArray();
+        Assert.Equal(new[] {("n-1", "NAA-Feed"), ("o-1", "OngoingA-Feed"), ("o-2", "OngoingB-Feed")}, feedUpdated);
 
         // Validate summary data
         result.AssertOnSuccess(summary =>
@@ -78,17 +81,17 @@ public class EventSendingTests
     {
         var season = new SeriesSeason(Season.Spring(), Year.FromNumber(2025));
         var data = CreateTestLibrary([], season);
-        var postman = new TestDomainPostman { FailOnFirstSend = true };
+        var postman = new TestDomainPostman {FailOnFirstSend = true};
 
         var parameters = new SeasonParameters(season.Season.ToString(), (ushort) season.Year);
         var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(data))
             .SendEvents(postman, parameters, CancellationToken.None);
 
-      result.AssertError();
+        result.AssertError();
         // When SendMessages fails, SendEvents should try to send a SystemEvent of type Error
         Assert.Contains(postman.Sent, m => m is SystemEvent {Type: EventType.Error});
     }
-    
+
     private sealed class TestDomainPostman
     {
         public readonly List<DomainMessage> Sent = new();
@@ -102,6 +105,7 @@ public class EventSendingTests
                 _firstCallDone = true;
                 return Task.FromResult<Result<Unit>>(MessagesNotDelivered.Create("forced failure", messages));
             }
+
             Sent.AddRange(messages);
             return Task.FromResult(Result<Unit>.Success(new Unit()));
         };
@@ -109,7 +113,8 @@ public class EventSendingTests
         public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;
     }
 
-    private static StorageData MakeSeries(string id, string? title, string? feedTitle, string seriesStatus, Status processStatus)
+    private static StorageData MakeSeries(string id, string? title, string? feedTitle, string seriesStatus,
+        Status processStatus)
     {
         var series = new AnimeInfoStorage
         {
@@ -123,10 +128,12 @@ public class EventSendingTests
         return new StorageData(series, new NoImage(), processStatus);
     }
 
-    private static ScrapTvLibraryData CreateTestLibrary(IEnumerable<StorageData> items, SeriesSeason season, params string[] feedTitles)
+    private static ScrapTvLibraryData CreateTestLibrary(IEnumerable<StorageData> items, SeriesSeason season,
+        params string[] feedTitles)
     {
-        var feedData = feedTitles.Select(title => new FeedData(title, $"https://example.com/{title.ToLowerInvariant().Replace(" ", "-")}")).ToImmutableList();
-        return new ScrapTvLibraryData(items.ToImmutableList(), feedData, season);
+        var feedData = feedTitles
+            .Select(title => new FeedData(title, $"https://example.com/{title.ToLowerInvariant().Replace(" ", "-")}"))
+            .ToImmutableArray();
+        return new ScrapTvLibraryData(items.ToImmutableArray(), feedData, season);
     }
-
 }

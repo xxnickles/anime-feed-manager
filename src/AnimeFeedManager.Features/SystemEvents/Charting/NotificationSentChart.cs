@@ -17,7 +17,7 @@ public static class NotificationSentChart
     }
 
     private static BarChart MapToBarChart(
-        ImmutableList<EventData<NotificationSent>> notificationEvents,
+        ImmutableArray<EventData<NotificationSent>> notificationEvents,
         DateTimeOffset from,
         DateTimeOffset to)
     {

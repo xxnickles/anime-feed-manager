@@ -2,12 +2,12 @@
 
 public record EventData<T>(EventType EventType, DateTimeOffset Timestamp, T Data) where T : SystemNotificationPayload;
 
-public delegate Task<Result<ImmutableList<EventData<T>>>> SystemEventsGetter<T>(
+public delegate Task<Result<ImmutableArray<EventData<T>>>> SystemEventsGetter<T>(
     TargetConsumer consumer,
     DateTimeOffset from,
     CancellationToken cancellationToken) where T : SystemNotificationPayload;
 
-public delegate Task<Result<ImmutableList<EventData<T>>>> SystemEventsBroadGetter<T>(
+public delegate Task<Result<ImmutableArray<EventData<T>>>> SystemEventsBroadGetter<T>(
     DateTimeOffset from,
     CancellationToken cancellationToken) where T : SystemNotificationPayload;
 
@@ -39,18 +39,19 @@ public static class ExistentEvents
                 .Bind(Convert<T>);
         }
 
-        private static Result<ImmutableList<EventData<T>>> Convert<T>(ImmutableList<EventStorage> source)
+        private static Result<ImmutableArray<EventData<T>>> Convert<T>(ImmutableArray<EventStorage> source)
             where T : SystemNotificationPayload
         {
             try
             {
                 var serializationData = EventPayloadContextMap.GetPayloadContextInfo(typeof(T).Name);
-                return source.ConvertAll(s => new EventData<T>(
-                    s.EventType,
-                    s.Timestamp ?? default,
-                    JsonSerializer.Deserialize<T>(s.PayloadData, serializationData.Context.Options) ??
-                    throw new InvalidOperationException(
-                        $"Event of type {serializationData.PayloadType.Name} with id {s.RowKey} has a null or invalid payload")));
+                return source.Select(s => new EventData<T>(
+                        s.EventType,
+                        s.Timestamp ?? default,
+                        JsonSerializer.Deserialize<T>(s.PayloadData, serializationData.Context.Options) ??
+                        throw new InvalidOperationException(
+                            $"Event of type {serializationData.PayloadType.Name} with id {s.RowKey} has a null or invalid payload")))
+                    .ToImmutableArray();
             }
             catch (Exception e)
             {

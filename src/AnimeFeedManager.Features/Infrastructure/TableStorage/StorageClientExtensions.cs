@@ -6,7 +6,8 @@ internal static class StorageClientExtensions
 {
     extension(TableClient client)
     {
-        public async Task<Result<Response<T>>> TryExecute<T>(Func<TableClient, Task<Response<T>>> action) where T : ITableEntity
+        public async Task<Result<Response<T>>> TryExecute<T>(Func<TableClient, Task<Response<T>>> action)
+            where T : ITableEntity
         {
             try
             {
@@ -23,11 +24,13 @@ internal static class StorageClientExtensions
             {
                 return e.Message == "Not Found"
                     ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
-                    : ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing a Table Client action");
+                    : ExceptionError.FromExceptionWithMessage(e,
+                        "An error occurred when executing a Table Client action");
             }
         }
 
-        public async Task<Result<Response>> TryExecute<T>(Func<TableClient, Task<Response>> action) where T : ITableEntity
+        public async Task<Result<Response>> TryExecute<T>(Func<TableClient, Task<Response>> action)
+            where T : ITableEntity
         {
             try
             {
@@ -44,26 +47,29 @@ internal static class StorageClientExtensions
             {
                 return e.Message == "Not Found"
                     ? NotFoundError.Create($"The entity of type {typeof(T).Name} was not found.")
-                    : ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing a Table Client action");
+                    : ExceptionError.FromExceptionWithMessage(e,
+                        "An error occurred when executing a Table Client action");
             }
         }
 
-        public async Task<Result<ImmutableList<T>>> ExecuteQuery<T>(Expression<Func<T, bool>> filter, CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity
+        public async Task<Result<ImmutableArray<T>>> ExecuteQuery<T>(Expression<Func<T, bool>> filter,
+            CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity
         {
             try
             {
                 var queryResults = client.QueryAsync(filter, select: select, cancellationToken: token);
-                var resultList = ImmutableList<T>.Empty;
+                var builder = ImmutableArray.CreateBuilder<T>();
                 await foreach (var qEntity in queryResults)
                 {
-                    resultList = resultList.Add(qEntity);
+                    builder.Add(qEntity);
                 }
 
-                return Result<ImmutableList<T>>.Success(resultList);
+                return Result<ImmutableArray<T>>.Success(builder.DrainToImmutable());
             }
             catch (Exception e)
             {
-                return ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing a Table Client query");
+                return ExceptionError.FromExceptionWithMessage(e,
+                    "An error occurred when executing a Table Client query");
             }
         }
 
@@ -95,12 +101,13 @@ internal static class StorageClientExtensions
             }
             catch (Exception e)
             {
-                return ExceptionError.FromExceptionWithMessage(e, "An error occurred when executing add batch operation");
+                return ExceptionError.FromExceptionWithMessage(e,
+                    "An error occurred when executing add batch operation");
             }
         }
     }
 
-    extension<T>(Task<Result<ImmutableList<T>>> result)
+    extension<T>(Task<Result<ImmutableArray<T>>> result)
     {
         public Task<Result<T>> SingleItem()
         {

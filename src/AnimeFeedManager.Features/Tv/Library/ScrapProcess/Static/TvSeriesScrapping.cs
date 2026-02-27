@@ -8,13 +8,13 @@ namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 internal static class TvSeriesScrapping
 {
     internal static Task<Result<ScrapTvLibraryData>> ScrapSeries(
-        this Task<Result<ImmutableList<FeedData>>> feedTitles,
+        this Task<Result<ImmutableArray<FeedData>>> feedTitles,
         SeasonSelector season,
         PuppeteerOptions puppeteerOptions) =>
         feedTitles.Bind(titles => GetInitialProcessData(titles, season, puppeteerOptions));
 
     private static async Task<Result<ScrapTvLibraryData>> GetInitialProcessData(
-        ImmutableList<FeedData> feedData,
+        ImmutableArray<FeedData> feedData,
         SeasonSelector season,
         PuppeteerOptions puppeteerOptions)
     {

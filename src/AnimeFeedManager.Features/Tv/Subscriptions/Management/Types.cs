@@ -4,4 +4,4 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 
 public record Summary(int Changes);
 
-public record AutoSubscriptionProcess(string SeriesId, ImmutableList<SubscriptionStorage> InterestedSeries);
+public record AutoSubscriptionProcess(string SeriesId, ImmutableArray<SubscriptionStorage> InterestedSeries);

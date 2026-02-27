@@ -9,10 +9,10 @@ public delegate Task<Result<SeasonStorageData>> LatestSeasonGetter(CancellationT
 public delegate Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason season,
     CancellationToken cancellation = default);
 
-public delegate Task<Result<ImmutableList<SeriesSeason>>> AllSeasonsGetter(
+public delegate Task<Result<ImmutableArray<SeriesSeason>>> AllSeasonsGetter(
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableList<SeriesSeason>>> Latest4SeasonsGetter(
+public delegate Task<Result<ImmutableArray<SeriesSeason>>> Latest4SeasonsGetter(
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeasons
@@ -26,7 +26,7 @@ public static class ExistentSeasons
                     client.ExecuteQuery<SeasonStorage>(
                             storage => storage.PartitionKey == SeasonStorage.SeasonPartition && storage.Latest == true,
                             cancellationToken)
-                        .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(seasons =>
+                        .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(seasons =>
                             !seasons.IsEmpty ? new CurrentLatestSeason(seasons.First()) : new NoMatch()));
 
         public SeasonGetter TableStorageSeason =>
@@ -36,7 +36,7 @@ public static class ExistentSeasons
                 .Bind(client => client.ExecuteQuery<SeasonStorage>(storage =>
                         storage.PartitionKey == SeasonStorage.SeasonPartition &&
                         storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
-                    .Map<ImmutableList<SeasonStorage>, SeasonStorageData>(matches =>
+                    .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(matches =>
                     {
                         if (matches.IsEmpty)
                             return new NoMatch();
@@ -67,7 +67,8 @@ public static class ExistentSeasons
             cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
                 .WithOperationName(nameof(TableStorageLatest4SeasonsGetter))
                 .WithLogProperties([
-                    new KeyValuePair<string, object>(nameof(LatestSeasonsStorage.Partition), LatestSeasonsStorage.Partition),
+                    new KeyValuePair<string, object>(nameof(LatestSeasonsStorage.Partition),
+                        LatestSeasonsStorage.Partition),
                     new KeyValuePair<string, object>(nameof(LatestSeasonsStorage.RowKey), LatestSeasonsStorage.Key)
                 ])
                 .Bind(client => client.ExecuteQuery<LatestSeasonsStorage>(storage =>
@@ -84,13 +85,13 @@ public static class ExistentSeasons
         return new ReplaceLatestSeason(storage);
     }
 
-    private static ImmutableList<SeriesSeason> TransformToSeriesSeason(this LatestSeasonsStorage seasons,
+    private static ImmutableArray<SeriesSeason> TransformToSeriesSeason(this LatestSeasonsStorage seasons,
         ILogger logger)
     {
         try
         {
             return (JsonSerializer.Deserialize(seasons.Payload ?? string.Empty,
-                CommonJsonContext.Default.SeriesSeasonArray) ?? []).ToImmutableList();
+                CommonJsonContext.Default.SeriesSeasonArray) ?? []).ToImmutableArray();
         }
         catch (Exception e)
         {
@@ -99,8 +100,8 @@ public static class ExistentSeasons
         }
     }
 
-    private static ImmutableList<SeriesSeason> TransformToSeriesSeason(this ImmutableList<SeasonStorage> seasons) =>
-        seasons.ConvertAll(s => (s.Season ?? string.Empty, s.Year, s.Latest).ParseAsSeriesSeason())
-            .Flatten(list => list.ToImmutableList())
-            .MatchToValue(bulk => bulk.Value, _ => ImmutableList<SeriesSeason>.Empty);
+    private static ImmutableArray<SeriesSeason> TransformToSeriesSeason(this ImmutableArray<SeasonStorage> seasons) =>
+        seasons.Select(s => (s.Season ?? string.Empty, s.Year, s.Latest).ParseAsSeriesSeason())
+            .Flatten(list => list.ToImmutableArray())
+            .MatchToValue(bulk => bulk.Value, _ => ImmutableArray<SeriesSeason>.Empty);
 }

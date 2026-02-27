@@ -17,7 +17,7 @@ public static class FeedUpdatesChart
     }
 
     private static BarChart MapToBarChart(
-        ImmutableList<EventData<FeedTitlesUpdateResult>> notificationEvents,
+        ImmutableArray<EventData<FeedTitlesUpdateResult>> notificationEvents,
         DateTimeOffset from,
         DateTimeOffset to)
     {
@@ -35,7 +35,7 @@ public static class FeedUpdatesChart
                 new BarDataset(Label: "Feed Updated",
                     Data: allDates.Select(dateTime => (float) (byDay.GetValueOrDefault(dateTime, 0))).ToArray(),
                     BackgroundColor: ChartColor.LightBlue with {Alpha = 0.5f},
-                    BorderColor: ChartColor.DarkBlue )
+                    BorderColor: ChartColor.DarkBlue)
             ]);
     }
 }

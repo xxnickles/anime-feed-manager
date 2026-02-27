@@ -17,7 +17,7 @@ public static class ScrapLibraryChart
     }
 
     private static LineChart MapToLineChart(
-        ImmutableList<EventData<ScrapTvLibraryResult>> scrapEvents,
+        ImmutableArray<EventData<ScrapTvLibraryResult>> scrapEvents,
         DateTimeOffset from,
         DateTimeOffset to)
     {

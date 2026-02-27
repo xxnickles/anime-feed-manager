@@ -37,10 +37,10 @@ public static class ExistentUser
                             cancellationToken).Bind(ParseAsUser));
     }
 
-    private static Result<User> ParseAsUser(ImmutableList<UserStorage> storage)
+    private static Result<User> ParseAsUser(ImmutableArray<UserStorage> storage)
     {
         // No match
-        if (storage.Count == 0)
+        if (storage.Length == 0)
             return new NotAUser();
 
         // we can guarantee at least a match

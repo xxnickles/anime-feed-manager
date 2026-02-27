@@ -26,7 +26,8 @@ public static class AutoSubscription
         string feedTitle,
         TvInterestedBySeries seriesGetter,
         CancellationToken token) => seriesGetter(seriesId, token)
-        .Map(series => new AutoSubscriptionProcess(seriesId, series.ConvertAll(s => Subscribe(s, feedTitle))));
+        .Map(series =>
+            new AutoSubscriptionProcess(seriesId, series.Select(s => Subscribe(s, feedTitle)).ToImmutableArray()));
 
     extension(Task<Result<AutoSubscriptionProcess>> process)
     {
@@ -43,8 +44,8 @@ public static class AutoSubscription
         {
             return process.BindWhen(
                     data => domainPostman([GetEvent(data)], token).Map(_ => data),
-                    data => new Summary(data.InterestedSeries.Count),
-                    data => data.InterestedSeries.Count > 0)
+                    data => new Summary(data.InterestedSeries.Length),
+                    data => data.InterestedSeries.Length > 0)
                 .MapError(error =>
                     domainPostman([GetErrorEvent(seriesId)], token)
                         .MatchToValue(_ => error, e => e));
@@ -58,7 +59,7 @@ public static class AutoSubscription
             EventTarget.LocalStorage,
             EventType.Completed,
             new AutoSubscriptionResult(data.SeriesId,
-                data.InterestedSeries.Count).AsEventPayload());
+                data.InterestedSeries.Length).AsEventPayload());
 
 
     private static SystemEvent GetErrorEvent(string seriesId) =>
