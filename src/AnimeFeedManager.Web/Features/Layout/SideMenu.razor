@@ -1,6 +1,7 @@
-<ul class="menu w-full grow bg-base-300" role="list"
+<ul id="side-menu" class="menu w-full grow bg-base-300" role="list"
     x-data="{ path: window.location.pathname }"
-    x-on:htmx:pushed-into-history.window="path = window.location.pathname; if (window.innerWidth < 1024) document.getElementById('drawer').checked = false">
+    x-on:htmx:pushed-into-history.window="path = window.location.pathname; if (window.innerWidth < 1024) document.getElementById('drawer').checked = false"
+    @attributes="AdditionalAttributes">
     <li>
         <NavLink href="/" Match="NavLinkMatch.All"
                  :class="{ 'active': path === '/' }"
@@ -97,3 +98,8 @@
         </Authorized>
     </AuthorizeView>
 </ul>
+
+@code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+}

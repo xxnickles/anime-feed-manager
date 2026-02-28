@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.SystemEvents;
 using AnimeFeedManager.Features.Tv.Subscriptions.Management;

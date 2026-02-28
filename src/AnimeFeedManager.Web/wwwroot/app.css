@@ -3714,6 +3714,9 @@
   .resize {
     resize: both;
   }
+  .scroll-pt-16 {
+    scroll-padding-top: calc(var(--spacing) * 16);
+  }
   .alert-vertical {
     @layer daisyui.l1.l2 {
       justify-content: center;
@@ -4853,9 +4856,9 @@
       overflow: visible;
     }
   }
-  .is-drawer-open\:w-64 {
+  .is-drawer-open\:w-fit {
     &:where(.drawer-toggle:checked ~ .drawer-side, .drawer-toggle:checked ~ .drawer-side *) {
-      width: calc(var(--spacing) * 64);
+      width: fit-content;
     }
   }
 }

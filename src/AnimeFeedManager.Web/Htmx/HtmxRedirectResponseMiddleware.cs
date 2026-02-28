@@ -1,8 +1,8 @@
 ﻿namespace AnimeFeedManager.Web.Htmx;
 
 /// <summary>
-/// Captures a redirect response and sets the "HX-Redirect" header for an HTMX request
-/// This is a workaround for the fact that HTMX does not handle redirects automatically and just present the "redirected" content 
+/// Captures a redirect response and sets the "HX-Location" header for an HTMX request.
+/// HX-Location tells HTMX to do an AJAX navigation (SPA-like) instead of a full page reload.
 /// </summary>
 public sealed class HtmxRedirectResponseMiddleware
 {
@@ -18,21 +18,11 @@ public sealed class HtmxRedirectResponseMiddleware
         context.Response.OnStarting(() =>
         {
             var requestType = context.Features.Get<HtmxRequestFeature>()?.RequestType ?? new Html();
-            // Check if the response is a redirect (302 or 303) and the request is an HTMX request
             if (context.Response.StatusCode is not (302 or 303) ||
                 requestType is not (HxBoosted or HxForm)) return Task.CompletedTask;
-            var location = context.Response.Headers["Location"].ToString();
-            if (requestType is HxBoosted)
-            {
-                // HX-Location tells HTMX to do an AJAX navigation (SPA-like)
-                context.Response.Headers["HX-Location"] = location;
-            }
-            else
-            {
-                // HX-Redirect tells HTMX to do a full page navigation
-                context.Response.Headers["HX-Redirect"] = location;
-            }
 
+            var location = context.Response.Headers["Location"].ToString();
+            context.Response.Headers["HX-Location"] = location;
             context.Response.StatusCode = 200;
             return Task.CompletedTask;
         });

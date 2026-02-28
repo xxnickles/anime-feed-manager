@@ -1,6 +1,5 @@
 ﻿@using AnimeFeedManager.Services.Shared
 @using AnimeFeedManager.Web.Bootstrapping
-@using AnimeFeedManager.Web.Htmx
 @using Microsoft.Extensions.Options
 @using Passwordless
 @inject IOptions<PasswordlessOptions> PasswordlessOptions
@@ -14,7 +13,7 @@
 else
 {
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-pt-16">
 
 <head>
     <meta charset="utf-8"/>
@@ -93,8 +92,6 @@ else
 
 <body class="bg-base-200 min-h-screen min-w-[380px]"
       hx-boost="true"
-      hx-target="#main-content"
-      hx-select="#main-content"
       hx-ext="signalr"
       signalr-connect="@SignalROptions.Value.Endpoint"
 >
