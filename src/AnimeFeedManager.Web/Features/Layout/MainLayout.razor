@@ -3,9 +3,11 @@
 
 @if (_isHtmxRequest)
 {
-    <main id="main-content" class="px-4 md:px-8">
-        @Body
-    </main>
+    @Body
+    <SideMenu hx-swap-oob="true" />
+    <div id="nav-auth" hx-swap-oob="true">
+        <NavAuthButtons />
+    </div>
 }
 else
 {
@@ -22,6 +24,11 @@ else
     protected override void OnInitialized()
     {
         _isHtmxRequest = HttpContextAccessor.GetHtmxRequestType() is HxBoosted or HxForm;
+        if (_isHtmxRequest)
+        {
+            var response = HttpContextAccessor.HttpContext!.Response;
+            response.Headers["HX-Retarget"] = "#main-content";
+        }
     }
 }
 
