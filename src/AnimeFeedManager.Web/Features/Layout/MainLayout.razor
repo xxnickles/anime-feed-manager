@@ -1,15 +1,27 @@
 ﻿@inherits LayoutComponentBase
+@inject IHttpContextAccessor HttpContextAccessor
 
-<div class="drawer">
-    <input id="drawer" type="checkbox" class="drawer-toggle"/>
-    <div class="drawer-content flex flex-col">
-        <NavBar></NavBar>
-        <main class="px-4 md:px-8">
+@if (_isHtmxRequest)
+{
+    <main id="main-content" class="px-4 md:px-8">
+        @Body
+    </main>
+}
+else
+{
+    <AppShell>
+        <main id="main-content" class="px-4 md:px-8">
             @Body
         </main>
-    </div>
-    <SideMenu/>
-</div>
+    </AppShell>
+}
 
-     
-    
+@code {
+    private bool _isHtmxRequest;
+
+    protected override void OnInitialized()
+    {
+        _isHtmxRequest = HttpContextAccessor.GetHtmxRequestType() is HxBoosted or HxForm;
+    }
+}
+

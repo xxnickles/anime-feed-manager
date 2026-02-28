@@ -21,9 +21,18 @@ public sealed class HtmxRedirectResponseMiddleware
             // Check if the response is a redirect (302 or 303) and the request is an HTMX request
             if (context.Response.StatusCode is not (302 or 303) ||
                 requestType is not (HxBoosted or HxForm)) return Task.CompletedTask;
-            // Set the "HX-Redirect" header to the location of the redirect
             var location = context.Response.Headers["Location"].ToString();
-            context.Response.Headers["HX-Redirect"] = location;
+            if (requestType is HxBoosted)
+            {
+                // HX-Location tells HTMX to do an AJAX navigation (SPA-like)
+                context.Response.Headers["HX-Location"] = location;
+            }
+            else
+            {
+                // HX-Redirect tells HTMX to do a full page navigation
+                context.Response.Headers["HX-Redirect"] = location;
+            }
+
             context.Response.StatusCode = 200;
             return Task.CompletedTask;
         });

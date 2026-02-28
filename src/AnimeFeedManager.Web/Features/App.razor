@@ -1,10 +1,18 @@
 ﻿@using AnimeFeedManager.Services.Shared
 @using AnimeFeedManager.Web.Bootstrapping
+@using AnimeFeedManager.Web.Htmx
 @using Microsoft.Extensions.Options
 @using Passwordless
 @inject IOptions<PasswordlessOptions> PasswordlessOptions
 @inject IOptions<SignalROptions> SignalROptions
+@inject IHttpContextAccessor HttpContextAccessor
 
+@if (_isHtmxRequest)
+{
+    <Routes/>
+}
+else
+{
 <!DOCTYPE html>
 <html lang="en">
 
@@ -85,6 +93,8 @@
 
 <body class="bg-base-200 min-h-screen min-w-[380px]"
       hx-boost="true"
+      hx-target="#main-content"
+      hx-select="#main-content"
       hx-ext="signalr"
       signalr-connect="@SignalROptions.Value.Endpoint"
 >
@@ -104,3 +114,13 @@
 </body>
 
 </html>
+}
+
+@code {
+    private bool _isHtmxRequest;
+
+    protected override void OnInitialized()
+    {
+        _isHtmxRequest = HttpContextAccessor.GetHtmxRequestType() is HxBoosted or HxForm;
+    }
+}
