@@ -28,6 +28,7 @@ else
         {
             var response = HttpContextAccessor.HttpContext!.Response;
             response.Headers["HX-Retarget"] = "#main-content";
+            response.Headers["HX-Reswap"] = "innerHTML transition:true";
         }
     }
 }
