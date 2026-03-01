@@ -4965,6 +4965,22 @@ label:has(.invalid) {
 .blazor-error-boundary::after {
   content: "An error has occurred.";
 }
+#main-content {
+  view-transition-name: main-content;
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(main-content) {
+    animation-duration: 150ms;
+  }
+  ::view-transition-new(main-content) {
+    animation-duration: 200ms;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(main-content), ::view-transition-new(main-content) {
+    animation: none;
+  }
+}
 [x-cloak] {
   display: none !important;
 }
