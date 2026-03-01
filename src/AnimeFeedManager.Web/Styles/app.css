@@ -89,6 +89,23 @@ label:has(.invalid) {
     view-transition-name: main-content;
 }
 
+/* Opt persistent UI elements out of view transitions.
+   view-transition-class targets are ignored in Level 1 browsers (graceful degradation). */
+#toast-panel {
+    view-transition-name: toast-panel;
+    view-transition-class: vt-none;
+}
+
+daisy-htmx-alerts {
+    view-transition-name: daisy-alerts;
+    view-transition-class: vt-none;
+}
+
+::view-transition-old(.vt-none),
+::view-transition-new(.vt-none) {
+    animation: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
     ::view-transition-old(main-content) {
         animation-duration: 150ms;

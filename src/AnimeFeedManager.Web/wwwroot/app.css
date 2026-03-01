@@ -4426,13 +4426,6 @@
       }
     }
   }
-  .input-success {
-    @layer daisyui.l1.l2 {
-      &, &:focus, &:focus-within {
-        --input-color: var(--color-success);
-      }
-    }
-  }
   .validator-no-success {
     &:user-valid, &:has(:user-valid) {
       &, &:focus, &:checked, &[aria-checked="true"], &:focus-within {
@@ -4967,6 +4960,17 @@ label:has(.invalid) {
 }
 #main-content {
   view-transition-name: main-content;
+}
+#toast-panel {
+  view-transition-name: toast-panel;
+  view-transition-class: vt-none;
+}
+daisy-htmx-alerts {
+  view-transition-name: daisy-alerts;
+  view-transition-class: vt-none;
+}
+::view-transition-old(.vt-none), ::view-transition-new(.vt-none) {
+  animation: none;
 }
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(main-content) {

@@ -1,0 +1,159 @@
+<EditForm id="login-form"
+          Model="Model"
+          hx-post="/login"
+          hx-swap="outerHTML"
+          hx-trigger="loginComplete"
+          class="card-body"
+          x-data="{
+              alias: '',
+              userId: '',
+              isLoading: false,
+              errorMessage: '',
+              isUnauthorized: false,
+
+              async handlePasswordlessLogin() {
+                  this.errorMessage = '';
+                  this.isUnauthorized = false;
+                  this.isLoading = true;
+
+                  const p = new Passwordless.Client({ apiKey: API_KEY });
+
+                  try {
+                      const { token, error } = await p.signinWithAlias(this.alias);
+
+                      if (error) {
+                          this.isLoading = false;
+                          this.isUnauthorized = error.status === 401 || error.status === 403;
+                          this.errorMessage = this.isUnauthorized
+                              ? ''
+                              : (error.title || error.message || 'Authentication flow was not completed. Please try again');
+                          return;
+                      }
+
+                      const { success, userId } = await fetch('/verify-signin?token=' + token).then(r => r.json());
+
+                      if (success) {
+                          this.userId = userId;
+                          this.$nextTick(() => this.$el.dispatchEvent(new CustomEvent('loginComplete')));
+                      } else {
+                          this.isLoading = false;
+                          this.errorMessage = 'Authentication verification failed';
+                      }
+                  } catch (e) {
+                      this.isLoading = false;
+                      this.errorMessage = e.message || 'An unexpected error occurred';
+                      console.error('Things went bad on sign-in', e);
+                  }
+              }
+          }"
+          x-on:submit.prevent="handlePasswordlessLogin()"
+>
+    <fieldset class="form-control">
+        <label class="floating-label" for="email-input">
+            <input
+                id="email-input"
+                required
+                type="email"
+                placeholder="Enter your email"
+                class="input input-bordered"
+                :class="{ 'input-error': errorMessage && !isUnauthorized }"
+                :disabled="isLoading"
+                x-model="alias"/>
+
+            <span class="label-text">Email</span>
+        </label>
+
+        <template x-if="errorMessage && !isUnauthorized">
+            <div class="label">
+                <span class="label-text-alt text-error">Please check your email and try again</span>
+            </div>
+        </template>
+    </fieldset>
+
+    <InputText @bind-Value="Model.Id"
+               name="@nameof(Model.Id)"
+               type="hidden"
+               x-model="userId"/>
+
+    <InputText @bind-Value="Model.Alias"
+               name="@nameof(Model.Alias)"
+               type="hidden"
+               x-model="alias"/>
+
+    <input type="hidden" name="@nameof(Model.ReturnUrl)" value="@Model.ReturnUrl"/>
+
+    <fieldset class="form-control mt-6">
+        <button type="submit"
+                class="btn btn-primary"
+                :class="{ 'btn-disabled': isLoading }"
+                :disabled="isLoading"
+        >
+            <template x-if="isLoading">
+                <span class="loading loading-spinner loading-sm"></span>
+            </template>
+            <span x-text="isLoading ? 'Getting Passkey...' : 'Login'"></span>
+        </button>
+    </fieldset>
+
+    <template x-if="errorMessage">
+        <div class="alert alert-error mt-4" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span x-text="errorMessage"></span>
+        </div>
+    </template>
+
+    <template x-if="isUnauthorized">
+        <div class="alert alert-warning mt-4" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <div>
+                <p>Your account is not registered.</p>
+                <NavLink class="link link-primary font-semibold" href="/register">Register here</NavLink>
+            </div>
+        </div>
+    </template>
+
+    @if (HasError && Error is not null)
+    {
+        <div class="alert alert-error mt-4" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>@ErrorMessage</span>
+        </div>
+    }
+</EditForm>
+
+@code {
+    [Parameter] public LoginViewModel Model { get; set; } = new();
+    [Parameter] public DomainError? Error { get; set; }
+
+    private bool HasError => Error is not null;
+
+    private string ErrorMessage => Error switch
+    {
+        DomainValidationErrors e => string.Join(", ", e.Errors.SelectMany(x => x.Errors)),
+        not null => Error.Message,
+        _ => "Login failed. Please try again."
+    };
+
+    public static RenderFragment AsRenderFragment(LoginViewModel model, DomainError? error = null) => builder =>
+    {
+        builder.OpenComponent<LoginForm>(0);
+        builder.AddAttribute(1, nameof(Model), model);
+        builder.AddAttribute(2, nameof(Error), error);
+        builder.CloseComponent();
+    };
+
+    public static RenderFragment ErrorFragment(LoginViewModel model, DomainError error) =>
+        AsRenderFragment(model, error);
+}

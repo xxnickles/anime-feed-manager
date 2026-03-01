@@ -9,6 +9,7 @@ internal static class Endpoints
         group.MapPost("/create-token", SecurityHandlers.CreateToken);
 
         group.MapPost("/add-credential", SecurityHandlers.AddCredential);
+        group.MapPost("/login", SecurityHandlers.LoginUser);
 
     }
 }
