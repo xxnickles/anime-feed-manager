@@ -1,8 +1,12 @@
+using System.Security.Claims;
+using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.User.Authentication.Queries;
 using AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 using AnimeFeedManager.Features.User.Authentication.Storage.Stores;
 using AnimeFeedManager.Web.Common;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Passwordless;
 
 namespace AnimeFeedManager.Web.Features.Security.Endpoints;
@@ -46,6 +50,53 @@ internal static class SecurityHandlers
                 model => [RegistrationForm.SuccessFragment(model)],
                 error => [RegistrationForm.ErrorFragment(viewModel, error)]
             );
+    }
+
+    internal static async Task<IResult> LoginUser(
+        [FromForm] LoginViewModel viewModel,
+        HttpContext httpContext,
+        ITableClientFactory tableClientFactory,
+        ILogger<LoginPage> logger,
+        CancellationToken cancellationToken)
+    {
+        return await viewModel.Id.ParseAsNonEmpty(nameof(viewModel.Id))
+            .AsResult()
+            .Bind(id => Users.GetById(
+                tableClientFactory.TableStorageExistentUserGetterById(),
+                id,
+                cancellationToken))
+            .Bind(TryToCreatePrincipal)
+            .FlushLogs(logger)
+            .Tap(principal => httpContext.SignInAsync(
+                principal,
+                new AuthenticationProperties { IsPersistent = true }))
+            .MatchToValue<ClaimsPrincipal, IResult>(
+                _ => Results.LocalRedirect(
+                    string.IsNullOrWhiteSpace(viewModel.ReturnUrl) ? "/" : viewModel.ReturnUrl),
+                error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents());
+    }
+
+    private static Result<ClaimsPrincipal> TryToCreatePrincipal(User user)
+    {
+        return user switch
+        {
+            ValidUser vu => CreatePrincipal(vu),
+            _ => Error.Create("Provided user doesn't exist in the system")
+        };
+    }
+
+    private static ClaimsPrincipal CreatePrincipal(ValidUser user)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, user.Email),
+            new(ClaimTypes.Email, user.Email),
+            new(CustomClaimTypes.Sub, user.UserId),
+            new(ClaimTypes.Role, user.Role)
+        };
+
+        return new ClaimsPrincipal(
+            new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
     }
 
     internal static Task<RazorComponentResult> AddCredential([FromForm] AddCredentialsViewModel viewModel,
