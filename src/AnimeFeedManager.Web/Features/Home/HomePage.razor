@@ -1,40 +1,38 @@
-﻿@page "/"
+@page "/"
 @using AnimeFeedManager.Features.Seasons.Queries
 @using AnimeFeedManager.Features.Seasons.Storage
 @using AnimeFeedManager.Features.Seasons.UpdateProcess
+@using AnimeFeedManager.Web.Features.Tv
 @inject ITableClientFactory TableClientFactory;
-@inject NavigationManager NavManager
 @inject ILogger<HomePage> Logger;
 
-<PageTitle>@PageTitle("Home")</PageTitle>
-
-@if (!_seasonAvailable)
+@if (_season is not null)
 {
+    <PageTitle>@PageTitleForSeason(SeriesType.Tv, _season)</PageTitle>
+    <TvGrid Season="_season"></TvGrid>
+}
+else
+{
+    <PageTitle>@PageTitle("Home")</PageTitle>
     <WarnBanner Title="No latest season!" Description="There is no latest season data available at this time"/>
 }
 
 @code {
-    private bool _seasonAvailable = true;
+    private SeriesSeason? _season;
 
     protected override async Task OnInitializedAsync()
     {
         await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeason, CancellationToken.None)
+            .Bind(season => season switch
+            {
+                CurrentLatestSeason currentLatestSeason => (currentLatestSeason.Season.Season ?? string.Empty, currentLatestSeason.Season.Year, currentLatestSeason.Season.Latest).ParseAsSeriesSeason(),
+                _ => Error.Create("Season is not latest")
+            })
             .FlushLogs(Logger)
             .Match(
-                VerifyLatestSeason,
-                _ => _seasonAvailable = false
+                season => _season = season,
+                _ => { }
             );
     }
 
-    private void VerifyLatestSeason(SeasonStorageData seasonStorageData)
-    {
-        if (seasonStorageData is CurrentLatestSeason cls)
-        {
-            NavManager.NavigateTo($"{cls.Season.Season}-{cls.Season.Year}/tv");
-        }
-        else
-        {
-            _seasonAvailable = false;
-        }
-    }
 }
