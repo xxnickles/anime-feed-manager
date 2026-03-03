@@ -8,12 +8,12 @@
 
 @if (_season is not null)
 {
-    <PageTitle>@PageTitleForSeason(SeriesType.Tv, _season)</PageTitle>
+    <AppPageTitle Title="@PageTitleForSeason(SeriesType.Tv, _season)" />
     <TvGrid Season="_season"></TvGrid>
 }
 else
 {
-    <PageTitle>@PageTitle("Home")</PageTitle>
+    <AppPageTitle Title="@PageTitle("Home")" />
     <WarnBanner Title="No latest season!" Description="There is no latest season data available at this time"/>
 }
 

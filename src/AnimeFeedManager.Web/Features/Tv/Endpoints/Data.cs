@@ -1,7 +1,17 @@
+using System.Text.Json.Serialization;
 using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Tv.Controls;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
+
+internal sealed record RemoveSeriesEvent(string Owner);
+
+internal sealed record RemoveSeriesTrigger(RemoveSeriesEvent RemoveSeries);
+
+[JsonSourceGenerationOptions(
+    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSerializable(typeof(RemoveSeriesTrigger))]
+internal partial class TvEndpointJsonContext : JsonSerializerContext;
 
 internal static class Data
 {
