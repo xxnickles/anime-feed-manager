@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = UserRole.AdminValue)]
 
-<PageTitle>@PageTitle("Admin")</PageTitle>
+<AppPageTitle Title="@PageTitle("Admin")" />
 
 <h2 class="mb-8">Charts</h2>
 <Charts/>

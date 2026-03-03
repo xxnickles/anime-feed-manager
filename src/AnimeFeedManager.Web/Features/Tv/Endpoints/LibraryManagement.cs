@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 using AnimeFeedManager.Web.Features.Tv.Controls;
+using AnimeFeedManager.Web.Htmx.Static;
 using static AnimeFeedManager.Features.Tv.Library.Management.Series;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
@@ -44,9 +45,9 @@ internal static class LibraryManagement
                 clientFactory.TableStorageTvSeriesRemover, token))
             .Map(result =>
             {
-                // Adds an event to trigger the remove o the series card
-                context.Response.Headers["HX-Trigger-After-Swap"] =
-                    $$$"""{"removeSeries": {"owner": "{{{viewModel.CardId}}}"}}""";
+                context.Response.HxTriggerAfterSwap(
+                    new RemoveSeriesTrigger(new RemoveSeriesEvent(viewModel.CardId)),
+                    TvEndpointJsonContext.Default.RemoveSeriesTrigger);
                 return result;
             })
             .FlushLogs(logger)

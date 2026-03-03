@@ -1,6 +1,6 @@
 @page "/{Season}/tv"
 
-<PageTitle>@(_seasonError ? PageTitleForSeason(SeriesType.Tv, _season) : PageTitleForInvalidSeason())</PageTitle>
+<AppPageTitle Title="@(!_seasonError ? PageTitleForSeason(SeriesType.Tv, _season) : PageTitleForInvalidSeason())" />
 @if (!_seasonError)
 {
     <TvGrid Season="_season"></TvGrid>

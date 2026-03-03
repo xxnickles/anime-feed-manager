@@ -1,0 +1,21 @@
+@inject IHttpContextAccessor HttpContextAccessor
+
+@if (_isHtmxRequest)
+{
+    <title>@Title</title>
+}
+else
+{
+    <PageTitle>@Title</PageTitle>
+}
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    private bool _isHtmxRequest;
+
+    protected override void OnInitialized()
+    {
+        _isHtmxRequest = HttpContextAccessor.GetHtmxRequestType() is HxBoosted or HxForm;
+    }
+}

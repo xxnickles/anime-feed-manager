@@ -1,4 +1,6 @@
-﻿namespace AnimeFeedManager.Web.Htmx;
+﻿using AnimeFeedManager.Web.Htmx.Static;
+
+namespace AnimeFeedManager.Web.Htmx;
 
 /// <summary>
 /// Captures a redirect response and sets the "HX-Location" header for an HTMX request.
@@ -22,7 +24,7 @@ public sealed class HtmxRedirectResponseMiddleware
                 requestType is not (HxBoosted or HxForm)) return Task.CompletedTask;
 
             var location = context.Response.Headers["Location"].ToString();
-            context.Response.Headers["HX-Location"] = location;
+            context.Response.HxLocation(location);
             context.Response.StatusCode = 200;
             return Task.CompletedTask;
         });
