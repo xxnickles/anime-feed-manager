@@ -1,10 +1,8 @@
 <ul id="side-menu" class="menu w-full grow bg-base-300" role="list"
-    x-data="{ path: window.location.pathname }"
-    x-on:htmx:pushed-into-history.window="path = window.location.pathname; if (window.innerWidth < 1024) document.getElementById('drawer').checked = false"
     @attributes="AdditionalAttributes">
     <li>
         <NavLink href="/" Match="NavLinkMatch.All"
-                 :class="{ 'active': path === '/' }"
+                 ActiveClass="menu-active"
                  class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                  data-tip="Home">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -17,7 +15,7 @@
     </li>
     <li>
         <NavLink href="seasons" Match="NavLinkMatch.All"
-                 :class="{ 'active': path.toLowerCase() === '/seasons' }"
+                 ActiveClass="menu-active"
                  class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                  data-tip="Seasons">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -31,11 +29,13 @@
     <AuthorizeView Roles="@UserRole.Admin()">
         <li>
             <NavLink href="admin"
-                     :class="{ 'active': path.toLowerCase().startsWith('/admin') }"
+                     ActiveClass="menu-active"
                      class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                      data-tip="Admin">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5"/>
                 </svg>
                 <span class="is-drawer-close:hidden">Admin</span>
             </NavLink>
@@ -44,11 +44,13 @@
     <AuthorizeView>
         <li>
             <NavLink href="user-feed-notifications"
-                     :class="{ 'active': path.toLowerCase().startsWith('/user-feed-notifications') }"
+                     ActiveClass="menu-active"
                      class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                      data-tip="Notifications">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
                 </svg>
                 <span class="is-drawer-close:hidden">Notifications</span>
             </NavLink>
@@ -58,7 +60,7 @@
         <NotAuthorized>
             <li>
                 <NavLink href="login"
-                         :class="{ 'active': path.toLowerCase() === '/login' }"
+                         ActiveClass="menu-active"
                          class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                          data-tip="Login">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -71,11 +73,13 @@
             </li>
             <li>
                 <NavLink href="register"
-                         :class="{ 'active': path.toLowerCase() === '/register' }"
+                         ActiveClass="menu-active"
                          class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                          data-tip="Register">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"/>
                     </svg>
                     <span class="is-drawer-close:hidden">Register</span>
                 </NavLink>
@@ -84,7 +88,7 @@
         <Authorized>
             <li>
                 <NavLink href="logout"
-                         :class="{ 'active': path.toLowerCase() === '/logout' }"
+                         ActiveClass="menu-active"
                          class="is-drawer-close:tooltip is-drawer-close:tooltip-right"
                          data-tip="Logout">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -100,6 +104,8 @@
 </ul>
 
 @code {
+
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
 }
