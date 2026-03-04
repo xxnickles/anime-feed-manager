@@ -11,11 +11,11 @@
                   x-on:remove-series="
                     const owner = $event.detail?.owner;
                     if(!owner) return;
-                    console.log('Receiving event in controls', owner);
                     const el = document.getElementById(owner);
                     if (!el) return;
-                    el.classList.add('opacity-0','scale-65','transition','duration-250');
-                    setTimeout(() => el.remove(), 251);">
+                    const wrapper = el.closest('.card-filter-wrapper') ?? el;
+                    wrapper.classList.add('opacity-0','scale-65','transition','duration-250');
+                    setTimeout(() => wrapper.remove(), 251);">
             <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
             <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>
             <input type="hidden" name="@nameof(Model.Season)" value="@Model.Season"/>
