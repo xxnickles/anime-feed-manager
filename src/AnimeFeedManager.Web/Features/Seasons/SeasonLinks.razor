@@ -13,11 +13,10 @@
                 <li class="flex flex-col items-center">
                     <h3 class="text-sm md:text-base">@season.Season.ToString().ToUpperInvariant() @season.Year.ToString()</h3>
                     <span class="flex flex-col md:flex-row flex-nowrap md:space-x-1 w-full md:w-auto">
-                        <NavLink class="link link-hover text-xs"
-                                 ActiveClass="link-primary font-bold text-secondary-focus"
-                                 href="@GetLink(season, SeriesType.Tv)" Match="NavLinkMatch.All">
+                        <a class="link link-hover text-xs @(IsSelected(season, SeriesType.Tv) ? "link-primary font-bold text-secondary-focus" : "")"
+                           href="@GetLink(season, SeriesType.Tv)">
                             TV
-                        </NavLink>
+                        </a>
                         @* TODO: For this version we will not support other series than TV *@
                         @* <NavLink class="link link-hover text-xs" *@
                         @*          ActiveClass="link-primary font-bold text-secondary-focus" *@
@@ -48,10 +47,10 @@
                     <span class="uppercase">@SelectedSeason.Season.ToString() @SelectedSeason.Year.ToString()</span>
                 </li>
                 <li>
-                    <NavLink class="link link-hover" ActiveClass="link-primary font-bold text-secondary-focus"
-                             href="@GetLink(SelectedSeason, SeriesType.Tv)" Match="NavLinkMatch.All">
+                    <a class="link link-hover link-primary font-bold text-secondary-focus"
+                       href="@GetLink(SelectedSeason, SeriesType.Tv)">
                         TV
-                    </NavLink>
+                    </a>
                 </li>
                 @* TODO: For this version we will not support other series than TV *@
                 @* <li> *@
@@ -87,6 +86,9 @@
             .Match(seasons => { _seasons = seasons; },
                 _ => { _seasons = []; });
     }
+
+    private bool IsSelected(SeriesSeason season, SeriesType seriesType) =>
+        season.Season == SelectedSeason.Season && season.Year == SelectedSeason.Year && seriesType == SeriesType.Tv;
 
     private static string GetLink(SeriesSeason season, SeriesType seriesType) => $"{season.Season}-{season.Year}/{seriesType.AsPlural()}";
 }
