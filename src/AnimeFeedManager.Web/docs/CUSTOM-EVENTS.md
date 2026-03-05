@@ -8,7 +8,7 @@ These custom events are dispatched from the server via HTMX trigger headers.
 
 | Event | Description | Payload | Dispatched From | Listened By |
 |-------|-------------|---------|-----------------|-------------|
-| `removeSeries` | Triggered after a series is successfully removed from the library | `{ owner: "{cardId}" }` | `LibraryManagement.cs:48-49` (HX-Trigger-After-Swap header) | `SeriesDeleter.razor:11` - Animates and removes the series card from DOM |
+| `removeSeries` | Triggered after a series is successfully removed from the library | `{ owner: "{cardId}" }` | `LibraryManagement.cs:48-50` (HX-Trigger-After-Swap header) | `SeriesDeleter.razor:11` - Animates and removes the series card from DOM |
 
 ## Alpine.js Application Events
 
@@ -17,8 +17,15 @@ Custom events dispatched using Alpine.js `$dispatch()`.
 | Event | Description | Payload | Dispatched From | Listened By |
 |-------|-------------|---------|-----------------|-------------|
 | `period-changed` | Fired when user selects a different time period for charts | `{ value: '7d'\|'14d'\|'30d'\|'60d'\|'90d' }` | `Charts.razor:3` | ChartSkeleton components - triggers chart reload with new period |
-| `filter-changed` | Fired when user changes the grid filter selection | `{ filter: string }` | `GridFilter.razor:4` | `SeriesGrid.razor:12` - updates selectedFilter state, CSS handles show/hide |
-| `alt-titles:saving` | Fired when alternative titles are being saved | - | Alternative titles editor | `AlternativeTitlesEditorModal.razor:14` - closes the dialog |
+| `filter-changed` | Fired when user changes the grid filter selection | `{ filter: string }` | `GridFilter.razor:13,19,27,33,40,46` (filter button handlers) | `SeriesGrid.razor:12` - updates selectedFilter state, CSS handles show/hide |
+
+## Authentication Events
+
+Custom events bridging client-side auth flows with HTMX form submission.
+
+| Event | Description | Payload | Dispatched From | Listened By |
+|-------|-------------|---------|-----------------|-------------|
+| `loginComplete` | Fired after successful passwordless authentication verification | - | `LoginForm.razor:37` (Alpine.js `CustomEvent`) | `LoginForm.razor:5` - HTMX `hx-trigger` submits the login form to the server |
 
 ## SignalR Connection Events
 

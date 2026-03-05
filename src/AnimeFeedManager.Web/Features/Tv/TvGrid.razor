@@ -12,7 +12,7 @@
 <SeasonLinks SelectedSeason="Season"></SeasonLinks>
 @if (_series.Length > 0)
 {
-    <SeriesGrid IsAuthenticated="@(_user is AuthenticatedUser)">
+    <SeriesGrid IsAuthenticated="@(_user is AuthenticatedUser)" FilterCounters="_filterCounters">
         @foreach (var series in _series)
         {
             <TvCard Series="series"></TvCard>
@@ -29,6 +29,7 @@ else
     [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = new(Shared.Types.Season.Current, Year.Current);
     ImmutableArray<UserTvSeries> _series = [];
     AppUser _user = new Anonymous();
+    FilterCounters _filterCounters = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,8 +39,32 @@ else
             .GetTvLibraryForUser(_user, TableClientFactory.TableStorageTvSubscriptions, CancellationToken.None)
             .FlushLogs(Logger)
             .Match(
-                series => { _series = series; },
+                series =>
+                {
+                    _series = series;
+                    _filterCounters = GetCounters(series);
+                },
                 _ => { _series = []; });
+    }
+
+    private static FilterCounters GetCounters(ImmutableArray<UserTvSeries> series)
+    {
+        return Enumerable.Aggregate(series,
+            new FilterCounters { Total = (uint)series.Length },
+            (current, item) => item switch
+            {
+                Subscribed => current with
+                {
+                    Available = current.Available + 1, Subscribed = current.Subscribed + 1
+                },
+                Available or AvailableForSubscription => current with
+                {
+                    Available = current.Available + 1
+                },
+                Interested => current with { Interested = current.Interested + 1 },
+                Completed => current with { Completed = current.Completed + 1 },
+                _ => current with { NotAvailable = current.NotAvailable + 1 }
+            });
     }
 
 }
