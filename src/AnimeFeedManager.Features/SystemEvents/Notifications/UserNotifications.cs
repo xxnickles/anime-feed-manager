@@ -10,14 +10,20 @@ public static class UserNotifications
         SystemEventsGetter<NotificationSent> eventGetter,
         CancellationToken token)
     {
-        return eventGetter(TargetConsumer.User(userId), DateTimeOffset.MinValue, token)
+        var baseDate = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.FromSeconds(0));
+        return eventGetter(TargetConsumer.User(userId), baseDate, token)
+            .WithLogProperties([
+                new KeyValuePair<string, object>("UserId", userId),
+                new KeyValuePair<string, object>("BaseDate", baseDate)
+            ])
             .Map(Aggregate);
     }
 
     private static ImmutableArray<NotificationSent> Aggregate(
         ImmutableArray<EventData<NotificationSent>> events)
     {
-        return [
+        return
+        [
             ..events.Select(e => e.Data)
                 .GroupBy(e => e.Title)
                 .Select(g =>

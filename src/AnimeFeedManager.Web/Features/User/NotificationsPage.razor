@@ -3,11 +3,14 @@
 @using AnimeFeedManager.Features.SystemEvents.Notifications
 @using AnimeFeedManager.Features.SystemEvents.Storage.Stores
 @using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events
+@using Microsoft.AspNetCore.Authorization
 @inject ITableClientFactory TableClientFactory
 @inject IHttpContextAccessor HttpContextAccessor
 @inject ILogger<NotificationsPage> Logger
 
-<AppPageTitle Title="@PageTitle("Notifications")" />
+@attribute [Authorize]
+
+<AppPageTitle Title="@PageTitle("Notifications")"/>
 
 @if (_notifications.Length > 0)
 {
@@ -35,7 +38,7 @@
 }
 else
 {
-    <WarnBanner Title="Notifications" Description="There are no feed notifications available yet" />
+    <WarnBanner Title="Notifications" Description="There are no feed notifications available yet"/>
 }
 
 @code {
@@ -55,4 +58,5 @@ else
                 notifications => _notifications = [..notifications.OrderBy(n => n.Title)],
                 _ => { _notifications = []; });
     }
+
 }
