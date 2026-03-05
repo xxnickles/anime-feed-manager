@@ -12,13 +12,13 @@
         <li>
             <button type="button" x-on:click="$dispatch('filter-changed', { filter: '' }); open = false">
                 @CheckIcon("selectedFilter === ''")
-                All
+                All (@FilterCounters.Total)
             </button>
         </li>
         <li>
             <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'available' }); open = false">
                 @CheckIcon("selectedFilter === 'available'")
-                Available
+                Available (@FilterCounters.Available)
             </button>
         </li>
         @if (IsAuthenticated)
@@ -26,26 +26,26 @@
             <li>
                 <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'subscribed' }); open = false">
                     @CheckIcon("selectedFilter === 'subscribed'")
-                    Subscribed
+                    Subscribed (@FilterCounters.Subscribed)
                 </button>
             </li>
             <li>
                 <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'interested' }); open = false">
                     @CheckIcon("selectedFilter === 'interested'")
-                    Interested
+                    Interested (@FilterCounters.Interested)
                 </button>
             </li>
         }
         <li>
             <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'completed' }); open = false">
                 @CheckIcon("selectedFilter === 'completed'")
-                Completed
+                Completed (@FilterCounters.Completed)
             </button>
         </li>
         <li>
             <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'not-available' }); open = false">
                 @CheckIcon("selectedFilter === 'not-available'")
-                Not Available
+                Not Available (@FilterCounters.NotAvailable)
             </button>
         </li>
     </ul>
@@ -53,7 +53,8 @@
 
 @code {
     [Parameter] public bool IsAuthenticated { get; set; }
-
+    [Parameter, EditorRequired] public FilterCounters FilterCounters { get; set; } 
+    
     private static RenderFragment CheckIcon(string condition) => @<span class="size-4" x-show="@condition" x-cloak>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4" aria-hidden="true">
             <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />

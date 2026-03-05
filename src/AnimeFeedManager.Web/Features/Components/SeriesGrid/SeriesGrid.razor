@@ -12,7 +12,7 @@
      x-on:filter-changed="selectedFilter = $event.detail.filter">
     <section class="grid grid-cols-[repeat(auto-fit,minmax(370px,0.75fr))] lg:grid-cols-[repeat(auto-fit,minmax(370px,450px))] justify-center auto-rows-min gap-10 px-2 md:px-10 py-2 md:py-4">
         <div class="col-span-full justify-self-end -mb-6">
-            <GridFilter IsAuthenticated="IsAuthenticated" />
+            <GridFilter IsAuthenticated="IsAuthenticated" FilterCounters="FilterCounters" />
         </div>
         @ChildContent
     </section>
@@ -26,5 +26,9 @@
     [Parameter, EditorRequired]
     public RenderFragment ChildContent { get; set; } = @<span>No content here!</span>;
 
+    [Parameter, EditorRequired] public FilterCounters FilterCounters { get; set; } 
+    
     [Parameter] public bool IsAuthenticated { get; set; }
+    
+    
 }
