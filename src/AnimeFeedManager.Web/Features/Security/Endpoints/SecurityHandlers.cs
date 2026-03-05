@@ -76,23 +76,23 @@ internal static class SecurityHandlers
                 error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents());
     }
 
-    private static Result<ClaimsPrincipal> TryToCreatePrincipal(User user)
+    private static Result<ClaimsPrincipal> TryToCreatePrincipal(StoredUser user)
     {
         return user switch
         {
-            ValidUser vu => CreatePrincipal(vu),
+            ValidStoredUser vu => CreatePrincipal(vu),
             _ => Error.Create("Provided user doesn't exist in the system")
         };
     }
 
-    private static ClaimsPrincipal CreatePrincipal(ValidUser user)
+    private static ClaimsPrincipal CreatePrincipal(ValidStoredUser storedUser)
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user.Email),
-            new(ClaimTypes.Email, user.Email),
-            new(CustomClaimTypes.Sub, user.UserId),
-            new(ClaimTypes.Role, user.Role)
+            new(ClaimTypes.Name, storedUser.Email),
+            new(ClaimTypes.Email, storedUser.Email),
+            new(CustomClaimTypes.Sub, storedUser.UserId),
+            new(ClaimTypes.Role, storedUser.Role)
         };
 
         return new ClaimsPrincipal(

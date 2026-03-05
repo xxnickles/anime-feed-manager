@@ -4,6 +4,6 @@ namespace AnimeFeedManager.Features.User.Authentication.Queries;
 
 public static class Users
 {
-    public static Task<Result<Storage.Stores.User>> GetById(ExistentUserGetterById userGetterById, NoEmptyString userId, CancellationToken cancellationToken) =>
+    public static Task<Result<StoredUser>> GetById(ExistentUserGetterById userGetterById, NoEmptyString userId, CancellationToken cancellationToken) =>
         userGetterById(userId, cancellationToken);
 }

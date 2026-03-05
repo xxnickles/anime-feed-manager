@@ -52,7 +52,7 @@
     <PackageVersion Include="coverlet.collector" Version="8.0.0" />
     <PackageVersion Include="FakeItEasy" Version="9.0.1" />
     <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1" />
-    <PackageVersion Include="MailKit" Version="4.15.0" />
+    <PackageVersion Include="MailKit" Version="4.15.1" />
     <PackageVersion Include="Passwordless.AspNetCore" Version="2.0.0" />
     <PackageVersion Include="PuppeteerSharp" Version="21.1.1" />
     <PackageVersion Include="Raffinert.FuzzySharp" Version="4.0.0" />

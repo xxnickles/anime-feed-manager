@@ -1,0 +1,58 @@
+@page "/user-feed-notifications"
+@using System.Collections.Immutable
+@using AnimeFeedManager.Features.SystemEvents.Notifications
+@using AnimeFeedManager.Features.SystemEvents.Storage.Stores
+@using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events
+@inject ITableClientFactory TableClientFactory
+@inject IHttpContextAccessor HttpContextAccessor
+@inject ILogger<NotificationsPage> Logger
+
+<AppPageTitle Title="@PageTitle("Notifications")" />
+
+@if (_notifications.Length > 0)
+{
+    <section class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 px-2 md:px-10 py-4">
+        @foreach (var notification in _notifications)
+        {
+            <article class="card bg-base-100 shadow-sm row-span-2 grid grid-rows-subgrid">
+                <div class="card-body row-span-2 grid grid-rows-subgrid">
+                    <h2 class="card-title text-primary self-start">
+                        <a href="@notification.Url" target="_blank" rel="noopener noreferrer"
+                           class="link link-hover">
+                            @notification.Title
+                        </a>
+                    </h2>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach (var episode in notification.Episodes)
+                        {
+                            <span class="badge badge-outline badge-sm">@episode</span>
+                        }
+                    </div>
+                </div>
+            </article>
+        }
+    </section>
+}
+else
+{
+    <WarnBanner Title="Notifications" Description="There are no feed notifications available yet" />
+}
+
+@code {
+    ImmutableArray<NotificationSent> _notifications = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = HttpContextAccessor.HttpContext?.GetCurrentUser();
+        if (user is not AuthenticatedUser authenticatedUser) return;
+
+        await UserNotifications.Get(
+                authenticatedUser.UserId,
+                TableClientFactory.TableStorageEvents<NotificationSent>(),
+                CancellationToken.None)
+            .FlushLogs(Logger)
+            .Match(
+                notifications => _notifications = [..notifications.OrderBy(n => n.Title)],
+                _ => { _notifications = []; });
+    }
+}

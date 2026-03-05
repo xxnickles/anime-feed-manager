@@ -57,9 +57,9 @@ public static class UserRegistration
         UserUpdater updater,
         CancellationToken cancellationToken)
     {
-        return data.StorageUser switch
+        return data.StorageStoredUser switch
         {
-            ValidUser user => Task
+            ValidStoredUser user => Task
                 .FromResult<Result<RegisterTokenResponse>>(
                     Error.Create($"Email '{user.Email}' already exist in the system")),
             _ => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
