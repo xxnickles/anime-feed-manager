@@ -1,15 +1,15 @@
 ﻿namespace AnimeFeedManager.Features.User.Authentication.Storage.Stores;
 
-public abstract record User;
+public abstract record StoredUser;
 
-public record ValidUser(Email Email, NoEmptyString UserId, UserRole Role) : User;
+public record ValidStoredUser(Email Email, NoEmptyString UserId, UserRole Role) : StoredUser;
 
-public record NotAUser : User;
+public record NotAStoredUser : StoredUser;
 
-public delegate Task<Result<User>>
+public delegate Task<Result<StoredUser>>
     ExistentUserGetterByEmail(Email email, CancellationToken cancellationToken = default);
 
-public delegate Task<Result<User>> ExistentUserGetterById(NoEmptyString id,
+public delegate Task<Result<StoredUser>> ExistentUserGetterById(NoEmptyString id,
     CancellationToken cancellationToken = default);
 
 public static class ExistentUser
@@ -37,17 +37,17 @@ public static class ExistentUser
                             cancellationToken).Bind(ParseAsUser));
     }
 
-    private static Result<User> ParseAsUser(ImmutableArray<UserStorage> storage)
+    private static Result<StoredUser> ParseAsUser(ImmutableArray<UserStorage> storage)
     {
         // No match
         if (storage.Length == 0)
-            return new NotAUser();
+            return new NotAStoredUser();
 
         // we can guarantee at least a match
         var matchingStorage = storage[0];
 
         return matchingStorage.Email.ParseAsEmail()
             .And((matchingStorage.RowKey ?? string.Empty).ParseAsNonEmpty())
-            .Map<User>(data => new ValidUser(data.Item1, data.Item2, UserRole.FromString(matchingStorage.Role)));
+            .Map<StoredUser>(data => new ValidStoredUser(data.Item1, data.Item2, UserRole.FromString(matchingStorage.Role)));
     }
 }

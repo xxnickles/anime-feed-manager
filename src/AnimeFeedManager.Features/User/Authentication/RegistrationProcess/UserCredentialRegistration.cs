@@ -28,31 +28,31 @@ public static class UserCredentialRegistration
     }
 
     private static Task<Result<UserRegistrationResult>> TryToCreate(
-        Storage.Stores.User user,
+        StoredUser storedUser,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken
     )
     {
-        return user switch
+        return storedUser switch
         {
-            ValidUser u => TryToGetCredential(u, passwordlessClient, cancellationToken),
+            ValidStoredUser u => TryToGetCredential(u, passwordlessClient, cancellationToken),
             _ => Task.FromResult<Result<UserRegistrationResult>>(Error.Create("User doesn't exist in the system"))
         };
     }
 
     private static async Task<Result<UserRegistrationResult>> TryToGetCredential(
-        ValidUser user,
+        ValidStoredUser storedUser,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken)
     {
         try
         {
-            var result = await passwordlessClient.CreateRegisterTokenAsync(new RegisterOptions(user.UserId, user.Email)
+            var result = await passwordlessClient.CreateRegisterTokenAsync(new RegisterOptions(storedUser.UserId, storedUser.Email)
             {
-                Aliases = [user.Email]
+                Aliases = [storedUser.Email]
             }, cancellationToken);
 
-            return new UserRegistrationResult(user.Email, user.UserId, result);
+            return new UserRegistrationResult(storedUser.Email, storedUser.UserId, result);
         }
         catch (PasswordlessApiException e)
         {

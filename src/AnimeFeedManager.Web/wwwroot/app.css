@@ -3003,6 +3003,9 @@
   .col-start-1 {
     grid-column-start: 1;
   }
+  .row-span-2 {
+    grid-row: span 2 / span 2;
+  }
   .row-start-1 {
     grid-row-start: 1;
   }
@@ -3716,6 +3719,9 @@
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
+  .grid-cols-\[repeat\(auto-fill\,minmax\(320px\,1fr\)\)\] {
+    grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
+  }
   .grid-cols-\[repeat\(auto-fit\,minmax\(300px\,0\.9fr\)\)\] {
     grid-template-columns: repeat(auto-fit,minmax(300px,0.9fr));
   }
@@ -3727,6 +3733,9 @@
   }
   .grid-rows-1 {
     grid-template-rows: repeat(1, minmax(0, 1fr));
+  }
+  .grid-rows-subgrid {
+    grid-template-rows: subgrid;
   }
   .flex-col {
     flex-direction: column;
@@ -3779,6 +3788,9 @@
   .gap-4 {
     gap: calc(var(--spacing) * 4);
   }
+  .gap-6 {
+    gap: calc(var(--spacing) * 6);
+  }
   .gap-8 {
     gap: calc(var(--spacing) * 8);
   }
@@ -3791,6 +3803,12 @@
       margin-inline-start: calc(calc(var(--spacing) * 5) * var(--tw-space-x-reverse));
       margin-inline-end: calc(calc(var(--spacing) * 5) * calc(1 - var(--tw-space-x-reverse)));
     }
+  }
+  .self-end {
+    align-self: flex-end;
+  }
+  .self-start {
+    align-self: flex-start;
   }
   .justify-self-end {
     justify-self: flex-end;
@@ -3832,6 +3850,14 @@
         border-color: color-mix( in oklab, var(--badge-color, var(--color-base-content)) 10%, var(--color-base-100) );
       }
       background-image: none;
+    }
+  }
+  .badge-outline {
+    @layer daisyui.l1.l2 {
+      color: var(--badge-color);
+      --badge-bg: #0000;
+      background-image: none;
+      border-color: currentColor;
     }
   }
   .menu-active {
@@ -3991,6 +4017,12 @@
   .text-xs {
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
+  }
+  .badge-sm {
+    @layer daisyui.l1.l2 {
+      --size: calc(var(--size-selector, 0.25rem) * 5);
+      font-size: 0.75rem;
+    }
   }
   .badge-xl {
     @layer daisyui.l1.l2 {
