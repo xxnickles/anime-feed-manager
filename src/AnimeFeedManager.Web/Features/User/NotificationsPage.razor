@@ -12,29 +12,33 @@
 
 <AppPageTitle Title="@PageTitle("Notifications")"/>
 
-@if (_notifications.Length > 0)
+@if (_seasons.Length > 0)
 {
-    <section class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 px-2 md:px-10 py-4">
-        @foreach (var notification in _notifications)
-        {
-            <article class="card bg-base-100 shadow-sm row-span-2 grid grid-rows-subgrid">
-                <div class="card-body row-span-2 grid grid-rows-subgrid">
-                    <h2 class="card-title text-primary self-start">
-                        <a href="@notification.Url" target="_blank" rel="noopener noreferrer"
-                           class="link link-hover">
-                            @notification.Title
-                        </a>
-                    </h2>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach (var episode in notification.Episodes)
-                        {
-                            <span class="badge badge-outline badge-sm">@episode</span>
-                        }
+    @foreach (var season in _seasons)
+    {
+        <h2 class="text-2xl font-bold px-2 md:px-10 pt-6 pb-2">@FormatSeason(season.Season)</h2>
+        <section class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 px-2 md:px-10 py-4">
+            @foreach (var notification in season.Series)
+            {
+                <article class="card bg-base-100 shadow-sm row-span-2 grid grid-rows-subgrid">
+                    <div class="card-body row-span-2 grid grid-rows-subgrid">
+                        <h2 class="card-title text-primary self-start">
+                            <a href="@notification.Url" target="_blank" rel="noopener noreferrer"
+                               class="link link-hover">
+                                @notification.Title
+                            </a>
+                        </h2>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach (var episode in notification.Episodes)
+                            {
+                                <span class="badge badge-outline badge-sm">@episode</span>
+                            }
+                        </div>
                     </div>
-                </div>
-            </article>
-        }
-    </section>
+                </article>
+            }
+        </section>
+    }
 }
 else
 {
@@ -42,7 +46,7 @@ else
 }
 
 @code {
-    ImmutableArray<NotificationSent> _notifications = [];
+    ImmutableArray<SeasonNotifications> _seasons = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,8 +59,15 @@ else
                 CancellationToken.None)
             .FlushLogs(Logger)
             .Match(
-                notifications => _notifications = [..notifications.OrderBy(n => n.Title)],
-                _ => { _notifications = []; });
+                seasons => _seasons = seasons,
+                _ => { _seasons = []; });
+    }
+
+    private static string FormatSeason(string season)
+    {
+        if (string.IsNullOrEmpty(season)) return "Unknown Season";
+        var dash = season.IndexOf('-');
+        return dash <= 0 ? season : $"{season[..dash]} - {char.ToUpper(season[dash + 1])}{season[(dash + 2)..]}";
     }
 
 }
