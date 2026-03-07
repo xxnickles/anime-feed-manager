@@ -70,6 +70,7 @@ public static class NotificationProcess
                 .Select(f => new NotificationSent(
                     Title: f.Title,
                     Url: f.Url,
+                    Season: SeasonFromId(updateNotification.Subscriptions.Subscriptions.SingleOrDefault(s => s.SeriesFeedTitle == f.Title)?.SeriesId),
                     Episodes: f.Episodes
                         .Select(e => e.EpisodeNumber)
                         .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -78,6 +79,19 @@ public static class NotificationProcess
                 ))
                 .ToArray()
         );
+    }
+    
+    private static string SeasonFromId(string? id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            return string.Empty;
+
+        var first = id.IndexOf('_');
+        if (first <= 0)
+            return string.Empty;
+
+        var second = id.IndexOf('_', first + 1);
+        return second <= first + 1 ? string.Empty : $"{id[..first]}-{id[(first + 1)..second]}";
     }
 
     private static Task<Result<UserNotificationResult>> SendNotifications(DomainCollectionSender domainPostman, UserNotificationResult result)
