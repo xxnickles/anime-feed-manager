@@ -38,6 +38,7 @@ public static class UserNotifications
                     return new NotificationSent(
                         Title: g.Key,
                         Url: g.Last().Url,
+                        Season: g.Last().Season,
                         Episodes: mergedEpisodes);
                 })
         ];
