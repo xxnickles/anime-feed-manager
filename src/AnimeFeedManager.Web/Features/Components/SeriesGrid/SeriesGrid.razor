@@ -10,7 +10,7 @@
      x-data="{ selectedFilter: '' }"
      x-bind:data-filter="selectedFilter"
      x-on:filter-changed="selectedFilter = $event.detail.filter">
-    <section class="grid grid-cols-[repeat(auto-fit,minmax(370px,0.75fr))] lg:grid-cols-[repeat(auto-fit,minmax(370px,450px))] justify-center auto-rows-min gap-10 px-2 md:px-10 py-2 md:py-4">
+    <section class="grid grid-cols-[repeat(auto-fit,minmax(300px,0.75fr))] lg:grid-cols-[repeat(auto-fit,minmax(300px,400px))] justify-center auto-rows-min gap-10 px-2 md:px-10 py-2 md:py-4">
         <div class="col-span-full justify-self-end -mb-6">
             <GridFilter IsAuthenticated="IsAuthenticated" FilterCounters="FilterCounters" />
         </div>
