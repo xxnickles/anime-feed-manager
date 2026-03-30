@@ -18,6 +18,7 @@
 
   <Folder Name="/SolutionItems/">
     <File Path="..\README.md" />
+    <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/Utils/">
