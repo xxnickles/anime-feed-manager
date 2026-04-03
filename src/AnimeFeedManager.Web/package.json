@@ -23,7 +23,7 @@
     "concurrently": "^9.2.1",
     "daisyui": "^5.5.19",
     "glob": "^13.0.6",
-    "npm-check-updates": "^19.6.6",
+    "npm-check-updates": "^20.0.0",
     "tailwindcss": "^4.2.2"
   }
 }

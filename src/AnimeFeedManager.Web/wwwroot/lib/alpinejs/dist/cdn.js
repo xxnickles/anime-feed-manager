@@ -1742,7 +1742,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     get transaction() {
       return transaction;
     },
-    version: "3.15.9",
+    version: "3.15.11",
     flushAndStopDeferringMutations,
     dontAutoEvaluateFunctions,
     disableEffectScheduling,
@@ -3358,6 +3358,8 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
             }
             return;
           }
+          if (templateEl.content.children.length > 1)
+            warn("x-for templates require a single root element, additional elements will be ignored.", templateEl);
           let clone2 = document.importNode(templateEl.content, true).firstElementChild;
           let reactiveScope = reactive(scope2);
           addScopeToNode(clone2, reactiveScope, templateEl);
@@ -3424,13 +3426,15 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
   // packages/alpinejs/src/directives/x-ref.js
   function handler3() {
   }
-  handler3.inline = skipDuringClone((el, { expression }, { cleanup: cleanup2 }) => {
+  handler3.inline = (el, { expression }, { cleanup: cleanup2 }) => {
     let root = closestRoot(el);
+    if (!root)
+      return;
     if (!root._x_refs)
       root._x_refs = {};
     root._x_refs[expression] = el;
     cleanup2(() => delete root._x_refs[expression]);
-  });
+  };
   directive("ref", handler3);
 
   // packages/alpinejs/src/directives/x-if.js

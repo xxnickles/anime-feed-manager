@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/AnimeFeedManager.AspireHost/AnimeFeedManager.AspireHost.csproj"
+  }
+}
