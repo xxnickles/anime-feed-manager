@@ -14,31 +14,41 @@
 
 @if (_seasons.Length > 0)
 {
-    @foreach (var season in _seasons)
-    {
-        <h2 class="text-2xl font-bold px-2 md:px-10 pt-6 pb-2">@FormatSeason(season.Season)</h2>
-        <section class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 px-2 md:px-10 py-4">
-            @foreach (var notification in season.Series)
-            {
-                <article class="card bg-base-100 shadow-sm row-span-2 grid grid-rows-subgrid">
-                    <div class="card-body row-span-2 grid grid-rows-subgrid">
-                        <h2 class="card-title text-primary self-start">
-                            <a href="@notification.Url" target="_blank" rel="noopener noreferrer"
-                               class="link link-hover">
-                                @notification.Title
-                            </a>
-                        </h2>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach (var episode in notification.Episodes)
-                            {
-                                <span class="badge badge-outline badge-sm">@episode</span>
-                            }
-                        </div>
-                    </div>
-                </article>
-            }
-        </section>
-    }
+    <div class="tabs tabs-box px-2 md:px-10 pt-6">
+        @{ var isFirst = true; }
+        @foreach (var year in _years)
+        {
+            <input type="radio" name="year_tabs" class="tab" aria-label="@year" checked="@isFirst"/>
+            <div class="tab-content p-0">
+                @foreach (var season in _seasons.Where(s => s.Season.StartsWith($"{year}-")))
+                {
+                    <h2 class="text-2xl font-bold pt-6 pb-2">@FormatSeason(season.Season)</h2>
+                    <section class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 py-4">
+                        @foreach (var notification in season.Series)
+                        {
+                            <article class="card bg-base-100 shadow-sm row-span-2 grid grid-rows-subgrid">
+                                <div class="card-body row-span-2 grid grid-rows-subgrid">
+                                    <h2 class="card-title text-primary self-start">
+                                        <a href="@notification.Url" target="_blank" rel="noopener noreferrer"
+                                           class="link link-hover">
+                                            @notification.Title
+                                        </a>
+                                    </h2>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach (var episode in notification.Episodes)
+                                        {
+                                            <span class="badge badge-outline badge-sm">@episode</span>
+                                        }
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    </section>
+                }
+            </div>
+            isFirst = false;
+        }
+    </div>
 }
 else
 {
@@ -47,6 +57,7 @@ else
 
 @code {
     ImmutableArray<SeasonNotifications> _seasons = [];
+    string[] _years = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,7 +70,14 @@ else
                 CancellationToken.None)
             .FlushLogs(Logger)
             .Match(
-                seasons => _seasons = seasons,
+                seasons =>
+                {
+                    _seasons = seasons;
+                    _years = seasons
+                        .Select(s => s.Season.Split('-')[0])
+                        .Distinct()
+                        .ToArray();
+                },
                 _ => { _seasons = []; });
     }
 
