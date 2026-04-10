@@ -8,30 +8,32 @@ public static class ScrapLibraryChart
 {
     public static Task<Result<LineChart>> Get(
         SystemEventsGetter<ScrapTvLibraryResult> eventGetter,
+        SystemEventsGetter<ScrapTvLibraryFailedResult> failedEventGetter,
         DateTimeOffset from,
         DateTimeOffset to,
         CancellationToken cancellationToken)
     {
-        return eventGetter(TargetConsumer.Everybody(), from, cancellationToken)
-            .Map(events => MapToLineChart(events, from, to));
+        var consumer = TargetConsumer.Everybody();
+        return eventGetter(consumer, from, cancellationToken)
+            .Bind(successEvents =>
+                failedEventGetter(consumer, from, cancellationToken).Map(failedEvents => (successEvents, failedEvents)))
+            .Map(events => MapToLineChart(events.successEvents, events.failedEvents, from, to));
     }
 
     private static LineChart MapToLineChart(
-        ImmutableArray<EventData<ScrapTvLibraryResult>> scrapEvents,
+        ImmutableArray<EventData<ScrapTvLibraryResult>> completedEvents,
+        ImmutableArray<EventData<ScrapTvLibraryFailedResult>> failedEvents,
         DateTimeOffset from,
         DateTimeOffset to)
     {
-        // Group events by day into a lookup for quick access
-        var byDay = scrapEvents
+        var completedByDay = completedEvents
             .GroupBy(e => e.Timestamp.Date)
-            .ToDictionary(
-                g => g.Key,
-                g => (
-                    Completed: g.Count(e => e.EventType == EventType.Completed),
-                    Errors: g.Count(e => e.EventType == EventType.Error)
-                ));
+            .ToDictionary(g => g.Key, g => g.Count());
 
-        // Generate all dates in the range
+        var failedByDay = failedEvents
+            .GroupBy(e => e.Timestamp.Date)
+            .ToDictionary(g => g.Key, g => g.Count());
+
         var allDates = GenerateDateRange(from.Date, to.Date).ToList();
 
         return new LineChart(
@@ -40,17 +42,15 @@ public static class ScrapLibraryChart
             [
                 new LineDataset(
                     Label: "Completed",
-                    Data: allDates.Select(dateTime => (float)(byDay.TryGetValue(dateTime, out var counts) ? counts.Completed : 0)).ToArray(),
+                    Data: allDates.Select(d => (float) completedByDay.GetValueOrDefault(d, 0)).ToArray(),
                     BorderColor: ChartColor.Success
                 ),
                 new LineDataset(
                     Label: "Errors",
-                    Data: allDates.Select(dateTime => (float)(byDay.TryGetValue(dateTime, out var counts) ? counts.Errors : 0)).ToArray(),
+                    Data: allDates.Select(d => (float) failedByDay.GetValueOrDefault(d, 0)).ToArray(),
                     BorderColor: ChartColor.Error
                 )
             ]
         );
     }
-
-   
 }

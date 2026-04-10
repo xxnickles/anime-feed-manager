@@ -17,6 +17,7 @@ internal static class ChartHandlers
         var range = ChartDateRange.FromPeriod(period);
         return ScrapLibraryChart.Get(
                 clientFactory.TableStorageEvents<ScrapTvLibraryResult>(),
+                clientFactory.TableStorageEvents<ScrapTvLibraryFailedResult>(),
                 range.From,
                 range.To,
                 cancellationToken)

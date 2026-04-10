@@ -3731,12 +3731,6 @@
   .grid-cols-\[repeat\(auto-fit\,minmax\(300px\,1fr\)\)\] {
     grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
   }
-  .grid-cols-\[repeat\(auto-fit\,minmax\(350px\,0\.75fr\)\)\] {
-    grid-template-columns: repeat(auto-fit,minmax(350px,0.75fr));
-  }
-  .grid-cols-\[repeat\(auto-fit\,minmax\(370px\,0\.75fr\)\)\] {
-    grid-template-columns: repeat(auto-fit,minmax(370px,0.75fr));
-  }
   .grid-rows-1 {
     grid-template-rows: repeat(1, minmax(0, 1fr));
   }
@@ -4812,26 +4806,6 @@
   .lg\:grid-cols-\[repeat\(auto-fit\,minmax\(300px\,400px\)\)\] {
     @media (width >= 64rem) {
       grid-template-columns: repeat(auto-fit,minmax(300px,400px));
-    }
-  }
-  .lg\:grid-cols-\[repeat\(auto-fit\,minmax\(300px\,450px\)\)\] {
-    @media (width >= 64rem) {
-      grid-template-columns: repeat(auto-fit,minmax(300px,450px));
-    }
-  }
-  .lg\:grid-cols-\[repeat\(auto-fit\,minmax\(350px\,450px\)\)\] {
-    @media (width >= 64rem) {
-      grid-template-columns: repeat(auto-fit,minmax(350px,450px));
-    }
-  }
-  .lg\:grid-cols-\[repeat\(auto-fit\,minmax\(370px\,450px\)\)\] {
-    @media (width >= 64rem) {
-      grid-template-columns: repeat(auto-fit,minmax(370px,450px));
-    }
-  }
-  .lg\:grid-cols-\[repeat\(auto-fit\,minmax\(375px\,450px\)\)\] {
-    @media (width >= 64rem) {
-      grid-template-columns: repeat(auto-fit,minmax(375px,450px));
     }
   }
   .is-drawer-close\:tooltip {
