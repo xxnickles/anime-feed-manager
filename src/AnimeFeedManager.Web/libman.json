@@ -19,6 +19,20 @@
       ]
     },
     {
+      "library": "hyperscript.org@0.9.91",
+      "destination": "wwwroot/lib/hyperscript/",
+      "files": [
+        "dist/_hyperscript.min.js",
+        "dist/_hyperscript.js",
+        "dist/ext/component.min.js",
+        "dist/ext/component.js",
+        "dist/ext/tailwind.min.js",
+        "dist/ext/tailwind.js",
+        "dist/ext/eventsource.min.js",
+        "dist/ext/eventsource.js"
+      ]
+    },
+    {
       "library": "alpinejs@3.15.11",
       "destination": "wwwroot/lib/alpinejs/",
       "files": [
