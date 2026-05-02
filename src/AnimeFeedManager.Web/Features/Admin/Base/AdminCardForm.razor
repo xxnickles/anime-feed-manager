@@ -55,9 +55,7 @@
     private IReadOnlyDictionary<string, object> AggregatedAttributes => MergeAttributes(
         AdditionalAttributes,
         ("hx-indicator", $"#{_loaderId}"),
-        ("x-data", true),
-        ("x-form-submit-locker.disable-on-submit", true),
-        ("x-invalid-cleaner", true)
+        ("_", "install FormSubmitLocker install InvalidCleaner")
     );
 
 
