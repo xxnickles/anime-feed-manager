@@ -1,0 +1,96 @@
+@* Hosts hyperscript behavior definitions. Rendered once into App.razor's <head> so behaviors persist across HTMX boost partial swaps.*@
+
+<script type="text/hyperscript">
+  behavior FormSubmitLocker
+    init
+      set :submitBtn to the first <button[type='submit']/> in me
+      if no :submitBtn
+        set :submitBtn to the first <input[type='submit']/> in me
+      end
+
+      if me.checkValidity() is false
+        add @@disabled to :submitBtn
+      end
+    end
+
+    on input from me debounced at 300ms
+      if me.checkValidity() is false
+        add @@disabled to :submitBtn
+      else
+        remove @@disabled from :submitBtn
+      end
+    end
+
+    on change from me
+      if me.checkValidity() is false
+        add @@disabled to :submitBtn
+      else
+        remove @@disabled from :submitBtn
+      end
+    end
+
+    on reset from me
+      wait a tick
+      if me.checkValidity() is false
+        add @@disabled to :submitBtn
+      else
+        remove @@disabled from :submitBtn
+      end
+    end
+
+    on htmx:beforeRequest from me
+      add @@disabled to :submitBtn
+      set :submitBtn's @@aria-busy to 'true'
+    end
+
+    on htmx:afterRequest or htmx:responseError or htmx:sendError from me
+      remove @@disabled from :submitBtn
+      remove @@aria-busy from :submitBtn
+    end
+
+    on htmx:halted from me
+      remove @@disabled from :submitBtn
+      remove @@aria-busy from :submitBtn
+    end
+
+    on htmx:confirm(issueRequest) from me
+      set btn to :submitBtn
+      js (issueRequest, btn)
+        return function(proceed) {
+          if (!proceed && btn) {
+            btn.removeAttribute('disabled');
+            btn.removeAttribute('aria-busy');
+          }
+          return issueRequest(proceed);
+        };
+      end
+      set event.detail.issueRequest to it
+    end
+  end
+
+  behavior InvalidCleaner
+    on input from <input,select,textarea/>
+      if target matches .invalid
+        remove .invalid from target
+      end
+
+      set theLabel to the closest <label/> to target
+      if no theLabel
+        exit
+      end
+
+      repeat for icon in <.validation-error-icon/> in theLabel
+        if icon matches .opacity-0
+          continue
+        end
+
+        add .opacity-0 .scale-75 .pointer-events-none to icon
+        wait for transitionend from icon or 350ms
+
+        if icon.parentNode
+          remove icon
+        end
+      end
+    end
+  end
+</script>
