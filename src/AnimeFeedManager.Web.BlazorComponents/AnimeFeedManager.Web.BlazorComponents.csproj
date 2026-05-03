@@ -17,12 +17,20 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" />
+      <ProjectReference Include="..\AnimeFeedManager.SourceGenerators\AnimeFeedManager.SourceGenerators.csproj"
+                        OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
     <ItemGroup>
       <AdditionalFiles Include="Charts\ChartContent.razor" />
       <AdditionalFiles Include="Charts\ChartError.razor" />
       <AdditionalFiles Include="Charts\ChartSkeleton.razor" />
+      <AdditionalFiles Include="**\*.razor.hs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <CompilerVisibleProperty Include="RootNamespace" />
+      <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="RelativeDir" />
     </ItemGroup>
 
 </Project>
