@@ -11,6 +11,17 @@
       <ProjectReference Include="..\AnimeFeedManager.ServiceDefaults\AnimeFeedManager.ServiceDefaults.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Services.Shared\AnimeFeedManager.Services.Shared.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
+      <ProjectReference Include="..\AnimeFeedManager.SourceGenerators\AnimeFeedManager.SourceGenerators.csproj"
+                        OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="**\*.razor.hs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <CompilerVisibleProperty Include="RootNamespace" />
+      <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="RelativeDir" />
     </ItemGroup>
 
     <ItemGroup>
