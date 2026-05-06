@@ -1,24 +1,26 @@
-﻿<div x-data="{ 
-            eventDetail: {},
-            checkEvent(event) {
-             if(!event.question) {
-                 event.issueRequest(true);
-                 return;
-             }
-             this.eventDetail = event;
-             $refs.htmxConfirm.showModal();
-                
-            }}">
-    <dialog id="confim-htmx-event" class="modal" @htmx:confirm.window.prevent="checkEvent($event.detail)" x-ref="htmxConfirm" hx-boost="false">
-        <div class="modal-box">
-            <h3 class="font-bold text-lg">Confirmation</h3>
-            <p class="py-4" x-text="eventDetail.question"></p>
-            <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn btn-sm">Cancel</button>
-                    <button class="btn btn-sm btn-primary" @click="eventDetail.issueRequest(true)">Ok</button>
-                </form>
-            </div>
+<dialog id="confim-htmx-event" class="modal" hx-boost="false"
+        _="on htmx:confirm from window
+             halt the event's default
+             if event.detail.question is empty
+               call event.detail.issueRequest(true)
+             else
+               set :detail to event.detail
+               set p to the first <p[data-question-text]/> in me
+               set p's textContent to :detail.question
+               call my showModal()
+             end
+           end
+           on click from <button.btn-primary/>
+             call (:detail).issueRequest(true)
+           end">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg">Confirmation</h3>
+        <p class="py-4" data-question-text></p>
+        <div class="modal-action">
+            <form method="dialog">
+                <button class="btn btn-sm">Cancel</button>
+                <button class="btn btn-sm btn-primary">Ok</button>
+            </form>
         </div>
-    </dialog>
-</div>
+    </div>
+</dialog>
