@@ -10,13 +10,20 @@ These custom events are dispatched from the server via HTMX trigger headers.
 |-------|-------------|---------|-----------------|-------------|
 | `removeSeries` | Triggered after a series is successfully removed from the library | `{ owner: "{cardId}" }` | `LibraryManagement.cs:48-50` (HX-Trigger-After-Swap header) | `SeriesDeleter.razor:11` - Animates and removes the series card from DOM |
 
+## Hyperscript Application Events
+
+Custom events dispatched using hyperscript `send`.
+
+| Event | Description | Payload | Dispatched From | Listened By |
+|-------|-------------|---------|-----------------|-------------|
+| `periodChanged` | Fired when user selects a different time period for charts | `{ value: '7d'\|'14d'\|'30d'\|'60d'\|'90d' }` | `Charts.razor:3` | ChartSkeleton components - triggers chart reload with new period |
+
 ## Alpine.js Application Events
 
 Custom events dispatched using Alpine.js `$dispatch()`.
 
 | Event | Description | Payload | Dispatched From | Listened By |
 |-------|-------------|---------|-----------------|-------------|
-| `period-changed` | Fired when user selects a different time period for charts | `{ value: '7d'\|'14d'\|'30d'\|'60d'\|'90d' }` | `Charts.razor:3` | ChartSkeleton components - triggers chart reload with new period |
 | `filter-changed` | Fired when user changes the grid filter selection | `{ filter: string }` | `GridFilter.razor:13,19,27,33,40,46` (filter button handlers) | `SeriesGrid.razor:12` - updates selectedFilter state, CSS handles show/hide |
 
 ## Authentication Events
@@ -118,14 +125,14 @@ sequenceDiagram
 sequenceDiagram
     participant User
     participant Dropdown as Period Dropdown
-    participant Alpine as Alpine.js
+    participant Hyperscript
     participant Chart as ChartSkeleton
     participant Server
 
     User->>Dropdown: Select new period
-    Dropdown->>Alpine: Change event
-    Alpine->>Alpine: $dispatch('period-changed', { value })
-    Alpine->>Chart: period-changed event
+    Dropdown->>Hyperscript: change event
+    Hyperscript->>Hyperscript: send periodChanged(value: my value) to body
+    Hyperscript->>Chart: periodChanged event (via hx-trigger from:body)
     Chart->>Server: Fetch chart data with period
     Server->>Chart: Return chart HTML
 ```

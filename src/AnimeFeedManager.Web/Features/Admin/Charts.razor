@@ -1,6 +1,7 @@
 <label for="period-selector" class="select mb-2">
     <span class="label">Period</span>
-    <select id="period-selector" class="select" x-data @change="$dispatch('period-changed', { value: $el.value })">
+    <select id="period-selector" class="select"
+            _="on change send periodChanged(value: my value) to body">
         <option value="7d">Last Week</option>
         <option value="14d">Last 2 Weeks</option>
         <option value="30d" selected>Last Month</option>
@@ -14,14 +15,14 @@
     
     <ChartSkeleton ChartId="library-scrap"
                    Endpoint="/admin/charts/scrap-library"
-                   UpdateTriggerEvent="period-changed"/>
+                   UpdateTriggerEvent="periodChanged"/>
 
     <ChartSkeleton ChartId="notifications"
                    Endpoint="/admin/charts/notifications"
-                   UpdateTriggerEvent="period-changed"/>
+                   UpdateTriggerEvent="periodChanged"/>
     
     <ChartSkeleton ChartId="feed-updates"
                    Endpoint="/admin/charts/feed-updates"
-                   UpdateTriggerEvent="period-changed"/>
+                   UpdateTriggerEvent="periodChanged"/>
 </section>
 
