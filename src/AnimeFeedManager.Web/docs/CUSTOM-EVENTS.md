@@ -17,14 +17,7 @@ Custom events dispatched using hyperscript `send`.
 | Event | Description | Payload | Dispatched From | Listened By |
 |-------|-------------|---------|-----------------|-------------|
 | `periodChanged` | Fired when user selects a different time period for charts | `{ value: '7d'\|'14d'\|'30d'\|'60d'\|'90d' }` | `Charts.razor:3` | ChartSkeleton components - triggers chart reload with new period |
-
-## Alpine.js Application Events
-
-Custom events dispatched using Alpine.js `$dispatch()`.
-
-| Event | Description | Payload | Dispatched From | Listened By |
-|-------|-------------|---------|-----------------|-------------|
-| `filter-changed` | Fired when user changes the grid filter selection | `{ filter: string }` | `GridFilter.razor:13,19,27,33,40,46` (filter button handlers) | `SeriesGrid.razor:12` - updates selectedFilter state, CSS handles show/hide |
+| `filterChanged` | Fired when user changes the grid filter selection | `{ filter: string, label: string }` — `filter` is the value (`''`, `'available'`, `'subscribed'`, `'interested'`, `'completed'`, `'not-available'`); `label` is the pre-formatted display text shown in the dropdown trigger | `GridFilter.razor` (per-button click handlers) | `SeriesGrid.razor` — updates root `data-filter` attribute (CSS handles show/hide); `GridFilter.razor` itself — updates the trigger label and the selected-state check icon |
 
 ## Authentication Events
 

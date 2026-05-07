@@ -1,61 +1,90 @@
-@* Inline filter dropdown for filtering series by status *@
-<details class="dropdown dropdown-end" x-data="{ open: false }" x-bind:open="open" x-on:toggle="open = $el.open" x-on:click.outside="open = false">
+@* Inline filter dropdown for filtering series by status.
+   Dispatches filterChanged(filter, label) on body when a filter is picked.
+   SeriesGrid listens and updates its data-filter attribute. *@
+<details class="dropdown dropdown-end"
+         _="on click elsewhere remove @@open from me">
     <summary class="btn btn-soft btn-sm"
              aria-haspopup="true"
              aria-label="Filter series">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
         </svg>
-        <span x-text="selectedFilter ? selectedFilter.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Filter'"></span>
+        <span _="on filterChanged(label) from body put (label or 'Filter') into me">Filter</span>
     </summary>
-    <ul class="dropdown-content menu bg-base-100 rounded-box shadow-xl w-52 p-2 z-10">
+    <ul class="dropdown-content menu bg-base-100 rounded-box shadow-xl w-52 p-2 z-10"
+        _="on filterChanged(filter) from body
+             repeat for ic in <.filter-check/> in me
+               if ic's @@data-filter is (filter or '')
+                 remove @@hidden from ic
+               else
+                 add @@hidden to ic
+               end
+             end">
         <li>
-            <button type="button" x-on:click="$dispatch('filter-changed', { filter: '' }); open = false">
-                @CheckIcon("selectedFilter === ''")
+            <button type="button"
+                    _="on click
+                         send filterChanged(filter: '', label: 'Filter') to body
+                         remove @@open from the closest <details/>">
+                @CheckIcon("", initialSelected: true)
                 All (@FilterCounters.Total)
             </button>
         </li>
         <li>
-            <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'available' }); open = false">
-                @CheckIcon("selectedFilter === 'available'")
+            <button type="button"
+                    _="on click
+                         send filterChanged(filter: 'available', label: 'Available') to body
+                         remove @@open from the closest <details/>">
+                @CheckIcon("available")
                 Available (@FilterCounters.Available)
             </button>
         </li>
         @if (IsAuthenticated)
         {
             <li>
-                <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'subscribed' }); open = false">
-                    @CheckIcon("selectedFilter === 'subscribed'")
+                <button type="button"
+                        _="on click
+                             send filterChanged(filter: 'subscribed', label: 'Subscribed') to body
+                             remove @@open from the closest <details/>">
+                    @CheckIcon("subscribed")
                     Subscribed (@FilterCounters.Subscribed)
                 </button>
             </li>
             <li>
-                <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'interested' }); open = false">
-                    @CheckIcon("selectedFilter === 'interested'")
+                <button type="button"
+                        _="on click
+                             send filterChanged(filter: 'interested', label: 'Interested') to body
+                             remove @@open from the closest <details/>">
+                    @CheckIcon("interested")
                     Interested (@FilterCounters.Interested)
                 </button>
             </li>
         }
         <li>
-            <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'completed' }); open = false">
-                @CheckIcon("selectedFilter === 'completed'")
+            <button type="button"
+                    _="on click
+                         send filterChanged(filter: 'completed', label: 'Completed') to body
+                         remove @@open from the closest <details/>">
+                @CheckIcon("completed")
                 Completed (@FilterCounters.Completed)
             </button>
         </li>
         <li>
-            <button type="button" x-on:click="$dispatch('filter-changed', { filter: 'not-available' }); open = false">
-                @CheckIcon("selectedFilter === 'not-available'")
+            <button type="button"
+                    _="on click
+                         send filterChanged(filter: 'not-available', label: 'Not Available') to body
+                         remove @@open from the closest <details/>">
+                @CheckIcon("not-available")
                 Not Available (@FilterCounters.NotAvailable)
             </button>
         </li>
     </ul>
-    </details>
+</details>
 
 @code {
     [Parameter] public bool IsAuthenticated { get; set; }
-    [Parameter, EditorRequired] public FilterCounters FilterCounters { get; set; } 
-    
-    private static RenderFragment CheckIcon(string condition) => @<span class="size-4" x-show="@condition" x-cloak>
+    [Parameter, EditorRequired] public FilterCounters FilterCounters { get; set; }
+
+    private static RenderFragment CheckIcon(string filter, bool initialSelected = false) => @<span class="size-4 filter-check" data-filter="@filter" hidden="@(!initialSelected)">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4" aria-hidden="true">
             <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
         </svg>
