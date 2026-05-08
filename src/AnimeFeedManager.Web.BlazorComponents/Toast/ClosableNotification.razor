@@ -1,62 +1,8 @@
 ﻿<div
     role="alert"
     class="alert shadow-lg transition-opacity duration-500 min-w-[95vw] md:min-w-[50vw] lg:min-w-[25vw] alert-vertical sm:alert-horizontal @GetAlertTypeClass()"
-    x-data="{ 
-        open: true,
-        isPaused: false,
-        secondsLeft: @((int) CloseTime.TotalSeconds),
-        intervalId: null,
-        
-        startTimeout() {
-            if (this.intervalId) return; // Prevent multiple intervals
-            
-            this.intervalId = setInterval(() => {
-                if (this.isPaused) return; // Skip if paused
-                
-                this.secondsLeft--;
-                
-                if (this.secondsLeft <= 0) {
-                    this.dismiss();
-                }
-            }, 1000);
-        },
-        
-        pauseTimeout() {
-            this.isPaused = true;
-        },
-        
-        resumeTimeout() {
-            this.isPaused = false;
-        },
-        
-        togglePause() {
-            if (this.isPaused) {
-                this.resumeTimeout();
-            } else {
-                this.pauseTimeout();
-            }
-        },
-        
-        stopTimeout() {
-            if (this.intervalId) {
-                clearInterval(this.intervalId);
-                this.intervalId = null;
-            }
-        },
-        
-        dismiss() {
-            this.stopTimeout();
-            this.open = false;
-            
-            // Wait for opacity transition then remove from DOM
-            setTimeout(() => {
-                $el.remove();
-            }, 500); // Match transition duration
-        }
-    }"
-    x-init="startTimeout()"
-    x-bind:class="{ 'opacity-0': !open }"
-    x-show="true"
+    data-close-seconds="@((int) CloseTime.TotalSeconds)"
+    _="@Script"
 >
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
          class="stroke-current hidden md:block shrink-0 w-6 h-6">
@@ -72,29 +18,28 @@
         <!-- Pause/Resume Button with Counter -->
         <button
             type="button"
-            class="btn btn-sm"
-            x-bind:class="{ 'btn-warning': isPaused, 'btn-info': !isPaused }"
-            x-on:click="togglePause()"
-            x-bind:title="isPaused ? 'Resume auto-dismiss' : 'Pause auto-dismiss'"
+            class="btn btn-sm btn-info"
+            data-toast-pause
+            title="Pause auto-dismiss"
         >
             <!-- Pause/Play Icon -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
                  class="w-4 h-4">
                 <!-- Pause Icon (when not paused) -->
-                <path x-show="!isPaused" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <path data-toast-pause-icon stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M10 9v6m4-6v6"></path>
                 <!-- Play Icon (when paused) -->
-                <path x-show="isPaused" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <path data-toast-play-icon hidden stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M14.752 11.168l-6.518-3.759A1 1 0 007 8.359v7.282a1 1 0 001.234.97l6.518-3.759a1 1 0 000-1.74z"></path>
             </svg>
-            <span x-text="secondsLeft + 's'" class="text-xs"></span>
+            <span data-toast-counter class="text-xs"></span>
         </button>
 
         <!-- Dismiss Button -->
         <button
             type="button"
             class="btn btn-secondary btn-sm"
-            x-on:click="dismiss()">
+            data-toast-dismiss>
             Dismiss
         </button>
     </div>
