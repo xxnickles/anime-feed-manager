@@ -10,7 +10,7 @@
                call my showModal()
              end
            end
-           on click from <button.btn-primary/>
+           on click from <button[data-confirm-ok]/> in me
              call (:detail).issueRequest(true)
            end">
     <div class="modal-box">
@@ -19,7 +19,7 @@
         <div class="modal-action">
             <form method="dialog">
                 <button class="btn btn-sm">Cancel</button>
-                <button class="btn btn-sm btn-primary">Ok</button>
+                <button class="btn btn-sm btn-primary" data-confirm-ok>Ok</button>
             </form>
         </div>
     </div>
