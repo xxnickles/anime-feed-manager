@@ -13,11 +13,8 @@
                        if no el exit end
                        set wrapper to el.closest('.card-filter-wrapper')
                        if no wrapper set wrapper to el end
-                       add .opacity-0 to wrapper
-                       add .scale-65 to wrapper
-                       add .transition to wrapper
-                       add .duration-250 to wrapper
-                       wait 251ms
+                       add .opacity-0 .scale-65 .transition .duration-250 to wrapper
+                       wait for transitionend from wrapper or 251ms
                        remove wrapper">
             <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
             <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>

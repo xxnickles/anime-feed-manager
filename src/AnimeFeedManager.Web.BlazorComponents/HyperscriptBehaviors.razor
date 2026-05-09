@@ -69,7 +69,7 @@
   end
 
   behavior InvalidCleaner
-    on input from <input,select,textarea/>
+    on input from <input,select,textarea/> in me
       if target matches .invalid
         remove .invalid from target
       end
