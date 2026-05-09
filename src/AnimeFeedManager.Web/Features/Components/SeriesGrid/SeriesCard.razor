@@ -1,20 +1,16 @@
-﻿@if (SeriesInfo is not null)
+@if (SeriesInfo is not null)
 {
     <article id="@Id" class="card card-side bg-base-100 image-full shadow-sm group
-        hover:shadow-xl transition-all duration-300 overflow-hidden series-card aspect-3/4"
-        x-data="{ showImage: false }">
+        hover:shadow-xl transition-all duration-300 overflow-hidden series-card aspect-3/4">
         <figure class="overflow-hidden">
-            <img :class="showImage
-                    ? 'brightness-100 scale-100'
-                    : 'brightness-[0.20]! group-hover:brightness-[0.6]! group-hover:scale-105'" alt="@SeriesInfo.Title" class="transition-all duration-300" loading="lazy" src="@SeriesInfo.ImageUrl" />
+            <img alt="@SeriesInfo.Title" class="series-card-image transition-all duration-300" loading="lazy" src="@SeriesInfo.ImageUrl" />
         </figure>
         <div class="card-body min-w-0 flex flex-col overflow-hidden">
             <div id="@LoaderId" class="absolute top-0 right-0 mr-3 mt-1 opacity-0 htmx-indicator">
                 <span class="loading loading-spinner"></span>
             </div>
 
-            <div class="transition-opacity duration-300 flex flex-col min-h-0 flex-1 overflow-hidden"
-                 :class="showImage ? 'opacity-0' : 'opacity-100'">
+            <div class="series-card-content transition-opacity duration-300 flex flex-col min-h-0 flex-1 overflow-hidden">
                 <h2 class="card-title text-primary font-bold text-lg wrap-break-word shrink-0
             group-hover:[text-shadow:1px_1px_0_black,-1px_-1px_0_black,1px_-1px_0_black,-1px_1px_0_black] mb-2">
                     @SeriesInfo.Title
@@ -42,14 +38,13 @@
             @if (CardControls is not null)
             {
                 <div class="card-actions items-center justify-between mt-auto">
-                    <div class="tooltip tooltip-right" :data-tip="showImage ? 'Show content' : 'Show image'">
-                        <button class="btn btn-circle btn-sm"
-                                :class="showImage ? 'btn-info' : 'btn-ghost'"
-                                @click="showImage = !showImage"
-                                :aria-label="showImage ? 'Show content' : 'Show image'"
-                                :aria-pressed="showImage">
+                    <div class="tooltip tooltip-right" data-tip="Show image" data-card-tooltip>
+                        <button class="btn btn-circle btn-sm btn-ghost"
+                                aria-label="Show image"
+                                aria-pressed="false"
+                                _="@Script">
                             <!-- Eye icon (shown when image is hidden) -->
-                            <svg x-show="!showImage" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            <svg data-icon="eye" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  stroke-width="1.5" stroke="currentColor" class="size-5" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                       d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/>
@@ -57,7 +52,7 @@
                                       d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                             </svg>
                             <!-- Eye slash icon (shown when image is visible) -->
-                            <svg x-show="showImage" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            <svg data-icon="eye-off" hidden xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                  stroke-width="1.5" stroke="currentColor" class="size-5" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                       d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"/>

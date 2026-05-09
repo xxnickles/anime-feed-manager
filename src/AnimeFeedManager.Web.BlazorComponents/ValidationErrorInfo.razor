@@ -15,7 +15,7 @@
              role="img"
              aria-label="Validation error: @GetValidationErrorMessage()"
              aria-describedby="@($"validation-error-{FieldIdentifier.FieldName}")"
-             x-on:keydown.space.prevent>
+             _="on keydown[key is ' '] halt the event's default">
             <path fill-rule="evenodd" d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" clip-rule="evenodd" />
         </svg>
         
