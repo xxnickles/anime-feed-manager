@@ -7,15 +7,18 @@
                   data-role="remove-series"
                   hx-indicator="@Model.LoaderSelector"
                   hx-confirm="@($"Do you want remove {Model.SeriesTitle}?")"
-                  x-data
-                  x-on:remove-series="
-                    const owner = $event.detail?.owner;
-                    if(!owner) return;
-                    const el = document.getElementById(owner);
-                    if (!el) return;
-                    const wrapper = el.closest('.card-filter-wrapper') ?? el;
-                    wrapper.classList.add('opacity-0','scale-65','transition','duration-250');
-                    setTimeout(() => wrapper.remove(), 251);">
+                  _="on removeSeries(owner) from body
+                       if no owner exit end
+                       set el to document.getElementById(owner)
+                       if no el exit end
+                       set wrapper to el.closest('.card-filter-wrapper')
+                       if no wrapper set wrapper to el end
+                       add .opacity-0 to wrapper
+                       add .scale-65 to wrapper
+                       add .transition to wrapper
+                       add .duration-250 to wrapper
+                       wait 251ms
+                       remove wrapper">
             <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
             <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>
             <input type="hidden" name="@nameof(Model.Season)" value="@Model.Season"/>

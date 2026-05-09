@@ -1,0 +1,21 @@
+.series-card-image {
+    filter: brightness(0.2);
+}
+
+.group:hover > figure .series-card-image {
+    filter: brightness(0.6);
+    transform: scale(1.05);
+}
+
+.series-card[data-show-image] .series-card-image {
+    filter: brightness(1) !important;
+    transform: scale(1) !important;
+}
+
+.series-card-content {
+    opacity: 1;
+}
+
+.series-card[data-show-image] .series-card-content {
+    opacity: 0;
+}
