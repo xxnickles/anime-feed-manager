@@ -25,7 +25,7 @@ Custom events bridging client-side auth flows with HTMX form submission.
 
 | Event | Description | Payload | Dispatched From | Listened By |
 |-------|-------------|---------|-----------------|-------------|
-| `loginComplete` | Fired after successful passwordless authentication verification | - | `LoginForm.razor:37` (Alpine.js `CustomEvent`) | `LoginForm.razor:5` - HTMX `hx-trigger` submits the login form to the server |
+| `loginComplete` | Fired after successful passwordless authentication verification | - | `LoginForm.razor.hs` (hyperscript `send loginComplete to me`) | `LoginForm.razor:5` - HTMX `hx-trigger` submits the login form to the server |
 
 ## SignalR Connection Events
 
@@ -56,30 +56,13 @@ Standard HTMX events used by the application.
 
 | Event | Description | Listened By | Purpose |
 |-------|-------------|-------------|---------|
-| `htmx:confirm` | Fired when HTMX needs user confirmation | `form-submit-locker.js:307`, `AlternativeTitlesEditor.razor:11` | Tracks form submission confirmation flow |
-| `htmx:beforeRequest` | Fired before an HTMX request is sent | `form-submit-locker.js:308` | Disables submit button, sets aria-busy state |
-| `htmx:afterRequest` | Fired after an HTMX request completes | `form-submit-locker.js:309` | Resets submit button state |
-| `htmx:responseError` | Fired on HTTP error responses (4xx, 5xx) | `form-submit-locker.js:311`, `htmx-error-alert.js:164` | Resets form state, displays error alerts |
-| `htmx:sendError` | Fired on network errors | `form-submit-locker.js:312`, `htmx-error-alert.js:178` | Resets form state, displays network error alerts |
+| `htmx:confirm` | Fired when HTMX needs user confirmation | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior), `HtmxConfirm.razor` (shared dialog), `AlternativeTitlesEditor.razor.hs` | Tracks form submission confirmation flow; the shared HtmxConfirm dialog handles `event.detail.question` prompts |
+| `htmx:beforeRequest` | Fired before an HTMX request is sent | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior) | Disables submit button, sets aria-busy state |
+| `htmx:afterRequest` | Fired after an HTMX request completes | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior) | Resets submit button state |
+| `htmx:responseError` | Fired on HTTP error responses (4xx, 5xx) | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior), `htmx-error-alert.js:164` | Resets form state, displays error alerts |
+| `htmx:sendError` | Fired on network errors | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior), `htmx-error-alert.js:178` | Resets form state, displays network error alerts |
 | `htmx:timeout` | Fired when a request times out | `htmx-error-alert.js:185` | Displays timeout warning alert |
-| `htmx:halted` | Fired when a request is cancelled | `form-submit-locker.js:314` | Resets submit button state |
-
-## Form Submission Events (Custom Plugin)
-
-Custom events used by the `form-submit-locker` Alpine.js plugin.
-
-| Event | Description | Handler |
-|-------|-------------|---------|
-| `ajax:success` | AJAX request completed successfully | Resets submit button state |
-| `ajax:error` | AJAX request failed | Resets submit button state |
-| `submit:success` | Form submission succeeded | Resets submit button state |
-| `submit:error` | Form submission failed | Resets submit button state |
-
-## Alpine.js Initialization
-
-| Event | Description | Files Registering |
-|-------|-------------|-------------------|
-| `alpine:init` | Fired when Alpine.js is initialized | `content-limit.js:77`, `form-submit-locker.js:405`, `invalid-cleaner.js:75` |
+| `htmx:halted` | Fired when a request is cancelled | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior) | Resets submit button state |
 
 ## Web Components
 
@@ -98,7 +81,7 @@ sequenceDiagram
     participant SeriesDeleter as SeriesDeleter.razor
     participant HTMX
     participant Server as LibraryManagement.cs
-    participant FormLocker as form-submit-locker.js
+    participant FormLocker as HyperscriptBehaviors.razor (FormSubmitLocker)
 
     User->>SeriesDeleter: Click remove button
     SeriesDeleter->>HTMX: POST request
