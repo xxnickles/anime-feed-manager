@@ -1,7 +1,9 @@
+using AnimeFeedManager.Features.Scrapping.Jikan;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http.Resilience;
 using PuppeteerSharp;
 using PuppeteerSharp.BrowserData;
 
@@ -59,6 +61,24 @@ public static class Registration
 
         serviceCollection.TryAddScoped<ISeasonFeedDataProvider, SeasonFeedDataProvider>();
         serviceCollection.TryAddScoped<INewReleaseProvider, NewReleaseProvider>();
+        return serviceCollection;
+    }
+
+    public static IServiceCollection RegisterJikanServices(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddHttpClient<IJikanClient, JikanClient>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.jikan.moe/v4/");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("AnimeFeedManager/1.0");
+            })
+            .AddStandardResilienceHandler(options =>
+            {
+                options.Retry.MaxRetryAttempts = 3;
+                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(60);
+                options.RateLimiter.DefaultRateLimiterOptions.PermitLimit = 2;
+                options.RateLimiter.DefaultRateLimiterOptions.QueueLimit = 0;
+            });
         return serviceCollection;
     }
 }

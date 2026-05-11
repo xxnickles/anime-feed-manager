@@ -1,0 +1,19 @@
+{
+  "pagination": {
+    "last_visible_page": 2,
+    "has_next_page": false,
+    "current_page": 2,
+    "items": { "count": 1, "total": 3, "per_page": 2 }
+  },
+  "data": [
+    {
+      "title": "Page2Series1",
+      "synopsis": "Synopsis for the lone entry on page 2.",
+      "images": { "jpg": { "large_image_url": "https://example.test/p2s1.jpg" } },
+      "aired": { "from": "2026-04-03T00:00:00+00:00", "string": "Apr 3, 2026 to ?" },
+      "season": "spring",
+      "year": 2026,
+      "type": "TV"
+    }
+  ]
+}
