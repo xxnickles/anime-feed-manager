@@ -7,9 +7,9 @@
 Anime Feed Manager
 =================
 
-Simple Personal Feed Manager / Anime Season Library that uses [AniDb](https://anidb.net/) and [SubsPlease](https://subsplease.org/schedule/) as data sources. Backend powered by [Azure Functions (isolated worker)](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide) and Azure Storage (Tables/Queues).
+Simple Personal Feed Manager / Anime Season Library. TV series metadata comes from the [Jikan v4](https://jikan.moe/) public API; episode feed titles come from [SubsPlease](https://subsplease.org/schedule/), scraped via a headless Chrome container. Backend powered by [Azure Functions (isolated worker)](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide) and Azure Storage (Tables/Queues).
 
-**Blazor SSR (AnimeFeedManager.Web):** The web application uses Blazor SSR with [HTMX](https://htmx.org/) and [AlpineJS](https://alpinejs.dev/) for client interaction.
+**Blazor SSR (AnimeFeedManager.Web):** The web application uses Blazor SSR with [HTMX](https://htmx.org/) and [hyperscript](https://hyperscript.org/) for client interaction.
 
 ## Dev Requirements
 

@@ -38,15 +38,4 @@ internal static class Utils
 
         return true;
     }
-
-    internal static string CreateScrappingLink(SeasonSelector season)
-    {
-        return season switch
-        {
-            Latest => "https://anidb.net/anime/season/?type.tvseries=1",
-            BySeason s =>
-                $"https://anidb.net/anime/season/{s.Year}/{s.Season.ToAlternativeString()}/?do=calendar&h=1&type.tvseries=1",
-            _ => throw new UnreachableException()
-        };
-    }
 }
