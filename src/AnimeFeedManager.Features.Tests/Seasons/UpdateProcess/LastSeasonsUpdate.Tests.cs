@@ -88,6 +88,6 @@ public class LastSeasonsUpdateTests
         }
 
         Task<Result<ImmutableArray<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
-            Task.FromResult(Result<ImmutableArray<SeriesSeason>>.Success(seasons.ToImmutableArray()));
+            Task.FromResult(Result<ImmutableArray<SeriesSeason>>.Success([..seasons]));
     }
 }

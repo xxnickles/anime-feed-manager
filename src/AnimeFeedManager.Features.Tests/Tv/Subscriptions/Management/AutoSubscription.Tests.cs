@@ -303,7 +303,7 @@ public class AutoSubscriptionTests
 
         Task<Result<ImmutableArray<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) =>
             Task.FromResult(
-                Result<ImmutableArray<SubscriptionStorage>>.Success(ImmutableArray.Create(interestedSubscription)));
+                Result<ImmutableArray<SubscriptionStorage>>.Success([interestedSubscription]));
     }
 
     [Fact]

@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Scrapping.SubsPlease;
+﻿using AnimeFeedManager.Features.Scrapping.Jikan;
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 
@@ -15,25 +16,25 @@ internal sealed class TvLibraryScrapper : ITvLibraryScrapper
 {
     private readonly ISeasonFeedDataProvider _seasonFeedDataProvider;
     private readonly ITableClientFactory _tableClientFactory;
-    private readonly PuppeteerOptions _puppeteerOptions;
+    private readonly IJikanClient _jikanClient;
     private readonly TimeProvider _timeProvider;
 
     public TvLibraryScrapper(
         ISeasonFeedDataProvider seasonFeedDataProvider,
         ITableClientFactory tableClientFactory,
-        PuppeteerOptions puppeteerOptions,
+        IJikanClient jikanClient,
         TimeProvider timeProvider)
     {
         _seasonFeedDataProvider = seasonFeedDataProvider;
         _tableClientFactory = tableClientFactory;
-        _puppeteerOptions = puppeteerOptions;
+        _jikanClient = jikanClient;
         _timeProvider = timeProvider;
     }
 
     public Task<Result<ScrapTvLibraryData>> ScrapTvSeries(SeasonSelector season, CancellationToken token = default)
     {
         return _seasonFeedDataProvider.Get()
-            .ScrapSeries(season, _puppeteerOptions)
+            .ScrapSeries(_jikanClient, season, token)
             .AddDataFromStorage(
                 _tableClientFactory.TableStorageExistentStoredSeries,
                 _timeProvider,

@@ -28,6 +28,8 @@ internal static class Registration
             downloadToProjectFolder: downloadChromiumToProjectFolder,
             runHeadless: runHeadless);
 
+        builder.Services.RegisterJikanServices();
+
         builder.Services.AddScoped<HtmlRenderer>();
         builder.Services.AddScoped<BlazorRenderer>();
 

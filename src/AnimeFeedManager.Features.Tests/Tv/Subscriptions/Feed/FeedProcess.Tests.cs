@@ -481,7 +481,7 @@ public class FeedProcessTests
         var subscriptions = subscribedSeries
             .Select(series =>
             {
-                var notifiedEpisodes = notifiedEpisodesByTitle?.GetValueOrDefault(series) ?? Array.Empty<string>();
+                var notifiedEpisodes = notifiedEpisodesByTitle?.GetValueOrDefault(series) ?? [];
                 var seriesId = series.Replace(" ", "-").ToLowerInvariant();
                 return new ActiveSubscription(seriesId, series, notifiedEpisodes);
             })
@@ -519,7 +519,7 @@ public class FeedProcessTests
 
     private class TestPostman
     {
-        public List<FeedNotification> SentNotifications { get; } = new();
+        public List<FeedNotification> SentNotifications { get; } = [];
 
         public DomainCollectionSender Delegate => (messages, cancellationToken) =>
         {
