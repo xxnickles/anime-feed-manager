@@ -26,7 +26,8 @@ public sealed record TvSeries(
     string? FeedUrl,
     string[] AlternativeTitles,
     SeriesStatus Status,
-    Uri? Image);
+    Uri? Image,
+    DateTimeOffset? LastUpdated);
 
 public delegate Task<Result<ImmutableArray<TvSeriesInfo>>> StoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
@@ -139,7 +140,8 @@ public static class ExistentSeries
         entity.FeedLink,
         ConvertAlternativeTitles(entity.AlternativeTitles),
         (SeriesStatus) entity.Status,
-        entity.ImagePath is not null ? GetUri(publicBlobUri, entity.ImagePath) : null);
+        entity.ImagePath is not null ? GetUri(publicBlobUri, entity.ImagePath) : null,
+        entity.Timestamp);
 
     private static Uri GetUri(Uri publicBlobUri, string imagePath)
     {

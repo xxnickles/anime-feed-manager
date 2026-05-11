@@ -33,6 +33,13 @@
                         </span>
                     }
                 </p>
+
+                @if (SeriesInfo.LastUpdated is not null)
+                {
+                    <span class="text-xs opacity-60 shrink-0 mt-2">
+                        Updated @SeriesInfo.LastUpdated.Value.ToString("yyyy-MM-dd")
+                    </span>
+                }
             </div>
 
             @if (CardControls is not null)
