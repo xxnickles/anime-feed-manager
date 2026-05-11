@@ -48,7 +48,7 @@ dotnet run --project AnimeFeedmanager.AspireHost
 This starts all services with proper configuration, including:
 - Azurite (Azure Storage emulator)
 - Azure SignalR emulator
-- Browserless Chrome container (for web scraping)
+- Browserless Chrome container (for SubsPlease feed scraping)
 - Frontend asset watch (Tailwind CSS/JS)
 - Functions backend
 - Web application
