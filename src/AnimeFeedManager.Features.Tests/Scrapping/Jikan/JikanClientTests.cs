@@ -18,9 +18,10 @@ public class JikanClientTests
 
         var result = await client.GetCurrentSeason(CancellationToken.None);
 
+        // Fixture has 25 entries; one mal_id appears twice (Jikan API quirk) → client dedupes to 24
         result.AssertOnSuccess(items =>
         {
-            Assert.Equal(25, items.Length);
+            Assert.Equal(24, items.Length);
             Assert.False(string.IsNullOrWhiteSpace(items[0].Title));
             Assert.EndsWith(".jpg", items[0].Images.Jpg.LargeImageUrl);
         });
@@ -37,9 +38,10 @@ public class JikanClientTests
 
         var result = await client.GetSeason(2026, "spring", CancellationToken.None);
 
+        // Fixture has 25 entries; one mal_id appears twice (Dr. Stone) → client dedupes to 24
         result.AssertOnSuccess(items =>
         {
-            Assert.Equal(25, items.Length);
+            Assert.Equal(24, items.Length);
             Assert.False(string.IsNullOrWhiteSpace(items[0].Title));
             Assert.EndsWith(".jpg", items[0].Images.Jpg.LargeImageUrl);
         });
@@ -56,10 +58,38 @@ public class JikanClientTests
 
         var result = await client.GetSeason(2026, "summer", CancellationToken.None);
 
+        // Fixture has 25 entries; two mal_ids duplicated → client dedupes to 23
         result.AssertOnSuccess(items =>
         {
-            Assert.Equal(25, items.Length);
+            Assert.Equal(23, items.Length);
             Assert.Contains(handler.Requests, r => r.RequestUri!.AbsolutePath.Contains("/seasons/2026/summer"));
+        });
+    }
+
+    [Fact]
+    public async Task Duplicate_MalIds_Are_Deduplicated()
+    {
+        const string duplicatePayload = """
+            {
+              "pagination": { "has_next_page": false, "current_page": 1 },
+              "data": [
+                { "mal_id": 1, "title": "A", "images": { "jpg": { "large_image_url": "https://example.test/a.jpg" } }, "type": "TV" },
+                { "mal_id": 2, "title": "B", "images": { "jpg": { "large_image_url": "https://example.test/b.jpg" } }, "type": "TV" },
+                { "mal_id": 1, "title": "A", "images": { "jpg": { "large_image_url": "https://example.test/a.jpg" } }, "type": "TV" }
+              ]
+            }
+            """;
+
+        var handler = new QueuedResponseHandler(JikanTestResponses.FromJson(duplicatePayload));
+        var client = CreateClient(handler);
+
+        var result = await client.GetCurrentSeason(CancellationToken.None);
+
+        result.AssertOnSuccess(items =>
+        {
+            Assert.Equal(2, items.Length);
+            Assert.Equal(1, items[0].MalId);
+            Assert.Equal(2, items[1].MalId);
         });
     }
 
@@ -107,7 +137,7 @@ public class JikanClientTests
 internal sealed class QueuedResponseHandler : HttpMessageHandler
 {
     private readonly Queue<HttpResponseMessage> _responses;
-    public List<HttpRequestMessage> Requests { get; } = new();
+    public List<HttpRequestMessage> Requests { get; } = [];
 
     public QueuedResponseHandler(params HttpResponseMessage[] responses)
         => _responses = new Queue<HttpResponseMessage>(responses);

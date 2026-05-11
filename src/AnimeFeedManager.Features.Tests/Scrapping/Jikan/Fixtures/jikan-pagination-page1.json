@@ -7,6 +7,7 @@
   },
   "data": [
     {
+      "mal_id": 1001,
       "title": "Page1Series1",
       "synopsis": "Synopsis for the first entry on page 1.",
       "images": { "jpg": { "large_image_url": "https://example.test/p1s1.jpg" } },
@@ -16,6 +17,7 @@
       "type": "TV"
     },
     {
+      "mal_id": 1002,
       "title": "Page1Series2",
       "synopsis": "Synopsis for the second entry on page 1.",
       "images": { "jpg": { "large_image_url": "https://example.test/p1s2.jpg" } },

@@ -1,6 +1,6 @@
 namespace AnimeFeedManager.Features.Scrapping.Jikan;
 
-internal interface IJikanClient
+public interface IJikanClient
 {
     Task<Result<ImmutableArray<JikanAnime>>> GetCurrentSeason(CancellationToken token = default);
 
@@ -52,9 +52,21 @@ internal sealed class JikanClient : IJikanClient
                 page++;
             }
 
-            var entries = builder.DrainToImmutable();
-            _logger.LogInformation("Retrieved {Count} entries from Jikan {Path}", entries.Length, path);
-            return entries;
+            var raw = builder.DrainToImmutable();
+            var deduped = raw
+                .GroupBy(a => a.MalId)
+                .Select(g => g.First())
+                .ToImmutableArray();
+
+            if (raw.Length != deduped.Length)
+            {
+                _logger.LogWarning(
+                    "Jikan returned {DuplicateCount} duplicate entries for {Path}; deduplicated by mal_id",
+                    raw.Length - deduped.Length, path);
+            }
+
+            _logger.LogInformation("Retrieved {Count} entries from Jikan {Path}", deduped.Length, path);
+            return deduped;
         }
         catch (Exception e)
         {

@@ -165,7 +165,7 @@ public class FeedTitlesScrapTests
 
     private sealed class TestDomainPostman
     {
-        public readonly List<DomainMessage> Sent = new();
+        public readonly List<DomainMessage> Sent = [];
 
         public DomainCollectionSender Delegate => (messages, cancellationToken) =>
         {

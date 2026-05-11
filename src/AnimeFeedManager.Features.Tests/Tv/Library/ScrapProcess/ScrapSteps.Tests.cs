@@ -49,7 +49,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     "Test Anime",
                     "Test Anime Feed",
                     "https://example.com/test-anime-feed",
-                    new[] { "Alt Title 1", "Alt Title 2" },
+                    ["Alt Title 1", "Alt Title 2"],
                     SeriesStatus.Ongoing()));
             
             // Setup StoredSeriesGetter fake
@@ -135,8 +135,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
         [Fact]
         internal async Task Should_Set_Status_Completed_When_Exist_And_Is_OldSeason_And_NoMatchingFeed()
         {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, Array.Empty<string>(), SeriesStatus.NotAvailable());
-            await OldSeasonVerification(ImmutableArray.Create(storedSeries));
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, [], SeriesStatus.NotAvailable());
+            await OldSeasonVerification([storedSeries]);
         }
 
         private async Task OldSeasonVerification(ImmutableArray<TvSeriesInfo> dbSeries)
@@ -157,7 +157,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 Status = SeriesStatus.NotAvailableValue
             }, new NoImage(), Status.NewSeries);
 
-            var scrapData = new ScrapTvLibraryData(ImmutableArray.Create(processSeries), feedTitles, seriesSeason);
+            var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
             var resultScrapData = Result<ScrapTvLibraryData>.Success(scrapData);
             var initialData = Task.FromResult(resultScrapData);
 

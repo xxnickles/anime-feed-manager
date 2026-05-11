@@ -8,7 +8,8 @@ internal sealed record JikanPagination(
     [property: JsonPropertyName("has_next_page")] bool HasNextPage,
     [property: JsonPropertyName("current_page")] int CurrentPage);
 
-internal sealed record JikanAnime(
+public sealed record JikanAnime(
+    [property: JsonPropertyName("mal_id")] int MalId,
     [property: JsonPropertyName("title")] string Title,
     [property: JsonPropertyName("synopsis")] string? Synopsis,
     [property: JsonPropertyName("images")] JikanImages Images,
@@ -17,12 +18,12 @@ internal sealed record JikanAnime(
     [property: JsonPropertyName("year")] int? Year,
     [property: JsonPropertyName("type")] string? Type);
 
-internal sealed record JikanImages(
+public sealed record JikanImages(
     [property: JsonPropertyName("jpg")] JikanImagesJpg Jpg);
 
-internal sealed record JikanImagesJpg(
+public sealed record JikanImagesJpg(
     [property: JsonPropertyName("large_image_url")] string? LargeImageUrl);
 
-internal sealed record JikanAired(
+public sealed record JikanAired(
     [property: JsonPropertyName("from")] DateTime? From,
     [property: JsonPropertyName("string")] string? String);

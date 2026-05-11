@@ -93,7 +93,7 @@ public class EventSendingTests
 
     private sealed class TestDomainPostman
     {
-        public readonly List<DomainMessage> Sent = new();
+        public readonly List<DomainMessage> Sent = [];
         public bool FailOnFirstSend { get; set; }
         private bool _firstCallDone;
 
@@ -133,6 +133,6 @@ public class EventSendingTests
         var feedData = feedTitles
             .Select(title => new FeedData(title, $"https://example.com/{title.ToLowerInvariant().Replace(" ", "-")}"))
             .ToImmutableArray();
-        return new ScrapTvLibraryData(items.ToImmutableArray(), feedData, season);
+        return new ScrapTvLibraryData([..items], feedData, season);
     }
 }
