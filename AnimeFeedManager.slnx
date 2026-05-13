@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Features/">
+    <Project Path="src/AnimeFeedManager.Features/AnimeFeedManager.Features.csproj" />
+  </Folder>
+  <Folder Name="/Infra/">
+    <Project Path="src/AnimeFeedManager.Infrastructure.Generators/AnimeFeedManager.Infrastructure.Generators.csproj" />
+    <Project Path="src\AnimeFeedManager.Infrastructure\AnimeFeedManager.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="src/AnimeFeedManager.Shared/AnimeFeedManager.Shared.csproj" />
+    <Project Path="src/AnimeFeedManager.SourceGenerators/AnimeFeedManager.SourceGenerators.csproj" />
+    <Project Path="tests/AnimeFeedManager.Shared.Tests/AnimeFeedManager.Shared.Tests.csproj" />
+  </Folder>
+</Solution>
