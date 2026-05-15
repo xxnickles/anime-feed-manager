@@ -1,0 +1,10 @@
+global using System.Collections.Immutable;
+global using AnimeFeedManager.Features.Library.Import.Jikan;
+global using AnimeFeedManager.Features.Library.Import.Jikan.Types;
+global using AnimeFeedManager.Shared.Results;
+global using AnimeFeedManager.Shared.Results.Errors;
+global using AnimeFeedManager.Shared.Results.Static;
+global using AnimeFeedManager.Shared.Types;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Logging.Abstractions;
+global using Xunit;

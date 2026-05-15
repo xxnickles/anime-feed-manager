@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Features/">
     <Project Path="src/AnimeFeedManager.Features/AnimeFeedManager.Features.csproj" />
+    <Project Path="tests/AnimeFeedManager.Features.Tests/AnimeFeedManager.Features.Tests.csproj" />
   </Folder>
   <Folder Name="/Infra/">
     <Project Path="src/AnimeFeedManager.Infrastructure.Generators/AnimeFeedManager.Infrastructure.Generators.csproj" />

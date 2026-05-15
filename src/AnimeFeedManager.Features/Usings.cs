@@ -1,0 +1,9 @@
+global using System.Collections.Immutable;
+global using System.Runtime.CompilerServices;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
+global using AnimeFeedManager.Shared.Results;
+global using AnimeFeedManager.Shared.Results.Errors;
+global using AnimeFeedManager.Shared.Types;
