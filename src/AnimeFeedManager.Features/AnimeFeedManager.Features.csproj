@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Shared\AnimeFeedManager.Shared.csproj" />
+    <ProjectReference Include="..\AnimeFeedManager.Infrastructure\AnimeFeedManager.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

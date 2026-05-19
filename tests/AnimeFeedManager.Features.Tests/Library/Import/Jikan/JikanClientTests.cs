@@ -92,9 +92,7 @@ public sealed class JikanClientTests
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
         {
-#pragma warning disable xUnit1051
             await foreach (var _ in host.Client.GetSeason(SpringYear, SpringSeason, cts.Token))
-#pragma warning restore xUnit1051
             {
             }
         });

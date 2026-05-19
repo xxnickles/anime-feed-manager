@@ -10,7 +10,10 @@ namespace AnimeFeedManager.Infrastructure.Generators.CosmosRegistry;
 /// <summary>
 /// Incremental source generator that:
 /// 1. Scans all referenced assemblies for [CosmosEntity] decorated types
-/// 2. Generates CosmosContainerRegistry with the aggregated mappings
+/// 2. Expands [JsonDerivedType] on each [CosmosEntity]-decorated type, registering every
+///    listed derived type against the base's container/PK (unless the derived type carries
+///    its own [CosmosEntity], which overrides the inherited mapping)
+/// 3. Generates CosmosContainerRegistry with the aggregated mappings
 ///
 /// Usage: Reference this generator from your composition root (e.g., Functions project).
 /// The generated registry should be passed to AddCosmosInfrastructure().
@@ -19,6 +22,8 @@ namespace AnimeFeedManager.Infrastructure.Generators.CosmosRegistry;
 public class CosmosRegistryGenerator : IIncrementalGenerator
 {
     private const string AttributeShortName = "CosmosEntityAttribute";
+    private const string JsonDerivedTypeAttributeShortName = "JsonDerivedTypeAttribute";
+    private const string JsonDerivedTypeAttributeNamespace = "System.Text.Json.Serialization";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -142,12 +147,6 @@ public class CosmosRegistryGenerator : IIncrementalGenerator
         if (typeSymbol.TypeKind != TypeKind.Class)
             return;
 
-        var fullTypeName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        // Skip if we've already seen this type (avoids duplicates from scanning multiple sources)
-        if (!seenTypes.Add(fullTypeName))
-            return;
-
         foreach (var attribute in typeSymbol.GetAttributes())
         {
             if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeSymbol))
@@ -163,12 +162,79 @@ public class CosmosRegistryGenerator : IIncrementalGenerator
             if (string.IsNullOrEmpty(containerName) || string.IsNullOrEmpty(partitionKeyPath))
                 continue;
 
+            var fullTypeName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            // Skip if we've already registered this type (cross-source dedup, or already
+            // emitted as a derived expansion from another base's [JsonDerivedType])
+            if (!seenTypes.Add(fullTypeName))
+                return;
+
             entities.Add(new EntityInfo(
                 typeName: typeSymbol.Name,
                 fullTypeName: fullTypeName,
                 containerName: containerName!,
                 partitionKeyPath: partitionKeyPath!));
+
+            AddDerivedEntries(typeSymbol, attributeSymbol, containerName!, partitionKeyPath!, entities, seenTypes);
         }
+    }
+
+    /// <summary>
+    /// Expands [JsonDerivedType] attributes on a [CosmosEntity]-decorated base type and emits
+    /// a registry entry for each listed derived type under the base's container/PK.
+    /// Skips derived types that carry their own [CosmosEntity] — their declared mapping wins.
+    /// </summary>
+    private static void AddDerivedEntries(
+        INamedTypeSymbol baseTypeSymbol,
+        INamedTypeSymbol cosmosEntityAttributeSymbol,
+        string containerName,
+        string partitionKeyPath,
+        List<EntityInfo> entities,
+        HashSet<string> seenTypes)
+    {
+        foreach (var attribute in baseTypeSymbol.GetAttributes())
+        {
+            var attrClass = attribute.AttributeClass;
+            if (attrClass is null)
+                continue;
+            if (attrClass.Name != JsonDerivedTypeAttributeShortName)
+                continue;
+            if (attrClass.ContainingNamespace?.ToDisplayString() != JsonDerivedTypeAttributeNamespace)
+                continue;
+
+            var args = attribute.ConstructorArguments;
+            if (args.Length < 1)
+                continue;
+
+            if (args[0].Value is not INamedTypeSymbol derivedType)
+                continue;
+
+            // Override semantics: a derived type with its own [CosmosEntity] declares its own
+            // mapping; don't double-register here. The normal scan will pick up its attribute.
+            if (HasCosmosEntityAttribute(derivedType, cosmosEntityAttributeSymbol))
+                continue;
+
+            var derivedFullName = derivedType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            if (!seenTypes.Add(derivedFullName))
+                continue;
+
+            entities.Add(new EntityInfo(
+                typeName: derivedType.Name,
+                fullTypeName: derivedFullName,
+                containerName: containerName,
+                partitionKeyPath: partitionKeyPath));
+        }
+    }
+
+    private static bool HasCosmosEntityAttribute(INamedTypeSymbol typeSymbol, INamedTypeSymbol attributeSymbol)
+    {
+        foreach (var attribute in typeSymbol.GetAttributes())
+        {
+            if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeSymbol))
+                return true;
+        }
+        return false;
     }
 
     private static Dictionary<string, (string PartitionKey, EntityInfo FirstEntity)> ValidateEntities(
