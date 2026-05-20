@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using AnimeFeedManager.Features.Library.Import.Jikan.Types;
 using AnimeFeedManager.Features.Library.Types;
 using AnimeFeedManager.Shared.Results.Static;
+using static AnimeFeedManager.Features.Library.Import.Jikan.Parsing.JikanParsers;
 
 namespace AnimeFeedManager.Features.Library.Import.Jikan.Mappers;
 
@@ -12,7 +13,7 @@ namespace AnimeFeedManager.Features.Library.Import.Jikan.Mappers;
 /// Soft fields default when Jikan returns null/junk; hard fields (MalId, Season,
 /// Year, Type) fail the mapping.
 /// </summary>
-public static class JikanSeriesMapper
+public static partial class JikanSeriesMapper
 {
     public static Result<Series> ToSeries(this JikanAnime jikan, DateTimeOffset lastUpdated)
     {
@@ -24,28 +25,7 @@ public static class JikanSeriesMapper
             .Bind(parsed => MapTypedSeries(jikan, parsed.season, parsed.year, titles, allTitles, lastUpdated));
     }
 
-    // ─── validation ──────────────────────────────────────────────────────────
-
-    private static Validation<(Season season, Year year)> ValidateRequired(JikanAnime jikan) =>
-        ValidateSeason(jikan.Season)
-            .And(ValidateYear(jikan.Year))
-            .And(ValidateMalId(jikan.MalId))
-            .Map(t => (season: t.Item1, year: t.Item2));
-
-    private static Validation<Season> ValidateSeason(string? season) =>
-        season is null
-            ? Validation<Season>.Invalid("season is missing")
-            : season.ParseAsSeason();
-
-    private static Validation<Year> ValidateYear(int? year) =>
-        year is null
-            ? Validation<Year>.Invalid("year is missing")
-            : year.Value.ParseAsYear();
-
-    private static Validation<Unit> ValidateMalId(int malId) =>
-        malId > 0
-            ? Validation<Unit>.Valid(new Unit())
-            : Validation<Unit>.Invalid($"mal_id must be positive (got {malId})");
+   
 
     // ─── type dispatch ───────────────────────────────────────────────────────
 
@@ -193,13 +173,14 @@ public static class JikanSeriesMapper
 
     private static SeriesTitles BuildTitles(JikanTitle[] titles)
     {
-        string? Pick(string type) => titles.FirstOrDefault(title => title.Type == type)?.Title;
         var synonyms = titles.Where(title => title.Type == "Synonym").Select(title => title.Title).ToArray();
         return new SeriesTitles(
             Default: Pick("Default") ?? string.Empty,
             English: Pick("English"),
             Japanese: Pick("Japanese"),
             Synonyms: synonyms);
+        
+        string? Pick(string type) => titles.FirstOrDefault(title => title.Type == type)?.Title;
     }
 
     private static string[] BuildAllTitles(SeriesTitles titles)
@@ -226,10 +207,13 @@ public static class JikanSeriesMapper
     {
         if (string.IsNullOrWhiteSpace(duration) || duration.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
             return null;
-        var match = Regex.Match(duration, @"(?:(\d+)\s*hr)?\s*(?:(\d+)\s*min)?", RegexOptions.IgnoreCase);
+        var match = DurationMatcher().Match(duration);
         var hours = match.Groups[1].Success ? int.Parse(match.Groups[1].Value) : 0;
         var minutes = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : 0;
         var total = hours * 60 + minutes;
         return total > 0 ? total : null;
     }
+
+    [GeneratedRegex(@"(?:(\d+)\s*hr)?\s*(?:(\d+)\s*min)?", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex DurationMatcher();
 }
