@@ -5,11 +5,25 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AnimeFeedManager.Infrastructure.Cosmos;
+using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Infrastructure.Registration;
 
 public static class ServiceCollectionExtensions
 {
+    extension(IServiceCollection services)
+    {
+        /// <summary>
+        /// Registers <see cref="EventBus"/> as a singleton. The bus's pump task starts
+        /// when the singleton is first resolved.
+        /// </summary>
+        public IServiceCollection AddEventBus()
+        {
+            services.AddSingleton<EventBus>();
+            return services;
+        }
+    }
+
     extension(IHostApplicationBuilder builder)
     {
         /// <summary>

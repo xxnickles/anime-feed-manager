@@ -6,6 +6,7 @@
   <Folder Name="/Infra/">
     <Project Path="src/AnimeFeedManager.Infrastructure.Generators/AnimeFeedManager.Infrastructure.Generators.csproj" />
     <Project Path="src\AnimeFeedManager.Infrastructure\AnimeFeedManager.Infrastructure.csproj" />
+    <Project Path="tests/AnimeFeedManager.Infrastructure.Tests/AnimeFeedManager.Infrastructure.Tests.csproj" />
   </Folder>
   <Folder Name="/Shared/">
     <Project Path="src/AnimeFeedManager.Shared/AnimeFeedManager.Shared.csproj" />

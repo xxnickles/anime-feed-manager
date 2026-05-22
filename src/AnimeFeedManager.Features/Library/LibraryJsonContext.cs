@@ -1,4 +1,4 @@
-using AnimeFeedManager.Features.Library.Types;
+using AnimeFeedManager.Features.Library.Entities;
 
 namespace AnimeFeedManager.Features.Library;
 

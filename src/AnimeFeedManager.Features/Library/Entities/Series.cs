@@ -1,7 +1,6 @@
-using AnimeFeedManager.Infrastructure.Cosmos;
-using AnimeFeedManager.Infrastructure.Cosmos.Types;
+using static AnimeFeedManager.Features.Library.Entities.Constants;
 
-namespace AnimeFeedManager.Features.Library.Types;
+namespace AnimeFeedManager.Features.Library.Entities;
 
 /// <summary>
 /// Abstract base for every anime series document. Polymorphic via STJ
@@ -9,7 +8,7 @@ namespace AnimeFeedManager.Features.Library.Types;
 /// Concrete derived types declare their type-specific surface; reads come back
 /// as the right concrete type by the <c>seriesType</c> discriminator.
 /// </summary>
-[CosmosEntity("series", "/season")]
+[CosmosEntity(CosmosContainers.Series, SeriesPartitionKey)]
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "seriesType")]
 [JsonDerivedType(typeof(TvSeries), "tv")]
 [JsonDerivedType(typeof(MovieSeries), "movie")]

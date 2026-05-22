@@ -11,15 +11,15 @@ namespace AnimeFeedManager.Shared.Types;
 [JsonConverter(typeof(SeriesStatusJsonConverter))]
 public readonly record struct SeriesStatus
 {
-    public const string FinishedAiringValue  = "FINISHED_AIRING";
+    public const string FinishedAiringValue = "FINISHED_AIRING";
     public const string CurrentlyAiringValue = "CURRENTLY_AIRING";
-    public const string NotYetAiredValue     = "NOT_YET_AIRED";
-    public const string UnknownValue         = "UNKNOWN";
+    public const string NotYetAiredValue = "NOT_YET_AIRED";
+    public const string UnknownValue = "UNKNOWN";
 
-    private const string FinishedAiringDisplay  = "Finished Airing";
+    private const string FinishedAiringDisplay = "Finished Airing";
     private const string CurrentlyAiringDisplay = "Currently Airing";
-    private const string NotYetAiredDisplay     = "Not yet aired";
-    private const string UnknownDisplay         = "Unknown";
+    private const string NotYetAiredDisplay = "Not yet aired";
+    private const string UnknownDisplay = "Unknown";
 
     private readonly string? _value;
 
@@ -29,37 +29,37 @@ public readonly record struct SeriesStatus
 
     public static implicit operator string(SeriesStatus status) => status.ToString();
 
-    public static SeriesStatus FinishedAiring()  => new(FinishedAiringValue);
+    public static SeriesStatus FinishedAiring() => new(FinishedAiringValue);
     public static SeriesStatus CurrentlyAiring() => new(CurrentlyAiringValue);
-    public static SeriesStatus NotYetAired()     => new(NotYetAiredValue);
-    public static SeriesStatus Unknown()         => new(UnknownValue);
+    public static SeriesStatus NotYetAired() => new(NotYetAiredValue);
+    public static SeriesStatus Unknown() => new(UnknownValue);
 
     /// <summary>Human-readable form (Jikan's exact phrasing) for UI display.</summary>
     public string ToDisplayString() => (_value ?? UnknownValue) switch
     {
-        FinishedAiringValue  => FinishedAiringDisplay,
+        FinishedAiringValue => FinishedAiringDisplay,
         CurrentlyAiringValue => CurrentlyAiringDisplay,
-        NotYetAiredValue     => NotYetAiredDisplay,
-        _                    => UnknownDisplay
+        NotYetAiredValue => NotYetAiredDisplay,
+        _ => UnknownDisplay
     };
 
     /// <summary>Parses our canonical stored form. Unknown values fall back to <see cref="Unknown"/>.</summary>
     public static SeriesStatus FromString(string? value) => value switch
     {
-        FinishedAiringValue  => FinishedAiring(),
+        FinishedAiringValue => FinishedAiring(),
         CurrentlyAiringValue => CurrentlyAiring(),
-        NotYetAiredValue     => NotYetAired(),
-        UnknownValue         => Unknown(),
-        _                    => Unknown()
+        NotYetAiredValue => NotYetAired(),
+        UnknownValue => Unknown(),
+        _ => Unknown()
     };
 
     /// <summary>Parses Jikan's status vocabulary. Unknown values fall back to <see cref="Unknown"/>.</summary>
     public static SeriesStatus FromJikan(string? jikanStatus) => jikanStatus?.Trim() switch
     {
-        FinishedAiringDisplay  => FinishedAiring(),
+        FinishedAiringDisplay => FinishedAiring(),
         CurrentlyAiringDisplay => CurrentlyAiring(),
-        NotYetAiredDisplay     => NotYetAired(),
-        _                      => Unknown()
+        NotYetAiredDisplay => NotYetAired(),
+        _ => Unknown()
     };
 }
 

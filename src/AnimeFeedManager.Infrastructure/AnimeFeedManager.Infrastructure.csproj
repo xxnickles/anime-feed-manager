@@ -6,9 +6,11 @@
 
     <ItemGroup>
         <PackageReference Include="Aspire.Microsoft.Azure.Cosmos"/>
+        <PackageReference Include="Cronos" />
         <PackageReference Include="Microsoft.Azure.Cosmos"/>
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     </ItemGroup>
 
     <ItemGroup>
