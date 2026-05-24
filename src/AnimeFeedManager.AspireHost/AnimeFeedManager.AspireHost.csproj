@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Web\AnimeFeedManager.Web.csproj" />
+    <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj"
+                      IsAspireProjectResource="false" />
   </ItemGroup>
 
 </Project>
