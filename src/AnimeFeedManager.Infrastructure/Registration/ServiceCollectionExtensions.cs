@@ -4,6 +4,8 @@ using System.Text.Json.Serialization.Metadata;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using AnimeFeedManager.Infrastructure.Background.Cron;
 using AnimeFeedManager.Infrastructure.Cosmos;
 using AnimeFeedManager.Infrastructure.Eventing;
 
@@ -22,10 +24,40 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<EventBus>();
             return services;
         }
+
+        /// <summary>
+        /// Registers <typeparamref name="TJob"/> as a scoped <see cref="CronJob"/>.
+        /// The job is resolvable both by its concrete type (for per-fire resolution)
+        /// and as part of <see cref="IEnumerable{CronJob}"/> (for scheduler discovery).
+        /// </summary>
+        public IServiceCollection AddCronJob<TJob>() where TJob : CronJob
+        {
+            services.AddScoped<TJob>();
+            services.AddScoped<CronJob>(sp => sp.GetRequiredService<TJob>());
+            return services;
+        }
     }
 
     extension(IHostApplicationBuilder builder)
     {
+        /// <summary>
+        /// Registers the cron scheduler infrastructure: <see cref="TimeProvider"/>,
+        /// <c>"CronJobs"</c> configuration binding via <see cref="IOptionsMonitor{T}"/>,
+        /// and the hosted scheduler service. Jobs are added separately via
+        /// <c>AddCronJob&lt;TJob&gt;</c> and discovered at startup as
+        /// <see cref="IEnumerable{CronJob}"/>. Configuration edits to
+        /// <c>appsettings.json</c> take effect without restart.
+        /// </summary>
+        public IHostApplicationBuilder AddCronScheduler()
+        {
+            builder.Services.TryAddSingleton(TimeProvider.System);
+            builder.Services.AddOptions<CronJobsOptions>()
+                .Bind(builder.Configuration.GetSection(CronJobsOptions.SectionName));
+            builder.Services.AddHostedService<CronHostedService>();
+
+            return builder;
+        }
+
         /// <summary>
         /// Registers the full Cosmos DB infrastructure: client, database, serializer, and container factory.
         /// Reads <see cref="CosmosOptions"/> from configuration, builds a source-gen-aware
