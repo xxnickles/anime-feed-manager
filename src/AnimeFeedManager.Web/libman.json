@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "provider": "unpkg",
+      "library": "htmx.org@2.0.4",
+      "destination": "wwwroot/lib/htmx/dist/",
+      "files": [ "htmx.js", "htmx.min.js" ]
+    },
+    {
+      "provider": "unpkg",
+      "library": "hyperscript.org@0.9.14",
+      "destination": "wwwroot/lib/hyperscript/dist/",
+      "files": [
+        "_hyperscript.js",
+        "_hyperscript.min.js",
+        "ext/component.js",
+        "ext/component.min.js",
+        "ext/eventsource.js",
+        "ext/eventsource.min.js"
+      ]
+    }
+  ]
+}

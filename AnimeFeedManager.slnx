@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Aspire/">
+    <Project Path="src/AnimeFeedManager.ServiceDefaults/AnimeFeedManager.ServiceDefaults.csproj" />
+  </Folder>
   <Folder Name="/Features/">
     <Project Path="src/AnimeFeedManager.Features/AnimeFeedManager.Features.csproj" />
     <Project Path="tests/AnimeFeedManager.Features.Tests/AnimeFeedManager.Features.Tests.csproj" />
@@ -13,4 +16,5 @@
     <Project Path="src/AnimeFeedManager.SourceGenerators/AnimeFeedManager.SourceGenerators.csproj" />
     <Project Path="tests/AnimeFeedManager.Shared.Tests/AnimeFeedManager.Shared.Tests.csproj" />
   </Folder>
+  <Project Path="src/AnimeFeedManager.Web/AnimeFeedManager.Web.csproj" />
 </Solution>

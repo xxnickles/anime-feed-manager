@@ -1,0 +1,25 @@
+{
+  "name": "anime-feed-manager-v5-client",
+  "version": "5.0.0",
+  "scripts": {
+    "build:js":  "node build-js.mjs",
+    "watch:js":  "node build-js.mjs --watch",
+    "build:css": "npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/app.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/app.css --watch",
+    "build":     "npm run build:css && npm run build:js",
+    "watch":     "concurrently \"npm run watch:css\" \"npm run watch:js\"",
+    "update:libs":   "ncu -u && npm install",
+    "update:libman": "node libman-update.js"
+  },
+  "devDependencies": {
+    "@swc/core":             "^1.15.33",
+    "@tailwindcss/cli":      "^4.3.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "chokidar":              "^5.0.0",
+    "concurrently":          "^9.2.1",
+    "daisyui":               "^5.5.19",
+    "glob":                  "^13.0.6",
+    "npm-check-updates":     "^22.1.1",
+    "tailwindcss":           "^4.3.0"
+  }
+}

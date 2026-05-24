@@ -1,0 +1,396 @@
+/* ============================================================
+   AMF v5 — Topbar + mobile drawer
+   Layout-level component used on every page: stays in global CSS.
+   When Topbar.razor is created, this file can be converted to
+   Topbar.razor.css (Blazor scoped) — the styles are already
+   self-contained and won't leak.
+   ============================================================ */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in oklab, var(--color-base-100) 80%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  max-width: 100vw;
+}
+
+@media (min-width: 768px) {
+  .topbar-inner { padding: 0.65rem 1.75rem; gap: 0.75rem; }
+}
+
+.topbar .brand-mark { padding: 0.2rem 0; }
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+/* Hub status pill — non-interactive */
+.hub-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+  background: color-mix(in oklab, var(--color-success) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-success) 18%, transparent);
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 1.25rem;
+  margin: 0 0.2rem;
+  background: color-mix(in oklab, var(--color-base-content) 12%, transparent);
+}
+
+/* Unified icon button */
+.topbar-icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: color-mix(in oklab, var(--color-base-content) 75%, transparent);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.topbar-icon-btn:hover {
+  background: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  color: var(--color-base-content);
+}
+
+.topbar-icon-btn:active {
+  background: color-mix(in oklab, var(--color-base-content) 14%, transparent);
+}
+
+.topbar-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.topbar-icon-btn--has-badge { overflow: visible; }
+
+.topbar-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  font-size: 0.58rem;
+  font-weight: 800;
+  line-height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-base-100);
+}
+
+/* Avatar / account button */
+.topbar-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: var(--color-primary-content);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.78rem;
+  border: 0;
+  cursor: pointer;
+  text-transform: uppercase;
+  margin-left: 0.2rem;
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-primary) 30%, transparent),
+    0 6px 16px -6px color-mix(in oklab, var(--color-primary) 50%, transparent);
+}
+
+.topbar-avatar:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Dropdown (user menu) */
+.topbar-dropdown {
+  margin-top: 0.4rem !important;
+  min-width: 14rem;
+  padding: 0.35rem !important;
+  background: var(--color-base-100);
+  border-radius: 0.7rem;
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
+  box-shadow: 0 20px 50px -16px oklch(0% 0 0 / 0.25);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  z-index: 60;
+}
+
+.topbar-dropdown > li > a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.45rem;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--color-base-content);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.topbar-dropdown > li > a:hover {
+  background: color-mix(in oklab, var(--color-base-content) 7%, transparent);
+}
+
+.topbar-dropdown > li > a svg { flex: none; opacity: 0.65; }
+
+.topbar-dropdown .topbar-dropdown-label {
+  padding: 0.5rem 0.65rem 0.35rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: color-mix(in oklab, var(--color-base-content) 50%, transparent);
+}
+
+.topbar-dropdown .topbar-dropdown-sep {
+  height: 1px;
+  margin: 0.25rem;
+  background: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+}
+
+/* Season nav pills */
+.nav-season {
+  position: relative;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.45rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-base-content) 65%, transparent);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.nav-season:hover {
+  color: var(--color-base-content);
+  background: color-mix(in oklab, var(--color-base-content) 6%, transparent);
+}
+
+.nav-season[aria-pressed="true"] {
+  color: var(--color-primary-content);
+  background: var(--color-primary);
+}
+
+.nav-season[aria-pressed="true"]:hover {
+  background: color-mix(in oklab, var(--color-primary) 92%, black);
+}
+
+.nav-season .subtitle {
+  display: block;
+  font-size: 0.6rem;
+  opacity: 0.7;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* ============================================================
+   Mobile drawer
+   ============================================================ */
+.drawer-toggle-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.mobile-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0.25s;
+}
+
+.mobile-drawer-overlay {
+  position: absolute;
+  inset: 0;
+  background: oklch(0% 0 0 / 0.5);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  cursor: pointer;
+}
+
+.mobile-drawer-panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: min(85vw, 320px);
+  background: var(--color-base-100);
+  border-right: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.drawer-toggle-input:checked ~ .mobile-drawer {
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.drawer-toggle-input:checked ~ .mobile-drawer .mobile-drawer-overlay { opacity: 1; }
+.drawer-toggle-input:checked ~ .mobile-drawer .mobile-drawer-panel   { transform: translateX(0); }
+
+.mobile-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+}
+
+.mobile-drawer-section {
+  padding: 0.8rem 0.6rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 6%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.mobile-drawer-section:last-child { border-bottom: 0; }
+
+.mobile-drawer-eyebrow {
+  padding: 0 0.45rem 0.4rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: color-mix(in oklab, var(--color-base-content) 50%, transparent);
+}
+
+.mobile-drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--color-base-content);
+}
+
+.mobile-drawer-link:hover {
+  background: color-mix(in oklab, var(--color-base-content) 7%, transparent);
+}
+
+.mobile-drawer-link svg { opacity: 0.6; flex: none; }
+
+.badge-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.mobile-season-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.mobile-season-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.5rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  color: var(--color-base-content);
+}
+
+.mobile-season-row:hover {
+  background: color-mix(in oklab, var(--color-base-content) 7%, transparent);
+}
+
+.mobile-season-row .yr {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: color-mix(in oklab, var(--color-base-content) 50%, transparent);
+  letter-spacing: 0.06em;
+  width: 2.5rem;
+}
+
+.mobile-season-row .name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.mobile-season-row .dot {
+  margin-left: auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+}
+
+.mobile-season-row[aria-pressed="true"] {
+  background: color-mix(in oklab, var(--color-primary) 12%, transparent);
+}
+
+.mobile-season-row[aria-pressed="true"] .yr { color: var(--color-primary); }
+
+.mobile-drawer-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.55rem;
+  font-size: 0.72rem;
+  color: color-mix(in oklab, var(--color-base-content) 65%, transparent);
+  border-top: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  margin-top: 0.3rem;
+}

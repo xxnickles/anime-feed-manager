@@ -1,0 +1,86 @@
+/* ============================================================
+   AMF v5 — Seasons archive cards
+   [SCOPE → SeasonCard.razor.css] once that component exists.
+   Kept here for the initial design-token phase.
+   ============================================================ */
+
+.season-card {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 1rem;
+  align-items: stretch;
+  padding: 0;
+  background: var(--color-base-100);
+  border-radius: var(--radius-box);
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  text-decoration: none;
+  color: var(--color-base-content);
+}
+
+.season-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--color-primary) 30%, transparent);
+  box-shadow: 0 18px 36px -22px color-mix(in oklab, var(--color-primary) 40%, transparent);
+}
+
+.season-card-art {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+}
+
+.season-card-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.season-card:hover .season-card-art img { transform: scale(1.05); }
+
+.season-card-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    transparent 65%,
+    color-mix(in oklab, var(--color-base-100) 75%, transparent) 100%
+  );
+  pointer-events: none;
+}
+
+.season-card-pill {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.45rem;
+  border-radius: 0.3rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  box-shadow: 0 4px 12px -4px color-mix(in oklab, var(--color-primary) 50%, transparent);
+}
+
+.season-card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.9rem 1rem 0.9rem 0;
+  min-width: 0;
+}
+
+.season-card-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.78rem;
+}

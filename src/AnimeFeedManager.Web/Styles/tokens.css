@@ -1,0 +1,479 @@
+/* ============================================================
+   AMF v5 — Design tokens
+   Theme-agnostic atoms used across all features.
+   All colours reference the semantic CSS variables defined in
+   themes.css so they adapt automatically to any active theme.
+
+   SCOPING RULE
+   ─────────────
+   This file is for atoms that are either:
+     (a) used in 3+ unrelated components, OR
+     (b) genuinely layout/global (pulse-dot, scrollbar, view toggle)
+
+   When a style block is only used by ONE component, move it to that
+   component's Blazor scoped CSS file (<ComponentName>.razor.css) when
+   the component is created. Scoping candidates are marked with:
+     [SCOPE → ComponentName.razor.css]
+   ============================================================ */
+
+/* === Brand mark === */
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 1.05rem;
+  color: var(--color-base-content);
+}
+
+.brand-mark .glyph {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: inline-block;
+  background-color: var(--color-primary);
+  -webkit-mask: url("/images/logo.svg") center / contain no-repeat;
+          mask: url("/images/logo.svg") center / contain no-repeat;
+  filter: drop-shadow(0 6px 16px color-mix(in oklab, var(--color-primary) 50%, transparent));
+}
+
+/* === Chips / tags === */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  color: color-mix(in oklab, var(--color-base-content) 85%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 6%, transparent);
+}
+
+.chip-primary {
+  background: color-mix(in oklab, var(--color-primary) 16%, transparent);
+  color: var(--color-primary);
+  border-color: color-mix(in oklab, var(--color-primary) 25%, transparent);
+}
+
+/* === Status pin (poster overlay) === */
+.status-pin {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.55rem 0.22rem 0.45rem;
+  border-radius: 0.4rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: oklch(0% 0 0 / 0.55);
+  color: oklch(98% 0 0);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  border: 1px solid oklch(100% 0 0 / 0.12);
+}
+
+.status-pin .pin-dot {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.status-pin.is-subscribed { color: oklch(86% 0.14 35); }
+.status-pin.is-watching   { color: oklch(82% 0.16 145); }
+
+/* === Day / time pill === */
+.day-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.45rem 0.2rem 0.4rem;
+  border-radius: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: color-mix(in oklab, var(--color-base-content) 6%, transparent);
+  color: color-mix(in oklab, var(--color-base-content) 78%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+}
+
+.day-pill .day-tag {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  padding-right: 0.35rem;
+  border-right: 1px solid color-mix(in oklab, var(--color-base-content) 14%, transparent);
+}
+
+.day-pill .time {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+/* === Countdown tile === */
+.countdown-tile {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: color-mix(in oklab, var(--color-primary) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-primary) 25%, transparent);
+  border-radius: 0.4rem;
+}
+
+/* === Card title rows === */
+.title-en {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.title-romaji {
+  font-size: 0.72rem;
+  color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
+  margin-top: 1px;
+}
+
+/* === Stat strip (season header) ===
+   [SCOPE → SeasonHeader.razor.css] once that component exists */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  border-radius: 0.875rem;
+  overflow: hidden;
+}
+
+.stat-strip > div {
+  background: var(--color-base-100);
+  padding: 0.9rem 1.1rem;
+}
+
+.stat-label {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-base-content) 55%, transparent);
+  font-weight: 600;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* === Generic panel === */
+.panel {
+  background: var(--color-base-100);
+  border-radius: var(--radius-box);
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+}
+
+/* === Filter pills === */
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 14%, transparent);
+  cursor: pointer;
+  color: color-mix(in oklab, var(--color-base-content) 75%, transparent);
+  background: transparent;
+}
+
+.filter-pill[aria-pressed="true"] {
+  background: var(--color-base-content);
+  color: var(--color-base-100);
+  border-color: var(--color-base-content);
+}
+
+.filter-pill .count {
+  font-size: 0.68rem;
+  opacity: 0.7;
+  font-family: var(--font-mono);
+}
+
+/* === Pulse dot (live indicator) === */
+.pulse-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-success);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-success) 50%, transparent);
+  animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-success) 50%, transparent); }
+  70%  { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* === Segmented control === */
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  background: color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  border-radius: 0.5rem;
+}
+
+.segmented [role="tab"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 0.4rem;
+  color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+}
+
+.segmented [aria-selected="true"] {
+  background: var(--color-base-100);
+  color: var(--color-base-content);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-base-content) 10%, transparent);
+}
+
+/* === Anime card ===
+   [SCOPE → AnimeCard.razor.css] once that component exists */
+.anime-card {
+  position: relative;
+  background: var(--color-base-100);
+  border-radius: var(--radius-box);
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--color-base-content) 9%, transparent);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-base-content) 4%, transparent);
+}
+
+.anime-card .poster-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.anime-card .poster {
+  width: 100%;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.anime-card:hover .poster { transform: scale(1.04); }
+
+.anime-card .poster-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 0.6rem 0.75rem 0.7rem;
+  background: linear-gradient(to top, oklch(0% 0 0 / 0.78), transparent);
+  color: oklch(98% 0 0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.anime-card .poster-overlay .ja {
+  font-family: var(--font-ja);
+  font-size: 0.82rem;
+  text-shadow: 0 1px 2px oklch(0% 0 0 / 0.5);
+  letter-spacing: 0.08em;
+}
+
+.anime-card .card-pad {
+  padding: 0.85rem 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.anime-card .title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.anime-card .title-en  { font-size: 1.02rem; }
+.anime-card .meta-row  { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.74rem; }
+.anime-card .chips     { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+
+/* === List view rows ===
+   [SCOPE → AnimeListRow.razor.css] once that component exists */
+.list-head {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 2.6fr) 1.4fr 0.8fr 0.9fr 1.2fr auto;
+  gap: 1rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-base-content) 55%, transparent);
+  font-weight: 700;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
+}
+
+.list-head button.sort {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.list-head button.sort[aria-sort="ascending"],
+.list-head button.sort[aria-sort="descending"] {
+  color: var(--color-primary);
+}
+
+.list-row {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 2.6fr) 1.4fr 0.8fr 0.9fr 1.2fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+}
+
+.list-row:hover {
+  background: color-mix(in oklab, var(--color-base-content) 3%, transparent);
+}
+
+.list-row .titles     { min-width: 0; }
+.list-row .titles .en {
+  font-weight: 600;
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.list-row .titles .romaji {
+  font-size: 0.74rem;
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.list-row .thumb {
+  width: 3.2rem;
+  height: 4.4rem;
+  object-fit: cover;
+  border-radius: 0.35rem;
+}
+
+/* === Status bar (page footer) === */
+.status-bar {
+  border-top: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
+  padding: 0.55rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.72rem;
+  color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+  background: var(--color-base-200);
+}
+
+/* === Floating label (auth forms) ===
+   [SCOPE → LoginPage.razor.css / RegisterPage.razor.css] */
+.floating-label {
+  display: block;
+  position: relative;
+}
+
+.floating-label > span {
+  position: absolute;
+  top: -0.5rem;
+  left: 0.65rem;
+  background: var(--color-base-100);
+  padding: 0 0.35rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
+  font-weight: 600;
+}
+
+.rule {
+  height: 1px;
+  background: color-mix(in oklab, var(--color-base-content) 12%, transparent);
+}
+
+/* === Auth art panel ===
+   [SCOPE → LoginPage.razor.css / RegisterPage.razor.css] */
+.auth-art {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: var(--color-primary-content);
+  border-radius: var(--radius-box);
+  padding: 2rem;
+}
+
+.auth-art::after {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  background-image:
+    radial-gradient(circle at 30% 20%, oklch(100% 0 0 / 0.18) 0, transparent 40%),
+    radial-gradient(circle at 80% 70%, oklch(100% 0 0 / 0.10) 0, transparent 40%);
+  pointer-events: none;
+}
+
+/* === View toggle === */
+html[data-view="grid"] .view-only-list { display: none; }
+html[data-view="list"] .view-only-grid { display: none; }
+
+/* === Responsive === */
+@media (max-width: 880px) {
+  .stat-strip { grid-template-columns: repeat(2, 1fr); }
+
+  .list-head,
+  .list-row { grid-template-columns: 3rem minmax(0, 1fr) auto; }
+
+  .list-row .col-genres,
+  .list-row .col-day,
+  .list-row .col-count,
+  .list-head .col-genres,
+  .list-head .col-day,
+  .list-head .col-count { display: none; }
+}
+
+/* === Scrollbar === */
+.scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #888585 transparent;
+}
+.scrollbar:hover { scrollbar-color: #6b7280 transparent; }
+.scrollbar::-webkit-scrollbar { width: 8px; height: 8px; background-color: transparent; }
+.scrollbar::-webkit-scrollbar-track { background-color: transparent; }
+.scrollbar::-webkit-scrollbar-thumb { border-radius: 10px; background-color: rgba(136, 133, 133, 0.9); }
+.scrollbar:hover::-webkit-scrollbar-thumb { background-color: #6b7280; }
