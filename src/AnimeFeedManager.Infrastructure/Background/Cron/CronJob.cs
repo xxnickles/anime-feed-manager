@@ -2,11 +2,11 @@ namespace AnimeFeedManager.Infrastructure.Background.Cron;
 
 /// <summary>
 /// Base class for cron-scheduled work. A subclass is the unit of registration: it
-/// carries its own name and default schedule and exposes a single <see cref="RunAsync"/>
+/// carries its own name and default schedule and exposes a single <see cref="Run"/>
 /// entry point. Subclasses are registered in DI via <c>AddCronJob&lt;TJob&gt;</c> and
 /// discovered by the scheduler as <see cref="IEnumerable{CronJob}"/> at startup.
 /// The procedural shell (this class, its ctor, DI wiring) hosts the functional core
-/// inside <see cref="RunAsync"/>.
+/// inside <see cref="Run"/>.
 /// </summary>
 public abstract class CronJob
 {
@@ -30,5 +30,5 @@ public abstract class CronJob
     /// </summary>
     public virtual bool SkipIfRunning => true;
 
-    public abstract Task RunAsync(CancellationToken cancellationToken);
+    public abstract Task Run(CancellationToken cancellationToken);
 }

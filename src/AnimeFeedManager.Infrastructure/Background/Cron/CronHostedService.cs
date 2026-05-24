@@ -11,7 +11,7 @@ namespace AnimeFeedManager.Infrastructure.Background.Cron;
 /// earliest next-occurrence across active jobs → sleep until it (or until reload /
 /// shutdown) → fire every job whose occurrence falls within a one-second tolerance.
 /// Each fire opens its own async scope, resolves the concrete job by <see cref="Type"/>,
-/// and invokes <see cref="CronJob.RunAsync"/>. Per-fire failures are isolated; the
+/// and invokes <see cref="CronJob.Run"/>. Per-fire failures are isolated; the
 /// loop and sibling jobs are unaffected.
 /// </summary>
 internal sealed class CronHostedService : BackgroundService
@@ -279,7 +279,7 @@ internal sealed class CronHostedService : BackgroundService
         {
             await using var scope = _scopes.CreateAsyncScope();
             var instance = (CronJob)scope.ServiceProvider.GetRequiredService(job.Metadata.JobType);
-            await instance.RunAsync(stoppingToken);
+            await instance.Run(stoppingToken);
             LogNextSingle(job);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)

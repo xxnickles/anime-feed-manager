@@ -23,7 +23,7 @@ public sealed class EventBus : IAsyncDisposable
     public EventBus(ILogger<EventBus> logger)
     {
         _logger = logger;
-        _pump = Task.Run(PumpAsync);
+        _pump = Task.Run(Pump);
     }
 
     /// <summary>
@@ -32,7 +32,7 @@ public sealed class EventBus : IAsyncDisposable
     /// </summary>
     public void Publish<TEvent>(TEvent evt) where TEvent : notnull
     {
-        _dispatchers.Writer.TryWrite(() => DispatchAsync(evt));
+        _dispatchers.Writer.TryWrite(() => Dispatch(evt));
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public sealed class EventBus : IAsyncDisposable
         _stopping.Dispose();
     }
 
-    private async Task PumpAsync()
+    private async Task Pump()
     {
         try
         {
@@ -82,15 +82,15 @@ public sealed class EventBus : IAsyncDisposable
         }
     }
 
-    private async Task DispatchAsync<TEvent>(TEvent evt) where TEvent : notnull
+    private async Task Dispatch<TEvent>(TEvent evt) where TEvent : notnull
     {
         if (!_subscribers.TryGetValue(typeof(TEvent), out var handlers) || handlers.IsEmpty)
             return;
 
-        await Task.WhenAll(handlers.Select(handler => InvokeAsync(handler, evt)));
+        await Task.WhenAll(handlers.Select(handler => Invoke(handler, evt)));
     }
 
-    private async Task InvokeAsync<TEvent>(Delegate handler, TEvent evt)
+    private async Task Invoke<TEvent>(Delegate handler, TEvent evt)
     {
         try
         {
