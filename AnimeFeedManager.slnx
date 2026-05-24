@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Aspire/">
+    <Project Path="src/AnimeFeedManager.AspireHost/AnimeFeedManager.AspireHost.csproj" />
     <Project Path="src/AnimeFeedManager.ServiceDefaults/AnimeFeedManager.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/Features/">

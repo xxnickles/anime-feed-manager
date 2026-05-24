@@ -78,3 +78,10 @@ Deployment uses GitHub Actions with Bicep templates:
 - `deployment/` - Bicep templates for Azure resources
 
 See [deployment/README.md](deployment/README.md) for full deployment configuration guide.
+
+### Always On (required)
+
+**Always On must be enabled on the Azure App Service plan.** The cron scheduler (`CronHostedService`) depends on the process remaining alive between scheduled windows. Without Always On, App Service may idle-terminate the process and miss scheduled fires.
+
+- Free and Shared tiers do not support Always On; B1 and above do.
+- Enable via the Azure Portal → App Service → Configuration → General settings → Always On = On, or set `alwaysOn: true` in the Bicep site configuration.

@@ -8,8 +8,9 @@
     <!-- Azure packages -->
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.5.0" />
-    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.8.0" />
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.8.1" />
     <!-- Aspire packages -->
+    <PackageVersion Include="Aspire.Hosting.Azure.CosmosDB" Version="13.3.5" />
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.3.3" />
     <PackageVersion Include="Aspire.Microsoft.Azure.Cosmos" Version="13.3.5" />
     <!-- Microsoft packages -->

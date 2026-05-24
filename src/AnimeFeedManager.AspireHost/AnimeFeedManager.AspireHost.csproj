@@ -1,0 +1,17 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.3.0">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>e3a7f4b1-2c9d-4e5f-a8b0-1d2e3f4a5b6c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Azure.CosmosDB" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AnimeFeedManager.Web\AnimeFeedManager.Web.csproj" />
+  </ItemGroup>
+
+</Project>
