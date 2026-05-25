@@ -50,8 +50,7 @@ public static partial class JikanSeriesMapper
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            Season = season,
-            Year = year,
+            SeriesSeason = new SeriesSeason(season, year),
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,
@@ -76,8 +75,7 @@ public static partial class JikanSeriesMapper
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            Season = season,
-            Year = year,
+            SeriesSeason = new SeriesSeason(season, year),
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,
@@ -100,8 +98,7 @@ public static partial class JikanSeriesMapper
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            Season = season,
-            Year = year,
+            SeriesSeason = new SeriesSeason(season, year),
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,
@@ -125,8 +122,7 @@ public static partial class JikanSeriesMapper
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            Season = season,
-            Year = year,
+            SeriesSeason = new SeriesSeason(season, year),
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,
@@ -151,8 +147,7 @@ public static partial class JikanSeriesMapper
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            Season = season,
-            Year = year,
+            SeriesSeason = new SeriesSeason(season, year),
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,

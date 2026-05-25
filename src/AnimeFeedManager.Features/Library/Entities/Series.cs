@@ -20,8 +20,7 @@ public abstract record Series : CosmosDocument
     public int MalId { get; }
     public string? MalUrl { get; init; }
 
-    public Season Season { get; init; }
-    public Year Year { get; init; }
+    public SeriesSeason SeriesSeason { get; init; } = SeriesSeason.Default;
 
     public SeriesTitles Titles { get; init; }
     public string[] AllTitles { get; init; } = [];

@@ -47,13 +47,13 @@ public static class CosmosSeriesUpsert
         {
             var response = await container.UpsertItemAsync(
                 s,
-                new PartitionKey(s.Season.ToString()),
+                new PartitionKey(s.SeriesSeason.ToString()),
                 cancellationToken: cancellationToken);
             return response.RequestCharge;
         }
         catch (CosmosException e)
         {
-            return CosmosResponseError.Create(e, new PartitionKey(s.Season.ToString()), s.Id, container.Id);
+            return CosmosResponseError.Create(e, new PartitionKey(s.SeriesSeason.ToString()), s.Id, container.Id);
         }
         catch (Exception e)
         {
