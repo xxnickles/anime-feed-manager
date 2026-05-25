@@ -1,4 +1,5 @@
 using AnimeFeedManager.Features.Library.Entities;
+using AnimeFeedManager.Features.Library.Import.Storage;
 
 namespace AnimeFeedManager.Features.Library;
 
@@ -13,4 +14,6 @@ namespace AnimeFeedManager.Features.Library;
 [JsonSerializable(typeof(OvaSeries))]
 [JsonSerializable(typeof(OnaSeries))]
 [JsonSerializable(typeof(TvSpecialSeries))]
+[JsonSerializable(typeof(LibrarySeasonsIndex))]
+[JsonSerializable(typeof(SeasonEntry))]
 internal partial class LibraryJsonContext : JsonSerializerContext;
