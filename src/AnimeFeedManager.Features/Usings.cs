@@ -7,6 +7,7 @@ global using AnimeFeedManager.Infrastructure.Cosmos;
 global using AnimeFeedManager.Infrastructure.Cosmos.Types;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;
+global using AnimeFeedManager.Shared.Results.Static;
 global using AnimeFeedManager.Shared.Types;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;

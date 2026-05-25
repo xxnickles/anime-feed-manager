@@ -1,6 +1,6 @@
-using Microsoft.Azure.Cosmos;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using AnimeFeedManager.Infrastructure.Cosmos.Types;
+using Microsoft.Azure.Cosmos;
 
 namespace AnimeFeedManager.Infrastructure.Cosmos;
 

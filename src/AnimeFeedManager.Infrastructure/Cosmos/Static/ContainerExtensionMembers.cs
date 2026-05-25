@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using AnimeFeedManager.Infrastructure.Cosmos.Types;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 
 namespace AnimeFeedManager.Infrastructure.Cosmos.Static;
 

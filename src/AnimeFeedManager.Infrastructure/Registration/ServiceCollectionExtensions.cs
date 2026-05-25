@@ -1,14 +1,14 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using AnimeFeedManager.Infrastructure.Background.Cron;
 using AnimeFeedManager.Infrastructure.Background.Queue;
 using AnimeFeedManager.Infrastructure.Cosmos;
 using AnimeFeedManager.Infrastructure.Eventing;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AnimeFeedManager.Infrastructure.Registration;
 
