@@ -2,7 +2,7 @@ namespace AnimeFeedManager.Shared.Results.Static;
 
 public static class BulkResultExtensionMembers
 {
-    
+
     extension<T>(BulkResult<T> bulkResult)
     {
         public void LogResults(

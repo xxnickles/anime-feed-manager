@@ -18,9 +18,7 @@ public sealed record AggregatedError(
             // Writes each error's trace context separately'
             domainError.WriteError(logger);
         }
-
-        return;
-
-
     };
+    
+    
 }

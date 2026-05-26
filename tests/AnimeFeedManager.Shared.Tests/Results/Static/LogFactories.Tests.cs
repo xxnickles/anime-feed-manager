@@ -45,4 +45,34 @@ public class LogFactoriesTests
 
         Assert.Equal(123, capturedValue);
     }
+
+    #region AddLogOnFailure async wrapper (Task<Result<T>>)
+
+    [Fact]
+    public async Task Should_Run_Log_Action_After_Complete_When_AddLogOnFailure_Called_On_Failure()
+    {
+        var logActionInvoked = false;
+        var logger = new SilentLogger();
+
+        await Task.FromResult(Result<int>.Failure(NotFoundError.Create("failed")))
+            .AddLogOnFailure(_ => _ => { logActionInvoked = true; })
+            .Complete(logger);
+
+        Assert.True(logActionInvoked);
+    }
+
+    [Fact]
+    public async Task Should_Not_Run_Log_Action_After_Complete_When_AddLogOnFailure_Called_On_Success()
+    {
+        var logActionInvoked = false;
+        var logger = new SilentLogger();
+
+        await Task.FromResult(Result<int>.Success(42))
+            .AddLogOnFailure(_ => _ => { logActionInvoked = true; })
+            .Complete(logger);
+
+        Assert.False(logActionInvoked);
+    }
+
+    #endregion
 }

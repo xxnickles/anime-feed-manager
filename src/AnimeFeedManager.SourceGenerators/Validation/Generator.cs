@@ -46,7 +46,7 @@ public class ValidationAndExtensionsGenerator : IIncrementalGenerator
         sb.AppendLine("{");
 
         // Generate overloads for tuple sizes 2 through MaxTupleSize
-        for (int size = 2; size <= MaxTupleSize; size++)
+        for (var size = 2; size <= MaxTupleSize; size++)
         {
             EmitAndExtension(sb, size);
         }
@@ -95,7 +95,7 @@ public class ValidationAndExtensionsGenerator : IIncrementalGenerator
     {
         // tupleSize is the size AFTER adding the new element
         // So for tupleSize=3, we have (TA, TB) + TC => (TA, TB, TC)
-        int inputTupleSize = tupleSize - 1;
+        var inputTupleSize = tupleSize - 1;
 
         // Generate type parameters: TA, TB, TC, ...
         var typeParams = GenerateTypeParams(inputTupleSize);
@@ -133,7 +133,7 @@ public class ValidationAndExtensionsGenerator : IIncrementalGenerator
     private static string GenerateTypeParams(int count)
     {
         var parts = new string[count];
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             parts[i] = GetTypeParamName(i);
         }
@@ -149,7 +149,7 @@ public class ValidationAndExtensionsGenerator : IIncrementalGenerator
     private static string BuildTupleItems(int count, string prefix)
     {
         var parts = new string[count];
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             parts[i] = $"{prefix}.Item{i + 1}";
         }

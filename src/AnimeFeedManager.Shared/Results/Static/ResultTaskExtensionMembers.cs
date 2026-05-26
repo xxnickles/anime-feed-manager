@@ -94,6 +94,44 @@ public static class ResultTaskExtensionMembers
             Func<T, bool> predicate) => resultTask.Bind(v =>
             predicate(v) ? binder(v).Map(mapper) : resultTask.Map(mapper));
 
+        /// <summary>
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnError{T}(Result{T}, Func{DomainError, Result{T}})"/>.
+        /// </summary>
+        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
+        /// <returns>The original success or the result from the binder.</returns>
+        public async Task<Result<T>> BindOnError(Func<DomainError, Result<T>> binder)
+            => (await resultTask).BindOnError(binder);
+
+        /// <summary>
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnError{T}(Result{T}, Func{DomainError, Task{Result{T}}})"/>.
+        /// </summary>
+        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
+        /// <returns>The original success or the awaited result from the binder.</returns>
+        public async Task<Result<T>> BindOnError(Func<DomainError, Task<Result<T>>> binder)
+            => await (await resultTask).BindOnError(binder);
+
+        /// <summary>
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnErrorWhen{T}(Result{T}, Func{DomainError, Result{T}}, Func{DomainError, bool})"/>.
+        /// </summary>
+        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
+        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
+        /// <returns>The original success, the binder's result if the predicate matches, otherwise the original failure.</returns>
+        public Task<Result<T>> BindOnErrorWhen(
+            Func<DomainError, Result<T>> binder,
+            Func<DomainError, bool> predicate)
+            => resultTask.BindOnError(err => predicate(err) ? binder(err) : Result<T>.Failure(err));
+
+        /// <summary>
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnErrorWhen{T}(Result{T}, Func{DomainError, Task{Result{T}}}, Func{DomainError, bool})"/>.
+        /// </summary>
+        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
+        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
+        /// <returns>The original success, the awaited binder's result if the predicate matches, otherwise the original failure.</returns>
+        public Task<Result<T>> BindOnErrorWhen(
+            Func<DomainError, Task<Result<T>>> binder,
+            Func<DomainError, bool> predicate)
+            => resultTask.BindOnError(err => predicate(err) ? binder(err) : Task.FromResult(Result<T>.Failure(err)));
+
 
         // ──────────────────────────────────────────────────────────────────
         // Side Effects - Tap
@@ -170,6 +208,15 @@ public static class ResultTaskExtensionMembers
         /// <returns>The result with the conditionally added log action.</returns>
         public async Task<Result<T>> AddLogOnSuccess(Func<T, Action<ILogger>> logAction)
             => (await resultTask).AddLogOnSuccess(logAction);
+
+        /// <summary>
+        /// Adds a log action that will only be executed if the result is a failure.
+        /// Async wrapper for <see cref="ResultExtensionMembers.AddLogOnFailure{T}(Result{T}, Func{DomainError, Action{ILogger}})"/>.
+        /// </summary>
+        /// <param name="logAction">Function that takes the error and returns a log action.</param>
+        /// <returns>The result with the conditionally added log action.</returns>
+        public async Task<Result<T>> AddLogOnFailure(Func<DomainError, Action<ILogger>> logAction)
+            => (await resultTask).AddLogOnFailure(logAction);
 
         /// <summary>
         /// Adds an "OperationName" property to the trace context.

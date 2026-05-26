@@ -1,5 +1,5 @@
 using AnimeFeedManager.Features.Library.Entities;
-using AnimeFeedManager.Features.Library.Import.Storage;
+using AnimeFeedManager.Features.Library.Seasons.Types;
 
 namespace AnimeFeedManager.Features.Library;
 

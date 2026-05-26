@@ -62,10 +62,11 @@ internal sealed class JikanClient(HttpClient httpClient, ILogger<JikanClient> lo
                 stream, JikanJsonContext.Default.JikanSeasonResponse, token);
 
             if (payload is null)
-            {
-                logger.LogError("Jikan returned a null payload for {Path} page {Page}", path, pageNumber);
                 return Error.Create($"Jikan returned a null payload for {path} page {pageNumber}");
-            }
+
+            // No data == error
+            if (payload.Data.Length == 0)
+                return Error.Create($"Jikan returned an empty payload for {path} page {pageNumber}");
 
             logger.LogInformation(
                 "Jikan {Path} page {Page}/{LastPage} retrieved ({Count} items, {Total} total)",
@@ -80,7 +81,6 @@ internal sealed class JikanClient(HttpClient httpClient, ILogger<JikanClient> lo
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error fetching Jikan {Path} page {Page}", path, pageNumber);
             return ExceptionError.FromException(e);
         }
     }

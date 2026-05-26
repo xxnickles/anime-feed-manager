@@ -117,6 +117,61 @@ public static class ResultExtensionMembers
             Func<T, bool> predicate)
             => result.Bind(v => predicate(v) ? binder(v) : Result<T>.Success(v));
 
+        /// <summary>
+        /// Chains a recovery operation that runs only when the result is a failure.
+        /// Mirror of <see cref="Bind{TTarget}(Func{T, Result{TTarget}})"/> for the error channel.
+        /// If the current result is a success, the value is propagated without executing the binder.
+        /// Trace contexts from both results are merged.
+        /// </summary>
+        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
+        /// <returns>The original success or the result from the binder.</returns>
+        public Result<T> BindOnError(Func<DomainError, Result<T>> binder)
+        {
+            if (result.IsSuccess)
+                return result;
+
+            var next = binder(result.ErrorValue!);
+            return next with {TraceContext = result.TraceContext.Merge(next.TraceContext)};
+        }
+
+        /// <summary>
+        /// Async-binder overload of <see cref="BindOnError(Func{DomainError, Result{T}})"/>.
+        /// </summary>
+        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
+        /// <returns>The original success or the awaited result from the binder.</returns>
+        public async Task<Result<T>> BindOnError(Func<DomainError, Task<Result<T>>> binder)
+        {
+            if (result.IsSuccess)
+                return result;
+
+            var next = await binder(result.ErrorValue!);
+            return next with {TraceContext = result.TraceContext.Merge(next.TraceContext)};
+        }
+
+        /// <summary>
+        /// Conditionally chains a recovery operation when a predicate matches the failure.
+        /// If the predicate returns false, the original failure is propagated unchanged.
+        /// Mirror of <see cref="BindWhen(Func{T, Result{T}}, Func{T, bool})"/> for the error channel.
+        /// </summary>
+        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
+        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
+        /// <returns>The original success, the binder's result if the predicate matches, otherwise the original failure.</returns>
+        public Result<T> BindOnErrorWhen(
+            Func<DomainError, Result<T>> binder,
+            Func<DomainError, bool> predicate)
+            => result.BindOnError(err => predicate(err) ? binder(err) : Result<T>.Failure(err));
+
+        /// <summary>
+        /// Async-binder overload of <see cref="BindOnErrorWhen(Func{DomainError, Result{T}}, Func{DomainError, bool})"/>.
+        /// </summary>
+        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
+        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
+        /// <returns>The original success, the awaited binder's result if the predicate matches, otherwise the original failure.</returns>
+        public Task<Result<T>> BindOnErrorWhen(
+            Func<DomainError, Task<Result<T>>> binder,
+            Func<DomainError, bool> predicate)
+            => result.BindOnError(err => predicate(err) ? binder(err) : Task.FromResult(Result<T>.Failure(err)));
+
         // ──────────────────────────────────────────────────────────────────
         // Side Effects - Tap
         // ──────────────────────────────────────────────────────────────────
