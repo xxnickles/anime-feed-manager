@@ -141,4 +141,81 @@ public class CollectionExtensionsTests
         Assert.False(success.IsFailure);
         Assert.True(failure.IsFailure);
     }
+
+    #region TraceContext merging from per-item results
+
+    [Fact]
+    public void Should_Flush_Per_Item_AddLog_Actions_When_All_Items_Succeed()
+    {
+        var log = new List<string>();
+
+        var results = Enumerable.Range(0, 3)
+            .Select(i => Result<int>.Success(i).AddLog(_ => log.Add($"item-{i}")))
+            .ToArray();
+
+        var flattened = results.Flatten(items => items.ToList());
+
+        var logger = new CapturingLogger();
+        flattened.Complete(logger);
+
+        Assert.Contains("item-0", log);
+        Assert.Contains("item-1", log);
+        Assert.Contains("item-2", log);
+    }
+
+    [Fact]
+    public void Should_Flush_Per_Item_AddLog_Actions_When_All_Items_Fail()
+    {
+        var log = new List<string>();
+
+        var results = Enumerable.Range(0, 3)
+            .Select(i => Result<int>.Failure(NotFoundError.Create($"err-{i}"))
+                .AddLog(_ => log.Add($"item-{i}")))
+            .ToArray();
+
+        var flattened = results.Flatten(items => items.ToList());
+
+        var logger = new CapturingLogger();
+        flattened.Complete(logger);
+
+        Assert.Contains("item-0", log);
+        Assert.Contains("item-1", log);
+        Assert.Contains("item-2", log);
+    }
+
+    [Fact]
+    public void Should_Flush_Per_Item_AddLog_Actions_For_Both_Successes_And_Failures_In_Mixed_Results()
+    {
+        var log = new List<string>();
+
+        var results = new[]
+        {
+            Result<int>.Success(1).AddLog(_ => log.Add("item-0")),
+            Result<int>.Failure(NotFoundError.Create("err")).AddLog(_ => log.Add("item-1")),
+            Result<int>.Success(3).AddLog(_ => log.Add("item-2"))
+        };
+
+        var flattened = results.Flatten(items => items.ToList());
+
+        var logger = new CapturingLogger();
+        flattened.Complete(logger);
+
+        Assert.Contains("item-0", log);
+        Assert.Contains("item-1", log);
+        Assert.Contains("item-2", log);
+    }
+
+    #endregion
+
+    #region Test Helpers
+
+    private sealed class CapturingLogger : ILogger
+    {
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+        public bool IsEnabled(LogLevel logLevel) => true;
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
+            Func<TState, Exception?, string> formatter) { }
+    }
+
+    #endregion
 }

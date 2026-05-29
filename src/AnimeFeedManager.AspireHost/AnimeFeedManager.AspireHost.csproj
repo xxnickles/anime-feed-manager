@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.3.0">
+<Project Sdk="Aspire.AppHost.Sdk/13.3.5">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -12,8 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AnimeFeedManager.Web\AnimeFeedManager.Web.csproj" />
-    <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj"
-                      IsAspireProjectResource="false" />
+    <ProjectReference Include="..\AnimeFeedManager.Features\AnimeFeedManager.Features.csproj" IsAspireProjectResource="false" />
   </ItemGroup>
 
 </Project>

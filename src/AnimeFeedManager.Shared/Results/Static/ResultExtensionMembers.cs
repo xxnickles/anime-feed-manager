@@ -159,7 +159,15 @@ public static class ResultExtensionMembers
         public Result<T> BindOnErrorWhen(
             Func<DomainError, Result<T>> binder,
             Func<DomainError, bool> predicate)
-            => result.BindOnError(err => predicate(err) ? binder(err) : Result<T>.Failure(err));
+        {
+            if (result.IsSuccess)
+                return result;
+
+            var error = result.ErrorValue!;
+            return predicate(error)
+                ? result.BindOnError(binder)
+                : result;
+        }
 
         /// <summary>
         /// Async-binder overload of <see cref="BindOnErrorWhen(Func{DomainError, Result{T}}, Func{DomainError, bool})"/>.
@@ -167,10 +175,18 @@ public static class ResultExtensionMembers
         /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
         /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
         /// <returns>The original success, the awaited binder's result if the predicate matches, otherwise the original failure.</returns>
-        public Task<Result<T>> BindOnErrorWhen(
+        public async Task<Result<T>> BindOnErrorWhen(
             Func<DomainError, Task<Result<T>>> binder,
             Func<DomainError, bool> predicate)
-            => result.BindOnError(err => predicate(err) ? binder(err) : Task.FromResult(Result<T>.Failure(err)));
+        {
+            if (result.IsSuccess)
+                return result;
+
+            var error = result.ErrorValue!;
+            return predicate(error)
+                ? await result.BindOnError(binder)
+                : result;
+        }
 
         // ──────────────────────────────────────────────────────────────────
         // Side Effects - Tap
@@ -200,6 +216,33 @@ public static class ResultExtensionMembers
         {
             if (result.IsSuccess)
                 await action(result.ResultValue!);
+            return result;
+        }
+
+        /// <summary>
+        /// Executes a side effect action on the failure value without modifying the result.
+        /// Symmetric counterpart of <see cref="Tap(Action{T})"/>.
+        /// </summary>
+        /// <param name="action">Action to execute on the failure value.</param>
+        /// <returns>The original result unchanged.</returns>
+        public Result<T> TapError(Action<DomainError> action)
+        {
+            if (result.IsFailure)
+                action(result.ErrorValue!);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Executes an async side effect action on the failure value without modifying the result.
+        /// Symmetric counterpart of <see cref="Tap(Func{T, Task})"/>.
+        /// </summary>
+        /// <param name="action">Async action to execute on the failure value.</param>
+        /// <returns>The original result unchanged.</returns>
+        public async Task<Result<T>> TapError(Func<DomainError, Task> action)
+        {
+            if (result.IsFailure)
+                await action(result.ErrorValue!);
             return result;
         }
 

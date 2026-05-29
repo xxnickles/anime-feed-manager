@@ -30,21 +30,28 @@ public static class ResultCollectionExtensionMembers
         {
             var successes = new List<T>();
             var errors = new List<DomainError>();
+            // Aggregate each input's deferred log actions + scope properties so AddLogOnSuccess /
+            // AddLogOnFailure staged on per-item chains survive into the bulk result. Without this
+            // merge they would be dropped at the aggregation boundary and never flushed.
+            var traceContext = TraceContext.Empty;
 
             foreach (var result in results)
             {
+                traceContext = traceContext.Merge(result.TraceContext);
                 if (result.IsSuccess)
                     successes.Add(result.ResultValue!);
                 else
                     errors.Add(result.ErrorValue!);
             }
 
-            return (successes.Count, errors.Count) switch
+            Result<BulkResult<TTarget>> aggregated = (successes.Count, errors.Count) switch
             {
                 (_, 0) => new CompletedBulkResult<TTarget>(flattenFunc(successes)),
                 (0, _) => new AggregatedError("All the operations in a bulk operation failed", [..errors]),
                 _ => new PartialSuccessBulkResult<TTarget>(flattenFunc(successes), [..errors])
             };
+
+            return aggregated with { TraceContext = traceContext };
         }
     }
 

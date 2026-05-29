@@ -264,6 +264,23 @@ public class BindOnErrorExtensionsTests
         result.AssertOnError(err => Assert.Same(genericError, err));
     }
 
+    [Fact]
+    public void Should_Preserve_TraceContext_When_Sync_BindOnErrorWhen_Predicate_Returns_False()
+    {
+        var logCalls = new List<string>();
+        var originalFailure = Result<int>.Failure(NotFoundError.Create("err"))
+            .AddLog(_ => logCalls.Add("staged"));
+
+        var result = originalFailure.BindOnErrorWhen(
+            binder: _ => Result<int>.Success(99),
+            predicate: _ => false);
+
+        var logger = new CapturingLogger();
+        result.Complete(logger);
+
+        Assert.Contains("staged", logCalls);
+    }
+
     #endregion
 
     #region BindOnErrorWhen (async binder on sync Result<T>)
@@ -327,6 +344,23 @@ public class BindOnErrorExtensionsTests
 
         Assert.False(binderCalled);
         result.AssertOnError(err => Assert.Same(error, err));
+    }
+
+    [Fact]
+    public async Task Should_Preserve_TraceContext_When_Async_BindOnErrorWhen_Predicate_Returns_False()
+    {
+        var logCalls = new List<string>();
+        var originalFailure = Result<int>.Failure(NotFoundError.Create("err"))
+            .AddLog(_ => logCalls.Add("staged"));
+
+        var result = await originalFailure.BindOnErrorWhen(
+            binder: _ => Task.FromResult(Result<int>.Success(99)),
+            predicate: _ => false);
+
+        var logger = new CapturingLogger();
+        result.Complete(logger);
+
+        Assert.Contains("staged", logCalls);
     }
 
     #endregion
@@ -473,6 +507,24 @@ public class BindOnErrorExtensionsTests
     }
 
     [Fact]
+    public async Task Should_Preserve_TraceContext_When_Task_Sync_BindOnErrorWhen_Predicate_Returns_False()
+    {
+        var logCalls = new List<string>();
+        var originalFailure = Result<int>.Failure(NotFoundError.Create("err"))
+            .AddLog(_ => logCalls.Add("staged"));
+
+        var result = await Task.FromResult(originalFailure)
+            .BindOnErrorWhen(
+                binder: _ => Result<int>.Success(99),
+                predicate: _ => false);
+
+        var logger = new CapturingLogger();
+        result.Complete(logger);
+
+        Assert.Contains("staged", logCalls);
+    }
+
+    [Fact]
     public async Task Should_Return_Original_Success_When_Task_Async_BindOnErrorWhen_Called_On_Success()
     {
         var binderCalled = false;
@@ -531,6 +583,24 @@ public class BindOnErrorExtensionsTests
 
         Assert.False(binderCalled);
         result.AssertOnError(err => Assert.Same(error, err));
+    }
+
+    [Fact]
+    public async Task Should_Preserve_TraceContext_When_Task_Async_BindOnErrorWhen_Predicate_Returns_False()
+    {
+        var logCalls = new List<string>();
+        var originalFailure = Result<int>.Failure(NotFoundError.Create("err"))
+            .AddLog(_ => logCalls.Add("staged"));
+
+        var result = await Task.FromResult(originalFailure)
+            .BindOnErrorWhen(
+                binder: _ => Task.FromResult(Result<int>.Success(99)),
+                predicate: _ => false);
+
+        var logger = new CapturingLogger();
+        result.Complete(logger);
+
+        Assert.Contains("staged", logCalls);
     }
 
     #endregion
