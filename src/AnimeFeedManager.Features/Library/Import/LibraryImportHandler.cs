@@ -12,13 +12,18 @@ namespace AnimeFeedManager.Features.Library.Import;
 
 internal sealed class LibraryImportHandler(
     IJikanClient jikan,
-    SingleSeriesPersistenceHandler<double> persistSeries,
-    LibrarySeasonsIndexUpserter upsertIndex,
+    ICosmosContainerFactory cosmosFactory,
     TimeProvider time,
     ILogger<LibraryImportHandler> logger)
     : WorkHandler<LibraryImportCommand>
 {
     private static readonly ActivitySource Source = new(Telemetry.LibraryImportSource);
+
+    private readonly SingleSeriesPersistenceHandler<CosmosOperationCost> _persistSeries =
+        cosmosFactory.CosmosSingleSeriesPersistenceHandler();
+
+    private readonly LibrarySeasonsIndexUpserter _upsertIndex =
+        cosmosFactory.LibrarySeasonsIndexUpserterHandler();
 
     public override int Capacity => 5;
     public override BoundedChannelFullMode FullMode => BoundedChannelFullMode.DropOldest;
@@ -39,11 +44,11 @@ internal sealed class LibraryImportHandler(
         };
 
         var now = time.GetUtcNow();
-        return await PersistSeries(source, now, persistSeries, cancellationToken)
+        return await PersistSeries(source, now, _persistSeries, cancellationToken)
             .Tap(result => SetImportActivityTags(importActivity, result))
             .AddLogOnSuccess(LogFactories.Log<ImportResult>((result, iLogger) =>
                 iLogger.LogInformation("Imported {Imported} series", result.Imported)))
-            .Bind(result => upsertIndex(new SeasonEntry(result.SeriesSeason, now, result.Imported), cancellationToken))
+            .Bind(result => _upsertIndex(new SeasonEntry(result.SeriesSeason, now, result.Imported), cancellationToken))
             .FlushLogs(logger)
             .Map(_ => new Unit())
             .MarkActivityErroredOnError();
@@ -52,7 +57,7 @@ internal sealed class LibraryImportHandler(
     private static async Task<Result<ImportResult>> PersistSeries(
         IAsyncEnumerable<Result<JikanPage>> source,
         DateTimeOffset now,
-        SingleSeriesPersistenceHandler<double> seriesPersistenceHandler,
+        SingleSeriesPersistenceHandler<CosmosOperationCost> seriesPersistenceHandler,
         CancellationToken cancellationToken
     )
     {
@@ -109,7 +114,7 @@ internal sealed class LibraryImportHandler(
 
     private static async Task<Result<BulkResult<ImportResult>>> ProcessPage(
         JikanPage page,
-        SingleSeriesPersistenceHandler<double> persistSeries,
+        SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
@@ -120,7 +125,7 @@ internal sealed class LibraryImportHandler(
                     .AddLogOnFailure(error => error.LogAction())
                     // We want to retry on transient errors, for that we make permanent errors a good result
                     .BindOnErrorWhen(
-                        binder: _ => Result<double>.Success(0.0),
+                        binder: _ => Result<CosmosOperationCost>.Success(default),
                         predicate: err => err is CosmosResponseError {IsTransient: false})
                     .Map(charge => (parsed.SeriesSeason, charge)))
         );
@@ -128,7 +133,7 @@ internal sealed class LibraryImportHandler(
         return results.Flatten(Map);
     }
 
-    private static ImportResult Map(IEnumerable<(SeriesSeason season, double charge)> items)
+    private static ImportResult Map(IEnumerable<(SeriesSeason season, CosmosOperationCost charge)> items)
     {
         var list = items.ToList();
         var grouped = list.GroupBy(x => x.season)
@@ -137,14 +142,14 @@ internal sealed class LibraryImportHandler(
         return new ImportResult(
             grouped[0].Key,
             list.Count,
-            list.Sum(x => x.charge));
+            list.Aggregate(default(CosmosOperationCost), (acc, x) => acc + x.charge));
     }
 
     private static void SetPageActivityTags(Activity? activity, BulkResult<ImportResult> bulkResult)
     {
         if (activity is null) return;
         var succeeded = bulkResult.Value.Imported;
-        var totalCost = bulkResult.Value.TotalCost;
+        var totalCost = bulkResult.Value.TotalCost.RuUsed;
         var failed = bulkResult is PartialSuccessBulkResult<ImportResult> partial ? partial.Errors.Length : 0;
         activity
             .SetTag("library.import.page.succeeded", succeeded)
@@ -157,13 +162,14 @@ internal sealed class LibraryImportHandler(
     private static void SetImportActivityTags(Activity? activity, ImportResult result)
     {
         if (activity is null) return;
+        var totalCost = result.TotalCost.RuUsed;
         activity
             .SetTag("library.import.total_imported", result.Imported)
-            .SetTag("library.import.total_cost", Math.Round(result.TotalCost, 2));
+            .SetTag("library.import.total_cost", Math.Round(totalCost, 2));
         if (result.Imported > 0)
-            activity.SetTag("library.import.avg_cost", Math.Round(result.TotalCost / result.Imported, 2));
+            activity.SetTag("library.import.avg_cost", Math.Round(totalCost / result.Imported, 2));
     }
 
 
-    private record ImportResult(SeriesSeason SeriesSeason, int Imported, double TotalCost);
+    private record ImportResult(SeriesSeason SeriesSeason, int Imported, CosmosOperationCost TotalCost);
 }

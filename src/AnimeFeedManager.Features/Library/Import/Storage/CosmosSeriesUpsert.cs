@@ -6,11 +6,11 @@ namespace AnimeFeedManager.Features.Library.Import.Storage;
 
 public static class CosmosSeriesUpsert
 {
-    public static SingleSeriesPersistenceHandler<double> CosmosSingleSeriesPersistenceHandler(this ICosmosContainerFactory factory) =>
+    public static SingleSeriesPersistenceHandler<CosmosOperationCost> CosmosSingleSeriesPersistenceHandler(this ICosmosContainerFactory factory) =>
         (series, cancellationToken) => factory.GetContainer<Series>()
             .Bind(container => UpsertOne(container, series, cancellationToken));
 
-    private static async Task<Result<double>> UpsertOne(
+    private static async Task<Result<CosmosOperationCost>> UpsertOne(
         Container container,
         Series s,
         CancellationToken cancellationToken)
@@ -21,7 +21,7 @@ public static class CosmosSeriesUpsert
                 s,
                 new PartitionKey(s.SeriesSeason.ToString()),
                 cancellationToken: cancellationToken);
-            return response.RequestCharge;
+            return new CosmosOperationCost(response.RequestCharge);
         }
         catch (CosmosException e)
         {
