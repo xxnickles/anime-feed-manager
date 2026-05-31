@@ -1,13 +1,18 @@
 using AnimeFeedManager.Features;
+using AnimeFeedManager.Features.Library;
+using AnimeFeedManager.Features.Library.Registration;
 using AnimeFeedManager.Infrastructure.Registration;
 using AnimeFeedManager.ServiceDefaults;
+using AnimeFeedManager.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddWebAppDefaults();
-builder.AddCosmosInfrastructure(CosmosContainerRegistry.EntityRegistry);
+builder.AddWebAppDefaults(Telemetry.LibraryImportSource);
+builder.AddCosmosInfrastructure(CosmosContainerRegistry.EntityRegistry, LibraryJsonContext.Default);
 builder.Services.AddEventBus();
 builder.AddCronScheduler();
+builder.AddWorkQueueProcessor();
+builder.AddLibrary();
 builder.Services.AddRazorComponents();
 
 var app = builder.Build();

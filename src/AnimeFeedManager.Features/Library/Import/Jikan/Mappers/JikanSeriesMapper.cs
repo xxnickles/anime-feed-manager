@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Features.Library.Import.Jikan.Types;
-using AnimeFeedManager.Shared.Results.Static;
 using static AnimeFeedManager.Features.Library.Import.Jikan.Parsing.JikanParsers;
 
 namespace AnimeFeedManager.Features.Library.Import.Jikan.Mappers;

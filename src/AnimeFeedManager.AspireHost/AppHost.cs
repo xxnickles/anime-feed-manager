@@ -9,6 +9,7 @@ var databaseName = builder.Configuration["Cosmos:DatabaseName"] ?? "anime-feed";
 var cosmos = builder.AddAzureCosmosDB("cosmos")
     .RunAsPreviewEmulator(emulator => emulator
         .WithDataExplorer()
+        .WithDataVolume()
         .WithImagePullPolicy(ImagePullPolicy.Missing)
         .WithLifetime(ContainerLifetime.Persistent));
 
@@ -19,6 +20,9 @@ foreach (var (containerName, partitionKeyPath) in CosmosContainerRegistry.Contai
 
 builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WithReference(db)
-    .WaitFor(db);
+    .WaitFor(db)
+    // The Linux preview emulator mishandles SDK bulk execution (see CosmosOptions.AllowBulkExecution).
+    // We only run against the emulator today, so disable it unconditionally.
+    .WithEnvironment("Cosmos__AllowBulkExecution", "false");
 
 builder.Build().Run();

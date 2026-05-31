@@ -10,7 +10,7 @@ internal sealed class LibraryImportCronJob(WorkQueue<LibraryImportCommand> queue
 {
     public override string Name => "library-import";
 
-    public override string DefaultExpression => "0 0 4 * * 6";
+    public override string DefaultExpression => "0 4 * * 6";
 
     public override Task Run(CancellationToken cancellationToken)
         => queue.Enqueue(new LibraryImportCommand(ImportTarget.Now()), cancellationToken).AsTask();

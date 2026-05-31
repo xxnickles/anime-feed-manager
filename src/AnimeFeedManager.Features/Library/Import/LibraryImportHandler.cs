@@ -120,8 +120,15 @@ internal sealed class LibraryImportHandler(
     {
         var tasks = page.Items.Select(item =>
             item.ToSeries(now)
+                .AddLogOnFailure(_ => logger => logger.LogWarning(
+                    "Failed to parse series from Jikan. Item {Id} {Series}",
+                    item.MalId,
+                    JsonSerializer.Serialize(item, JikanJsonContext.Default.JikanAnime)))
                 .Bind(parsed => persistSeries(parsed, cancellationToken)
-                    // Keeps the log trace
+                    // Per-item scope context — additive to error.LogAction()'s existing log
+                    // (which already carries Container, PartitionKey, Id). MalId is omitted
+                    // since the error's Id field is already the MAL ID.
+                    .AddLogOnFailure(_ => logger => logger.LogWarning("Failed to persist series {Id}-{Title} of {SeriesType}", parsed.Id, parsed.Titles.Default, parsed.GetType().Name))
                     .AddLogOnFailure(error => error.LogAction())
                     // We want to retry on transient errors, for that we make permanent errors a good result
                     .BindOnErrorWhen(

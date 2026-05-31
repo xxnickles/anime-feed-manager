@@ -15,17 +15,40 @@ public static class CosmosSeriesUpsert
         Series s,
         CancellationToken cancellationToken)
     {
+        var partitionKey = new PartitionKey(s.SeriesSeason.ToString());
         try
         {
-            var response = await container.UpsertItemAsync(
-                s,
-                new PartitionKey(s.SeriesSeason.ToString()),
+            // Stream-based upsert: we control the write JSON via LibraryJsonContext.Default.Series
+            // (the polymorphic JsonTypeInfo, which writes the `seriesType` discriminator before
+            // properties at runtime based on s.GetType()). Cosmos never deserializes the
+            // response — we read RequestCharge from headers and discard the body, sidestepping
+            // the abstract-typed round-trip that fails STJ polymorphic deserialization.
+            using var stream = new MemoryStream();
+            await JsonSerializer.SerializeAsync(stream, s, LibraryJsonContext.Default.Series, cancellationToken);
+            stream.Position = 0;
+
+            using var response = await container.UpsertItemStreamAsync(
+                stream,
+                partitionKey,
                 cancellationToken: cancellationToken);
-            return new CosmosOperationCost(response.RequestCharge);
+
+            if (response.IsSuccessStatusCode)
+                return new CosmosOperationCost(response.Headers.RequestCharge);
+
+            return CosmosResponseError.Create(
+                new CosmosException(
+                    message: $"Upsert failed with status {response.StatusCode} ({response.ErrorMessage})",
+                    statusCode: response.StatusCode,
+                    subStatusCode: 0,
+                    activityId: response.Headers.ActivityId,
+                    requestCharge: response.Headers.RequestCharge),
+                partitionKey,
+                s.Id,
+                container.Id);
         }
         catch (CosmosException e)
         {
-            return CosmosResponseError.Create(e, new PartitionKey(s.SeriesSeason.ToString()), s.Id, container.Id);
+            return CosmosResponseError.Create(e, partitionKey, s.Id, container.Id);
         }
         catch (Exception e)
         {
