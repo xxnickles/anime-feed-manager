@@ -135,7 +135,6 @@ public static partial class JikanSeriesMapper
             AiredFrom = jikan.Aired?.From,
             AiredTo = jikan.Aired?.To,
             LastUpdated = lastUpdated,
-            Broadcast = MapBroadcast(jikan.Broadcast),
             Episodes = jikan.Episodes,
             EpisodeDurationMinutes = ParseDurationMinutes(jikan.Duration)
         };
@@ -160,7 +159,8 @@ public static partial class JikanSeriesMapper
             AiredFrom = jikan.Aired?.From,
             AiredTo = jikan.Aired?.To,
             LastUpdated = lastUpdated,
-            RuntimeMinutes = ParseDurationMinutes(jikan.Duration)
+            Episodes = jikan.Episodes,
+            EpisodeDurationMinutes = ParseDurationMinutes(jikan.Duration)
         };
 
     // ─── helpers ─────────────────────────────────────────────────────────────

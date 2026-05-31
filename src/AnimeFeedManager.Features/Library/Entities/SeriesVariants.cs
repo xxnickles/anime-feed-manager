@@ -36,27 +36,40 @@ public sealed record OvaSeries : Series
 }
 
 /// <summary>
-/// Original Net Animation — streaming-native release. May have a
-/// weekly <see cref="Broadcast"/> (e.g., simulcast slot) or be batch-dropped.
+/// Original Net Animation — streaming-native release. Episodic; no broadcast
+/// schedule on the seasonal feed (verified TV-only), so episodes drop over an air range.
 /// </summary>
 public sealed record OnaSeries : Series
 {
     public OnaSeries(int malId) : base(malId) { }
 
-    public Broadcast? Broadcast { get; init; }
     public int? Episodes { get; init; }
     public int? EpisodeDurationMinutes { get; init; }
 }
 
 /// <summary>
-/// TV special — one-shot or short-form broadcast tied to a parent series.
-/// Single air date, single total runtime.
+/// TV special — short-form broadcast tied to a parent series. Episodic per Jikan
+/// (multiple short episodes are common), so modeled like <see cref="OvaSeries"/>.
 /// </summary>
 public sealed record TvSpecialSeries : Series
 {
     public TvSpecialSeries(int malId) : base(malId) { }
 
-    public int? RuntimeMinutes { get; init; }
+    public int? Episodes { get; init; }
+    public int? EpisodeDurationMinutes { get; init; }
+}
+
+/// <summary>
+/// Standalone special / extra (distinct MAL type from <see cref="TvSpecialSeries"/> —
+/// e.g. bundled BD/DVD extras). Episodic shape; kept as its own entity to preserve
+/// MAL's upstream type distinction even though its fields match a TV special.
+/// </summary>
+public sealed record SpecialSeries : Series
+{
+    public SpecialSeries(int malId) : base(malId) { }
+
+    public int? Episodes { get; init; }
+    public int? EpisodeDurationMinutes { get; init; }
 }
 
 /// <summary>

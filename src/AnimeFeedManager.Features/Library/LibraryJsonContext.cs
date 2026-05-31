@@ -20,6 +20,7 @@ namespace AnimeFeedManager.Features.Library;
 [JsonSerializable(typeof(OvaSeries))]
 [JsonSerializable(typeof(OnaSeries))]
 [JsonSerializable(typeof(TvSpecialSeries))]
+[JsonSerializable(typeof(SpecialSeries))]
 [JsonSerializable(typeof(LibrarySeasonsIndex))]
 [JsonSerializable(typeof(SeasonEntry))]
 public partial class LibraryJsonContext : JsonSerializerContext;

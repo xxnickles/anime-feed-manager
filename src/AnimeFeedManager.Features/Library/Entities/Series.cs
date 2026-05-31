@@ -15,6 +15,7 @@ namespace AnimeFeedManager.Features.Library.Entities;
 [JsonDerivedType(typeof(OvaSeries), "ova")]
 [JsonDerivedType(typeof(OnaSeries), "ona")]
 [JsonDerivedType(typeof(TvSpecialSeries), "tv_special")]
+[JsonDerivedType(typeof(SpecialSeries), "special")]
 public abstract record Series : CosmosDocument
 {
     public int MalId { get; }
