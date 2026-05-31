@@ -9,4 +9,12 @@ public sealed record JikanPage(
     ImmutableArray<JikanAnime> Items,
     int Page,
     int LastPage,
-    int TotalItems);
+    int TotalItems)
+{
+    /// <summary>
+    /// The season this page belongs to, resolved once by the client from the first
+    /// TV item (season/year are TV-only on Jikan) and propagated to every page so the
+    /// mapper can stamp it on non-TV series. Defaults to the sentinel until resolved.
+    /// </summary>
+    public SeriesSeason Season { get; init; } = SeriesSeason.Default;
+}
