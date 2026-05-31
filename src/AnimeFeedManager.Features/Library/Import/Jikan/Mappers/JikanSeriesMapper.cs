@@ -7,21 +7,21 @@ namespace AnimeFeedManager.Features.Library.Import.Jikan.Mappers;
 
 /// <summary>
 /// Maps a single <see cref="JikanAnime"/> record to its concrete <see cref="Series"/>
-/// derivative. Validation errors accumulate via <see cref="Validation{T}"/>;
-/// type-dispatch failure ("unknown anime type") is reported as a domain error.
-/// Soft fields default when Jikan returns null/junk; hard fields (MalId, Season,
-/// Year, Type) fail the mapping.
+/// derivative. Validation errors accumulate via <see cref="Validation{T}"/>. The season
+/// is supplied by the caller (resolved once from the page's first TV item), and unmodeled
+/// types are already filtered out by the client; the only hard field left is MalId.
+/// Soft fields default when Jikan returns null/junk.
 /// </summary>
 public static partial class JikanSeriesMapper
 {
-    public static Result<Series> ToSeries(this JikanAnime jikan, DateTimeOffset lastUpdated)
+    public static Result<Series> ToSeries(this JikanAnime jikan, SeriesSeason season, DateTimeOffset lastUpdated)
     {
         var titles = BuildTitles(jikan.Titles);
         var allTitles = BuildAllTitles(titles);
 
         return ValidateRequired(jikan)
             .AsResult()
-            .Bind(parsed => MapTypedSeries(jikan, parsed.season, parsed.year, titles, allTitles, lastUpdated));
+            .Bind(_ => MapTypedSeries(jikan, season, titles, allTitles, lastUpdated));
     }
 
    
@@ -29,27 +29,28 @@ public static partial class JikanSeriesMapper
     // ─── type dispatch ───────────────────────────────────────────────────────
 
     private static Result<Series> MapTypedSeries(
-        JikanAnime jikan, Season season, Year year,
+        JikanAnime jikan, SeriesSeason season,
         SeriesTitles titles, string[] allTitles, DateTimeOffset lastUpdated) =>
         jikan.Type?.Trim() switch
         {
-            "TV" => MapTv(jikan, season, year, titles, allTitles, lastUpdated),
-            "Movie" => MapMovie(jikan, season, year, titles, allTitles, lastUpdated),
-            "OVA" => MapOva(jikan, season, year, titles, allTitles, lastUpdated),
-            "ONA" => MapOna(jikan, season, year, titles, allTitles, lastUpdated),
-            "TV Special" => MapTvSpecial(jikan, season, year, titles, allTitles, lastUpdated),
+            JikanAnimeType.Tv => MapTv(jikan, season, titles, allTitles, lastUpdated),
+            JikanAnimeType.Movie => MapMovie(jikan, season, titles, allTitles, lastUpdated),
+            JikanAnimeType.Ova => MapOva(jikan, season, titles, allTitles, lastUpdated),
+            JikanAnimeType.Ona => MapOna(jikan, season, titles, allTitles, lastUpdated),
+            JikanAnimeType.TvSpecial => MapTvSpecial(jikan, season, titles, allTitles, lastUpdated),
+            JikanAnimeType.Special => MapSpecial(jikan, season, titles, allTitles, lastUpdated),
             _ => DomainValidationError.Create<Series>($"unknown anime type '{jikan.Type}'").ToErrors()
         };
 
     // ─── per-type mappers ────────────────────────────────────────────────────
 
     private static TvSeries MapTv(
-        JikanAnime jikan, Season season, Year year,
+        JikanAnime jikan, SeriesSeason season,
         SeriesTitles titles, string[] allTitles, DateTimeOffset lastUpdated) =>
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            SeriesSeason = new SeriesSeason(season, year),
+            SeriesSeason = season,
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,
@@ -69,12 +70,12 @@ public static partial class JikanSeriesMapper
         };
 
     private static MovieSeries MapMovie(
-        JikanAnime jikan, Season season, Year year,
+        JikanAnime jikan, SeriesSeason season,
         SeriesTitles titles, string[] allTitles, DateTimeOffset lastUpdated) =>
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            SeriesSeason = new SeriesSeason(season, year),
+            SeriesSeason = season,
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,
@@ -92,12 +93,12 @@ public static partial class JikanSeriesMapper
         };
 
     private static OvaSeries MapOva(
-        JikanAnime jikan, Season season, Year year,
+        JikanAnime jikan, SeriesSeason season,
         SeriesTitles titles, string[] allTitles, DateTimeOffset lastUpdated) =>
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            SeriesSeason = new SeriesSeason(season, year),
+            SeriesSeason = season,
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,
@@ -116,12 +117,12 @@ public static partial class JikanSeriesMapper
         };
 
     private static OnaSeries MapOna(
-        JikanAnime jikan, Season season, Year year,
+        JikanAnime jikan, SeriesSeason season,
         SeriesTitles titles, string[] allTitles, DateTimeOffset lastUpdated) =>
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            SeriesSeason = new SeriesSeason(season, year),
+            SeriesSeason = season,
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,
@@ -140,12 +141,36 @@ public static partial class JikanSeriesMapper
         };
 
     private static TvSpecialSeries MapTvSpecial(
-        JikanAnime jikan, Season season, Year year,
+        JikanAnime jikan, SeriesSeason season,
         SeriesTitles titles, string[] allTitles, DateTimeOffset lastUpdated) =>
         new(jikan.MalId)
         {
             MalUrl = jikan.Url,
-            SeriesSeason = new SeriesSeason(season, year),
+            SeriesSeason = season,
+            Titles = titles,
+            AllTitles = allTitles,
+            Synopsis = jikan.Synopsis,
+            CoverImageUrl = PickCover(jikan.Images),
+            TrailerUrl = jikan.Trailer?.Url,
+            Status = SeriesStatus.FromJikan(jikan.Status),
+            Genres = jikan.Genres.Select(genre => genre.Name).ToArray(),
+            Studios = jikan.Studios.Select(studio => studio.Name).ToArray(),
+            Score = jikan.Score,
+            Source = jikan.Source,
+            AiredFrom = jikan.Aired?.From,
+            AiredTo = jikan.Aired?.To,
+            LastUpdated = lastUpdated,
+            Episodes = jikan.Episodes,
+            EpisodeDurationMinutes = ParseDurationMinutes(jikan.Duration)
+        };
+
+    private static SpecialSeries MapSpecial(
+        JikanAnime jikan, SeriesSeason season,
+        SeriesTitles titles, string[] allTitles, DateTimeOffset lastUpdated) =>
+        new(jikan.MalId)
+        {
+            MalUrl = jikan.Url,
+            SeriesSeason = season,
             Titles = titles,
             AllTitles = allTitles,
             Synopsis = jikan.Synopsis,

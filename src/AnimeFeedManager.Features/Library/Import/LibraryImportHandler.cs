@@ -119,7 +119,7 @@ internal sealed class LibraryImportHandler(
         CancellationToken cancellationToken)
     {
         var tasks = page.Items.Select(item =>
-            item.ToSeries(now)
+            item.ToSeries(page.Season, now)
                 .AddLogOnFailure(_ => logger => logger.LogWarning(
                     "Failed to parse series from Jikan. Item {Id} {Series}",
                     item.MalId,

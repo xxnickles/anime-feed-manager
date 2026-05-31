@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using AnimeFeedManager.Features.Library.Import.Jikan.Types;
 
 namespace AnimeFeedManager.Features.Library.Import.Jikan;
@@ -90,7 +89,7 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
     /// season, so the whole enumeration is abandoned.
     /// </summary>
     private static Result<SeriesSeason> ResolveSeason(JikanSeasonResponse payload) =>
-        payload.Data.FirstOrDefault(a => a is {Type: "TV", Season: not null, Year: not null})
+        payload.Data.FirstOrDefault(a => a is {Type: JikanAnimeType.Tv, Season: not null, Year: not null})
             is {Season: { } season, Year: { } year}
             ? (season, year).ParseAsSeriesSeason()
             : Error.Create("Jikan returned no TV item on the first page; cannot resolve the season");
@@ -102,11 +101,6 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
 /// </summary>
 file static class JikanPageProjection
 {
-    // Series types we model and import. Every other Jikan type (Music, PV, CM, …) and
-    // null-typed entries are filtered out here and never reach the mapper.
-    private static readonly FrozenSet<string> SeriesTypes =
-        FrozenSet.ToFrozenSet(["TV", "Movie", "OVA", "ONA", "TV Special", "Special"]);
-
     extension(Task<Result<(JikanSeasonResponse payload, SeriesSeason season)>> source)
     {
         /// <summary>
@@ -131,6 +125,5 @@ file static class JikanPageProjection
             Season = season
         };
 
-    private static bool IsSeries(JikanAnime anime) =>
-        anime.Type is { } type && SeriesTypes.Contains(type);
+    private static bool IsSeries(JikanAnime anime) => JikanAnimeType.IsModeled(anime.Type);
 }

@@ -5,24 +5,13 @@ namespace AnimeFeedManager.Features.Library.Import.Jikan.Parsing;
 
 internal static class JikanParsers
 {
-    internal static Validation<(Season season, Year year)> ValidateRequired(JikanAnime jikan) =>
-        ValidateSeason(jikan.Season)
-            .And(ValidateYear(jikan.Year))
-            .And(ValidateMalId(jikan.MalId))
-            .Map(t => (season: t.Item1, year: t.Item2));
-
-    private static Validation<Season> ValidateSeason(string? season) =>
-        season is null
-            ? Validation<Season>.Invalid("season is missing")
-            : season.ParseAsSeason();
-
-    private static Validation<Year> ValidateYear(int? year) =>
-        year is null
-            ? Validation<Year>.Invalid("year is missing")
-            : year.Value.ParseAsYear();
-
-    private static Validation<Unit> ValidateMalId(int malId) =>
-        malId > 0
+    /// <summary>
+    /// Validates the one hard requirement that survives type filtering and external season
+    /// resolution: a positive MAL id. Season/year are no longer checked here — they're
+    /// resolved once by the client (TV-only on Jikan) and passed into the mapper.
+    /// </summary>
+    internal static Validation<Unit> ValidateRequired(JikanAnime jikan) =>
+        jikan.MalId > 0
             ? Validation<Unit>.Valid(new Unit())
-            : Validation<Unit>.Invalid($"mal_id must be positive (got {malId})");
+            : Validation<Unit>.Invalid($"mal_id must be positive (got {jikan.MalId})");
 }
