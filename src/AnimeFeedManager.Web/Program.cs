@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddWebAppDefaults(Telemetry.LibraryImportSource);
 builder.AddCosmosInfrastructure(CosmosContainerRegistry.EntityRegistry, LibraryJsonContext.Default);
+builder.AddAzureBlobServiceClient("blobs");
 builder.Services.AddEventBus();
 builder.AddCronScheduler();
 builder.AddWorkQueueProcessor();
