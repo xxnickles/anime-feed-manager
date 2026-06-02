@@ -7,6 +7,7 @@
   <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
     <!-- Azure packages -->
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.28.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.5.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.8.1" />
     <!-- Aspire packages -->
