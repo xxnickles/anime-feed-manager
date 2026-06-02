@@ -67,10 +67,9 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
             if (payload is null)
                 return Error.Create($"Jikan returned a null payload for {path} page {pageNumber}");
 
-            // No data == error
-            if (payload.Data.Length == 0)
-                return Error.Create($"Jikan returned an empty payload for {path} page {pageNumber}");
-
+            // An empty page is not an error: Jikan's last_visible_page over-reports, so a page
+            // within the advertised range can come back empty. EnumeratePages treats that as the
+            // natural end of the season (page 1 still fails upstream — ResolveSeason needs a TV item).
             return payload;
         }
         catch (OperationCanceledException)

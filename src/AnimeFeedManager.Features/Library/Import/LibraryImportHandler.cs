@@ -129,27 +129,34 @@ internal sealed class LibraryImportHandler(
                     // (which already carries Container, PartitionKey, Id). MalId is omitted
                     // since the error's Id field is already the MAL ID.
                     .AddLogOnFailure(_ => logger => logger.LogWarning("Failed to persist series {Id}-{Title} of {SeriesType}", parsed.Id, parsed.Titles.Default, parsed.GetType().Name))
-                    .AddLogOnFailure(error => error.LogAction())
-                    // We want to retry on transient errors, for that we make permanent errors a good result
-                    .BindOnErrorWhen(
-                        binder: _ => Result<CosmosOperationCost>.Success(default),
-                        predicate: err => err is CosmosResponseError {IsTransient: false})
-                    .Map(charge => (parsed.SeriesSeason, charge)))
+                    .AddLogOnFailure(error => error.LogAction()))
+                // Permanent failures — parse/validation and non-transient Cosmos — are skipped:
+                // logged above, then turned into a zero-cost success so they don't poison the page
+                // into a PartialSuccessBulkResult and trigger a retry. Only transient errors stay
+                // failures and drive the page-level retry. BindOnError merges the trace context,
+                // so the warnings logged above still flush.
+                .BindOnErrorWhen(
+                    binder: _ => new CosmosOperationCost(0),
+                    predicate: IsPermanent)
         );
         var results = await Task.WhenAll(tasks);
-        return results.Flatten(Map);
+        return results.Flatten(charges => Map(page.Season, charges));
     }
 
-    private static ImportResult Map(IEnumerable<(SeriesSeason season, CosmosOperationCost charge)> items)
+    // Parse/validation errors and non-transient Cosmos errors are permanent: the item can't
+    // succeed on retry, so we skip it rather than retry the whole page.
+    private static bool IsPermanent(DomainError error) =>
+        error is DomainValidationErrors or CosmosResponseError {IsTransient: false};
+
+    private static ImportResult Map(SeriesSeason season, IEnumerable<CosmosOperationCost> charges)
     {
-        var list = items.ToList();
-        var grouped = list.GroupBy(x => x.season)
-            .OrderByDescending(g => g.Count())
-            .ToList();
+        // Every series on a page shares the page's season (stamped during mapping), so it's the
+        // result season directly — no grouping, and safe when the page filtered down to nothing.
+        var list = charges as IReadOnlyCollection<CosmosOperationCost> ?? charges.ToList();
         return new ImportResult(
-            grouped[0].Key,
+            season,
             list.Count,
-            list.Aggregate(default(CosmosOperationCost), (acc, x) => acc + x.charge));
+            list.Aggregate(default(CosmosOperationCost), (acc, charge) => acc + charge));
     }
 
     private static void SetPageActivityTags(Activity? activity, BulkResult<ImportResult> bulkResult)
