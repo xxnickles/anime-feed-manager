@@ -11,6 +11,16 @@ namespace AnimeFeedManager.Features.Library.Images;
 public sealed record ImageProcessorDependencies(IImageHttpClient HttpClient, BlobServiceClient BlobServiceClient);
 
 /// <summary>
+/// Downloads the cover named by a <see cref="ProcessSeriesImageCommand"/> and stores it in blob
+/// storage, yielding the relative blob path to persist as the series' <c>CoverImageUrl</c>. Built
+/// from <see cref="ImageProcessorDependencies"/> via <see cref="ImageProcessor.SeriesImageProcessorHandler"/>.
+/// </summary>
+public delegate Task<Result<string>> SeriesImageProcessor(
+    ProcessSeriesImageCommand command,
+    CancellationToken cancellationToken);
+
+
+/// <summary>
 /// Downloads a series cover image and stores it in blob storage, returning the relative blob
 /// path to persist as the series' <c>CoverImageUrl</c>. Idempotent: if the target blob already
 /// exists (frequent on re-import) the download is skipped and the existing path returned, so a
@@ -32,7 +42,9 @@ public static class ImageProcessor
         // Jikan serves WebP (preferred by PickCover) or JPG. Derive the extension and
         // content-type from the source URL so the stored blob is served with the right type.
         var isWebp = command.SourceUrl.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
-        var blobName = $"{command.Season}/{command.Id}.{(isWebp ? "webp" : "jpg")}";
+        // Blob layout images/{year}/{season}/{malId}.{ext} — covers nest under year then season
+        // so no single path segment accumulates an unbounded number of blobs.
+        var blobName = $"{command.Season.Year}/{command.Season.Season}/{command.Id}.{(isWebp ? "webp" : "jpg")}";
         var relativePath = $"{BlobContainer}/{blobName}";
 
         try
