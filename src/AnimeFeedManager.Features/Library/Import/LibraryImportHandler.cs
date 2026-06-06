@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Library.Import.Jikan.Mappers;
 using AnimeFeedManager.Features.Library.Import.Jikan.Types;
@@ -13,6 +14,7 @@ namespace AnimeFeedManager.Features.Library.Import;
 internal sealed class LibraryImportHandler(
     IJikanClient jikan,
     ICosmosContainerFactory cosmosFactory,
+    WorkQueue<ProcessSeriesImageCommand> imageQueue,
     TimeProvider time,
     ILogger<LibraryImportHandler> logger)
     : WorkHandler<LibraryImportCommand>
@@ -44,7 +46,7 @@ internal sealed class LibraryImportHandler(
         };
 
         var now = time.GetUtcNow();
-        return await PersistSeries(source, now, _persistSeries, cancellationToken)
+        return await PersistSeries(source, now, _persistSeries, imageQueue, cancellationToken)
             .Tap(result => SetImportActivityTags(importActivity, result))
             .AddLogOnSuccess(LogFactories.Log<ImportResult>((result, iLogger) =>
                 iLogger.LogInformation("Imported {Imported} series", result.Imported)))
@@ -58,6 +60,7 @@ internal sealed class LibraryImportHandler(
         IAsyncEnumerable<Result<JikanPage>> source,
         DateTimeOffset now,
         SingleSeriesPersistenceHandler<CosmosOperationCost> seriesPersistenceHandler,
+        WorkQueue<ProcessSeriesImageCommand> imageQueue,
         CancellationToken cancellationToken
     )
     {
@@ -73,7 +76,7 @@ internal sealed class LibraryImportHandler(
             var persistResult =
                 await pageResult
                     .Tap(page => pageActivity?.SetTag("library.import.page.input_count", page.Items.Length))
-                    .Bind(page => ProcessPage(page, seriesPersistenceHandler, now, cancellationToken))
+                    .Bind(page => ProcessPage(page, seriesPersistenceHandler, imageQueue, now, cancellationToken))
                     .Tap(bulkResult => SetPageActivityTags(pageActivity, bulkResult))
                     // Partial errors become a full error as they are only possible for recoverable cases
                     .Bind(results =>
@@ -115,6 +118,7 @@ internal sealed class LibraryImportHandler(
     private static async Task<Result<BulkResult<ImportResult>>> ProcessPage(
         JikanPage page,
         SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
+        WorkQueue<ProcessSeriesImageCommand> imageQueue,
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
@@ -129,7 +133,15 @@ internal sealed class LibraryImportHandler(
                     // (which already carries Container, PartitionKey, Id). MalId is omitted
                     // since the error's Id field is already the MAL ID.
                     .AddLogOnFailure(_ => logger => logger.LogWarning("Failed to persist series {Id}-{Title} of {SeriesType}", parsed.Id, parsed.Titles.Default, parsed.GetType().Name))
-                    .AddLogOnFailure(error => error.LogAction()))
+                    .AddLogOnFailure(error => error.LogAction())
+                    // On successful persist, enqueue cover-image work. Only series that carry a
+                    // cover URL qualify; the rest persist with a null CoverImageUrl and are skipped.
+                    // Enqueue is fire-and-forget into the bounded image queue (back-pressures under
+                    // Wait); a failed enqueue never fails the import — the persist already succeeded.
+                    .Tap(_ => parsed.CoverImageUrl is { } coverUrl
+                        ? imageQueue.Enqueue(
+                            new ProcessSeriesImageCommand(parsed.Id, parsed.SeriesSeason, coverUrl), cancellationToken).AsTask()
+                        : Task.CompletedTask))
                 // Permanent failures — parse/validation and non-transient Cosmos — are skipped:
                 // logged above, then turned into a zero-cost success so they don't poison the page
                 // into a PartialSuccessBulkResult and trigger a retry. Only transient errors stay

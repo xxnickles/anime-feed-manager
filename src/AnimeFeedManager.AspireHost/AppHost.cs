@@ -10,8 +10,7 @@ var cosmos = builder.AddAzureCosmosDB("cosmos")
     .RunAsPreviewEmulator(emulator => emulator
         .WithDataExplorer()
         .WithDataVolume()
-        .WithImagePullPolicy(ImagePullPolicy.Missing)
-        .WithLifetime(ContainerLifetime.Persistent));
+        .WithImagePullPolicy(ImagePullPolicy.Always));
 
 var db = cosmos.AddCosmosDatabase(databaseName);
 
@@ -20,7 +19,8 @@ foreach (var (containerName, partitionKeyPath) in CosmosContainerRegistry.Contai
 
 var blobs = builder.AddAzureStorage("storage")
     .RunAsEmulator(emulator => emulator
-        .WithDataVolume()
+        .WithImageTag("latest")
+        .WithBindMount(builder.Configuration["AzuriteDataPath"] ?? "../../../azurite-data", "/data")
         .WithLifetime(ContainerLifetime.Persistent))
     .AddBlobs("blobs");
 
