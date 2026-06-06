@@ -7,7 +7,7 @@ using AnimeFeedManager.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddWebAppDefaults(Telemetry.LibraryImportSource);
+builder.AddWebAppDefaults(Telemetry.LibraryImportSource, Telemetry.LibraryImageSource);
 builder.AddCosmosInfrastructure(CosmosContainerRegistry.EntityRegistry, LibraryJsonContext.Default);
 builder.AddAzureBlobServiceClient("blobs");
 builder.Services.AddEventBus();

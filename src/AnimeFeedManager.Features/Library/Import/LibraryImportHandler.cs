@@ -122,6 +122,10 @@ internal sealed class LibraryImportHandler(
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
+        // Captured here (inside the page activity scope) so the image work enqueued below can
+        // nest under the import's trace once it drains on its own queue.
+        var parentContext = Activity.Current?.Context ?? default;
+
         var tasks = page.Items.Select(item =>
             item.ToSeries(page.Season, now)
                 .AddLogOnFailure(_ => logger => logger.LogWarning(
@@ -140,7 +144,7 @@ internal sealed class LibraryImportHandler(
                     // Wait); a failed enqueue never fails the import — the persist already succeeded.
                     .Tap(_ => parsed.CoverImageUrl is { } coverUrl
                         ? imageQueue.Enqueue(
-                            new ProcessSeriesImageCommand(parsed.Id, parsed.SeriesSeason, coverUrl), cancellationToken).AsTask()
+                            new ProcessSeriesImageCommand(parsed.Id, parsed.SeriesSeason, coverUrl, parentContext), cancellationToken).AsTask()
                         : Task.CompletedTask))
                 // Permanent failures — parse/validation and non-transient Cosmos — are skipped:
                 // logged above, then turned into a zero-cost success so they don't poison the page
