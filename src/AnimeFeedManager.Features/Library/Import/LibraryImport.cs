@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Features.Library.Images;
-using Azure.Storage.Blobs;
 using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Library.Import.Jikan.Mappers;
 using AnimeFeedManager.Features.Library.Import.Jikan.Types;
@@ -20,27 +19,17 @@ namespace AnimeFeedManager.Features.Library.Import;
 /// retries it. Run as a background job via <c>JobExecutor</c>, triggered on a schedule by
 /// <see cref="LibraryImportCronJob"/>.
 /// </summary>
-internal sealed class LibraryImport(
-    IJikanClient jikan,
-    ICosmosContainerFactory cosmosFactory,
-    IImageHttpClient imageHttpClient,
-    BlobServiceClient blobServiceClient,
-    TimeProvider time,
-    ILogger<LibraryImport> logger)
+internal static class LibraryImport
 {
     private static readonly ActivitySource Source = new(Telemetry.LibraryImportSource);
 
-    private readonly SingleSeriesPersistenceHandler<CosmosOperationCost> _persistSeries =
-        cosmosFactory.CosmosSingleSeriesPersistenceHandler();
-
-    private readonly LibrarySeasonsIndexUpserter _upsertIndex =
-        cosmosFactory.LibrarySeasonsIndexUpserterHandler();
-
-    private readonly SeriesImageProcessor _processImage =
-        new ImageProcessorDependencies(imageHttpClient, blobServiceClient).SeriesImageProcessorHandler();
-
-    public async Task<Result<Unit>> Execute(
+    public static async Task<Result<Unit>> Execute(
         ImportTarget target,
+        IJikanClient jikan,
+        SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
+        LibrarySeasonsIndexUpserter upsertIndex,
+        SeriesImageProcessor processImage,
+        TimeProvider time,
         CancellationToken cancellationToken)
     {
         using var importActivity = Source.StartActivity("Library.Import");
@@ -55,12 +44,11 @@ internal sealed class LibraryImport(
         };
 
         var now = time.GetUtcNow();
-        return await PersistSeries(source, now, _persistSeries, _processImage, cancellationToken)
+        return await PersistSeries(source, now, persistSeries, processImage, cancellationToken)
             .Tap(result => SetImportActivityTags(importActivity, result))
             .AddLogOnSuccess(LogFactories.Log<ImportResult>((result, iLogger) =>
                 iLogger.LogInformation("Imported {Imported} series", result.Imported)))
-            .Bind(result => _upsertIndex(new SeasonEntry(result.SeriesSeason, now, result.Imported), cancellationToken))
-            .FlushLogs(logger)
+            .Bind(result => upsertIndex(new SeasonEntry(result.SeriesSeason, now, result.Imported), cancellationToken))
             .Map(_ => new Unit())
             .MarkActivityErroredOnError();
     }

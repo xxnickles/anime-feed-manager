@@ -27,7 +27,6 @@ public static class ServiceCollectionExtensions
             builder.AddJikanClient();
 
             builder.Services
-                .AddScoped<LibraryImport>()
                 .AddCronJob<LibraryImportCronJob>();
 
             builder.Services.AddHttpClient<IImageHttpClient, ImageHttpClient>();
