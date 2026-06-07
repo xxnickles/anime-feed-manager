@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using AnimeFeedManager.Infrastructure.Background.Jobs;
 using Cronos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -10,20 +10,20 @@ namespace AnimeFeedManager.Infrastructure.Background.Cron;
 /// once at startup to snapshot metadata, then loops: snapshot overrides → compute the
 /// earliest next-occurrence across active jobs → sleep until it (or until reload /
 /// shutdown) → fire every job whose occurrence falls within a one-second tolerance.
-/// Each fire opens its own async scope, resolves the concrete job by <see cref="Type"/>,
-/// and invokes <see cref="CronJob.Run"/>. Per-fire failures are isolated; the
-/// loop and sibling jobs are unaffected.
+/// Each fire hands the job to the <see cref="JobExecutor"/>, which opens its own async
+/// scope, resolves the concrete job by <see cref="Type"/>, and invokes
+/// <see cref="CronJob.Run"/> under a single-flight gate. Per-fire failures are isolated
+/// by the executor; the loop and sibling jobs are unaffected.
 /// </summary>
 internal sealed class CronHostedService : BackgroundService
 {
     private static readonly TimeSpan FireTolerance = TimeSpan.FromSeconds(1);
 
     private readonly IServiceScopeFactory _scopes;
+    private readonly JobExecutor _executor;
     private readonly IOptionsMonitor<CronJobsOptions> _options;
     private readonly TimeProvider _time;
     private readonly ILogger<CronHostedService> _logger;
-    private readonly ConcurrentDictionary<string, SemaphoreSlim> _singleFlight =
-        new(StringComparer.Ordinal);
 
     private List<CronJobMetadata> _metadata = [];
     private HashSet<string> _knownNames = new(StringComparer.Ordinal);
@@ -32,11 +32,13 @@ internal sealed class CronHostedService : BackgroundService
 
     public CronHostedService(
         IServiceScopeFactory scopes,
+        JobExecutor executor,
         IOptionsMonitor<CronJobsOptions> options,
         TimeProvider time,
         ILogger<CronHostedService> logger)
     {
         _scopes = scopes;
+        _executor = executor;
         _options = options;
         _time = time;
         _logger = logger;
@@ -85,14 +87,13 @@ internal sealed class CronHostedService : BackgroundService
                     continue;
                 }
 
-                FireDueJobs(dueJobs, stoppingToken);
+                FireDueJobs(dueJobs);
             }
         }
         finally
         {
             _onChangeSubscription?.Dispose();
             _reloadCts.Dispose();
-            foreach (var sem in _singleFlight.Values) sem.Dispose();
         }
     }
 
@@ -249,51 +250,16 @@ internal sealed class CronHostedService : BackgroundService
         return (earliest, due);
     }
 
-    private void FireDueJobs(List<EffectiveJob> dueJobs, CancellationToken stoppingToken)
+    private void FireDueJobs(List<EffectiveJob> dueJobs)
     {
         foreach (var job in dueJobs)
         {
-            _ = Task.Run(() => RunJobSafely(job, stoppingToken), stoppingToken);
-        }
-    }
-
-    private async Task RunJobSafely(EffectiveJob job, CancellationToken stoppingToken)
-    {
-        SemaphoreSlim? gate = null;
-        var entered = false;
-
-        if (job.Metadata.SkipIfRunning)
-        {
-            gate = _singleFlight.GetOrAdd(job.Metadata.Name, _ => new SemaphoreSlim(1, 1));
-            entered = await gate.WaitAsync(0);
-            if (!entered)
-            {
-                _logger.LogInformation(
-                    "Cron job '{Name}' skipped — previous run still in progress.",
-                    job.Metadata.Name);
-                return;
-            }
-        }
-
-        try
-        {
-            await using var scope = _scopes.CreateAsyncScope();
-            var instance = (CronJob)scope.ServiceProvider.GetRequiredService(job.Metadata.JobType);
-            await instance.Run(stoppingToken);
+            var jobType = job.Metadata.JobType;
+            _executor.Trigger(
+                job.Metadata.Name,
+                (sp, ct) => ((CronJob)sp.GetRequiredService(jobType)).Run(ct),
+                skipIfRunning: job.Metadata.SkipIfRunning);
             LogNextSingle(job);
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-            // Shutdown — expected.
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex,
-                "Cron job '{Name}' threw; loop continues.", job.Metadata.Name);
-        }
-        finally
-        {
-            if (entered) gate!.Release();
         }
     }
 
