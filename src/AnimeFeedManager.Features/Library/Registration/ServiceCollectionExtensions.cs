@@ -12,15 +12,13 @@ public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Registers the Library feature: the Jikan HTTP client, the
-        /// <see cref="LibraryImportHandler"/> and its
-        /// <see cref="WorkQueue{TCommand}"/> for
-        /// <see cref="LibraryImportCommand"/>, and the
-        /// <see cref="LibraryImportCronJob"/> that enqueues a weekly import.
+        /// <see cref="LibraryImport"/> service and the
+        /// <see cref="LibraryImportCronJob"/> that triggers a weekly import via the job executor.
         /// Also registers the cover-image pipeline: the <see cref="IImageHttpClient"/>,
         /// the <see cref="ProcessSeriesImageHandler"/> work queue, and the
         /// <see cref="ImagesContainerInitializer"/> that provisions the blob container at startup.
         ///
-        /// Depends on the host having already registered the cron-scheduler and
+        /// Depends on the host having already registered the cron-scheduler/job-executor and
         /// work-queue processor infrastructure (<c>AddCronScheduler()</c>,
         /// <c>AddWorkQueueProcessor()</c>), the Cosmos container factory
         /// (<c>AddCosmosInfrastructure(...)</c>), and the <c>BlobServiceClient</c>
@@ -31,7 +29,7 @@ public static class ServiceCollectionExtensions
             builder.AddJikanClient();
 
             builder.Services
-                .AddWorkQueueHandler<LibraryImportCommand, LibraryImportHandler>()
+                .AddScoped<LibraryImport>()
                 .AddCronJob<LibraryImportCronJob>();
 
             builder.Services.AddHttpClient<IImageHttpClient, ImageHttpClient>();

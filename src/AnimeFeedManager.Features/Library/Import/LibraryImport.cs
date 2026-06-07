@@ -11,13 +11,18 @@ using AnimeFeedManager.Shared;
 
 namespace AnimeFeedManager.Features.Library.Import;
 
-internal sealed class LibraryImportHandler(
+/// <summary>
+/// Library import: fetches a season from Jikan, persists each series to Cosmos, enqueues
+/// its cover-image work, and upserts the seasons index. Run as a background job via
+/// <c>JobExecutor</c> — triggered on a schedule by <see cref="LibraryImportCronJob"/> and
+/// manually by the admin endpoint, both sharing the <c>"library-import"</c> single-flight gate.
+/// </summary>
+internal sealed class LibraryImport(
     IJikanClient jikan,
     ICosmosContainerFactory cosmosFactory,
     WorkQueue<ProcessSeriesImageCommand> imageQueue,
     TimeProvider time,
-    ILogger<LibraryImportHandler> logger)
-    : WorkHandler<LibraryImportCommand>
+    ILogger<LibraryImport> logger)
 {
     private static readonly ActivitySource Source = new(Telemetry.LibraryImportSource);
 
@@ -27,17 +32,14 @@ internal sealed class LibraryImportHandler(
     private readonly LibrarySeasonsIndexUpserter _upsertIndex =
         cosmosFactory.LibrarySeasonsIndexUpserterHandler();
 
-    public override int Capacity => 5;
-    public override BoundedChannelFullMode FullMode => BoundedChannelFullMode.DropOldest;
-
-    public override async Task<Result<Unit>> Handle(
-        LibraryImportCommand command,
+    public async Task<Result<Unit>> Execute(
+        ImportTarget target,
         CancellationToken cancellationToken)
     {
         using var importActivity = Source.StartActivity("Library.Import");
-        importActivity?.SetTag("library.import.target", command.Target.GetType().Name);
+        importActivity?.SetTag("library.import.target", target.GetType().Name);
 
-        var source = command.Target switch
+        var source = target switch
         {
             ImportTarget.CurrentSeason => jikan.GetCurrentSeason(cancellationToken),
             ImportTarget.SpecificSeason s => jikan.GetSeason(s.SeriesSeason.Year, s.SeriesSeason.Season,
