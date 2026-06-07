@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using AnimeFeedManager.Infrastructure.Background.Cron;
 using AnimeFeedManager.Infrastructure.Background.Jobs;
-using AnimeFeedManager.Infrastructure.Background.Queue;
 using AnimeFeedManager.Infrastructure.Cosmos;
 using AnimeFeedManager.Infrastructure.Eventing;
 using Microsoft.Azure.Cosmos;
@@ -38,44 +37,6 @@ public static class ServiceCollectionExtensions
             services.AddScoped<CronJob>(sp => sp.GetRequiredService<TJob>());
             return services;
         }
-
-        /// <summary>
-        /// Registers a typed work queue: the handler as scoped, a
-        /// <see cref="WorkQueue{TCommand}"/> singleton sized from the handler's
-        /// declared capacity / full-mode, and a <see cref="WorkQueueDrainOp"/> that
-        /// the hosted service iterates at startup. Producers inject
-        /// <see cref="WorkQueue{TCommand}"/> to enqueue.
-        /// </summary>
-        public IServiceCollection AddWorkQueueHandler<TCommand, THandler>()
-            where THandler : WorkHandler<TCommand>
-        {
-            services.AddScoped<THandler>();
-
-            services.AddSingleton(sp =>
-            {
-                using var scope = sp.CreateScope();
-                var handler = scope.ServiceProvider.GetRequiredService<THandler>();
-                var channel = Channel.CreateBounded<TCommand>(new BoundedChannelOptions(handler.Capacity)
-                {
-                    FullMode = handler.FullMode,
-                    SingleReader = true,
-                });
-                return new WorkQueue<TCommand>(channel);
-            });
-
-            services.AddSingleton(sp =>
-            {
-                var queue = sp.GetRequiredService<WorkQueue<TCommand>>();
-                var scopes = sp.GetRequiredService<IServiceScopeFactory>();
-                var defaultPipeline = WorkQueueDefaults.BuildDefaultPipeline();
-                return new WorkQueueDrainOp(
-                    HandlerName: typeof(THandler).Name,
-                    Drain: ct => WorkQueueRunner.DrainLoop<TCommand, THandler>(
-                        queue.Reader, scopes, defaultPipeline, ct));
-            });
-
-            return services;
-        }
     }
 
     extension(IHostApplicationBuilder builder)
@@ -96,18 +57,6 @@ public static class ServiceCollectionExtensions
                 .Bind(builder.Configuration.GetSection(CronJobsOptions.SectionName));
             builder.Services.AddHostedService<CronHostedService>();
 
-            return builder;
-        }
-
-        /// <summary>
-        /// Registers the work-queue processor hosted service. Individual queues are
-        /// added with <c>AddWorkQueueHandler&lt;TCommand, THandler&gt;</c>; the
-        /// processor drains all registered queues in parallel for the lifetime of
-        /// the host.
-        /// </summary>
-        public IHostApplicationBuilder AddWorkQueueProcessor()
-        {
-            builder.Services.AddHostedService<WorkQueueHostedService>();
             return builder;
         }
 

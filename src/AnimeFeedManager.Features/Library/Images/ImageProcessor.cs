@@ -11,12 +11,15 @@ namespace AnimeFeedManager.Features.Library.Images;
 public sealed record ImageProcessorDependencies(IImageHttpClient HttpClient, BlobServiceClient BlobServiceClient);
 
 /// <summary>
-/// Downloads the cover named by a <see cref="ProcessSeriesImageCommand"/> and stores it in blob
-/// storage, yielding the relative blob path to persist as the series' <c>CoverImageUrl</c>. Built
-/// from <see cref="ImageProcessorDependencies"/> via <see cref="ImageProcessor.SeriesImageProcessorHandler"/>.
+/// Downloads a series cover from <paramref name="sourceUrl"/> and stores it in blob storage,
+/// yielding the relative blob path to persist as the series' <c>CoverImageUrl</c>. Called inline
+/// by the import pipeline per series. Built from <see cref="ImageProcessorDependencies"/> via
+/// <see cref="ImageProcessor.SeriesImageProcessorHandler"/>.
 /// </summary>
 public delegate Task<Result<string>> SeriesImageProcessor(
-    ProcessSeriesImageCommand command,
+    string id,
+    SeriesSeason season,
+    string sourceUrl,
     CancellationToken cancellationToken);
 
 
@@ -32,19 +35,21 @@ public static class ImageProcessor
     public const string BlobContainer = "images";
 
     public static SeriesImageProcessor SeriesImageProcessorHandler(this ImageProcessorDependencies deps) =>
-        (command, cancellationToken) => Process(deps, command, cancellationToken);
+        (id, season, sourceUrl, cancellationToken) => Process(deps, id, season, sourceUrl, cancellationToken);
 
     private static async Task<Result<string>> Process(
         ImageProcessorDependencies deps,
-        ProcessSeriesImageCommand command,
+        string id,
+        SeriesSeason season,
+        string sourceUrl,
         CancellationToken cancellationToken)
     {
         // Jikan serves WebP (preferred by PickCover) or JPG. Derive the extension and
         // content-type from the source URL so the stored blob is served with the right type.
-        var isWebp = command.SourceUrl.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
+        var isWebp = sourceUrl.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
         // Blob layout images/{year}/{season}/{malId}.{ext} — covers nest under year then season
         // so no single path segment accumulates an unbounded number of blobs.
-        var blobName = $"{command.Season.Year}/{command.Season.Season}/{command.Id}.{(isWebp ? "webp" : "jpg")}";
+        var blobName = $"{season.Year}/{season.Season}/{id}.{(isWebp ? "webp" : "jpg")}";
         var relativePath = $"{BlobContainer}/{blobName}";
 
         try
@@ -55,7 +60,7 @@ public static class ImageProcessor
             if (await blob.ExistsAsync(cancellationToken))
                 return relativePath;
 
-            var bytes = await deps.HttpClient.DownloadImage(command.SourceUrl, cancellationToken);
+            var bytes = await deps.HttpClient.DownloadImage(sourceUrl, cancellationToken);
 
             var headers = new BlobHttpHeaders { ContentType = isWebp ? "image/webp" : "image/jpeg" };
             await blob.UploadAsync(BinaryData.FromBytes(bytes), new BlobUploadOptions { HttpHeaders = headers }, cancellationToken);

@@ -5,7 +5,6 @@ global using System.Text.Json.Serialization;
 global using System.Threading.Channels;
 global using AnimeFeedManager.Features.SharedDomain.Cosmos;
 global using AnimeFeedManager.Infrastructure.Background.Cron;
-global using AnimeFeedManager.Infrastructure.Background.Queue;
 global using AnimeFeedManager.Infrastructure.Cosmos;
 global using AnimeFeedManager.Infrastructure.Cosmos.Types;
 global using AnimeFeedManager.Shared.Results;

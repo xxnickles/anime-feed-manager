@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Features.Library.Images;
+using Azure.Storage.Blobs;
 using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Library.Import.Jikan.Mappers;
 using AnimeFeedManager.Features.Library.Import.Jikan.Types;
@@ -12,15 +14,17 @@ using AnimeFeedManager.Shared;
 namespace AnimeFeedManager.Features.Library.Import;
 
 /// <summary>
-/// Library import: fetches a season from Jikan, persists each series to Cosmos, enqueues
-/// its cover-image work, and upserts the seasons index. Run as a background job via
-/// <c>JobExecutor</c> — triggered on a schedule by <see cref="LibraryImportCronJob"/> and
-/// manually by the admin endpoint, both sharing the <c>"library-import"</c> single-flight gate.
+/// Library import: fetches a season from Jikan and, for each series, stores its cover in blob
+/// storage then persists the series to Cosmos with the stored blob path, finally upserting the
+/// seasons index. Cover upload is best-effort — a failure keeps the source URL, and a re-import
+/// retries it. Run as a background job via <c>JobExecutor</c>, triggered on a schedule by
+/// <see cref="LibraryImportCronJob"/>.
 /// </summary>
 internal sealed class LibraryImport(
     IJikanClient jikan,
     ICosmosContainerFactory cosmosFactory,
-    WorkQueue<ProcessSeriesImageCommand> imageQueue,
+    IImageHttpClient imageHttpClient,
+    BlobServiceClient blobServiceClient,
     TimeProvider time,
     ILogger<LibraryImport> logger)
 {
@@ -31,6 +35,9 @@ internal sealed class LibraryImport(
 
     private readonly LibrarySeasonsIndexUpserter _upsertIndex =
         cosmosFactory.LibrarySeasonsIndexUpserterHandler();
+
+    private readonly SeriesImageProcessor _processImage =
+        new ImageProcessorDependencies(imageHttpClient, blobServiceClient).SeriesImageProcessorHandler();
 
     public async Task<Result<Unit>> Execute(
         ImportTarget target,
@@ -48,7 +55,7 @@ internal sealed class LibraryImport(
         };
 
         var now = time.GetUtcNow();
-        return await PersistSeries(source, now, _persistSeries, imageQueue, cancellationToken)
+        return await PersistSeries(source, now, _persistSeries, _processImage, cancellationToken)
             .Tap(result => SetImportActivityTags(importActivity, result))
             .AddLogOnSuccess(LogFactories.Log<ImportResult>((result, iLogger) =>
                 iLogger.LogInformation("Imported {Imported} series", result.Imported)))
@@ -62,7 +69,7 @@ internal sealed class LibraryImport(
         IAsyncEnumerable<Result<JikanPage>> source,
         DateTimeOffset now,
         SingleSeriesPersistenceHandler<CosmosOperationCost> seriesPersistenceHandler,
-        WorkQueue<ProcessSeriesImageCommand> imageQueue,
+        SeriesImageProcessor processImage,
         CancellationToken cancellationToken
     )
     {
@@ -78,7 +85,7 @@ internal sealed class LibraryImport(
             var persistResult =
                 await pageResult
                     .Tap(page => pageActivity?.SetTag("library.import.page.input_count", page.Items.Length))
-                    .Bind(page => ProcessPage(page, seriesPersistenceHandler, imageQueue, now, cancellationToken))
+                    .Bind(page => ProcessPage(page, seriesPersistenceHandler, processImage, now, cancellationToken))
                     .Tap(bulkResult => SetPageActivityTags(pageActivity, bulkResult))
                     // Partial errors become a full error as they are only possible for recoverable cases
                     .Bind(results =>
@@ -120,34 +127,24 @@ internal sealed class LibraryImport(
     private static async Task<Result<BulkResult<ImportResult>>> ProcessPage(
         JikanPage page,
         SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
-        WorkQueue<ProcessSeriesImageCommand> imageQueue,
+        SeriesImageProcessor processImage,
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
-        // Captured here (inside the page activity scope) so the image work enqueued below can
-        // nest under the import's trace once it drains on its own queue.
-        var parentContext = Activity.Current?.Context ?? default;
-
         var tasks = page.Items.Select(item =>
             item.ToSeries(page.Season, now)
                 .AddLogOnFailure(_ => logger => logger.LogWarning(
                     "Failed to parse series from Jikan. Item {Id} {Series}",
                     item.MalId,
                     JsonSerializer.Serialize(item, JikanJsonContext.Default.JikanAnime)))
-                .Bind(parsed => persistSeries(parsed, cancellationToken)
-                    // Per-item scope context — additive to error.LogAction()'s existing log
-                    // (which already carries Container, PartitionKey, Id). MalId is omitted
-                    // since the error's Id field is already the MAL ID.
-                    .AddLogOnFailure(_ => logger => logger.LogWarning("Failed to persist series {Id}-{Title} of {SeriesType}", parsed.Id, parsed.Titles.Default, parsed.GetType().Name))
-                    .AddLogOnFailure(error => error.LogAction())
-                    // On successful persist, enqueue cover-image work. Only series that carry a
-                    // cover URL qualify; the rest persist with a null CoverImageUrl and are skipped.
-                    // Enqueue is fire-and-forget into the bounded image queue (back-pressures under
-                    // Wait); a failed enqueue never fails the import — the persist already succeeded.
-                    .Tap(_ => parsed.CoverImageUrl is { } coverUrl
-                        ? imageQueue.Enqueue(
-                            new ProcessSeriesImageCommand(parsed.Id, parsed.SeriesSeason, coverUrl, parentContext), cancellationToken).AsTask()
-                        : Task.CompletedTask))
+                // Store the cover first, then persist the series carrying the stored blob path.
+                .Bind(parsed => WithStoredCover(parsed, processImage, cancellationToken)
+                    .Bind(withCover => persistSeries(withCover, cancellationToken)
+                        // Per-item scope context — additive to error.LogAction()'s existing log
+                        // (which already carries Container, PartitionKey, Id). MalId is omitted
+                        // since the error's Id field is already the MAL ID.
+                        .AddLogOnFailure(_ => logger => logger.LogWarning("Failed to persist series {Id}-{Title} of {SeriesType}", withCover.Id, withCover.Titles.Default, withCover.GetType().Name))
+                        .AddLogOnFailure(error => error.LogAction())))
                 // Permanent failures — parse/validation and non-transient Cosmos — are skipped:
                 // logged above, then turned into a zero-cost success so they don't poison the page
                 // into a PartialSuccessBulkResult and trigger a retry. Only transient errors stay
@@ -159,6 +156,25 @@ internal sealed class LibraryImport(
         );
         var results = await Task.WhenAll(tasks);
         return results.Flatten(charges => Map(page.Season, charges));
+    }
+
+    // Best-effort cover storage: upload the cover and return the series with the stored blob path.
+    // A null source URL skips upload; an upload failure is logged and recovers to the original
+    // series (keeping the Jikan URL) so cover trouble never fails the series persist. Re-imports
+    // retry via the processor's blob-exists idempotency.
+    private static Task<Result<Series>> WithStoredCover(
+        Series parsed,
+        SeriesImageProcessor processImage,
+        CancellationToken cancellationToken)
+    {
+        if (parsed.CoverImageUrl is not { } coverUrl)
+            return Task.FromResult(Result<Series>.Success(parsed));
+
+        return processImage(parsed.Id, parsed.SeriesSeason, coverUrl, cancellationToken)
+            .Map(blobPath => parsed with { CoverImageUrl = blobPath })
+            .AddLogOnFailure(_ => logger => logger.LogWarning(
+                "Failed to store cover for series {Id}; keeping source URL", parsed.Id))
+            .BindOnErrorWhen(binder: _ => parsed, predicate: _ => true);
     }
 
     // Parse/validation errors and non-transient Cosmos errors are permanent: the item can't
