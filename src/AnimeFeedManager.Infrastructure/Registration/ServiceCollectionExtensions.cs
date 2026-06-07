@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using AnimeFeedManager.Infrastructure.Background.Cron;
+using AnimeFeedManager.Infrastructure.Background.Jobs;
 using AnimeFeedManager.Infrastructure.Background.Queue;
 using AnimeFeedManager.Infrastructure.Cosmos;
 using AnimeFeedManager.Infrastructure.Eventing;
@@ -90,6 +91,7 @@ public static class ServiceCollectionExtensions
         public IHostApplicationBuilder AddCronScheduler()
         {
             builder.Services.TryAddSingleton(TimeProvider.System);
+            builder.Services.TryAddSingleton<JobExecutor>();
             builder.Services.AddOptions<CronJobsOptions>()
                 .Bind(builder.Configuration.GetSection(CronJobsOptions.SectionName));
             builder.Services.AddHostedService<CronHostedService>();
