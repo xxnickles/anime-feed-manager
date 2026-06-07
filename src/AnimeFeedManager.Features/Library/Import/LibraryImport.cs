@@ -119,50 +119,105 @@ internal static class LibraryImport
         DateTimeOffset now,
         CancellationToken cancellationToken)
     {
-        var tasks = page.Items.Select(item =>
-            item.ToSeries(page.Season, now)
-                .AddLogOnFailure(_ => logger => logger.LogWarning(
-                    "Failed to parse series from Jikan. Item {Id} {Series}",
-                    item.MalId,
-                    JsonSerializer.Serialize(item, JikanJsonContext.Default.JikanAnime)))
-                // Store the cover first, then persist the series carrying the stored blob path.
-                .Bind(parsed => WithStoredCover(parsed, processImage, cancellationToken)
-                    .Bind(withCover => persistSeries(withCover, cancellationToken)
-                        // Per-item scope context — additive to error.LogAction()'s existing log
-                        // (which already carries Container, PartitionKey, Id). MalId is omitted
-                        // since the error's Id field is already the MAL ID.
-                        .AddLogOnFailure(_ => logger => logger.LogWarning("Failed to persist series {Id}-{Title} of {SeriesType}", withCover.Id, withCover.Titles.Default, withCover.GetType().Name))
-                        .AddLogOnFailure(error => error.LogAction())))
-                // Permanent failures — parse/validation and non-transient Cosmos — are skipped:
-                // logged above, then turned into a zero-cost success so they don't poison the page
-                // into a PartialSuccessBulkResult and trigger a retry. Only transient errors stay
-                // failures and drive the page-level retry. BindOnError merges the trace context,
-                // so the warnings logged above still flush.
-                .BindOnErrorWhen(
-                    binder: _ => new CosmosOperationCost(0),
-                    predicate: IsPermanent)
-        );
-        var results = await Task.WhenAll(tasks);
+        // Jikan occasionally lists the same series twice on a page; dedup by MAL id so a series is
+        // never processed (nor concurrently upserted) twice in one run — concurrent upserts of a
+        // not-yet-existing document race, and the loser gets a 409 Conflict.
+        var distinct = page.Items.DistinctBy(item => item.MalId).ToArray();
+        Activity.Current?.SetTag("library.import.page.duplicates_removed", page.Items.Length - distinct.Length);
+
+        var results = await Task.WhenAll(distinct.Select(item =>
+            ProcessItem(item, page.Season, now, persistSeries, processImage, cancellationToken)));
+
         return results.Flatten(charges => Map(page.Season, charges));
     }
 
-    // Best-effort cover storage: upload the cover and return the series with the stored blob path.
-    // A null source URL skips upload; an upload failure is logged and recovers to the original
-    // series (keeping the Jikan URL) so cover trouble never fails the series persist. Re-imports
-    // retry via the processor's blob-exists idempotency.
-    private static Task<Result<Series>> WithStoredCover(
-        Series parsed,
+    // One series under its own span (tagged with mal_id) so every blob/cosmos call for this series
+    // nests beneath it — the trace groups by series, and by function within (Cover, Persist).
+    // Permanent failures (parse/validation, non-transient Cosmos) are skipped: logged, recorded on
+    // the span as outcome=skipped + a series.skipped event, and turned into a zero-cost success so
+    // they don't poison the page into a retry. Skips are an expected outcome, not a span error.
+    private static async Task<Result<CosmosOperationCost>> ProcessItem(
+        JikanAnime item,
+        SeriesSeason season,
+        DateTimeOffset now,
+        SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
         SeriesImageProcessor processImage,
         CancellationToken cancellationToken)
     {
-        if (parsed.CoverImageUrl is not { } coverUrl)
-            return Task.FromResult(Result<Series>.Success(parsed));
+        using var seriesActivity = Source.StartActivity("Library.Import.Series");
+        seriesActivity?.SetTag("library.import.series.mal_id", item.MalId);
 
-        return processImage(parsed.Id, parsed.SeriesSeason, coverUrl, cancellationToken)
+        return await item.ToSeries(season, now)
+            .AddLogOnFailure(_ => logger => logger.LogWarning(
+                "Failed to parse series from Jikan. Item {Id} {Series}",
+                item.MalId,
+                JsonSerializer.Serialize(item, JikanJsonContext.Default.JikanAnime)))
+            .Tap(parsed => seriesActivity?
+                .SetTag("library.import.series.title", parsed.Titles.Default)
+                .SetTag("library.import.series.type", parsed.GetType().Name))
+            // Store the cover first, then persist the series carrying the stored blob path.
+            .Bind(parsed => WithStoredCover(parsed, processImage, seriesActivity, cancellationToken)
+                .Bind(withCover => Persist(withCover, persistSeries, seriesActivity, cancellationToken)))
+            .BindOnErrorWhen(
+                binder: error =>
+                {
+                    seriesActivity?
+                        .SetTag("library.import.series.outcome", "skipped")
+                        .SetTag("library.import.series.skip_reason", error.GetType().Name);
+                    seriesActivity?.AddEvent(new ActivityEvent("series.skipped",
+                        tags: new ActivityTagsCollection { { "reason", error.Message } }));
+                    return new CosmosOperationCost(0);
+                },
+                predicate: IsPermanent);
+    }
+
+    // Best-effort cover storage under a "Cover" span: upload the cover and return the series with
+    // the stored blob path. A null source URL skips upload (cover=none); an upload failure is logged
+    // and recovers to the original series (keeping the Jikan URL, cover=fallback) so cover trouble
+    // never fails the persist. Re-imports retry via the processor's blob-exists idempotency.
+    private static async Task<Result<Series>> WithStoredCover(
+        Series parsed,
+        SeriesImageProcessor processImage,
+        Activity? seriesActivity,
+        CancellationToken cancellationToken)
+    {
+        if (parsed.CoverImageUrl is not { } coverUrl)
+        {
+            seriesActivity?.SetTag("library.import.series.cover", "none");
+            return Result<Series>.Success(parsed);
+        }
+
+        using var coverActivity = Source.StartActivity("Library.Import.Series.Cover");
+
+        return await processImage(parsed.Id, parsed.SeriesSeason, coverUrl, cancellationToken)
             .Map(blobPath => parsed with { CoverImageUrl = blobPath })
+            .Tap(_ => seriesActivity?.SetTag("library.import.series.cover", "stored"))
             .AddLogOnFailure(_ => logger => logger.LogWarning(
                 "Failed to store cover for series {Id}; keeping source URL", parsed.Id))
-            .BindOnErrorWhen(binder: _ => parsed, predicate: _ => true);
+            .BindOnErrorWhen(
+                binder: _ =>
+                {
+                    seriesActivity?.SetTag("library.import.series.cover", "fallback");
+                    return parsed;
+                },
+                predicate: _ => true);
+    }
+
+    // Persist under a "Persist" span; on success the series span's outcome is "persisted".
+    private static async Task<Result<CosmosOperationCost>> Persist(
+        Series withCover,
+        SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
+        Activity? seriesActivity,
+        CancellationToken cancellationToken)
+    {
+        using var persistActivity = Source.StartActivity("Library.Import.Series.Persist");
+
+        return await persistSeries(withCover, cancellationToken)
+            .Tap(_ => seriesActivity?.SetTag("library.import.series.outcome", "persisted"))
+            // Per-item scope context — additive to error.LogAction()'s existing log (which already
+            // carries Container, PartitionKey, Id). MalId is omitted since the error's Id is the MAL ID.
+            .AddLogOnFailure(_ => logger => logger.LogWarning("Failed to persist series {Id}-{Title} of {SeriesType}", withCover.Id, withCover.Titles.Default, withCover.GetType().Name))
+            .AddLogOnFailure(error => error.LogAction());
     }
 
     // Parse/validation errors and non-transient Cosmos errors are permanent: the item can't
