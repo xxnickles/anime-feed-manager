@@ -1,0 +1,71 @@
+@inject IWebHostEnvironment Env
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var isHtmxRequest = HttpContextAccessor.HttpContext?
+        .Request.Headers.ContainsKey("HX-Request") == true;
+}
+
+@if (isHtmxRequest)
+{
+    <Routes />
+}
+else
+{
+    <!DOCTYPE html>
+    <html lang="en" class="scroll-pt-16">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Track and manage your anime season library." />
+        <meta name="theme-color" content="#1a1a2e" />
+
+        <meta name="htmx-config" content='{"globalViewTransitions":true}' />
+
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&family=Noto+Serif+JP:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+        <base href="/" />
+
+        <script>
+            (function () {
+                const theme = localStorage.getItem('user-theme');
+                if (theme && theme !== 'default') {
+                    document.documentElement.setAttribute('data-theme', theme);
+                }
+            })();
+        </script>
+
+        <link rel="stylesheet" href="@Assets["app.css"]" />
+        <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+
+        <ImportMap />
+        <HeadOutlet />
+    </head>
+
+    <body class="bg-base-200 min-h-screen min-w-[380px]">
+
+        <Routes />
+
+        @if (Env.IsDevelopment())
+        {
+            <script defer src="@Assets["lib/htmx/dist/htmx.js"]"></script>
+            <script defer src="@Assets["lib/htmx/dist/ext/hx-sse.js"]"></script>
+            <script defer src="@Assets["lib/hyperscript/dist/_hyperscript.js"]"></script>
+            <script defer src="@Assets["lib/hyperscript/dist/ext/component.js"]"></script>
+        }
+        else
+        {
+            <script defer src="@Assets["lib/htmx/dist/htmx.min.js"]"></script>
+            <script defer src="@Assets["lib/htmx/dist/ext/hx-sse.min.js"]"></script>
+            <script defer src="@Assets["lib/hyperscript/dist/_hyperscript.min.js"]"></script>
+            <script defer src="@Assets["lib/hyperscript/dist/ext/component.min.js"]"></script>
+        }
+
+    </body>
+
+    </html>
+}

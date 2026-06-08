@@ -4,21 +4,26 @@
   "libraries": [
     {
       "provider": "unpkg",
-      "library": "htmx.org@2.0.4",
-      "destination": "wwwroot/lib/htmx/dist/",
-      "files": [ "htmx.js", "htmx.min.js" ]
+      "library": "htmx.org@4.0.0-beta4",
+      "destination": "wwwroot/lib/htmx/",
+      "files": [
+        "dist/htmx.js",
+        "dist/htmx.min.js",
+        "dist/ext/hx-sse.js",
+        "dist/ext/hx-sse.min.js"
+      ]
     },
     {
       "provider": "unpkg",
-      "library": "hyperscript.org@0.9.14",
-      "destination": "wwwroot/lib/hyperscript/dist/",
+      "library": "hyperscript.org@0.9.91",
+      "destination": "wwwroot/lib/hyperscript/",
       "files": [
-        "_hyperscript.js",
-        "_hyperscript.min.js",
-        "ext/component.js",
-        "ext/component.min.js",
-        "ext/eventsource.js",
-        "ext/eventsource.min.js"
+        "dist/_hyperscript.js",
+        "dist/_hyperscript.min.js",
+        "dist/ext/component.js",
+        "dist/ext/component.min.js",
+        "dist/ext/eventsource.js",
+        "dist/ext/eventsource.min.js"
       ]
     }
   ]

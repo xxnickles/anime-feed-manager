@@ -13,6 +13,7 @@ builder.AddAzureBlobServiceClient("blobs");
 builder.Services.AddEventBus();
 builder.AddCronScheduler();
 builder.AddLibrary();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorComponents();
 
 var app = builder.Build();
@@ -20,6 +21,6 @@ var app = builder.Build();
 app.MapStaticAssets();
 app.UseAntiforgery();
 app.MapDefaultEndpoints();
-app.MapGet("/", () => "v5 booting");
+app.MapRazorComponents<AnimeFeedManager.Web.Features.App>();
 
 app.Run();
