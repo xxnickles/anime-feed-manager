@@ -4,6 +4,7 @@ using AnimeFeedManager.Features.Library.Registration;
 using AnimeFeedManager.Infrastructure.Registration;
 using AnimeFeedManager.ServiceDefaults;
 using AnimeFeedManager.Shared;
+using AnimeFeedManager.Web.Htmx;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddRazorComponents();
 var app = builder.Build();
 
 app.MapStaticAssets();
+app.UseHtmx();
 app.UseAntiforgery();
 app.MapDefaultEndpoints();
 app.MapRazorComponents<AnimeFeedManager.Web.Features.App>();

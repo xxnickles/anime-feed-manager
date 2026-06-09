@@ -1,12 +1,15 @@
+@using AnimeFeedManager.Web.Htmx
 @inject IWebHostEnvironment Env
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    var isHtmxRequest = HttpContextAccessor.HttpContext?
-        .Request.Headers.ContainsKey("HX-Request") == true;
+    // HTMX 4: a "partial" request targets a specific element, so return only the fragment.
+    // Everything else — normal navigation and "full" (boosted / body-level) HTMX requests —
+    // gets the complete document so HTMX can swap the body and merge the head.
+    var isPartial = HttpContextAccessor.GetHtmxRequestType() is HxPartial;
 }
 
-@if (isHtmxRequest)
+@if (isPartial)
 {
     <Routes />
 }
