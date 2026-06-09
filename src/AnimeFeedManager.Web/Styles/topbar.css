@@ -1,40 +1,15 @@
 /* ============================================================
    AMF v5 — Topbar + mobile drawer
-   Layout-level component used on every page: stays in global CSS.
-   When Topbar.razor is created, this file can be converted to
-   Topbar.razor.css (Blazor scoped) — the styles are already
-   self-contained and won't leak.
+   Layout-level chrome. The NavBar/MobileDrawer container, brand layout,
+   icon buttons and right-cluster are now Tailwind-in-markup (see
+   NavBar.razor / MobileDrawer.razor). What remains here is:
+     - the CSS-only drawer slide mechanism (kept custom: visibility /
+       pointer-events transitions + checked-sibling state aren't
+       expressible as Tailwind utilities)
+     - design-spec blocks for deferred content (season nav, hub pill,
+       user menu, drawer sections) — ported to Tailwind when those
+       components are built.
    ============================================================ */
-
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background: color-mix(in oklab, var(--color-base-100) 80%, transparent);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
-}
-
-.topbar-inner {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1rem;
-  max-width: 100vw;
-}
-
-@media (min-width: 768px) {
-  .topbar-inner { padding: 0.65rem 1.75rem; gap: 0.75rem; }
-}
-
-.topbar .brand-mark { padding: 0.2rem 0; }
-
-.topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
-}
 
 /* Hub status pill — non-interactive */
 .hub-status {
@@ -57,36 +32,7 @@
   background: color-mix(in oklab, var(--color-base-content) 12%, transparent);
 }
 
-/* Unified icon button */
-.topbar-icon-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.5rem;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  color: color-mix(in oklab, var(--color-base-content) 75%, transparent);
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.topbar-icon-btn:hover {
-  background: color-mix(in oklab, var(--color-base-content) 8%, transparent);
-  color: var(--color-base-content);
-}
-
-.topbar-icon-btn:active {
-  background: color-mix(in oklab, var(--color-base-content) 14%, transparent);
-}
-
-.topbar-icon-btn:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
+/* Notification badge anchor (deferred content) */
 .topbar-icon-btn--has-badge { overflow: visible; }
 
 .topbar-badge {
@@ -224,64 +170,12 @@
 
 /* ============================================================
    Mobile drawer
+   The slide / overlay / visibility mechanism is daisyUI's `drawer`
+   component (.drawer / .drawer-toggle / .drawer-content / .drawer-side /
+   .drawer-overlay) — see MainLayout.razor + MobileDrawer.razor. No custom
+   CSS needed for it. The blocks below are design-spec for the drawer's
+   deferred content (sections, links, season rows), ported when built.
    ============================================================ */
-.drawer-toggle-input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  width: 0;
-  height: 0;
-}
-
-.mobile-drawer {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  pointer-events: none;
-  visibility: hidden;
-  transition: visibility 0.25s;
-}
-
-.mobile-drawer-overlay {
-  position: absolute;
-  inset: 0;
-  background: oklch(0% 0 0 / 0.5);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  cursor: pointer;
-}
-
-.mobile-drawer-panel {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: min(85vw, 320px);
-  background: var(--color-base-100);
-  border-right: 1px solid color-mix(in oklab, var(--color-base-content) 10%, transparent);
-  transform: translateX(-100%);
-  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
-.drawer-toggle-input:checked ~ .mobile-drawer {
-  pointer-events: auto;
-  visibility: visible;
-}
-
-.drawer-toggle-input:checked ~ .mobile-drawer .mobile-drawer-overlay { opacity: 1; }
-.drawer-toggle-input:checked ~ .mobile-drawer .mobile-drawer-panel   { transform: translateX(0); }
-
-.mobile-drawer-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.9rem 1rem;
-  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
-}
-
 .mobile-drawer-section {
   padding: 0.8rem 0.6rem;
   border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 6%, transparent);

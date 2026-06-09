@@ -1,0 +1,33 @@
+@* App topbar — sticky, glassy chrome shown on every page.
+   Layout structure only: the season nav, hub-status pill, action icons and
+   user menu are deferred (they need seasons data / hub / auth) and are marked
+   as slots below. The hamburger toggles MobileDrawer's #mobile-drawer checkbox. *@
+
+<header class="sticky top-0 z-40 border-b border-base-content/8 bg-base-100/80 backdrop-blur-[14px] backdrop-saturate-[1.4]">
+    <div class="flex max-w-[100vw] items-center gap-2.5 px-4 py-2.5 md:gap-3 md:px-7">
+
+        @* Mobile menu trigger *@
+        <label for="mobile-drawer"
+               aria-label="Open menu"
+               class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content md:hidden">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+        </label>
+
+        @* Brand mark — .glyph keeps its CSS mask (tokens.css) *@
+        <a href="/" title="AMF — Anime Feed Manager"
+           class="inline-flex items-center gap-2 py-0.5 font-display text-[1.05rem] font-bold tracking-[-0.02em] text-base-content">
+            <span class="glyph" aria-hidden="true"></span>
+            <span class="hidden sm:inline">amf <span class="font-normal opacity-50">/</span> <span class="opacity-70">anime feed</span></span>
+        </a>
+
+        @* TODO[deferred]: season nav pills — needs seasons data *@
+
+        <div class="ml-auto flex items-center gap-0.5">
+            @* TODO[deferred]: hub-status pill (needs hub) · all-seasons / watchlist / notifications / admin icons (need routes) *@
+            <ThemeSelector />
+            @* TODO[deferred]: user menu / sign-out — needs auth *@
+        </div>
+    </div>
+</header>

@@ -1,0 +1,30 @@
+@* Mobile navigation drawer — the daisyUI `drawer-side`.
+   The .drawer wrapper, the #mobile-drawer toggle and .drawer-content live in
+   MainLayout; this renders the off-canvas panel. The topbar hamburger and the
+   overlay label both toggle #mobile-drawer. Layout structure only — the seasons
+   list, browse links and account section are deferred (slot marked below). *@
+
+<div class="drawer-side z-[100]">
+    <label for="mobile-drawer" aria-label="Close menu" class="drawer-overlay"></label>
+
+    <aside class="flex min-h-full w-[min(85vw,320px)] flex-col overflow-y-auto border-r border-base-content/10 bg-base-100"
+           aria-label="Main menu">
+
+        @* Head: brand + close *@
+        <div class="flex items-center justify-between border-b border-base-content/8 px-4 py-3.5">
+            <span class="inline-flex items-center gap-2 font-display text-[1.05rem] font-bold tracking-[-0.02em] text-base-content">
+                <span class="glyph" aria-hidden="true"></span>
+                <span>amf</span>
+            </span>
+            <label for="mobile-drawer"
+                   aria-label="Close menu"
+                   class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </label>
+        </div>
+
+        @* TODO[deferred]: seasons list · browse links · account / sign-out — need data + auth *@
+    </aside>
+</div>
