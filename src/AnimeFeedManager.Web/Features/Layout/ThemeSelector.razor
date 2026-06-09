@@ -1,0 +1,85 @@
+@* Theme selector — system default; user choice persisted to localStorage['user-theme'].
+   No data-theme attribute => daisyui paper-light (--default) / paper-dark (--prefersdark)
+   resolve the system preference. Picking a theme sets <html data-theme>; "System" clears it.
+   App.razor's head script re-applies the stored choice before first paint. *@
+
+<div class="dropdown dropdown-end">
+    <button tabindex="0"
+            type="button"
+            aria-label="Theme"
+            title="Theme"
+            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+    </button>
+
+    <ul tabindex="0"
+        class="dropdown-content menu z-[60] mt-2 min-w-52 gap-0.5 rounded-xl border border-base-content/10 bg-base-100 p-1.5 shadow-2xl"
+        _="on click
+             set choice to the closest <button[data-theme-value]/> to target
+             if no choice then exit end
+             set value to choice's @@data-theme-value
+             set html to the first <html/>
+             if value is 'system'
+               call localStorage.removeItem('user-theme')
+               remove @@data-theme from html
+             else
+               call localStorage.setItem('user-theme', value)
+               set html's @@data-theme to value
+             end
+             for opt in <button[data-theme-value]/> in me
+               if opt is choice
+                 set opt's @@aria-pressed to 'true'
+               else
+                 set opt's @@aria-pressed to 'false'
+               end
+             end
+             call document.activeElement.blur()
+           end
+           on load
+             set saved to localStorage.getItem('user-theme')
+             if no saved then set saved to 'system' end
+             for opt in <button[data-theme-value]/> in me
+               if opt's @@data-theme-value is saved
+                 set opt's @@aria-pressed to 'true'
+               else
+                 set opt's @@aria-pressed to 'false'
+               end
+             end
+           end">
+        <li class="px-1.5 pb-1 pt-0.5 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-base-content/50">Theme</li>
+        <li>
+            <button type="button" data-theme-value="system" aria-pressed="false"
+                    class="aria-pressed:bg-primary/10 aria-pressed:font-semibold aria-pressed:text-primary">
+                System
+                <span class="ml-auto text-[0.62rem] font-normal opacity-50">auto</span>
+            </button>
+        </li>
+        <li>
+            <button type="button" data-theme-value="paper-light" aria-pressed="false"
+                    class="aria-pressed:bg-primary/10 aria-pressed:font-semibold aria-pressed:text-primary">
+                Paper <span class="opacity-40">·</span> Light
+            </button>
+        </li>
+        <li>
+            <button type="button" data-theme-value="paper-dark" aria-pressed="false"
+                    class="aria-pressed:bg-primary/10 aria-pressed:font-semibold aria-pressed:text-primary">
+                Paper <span class="opacity-40">·</span> Dark
+            </button>
+        </li>
+        <li>
+            <button type="button" data-theme-value="anime-light" aria-pressed="false"
+                    class="aria-pressed:bg-primary/10 aria-pressed:font-semibold aria-pressed:text-primary">
+                Anime <span class="opacity-40">·</span> Light
+            </button>
+        </li>
+        <li>
+            <button type="button" data-theme-value="anime-dark" aria-pressed="false"
+                    class="aria-pressed:bg-primary/10 aria-pressed:font-semibold aria-pressed:text-primary">
+                Anime <span class="opacity-40">·</span> Dark
+            </button>
+        </li>
+    </ul>
+</div>
