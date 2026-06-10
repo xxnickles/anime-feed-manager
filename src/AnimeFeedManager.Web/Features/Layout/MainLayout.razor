@@ -1,5 +1,33 @@
 @inherits LayoutComponentBase
+@using AnimeFeedManager.Web.Htmx
+@inject IHttpContextAccessor HttpContextAccessor
 
-<main id="main-content">
+@{
+    // A partial HTMX request targets a specific element inside the page, so the
+    // shell chrome (topbar / drawer / footer) must NOT be re-emitted — return the
+    // page fragment bare. Full navigations and full HTMX swaps get the whole shell.
+    var isPartial = HttpContextAccessor.GetHtmxRequestType() is HxPartial;
+}
+
+@if (isPartial)
+{
     @Body
-</main>
+}
+else
+{
+    @* daisyUI drawer: the toggle checkbox must be the first child so its sibling
+       selectors reach .drawer-content (this column) and .drawer-side (MobileDrawer). *@
+    <div class="drawer">
+        <input id="mobile-drawer" type="checkbox" class="drawer-toggle" />
+
+        <div class="drawer-content flex min-h-screen flex-col">
+            <NavBar />
+            <main id="main-content" class="flex-1 px-4 pb-12 pt-5 md:px-8">
+                @Body
+            </main>
+            <StatusBar />
+        </div>
+
+        <MobileDrawer />
+    </div>
+}

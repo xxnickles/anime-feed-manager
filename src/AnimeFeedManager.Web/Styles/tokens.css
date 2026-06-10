@@ -382,18 +382,6 @@
   border-radius: 0.35rem;
 }
 
-/* === Status bar (page footer) === */
-.status-bar {
-  border-top: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
-  padding: 0.55rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.72rem;
-  color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
-  background: var(--color-base-200);
-}
-
 /* === Floating label (auth forms) ===
    [SCOPE → LoginPage.razor.css / RegisterPage.razor.css] */
 .floating-label {

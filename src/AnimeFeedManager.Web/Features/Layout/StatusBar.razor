@@ -1,0 +1,20 @@
+@* Page footer status bar — pinned to the bottom of the drawer-content column.
+   Layout structure only: the hub connection state, last-sync time and series
+   counts are data-driven (need hub / seasons data) and are deferred — marked as
+   slots below. The .pulse-dot live indicator keeps its keyframes (tokens.css). *@
+
+<footer class="mt-auto flex items-center gap-4 border-t border-base-content/8 bg-base-200 px-6 py-[0.55rem] text-[0.72rem] text-base-content/70">
+    @* TODO[deferred]: live hub state — pulse-dot colour + "Hub: connected" need the hub *@
+    <span class="pulse-dot" aria-hidden="true"></span>
+    <span>Hub: connected</span>
+
+    <span class="opacity-50">·</span>
+    @* TODO[deferred]: last-sync timestamp — needs sync data *@
+    <span class="font-mono">last sync 14s ago</span>
+
+    <span class="opacity-50">·</span>
+    @* TODO[deferred]: series / subscribed counts — need seasons data *@
+    <span>72 series · 4 subscribed</span>
+
+    <span class="ml-auto font-mono opacity-50">v5 · daisyui 5</span>
+</footer>
