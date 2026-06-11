@@ -9,7 +9,6 @@ var databaseName = builder.Configuration["Cosmos:DatabaseName"] ?? "anime-feed";
 var cosmos = builder.AddAzureCosmosDB("cosmos")
     .RunAsPreviewEmulator(emulator => emulator
         .WithDataExplorer()
-        .WithDataVolume()
         .WithImagePullPolicy(ImagePullPolicy.Always));
 
 var db = cosmos.AddCosmosDatabase(databaseName);
@@ -23,6 +22,8 @@ var blobs = builder.AddAzureStorage("storage")
         .WithBindMount(builder.Configuration["AzuriteDataPath"] ?? "../../../azurite-data", "/data")
         .WithLifetime(ContainerLifetime.Persistent))
     .AddBlobs("blobs");
+
+builder.AddJavaScriptApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 
 builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WithReference(db)

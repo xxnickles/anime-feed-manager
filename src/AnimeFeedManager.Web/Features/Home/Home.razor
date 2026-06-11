@@ -1,0 +1,39 @@
+@page "/"
+
+@* Placeholder landing page — the first routable @page, so the shell (NavBar /
+   drawer / StatusBar) finally has something to host. The season grid, watchlist
+   and notifications land in later phases. The "type check" panel exercises all
+   four font slots and can be removed once real content lands. *@
+
+<PageTitle>Anime Feed Manager</PageTitle>
+
+<section class="mx-auto flex max-w-3xl flex-col gap-6 py-10">
+    <header class="flex flex-col gap-2">
+        <h1 class="font-display text-3xl font-black tracking-[-0.03em] text-base-content">
+            Anime Feed Manager
+        </h1>
+        <p class="text-base-content/70">
+            Track and manage your anime season library. This is a placeholder home page —
+            the season grid, watchlist and notifications arrive in later phases.
+        </p>
+    </header>
+
+    <div class="rounded-2xl border-2 border-base-content bg-base-100 p-5 text-sm shadow-brutal">
+        <p class="mb-3 font-display text-xs font-semibold uppercase tracking-widest text-base-content/50">
+            Type check
+        </p>
+        <dl class="grid grid-cols-[7rem_1fr] gap-y-2">
+            <dt class="text-base-content/50">Display</dt>
+            <dd class="font-display">Space Grotesk — Spring 2026</dd>
+
+            <dt class="text-base-content/50">Body</dt>
+            <dd class="font-sans">Inter — the quick brown fox jumps over the lazy dog</dd>
+
+            <dt class="text-base-content/50">Mono</dt>
+            <dd class="font-mono">SF Mono — 12 eps · 23:59:47 · v5</dd>
+
+            <dt class="text-base-content/50">Japanese</dt>
+            <dd class="font-ja text-lg">日本語のタイトル — 進撃の巨人</dd>
+        </dl>
+    </div>
+</section>

@@ -11,15 +11,23 @@
 
 /* ============================================================
    Type scale
-   Google Fonts must be linked in the document <head>:
-     Sora (400-800), Inter (400-700),
-     Noto Serif JP (500-700), JetBrains Mono (500-700)
+   Web fonts (cdnfonts) must be linked in the document <head>:
+     Inter, Archivo, SF Mono
+   Archivo is the heavy (900) neo-brutalist display face.
+   Japanese falls back to the system serif (no JP webfont shipped).
    ============================================================ */
 @theme {
     --font-sans:    "Inter", system-ui, sans-serif;
-    --font-display: "Sora", system-ui, sans-serif;
-    --font-ja:      "Noto Serif JP", "Hiragino Mincho ProN", serif;
-    --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+    --font-display: "Archivo", system-ui, sans-serif;
+    --font-ja:      "Hiragino Mincho ProN", serif;
+    --font-mono:    "SF Mono", ui-monospace, monospace;
+
+    /* Neo-brutalist hard offset shadows — no blur. The ink colour references
+       base-content so var() resolves per active theme (flips in dark mode).
+       Generates the shadow-brutal / -sm / -lg utilities. */
+    --shadow-brutal-sm: 3px 3px 0 var(--color-base-content);
+    --shadow-brutal:    4px 4px 0 var(--color-base-content);
+    --shadow-brutal-lg: 6px 6px 0 var(--color-base-content);
 }
 
 @layer base {

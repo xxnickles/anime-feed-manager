@@ -3,7 +3,7 @@
    user menu are deferred (they need seasons data / hub / auth) and are marked
    as slots below. The hamburger toggles MobileDrawer's #mobile-drawer checkbox. *@
 
-<header class="sticky top-0 z-40 border-b border-base-content/8 bg-base-100/80 backdrop-blur-[14px] backdrop-saturate-[1.4]">
+<header class="sticky top-0 z-40 border-b-[3px] border-base-content bg-base-100">
     <div class="flex max-w-[100vw] items-center gap-2.5 px-4 py-2.5 md:gap-3 md:px-7">
 
         @* Mobile menu trigger *@
@@ -15,10 +15,10 @@
             </svg>
         </label>
 
-        @* Brand mark — .glyph keeps its CSS mask (tokens.css) *@
+        @* Brand mark — the mascot SVG renders in its own colours (no mask/tint). *@
         <a href="/" title="AMF — Anime Feed Manager"
-           class="inline-flex items-center gap-2 py-0.5 font-display text-[1.05rem] font-bold tracking-[-0.02em] text-base-content">
-            <span class="glyph" aria-hidden="true"></span>
+           class="inline-flex items-center gap-2 py-0.5 font-display text-[1.05rem] font-black tracking-[-0.03em] text-base-content">
+            <img src="/images/logo.svg" alt="" aria-hidden="true" class="h-[2.1rem] w-[2.1rem]" />
             <span class="hidden sm:inline">amf <span class="font-normal opacity-50">/</span> <span class="opacity-70">anime feed</span></span>
         </a>
 

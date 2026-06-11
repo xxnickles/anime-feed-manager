@@ -274,3 +274,7 @@ __pycache__/
 .claude/
 .playwright-mcp/
 CLAUDE.md
+
+# others
+.playwright-cli/
+
