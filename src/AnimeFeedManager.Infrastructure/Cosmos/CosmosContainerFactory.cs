@@ -26,7 +26,7 @@ public sealed class CosmosContainerFactory : ICosmosContainerFactory
         _cosmosDatabase = cosmosDatabase;
         _entityRegistry = entityRegistry;
     }
-   
+
 
     public Result<Container> GetContainer<TEntity>() where TEntity : CosmosDocument
     {
@@ -46,6 +46,5 @@ public sealed class CosmosContainerFactory : ICosmosContainerFactory
         {
             return ExceptionError.FromException(e);
         }
-       
     }
 }

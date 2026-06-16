@@ -101,9 +101,9 @@ public sealed class EventBus : IAsyncDisposable
         {
             // Bus shutting down — subscriber observed the token. Swallow.
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            _logger.LogError(ex,
+            _logger.LogError(e,
                 "Event subscriber for {EventType} threw; pump continues",
                 typeof(TEvent).FullName);
         }

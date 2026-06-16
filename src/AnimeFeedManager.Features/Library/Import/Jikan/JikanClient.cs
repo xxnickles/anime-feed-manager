@@ -45,7 +45,8 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
         if (firstPage.IsFailure) yield break;
 
         // Page 1 succeeded ⇒ the resolved season and total page count come straight off it.
-        var (season, lastPage) = firstPage.MatchToValue(page => (page.Season, page.LastPage), _ => (SeriesSeason.Default, 1));
+        var (season, lastPage) =
+            firstPage.MatchToValue(page => (page.Season, page.LastPage), _ => (SeriesSeason.Default, 1));
 
         for (var pageNumber = 2; pageNumber <= lastPage; pageNumber++)
             yield return await FetchPage(path, pageNumber, token)

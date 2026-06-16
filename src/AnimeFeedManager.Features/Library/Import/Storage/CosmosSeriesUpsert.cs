@@ -50,7 +50,7 @@ public static class CosmosSeriesUpsert
         {
             return CosmosResponseError.Create(e, partitionKey, s.Id, container.Id);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             return ExceptionError.FromException(e);
         }

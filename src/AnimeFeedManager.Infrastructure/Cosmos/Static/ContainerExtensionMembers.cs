@@ -85,7 +85,7 @@ public static class ContainerExtensionMembers
             {
                 return CosmosQueryError.Create(e, container.Id);
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not OperationCanceledException)
             {
                 return ExceptionError.FromException(e);
             }
@@ -121,7 +121,7 @@ public static class ContainerExtensionMembers
             {
                 return CosmosQueryError.Create(e, container.Id);
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not OperationCanceledException)
             {
                 return ExceptionError.FromException(e);
             }

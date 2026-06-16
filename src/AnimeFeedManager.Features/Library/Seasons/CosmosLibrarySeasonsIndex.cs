@@ -51,7 +51,7 @@ public static class CosmosLibrarySeasonsIndex
         {
             return CosmosResponseError.Create(e, partitionKey, LibrarySeasonsIndex.DocumentId, container.Id);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             return ExceptionError.FromException(e);
         }
@@ -75,7 +75,7 @@ public static class CosmosLibrarySeasonsIndex
         {
             return CosmosResponseError.Create(e, partitionKey, index.Id, container.Id);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             return ExceptionError.FromException(e);
         }
