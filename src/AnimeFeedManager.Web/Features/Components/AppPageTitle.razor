@@ -1,0 +1,38 @@
+@using AnimeFeedManager.Web.Htmx
+@inject IHttpContextAccessor HttpContextAccessor
+
+@* Page title that survives htmx 4 boosted navigation.
+
+   On a boosted nav (HxFull) the server returns a fragment with no <head>/HeadOutlet,
+   so Blazor's <PageTitle> has nowhere to render. Instead we emit a bare <title> into
+   the fragment; htmx's __makeFragment scans the swapped content for a <title>, sets
+   document.title, and strips the element before the swap. A direct visit (Html) renders
+   the full document, so we use the normal <PageTitle> → HeadOutlet path.
+
+   Title format is centralized here: "<Title> · Anime Feed Manager", or just the app
+   name when Title is omitted (the landing page). *@
+
+@if (_inlineTitle)
+{
+    <title>@_fullTitle</title>
+}
+else
+{
+    <PageTitle>@_fullTitle</PageTitle>
+}
+
+@code {
+    private const string AppName = "Anime Feed Manager";
+
+    /// <summary>The page name (e.g. "Admin"). Omit on the landing page to show just the app name.</summary>
+    [Parameter] public string? Title { get; set; }
+
+    private bool _inlineTitle;
+    private string _fullTitle = AppName;
+
+    protected override void OnInitialized()
+    {
+        _inlineTitle = HttpContextAccessor.GetHtmxRequestType() is HxFull;
+        _fullTitle = string.IsNullOrWhiteSpace(Title) ? AppName : $"{Title} · {AppName}";
+    }
+}

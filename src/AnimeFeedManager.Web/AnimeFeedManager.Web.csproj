@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Admin\" />
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 
