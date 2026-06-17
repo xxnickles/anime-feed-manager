@@ -4,7 +4,11 @@
    overlay label both toggle #mobile-drawer. Layout structure only — the seasons
    list, browse links and account section are deferred (slot marked below). *@
 
-<div class="drawer-side z-[100]">
+<div class="drawer-side z-[100]"
+     _="on click from <a/> in me set #mobile-drawer's checked to false">
+    @* Persistent-shell state: a boosted nav doesn't re-render the shell, so the
+       drawer toggle would stay checked after following a link. Uncheck it on any
+       in-drawer link click so the drawer closes (default daisyUI slide) on navigation. *@
     <label for="mobile-drawer" aria-label="Close menu" class="drawer-overlay"></label>
 
     <aside class="flex min-h-full w-[min(85vw,320px)] flex-col overflow-y-auto border-r-[3px] border-base-content bg-base-100"

@@ -67,6 +67,13 @@
     view-transition-name: main-content;
 }
 
+/* The persistent shell (topbar / drawer / footer) must not cross-fade on a boosted
+   nav — only #main-content animates. Suppress the root snapshot's default animation. */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
     ::view-transition-old(main-content) { animation-duration: 150ms; }
     ::view-transition-new(main-content) { animation-duration: 200ms; }

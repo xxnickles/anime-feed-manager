@@ -3,13 +3,15 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    // HTMX 4: a "partial" request targets a specific element, so return only the fragment.
-    // Everything else — normal navigation and "full" (boosted / body-level) HTMX requests —
-    // gets the complete document so HTMX can swap the body and merge the head.
-    var isPartial = HttpContextAccessor.GetHtmxRequestType() is HxPartial;
+    // Model B (htmx 4 persistent shell): a full HTML document is rendered ONLY for a normal
+    // browser navigation (Html). Every htmx request — boosted page nav (HxFull) and targeted
+    // component swaps (HxPartial) alike — returns the bare <Routes/> fragment; MainLayout
+    // then shapes it per request type (boosted nav wraps #main-content + OOB topbar; a
+    // partial swap returns just the target).
+    var isHtmxRequest = HttpContextAccessor.GetHtmxRequestType() is Htmx;
 }
 
-@if (isPartial)
+@if (isHtmxRequest)
 {
     <Routes />
 }
@@ -24,7 +26,12 @@ else
         <meta name="description" content="Track and manage your anime season library." />
         <meta name="theme-color" content="#1a1a2e" />
 
-        <meta name="htmx-config" content='{"globalViewTransitions":true}' />
+        @* htmx 4 renamed globalViewTransitions → transitions (default false). Enabling it
+           globally is the only lever that gives the Back/Forward history-restore swap a view
+           transition, since that path has no per-element hx-swap to carry transition:true.
+           Forward boosted nav also opts in via the body boost config; the OOB topbar opts OUT
+           with transition:false so the shell doesn't cross-fade. *@
+        <meta name="htmx-config" content='{"transitions": true}' />
 
         <!-- Web fonts (cdnfonts) -->
         <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
@@ -53,7 +60,8 @@ else
         <HeadOutlet />
     </head>
 
-    <body class="bg-base-200 min-h-screen min-w-[380px]">
+    <body class="bg-base-200 min-h-screen min-w-[380px]"
+          hx-boost:inherited="swap:outerSync select:#main-content target:#main-content transition:true show:top">
 
         <Routes />
 

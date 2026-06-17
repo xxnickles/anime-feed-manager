@@ -47,6 +47,13 @@ internal sealed class HtmxRequestMiddleware
         //...or if the request is an HTMX request
         if (headers.TryGetValue("HX-Request", out _))
         {
+            // htmx 4 Back/Forward re-fetches the URL (HX-History-Restore-Request) and swaps
+            // <body>, expecting a FULL document — not a boosted #main-content fragment. Render
+            // the full document so the shell is rebuilt correctly for the restored URL; the
+            // view transition on the restore swap comes from htmx.config.transitions.
+            if (headers.ContainsKey("HX-History-Restore-Request"))
+                return new Html();
+
             var boosted = headers.ContainsKey("HX-Boosted");
             var currentPage = GetCurrentPageUrl(context); // single value expected, otherwise we assign the root path
 

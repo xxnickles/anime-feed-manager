@@ -3,7 +3,9 @@
    user menu are deferred (they need seasons data / hub / auth) and are marked
    as slots below. The hamburger toggles MobileDrawer's #mobile-drawer checkbox. *@
 
-<header class="sticky top-0 z-40 border-b-[3px] border-base-content bg-base-100">
+<header id="topbar"
+        hx-swap-oob="@(OutOfBand ? "outerMorph transition:false" : null)"
+        class="sticky top-0 z-40 border-b-[3px] border-base-content bg-base-100">
     <div class="flex max-w-[100vw] items-center gap-2.5 px-4 py-2.5 md:gap-3 md:px-7">
 
         @* Mobile menu trigger *@
@@ -42,3 +44,12 @@
         </div>
     </div>
 </header>
+
+@code {
+    // When rendered into a boosted-nav fragment, the topbar is sent as an out-of-band
+    // swap so its active state refreshes without re-rendering the persistent shell.
+    // outerMorph keeps the mutation minimal (preserves focus); transition:false keeps
+    // the topbar out of the view transition so it doesn't crossfade. Default (false)
+    // is the normal in-shell render.
+    [Parameter] public bool OutOfBand { get; set; }
+}

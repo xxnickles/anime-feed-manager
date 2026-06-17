@@ -3,15 +3,26 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    // A partial HTMX request targets a specific element inside the page, so the
-    // shell chrome (topbar / drawer / footer) must NOT be re-emitted — return the
-    // page fragment bare. Full navigations and full HTMX swaps get the whole shell.
-    var isPartial = HttpContextAccessor.GetHtmxRequestType() is HxPartial;
+    // Three render shapes keyed on request type (Model B — htmx 4 persistent shell):
+    //  • HxPartial — a targeted component swap; emit the page fragment bare.
+    //  • HxFull    — a boosted page navigation; emit the #main-content wrapper (the boost
+    //                target/select) plus the topbar as an OOB swap so its active state
+    //                refreshes. The persistent shell (drawer / footer) is NOT re-emitted.
+    //  • Html      — a normal browser navigation; emit the whole shell.
+    var requestType = HttpContextAccessor.GetHtmxRequestType();
+    const string MainClass = "flex-1 px-4 pb-12 pt-5 md:px-8";
 }
 
-@if (isPartial)
+@if (requestType is HxPartial)
 {
     @Body
+}
+else if (requestType is HxFull)
+{
+    <main id="main-content" class="@MainClass">
+        @Body
+    </main>
+    <NavBar OutOfBand="true" />
 }
 else
 {
@@ -22,7 +33,7 @@ else
 
         <div class="drawer-content flex min-h-screen flex-col">
             <NavBar />
-            <main id="main-content" class="flex-1 px-4 pb-12 pt-5 md:px-8">
+            <main id="main-content" class="@MainClass">
                 @Body
             </main>
             <StatusBar />
