@@ -74,6 +74,22 @@
     animation: none;
 }
 
+/* The full-screen mobile menu animates as its OWN snapshot, not as part of the
+   suppressed root — so a boosted nav that closes it fades it out instead of cutting.
+   It's declared after #main-content in the DOM, so its snapshot stacks above the
+   content crossfade: the menu fades away to reveal the freshly-swapped page. (Open
+   and non-nav close are handled by the element's own opacity transition; this only
+   governs the nav-close, which happens inside htmx's view transition.) */
+@media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(mobile-menu) { animation-duration: 250ms; }
+    ::view-transition-new(mobile-menu) { animation: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(mobile-menu),
+    ::view-transition-new(mobile-menu) { animation: none; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
     ::view-transition-old(main-content) { animation-duration: 150ms; }
     ::view-transition-new(main-content) { animation-duration: 200ms; }

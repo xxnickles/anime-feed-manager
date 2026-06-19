@@ -26,18 +26,23 @@ else if (requestType is HxFull)
 }
 else
 {
-    @* daisyUI drawer: the toggle checkbox must be the first child so its sibling
-       selectors reach .drawer-content (this column) and .drawer-side (MobileDrawer). *@
-    <div class="drawer">
-        <input id="mobile-drawer" type="checkbox" class="drawer-toggle" />
+    @* Full shell for a normal browser navigation. #mobile-drawer is the toggle for the
+       full-screen MobileDrawer menu and is marked `peer` so `peer-checked:` drives the
+       menu's open state (the menu is a following sibling). The topbar hamburger / the
+       menu's close button are <label for="mobile-drawer"> controls.
 
-        <div class="drawer-content flex min-h-screen flex-col">
-            <NavBar />
-            <main id="main-content" class="@MainClass">
-                @Body
-            </main>
-            <StatusBar />
-        </div>
+       On a boosted nav only #main-content + the OOB topbar are re-emitted, so this whole
+       wrapper persists — the `on htmx:after:swap` handler stays live and unchecks the
+       toggle once the swapped-in page has landed, fading the menu out to reveal it. *@
+    <div class="flex min-h-screen flex-col"
+         _="on htmx:after:swap set #mobile-drawer's checked to false">
+        <input id="mobile-drawer" type="checkbox" class="peer sr-only" aria-label="Toggle menu" />
+
+        <NavBar />
+        <main id="main-content" class="@MainClass">
+            @Body
+        </main>
+        <StatusBar />
 
         <MobileDrawer />
     </div>

@@ -1,47 +1,51 @@
-@* Mobile navigation drawer — the daisyUI `drawer-side`.
-   The .drawer wrapper, the #mobile-drawer toggle and .drawer-content live in
-   MainLayout; this renders the off-canvas panel. The topbar hamburger and the
-   overlay label both toggle #mobile-drawer. Layout structure only — the seasons
-   list, browse links and account section are deferred (slot marked below). *@
+@* Mobile navigation menu — a full-screen overlay (mobile-only, md:hidden).
+   Toggled by the #mobile-drawer checkbox in MainLayout, which is a `peer` sibling:
+   `peer-checked:` drives this panel's open state. The topbar hamburger and this
+   panel's close button are <label for="mobile-drawer"> controls.
 
-<div class="drawer-side z-[100]"
-     _="on click from <a/> in me set #mobile-drawer's checked to false">
-    @* Persistent-shell state: a boosted nav doesn't re-render the shell, so the
-       drawer toggle would stay checked after following a link. Uncheck it on any
-       in-drawer link click so the drawer closes (default daisyUI slide) on navigation. *@
-    <label for="mobile-drawer" aria-label="Close menu" class="drawer-overlay"></label>
+   It covers the whole viewport with a tinted, blurred backdrop so a boosted
+   navigation's #main-content swap happens hidden behind it; MainLayout's
+   `on htmx:after:swap` handler then unchecks the toggle and the menu fades out
+   (opacity + visibility, allow-discrete) to reveal the freshly-swapped page — no
+   old-content flash, and nothing to coordinate with the content view transition.
 
-    <aside class="flex min-h-full w-[min(85vw,320px)] flex-col overflow-y-auto border-r-[3px] border-base-content bg-base-100"
-           aria-label="Main menu">
+   Layout structure only — the seasons list and account / sign-out sections are
+   deferred (slot marked below; they need data + auth). *@
 
-        @* Head: brand + close *@
-        <div class="flex items-center justify-between border-b-2 border-base-content px-4 py-3.5">
-            <span class="inline-flex items-center gap-2 font-display text-[1.05rem] font-black tracking-[-0.03em] text-base-content">
-                <img src="/images/logo.svg" alt="" aria-hidden="true" class="h-[2.1rem] w-[2.1rem]" />
-                <span>amf</span>
-            </span>
-            <label for="mobile-drawer"
-                   aria-label="Close menu"
-                   class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-            </label>
-        </div>
+<div class="fixed inset-0 z-[100] flex flex-col bg-base-100/85 backdrop-blur-xl md:hidden
+            [view-transition-name:mobile-menu]
+            invisible opacity-0 transition-[opacity,visibility] transition-discrete duration-200 ease-out
+            peer-checked:visible peer-checked:opacity-100"
+     aria-label="Main menu"
+     _="on keyup[key is 'Escape'] from the document set #mobile-drawer's checked to false">
 
-        @* Browse links *@
-        <nav class="flex flex-col gap-0.5 px-3 py-3" aria-label="Browse">
-            <NavLink href="/admin"
-                     ActiveClass="bg-base-content/10 text-base-content"
-                     class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-base-content/80 transition-colors hover:bg-base-content/10 hover:text-base-content">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
-                Admin
-            </NavLink>
-        </nav>
+    @* Head: brand + close *@
+    <div class="flex items-center justify-between border-b-[3px] border-base-content px-4 py-3.5">
+        <span class="inline-flex items-center gap-2 font-display text-[1.05rem] font-black tracking-[-0.03em] text-base-content">
+            <img src="/images/logo.svg" alt="" aria-hidden="true" class="h-[2.1rem] w-[2.1rem]" />
+            <span>amf</span>
+        </span>
+        <label for="mobile-drawer"
+               aria-label="Close menu"
+               class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+        </label>
+    </div>
 
-        @* TODO[deferred]: seasons list · account / sign-out — need data + auth *@
-    </aside>
+    @* Browse links *@
+    <nav class="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-5" aria-label="Browse">
+        <NavLink href="/admin"
+                 ActiveClass="bg-base-content/10 text-base-content"
+                 class="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-base-content/80 transition-colors hover:bg-base-content/10 hover:text-base-content">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+            Admin
+        </NavLink>
+    </nav>
+
+    @* TODO[deferred]: seasons list · account / sign-out — need data + auth *@
 </div>

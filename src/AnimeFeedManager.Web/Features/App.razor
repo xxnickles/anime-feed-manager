@@ -60,7 +60,7 @@ else
         <HeadOutlet />
     </head>
 
-    <body class="bg-base-200 min-h-screen min-w-[380px]"
+    <body class="bg-base-200 min-h-screen min-w-[380px] has-[#mobile-drawer:checked]:overflow-hidden"
           hx-boost:inherited="swap:outerSync select:#main-content target:#main-content transition:true show:top">
 
         <Routes />
