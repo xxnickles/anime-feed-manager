@@ -1,0 +1,13 @@
+@* In-flight loader overlay. Drop inside a `relative` host that the trigger names as its
+   hx-indicator (e.g. hx-indicator="closest [data-loader-host]"). htmx adds .htmx-request
+   to the host during the request, and htmx's built-in indicator CSS reveals this overlay
+   (htmx-indicator) — a dimmed cover with a spinner and the running operation. *@
+
+<div class="htmx-indicator absolute inset-0 z-10 flex items-center justify-center gap-2.5 rounded-[inherit] bg-base-100/75 backdrop-blur-sm">
+    <span class="loading loading-spinner loading-sm text-base-content"></span>
+    <span class="text-sm font-medium text-base-content">@Operation</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Operation { get; set; } = string.Empty;
+}

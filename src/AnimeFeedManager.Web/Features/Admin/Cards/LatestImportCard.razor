@@ -7,7 +7,8 @@
    leaves this card untouched; transition:false keeps the toast response out of the
    view transition. *@
 
-<div class="flex h-full flex-col gap-3 rounded-2xl border-2 border-base-content bg-base-100 p-5 shadow-brutal">
+<div data-loader-host
+     class="relative flex h-full flex-col gap-3 rounded-2xl border-2 border-base-content bg-base-100 p-5 shadow-brutal">
     <div class="flex flex-col gap-1">
         <h3 class="font-display text-base font-black tracking-[-0.02em] text-base-content">
             Latest Season
@@ -20,11 +21,13 @@
     <form hx-post="/admin/library/import/latest"
           hx-swap="none transition:false"
           hx-confirm="Import the latest season now?"
+          hx-indicator="closest [data-loader-host]"
           class="mt-auto">
         <AntiforgeryToken />
-        <button type="submit" class="btn btn-primary gap-2">
+        <button type="submit" class="btn btn-primary">
             Import latest season
-            <span class="htmx-indicator loading loading-spinner loading-sm"></span>
         </button>
     </form>
+
+    <SectionLoader Operation="Importing latest season…" />
 </div>

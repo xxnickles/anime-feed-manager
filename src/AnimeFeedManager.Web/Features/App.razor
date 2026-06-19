@@ -71,6 +71,9 @@ else
            full-document / back-forward body swaps. *@
         <div id="toast-panel" class="toast toast-bottom toast-start z-[200]" hx-preserve></div>
 
+        @* Custom confirm dialog — intercepts hx-confirm app-wide (replaces window.confirm). *@
+        <HtmxConfirm />
+
         @if (Env.IsDevelopment())
         {
             <script defer src="@Assets["lib/htmx/dist/htmx.js"]"></script>

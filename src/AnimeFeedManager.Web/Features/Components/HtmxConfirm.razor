@@ -1,0 +1,43 @@
+@* Custom confirm dialog replacing window.confirm for hx-confirm. Lives once in the shell;
+   listens for the bubbled htmx:confirm. htmx-4 mechanics differ from v1: it halts the
+   default (so htmx skips window.confirm and awaits a promise), reads the question from
+   detail.ctx.confirm, and resolves via detail.issueRequest() (OK) / detail.dropRequest()
+   (Cancel/Esc). dropRequest is also called on `close`, so a dismissed dialog can never
+   leave htmx's awaited promise hanging. Hyperscript is bound via @Script (Razor can't
+   parse a multi-line _= with <…> selector markup). *@
+
+<dialog id="htmx-confirm" class="modal" _="@Script">
+    <div class="modal-box rounded-none border-[3px] border-base-content bg-base-100 shadow-brutal">
+        <h3 class="font-display text-lg font-black text-base-content">Confirm</h3>
+        <p class="py-4 text-sm text-base-content/80" data-question></p>
+        <div class="modal-action">
+            <button type="button" data-confirm-cancel class="btn btn-ghost btn-sm">Cancel</button>
+            <button type="button" data-confirm-ok class="btn btn-primary btn-sm">Confirm</button>
+        </div>
+    </div>
+</dialog>
+
+@code {
+    private const string Script = """
+        on htmx:confirm from window
+          halt the event's default
+          set theDetail to the event's detail
+          set :detail to theDetail
+          set p to the first <p[data-question]/> in me
+          set p's textContent to theDetail.ctx.confirm
+          call my showModal()
+        on click from <button[data-confirm-ok]/> in me
+          set d to :detail
+          set :detail to null
+          call d.issueRequest()
+          call my close()
+        on click from <button[data-confirm-cancel]/> in me
+          call my close()
+        on close from me
+          if :detail
+            set d to :detail
+            set :detail to null
+            call d.dropRequest()
+          end
+        """;
+}
