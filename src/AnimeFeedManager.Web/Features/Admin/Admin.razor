@@ -1,12 +1,17 @@
 @page "/admin"
+@using AnimeFeedManager.Web.Features.Admin.Cards
 
-@* Admin section landing — hosts the controls for keeping the season library in
-   sync (manual import, status refresh, …). Placeholder shell for now; the action
-   cards land as each control is wired up in later items. *@
+@* Admin dashboard — hosts the controls for keeping the season library in sync
+   (manual import, status refresh, …) and, later, library stats / charts. Layout
+   follows the dashboard grid in .claude/references/nexus-dashboard-grid.md, hardened
+   to the brutalist theme: the responsive grid is the durable bit; trigger cards (and
+   future widgets) mount into it. Page padding comes from MainLayout's #main-content. *@
 
 <AppPageTitle Title="Admin" />
 
-<section class="mx-auto flex max-w-3xl flex-col gap-6 py-10">
+<div class="flex flex-col gap-10 py-2">
+
+    @* Page header *@
     <header class="flex flex-col gap-2">
         <p class="font-display text-xs font-semibold uppercase tracking-widest text-base-content/50">
             Admin
@@ -14,13 +19,25 @@
         <h1 class="font-display text-3xl font-black tracking-[-0.03em] text-base-content">
             Season Controls
         </h1>
-        <p class="text-base-content/70">
+        <p class="max-w-2xl text-base-content/70">
             Manage the season library — trigger imports, refresh status and keep the
-            catalogue in sync. Controls arrive as each one is wired up.
+            catalogue in sync.
         </p>
     </header>
 
-    <div class="rounded-2xl border-2 border-base-content bg-base-100 p-5 text-sm text-base-content/70 shadow-brutal">
-        No controls wired yet — this is the admin shell.
-    </div>
-</section>
+    @* Section: library import + season-data controls *@
+    <section class="flex flex-col gap-4">
+        <div class="flex items-center justify-between gap-3">
+            <h2 class="font-display text-lg font-black tracking-[-0.02em] text-base-content">
+                Season Library
+            </h2>
+        </div>
+
+        @* Dashboard grid — trigger cards now, stats / charts later. *@
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <LatestImportCard />
+            @* TODO[next]: custom-season import trigger card *@
+        </div>
+    </section>
+
+</div>

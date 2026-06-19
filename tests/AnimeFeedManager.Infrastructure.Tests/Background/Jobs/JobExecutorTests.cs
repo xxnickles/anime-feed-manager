@@ -215,6 +215,31 @@ public class JobExecutorTests
 
     #endregion
 
+    #region Generic Resolution
+
+    [Fact]
+    public async Task Should_Resolve_Job_From_Fresh_Scope_For_Generic_Trigger()
+    {
+        using var lifetime = new FakeLifetime();
+        using var executor = CreateExecutor(lifetime, services => services.AddScoped<Marker>());
+
+        var firstJob = new TaskCompletionSource<Marker>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondJob = new TaskCompletionSource<Marker>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        executor.Trigger<Marker>("a", (job, _) => { firstJob.TrySetResult(job); return Task.CompletedTask; });
+        executor.Trigger<Marker>("b", (job, _) => { secondJob.TrySetResult(job); return Task.CompletedTask; });
+
+        var j1 = await firstJob.Task.WaitAsync(RunTimeout, TestContext.Current.CancellationToken);
+        var j2 = await secondJob.Task.WaitAsync(RunTimeout, TestContext.Current.CancellationToken);
+
+        // The generic overload resolves TJob from the run's own fresh scope, so two triggers of a
+        // scoped job get distinct instances.
+        Assert.NotNull(j1);
+        Assert.NotSame(j1, j2);
+    }
+
+    #endregion
+
     #region Test Helpers
 
     private static JobExecutor CreateExecutor(

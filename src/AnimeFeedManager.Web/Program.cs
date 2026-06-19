@@ -4,6 +4,7 @@ using AnimeFeedManager.Features.Library.Registration;
 using AnimeFeedManager.Infrastructure.Registration;
 using AnimeFeedManager.ServiceDefaults;
 using AnimeFeedManager.Shared;
+using AnimeFeedManager.Web.Features.Admin.Endpoints;
 using AnimeFeedManager.Web.Htmx;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,7 @@ app.MapStaticAssets();
 app.UseHtmx();
 app.UseAntiforgery();
 app.MapDefaultEndpoints();
+app.MapAdminEndpoints();
 app.MapRazorComponents<AnimeFeedManager.Web.Features.App>();
 
 app.Run();

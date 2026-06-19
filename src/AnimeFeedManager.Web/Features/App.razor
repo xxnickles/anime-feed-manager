@@ -65,6 +65,12 @@ else
 
         <Routes />
 
+        @* Toast host — OOB notifications append here (newest nearest the corner). daisyUI's
+           `toast` owns positioning, column layout, gap and the enter animation; the only add is
+           z-[200] so toasts clear the z-[100] mobile menu. hx-preserve keeps the stack across
+           full-document / back-forward body swaps. *@
+        <div id="toast-panel" class="toast toast-bottom toast-start z-[200]" hx-preserve></div>
+
         @if (Env.IsDevelopment())
         {
             <script defer src="@Assets["lib/htmx/dist/htmx.js"]"></script>

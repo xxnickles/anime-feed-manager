@@ -1,0 +1,19 @@
+@* Out-of-band wrapper for a toast. htmx finds [hx-swap-oob] and appends into #toast-panel;
+   "beforeend" is a non-outer swap so the wrapper is stripped and only the Notification lands
+   in the panel — newest at the bottom, nearest the bottom-left corner. The selector-override
+   form (style:#target) can't carry a transition modifier — the trigger opts the whole
+   response out of the view transition with hx-swap="none transition:false" instead. *@
+
+<div hx-swap-oob="beforeend:#toast-panel">
+    <Notification Title="@Title"
+                  Message="@Message"
+                  Type="@Type"
+                  CloseTime="@(CloseTime ?? TimeSpan.FromSeconds(6))" />
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? Message { get; set; }
+    [Parameter] public ToastType Type { get; set; } = ToastType.Info;
+    [Parameter] public TimeSpan? CloseTime { get; set; }
+}

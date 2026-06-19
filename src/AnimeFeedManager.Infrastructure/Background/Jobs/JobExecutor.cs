@@ -25,13 +25,31 @@ public sealed class JobExecutor(
         new(StringComparer.Ordinal);
 
     /// <summary>
-    /// Queue <paramref name="work"/> to run in the background under the single-flight gate
-    /// for <paramref name="gateKey"/>. Returns immediately. When <paramref name="skipIfRunning"/>
-    /// is true (default) a trigger that arrives while the same job is already running is
-    /// skipped (logged), rather than queued. <paramref name="work"/> receives a scoped
-    /// <see cref="IServiceProvider"/> and the application-stopping token.
+    /// Queue background work that runs <typeparamref name="TJob"/> under the single-flight gate for
+    /// <paramref name="gateKey"/>. Returns immediately. <typeparamref name="TJob"/> is resolved from a
+    /// fresh DI scope created for this run — so its scoped dependencies are safe for fire-and-forget
+    /// work that outlives the triggering request — and handed to <paramref name="run"/> with the
+    /// application-stopping token. Per-call inputs ride in by capturing them in <paramref name="run"/>.
+    /// When <paramref name="skipIfRunning"/> is true (default) a trigger that arrives while the same
+    /// job is already running is skipped (logged) rather than queued. This is the app-facing API:
+    /// callers pass a strongly-typed invocation and never touch the container.
     /// </summary>
-    public void Trigger(
+    public void Trigger<TJob>(
+        string gateKey,
+        Func<TJob, CancellationToken, Task> run,
+        bool skipIfRunning = true)
+        where TJob : notnull
+        => Trigger(gateKey, (sp, ct) => run(sp.GetRequiredService<TJob>(), ct), skipIfRunning);
+
+    /// <summary>
+    /// Low-level primitive: queue <paramref name="work"/> under the single-flight gate for
+    /// <paramref name="gateKey"/>, in a fresh DI scope, with the application-stopping token. Handing
+    /// the scope's <see cref="IServiceProvider"/> to the delegate is a service-locator seam, so this
+    /// stays internal — the cron scheduler uses it to dispatch by runtime <see cref="Type"/> (no
+    /// compile-time generic), and <see cref="Trigger{TJob}"/> delegates to it. App code uses the
+    /// generic overload instead.
+    /// </summary>
+    internal void Trigger(
         string gateKey,
         Func<IServiceProvider, CancellationToken, Task> work,
         bool skipIfRunning = true)
