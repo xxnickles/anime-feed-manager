@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         {
             builder.AddJikanClient();
 
+            builder.Services.AddScoped<LibraryImportJob>();
             builder.Services
                 .AddCronJob<LibraryImportCronJob>();
 
