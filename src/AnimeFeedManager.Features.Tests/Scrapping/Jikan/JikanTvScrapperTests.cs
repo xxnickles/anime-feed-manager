@@ -2,7 +2,6 @@ using AnimeFeedManager.Features.Common.Scrapping;
 using AnimeFeedManager.Features.Scrapping.Jikan;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
-using AnimeFeedManager.Features.Tv.Library.Storage;
 using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Tests.Scrapping.Jikan;

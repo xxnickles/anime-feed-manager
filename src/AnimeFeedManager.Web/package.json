@@ -16,14 +16,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@swc/core": "^1.15.33",
-    "@tailwindcss/cli": "^4.3.0",
-    "@tailwindcss/typography": "^0.5.19",
+    "@swc/core": "^1.15.41",
+    "@tailwindcss/cli": "^4.3.1",
+    "@tailwindcss/typography": "^0.5.20",
     "chokidar": "^5.0.0",
-    "concurrently": "^9.2.1",
-    "daisyui": "^5.5.19",
+    "concurrently": "^10.0.3",
+    "daisyui": "^5.5.23",
     "glob": "^13.0.6",
-    "npm-check-updates": "^22.1.1",
-    "tailwindcss": "^4.3.0"
+    "npm-check-updates": "^22.2.3",
+    "tailwindcss": "^4.3.1"
   }
 }

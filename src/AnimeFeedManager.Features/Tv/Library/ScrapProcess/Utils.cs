@@ -1,7 +1,5 @@
 using AnimeFeedManager.Features.Scrapping.Types;
 using Raffinert.FuzzySharp;
-using Raffinert.FuzzySharp.PreProcess;
-
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
@@ -11,7 +9,7 @@ internal static class Utils
     {
         return feedInfo.IsEmpty
             ? null
-            : feedInfo.FirstOrDefault(info => Fuzz.WeightedRatio(info.Title, animeTitle, PreprocessMode.Full) > 73);
+            : feedInfo.FirstOrDefault(info => Fuzz.WeightedRatio(info.Title, animeTitle) > 73);
     }
 
     internal static bool IsOldSeason(SeriesSeason seasonInformation, TimeProvider timeProvider)
