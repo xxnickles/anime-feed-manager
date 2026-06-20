@@ -89,6 +89,11 @@ else
             <script defer src="@Assets["lib/hyperscript/dist/ext/component.min.js"]"></script>
         }
 
+        @* App-wide hyperscript behaviours, defined once in the persistent shell. External
+           .hs file so the <selector/> queries inside don't trip Razor's attribute parser;
+           hyperscript fetches and processes it. Elements opt in via `_="install Name"`. *@
+        <script type="text/hyperscript" src="@Assets["app/forms.hs"]"></script>
+
     </body>
 
     </html>

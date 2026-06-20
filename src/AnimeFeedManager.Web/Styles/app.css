@@ -9,6 +9,13 @@
     themes: paper-light --default, paper-dark --prefersdark, anime-light, anime-dark;
 }
 
+/* Form-field error state. Toggled as a bare `data-error` attribute (presence, any value)
+   by the ValidatedField hyperscript behaviour and rendered present by the server's OOB
+   field-error slots. Drives the daisyUI input-error/select-error borders and the message
+   slide+fade reveal (max-h-0 opacity-0 → max-h-8 opacity-100). Adapted from the nexus
+   template's data-error pattern (it used Alpine; we drive it with hyperscript). */
+@custom-variant data-error (&[data-error]);
+
 /* ============================================================
    Type scale
    Web fonts (cdnfonts) must be linked in the document <head>:

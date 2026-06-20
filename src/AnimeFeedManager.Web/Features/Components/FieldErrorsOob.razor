@@ -1,0 +1,16 @@
+@using AnimeFeedManager.Shared.Results.Errors
+
+@* Server-side validation response: one out-of-band field-error slot per failing field.
+   The trigger posts with hx-swap="none", so htmx applies only these OOB swaps — each
+   <p hx-swap-oob="true" id="field-error-{Field}"> replaces the matching empty slot in the
+   form, leaving the user's entries untouched. Channel split: field-shaped problems land
+   here; operation / unexpected failures go to a toast (Notifications.Error). *@
+
+@foreach (var error in Errors)
+{
+    <FieldError Oob="true" Name="@error.Field" Message="@string.Join(" ", error.Errors)" />
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<DomainValidationError> Errors { get; set; } = [];
+}

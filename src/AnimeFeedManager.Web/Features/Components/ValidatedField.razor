@@ -1,0 +1,31 @@
+@* Reusable validated form field: label (+ optional hint), the consumer-authored input,
+   and its FieldError slot. The input is supplied as child content so the field works for
+   any control (input / select / …); it carries its own native constraints (required, min,
+   max, type) and opts into client presentation with `_="install ValidatedField"`. Those
+   constraints drive both htmx's submit gate (form.reportValidity) and our slot painting.
+
+   Name must match the input's `name` AND the domain DomainValidationError.Field
+   (typeof(T).Name), so client- and server-side errors converge on the same slot. *@
+
+<div class="flex flex-col items-stretch gap-1.5">
+    <div class="flex items-center justify-between gap-2">
+        <label class="label text-sm font-medium text-base-content" for="@(For ?? Name)">@Label</label>
+        @if (!string.IsNullOrEmpty(Hint))
+        {
+            <p class="text-end text-xs text-base-content/60">@Hint</p>
+        }
+    </div>
+    @ChildContent
+    <FieldError Name="@Name" />
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Name { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter] public string? Hint { get; set; }
+
+    // Defaults to Name; override when the input's id differs from its name.
+    [Parameter] public string? For { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

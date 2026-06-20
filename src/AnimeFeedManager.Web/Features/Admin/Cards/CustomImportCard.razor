@@ -1,0 +1,63 @@
+@using AnimeFeedManager.Shared.Types
+
+@* Custom-season import trigger. Posts Season + Year. Client-side, native constraints
+   (required / min / max) plus the ValidatedField behaviour block obvious errors and htmx
+   refuses to send an invalid form. Server-side, SeriesSeason.ParseAsSeriesSeason re-validates
+   — values that bypassed the client come back as OOB field-slot messages (FieldErrors),
+   while the import outcome comes back as a toast. hx-swap="none" leaves the form intact, so
+   the browser preserves whatever the user entered. The form is pre-filled with the current
+   season / year, so the happy path is one click. *@
+
+<div data-loader-host
+     class="relative flex h-full flex-col gap-3 rounded-2xl border-2 border-base-content bg-base-100 p-5 shadow-brutal">
+    <div class="flex flex-col gap-1">
+        <h3 class="font-display text-base font-black tracking-[-0.02em] text-base-content">
+            Custom Season
+        </h3>
+        <p class="text-sm text-base-content/70">
+            Import a specific season's TV anime from Jikan.
+        </p>
+    </div>
+
+    <form hx-post="/admin/library/import/season"
+          hx-swap="none transition:false"
+          hx-confirm="Import the selected season now?"
+          hx-indicator="closest [data-loader-host]"
+          class="mt-auto flex flex-col gap-4">
+        <AntiforgeryToken />
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <ValidatedField Name="Season" Label="Season">
+                <select name="Season" id="Season" required
+                        _="install ValidatedField(blurValidate: true)"
+                        class="select w-full border-2 border-base-content/30 data-error:select-error">
+                    @foreach (var season in Season.All())
+                    {
+                        <option value="@season.Value" selected="@(season.Value == Season.Current.Value)">
+                            @Capitalize(season.Value)
+                        </option>
+                    }
+                </select>
+            </ValidatedField>
+
+            <ValidatedField Name="Year" Label="Year" Hint="@($"{Year.MinYear}–{Year.MaxYear}")">
+                <input name="Year" id="Year" type="number" inputmode="numeric"
+                       min="@Year.MinYear" max="@Year.MaxYear" step="1" required
+                       value="@Year.Current.Value"
+                       _="install ValidatedField(blurValidate: true)"
+                       class="input w-full border-2 border-base-content/30 data-error:input-error" />
+            </ValidatedField>
+        </div>
+
+        <button type="submit" class="btn btn-primary self-start">
+            Import season
+        </button>
+    </form>
+
+    <SectionLoader Operation="Importing season…" />
+</div>
+
+@code {
+    private static string Capitalize(string value) =>
+        string.IsNullOrEmpty(value) ? value : char.ToUpperInvariant(value[0]) + value[1..];
+}

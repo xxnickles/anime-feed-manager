@@ -1,0 +1,28 @@
+@* Field-level validation message slot — the rendezvous point for both client- and
+   server-side errors. Rendered empty inside a form (reserves the id / slot); rendered
+   filled + OOB by the server (FieldErrorsOob) when domain validation rejects a request
+   that bypassed the client. Client behaviour (app/forms.hs) and the server both target
+   the SAME element by id, so a message looks identical whichever side caught it.
+
+   `data-error` (toggled by the client, present-when-filled on the server) drives the
+   daisyUI error colour and the slide/fade reveal via the data-error: Tailwind variant.
+   Name == input `name` == DomainValidationError.Field (typeof(T).Name) — the one string
+   that ties the input, this slot and the domain error together. *@
+
+<p id="field-error-@Name"
+   data-field-error="@Name"
+   data-error="@(HasMessage ? string.Empty : null)"
+   hx-swap-oob="@(Oob ? "true" : null)"
+   aria-live="polite"
+   class="text-error max-h-0 overflow-hidden text-sm opacity-0 transition-all duration-300 data-error:max-h-8 data-error:opacity-100">@Message</p>
+
+@code {
+    [Parameter, EditorRequired] public string Name { get; set; } = string.Empty;
+    [Parameter] public string? Message { get; set; }
+
+    // When true, render the htmx out-of-band marker so the server response replaces the
+    // matching in-form slot by id (used by FieldErrorsOob).
+    [Parameter] public bool Oob { get; set; }
+
+    private bool HasMessage => !string.IsNullOrEmpty(Message);
+}
