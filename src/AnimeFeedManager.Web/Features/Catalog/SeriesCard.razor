@@ -1,0 +1,135 @@
+@using AnimeFeedManager.Features.Library.Entities
+@using AnimeFeedManager.Shared.Types
+
+@* One series in the season grid. Real data only — no subscribe/watch/user state (that needs
+   auth, deferred). The whole card is a link into the detail route. `data-type` drives the grid's
+   client-side type-segment filter. `@container` makes the card a query container so its layout is
+   robust outside the 220px grid (e.g. a future related-strip); `content-visibility:auto` lets the
+   browser skip offscreen cards in a large season. The poster is the intended shared-element source
+   for the grid→detail View Transition — that name is set in sub-project 2 (detail) where the
+   matching target exists, so it isn't baked in here.
+
+   Custom CSS retained: `.status-pin` / `.pin-dot` (glass backdrop — Tailwind can't express the
+   backdrop-filter trio; see tokens.css). Everything else is Tailwind utilities. *@
+
+<a href="/series/@Series.MalId" data-type="@TypeKey"
+   class="group @@container flex flex-col overflow-hidden rounded-2xl border-2 border-base-content bg-base-100 shadow-brutal transition-transform duration-200 hover:-translate-y-0.5 [content-visibility:auto] [contain-intrinsic-size:auto_24rem]">
+
+    <div class="relative overflow-hidden">
+        @if (AiringPin is { } pin)
+        {
+            <div class="status-pin @pin.Color"><span class="pin-dot"></span>@pin.Label</div>
+        }
+        @if (PosterUrl is not null)
+        {
+            <img src="@PosterUrl" alt="@PrimaryTitle" loading="lazy"
+                 class="aspect-[2/3] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]" />
+        }
+        else
+        {
+            <div class="flex aspect-[2/3] w-full items-center justify-center bg-base-content/5 p-4 text-center font-display text-sm font-bold text-base-content/40">
+                @PrimaryTitle
+            </div>
+        }
+    </div>
+
+    <div class="flex flex-1 flex-col gap-2 p-3.5">
+        <div class="flex flex-col gap-0.5">
+            <span class="font-display text-[0.6rem] font-bold uppercase tracking-[0.12em] text-base-content/45">@TypeLabel</span>
+            <h3 class="truncate font-display text-base font-bold leading-tight tracking-[-0.015em] text-base-content @@sm:text-lg">@PrimaryTitle</h3>
+            @if (SecondaryTitle is not null)
+            {
+                <p class="truncate text-xs text-base-content/55">@SecondaryTitle</p>
+            }
+        </div>
+
+        @if (Series.Genres.Length > 0)
+        {
+            <div class="flex flex-wrap gap-1.5">
+                @foreach (var (genre, index) in Series.Genres.Take(3).Select((g, i) => (g, i)))
+                {
+                    <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[0.7rem] font-semibold @(index == 0 ? "border-primary/25 bg-primary/15 text-primary" : "border-base-content/10 bg-base-content/[0.08] text-base-content/80")">
+                        @genre
+                    </span>
+                }
+            </div>
+        }
+
+        <div class="mt-auto flex flex-wrap items-center gap-2 text-xs">
+            @if (Broadcast is { } b)
+            {
+                <span class="inline-flex items-center gap-1.5 rounded-md border border-base-content/10 bg-base-content/[0.06] px-1.5 py-0.5 font-semibold text-base-content/70">
+                    <span class="border-r border-base-content/15 pr-1.5 font-display text-[0.62rem] font-extrabold uppercase tracking-wider text-primary">@b.Day</span>
+                    <span class="font-mono">@b.Time</span>
+                    <span class="text-[0.6rem] opacity-50">@b.Timezone</span>
+                </span>
+            }
+            @if (EpisodeText is { } eps)
+            {
+                <span class="font-mono text-base-content/60">@eps</span>
+            }
+            @if (Series.Score is { } score)
+            {
+                <span class="ml-auto inline-flex items-center gap-0.5 font-mono text-base-content/60">★ @score.ToString("0.0")</span>
+            }
+        </div>
+    </div>
+</a>
+
+@code {
+    [Parameter, EditorRequired] public Series Series { get; set; } = default!;
+
+    // Absolute poster URL, resolved by the grid from the blob base + Series.CoverImageUrl.
+    // null when the series has no stored cover — renders a titled placeholder.
+    [Parameter] public string? PosterUrl { get; set; }
+
+    private string PrimaryTitle =>
+        string.IsNullOrWhiteSpace(Series.Titles.English) ? Series.Titles.Default : Series.Titles.English!;
+
+    // Secondary line is the canonical (romaji) title, shown only when the primary is the English one.
+    private string? SecondaryTitle =>
+        string.Equals(Series.Titles.Default, PrimaryTitle, StringComparison.Ordinal) ? null : Series.Titles.Default;
+
+    private string TypeKey => Series switch
+    {
+        TvSeries => "tv",
+        MovieSeries => "movie",
+        OvaSeries => "ova",
+        OnaSeries => "ona",
+        TvSpecialSeries => "tv_special",
+        _ => "special"
+    };
+
+    private string TypeLabel => Series switch
+    {
+        TvSeries => "TV",
+        MovieSeries => "Movie",
+        OvaSeries => "OVA",
+        OnaSeries => "ONA",
+        TvSpecialSeries => "TV Special",
+        _ => "Special"
+    };
+
+    private Broadcast? Broadcast => Series is TvSeries { Broadcast: { } b } ? b : null;
+
+    // Episode count for episodic types; runtime for movies. null hides the slot.
+    private string? EpisodeText => Series switch
+    {
+        TvSeries { Episodes: { } e } => $"{e} ep",
+        OvaSeries { Episodes: { } e } => $"{e} ep",
+        OnaSeries { Episodes: { } e } => $"{e} ep",
+        TvSpecialSeries { Episodes: { } e } => $"{e} ep",
+        SpecialSeries { Episodes: { } e } => $"{e} ep",
+        MovieSeries { RuntimeMinutes: { } m } => $"{m} min",
+        _ => null
+    };
+
+    // Airing-status pin (NOT user status). Only the live/upcoming states earn a pin;
+    // finished/unknown show none. Colour rides currentColor into .pin-dot.
+    private (string Label, string Color)? AiringPin => Series.Status.ToString() switch
+    {
+        SeriesStatus.CurrentlyAiringValue => ("Airing", "text-success"),
+        SeriesStatus.NotYetAiredValue => ("Upcoming", "text-info"),
+        _ => null
+    };
+}

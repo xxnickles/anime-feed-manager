@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace AnimeFeedManager.Features.Library.Images;
 
@@ -8,7 +9,11 @@ namespace AnimeFeedManager.Features.Library.Images;
 /// <see cref="IHostedService"/> rather than a <see cref="BackgroundService"/>: the work belongs in
 /// <see cref="StartAsync"/> so host startup blocks until the container exists, guaranteeing the
 /// import (and its enqueued image work) can never run against a missing container.
-/// Public blob access is deferred — the container is created private; covers are served via the app.
+/// Covers are served directly from blob storage, so the container is created with
+/// <see cref="PublicAccessType.Blob"/> (anonymous read of individual blobs, no listing). The
+/// access level is also re-asserted on every start so a pre-existing private container (e.g. a
+/// persisted Azurite volume created before this change) is flipped public. Production additionally
+/// requires the storage account's <c>AllowBlobPublicAccess</c> to be enabled.
 /// </summary>
 internal sealed class ImagesContainerInitializer(
     BlobServiceClient blobServiceClient,
@@ -16,12 +21,14 @@ internal sealed class ImagesContainerInitializer(
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await blobServiceClient
-            .GetBlobContainerClient(ImageProcessor.BlobContainer)
-            .CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+        var container = blobServiceClient.GetBlobContainerClient(ImageProcessor.BlobContainer);
+
+        await container.CreateIfNotExistsAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
+        await container.SetAccessPolicyAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
 
         logger.LogInformation(
-            "Blob container '{Container}' is provisioned and ready.", ImageProcessor.BlobContainer);
+            "Blob container '{Container}' is provisioned (public blob access) and ready.",
+            ImageProcessor.BlobContainer);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

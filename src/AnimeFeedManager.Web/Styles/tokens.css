@@ -16,26 +16,6 @@
      [SCOPE → ComponentName.razor.css]
    ============================================================ */
 
-/* === Chips / tags === */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.18rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: color-mix(in oklab, var(--color-base-content) 8%, transparent);
-  color: color-mix(in oklab, var(--color-base-content) 85%, transparent);
-  border: 1px solid color-mix(in oklab, var(--color-base-content) 6%, transparent);
-}
-
-.chip-primary {
-  background: color-mix(in oklab, var(--color-primary) 16%, transparent);
-  color: var(--color-primary);
-  border-color: color-mix(in oklab, var(--color-primary) 25%, transparent);
-}
-
 /* === Status pin (poster overlay) === */
 .status-pin {
   position: absolute;
@@ -64,67 +44,6 @@
   border-radius: 999px;
   background: currentColor;
   box-shadow: 0 0 8px currentColor;
-}
-
-.status-pin.is-subscribed { color: oklch(86% 0.14 35); }
-.status-pin.is-watching   { color: oklch(82% 0.16 145); }
-
-/* === Day / time pill === */
-.day-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.45rem 0.2rem 0.4rem;
-  border-radius: 0.35rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  background: color-mix(in oklab, var(--color-base-content) 6%, transparent);
-  color: color-mix(in oklab, var(--color-base-content) 78%, transparent);
-  border: 1px solid color-mix(in oklab, var(--color-base-content) 8%, transparent);
-}
-
-.day-pill .day-tag {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-  padding-right: 0.35rem;
-  border-right: 1px solid color-mix(in oklab, var(--color-base-content) 14%, transparent);
-}
-
-.day-pill .time {
-  font-family: var(--font-mono);
-  letter-spacing: 0.02em;
-}
-
-/* === Countdown tile === */
-.countdown-tile {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.18rem 0.45rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  background: color-mix(in oklab, var(--color-primary) 12%, transparent);
-  border: 1px solid color-mix(in oklab, var(--color-primary) 25%, transparent);
-  border-radius: 0.4rem;
-}
-
-/* === Card title rows === */
-.title-en {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
-}
-
-.title-romaji {
-  font-size: 0.72rem;
-  color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
-  margin-top: 1px;
 }
 
 /* === Stat strip (season header) ===
@@ -235,69 +154,6 @@
   color: var(--color-base-content);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--color-base-content) 10%, transparent);
 }
-
-/* === Anime card ===
-   [SCOPE → AnimeCard.razor.css] once that component exists */
-.anime-card {
-  position: relative;
-  background: var(--color-base-100);
-  border-radius: var(--radius-box);
-  overflow: hidden;
-  border: 1px solid color-mix(in oklab, var(--color-base-content) 9%, transparent);
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-base-content) 4%, transparent);
-}
-
-.anime-card .poster-wrap {
-  position: relative;
-  overflow: hidden;
-}
-
-.anime-card .poster {
-  width: 100%;
-  display: block;
-  transition: transform 0.5s ease;
-}
-
-.anime-card:hover .poster { transform: scale(1.04); }
-
-.anime-card .poster-overlay {
-  position: absolute;
-  inset: auto 0 0 0;
-  padding: 0.6rem 0.75rem 0.7rem;
-  background: linear-gradient(to top, oklch(0% 0 0 / 0.78), transparent);
-  color: oklch(98% 0 0);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-}
-
-.anime-card .poster-overlay .ja {
-  font-family: var(--font-ja);
-  font-size: 0.82rem;
-  text-shadow: 0 1px 2px oklch(0% 0 0 / 0.5);
-  letter-spacing: 0.08em;
-}
-
-.anime-card .card-pad {
-  padding: 0.85rem 0.9rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-}
-
-.anime-card .title-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.anime-card .title-en  { font-size: 1.02rem; }
-.anime-card .meta-row  { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.74rem; }
-.anime-card .chips     { display: flex; gap: 0.3rem; flex-wrap: wrap; }
 
 /* === List view rows ===
    [SCOPE → AnimeListRow.razor.css] once that component exists */

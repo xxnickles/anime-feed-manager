@@ -1,0 +1,30 @@
+@* Reusable inline empty / warn state — a centered brutalist card with a warning icon,
+   title, description, and an optional call-to-action link. Used when a season has no
+   series, when nothing has been imported yet (links to /admin), or for an invalid season
+   slug. Distinct from toasts (NotificationOob): this renders inline in the page content.
+   The CTA is a plain <a>, so the inherited hx-boost handles SPA navigation. *@
+
+<div class="mx-auto flex max-w-md flex-col items-center gap-4 rounded-2xl border-2 border-base-content bg-base-100 px-6 py-10 text-center shadow-brutal">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+         stroke="currentColor" stroke-width="2" aria-hidden="true" class="h-10 w-10 text-warning">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <div class="flex flex-col gap-1">
+        <h2 class="font-display text-lg font-black tracking-[-0.02em] text-base-content">@Title</h2>
+        <p class="text-sm text-base-content/70">@Description</p>
+    </div>
+    @if (HasAction)
+    {
+        <a href="@ActionHref" class="btn btn-primary btn-sm mt-1">@ActionLabel</a>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Description { get; set; } = string.Empty;
+    [Parameter] public string? ActionHref { get; set; }
+    [Parameter] public string? ActionLabel { get; set; }
+
+    private bool HasAction => !string.IsNullOrWhiteSpace(ActionHref) && !string.IsNullOrWhiteSpace(ActionLabel);
+}
