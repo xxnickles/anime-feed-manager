@@ -2,6 +2,7 @@ using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Library.Import.Storage;
 using AnimeFeedManager.Features.Library.Seasons;
+using AnimeFeedManager.Features.Library.Seasons.Storage;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using AnimeFeedManager.Shared;
 using Azure.Storage.Blobs;

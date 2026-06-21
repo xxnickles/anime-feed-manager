@@ -15,3 +15,11 @@ public delegate Task<Result<LibrarySeasonsIndex>> LibrarySeasonsIndexLoader(Canc
 /// replace. Replacement is by <see cref="SeriesSeason"/> equality.
 /// </summary>
 public delegate Task<Result<Unit>> LibrarySeasonsIndexUpserter(SeasonEntry entry, CancellationToken cancellationToken);
+
+/// <summary>
+/// Resolves the most-recent imported season from the index. Fails with a
+/// <see cref="NotFoundError"/> when nothing has been imported yet — absence rides the
+/// error channel rather than a nullable success, so callers match on outcome (and can
+/// branch on <see cref="NotFoundError"/> for a friendly empty state). Drives the <c>/</c> landing.
+/// </summary>
+public delegate Task<Result<SeriesSeason>> LatestSeasonResolver(CancellationToken cancellationToken);

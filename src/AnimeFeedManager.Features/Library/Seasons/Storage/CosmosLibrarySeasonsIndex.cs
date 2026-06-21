@@ -6,7 +6,7 @@ using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using AnimeFeedManager.Shared;
 using Microsoft.Azure.Cosmos;
 
-namespace AnimeFeedManager.Features.Library.Seasons;
+namespace AnimeFeedManager.Features.Library.Seasons.Storage;
 
 public static class CosmosLibrarySeasonsIndex
 {
@@ -20,6 +20,14 @@ public static class CosmosLibrarySeasonsIndex
     public static LibrarySeasonsIndexUpserter LibrarySeasonsIndexUpserterHandler(this ICosmosContainerFactory factory) =>
         (entry, cancellationToken) => factory.GetContainer<LibrarySeasonsIndex>()
             .Bind(container => LoadMergeUpsert(container, entry, cancellationToken));
+
+    // Built directly over the index container (reusing the private Load helper, not the
+    // loader delegate) and projects to the latest season — an empty index is a NotFound,
+    // keeping absence in the error channel.
+    public static LatestSeasonResolver LatestSeasonResolverHandler(this ICosmosContainerFactory factory) =>
+        cancellationToken => factory.GetContainer<LibrarySeasonsIndex>()
+            .Bind(container => Load(container, cancellationToken))
+            .Bind(read => ResolveLatest(read.Value));
 
     // async (not a sync Task-returning method) so `using var activity` stays alive across the
     // awaited chain — disposing it on return would stop the span before the Tap tags it, and
@@ -92,6 +100,11 @@ public static class CosmosLibrarySeasonsIndex
             return ExceptionError.FromException(e);
         }
     }
+
+    internal static Result<SeriesSeason> ResolveLatest(LibrarySeasonsIndex index) =>
+        index.Seasons.IsDefaultOrEmpty
+            ? NotFoundError.Create("No seasons have been imported into the library yet.")
+            : index.Seasons.Max(entry => entry.SeriesSeason)!; // guarded non-empty above
 
     private static ImmutableArray<SeasonEntry> MergeOrReplace(
         ImmutableArray<SeasonEntry> existing,
