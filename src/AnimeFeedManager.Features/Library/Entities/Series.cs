@@ -41,6 +41,21 @@ public abstract record Series : CosmosDocument
 
     public DateTimeOffset LastUpdated { get; init; }
 
+    /// <summary>Stable type key — mirrors the JSON <c>seriesType</c> discriminator (e.g. "tv", "movie").</summary>
+    public abstract string TypeKey { get; }
+
+    /// <summary>Human label for the series format (e.g. "TV", "Movie").</summary>
+    public abstract string TypeLabel { get; }
+
+    /// <summary>Broadcast schedule when the format has one (TV only); <c>null</c> otherwise.</summary>
+    public virtual Broadcast? Schedule => null;
+
+    /// <summary>One-line format detail for cards/listings — episode count or runtime; <c>null</c> when unknown.</summary>
+    public virtual string? FormatSummary => null;
+
+    /// <summary>Shared formatter for the episode-count summary used by every episodic format.</summary>
+    protected static string? EpisodeSummary(int? episodes) => episodes is { } count ? $"{count} ep" : null;
+
     protected Series(int malId)
     {
         MalId = malId;

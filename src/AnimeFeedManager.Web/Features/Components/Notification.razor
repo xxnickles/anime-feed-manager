@@ -8,6 +8,7 @@
 
 <div role="alert"
      class="flex w-[min(92vw,24rem)] items-start gap-2.5 rounded-none border-[3px] border-base-content bg-base-100 px-3.5 py-3 text-base-content shadow-brutal transition-opacity duration-300"
+     data-close-seconds="@((int)CloseTime.TotalSeconds)"
      _="@Script">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
          stroke="currentColor" stroke-width="2" class="mt-0.5 h-5 w-5 shrink-0 @IconColor">
@@ -35,24 +36,9 @@
     [Parameter] public ToastType Type { get; set; } = ToastType.Info;
     [Parameter] public TimeSpan CloseTime { get; set; } = TimeSpan.FromSeconds(6);
 
-    // init: auto-dismiss after CloseTime. The dismiss handler is idempotent (a manual
-    // dismiss and the timer can both fire) and fades the toast out before removing it.
-    private string Script => $$"""
-        init
-          wait {{(int)CloseTime.TotalSeconds}}s
-          send dismiss to me
-        end
-        on click from <button[data-dismiss]/> in me
-          send dismiss to me
-        on dismiss
-          if :dismissed
-            exit
-          end
-          set :dismissed to true
-          add .opacity-0 to me
-          settle
-          remove me
-        """;
+    // Toast lifecycle (auto-dismiss countdown + manual dismiss + fade-out) lives in
+    // Notification.razor.hs, compiled to the `Script` const and bound _="@Script".
+    // CloseTime is passed to it via the data-close-seconds attribute.
 
     private string IconColor => Type switch
     {

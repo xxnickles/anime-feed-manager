@@ -9,10 +9,11 @@
    for the grid→detail View Transition — that name is set in sub-project 2 (detail) where the
    matching target exists, so it isn't baked in here.
 
-   Custom CSS retained: `.status-pin` / `.pin-dot` (glass backdrop — Tailwind can't express the
-   backdrop-filter trio; see tokens.css). Everything else is Tailwind utilities. *@
+   Per-type differences (label, schedule, episode/runtime summary) are polymorphic members on the
+   Series records — the card never switches on type. Custom CSS retained: `.status-pin` / `.pin-dot`
+   (glass backdrop — Tailwind can't express the backdrop-filter trio; see tokens.css). *@
 
-<a href="/series/@Series.MalId" data-type="@TypeKey"
+<a href="/series/@Series.MalId" data-type="@Series.TypeKey"
    class="group @@container flex flex-col overflow-hidden rounded-2xl border-2 border-base-content bg-base-100 shadow-brutal transition-transform duration-200 hover:-translate-y-0.5 [content-visibility:auto] [contain-intrinsic-size:auto_24rem]">
 
     <div class="relative overflow-hidden">
@@ -35,7 +36,7 @@
 
     <div class="flex flex-1 flex-col gap-2 p-3.5">
         <div class="flex flex-col gap-0.5">
-            <span class="font-display text-[0.6rem] font-bold uppercase tracking-[0.12em] text-base-content/45">@TypeLabel</span>
+            <span class="font-display text-[0.6rem] font-bold uppercase tracking-[0.12em] text-base-content/45">@Series.TypeLabel</span>
             <h3 class="truncate font-display text-base font-bold leading-tight tracking-[-0.015em] text-base-content @@sm:text-lg">@PrimaryTitle</h3>
             @if (SecondaryTitle is not null)
             {
@@ -56,7 +57,7 @@
         }
 
         <div class="mt-auto flex flex-wrap items-center gap-2 text-xs">
-            @if (Broadcast is { } b)
+            @if (Series.Schedule is { } b)
             {
                 <span class="inline-flex items-center gap-1.5 rounded-md border border-base-content/10 bg-base-content/[0.06] px-1.5 py-0.5 font-semibold text-base-content/70">
                     <span class="border-r border-base-content/15 pr-1.5 font-display text-[0.62rem] font-extrabold uppercase tracking-wider text-primary">@b.Day</span>
@@ -64,9 +65,9 @@
                     <span class="text-[0.6rem] opacity-50">@b.Timezone</span>
                 </span>
             }
-            @if (EpisodeText is { } eps)
+            @if (Series.FormatSummary is { } detail)
             {
-                <span class="font-mono text-base-content/60">@eps</span>
+                <span class="font-mono text-base-content/60">@detail</span>
             }
             @if (Series.Score is { } score)
             {
@@ -89,40 +90,6 @@
     // Secondary line is the canonical (romaji) title, shown only when the primary is the English one.
     private string? SecondaryTitle =>
         string.Equals(Series.Titles.Default, PrimaryTitle, StringComparison.Ordinal) ? null : Series.Titles.Default;
-
-    private string TypeKey => Series switch
-    {
-        TvSeries => "tv",
-        MovieSeries => "movie",
-        OvaSeries => "ova",
-        OnaSeries => "ona",
-        TvSpecialSeries => "tv_special",
-        _ => "special"
-    };
-
-    private string TypeLabel => Series switch
-    {
-        TvSeries => "TV",
-        MovieSeries => "Movie",
-        OvaSeries => "OVA",
-        OnaSeries => "ONA",
-        TvSpecialSeries => "TV Special",
-        _ => "Special"
-    };
-
-    private Broadcast? Broadcast => Series is TvSeries { Broadcast: { } b } ? b : null;
-
-    // Episode count for episodic types; runtime for movies. null hides the slot.
-    private string? EpisodeText => Series switch
-    {
-        TvSeries { Episodes: { } e } => $"{e} ep",
-        OvaSeries { Episodes: { } e } => $"{e} ep",
-        OnaSeries { Episodes: { } e } => $"{e} ep",
-        TvSpecialSeries { Episodes: { } e } => $"{e} ep",
-        SpecialSeries { Episodes: { } e } => $"{e} ep",
-        MovieSeries { RuntimeMinutes: { } m } => $"{m} min",
-        _ => null
-    };
 
     // Airing-status pin (NOT user status). Only the live/upcoming states earn a pin;
     // finished/unknown show none. Colour rides currentColor into .pin-dot.

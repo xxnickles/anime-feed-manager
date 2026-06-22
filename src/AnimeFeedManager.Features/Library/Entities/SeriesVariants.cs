@@ -11,6 +11,11 @@ public sealed record TvSeries : Series
     public Broadcast? Broadcast { get; init; }
     public int? Episodes { get; init; }
     public int? EpisodeDurationMinutes { get; init; }
+
+    public override string TypeKey => "tv";
+    public override string TypeLabel => "TV";
+    public override Broadcast? Schedule => Broadcast;
+    public override string? FormatSummary => EpisodeSummary(Episodes);
 }
 
 /// <summary>
@@ -21,6 +26,10 @@ public sealed record MovieSeries : Series
     public MovieSeries(int malId) : base(malId) { }
 
     public int? RuntimeMinutes { get; init; }
+
+    public override string TypeKey => "movie";
+    public override string TypeLabel => "Movie";
+    public override string? FormatSummary => RuntimeMinutes is { } minutes ? $"{minutes} min" : null;
 }
 
 /// <summary>
@@ -33,6 +42,10 @@ public sealed record OvaSeries : Series
 
     public int? Episodes { get; init; }
     public int? EpisodeDurationMinutes { get; init; }
+
+    public override string TypeKey => "ova";
+    public override string TypeLabel => "OVA";
+    public override string? FormatSummary => EpisodeSummary(Episodes);
 }
 
 /// <summary>
@@ -45,6 +58,10 @@ public sealed record OnaSeries : Series
 
     public int? Episodes { get; init; }
     public int? EpisodeDurationMinutes { get; init; }
+
+    public override string TypeKey => "ona";
+    public override string TypeLabel => "ONA";
+    public override string? FormatSummary => EpisodeSummary(Episodes);
 }
 
 /// <summary>
@@ -57,6 +74,10 @@ public sealed record TvSpecialSeries : Series
 
     public int? Episodes { get; init; }
     public int? EpisodeDurationMinutes { get; init; }
+
+    public override string TypeKey => "tv_special";
+    public override string TypeLabel => "TV Special";
+    public override string? FormatSummary => EpisodeSummary(Episodes);
 }
 
 /// <summary>
@@ -70,6 +91,10 @@ public sealed record SpecialSeries : Series
 
     public int? Episodes { get; init; }
     public int? EpisodeDurationMinutes { get; init; }
+
+    public override string TypeKey => "special";
+    public override string TypeLabel => "Special";
+    public override string? FormatSummary => EpisodeSummary(Episodes);
 }
 
 /// <summary>

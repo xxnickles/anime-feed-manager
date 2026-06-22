@@ -1,0 +1,18 @@
+@* Single-select filter pill — a brutalist segment toggle. Carries `data-filter` (the value this
+   pill selects) and `aria-pressed` so a host's hyperscript can target the group and drive the
+   pressed state. Presentational only: the selection behavior lives with the consumer. *@
+
+<button type="button" data-filter="@Value" aria-pressed="@(Pressed ? "true" : "false")"
+        class="rounded-full border-2 border-base-content px-3.5 py-1 text-xs font-bold uppercase tracking-wide text-base-content transition-colors hover:bg-base-content/10 aria-[pressed=true]:bg-base-content aria-[pressed=true]:text-base-100 aria-[pressed=true]:hover:bg-base-content">
+    @ChildContent
+</button>
+
+@code {
+    /// <summary>The value this pill selects — matched by the host filter against each item.</summary>
+    [Parameter, EditorRequired] public string Value { get; set; } = string.Empty;
+
+    /// <summary>Initial pressed (selected) state; the host's hyperscript toggles it thereafter.</summary>
+    [Parameter] public bool Pressed { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

@@ -1,0 +1,93 @@
+@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Library.Entities
+@using AnimeFeedManager.Features.Library.Catalog.Storage
+@using AnimeFeedManager.Infrastructure.Cosmos
+@using AnimeFeedManager.Shared.Results.Static
+@using AnimeFeedManager.Shared.Types
+@using Azure.Storage.Blobs
+@inject ICosmosContainerFactory Factory
+@inject BlobServiceClient BlobServiceClient
+@inject ILogger<SeasonGrid> Logger
+
+@* Renders one season's series as a responsive card grid, with a client-side type-segment filter.
+   Shared by the `/` (latest) and `/{season}` pages — they resolve the SeriesSeason and hand it here.
+   Loading is server-side (SSR). The type filter is pure hyperscript (no round-trip): every card is
+   in the DOM tagged with `data-type`, and the segment buttons toggle `.hidden`. Segments are derived
+   from the loaded series, so only types actually present show. *@
+
+@if (_error)
+{
+    <WarnBanner Title="Couldn't load this season"
+                Description="Something went wrong fetching the series. Refresh to try again." />
+}
+else if (_series.Length is 0)
+{
+    <WarnBanner Title="No series here yet"
+                Description="@($"{Season} has no series in the library.")"
+                ActionHref="/admin" ActionLabel="Import a season" />
+}
+else
+{
+    <div class="flex flex-col gap-5" _="@Script">
+        @if (_segments.Count > 1)
+        {
+            <div role="group" aria-label="Filter by type" class="flex flex-wrap gap-2">
+                <FilterPill Value="all" Pressed="true">All</FilterPill>
+                @foreach (var (key, label) in _segments)
+                {
+                    <FilterPill Value="@key">@label</FilterPill>
+                }
+            </div>
+        }
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(13rem,1fr))] gap-5">
+            @foreach (var series in _series)
+            {
+                <SeriesCard Series="series" PosterUrl="@PosterUrl(series)" />
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = SeriesSeason.Default;
+
+    private ImmutableArray<Series> _series = [];
+    private IReadOnlyList<(string Key, string Label)> _segments = [];
+    private bool _error;
+    private string _imageBase = string.Empty;
+
+    // Canonical display order for the type-segment buttons (stable identity keys, not labels).
+    private static readonly string[] TypeOrder = ["tv", "movie", "ova", "ona", "tv_special", "special"];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _imageBase = $"{BlobServiceClient.Uri.AbsoluteUri.TrimEnd('/')}/";
+
+        await Factory.SeriesBySeasonLoaderHandler()(Season, CancellationToken.None)
+            .FlushLogs(Logger)
+            .Match(
+                series =>
+                {
+                    _series = Sort(series);
+                    _segments = Segments(_series);
+                },
+                _ => _error = true);
+    }
+
+    private static ImmutableArray<Series> Sort(ImmutableArray<Series> series) =>
+        [.. series.OrderByDescending(s => s.Score ?? -1).ThenBy(SortTitle, StringComparer.OrdinalIgnoreCase)];
+
+    private static string SortTitle(Series series) =>
+        string.IsNullOrWhiteSpace(series.Titles.English) ? series.Titles.Default : series.Titles.English!;
+
+    private static IReadOnlyList<(string Key, string Label)> Segments(ImmutableArray<Series> series) =>
+        [.. series.GroupBy(s => s.TypeKey)
+                  .Select(g => (Key: g.Key, Label: g.First().TypeLabel))
+                  .OrderBy(t => Array.IndexOf(TypeOrder, t.Key))];
+
+    private string? PosterUrl(Series series) =>
+        series.CoverImageUrl is { } path ? _imageBase + path : null;
+
+    // Type-filter hyperscript lives in SeasonGrid.razor.hs and is compiled into the `Script`
+    // const (partial class) by the hyperscript source generator; bound above as _="@Script".
+}
