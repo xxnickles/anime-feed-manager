@@ -1,12 +1,113 @@
 @import 'tailwindcss';
-@import './themes.css';
 @import './tokens.css';
 @import './topbar.css';
 @import './seasons.css';
 @import './detail.css';
 
+/* daisyUI's bundled themes are disabled; the four custom themes below are registered as
+   daisyUI themes so `default` / `prefersdark` natively emit the :root default and the
+   prefers-color-scheme media query (no data-theme attribute needed on first paint).
+   @plugin directives must live in this root stylesheet — not an @import'ed file. */
 @plugin "daisyui" {
-    themes: paper-light --default, paper-dark --prefersdark, anime-light, anime-dark;
+    themes: false;
+}
+
+@plugin "daisyui/theme" {
+    name: "paper-light";
+    default: true;
+    color-scheme: light;
+    --color-base-100: oklch(98% 0.012 75);
+    --color-base-200: oklch(95% 0.018 75);
+    --color-base-300: oklch(90% 0.022 70);
+    --color-base-content: oklch(24% 0.030 40);
+    --color-primary: oklch(50% 0.14 35);
+    --color-primary-content: oklch(98% 0.012 75);
+    --color-secondary: oklch(58% 0.12 5);
+    --color-secondary-content: oklch(98% 0.012 75);
+    --color-accent: oklch(60% 0.13 60);
+    --color-accent-content: oklch(98% 0.012 75);
+    --color-neutral: oklch(28% 0.020 40);
+    --color-neutral-content: oklch(98% 0.012 75);
+    --color-info: oklch(58% 0.12 220);
+    --color-success: oklch(54% 0.14 145);
+    --color-warning: oklch(66% 0.16 75);
+    --color-error: oklch(54% 0.20 25);
+    --radius-selector: 0.375rem;
+    --radius-field: 0.375rem;
+    --radius-box: 0.625rem;
+}
+
+@plugin "daisyui/theme" {
+    name: "paper-dark";
+    prefersdark: true;
+    color-scheme: dark;
+    --color-base-100: oklch(20% 0.012 40);
+    --color-base-200: oklch(24% 0.014 40);
+    --color-base-300: oklch(30% 0.018 40);
+    --color-base-content: oklch(95% 0.018 75);
+    --color-primary: oklch(72% 0.14 35);
+    --color-primary-content: oklch(18% 0.04 35);
+    --color-secondary: oklch(78% 0.10 5);
+    --color-secondary-content: oklch(18% 0.04 5);
+    --color-accent: oklch(80% 0.12 60);
+    --color-accent-content: oklch(18% 0.04 60);
+    --color-neutral: oklch(32% 0.016 40);
+    --color-neutral-content: oklch(96% 0.012 75);
+    --color-info: oklch(72% 0.10 220);
+    --color-success: oklch(74% 0.13 145);
+    --color-warning: oklch(82% 0.15 75);
+    --color-error: oklch(68% 0.18 25);
+    --radius-selector: 0.375rem;
+    --radius-field: 0.375rem;
+    --radius-box: 0.625rem;
+}
+
+@plugin "daisyui/theme" {
+    name: "anime-light";
+    color-scheme: light;
+    --color-base-100: oklch(99% 0.004 280);
+    --color-base-200: oklch(96% 0.006 280);
+    --color-base-300: oklch(91% 0.010 280);
+    --color-base-content: oklch(18% 0.025 280);
+    --color-primary: oklch(56% 0.20 285);
+    --color-primary-content: oklch(98% 0.01 285);
+    --color-secondary: oklch(64% 0.18 340);
+    --color-secondary-content: oklch(98% 0.01 340);
+    --color-accent: oklch(62% 0.16 200);
+    --color-accent-content: oklch(98% 0.01 200);
+    --color-neutral: oklch(24% 0.02 280);
+    --color-neutral-content: oklch(98% 0.01 280);
+    --color-info: oklch(60% 0.14 220);
+    --color-success: oklch(58% 0.16 155);
+    --color-warning: oklch(70% 0.18 80);
+    --color-error: oklch(58% 0.22 25);
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.875rem;
+}
+
+@plugin "daisyui/theme" {
+    name: "anime-dark";
+    color-scheme: dark;
+    --color-base-100: oklch(17% 0.018 280);
+    --color-base-200: oklch(21% 0.022 280);
+    --color-base-300: oklch(27% 0.025 280);
+    --color-base-content: oklch(96% 0.012 280);
+    --color-primary: oklch(72% 0.18 285);
+    --color-primary-content: oklch(15% 0.04 285);
+    --color-secondary: oklch(78% 0.16 340);
+    --color-secondary-content: oklch(18% 0.04 340);
+    --color-accent: oklch(80% 0.14 200);
+    --color-accent-content: oklch(15% 0.04 200);
+    --color-neutral: oklch(28% 0.02 280);
+    --color-neutral-content: oklch(96% 0.01 280);
+    --color-info: oklch(75% 0.14 220);
+    --color-success: oklch(76% 0.16 155);
+    --color-warning: oklch(82% 0.16 80);
+    --color-error: oklch(72% 0.20 25);
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.875rem;
 }
 
 /* Form-field error state. Toggled as a bare `data-error` attribute (presence, any value)

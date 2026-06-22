@@ -1,0 +1,28 @@
+@page "/{Season}"
+@using AnimeFeedManager.Shared.Results.Static
+@using AnimeFeedManager.Shared.Types
+
+@* A specific season's grid (e.g. /2026-spring). Parses the slug into a SeriesSeason and delegates
+   to SeasonGrid; an unparseable slug shows a warn state. Literal routes (e.g. /admin) win over this
+   single-segment parameter route, so it only catches otherwise-unmatched single segments. *@
+
+<AppPageTitle Title="@(_season?.ToString() ?? "Invalid season")" />
+
+@if (_season is { } season)
+{
+    <SeasonGrid Season="season" />
+}
+else
+{
+    <WarnBanner Title="Invalid season"
+                Description="@($"'{Season}' isn't a valid season — use a format like 2026-spring.")" />
+}
+
+@code {
+    [Parameter] public string Season { get; set; } = string.Empty;
+
+    private SeriesSeason? _season;
+
+    protected override void OnInitialized() =>
+        Season.ParseAsSeriesSeason().Match(season => _season = season, _ => { });
+}

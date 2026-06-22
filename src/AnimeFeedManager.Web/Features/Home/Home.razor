@@ -1,39 +1,48 @@
 @page "/"
+@using AnimeFeedManager.Features.Library.Seasons
+@using AnimeFeedManager.Features.Library.Seasons.Storage
+@using AnimeFeedManager.Infrastructure.Cosmos
+@using AnimeFeedManager.Shared.Results
+@using AnimeFeedManager.Shared.Results.Errors
+@using AnimeFeedManager.Shared.Results.Static
+@using AnimeFeedManager.Shared.Types
+@using AnimeFeedManager.Web.Features.Catalog
+@inject ICosmosContainerFactory Factory
+@inject ILogger<Home> Logger
 
-@* Placeholder landing page — the first routable @page, so the shell (NavBar /
-   drawer / StatusBar) finally has something to host. The season grid, watchlist
-   and notifications land in later phases. The "type check" panel exercises all
-   four font slots and can be removed once real content lands. *@
+@* Landing page: the latest imported season's grid. Resolves the latest season (NotFoundError when
+   nothing is imported yet → a friendly "import a season" empty state), then hands it to SeasonGrid. *@
 
-<AppPageTitle />
+<AppPageTitle Title="@(_season?.ToString())" />
 
-<section class="mx-auto flex max-w-3xl flex-col gap-6 py-10">
-    <header class="flex flex-col gap-2">
-        <h1 class="font-display text-3xl font-black tracking-[-0.03em] text-base-content">
-            Anime Feed Manager
-        </h1>
-        <p class="text-base-content/70">
-            Track and manage your anime season library. This is a placeholder home page —
-            the season grid, watchlist and notifications arrive in later phases.
-        </p>
-    </header>
+@if (_season is { } season)
+{
+    <SeasonGrid Season="season" />
+}
+else if (_error is NotFoundError)
+{
+    <WarnBanner Title="No seasons imported yet"
+                Description="Import a season from the admin page to start building your library."
+                ActionHref="/admin" ActionLabel="Go to admin" />
+}
+else
+{
+    <WarnBanner Title="Couldn't load the latest season"
+                Description="Something went wrong reaching the library. Refresh to try again." />
+}
 
-    <div class="rounded-2xl border-2 border-base-content bg-base-100 p-5 text-sm shadow-brutal">
-        <p class="mb-3 font-display text-xs font-semibold uppercase tracking-widest text-base-content/50">
-            Type check
-        </p>
-        <dl class="grid grid-cols-[7rem_1fr] gap-y-2">
-            <dt class="text-base-content/50">Display</dt>
-            <dd class="font-display">Space Grotesk — Spring 2026</dd>
+@code {
+    private SeriesSeason? _season;
+    private DomainError? _error;
 
-            <dt class="text-base-content/50">Body</dt>
-            <dd class="font-sans">Inter — the quick brown fox jumps over the lazy dog</dd>
-
-            <dt class="text-base-content/50">Mono</dt>
-            <dd class="font-mono">SF Mono — 12 eps · 23:59:47 · v5</dd>
-
-            <dt class="text-base-content/50">Japanese</dt>
-            <dd class="font-ja text-lg">日本語のタイトル — 進撃の巨人</dd>
-        </dl>
-    </div>
-</section>
+    protected override async Task OnInitializedAsync() =>
+        await Factory.LatestSeasonResolverHandler()(CancellationToken.None)
+            .Match(
+                season => _season = season,
+                error =>
+                {
+                    _error = error;
+                    if (error is not NotFoundError) // benign "nothing imported" isn't worth an error log
+                        error.LogAction()(Logger);
+                });
+}
