@@ -125,5 +125,6 @@ file static class JikanPageProjection
             Season = season
         };
 
-    private static bool IsSeries(JikanAnime anime) => JikanAnimeType.IsModeled(anime.Type);
+    private static bool IsSeries(JikanAnime anime) =>
+        JikanAnimeType.IsModeled(anime.Type) && !JikanAdultContent.IsHentai(anime);
 }
