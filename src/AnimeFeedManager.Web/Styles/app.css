@@ -207,3 +207,11 @@
     ::view-transition-old(main-content),
     ::view-transition-new(main-content) { animation: none; }
 }
+
+/* Grid→detail poster morph. The shared `series-poster` name is set on the clicked card's
+   poster (at click time) and statically on the detail hero poster, so the browser pairs them
+   into one snapshot group that morphs across the boosted nav. Suppress it for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(series-poster),
+    ::view-transition-new(series-poster) { animation: none; }
+}

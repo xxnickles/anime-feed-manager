@@ -5,15 +5,18 @@
    auth, deferred). The whole card is a link into the detail route. `data-type` drives the grid's
    client-side type-segment filter. `@container` makes the card a query container so its layout is
    robust outside the 220px grid (e.g. a future related-strip); `content-visibility:auto` lets the
-   browser skip offscreen cards in a large season. The poster is the intended shared-element source
-   for the grid→detail View Transition — that name is set in sub-project 2 (detail) where the
-   matching target exists, so it isn't baked in here.
+   browser skip offscreen cards in a large season. On click, the poster is tagged with the shared
+   `view-transition-name: series-poster` so it morphs into the detail page's hero poster (which
+   carries the same name) during the boosted-nav View Transition. The name is set at click time —
+   not statically — so only the clicked poster is named (the name must be unique per snapshot, and
+   the other cards stay part of the #main-content cross-fade).
 
    Per-type differences (label, schedule, episode/runtime summary) are polymorphic members on the
    Series records — the card never switches on type. Custom CSS retained: `.status-pin` / `.pin-dot`
    (glass backdrop — Tailwind can't express the backdrop-filter trio; see tokens.css). *@
 
-<a href="/series/@Series.MalId" data-type="@Series.TypeKey"
+<a href="/series/@(Series.SeriesSeason)/@Series.MalId" data-type="@Series.TypeKey"
+   _="on click set poster to the first <img/> in me then set poster's *view-transition-name to 'series-poster'"
    class="group @@container flex flex-col overflow-hidden rounded-2xl border-2 border-base-content bg-base-100 shadow-brutal transition-transform duration-200 hover:-translate-y-0.5 [content-visibility:auto] [contain-intrinsic-size:auto_24rem]">
 
     <div class="relative overflow-hidden">

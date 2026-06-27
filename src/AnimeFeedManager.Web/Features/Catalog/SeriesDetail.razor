@@ -60,7 +60,7 @@
                             }
                             @if (PosterUrl(series) is { } poster)
                             {
-                                <img src="@poster" alt="@SeriesTitle(series)"
+                                <img src="@poster" alt="@SeriesTitle(series)" style="view-transition-name:series-poster"
                                      class="aspect-[2/3] w-full rounded-box object-cover shadow-brutal"/>
                             }
                             else
