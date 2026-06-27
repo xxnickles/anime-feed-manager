@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using AnimeFeedManager.Infrastructure.Cosmos.Types;
 using Microsoft.Azure.Cosmos;

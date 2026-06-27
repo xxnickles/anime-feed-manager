@@ -1,11 +1,9 @@
 using System.Threading.RateLimiting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.RateLimiting;
-using Polly.Retry;
 
 namespace AnimeFeedManager.Features.Library.Import.Jikan.Registration;
 

@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace AnimeFeedManager.Infrastructure.Cosmos.Results.Static;
 
 public static class CosmosResultExtensions

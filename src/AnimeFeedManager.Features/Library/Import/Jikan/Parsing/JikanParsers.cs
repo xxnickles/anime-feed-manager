@@ -1,5 +1,4 @@
 using AnimeFeedManager.Features.Library.Import.Jikan.Types;
-using AnimeFeedManager.Shared.Results.Static;
 
 namespace AnimeFeedManager.Features.Library.Import.Jikan.Parsing;
 

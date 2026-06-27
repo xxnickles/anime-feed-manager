@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace AnimeFeedManager.Infrastructure.Cosmos.Types;
 
 public record CosmosQueryPage<TEntity>(

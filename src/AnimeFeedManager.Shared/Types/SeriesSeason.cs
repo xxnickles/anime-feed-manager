@@ -32,6 +32,7 @@ public sealed record SeriesSeason(Season Season, Year Year) : IComparable<Series
     public static bool operator <=(SeriesSeason a, SeriesSeason b) => a.CompareTo(b) <= 0;
 }
 
+
 public static class SeriesSeasonExtensions
 {
     /// <summary>

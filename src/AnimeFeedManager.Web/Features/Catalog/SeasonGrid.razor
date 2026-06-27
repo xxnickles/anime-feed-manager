@@ -1,4 +1,5 @@
 @using System.Collections.Immutable
+@using AnimeFeedManager.Features.Library.Catalog
 @using AnimeFeedManager.Features.Library.Entities
 @using AnimeFeedManager.Features.Library.Catalog.Storage
 @using AnimeFeedManager.Infrastructure.Cosmos
@@ -18,13 +19,13 @@
 @if (_error)
 {
     <WarnBanner Title="Couldn't load this season"
-                Description="Something went wrong fetching the series. Refresh to try again." />
+                Description="Something went wrong fetching the series. Refresh to try again."/>
 }
 else if (_series.Length is 0)
 {
     <WarnBanner Title="No series here yet"
                 Description="@($"{Season} has no series in the library.")"
-                ActionHref="/admin" ActionLabel="Import a season" />
+                ActionHref="/admin" ActionLabel="Import a season"/>
 }
 else
 {
@@ -42,7 +43,7 @@ else
         <div class="grid grid-cols-[repeat(auto-fill,minmax(13rem,1fr))] gap-5">
             @foreach (var series in _series)
             {
-                <SeriesCard Series="series" PosterUrl="@PosterUrl(series)" />
+                <SeriesCard Series="series" PosterUrl="@PosterUrl(series)"/>
             }
         </div>
     </div>
@@ -63,7 +64,7 @@ else
     {
         _imageBase = $"{BlobServiceClient.Uri.AbsoluteUri.TrimEnd('/')}/";
 
-        await Factory.SeriesBySeasonLoaderHandler()(Season, CancellationToken.None)
+        await CatalogQueries.GetSeasonalCatalog(Factory.SeriesBySeasonLoaderHandler(), Season, CancellationToken.None)
             .FlushLogs(Logger)
             .Match(
                 series =>
@@ -81,9 +82,11 @@ else
         string.IsNullOrWhiteSpace(series.Titles.English) ? series.Titles.Default : series.Titles.English!;
 
     private static IReadOnlyList<(string Key, string Label)> Segments(ImmutableArray<Series> series) =>
-        [.. series.GroupBy(s => s.TypeKey)
-                  .Select(g => (Key: g.Key, Label: g.First().TypeLabel))
-                  .OrderBy(t => Array.IndexOf(TypeOrder, t.Key))];
+    [
+        .. series.GroupBy(s => s.TypeKey)
+            .Select(g => (Key: g.Key, Label: g.First().TypeLabel))
+            .OrderBy(t => Array.IndexOf(TypeOrder, t.Key))
+    ];
 
     private string? PosterUrl(Series series) =>
         series.CoverImageUrl is { } path ? _imageBase + path : null;

@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Types;
-
 namespace AnimeFeedManager.Features.Library.Import;
 
 /// <summary>

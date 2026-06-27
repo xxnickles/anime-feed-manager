@@ -2319,6 +2319,9 @@
   .w-10 {
     width: calc(var(--spacing) * 10);
   }
+  .w-60 {
+    width: calc(var(--spacing) * 60);
+  }
   .w-\[2\.1rem\] {
     width: 2.1rem;
   }
@@ -2336,6 +2339,9 @@
   }
   .max-w-md {
     max-width: var(--container-md);
+  }
+  .max-w-prose {
+    max-width: 65ch;
   }
   .min-w-52 {
     min-width: calc(var(--spacing) * 52);
@@ -2458,6 +2464,12 @@
   }
   .rounded-\[inherit\] {
     border-radius: inherit;
+  }
+  .rounded-box {
+    border-radius: var(--radius-box);
+  }
+  .rounded-box {
+    border-radius: var(--radius-box);
   }
   .rounded-full {
     border-radius: calc(infinity * 1px);
@@ -2806,6 +2818,12 @@
     color: var(--color-base-content);
     @supports (color: color-mix(in lab, red, red)) {
       color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
+    }
+  }
+  .text-base-content\/65 {
+    color: var(--color-base-content);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--color-base-content) 65%, transparent);
     }
   }
   .text-base-content\/70 {
