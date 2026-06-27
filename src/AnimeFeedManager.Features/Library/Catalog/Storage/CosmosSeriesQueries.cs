@@ -1,3 +1,4 @@
+using System.Net;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using Microsoft.Azure.Cosmos;
@@ -15,6 +16,10 @@ public static class CosmosSeriesQueries
     public static SeriesBySeasonLoader SeriesBySeasonLoaderHandler(this ICosmosContainerFactory factory) =>
         (season, cancellationToken) => factory.GetContainer<Series>()
             .Bind(container => LoadSeason(container, season, cancellationToken));
+
+    public static SeriesByIdLoader SeriesByIdLoaderHandler(this ICosmosContainerFactory factory) =>
+        (season, malId, cancellationToken) => factory.GetContainer<Series>()
+            .Bind(container => LoadById(container, season, malId, cancellationToken));
 
     // Stream-based read: we decode each document via LibraryJsonContext.Default.Series (the
     // polymorphic JsonTypeInfo) so the `seriesType` discriminator lands each row on the right
@@ -53,6 +58,42 @@ public static class CosmosSeriesQueries
         catch (CosmosException e)
         {
             return CosmosQueryError.Create(e, container.Id);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            return ExceptionError.FromException(e);
+        }
+    }
+
+    // Point read mirroring LoadSeason's polymorphic decode: the typed SDK read round-trips the
+    // abstract Series through STJ polymorphic (de)serialization, which the upsert/read seam
+    // documented as failing, so we read the raw stream and decode via LibraryJsonContext.Default.Series.
+    // The stream overload returns a NotFound response instead of throwing, so a missing series lands
+    // in the error channel as a NotFoundError rather than as an exception.
+    private static async Task<Result<Series>> LoadById(
+        Container container,
+        SeriesSeason season,
+        int malId,
+        CancellationToken cancellationToken)
+    {
+        var partitionKey = new PartitionKey(season.ToString());
+        var documentId = malId.ToString();
+        try
+        {
+            using var response = await container.ReadItemStreamAsync(documentId, partitionKey, cancellationToken: cancellationToken);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return NotFoundError.Create($"No series with id {malId} found in season {season}.");
+
+            response.EnsureSuccessStatusCode();
+
+            var series = await JsonSerializer.DeserializeAsync(response.Content, LibraryJsonContext.Default.Series, cancellationToken);
+            return series is { } found
+                ? found
+                : NotFoundError.Create($"No series with id {malId} found in season {season}.");
+        }
+        catch (CosmosException e)
+        {
+            return CosmosResponseError.Create(e, partitionKey, documentId, container.Id);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {

@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "defaultProvider": "unpkg",
+  "defaultProvider": "jsdelivr",
   "libraries": [
     {
-      "provider": "unpkg",
-      "library": "htmx.org@4.0.0-beta4",
+      "provider": "jsdelivr",
+      "library": "htmx.org@4.0.0-beta5",
       "destination": "wwwroot/lib/htmx/",
       "files": [
         "dist/htmx.js",
@@ -14,8 +14,8 @@
       ]
     },
     {
-      "provider": "unpkg",
-      "library": "hyperscript.org@0.9.91",
+      "provider": "jsdelivr",
+      "library": "hyperscript.org@0.9.93",
       "destination": "wwwroot/lib/hyperscript/",
       "files": [
         "dist/_hyperscript.js",
