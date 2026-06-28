@@ -12,6 +12,13 @@ public sealed record CosmosResponseError : DomainError
     public string Id { get; }
 
     /// <summary>
+    /// HTTP status of the underlying Cosmos failure. Lets callers branch on specific codes —
+    /// e.g. 412 <see cref="HttpStatusCode.PreconditionFailed"/> for ETag conflicts driving an
+    /// optimistic-concurrency retry.
+    /// </summary>
+    public HttpStatusCode StatusCode => _exception.StatusCode;
+
+    /// <summary>
     /// True when the underlying Cosmos status code is one Microsoft's guidance flags
     /// as worth retrying (throttling, transient unavailability, request timeouts).
     /// Callers use this to discriminate retry-worthy failures from permanent ones
