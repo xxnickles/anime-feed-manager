@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Net;
 using AnimeFeedManager.Features.Auth.Entities;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
+using AnimeFeedManager.Shared;
 using Microsoft.Azure.Cosmos;
 
 namespace AnimeFeedManager.Features.Auth.Storage;
@@ -14,6 +16,8 @@ namespace AnimeFeedManager.Features.Auth.Storage;
 /// </summary>
 public static class CosmosUserStore
 {
+    private static readonly ActivitySource Source = new(Telemetry.AuthSource);
+
     public static UserAccountGetter UserAccountGetterHandler(this ICosmosContainerFactory factory) =>
         (userId, cancellationToken) => factory.GetContainer<UserAccount>()
             .Bind(container => LoadAccount(container, userId, cancellationToken));
@@ -27,20 +31,26 @@ public static class CosmosUserStore
         NoEmptyString userId,
         CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity("Auth.UserAccount.Read");
         var partitionKey = new PartitionKey(userId.ToString());
         try
         {
             using var response = await container.ReadItemStreamAsync(
                 UserAccount.DocumentId, partitionKey, cancellationToken: cancellationToken);
+            activity?.SetTag("auth.user_account.cost.ru", Math.Round(response.Headers.RequestCharge, 2));
 
             if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                activity?.SetTag("auth.user_account.found", false);
                 return new NotAStoredUser();
+            }
 
             response.EnsureSuccessStatusCode();
 
             var document = await JsonSerializer.DeserializeAsync(
                 response.Content, AuthJsonContext.Default.UserDocument, cancellationToken);
 
+            activity?.SetTag("auth.user_account.found", document is UserAccount);
             return document is UserAccount account
                 ? ToStoredUser(account.Email, account.UserId, account.Role)
                 : new NotAStoredUser();
@@ -71,6 +81,7 @@ public static class CosmosUserStore
             Role = role.ToString()
         };
         var partitionKey = new PartitionKey(userId);
+        using var activity = Source.StartActivity("Auth.UserAccount.Upsert");
         try
         {
             // Serialize through the polymorphic base type info so the `docType` discriminator is
@@ -82,6 +93,7 @@ public static class CosmosUserStore
 
             using var response = await container.UpsertItemStreamAsync(
                 stream, partitionKey, cancellationToken: cancellationToken);
+            activity?.SetTag("auth.user_account.cost.ru", Math.Round(response.Headers.RequestCharge, 2));
 
             if (response.IsSuccessStatusCode)
                 return new Unit();

@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.Net;
 using AnimeFeedManager.Features.Auth.Entities;
 using AnimeFeedManager.Infrastructure.Cosmos.Concurrency;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
+using AnimeFeedManager.Shared;
 using Microsoft.Azure.Cosmos;
 
 namespace AnimeFeedManager.Features.Auth.Storage;
@@ -13,6 +15,8 @@ namespace AnimeFeedManager.Features.Auth.Storage;
 /// </summary>
 public static class CosmosUsersIndex
 {
+    private static readonly ActivitySource Source = new(Telemetry.AuthSource);
+
     public static UserByEmailGetter UserByEmailGetterHandler(this ICosmosContainerFactory factory) =>
         (email, cancellationToken) => factory.GetContainer<UsersIndex>()
             .Bind(container => LoadIndex(container, cancellationToken))
@@ -24,19 +28,23 @@ public static class CosmosUsersIndex
 
     private static async Task<Result<UsersIndex>> LoadIndex(Container container, CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity("Auth.UsersIndex.Read");
         var partitionKey = new PartitionKey(SystemDocument.SystemPartitionKey);
         try
         {
             using var response = await container.ReadItemStreamAsync(
                 UsersIndex.DocumentId, partitionKey, cancellationToken: cancellationToken);
+            activity?.SetTag("auth.users_index.cost.ru", Math.Round(response.Headers.RequestCharge, 2));
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return new UsersIndex { Id = UsersIndex.DocumentId };
 
             response.EnsureSuccessStatusCode();
-            return await JsonSerializer.DeserializeAsync(
-                       response.Content, AuthJsonContext.Default.UsersIndex, cancellationToken)
-                   ?? new UsersIndex { Id = UsersIndex.DocumentId };
+            var index = await JsonSerializer.DeserializeAsync(
+                            response.Content, AuthJsonContext.Default.UsersIndex, cancellationToken)
+                        ?? new UsersIndex { Id = UsersIndex.DocumentId };
+            activity?.SetTag("auth.users_index.user_count", index.Users.Length);
+            return index;
         }
         catch (CosmosException e)
         {
@@ -53,28 +61,37 @@ public static class CosmosUsersIndex
     // CosmosResponseError and the policy reloads-and-retries. The brand-new (404) path has no ETag to
     // guard — a true first-write race could drop an entry, but registrations are rare and effectively
     // serial here, and every write once the doc exists is protected.
-    private static Task<Result<Unit>> Register(
+    private static async Task<Result<Unit>> Register(
         Container container,
         UserIndexEntry entry,
-        CancellationToken cancellationToken) =>
-        OptimisticConcurrency.UntilWritten(
+        CancellationToken cancellationToken)
+    {
+        // Span stays open across all retry attempts, so UntilWritten's retry-count tag lands here
+        // (and nests under the surrounding registration-flow span once that exists). Per-attempt I/O
+        // detail hangs on the child RegisterOnce spans.
+        using var activity = Source.StartActivity("Auth.UsersIndex.Register");
+        return await OptimisticConcurrency.UntilWritten(
             ct => RegisterOnce(container, entry, ct),
             cancellationToken,
             [HttpStatusCode.PreconditionFailed]);
+    }
 
     private static async Task<Result<Unit>> RegisterOnce(
         Container container,
         UserIndexEntry entry,
         CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity("Auth.UsersIndex.Register.Attempt");
         var partitionKey = new PartitionKey(SystemDocument.SystemPartitionKey);
         try
         {
             UsersIndex index;
             string? etag;
+            double readRu;
             using (var read = await container.ReadItemStreamAsync(
                        UsersIndex.DocumentId, partitionKey, cancellationToken: cancellationToken))
             {
+                readRu = read.Headers.RequestCharge;
                 if (read.StatusCode == HttpStatusCode.NotFound)
                 {
                     index = new UsersIndex { Id = UsersIndex.DocumentId };
@@ -99,6 +116,9 @@ public static class CosmosUsersIndex
             var options = etag is null ? null : new ItemRequestOptions { IfMatchEtag = etag };
             using var write = await container.UpsertItemStreamAsync(
                 stream, partitionKey, options, cancellationToken);
+
+            activity?.SetTag("auth.users_index.read.ru", Math.Round(readRu, 2));
+            activity?.SetTag("auth.users_index.write.ru", Math.Round(write.Headers.RequestCharge, 2));
 
             if (write.IsSuccessStatusCode)
                 return new Unit();

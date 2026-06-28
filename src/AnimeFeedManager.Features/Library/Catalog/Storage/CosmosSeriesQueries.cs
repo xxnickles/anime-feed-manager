@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Net;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
+using AnimeFeedManager.Shared;
 using Microsoft.Azure.Cosmos;
 
 namespace AnimeFeedManager.Features.Library.Catalog.Storage;
@@ -13,6 +15,8 @@ namespace AnimeFeedManager.Features.Library.Catalog.Storage;
 /// </summary>
 public static class CosmosSeriesQueries
 {
+    private static readonly ActivitySource Source = new(Telemetry.LibraryCatalogSource);
+
     public static SeriesBySeasonLoader SeriesBySeasonLoaderHandler(this ICosmosContainerFactory factory) =>
         (season, cancellationToken) => factory.GetContainer<Series>()
             .Bind(container => LoadSeason(container, season, cancellationToken));
@@ -32,6 +36,8 @@ public static class CosmosSeriesQueries
         SeriesSeason season,
         CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity("Library.Catalog.SeriesBySeason");
+        activity?.SetTag("library.catalog.season", season.ToString());
         var partitionKey = new PartitionKey(season.ToString());
         try
         {
@@ -40,10 +46,12 @@ public static class CosmosSeriesQueries
                 requestOptions: new QueryRequestOptions { PartitionKey = partitionKey });
 
             var builder = ImmutableArray.CreateBuilder<Series>();
+            double totalRu = 0;
             while (iterator.HasMoreResults)
             {
                 using var response = await iterator.ReadNextAsync(cancellationToken);
                 response.EnsureSuccessStatusCode();
+                totalRu += response.Headers.RequestCharge;
 
                 using var document = await JsonDocument.ParseAsync(response.Content, cancellationToken: cancellationToken);
                 foreach (var element in document.RootElement.GetProperty("Documents").EnumerateArray())
@@ -53,6 +61,8 @@ public static class CosmosSeriesQueries
                 }
             }
 
+            activity?.SetTag("library.catalog.cost.ru", Math.Round(totalRu, 2));
+            activity?.SetTag("library.catalog.result_count", builder.Count);
             return builder.ToImmutable();
         }
         catch (CosmosException e)
@@ -76,17 +86,26 @@ public static class CosmosSeriesQueries
         int malId,
         CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity("Library.Catalog.SeriesById");
+        activity?.SetTag("library.catalog.season", season.ToString());
+        activity?.SetTag("library.catalog.mal_id", malId);
         var partitionKey = new PartitionKey(season.ToString());
         var documentId = malId.ToString();
         try
         {
             using var response = await container.ReadItemStreamAsync(documentId, partitionKey, cancellationToken: cancellationToken);
+            activity?.SetTag("library.catalog.cost.ru", Math.Round(response.Headers.RequestCharge, 2));
+
             if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                activity?.SetTag("library.catalog.found", false);
                 return NotFoundError.Create($"No series with id {malId} found in season {season}.");
+            }
 
             response.EnsureSuccessStatusCode();
 
             var series = await JsonSerializer.DeserializeAsync(response.Content, LibraryJsonContext.Default.Series, cancellationToken);
+            activity?.SetTag("library.catalog.found", series is not null);
             return series is { } found
                 ? found
                 : NotFoundError.Create($"No series with id {malId} found in season {season}.");

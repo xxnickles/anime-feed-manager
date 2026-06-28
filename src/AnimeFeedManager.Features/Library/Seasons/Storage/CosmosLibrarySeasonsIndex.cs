@@ -11,10 +11,11 @@ namespace AnimeFeedManager.Features.Library.Seasons.Storage;
 public static class CosmosLibrarySeasonsIndex
 {
     private static readonly ActivitySource Source = new(Telemetry.LibraryImportSource);
+    private static readonly ActivitySource CatalogSource = new(Telemetry.LibraryCatalogSource);
 
     public static LibrarySeasonsIndexLoader LibrarySeasonsIndexLoaderHandler(this ICosmosContainerFactory factory) =>
         cancellationToken => factory.GetContainer<LibrarySeasonsIndex>()
-            .Bind(container => Load(container, cancellationToken))
+            .Bind(container => LoadForRead(container, cancellationToken))
             .Map(read => read.Value);
 
     public static LibrarySeasonsIndexUpserter LibrarySeasonsIndexUpserterHandler(this ICosmosContainerFactory factory) =>
@@ -26,7 +27,7 @@ public static class CosmosLibrarySeasonsIndex
     // keeping absence in the error channel.
     public static LatestSeasonResolver LatestSeasonResolverHandler(this ICosmosContainerFactory factory) =>
         cancellationToken => factory.GetContainer<LibrarySeasonsIndex>()
-            .Bind(container => Load(container, cancellationToken))
+            .Bind(container => LoadForRead(container, cancellationToken))
             .Bind(read => ResolveLatest(read.Value));
 
     // async (not a sync Task-returning method) so `using var activity` stays alive across the
@@ -48,6 +49,22 @@ public static class CosmosLibrarySeasonsIndex
                     "library.import.seasons_index.cost.ru",
                     Math.Round(read.RequestCharge + writeCost.RuUsed, 2)))
                 .Map(_ => new Unit()));
+    }
+
+    // Read-path wrapper: the same point-read as the import path, under the catalog source with an
+    // RU tag. Serves the seasons-index reads behind page navigation; the import upsert keeps its own
+    // Library.Import.SeasonsIndex span (LoadMergeUpsert).
+    private static async Task<Result<CosmosResult<LibrarySeasonsIndex>>> LoadForRead(
+        Container container,
+        CancellationToken cancellationToken)
+    {
+        using var activity = CatalogSource.StartActivity("Library.Catalog.SeasonsIndex.Read");
+        var result = await Load(container, cancellationToken);
+        return result.Tap(read =>
+        {
+            activity?.SetTag("library.catalog.cost.ru", Math.Round(read.RequestCharge, 2));
+            activity?.SetTag("library.catalog.season_count", read.Value.Seasons.Length);
+        });
     }
 
     private static async Task<Result<CosmosResult<LibrarySeasonsIndex>>> Load(

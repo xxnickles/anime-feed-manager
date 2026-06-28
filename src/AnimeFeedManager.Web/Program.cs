@@ -9,7 +9,10 @@ using AnimeFeedManager.Web.Htmx;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddWebAppDefaults(Telemetry.LibraryImportSource);
+builder.AddWebAppDefaults(
+    Telemetry.LibraryImportSource,
+    Telemetry.LibraryCatalogSource,
+    Telemetry.AuthSource);
 builder.AddCosmosInfrastructure(CosmosContainerRegistry.EntityRegistry, LibraryJsonContext.Default);
 builder.AddAzureBlobServiceClient("blobs");
 builder.Services.AddEventBus();
