@@ -14,7 +14,14 @@
       "aired": { "from": "2026-04-03T00:00:00+00:00", "string": "Apr 3, 2026 to ?" },
       "season": "spring",
       "year": 2026,
-      "type": "TV"
+      "type": "TV",
+      "genres": [],
+      "explicit_genres": [],
+      "studios": [],
+      "themes": [],
+      "demographics": [],
+      "producers": [],
+      "licensors": []
     }
   ]
 }

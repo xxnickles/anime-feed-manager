@@ -161,6 +161,69 @@ public class LibraryImportTests
 
     #endregion
 
+    #region Seasons index — kind + poster
+
+    [Fact]
+    public async Task Should_Pass_Current_Kind_When_Target_Is_Current()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Stream(Result<JikanPage>.Success(Page(Anime(1)))));
+
+        SeasonImportKind? kind = null;
+        await RunImport(ImportTarget.Now(), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), CapturingUpsert((_, k) => kind = k), StoreOk);
+
+        Assert.Equal(SeasonImportKind.Current, kind);
+    }
+
+    [Fact]
+    public async Task Should_Pass_Specific_Kind_When_Target_Is_Specific()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetSeason(Arg.Any<Year>(), Arg.Any<Season>(), Arg.Any<CancellationToken>())
+            .Returns(Stream(Result<JikanPage>.Success(Page(Anime(1)))));
+
+        SeasonImportKind? kind = null;
+        await RunImport(ImportTarget.For(Spring2026), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), CapturingUpsert((_, k) => kind = k), StoreOk);
+
+        Assert.Equal(SeasonImportKind.Specific, kind);
+    }
+
+    [Fact]
+    public async Task Should_Index_The_Highest_Scored_Stored_Cover_As_The_Representative_Poster()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Stream(Result<JikanPage>.Success(Page(
+                Anime(1, coverUrl: "https://cdn.example/a.jpg", score: 7.0),
+                Anime(2, coverUrl: "https://cdn.example/b.jpg", score: 9.0)))));
+
+        SeasonEntry? indexed = null;
+        await RunImport(ImportTarget.Now(), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), CapturingUpsert(e => indexed = e), StoreEchoesId);
+
+        Assert.Equal("images/2.webp", indexed!.RepresentativePoster);
+    }
+
+    [Fact]
+    public async Task Should_Index_An_Empty_Poster_When_No_Cover_Is_Stored()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Stream(Result<JikanPage>.Success(Page(Anime(1, coverUrl: "https://cdn.example/a.jpg")))));
+
+        SeasonEntry? indexed = null;
+        // Storage fails -> the series keeps its source URL but contributes no stored poster path.
+        await RunImport(ImportTarget.Now(), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), CapturingUpsert(e => indexed = e), StoreFails);
+
+        Assert.Equal(string.Empty, indexed!.RepresentativePoster);
+    }
+
+    #endregion
+
     #region Test Helpers
 
     private static Task<Result<Unit>> RunImport(
@@ -181,17 +244,28 @@ public class LibraryImportTests
         };
 
     private static LibrarySeasonsIndexUpserter CapturingUpsert(Action<SeasonEntry> capture) =>
-        (entry, _) =>
+        (entry, _, _) =>
         {
             capture(entry);
             return Task.FromResult(Result<Unit>.Success(new Unit()));
         };
 
+    private static LibrarySeasonsIndexUpserter CapturingUpsert(Action<SeasonEntry, SeasonImportKind> capture) =>
+        (entry, kind, _) =>
+        {
+            capture(entry, kind);
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
+
     private static readonly LibrarySeasonsIndexUpserter UpsertNoop =
-        (_, _) => Task.FromResult(Result<Unit>.Success(new Unit()));
+        (_, _, _) => Task.FromResult(Result<Unit>.Success(new Unit()));
 
     private static SeriesImageProcessor StoreReturns(string blobPath) =>
         (_, _, _, _) => Task.FromResult(Result<string>.Success(blobPath));
+
+    // Echoes a per-series blob path so tests can assert which cover was chosen as the poster.
+    private static readonly SeriesImageProcessor StoreEchoesId =
+        (id, _, _, _) => Task.FromResult(Result<string>.Success($"images/{id}.webp"));
 
     private static readonly SeriesImageProcessor StoreOk =
         (_, _, _, _) => Task.FromResult(Result<string>.Success("images/2026/spring/blob.webp"));
@@ -213,7 +287,8 @@ public class LibraryImportTests
     private static JikanPage Page(params JikanAnime[] items) =>
         new([.. items], Page: 1, LastPage: 1, TotalItems: items.Length) { Season = Spring2026 };
 
-    private static JikanAnime Anime(int malId, string? coverUrl = null, string type = "TV", string title = "Test Series")
+    private static JikanAnime Anime(int malId, string? coverUrl = null, string type = "TV",
+        string title = "Test Series", double? score = null)
     {
         var images = coverUrl is null
             ? null
@@ -221,11 +296,13 @@ public class LibraryImportTests
 
         return new JikanAnime(
             MalId: malId, Url: null, Approved: true, Images: images, Trailer: null,
-            Titles: [new JikanTitle("Default", title)], Type: type, Source: null, Episodes: null,
-            Status: null, Airing: false, Aired: null, Duration: null, Rating: null, Score: null,
+            Type: type, Source: null, Episodes: null,
+            Status: null, Airing: false, Aired: null, Duration: null, Rating: null, Score: score,
             ScoredBy: null, Rank: null, Popularity: null, Members: null, Favorites: null,
-            Synopsis: null, Background: null, Season: null, Year: null, Broadcast: null,
-            Producers: [], Licensors: [], Studios: [], Genres: [], ExplicitGenres: [], Themes: [], Demographics: []);
+            Synopsis: null, Background: null, Season: null, Year: null, Broadcast: null)
+        {
+            Titles = [new JikanTitle("Default", title)]
+        };
     }
 
     #endregion

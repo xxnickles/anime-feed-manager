@@ -44,11 +44,16 @@ internal static class LibraryImport
         };
 
         var now = time.GetUtcNow();
+        // Only a current-season import moves the airing marker; the merge owns the invariant, so
+        // the entry's IsCurrent here is irrelevant (passed false).
+        var kind = target is ImportTarget.CurrentSeason ? SeasonImportKind.Current : SeasonImportKind.Specific;
         return await PersistSeries(source, now, persistSeries, processImage, cancellationToken)
             .Tap(result => SetImportActivityTags(importActivity, result))
             .AddLogOnSuccess(LogFactories.Log<ImportResult>((result, iLogger) =>
                 iLogger.LogInformation("Imported {Imported} series", result.Imported)))
-            .Bind(result => upsertIndex(new SeasonEntry(result.SeriesSeason, now, result.Imported), cancellationToken))
+            .Bind(result => upsertIndex(
+                new SeasonEntry(result.SeriesSeason, now, result.Imported, PosterPath(result.Poster), IsCurrent: false),
+                kind, cancellationToken))
             .Map(_ => new Unit())
             .MarkActivityErroredOnError();
     }
@@ -101,7 +106,8 @@ internal static class LibraryImport
             .Flatten(results => results.Aggregate((first, next) => first with
             {
                 Imported = first.Imported + next.Imported,
-                TotalCost = first.TotalCost + next.TotalCost
+                TotalCost = first.TotalCost + next.TotalCost,
+                Poster = BestPoster([first.Poster, next.Poster])
             }))
             .Bind(results => results switch
             {
@@ -136,7 +142,7 @@ internal static class LibraryImport
     // Permanent failures (parse/validation, non-transient Cosmos) are skipped: logged, recorded on
     // the span as outcome=skipped + a series.skipped event, and turned into a zero-cost success so
     // they don't poison the page into a retry. Skips are an expected outcome, not a span error.
-    private static async Task<Result<CosmosOperationCost>> ProcessItem(
+    private static async Task<Result<SeriesOutcome>> ProcessItem(
         JikanAnime item,
         SeriesSeason season,
         DateTimeOffset now,
@@ -155,9 +161,11 @@ internal static class LibraryImport
             .Tap(parsed => seriesActivity?
                 .SetTag("library.import.series.title", parsed.Titles.Default)
                 .SetTag("library.import.series.type", parsed.GetType().Name))
-            // Store the cover first, then persist the series carrying the stored blob path.
+            // Store the cover first, then persist the series carrying the stored blob path; the
+            // persisted cover doubles as a season-poster candidate ranked by score.
             .Bind(parsed => WithStoredCover(parsed, processImage, seriesActivity, cancellationToken)
-                .Bind(withCover => Persist(withCover, persistSeries, seriesActivity, cancellationToken)))
+                .Bind(cover => Persist(cover.Series, persistSeries, seriesActivity, cancellationToken)
+                    .Map(cost => new SeriesOutcome(cost, PosterFrom(cover)))))
             .BindOnErrorWhen(
                 binder: error =>
                 {
@@ -166,7 +174,7 @@ internal static class LibraryImport
                         .SetTag("library.import.series.skip_reason", error.GetType().Name);
                     seriesActivity?.AddEvent(new ActivityEvent("series.skipped",
                         tags: new ActivityTagsCollection { { "reason", error.Message } }));
-                    return new CosmosOperationCost(0);
+                    return new SeriesOutcome(new CosmosOperationCost(0), null);
                 },
                 predicate: IsPermanent);
     }
@@ -175,7 +183,7 @@ internal static class LibraryImport
     // the stored blob path. A null source URL skips upload (cover=none); an upload failure is logged
     // and recovers to the original series (keeping the Jikan URL, cover=fallback) so cover trouble
     // never fails the persist. Re-imports retry via the processor's blob-exists idempotency.
-    private static async Task<Result<Series>> WithStoredCover(
+    private static async Task<Result<CoverResult>> WithStoredCover(
         Series parsed,
         SeriesImageProcessor processImage,
         Activity? seriesActivity,
@@ -184,21 +192,23 @@ internal static class LibraryImport
         if (parsed.CoverImageUrl is not { } coverUrl)
         {
             seriesActivity?.SetTag("library.import.series.cover", "none");
-            return Result<Series>.Success(parsed);
+            return Result<CoverResult>.Success(new CoverResult(parsed, null));
         }
 
         using var coverActivity = Source.StartActivity("Library.Import.Series.Cover");
 
         return await processImage(parsed.Id, parsed.SeriesSeason, coverUrl, cancellationToken)
-            .Map(blobPath => parsed with { CoverImageUrl = blobPath })
+            // StoredCover is the local blob path — the only form usable as a season poster.
+            .Map(blobPath => new CoverResult(parsed with { CoverImageUrl = blobPath }, blobPath))
             .Tap(_ => seriesActivity?.SetTag("library.import.series.cover", "stored"))
             .AddLogOnFailure(_ => logger => logger.LogWarning(
                 "Failed to store cover for series {Id}; keeping source URL", parsed.Id))
             .BindOnErrorWhen(
+                // Fallback keeps the source URL on the series but contributes no poster (null path).
                 binder: _ =>
                 {
                     seriesActivity?.SetTag("library.import.series.cover", "fallback");
-                    return parsed;
+                    return new CoverResult(parsed, null);
                 },
                 predicate: _ => true);
     }
@@ -225,15 +235,16 @@ internal static class LibraryImport
     private static bool IsPermanent(DomainError error) =>
         error is DomainValidationErrors or CosmosResponseError {IsTransient: false};
 
-    private static ImportResult Map(SeriesSeason season, IEnumerable<CosmosOperationCost> charges)
+    private static ImportResult Map(SeriesSeason season, IEnumerable<SeriesOutcome> outcomes)
     {
         // Every series on a page shares the page's season (stamped during mapping), so it's the
         // result season directly — no grouping, and safe when the page filtered down to nothing.
-        var list = charges as IReadOnlyCollection<CosmosOperationCost> ?? charges.ToList();
+        var list = outcomes as IReadOnlyCollection<SeriesOutcome> ?? outcomes.ToList();
         return new ImportResult(
             season,
             list.Count,
-            list.Aggregate(default(CosmosOperationCost), (acc, charge) => acc + charge));
+            list.Aggregate(default(CosmosOperationCost), (acc, outcome) => acc + outcome.Cost),
+            BestPoster(list.Select(outcome => outcome.Poster)));
     }
 
     private static void SetPageActivityTags(Activity? activity, BulkResult<ImportResult> bulkResult)
@@ -262,5 +273,23 @@ internal static class LibraryImport
     }
 
 
-    private record ImportResult(SeriesSeason SeriesSeason, int Imported, CosmosOperationCost TotalCost);
+    // Season-poster candidate — only a successfully-stored cover (local blob path) qualifies, ranked
+    // by score. Fallback/none series carry no stored path and contribute nothing.
+    private static PosterSample? PosterFrom(CoverResult cover) =>
+        cover.StoredCover is { } path ? new PosterSample(cover.Series.Score ?? -1, path) : null;
+
+    // Highest-scored candidate wins; null only when no imported series stored a cover.
+    private static PosterSample? BestPoster(IEnumerable<PosterSample?> samples) =>
+        samples.OfType<PosterSample>().MaxBy(sample => sample.Score);
+
+    private static string PosterPath(PosterSample? poster) => poster?.Cover ?? string.Empty;
+
+    private record CoverResult(Series Series, string? StoredCover);
+
+    private record PosterSample(double Score, string Cover);
+
+    private record SeriesOutcome(CosmosOperationCost Cost, PosterSample? Poster);
+
+    private record ImportResult(
+        SeriesSeason SeriesSeason, int Imported, CosmosOperationCost TotalCost, PosterSample? Poster);
 }

@@ -18,8 +18,8 @@ public static class CosmosLibrarySeasonsIndex
             .Map(read => read.Value);
 
     public static LibrarySeasonsIndexUpserter LibrarySeasonsIndexUpserterHandler(this ICosmosContainerFactory factory) =>
-        (entry, cancellationToken) => factory.GetContainer<LibrarySeasonsIndex>()
-            .Bind(container => LoadMergeUpsert(container, entry, cancellationToken));
+        (entry, kind, cancellationToken) => factory.GetContainer<LibrarySeasonsIndex>()
+            .Bind(container => LoadMergeUpsert(container, entry, kind, cancellationToken));
 
     // Built directly over the index container (reusing the private Load helper, not the
     // loader delegate) and projects to the latest season — an empty index is a NotFound,
@@ -37,11 +37,12 @@ public static class CosmosLibrarySeasonsIndex
     private static async Task<Result<Unit>> LoadMergeUpsert(
         Container container,
         SeasonEntry entry,
+        SeasonImportKind kind,
         CancellationToken cancellationToken)
     {
         using var activity = Source.StartActivity("Library.Import.SeasonsIndex");
         return await Load(container, cancellationToken)
-            .Bind(read => Upsert(container, read.Value with { Seasons = MergeOrReplace(read.Value.Seasons, entry) },
+            .Bind(read => Upsert(container, read.Value with { Seasons = Merge(read.Value.Seasons, entry, kind) },
                     cancellationToken)
                 .Tap(writeCost => activity?.SetTag(
                     "library.import.seasons_index.cost.ru",
@@ -101,20 +102,33 @@ public static class CosmosLibrarySeasonsIndex
         }
     }
 
+    // Prefer the explicitly-marked airing season; fall back to the calendar-latest
+    // (libraries built only from specific imports never set the marker).
     internal static Result<SeriesSeason> ResolveLatest(LibrarySeasonsIndex index) =>
         index.Seasons.IsDefaultOrEmpty
             ? NotFoundError.Create("No seasons have been imported into the library yet.")
-            : index.Seasons.Max(entry => entry.SeriesSeason)!; // guarded non-empty above
+            : index.Seasons.FirstOrDefault(entry => entry.IsCurrent)?.SeriesSeason
+              ?? index.Seasons.Max(entry => entry.SeriesSeason)!; // guarded non-empty above
 
-    private static ImmutableArray<SeasonEntry> MergeOrReplace(
+    // Single-current invariant: a current-season import marks its entry and clears the
+    // flag on every other season; a specific import preserves the existing entry's marker
+    // (re-importing a back-catalog season never demotes the airing one).
+    internal static ImmutableArray<SeasonEntry> Merge(
         ImmutableArray<SeasonEntry> existing,
-        SeasonEntry incoming)
+        SeasonEntry incoming,
+        SeasonImportKind kind)
     {
-        for (var i = 0; i < existing.Length; i++)
+        if (kind is SeasonImportKind.Current)
         {
-            if (existing[i].SeriesSeason == incoming.SeriesSeason)
-                return existing.SetItem(i, incoming);
+            var others = existing
+                .Where(e => e.SeriesSeason != incoming.SeriesSeason)
+                .Select(e => e with { IsCurrent = false });
+            return [.. others, incoming with { IsCurrent = true }];
         }
-        return existing.Add(incoming);
+
+        var match = existing.FirstOrDefault(e => e.SeriesSeason == incoming.SeriesSeason);
+        return match is null
+            ? existing.Add(incoming with { IsCurrent = false })
+            : existing.Replace(match, incoming with { IsCurrent = match.IsCurrent });
     }
 }

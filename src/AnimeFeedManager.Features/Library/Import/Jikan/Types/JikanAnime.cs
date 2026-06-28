@@ -6,7 +6,6 @@ public sealed record JikanAnime(
     [property: JsonPropertyName("approved")] bool Approved,
     [property: JsonPropertyName("images")] JikanImages? Images,
     [property: JsonPropertyName("trailer")] JikanTrailer? Trailer,
-    [property: JsonPropertyName("titles")] JikanTitle[] Titles,
     [property: JsonPropertyName("type")] string? Type,
     [property: JsonPropertyName("source")] string? Source,
     [property: JsonPropertyName("episodes")] int? Episodes,
@@ -25,11 +24,16 @@ public sealed record JikanAnime(
     [property: JsonPropertyName("background")] string? Background,
     [property: JsonPropertyName("season")] string? Season,
     [property: JsonPropertyName("year")] int? Year,
-    [property: JsonPropertyName("broadcast")] JikanBroadcast? Broadcast,
-    [property: JsonPropertyName("producers")] JikanEntityRef[] Producers,
-    [property: JsonPropertyName("licensors")] JikanEntityRef[] Licensors,
-    [property: JsonPropertyName("studios")] JikanEntityRef[] Studios,
-    [property: JsonPropertyName("genres")] JikanEntityRef[] Genres,
-    [property: JsonPropertyName("explicit_genres")] JikanEntityRef[] ExplicitGenres,
-    [property: JsonPropertyName("themes")] JikanEntityRef[] Themes,
-    [property: JsonPropertyName("demographics")] JikanEntityRef[] Demographics);
+    [property: JsonPropertyName("broadcast")] JikanBroadcast? Broadcast)
+{
+    // Jikan always emits these arrays (empty when none). Defaulting to empty keeps a payload that
+    // omits one from deserializing to null, so every consumer (mapper, adult-content filter) is safe.
+    [JsonPropertyName("titles")] public JikanTitle[] Titles { get; init; } = [];
+    [JsonPropertyName("producers")] public JikanEntityRef[] Producers { get; init; } = [];
+    [JsonPropertyName("licensors")] public JikanEntityRef[] Licensors { get; init; } = [];
+    [JsonPropertyName("studios")] public JikanEntityRef[] Studios { get; init; } = [];
+    [JsonPropertyName("genres")] public JikanEntityRef[] Genres { get; init; } = [];
+    [JsonPropertyName("explicit_genres")] public JikanEntityRef[] ExplicitGenres { get; init; } = [];
+    [JsonPropertyName("themes")] public JikanEntityRef[] Themes { get; init; } = [];
+    [JsonPropertyName("demographics")] public JikanEntityRef[] Demographics { get; init; } = [];
+}

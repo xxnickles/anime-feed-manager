@@ -10,11 +10,24 @@ namespace AnimeFeedManager.Features.Library.Seasons;
 public delegate Task<Result<LibrarySeasonsIndex>> LibrarySeasonsIndexLoader(CancellationToken cancellationToken);
 
 /// <summary>
-/// Registers a season in the index. The implementation owns the point-read +
-/// merge + upsert cycle, so callers only need to supply the entry to add or
-/// replace. Replacement is by <see cref="SeriesSeason"/> equality.
+/// Whether an import targets the currently-airing season — which moves the single
+/// <see cref="SeasonEntry.IsCurrent"/> marker — or a specific back-catalog season,
+/// which leaves the marker untouched.
 /// </summary>
-public delegate Task<Result<Unit>> LibrarySeasonsIndexUpserter(SeasonEntry entry, CancellationToken cancellationToken);
+public enum SeasonImportKind
+{
+    Specific,
+    Current
+}
+
+/// <summary>
+/// Registers a season in the index. The implementation owns the point-read +
+/// merge + upsert cycle, so callers supply the entry plus the import
+/// <see cref="SeasonImportKind"/>. Replacement is by <see cref="SeriesSeason"/>
+/// equality; the kind drives the single-current invariant.
+/// </summary>
+public delegate Task<Result<Unit>> LibrarySeasonsIndexUpserter(
+    SeasonEntry entry, SeasonImportKind kind, CancellationToken cancellationToken);
 
 /// <summary>
 /// Resolves the most-recent imported season from the index. Fails with a

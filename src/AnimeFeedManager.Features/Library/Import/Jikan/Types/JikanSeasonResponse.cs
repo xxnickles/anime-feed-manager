@@ -1,8 +1,11 @@
 namespace AnimeFeedManager.Features.Library.Import.Jikan.Types;
 
 internal sealed record JikanSeasonResponse(
-    [property: JsonPropertyName("data")] JikanAnime[] Data,
-    [property: JsonPropertyName("pagination")] JikanPagination Pagination);
+    [property: JsonPropertyName("pagination")] JikanPagination Pagination)
+{
+    // Always present in real payloads; defaulted to empty so an omitted array deserializes to [] not null.
+    [JsonPropertyName("data")] public JikanAnime[] Data { get; init; } = [];
+}
 
 internal sealed record JikanPagination(
     [property: JsonPropertyName("last_visible_page")] int LastVisiblePage,
