@@ -4,4 +4,5 @@ internal static class CosmosContainers
 {
     internal const string Series = "series";
     internal const string System = "system";
+    internal const string Users = "users";
 }
