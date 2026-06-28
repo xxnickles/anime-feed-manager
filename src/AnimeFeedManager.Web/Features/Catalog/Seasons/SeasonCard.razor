@@ -1,0 +1,70 @@
+@using AnimeFeedManager.Features.Library.Seasons.Types
+
+@* One season in the archive grid — a horizontal brutalist card (poster + meta) linking to that
+   season's grid. "Now airing" marks the current entry; stats are the imported series count and a
+   relative last-imported time. Real data only — no watchlist/subscribed (deferred). *@
+
+<a href="/@Entry.SeriesSeason"
+   class="group grid grid-cols-[5.75rem_1fr] overflow-hidden rounded-2xl border-2 border-base-content bg-base-100 shadow-brutal transition-transform duration-200 hover:-translate-y-0.5">
+
+    <div class="relative overflow-hidden">
+        @if (PosterUrl is not null)
+        {
+            <img src="@PosterUrl" alt="" loading="lazy"
+                 class="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105" />
+        }
+        else
+        {
+            <div class="flex h-full w-full items-center justify-center bg-base-content/5 font-display text-3xl font-black text-base-content/25">@(SeasonLabel[..1])</div>
+        }
+        @if (Entry.IsCurrent)
+        {
+            <span class="absolute left-1.5 top-1.5 inline-flex items-center rounded-md bg-primary px-1.5 py-0.5 font-display text-[0.55rem] font-bold uppercase tracking-wider text-primary-content shadow-brutal-sm">Now airing</span>
+        }
+    </div>
+
+    <div class="flex flex-col justify-between gap-2 p-4">
+        <div class="flex flex-col gap-0.5">
+            <span class="font-mono text-[0.7rem] uppercase tracking-[0.12em] text-base-content/50">@Entry.SeriesSeason.Year</span>
+            <span class="font-display text-2xl font-black leading-none tracking-tight text-base-content">@SeasonLabel</span>
+        </div>
+        <div class="flex flex-col gap-0.5 text-sm">
+            <span class="text-base-content/80"><span class="font-semibold">@Entry.SeriesCount</span> <span class="text-base-content/50">series</span></span>
+            <span class="text-xs text-base-content/45">@LastImported</span>
+        </div>
+    </div>
+</a>
+
+@code {
+    [Parameter, EditorRequired] public SeasonEntry Entry { get; set; } = default!;
+
+    // Absolute poster URL (blob base + RepresentativePoster), resolved by the page.
+    // null when the season stored no cover — renders an initial-letter placeholder.
+    [Parameter] public string? PosterUrl { get; set; }
+
+    private string SeasonLabel
+    {
+        get
+        {
+            var value = Entry.SeriesSeason.Season.ToString();
+            return value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];
+        }
+    }
+
+    private string LastImported => Relative(Entry.LastImportedAt);
+
+    // Compact "imported … ago"; older imports fall back to a month-year stamp.
+    private static string Relative(DateTimeOffset when)
+    {
+        var delta = DateTimeOffset.UtcNow - when;
+        if (delta < TimeSpan.Zero) delta = TimeSpan.Zero;
+        return delta switch
+        {
+            { TotalMinutes: < 1 } => "imported just now",
+            { TotalMinutes: < 60 } => $"imported {(int)delta.TotalMinutes}m ago",
+            { TotalHours: < 24 } => $"imported {(int)delta.TotalHours}h ago",
+            { TotalDays: < 30 } => $"imported {(int)delta.TotalDays}d ago",
+            _ => $"imported {when:MMM yyyy}"
+        };
+    }
+}

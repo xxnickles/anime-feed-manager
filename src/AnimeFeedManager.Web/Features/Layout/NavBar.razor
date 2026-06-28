@@ -1,7 +1,6 @@
-@* App topbar — sticky, glassy chrome shown on every page.
-   Layout structure only: the season nav, hub-status pill, action icons and
-   user menu are deferred (they need seasons data / hub / auth) and are marked
-   as slots below. The hamburger toggles MobileDrawer's #mobile-drawer checkbox. *@
+@* App topbar — sticky, glassy chrome shown on every page. The recent-season pills come from the
+   RecentSeasons provider; the all-seasons link points at /seasons. Hub-status pill and user menu
+   remain deferred (need hub / auth). The hamburger toggles MobileDrawer's #mobile-drawer checkbox. *@
 
 <header id="topbar"
         hx-swap-oob="@(OutOfBand ? "outerMorph transition:false" : null)"
@@ -24,10 +23,41 @@
             <span class="hidden sm:inline">amf <span class="font-normal opacity-50">/</span> <span class="opacity-70">anime feed</span></span>
         </NavLink>
 
-        @* TODO[deferred]: season nav pills — needs seasons data *@
+        <RecentSeasons Context="recent">
+            @{ var landing = SeasonNav.Current(recent); }
+            <nav class="ml-4 hidden items-end gap-1 md:flex" aria-label="Recent seasons">
+                @* Render oldest -> newest so the current season sits on the right. *@
+                @foreach (var entry in recent.Reverse())
+                {
+                    var isLanding = entry.SeriesSeason == landing?.SeriesSeason;
+                    <NavLink href="@(isLanding ? "/" : $"/{entry.SeriesSeason}")"
+                             Match="@(isLanding ? NavLinkMatch.All : NavLinkMatch.Prefix)"
+                             ActiveClass="!bg-primary !text-primary-content"
+                             class="relative rounded-md px-2.5 py-1.5 text-center font-display text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-base-content/65 transition-colors hover:bg-base-content/[0.06] hover:text-base-content">
+                        <span class="block text-[0.6rem] font-medium tracking-[0.15em] opacity-70">@entry.SeriesSeason.Year</span>
+                        @entry.SeriesSeason.Season
+                        @if (entry.IsCurrent)
+                        {
+                            <span class="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-success" title="Now airing"></span>
+                        }
+                    </NavLink>
+                }
+            </nav>
+        </RecentSeasons>
 
         <div class="ml-auto flex items-center gap-0.5">
-            @* TODO[deferred]: hub-status pill (needs hub) · all-seasons / watchlist / notifications icons (need routes) *@
+            @* TODO[deferred]: hub-status pill (needs hub) · watchlist / notifications icons (need routes) *@
+            <NavLink href="/seasons"
+                     title="All seasons"
+                     aria-label="All seasons"
+                     ActiveClass="bg-base-content/10 text-base-content"
+                     class="inline-flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="16" rx="2" />
+                    <path d="M8 3v4M16 3v4M3 11h18" />
+                </svg>
+                <span class="hidden lg:inline">Seasons</span>
+            </NavLink>
             <NavLink href="/admin"
                      title="Admin"
                      aria-label="Admin"

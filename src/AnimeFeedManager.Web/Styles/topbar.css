@@ -130,88 +130,14 @@
   background: color-mix(in oklab, var(--color-base-content) 10%, transparent);
 }
 
-/* Season nav pills */
-.nav-season {
-  position: relative;
-  padding: 0.4rem 0.65rem;
-  border-radius: 0.45rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--color-base-content) 65%, transparent);
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-}
-
-.nav-season:hover {
-  color: var(--color-base-content);
-  background: color-mix(in oklab, var(--color-base-content) 6%, transparent);
-}
-
-.nav-season[aria-pressed="true"] {
-  color: var(--color-primary-content);
-  background: var(--color-primary);
-}
-
-.nav-season[aria-pressed="true"]:hover {
-  background: color-mix(in oklab, var(--color-primary) 92%, black);
-}
-
-.nav-season .subtitle {
-  display: block;
-  font-size: 0.6rem;
-  opacity: 0.7;
-  letter-spacing: 0.15em;
-  font-weight: 500;
-  margin-top: 1px;
-}
-
 /* ============================================================
    Mobile drawer
    The slide / overlay / visibility mechanism is daisyUI's `drawer`
    component (.drawer / .drawer-toggle / .drawer-content / .drawer-side /
    .drawer-overlay) — see MainLayout.razor + MobileDrawer.razor. No custom
    CSS needed for it. The blocks below are design-spec for the drawer's
-   deferred content (sections, links, season rows), ported when built.
+   remaining deferred content (notification badge, hub status), ported when built.
    ============================================================ */
-.mobile-drawer-section {
-  padding: 0.8rem 0.6rem;
-  border-bottom: 1px solid color-mix(in oklab, var(--color-base-content) 6%, transparent);
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.mobile-drawer-section:last-child { border-bottom: 0; }
-
-.mobile-drawer-eyebrow {
-  padding: 0 0.45rem 0.4rem;
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: color-mix(in oklab, var(--color-base-content) 50%, transparent);
-}
-
-.mobile-drawer-link {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.65rem 0.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.92rem;
-  font-weight: 500;
-  color: var(--color-base-content);
-}
-
-.mobile-drawer-link:hover {
-  background: color-mix(in oklab, var(--color-base-content) 7%, transparent);
-}
-
-.mobile-drawer-link svg { opacity: 0.6; flex: none; }
-
 .badge-inline {
   display: inline-flex;
   align-items: center;
@@ -225,58 +151,6 @@
   font-size: 0.65rem;
   font-weight: 800;
 }
-
-.mobile-season-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.mobile-season-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.5rem;
-  border-radius: 0.5rem;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  color: var(--color-base-content);
-}
-
-.mobile-season-row:hover {
-  background: color-mix(in oklab, var(--color-base-content) 7%, transparent);
-}
-
-.mobile-season-row .yr {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: color-mix(in oklab, var(--color-base-content) 50%, transparent);
-  letter-spacing: 0.06em;
-  width: 2.5rem;
-}
-
-.mobile-season-row .name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.mobile-season-row .dot {
-  margin-left: auto;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 999px;
-  background: var(--color-primary);
-}
-
-.mobile-season-row[aria-pressed="true"] {
-  background: color-mix(in oklab, var(--color-primary) 12%, transparent);
-}
-
-.mobile-season-row[aria-pressed="true"] .yr { color: var(--color-primary); }
 
 .mobile-drawer-status {
   display: flex;

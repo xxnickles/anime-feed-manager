@@ -1,0 +1,64 @@
+@page "/seasons"
+@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Library.Entities
+@using AnimeFeedManager.Features.Library.Seasons.Storage
+@using AnimeFeedManager.Features.Library.Seasons.Types
+@using Azure.Storage.Blobs
+@inject ICosmosContainerFactory Factory
+@inject BlobServiceClient BlobServiceClient
+@inject ILogger<SeasonsArchive> Logger
+
+@* All imported seasons as an archive grid, newest first. One point-read of the seasons-index doc —
+   no per-series data — and each card links to that season's grid. "Now airing" marks the current
+   entry; posters come from each season's RepresentativePoster blob. *@
+
+<AppPageTitle Title="Seasons" />
+
+<div class="mb-6">
+    <span class="inline-flex items-center rounded-full border border-base-content/15 bg-base-content/[0.06] px-2.5 py-0.5 font-display text-[0.62rem] font-bold uppercase tracking-[0.14em] text-base-content/55">Library</span>
+    <h1 class="mt-1 font-display text-4xl font-black tracking-tight text-base-content">Seasons</h1>
+</div>
+
+@if (_error)
+{
+    <WarnBanner Title="Couldn't load seasons"
+                Description="Something went wrong reaching the library. Refresh to try again." />
+}
+else if (_seasons.Length is 0)
+{
+    <WarnBanner Title="No seasons imported yet"
+                Description="Import a season from the admin page to start building your library."
+                ActionHref="/admin" ActionLabel="Go to admin" />
+}
+else
+{
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        @foreach (var entry in _seasons)
+        {
+            <SeasonCard Entry="entry" PosterUrl="@PosterUrl(entry)" />
+        }
+    </div>
+}
+
+@code {
+    private ImmutableArray<SeasonEntry> _seasons = [];
+    private bool _error;
+    private string _imageBase = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _imageBase = $"{BlobServiceClient.Uri.AbsoluteUri.TrimEnd('/')}/";
+
+        await Factory.LibrarySeasonsIndexLoaderHandler()(CancellationToken.None)
+            .FlushLogs(Logger)
+            .Match(
+                index => _seasons = Sort(index.Seasons),
+                _ => _error = true);
+    }
+
+    private static ImmutableArray<SeasonEntry> Sort(ImmutableArray<SeasonEntry> seasons) =>
+        seasons.IsDefaultOrEmpty ? [] : [.. seasons.OrderByDescending(s => s.SeriesSeason)];
+
+    private string? PosterUrl(SeasonEntry entry) =>
+        string.IsNullOrEmpty(entry.RepresentativePoster) ? null : _imageBase + entry.RepresentativePoster;
+}

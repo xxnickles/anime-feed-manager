@@ -1,0 +1,29 @@
+@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Library.Seasons.Storage
+@using AnimeFeedManager.Features.Library.Seasons.Types
+@inject ICosmosContainerFactory Factory
+@inject ILogger<RecentSeasons> Logger
+
+@* Loads the seasons index and hands the most-recent seasons (newest first) to ChildContent —
+   season-nav surfaces (topbar pills, drawer rows) supply their own markup. Renders nothing while
+   empty, so a surface with no data stays out of the DOM. The index is a single cheap point-read;
+   each surface loads its own (pills re-read per boosted nav to refresh the active state, the drawer
+   reads once on full load). Nav is chrome: a load failure just renders nothing. *@
+
+@if (_recent.Length > 0)
+{
+    @ChildContent(_recent)
+}
+
+@code {
+    [Parameter, EditorRequired] public RenderFragment<ImmutableArray<SeasonEntry>> ChildContent { get; set; } = default!;
+
+    private ImmutableArray<SeasonEntry> _recent = [];
+
+    protected override async Task OnInitializedAsync() =>
+        await Factory.LibrarySeasonsIndexLoaderHandler()(CancellationToken.None)
+            .FlushLogs(Logger)
+            .Match(
+                index => _recent = SeasonNav.Recent(index),
+                _ => { });
+}

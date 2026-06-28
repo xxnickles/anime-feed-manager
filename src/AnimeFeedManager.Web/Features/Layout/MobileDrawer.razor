@@ -34,8 +34,19 @@
         </label>
     </div>
 
-    @* Browse links *@
-    <nav class="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-5" aria-label="Browse">
+    @* Scrollable body: browse links + recent seasons share one scroll region so the browse nav
+       doesn't fill the height and push the seasons off-screen. *@
+    <div class="flex flex-1 flex-col overflow-y-auto">
+    <nav class="flex flex-col gap-1 px-4 py-5" aria-label="Browse">
+        <NavLink href="/seasons"
+                 ActiveClass="bg-base-content/10 text-base-content"
+                 class="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-base-content/80 transition-colors hover:bg-base-content/10 hover:text-base-content">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="16" rx="2" />
+                <path d="M8 3v4M16 3v4M3 11h18" />
+            </svg>
+            All seasons
+        </NavLink>
         <NavLink href="/admin"
                  ActiveClass="bg-base-content/10 text-base-content"
                  class="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-base-content/80 transition-colors hover:bg-base-content/10 hover:text-base-content">
@@ -47,5 +58,37 @@
         </NavLink>
     </nav>
 
-    @* TODO[deferred]: seasons list · account / sign-out — need data + auth *@
+    @* Recent seasons — same RecentSeasons provider as the topbar pills; the dot marks the airing
+       season (IsCurrent), the highlight marks the active route (NavLink). *@
+    <RecentSeasons Context="recent">
+        @{ var landing = SeasonNav.Current(recent); }
+        <div class="border-t border-base-content/[0.06] px-4 py-4">
+            <div class="px-1.5 pb-2 font-display text-[0.62rem] font-bold uppercase tracking-[0.14em] text-base-content/50">Recent seasons</div>
+            <div class="flex flex-col gap-0.5">
+                @foreach (var entry in recent)
+                {
+                    var isLanding = entry.SeriesSeason == landing?.SeriesSeason;
+                    <NavLink href="@(isLanding ? "/" : $"/{entry.SeriesSeason}")"
+                             Match="@(isLanding ? NavLinkMatch.All : NavLinkMatch.Prefix)"
+                             ActiveClass="bg-primary/[0.12]"
+                             class="flex items-center gap-3 rounded-lg px-2 py-2.5 text-base-content transition-colors hover:bg-base-content/[0.07]">
+                        <span class="w-10 font-mono text-[0.66rem] uppercase tracking-[0.06em] text-base-content/50">@entry.SeriesSeason.Year</span>
+                        <span class="font-display text-[0.95rem] font-bold">@SeasonLabel(entry.SeriesSeason.Season.ToString())</span>
+                        @if (entry.IsCurrent)
+                        {
+                            <span class="ml-auto h-2 w-2 rounded-full bg-success" title="Now airing"></span>
+                        }
+                    </NavLink>
+                }
+            </div>
+        </div>
+    </RecentSeasons>
+    </div>
+
+    @* TODO[deferred]: account / sign-out — needs auth *@
 </div>
+
+@code {
+    private static string SeasonLabel(string season) =>
+        season.Length == 0 ? season : char.ToUpperInvariant(season[0]) + season[1..];
+}
