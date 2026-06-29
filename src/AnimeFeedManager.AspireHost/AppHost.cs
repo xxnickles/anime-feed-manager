@@ -1,5 +1,6 @@
 #pragma warning disable ASPIRECOSMOSDB001
 
+using AnimeFeedManager.AspireHost;
 using AnimeFeedManager.Features;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -15,6 +16,9 @@ var db = cosmos.AddCosmosDatabase(databaseName);
 
 foreach (var (containerName, partitionKeyPath) in CosmosContainerRegistry.ContainerPartitionKeys)
     db.AddContainer(containerName, partitionKeyPath);
+
+// Dev admin seed (orchestration, not app runtime) — see AdminSeedExtensions.
+cosmos.SeedAdminOnReady(builder.Configuration, databaseName);
 
 var blobs = builder.AddAzureStorage("storage")
     .RunAsEmulator(emulator => emulator

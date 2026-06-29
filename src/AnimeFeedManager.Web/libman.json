@@ -3,7 +3,6 @@
   "defaultProvider": "jsdelivr",
   "libraries": [
     {
-      "provider": "jsdelivr",
       "library": "htmx.org@4.0.0-beta5",
       "destination": "wwwroot/lib/htmx/",
       "files": [
@@ -14,7 +13,6 @@
       ]
     },
     {
-      "provider": "jsdelivr",
       "library": "hyperscript.org@0.9.93",
       "destination": "wwwroot/lib/hyperscript/",
       "files": [
@@ -27,7 +25,6 @@
       ]
     },
     {
-      "provider": "jsdelivr",
       "library": "@passwordlessdev/passwordless-client@1.2.4",
       "destination": "wwwroot/lib/passwordless-client",
       "files": [

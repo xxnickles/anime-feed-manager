@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <UserSecretsId>65196645-d06c-47f5-b585-5cd7ab0466be</UserSecretsId>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Aspire.Azure.Storage.Blobs" />
   </ItemGroup>
