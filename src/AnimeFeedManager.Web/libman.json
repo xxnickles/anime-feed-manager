@@ -25,6 +25,15 @@
         "dist/ext/eventsource.js",
         "dist/ext/eventsource.min.js"
       ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "@passwordlessdev/passwordless-client@1.2.4",
+      "destination": "wwwroot/lib/passwordless-client",
+      "files": [
+        "dist/esm/passwordless.mjs",
+        "dist/esm/passwordless.min.mjs"
+      ]
     }
   ]
 }
