@@ -1,3 +1,4 @@
+@using AnimeFeedManager.Web.Features.Security
 @* Mobile navigation menu — a full-screen overlay (mobile-only, md:hidden).
    Toggled by the #mobile-drawer checkbox in MainLayout, which is a `peer` sibling:
    `peer-checked:` drives this panel's open state. The topbar hamburger and this
@@ -47,15 +48,17 @@
             </svg>
             All seasons
         </NavLink>
-        <NavLink href="/admin"
-                 ActiveClass="bg-base-content/10 text-base-content"
-                 class="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-base-content/80 transition-colors hover:bg-base-content/10 hover:text-base-content">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-            Admin
-        </NavLink>
+        <AuthorizeView Policy="@Policies.AdminRequired">
+            <NavLink href="/admin"
+                     ActiveClass="bg-base-content/10 text-base-content"
+                     class="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-base-content/80 transition-colors hover:bg-base-content/10 hover:text-base-content">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                Admin
+            </NavLink>
+        </AuthorizeView>
     </nav>
 
     @* Recent seasons — same RecentSeasons provider as the topbar pills; the dot marks the airing
@@ -85,7 +88,30 @@
     </RecentSeasons>
     </div>
 
-    @* TODO[deferred]: account / sign-out — needs auth *@
+    @* Account — login / logout reflecting auth state. *@
+    <div class="border-t-[3px] border-base-content px-4 py-4">
+        <AuthorizeView>
+            <Authorized>
+                <NavLink href="/logout"
+                         class="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-base-content/80 transition-colors hover:bg-base-content/10 hover:text-base-content">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                    </svg>
+                    Logout
+                </NavLink>
+            </Authorized>
+            <NotAuthorized>
+                <NavLink href="/login"
+                         ActiveClass="bg-base-content/10 text-base-content"
+                         class="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-base-content/80 transition-colors hover:bg-base-content/10 hover:text-base-content">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                    </svg>
+                    Login
+                </NavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
 </div>
 
 @code {

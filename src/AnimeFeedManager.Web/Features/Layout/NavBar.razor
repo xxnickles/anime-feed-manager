@@ -1,6 +1,7 @@
+@using AnimeFeedManager.Web.Features.Security
 @* App topbar — sticky, glassy chrome shown on every page. The recent-season pills come from the
-   RecentSeasons provider; the all-seasons link points at /seasons. Hub-status pill and user menu
-   remain deferred (need hub / auth). The hamburger toggles MobileDrawer's #mobile-drawer checkbox. *@
+   RecentSeasons provider; the all-seasons link points at /seasons. The admin link is admin-only;
+   the login/logout affordance reflects auth state. The hamburger toggles MobileDrawer's checkbox. *@
 
 <header id="topbar"
         hx-swap-oob="@(OutOfBand ? "outerMorph transition:false" : null)"
@@ -58,19 +59,45 @@
                 </svg>
                 <span class="hidden lg:inline">Seasons</span>
             </NavLink>
-            <NavLink href="/admin"
-                     title="Admin"
-                     aria-label="Admin"
-                     ActiveClass="bg-base-content/10 text-base-content"
-                     class="inline-flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                </svg>
-                <span class="hidden lg:inline">Admin</span>
-            </NavLink>
+            <AuthorizeView Policy="@Policies.AdminRequired">
+                <NavLink href="/admin"
+                         title="Admin"
+                         aria-label="Admin"
+                         ActiveClass="bg-base-content/10 text-base-content"
+                         class="inline-flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                    <span class="hidden lg:inline">Admin</span>
+                </NavLink>
+            </AuthorizeView>
             <ThemeSelector />
-            @* TODO[deferred]: user menu / sign-out — needs auth *@
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink href="/logout"
+                             title="Logout"
+                             aria-label="Logout"
+                             class="inline-flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                        <span class="hidden lg:inline">Logout</span>
+                    </NavLink>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink href="/login"
+                             title="Login"
+                             aria-label="Login"
+                             ActiveClass="bg-base-content/10 text-base-content"
+                             class="inline-flex h-8 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-base-content/75 transition-colors hover:bg-base-content/10 hover:text-base-content">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                        </svg>
+                        <span class="hidden lg:inline">Login</span>
+                    </NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
     </div>
 </header>

@@ -5,6 +5,7 @@ using AnimeFeedManager.Shared.Results.Errors;
 using AnimeFeedManager.Shared.Results.Static;
 using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Components;
+using AnimeFeedManager.Web.Features.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
@@ -19,7 +20,8 @@ internal static class AdminEndpoints
 {
     internal static IEndpointRouteBuilder MapAdminEndpoints(this IEndpointRouteBuilder routes)
     {
-        var import = routes.MapGroup("/admin/library/import");
+        var import = routes.MapGroup("/admin/library/import")
+            .RequireAuthorization(Policies.AdminRequired);
 
         import.MapPost("/latest", TriggerLatest);
         import.MapPost("/season", TriggerSeason);

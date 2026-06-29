@@ -1,5 +1,8 @@
 @page "/admin"
 @using AnimeFeedManager.Web.Features.Admin.Cards
+@using AnimeFeedManager.Web.Features.Security
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = Policies.AdminRequired)]
 
 @* Admin dashboard — hosts the controls for keeping the season library in sync
    (manual import, status refresh, …) and, later, library stats / charts. Layout
