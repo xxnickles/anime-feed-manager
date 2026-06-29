@@ -1,7 +1,9 @@
 using AnimeFeedManager.Features.Auth;
 using AnimeFeedManager.Features.Auth.Entities;
+using AnimeFeedManager.Features.Auth.Events;
 using AnimeFeedManager.Features.Auth.Registration;
 using AnimeFeedManager.Features.Auth.Storage;
+using AnimeFeedManager.Infrastructure.Eventing;
 using NSubstitute.ExceptionExtensions;
 using Passwordless;
 using Passwordless.Models;
@@ -34,7 +36,7 @@ public class UserRegistrationTests
         };
 
         var result = await UserRegistration.TryToRegister(
-            "Nick", "nick@example.com", client, upsert, EmailFree, registrar,
+            "Nick", "nick@example.com", client, upsert, EmailFree, registrar, NoopPublisher,
             TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
@@ -53,7 +55,7 @@ public class UserRegistrationTests
         var client = ClientReturningToken("the-token");
 
         var result = await UserRegistration.TryToRegister(
-            "Nick", "nick@example.com", client, UpsertOk, EmailFree, RegistrarOk,
+            "Nick", "nick@example.com", client, UpsertOk, EmailFree, RegistrarOk, NoopPublisher,
             TestContext.Current.CancellationToken);
 
         result.Match(
@@ -72,7 +74,7 @@ public class UserRegistrationTests
         var upsertCalls = 0;
 
         var result = await UserRegistration.TryToRegister(
-            "Nick", "not-an-email", client, CountingUpsert(() => upsertCalls++), EmailFree, RegistrarOk,
+            "Nick", "not-an-email", client, CountingUpsert(() => upsertCalls++), EmailFree, RegistrarOk, NoopPublisher,
             TestContext.Current.CancellationToken);
 
         Assert.True(result.IsFailure);
@@ -86,7 +88,7 @@ public class UserRegistrationTests
         var client = Substitute.For<IPasswordlessClient>();
 
         var result = await UserRegistration.TryToRegister(
-            "   ", "nick@example.com", client, UpsertOk, EmailFree, RegistrarOk,
+            "   ", "nick@example.com", client, UpsertOk, EmailFree, RegistrarOk, NoopPublisher,
             TestContext.Current.CancellationToken);
 
         Assert.True(result.IsFailure);
@@ -100,7 +102,7 @@ public class UserRegistrationTests
         var upsertCalls = 0;
 
         var result = await UserRegistration.TryToRegister(
-            "Nick", "nick@example.com", client, CountingUpsert(() => upsertCalls++), EmailTaken, RegistrarOk,
+            "Nick", "nick@example.com", client, CountingUpsert(() => upsertCalls++), EmailTaken, RegistrarOk, NoopPublisher,
             TestContext.Current.CancellationToken);
 
         Assert.True(result.IsFailure);
@@ -121,7 +123,7 @@ public class UserRegistrationTests
         var upsertCalls = 0;
 
         var result = await UserRegistration.TryToRegister(
-            "Nick", "nick@example.com", client, CountingUpsert(() => upsertCalls++), EmailFree, RegistrarOk,
+            "Nick", "nick@example.com", client, CountingUpsert(() => upsertCalls++), EmailFree, RegistrarOk, NoopPublisher,
             TestContext.Current.CancellationToken);
 
         result.Match(
@@ -138,7 +140,7 @@ public class UserRegistrationTests
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         var result = await UserRegistration.TryToRegister(
-            "Nick", "nick@example.com", client, UpsertOk, EmailFree, RegistrarOk,
+            "Nick", "nick@example.com", client, UpsertOk, EmailFree, RegistrarOk, NoopPublisher,
             TestContext.Current.CancellationToken);
 
         Assert.True(result.IsFailure);
@@ -150,7 +152,7 @@ public class UserRegistrationTests
         var client = ClientReturningToken("tok");
 
         var result = await UserRegistration.TryToRegister(
-            "Nick", "nick@example.com", client, UpsertOk, EmailFree, RegistrarFails,
+            "Nick", "nick@example.com", client, UpsertOk, EmailFree, RegistrarFails, NoopPublisher,
             TestContext.Current.CancellationToken);
 
         Assert.True(result.IsFailure);
@@ -158,7 +160,45 @@ public class UserRegistrationTests
 
     #endregion
 
+    #region Event publishing
+
+    [Fact]
+    public async Task Should_Publish_UserRegistered_When_Registration_Succeeds()
+    {
+        var client = ClientReturningToken("tok");
+        UserRegistered? published = null;
+        EventPublisher<UserRegistered> publish = e => published = e;
+
+        var result = await UserRegistration.TryToRegister(
+            "Nick", "nick@example.com", client, UpsertOk, EmailFree, RegistrarOk, publish,
+            TestContext.Current.CancellationToken);
+
+        Assert.False(result.IsFailure);
+        Assert.NotNull(published);
+        Assert.Equal("nick@example.com", (string)published!.Email);
+        Assert.NotEmpty(published.UserId);
+    }
+
+    [Fact]
+    public async Task Should_Not_Publish_When_Registration_Fails()
+    {
+        var client = Substitute.For<IPasswordlessClient>();
+        var publishCount = 0;
+        EventPublisher<UserRegistered> publish = _ => publishCount++;
+
+        var result = await UserRegistration.TryToRegister(
+            "Nick", "nick@example.com", client, UpsertOk, EmailTaken, RegistrarOk, publish,
+            TestContext.Current.CancellationToken);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(0, publishCount);
+    }
+
+    #endregion
+
     #region Test Helpers
+
+    private static readonly EventPublisher<UserRegistered> NoopPublisher = _ => { };
 
     private static IPasswordlessClient ClientReturningToken(string token)
     {

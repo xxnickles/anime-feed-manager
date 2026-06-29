@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using AnimeFeedManager.Features.Auth.Entities;
+using AnimeFeedManager.Features.Auth.Events;
 using AnimeFeedManager.Features.Auth.Storage;
+using AnimeFeedManager.Infrastructure.Eventing;
 using AnimeFeedManager.Shared;
 using Passwordless;
 
@@ -22,6 +24,7 @@ public static class UserRegistration
         UserAccountUpserter upsertAccount,
         UserByEmailGetter getByEmail,
         UsersIndexRegistrar registerInIndex,
+        EventPublisher<UserRegistered> publishRegistered,
         CancellationToken cancellationToken)
     {
         using var activity = Source.StartActivity("Auth.Register");
@@ -30,6 +33,7 @@ public static class UserRegistration
             .Bind(registration => EnsureEmailAvailable(registration, getByEmail, cancellationToken))
             .Bind(registration => CreateCredentialToken(registration, passwordlessClient, cancellationToken))
             .Bind(pending => PersistUser(pending, upsertAccount, registerInIndex, cancellationToken))
+            .Tap(result => publishRegistered(new UserRegistered(result.UserId, result.Email)))
             .MarkActivityErroredOnError();
     }
 
