@@ -1,0 +1,16 @@
+@page "/login"
+@using AnimeFeedManager.Web.Features.Security
+
+<AppPageTitle Title="Login" />
+
+<section class="mx-auto flex w-full max-w-sm flex-col items-center gap-6 pt-8">
+    <img src="/images/logo.svg" alt="Anime Feed Manager" class="h-16 w-auto" />
+    <article class="card w-full bg-base-100 shadow-xl">
+        <LoginForm Model="new LoginViewModel { ReturnUrl = ReturnUrl }" />
+    </article>
+</section>
+
+@code {
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string ReturnUrl { get; set; } = string.Empty;
+}
