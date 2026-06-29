@@ -47,7 +47,7 @@ else
             <label class="floating-label" for="email-input">
                 <input id="email-input" name="Email" type="email" required value="@Model.Email"
                        placeholder="Enter your email"
-                       class="@($"input input-bordered w-full {(HasError ? "input-error" : "")}")" />
+                       class="@($"input w-full border-2 border-base-content/30 {(HasError ? "input-error" : "")}")" />
                 <span class="label-text">Email</span>
             </label>
         </fieldset>
@@ -56,7 +56,7 @@ else
             <label class="floating-label" for="display-name-input">
                 <input id="display-name-input" name="DisplayName" required minlength="2" value="@Model.DisplayName"
                        placeholder="Enter your display name"
-                       class="@($"input input-bordered w-full {(HasError ? "input-error" : "")}")" />
+                       class="@($"input w-full border-2 border-base-content/30 {(HasError ? "input-error" : "")}")" />
                 <span class="label-text">Display Name</span>
             </label>
         </fieldset>

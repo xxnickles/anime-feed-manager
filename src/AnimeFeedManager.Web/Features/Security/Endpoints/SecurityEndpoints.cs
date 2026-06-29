@@ -11,6 +11,8 @@ using AnimeFeedManager.Shared.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
+using AnimeFeedManager.Web.Htmx;
+using AnimeFeedManager.Web.Htmx.Static;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Passwordless;
@@ -30,6 +32,7 @@ internal static class SecurityEndpoints
         routes.MapPost("/create-token", CreateToken);
         routes.MapPost("/add-credential", AddCredential);
         routes.MapPost("/login", LoginUser);
+        routes.MapGet("/logout", Logout);
         return routes;
     }
 
@@ -96,9 +99,35 @@ internal static class SecurityEndpoints
             .Tap(principal => httpContext.SignInAsync(
                 principal, new AuthenticationProperties { IsPersistent = true }))
             .MatchToValue<ClaimsPrincipal, IResult>(
-                _ => Results.LocalRedirect(
-                    string.IsNullOrWhiteSpace(viewModel.ReturnUrl) ? "/" : viewModel.ReturnUrl),
+                // Full-reload to the (local-validated) return url so the shell rebuilds with the
+                // now-authenticated nav; on failure re-render the form fragment in place.
+                _ => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
                 error => Render<LoginForm>(viewModel, error));
+
+    // The CancellationToken keeps the signature off the (HttpContext) => Task RequestDelegate shape,
+    // so it binds as a route handler whose IResult is written (ASP0016).
+    private static async Task<IResult> Logout(HttpContext httpContext, CancellationToken cancellationToken)
+    {
+        await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Redirect(httpContext, "/");
+    }
+
+    // Auth-state transitions full-reload (HX-Redirect) for htmx so the persistent shell + nav rebuild;
+    // a normal browser request gets a local redirect.
+    private static IResult Redirect(HttpContext httpContext, string localPath)
+    {
+        if (!httpContext.IsHtmxRequest())
+            return Results.LocalRedirect(localPath);
+
+        httpContext.Response.HxRedirect(localPath);
+        return Results.Ok();
+    }
+
+    // Guards against open redirects: only same-site absolute paths are honoured.
+    private static string LocalReturnUrl(string? returnUrl) =>
+        !string.IsNullOrWhiteSpace(returnUrl) && returnUrl.StartsWith('/') && !returnUrl.StartsWith("//")
+            ? returnUrl
+            : "/";
 
     private static Result<ClaimsPrincipal> TryToCreatePrincipal(StoredUser user) =>
         user switch

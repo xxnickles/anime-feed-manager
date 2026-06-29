@@ -37,6 +37,15 @@ internal static class HtmxExtensions
     {
         return context.HttpContext?.Features.Get<HtmxRequestFeature>()?.RequestType ?? new Html();
     }
+
+    /// <summary>
+    /// True when this request was classified as an HTMX request (<see cref="Htmx"/> — full or partial)
+    /// by <see cref="HtmxRequestMiddleware"/>. Reuses the request-type feature rather than re-sniffing
+    /// the <c>HX-Request</c> header, so callers share one source of truth. Requires <c>UseHtmx()</c> to
+    /// have run earlier in the pipeline (it does — it's registered before auth).
+    /// </summary>
+    public static bool IsHtmxRequest(this HttpContext context) =>
+        context.Features.Get<HtmxRequestFeature>()?.RequestType is Htmx;
 }
 
 /// <summary>
