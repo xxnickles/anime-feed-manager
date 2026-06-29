@@ -8,6 +8,7 @@ using AnimeFeedManager.Shared;
 using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
 using AnimeFeedManager.Web.Features.Security;
+using AnimeFeedManager.Web.Features.Security.Endpoints;
 using AnimeFeedManager.Web.Htmx;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -52,6 +53,7 @@ app.UseAuthorization();
 app.UseAntiforgery();
 app.MapDefaultEndpoints();
 app.MapAdminEndpoints();
+app.MapSecurityEndpoints();
 app.MapRazorComponents<AnimeFeedManager.Web.Features.App>();
 
 app.Run();

@@ -1,7 +1,8 @@
 -- Intercepts the form submit: lazily import the Passwordless ESM client (data-attrs carry the public
--- key + module url), sign in with the typed email, verify the token server-side, then on success fill
--- the hidden user id and send `loginComplete` (the form's htmx trigger → POST /login). Failures re-enable
--- the form and surface an inline / unauthorized / error message.
+-- key + module url), sign in with the typed email, then on success put the auth TOKEN into the hidden
+-- field and send `loginComplete` (the form's htmx trigger → POST /login, where the server verifies the
+-- token and derives the identity). Failures re-enable the form and surface an inline / unauthorized /
+-- error message.
 on submit
   halt the event's default
 
@@ -36,29 +37,21 @@ on submit
         const { token, error } = await p.signinWithAlias(alias);
         if (error) {
           const unauthorized = error.status === 401 || error.status === 403;
-          resolve({ phase: 'authError', unauthorized: unauthorized, message: unauthorized ? '' : (error.title || error.message || 'Authentication flow was not completed. Please try again') });
+          resolve({ ok: false, unauthorized: unauthorized, message: unauthorized ? '' : (error.title || error.message || 'Authentication flow was not completed. Please try again') });
           return;
         }
-        const verifyRes = await fetch('/verify-signin?token=' + token);
-        const { success, userId } = await verifyRes.json();
-        if (success) {
-          resolve({ phase: 'verified', userId: userId });
-        } else {
-          resolve({ phase: 'authError', unauthorized: false, message: 'Authentication verification failed' });
-        }
+        resolve({ ok: true, token: token });
       } catch (e) {
         console.error('Things went bad on sign-in', e);
-        resolve({ phase: 'exception', unauthorized: false, message: e.message || 'An unexpected error occurred' });
+        resolve({ ok: false, unauthorized: false, message: e.message || 'An unexpected error occurred' });
       }
     });
   end
   set result to it
 
-  if result.phase is 'verified'
-    set aliasHidden to the first <input[data-passkey-alias]/> in me
-    set userIdHidden to the first <input[data-passkey-user-id]/> in me
-    set aliasHidden's value to alias
-    set userIdHidden's value to result.userId
+  if result.ok
+    set tokenHidden to the first <input[data-passkey-token-field]/> in me
+    set tokenHidden's value to result.token
     send loginComplete to me
   else
     set aliasInput's disabled to false
