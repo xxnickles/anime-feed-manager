@@ -21,7 +21,7 @@ public readonly record struct Season : IComparable<Season>
 
     public int CompareTo(Season other)
     {
-        return this > other ? 1 : -1;
+        return GetSeasonWeight(this).CompareTo(GetSeasonWeight(other));
     }
 
     public override string ToString()
