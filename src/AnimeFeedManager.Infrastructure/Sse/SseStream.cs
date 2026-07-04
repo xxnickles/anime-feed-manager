@@ -23,15 +23,23 @@ public sealed class SseStream
 
     private readonly EventBus _eventBus;
     private readonly IReadOnlyList<SseBinding> _bindings;
+    private readonly IServiceProvider _serviceProvider;
     private readonly TimeSpan _heartbeatInterval;
 
-    public SseStream(EventBus eventBus, SseBindings bindings, TimeSpan? heartbeatInterval = null)
+    /// <summary>
+    /// Construct per HTTP request (register as scoped) so <paramref name="serviceProvider"/> is the
+    /// connection's own request-scoped provider — the same one HTML bindings render with, alive for
+    /// exactly as long as the SSE connection stays open. No separate scope is created here.
+    /// </summary>
+    public SseStream(EventBus eventBus, SseBindings bindings, IServiceProvider serviceProvider, TimeSpan? heartbeatInterval = null)
     {
         ArgumentNullException.ThrowIfNull(eventBus);
         ArgumentNullException.ThrowIfNull(bindings);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
         _eventBus = eventBus;
         _bindings = bindings.Build();
+        _serviceProvider = serviceProvider;
         _heartbeatInterval = heartbeatInterval ?? DefaultHeartbeatInterval;
     }
 
@@ -47,7 +55,7 @@ public sealed class SseStream
         var subscriptions = new List<IDisposable>(_bindings.Count);
         foreach (var binding in _bindings)
         {
-            subscriptions.Add(binding.Subscribe(_eventBus, channel.Writer));
+            subscriptions.Add(binding.Subscribe(_eventBus, channel.Writer, _serviceProvider));
         }
 
         using var heartbeatCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

@@ -12,4 +12,5 @@ namespace AnimeFeedManager.Infrastructure.Sse;
 internal sealed record SseBinding(
     Type EventType,
     string SseEventName,
-    Func<EventBus, ChannelWriter<SseItem<string>>, IDisposable> Subscribe);
+    Audience Audience,
+    Func<EventBus, ChannelWriter<SseItem<string>>, IServiceProvider, IDisposable> Subscribe);
