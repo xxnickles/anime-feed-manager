@@ -6,11 +6,11 @@ namespace AnimeFeedManager.Infrastructure.Sse;
 
 /// <summary>
 /// Per-connection bridge between <see cref="EventBus"/> and a server-sent-events
-/// response. Subscribes to every binding, writes rendered items to a bounded
-/// per-connection channel (capacity 50, DropOldest), and yields them as
-/// <see cref="SseItem{T}"/> values. A separate heartbeat task emits a low-data
-/// "ping" event every <see cref="HeartbeatInterval"/> so proxies and clients
-/// don't close idle connections.
+/// response. Subscribes to every binding at or below the connection's <see cref="Audience"/>
+/// level, writes rendered items to a bounded per-connection channel (capacity 50,
+/// DropOldest), and yields them as <see cref="SseItem{T}"/> values. A separate heartbeat
+/// task emits a low-data "ping" event every <see cref="HeartbeatInterval"/> so proxies
+/// and clients don't close idle connections.
 /// <para>
 /// Construct one per HTTP request; the enumerator's disposal (driven by the
 /// request's cancellation token) disposes all subscriptions, completes the
@@ -24,14 +24,17 @@ public sealed class SseStream
     private readonly EventBus _eventBus;
     private readonly IReadOnlyList<SseBinding> _bindings;
     private readonly IServiceProvider _serviceProvider;
+    private readonly Audience _level;
     private readonly TimeSpan _heartbeatInterval;
 
     /// <summary>
-    /// Construct per HTTP request (register as scoped) so <paramref name="serviceProvider"/> is the
-    /// connection's own request-scoped provider — the same one HTML bindings render with, alive for
-    /// exactly as long as the SSE connection stays open. No separate scope is created here.
+    /// Construct per HTTP request so <paramref name="serviceProvider"/> is the connection's own
+    /// request-scoped provider — the same one HTML bindings render with, alive for exactly as long
+    /// as the SSE connection stays open. No separate scope is created here. <paramref name="level"/>
+    /// is the connection's audience (which <c>/sse/{level}</c> endpoint it hit); only bindings at or
+    /// below that level are subscribed — this filter *is* the nested public ⊆ registered ⊆ admin fan-down.
     /// </summary>
-    public SseStream(EventBus eventBus, SseBindings bindings, IServiceProvider serviceProvider, TimeSpan? heartbeatInterval = null)
+    public SseStream(EventBus eventBus, SseBindings bindings, IServiceProvider serviceProvider, Audience level, TimeSpan? heartbeatInterval = null)
     {
         ArgumentNullException.ThrowIfNull(eventBus);
         ArgumentNullException.ThrowIfNull(bindings);
@@ -40,6 +43,7 @@ public sealed class SseStream
         _eventBus = eventBus;
         _bindings = bindings.Build();
         _serviceProvider = serviceProvider;
+        _level = level;
         _heartbeatInterval = heartbeatInterval ?? DefaultHeartbeatInterval;
     }
 
@@ -53,7 +57,7 @@ public sealed class SseStream
         });
 
         var subscriptions = new List<IDisposable>(_bindings.Count);
-        foreach (var binding in _bindings)
+        foreach (var binding in _bindings.Where(b => b.Audience <= _level))
         {
             subscriptions.Add(binding.Subscribe(_eventBus, channel.Writer, _serviceProvider));
         }

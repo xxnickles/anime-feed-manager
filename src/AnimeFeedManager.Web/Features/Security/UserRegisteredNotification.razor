@@ -1,0 +1,21 @@
+@using AnimeFeedManager.Features.Auth.Events
+@* Admin notification for a new user registration, pushed over SSE. Sent as an unnamed SSE
+   message (see AddHtml in SseBindings) so htmx 4 auto-swaps it; hx-swap-oob is what routes
+   it into the admin notification feed list — the component owns its own placement, the SSE
+   infra only decides audience and rendering. #admin-notifications-feed is built in the
+   persistent shell (client-wiring task). *@
+
+<li class="list-row items-center" hx-swap-oob="afterbegin:#admin-notifications-feed">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-success" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6" />
+    </svg>
+    <div>
+        <div class="font-semibold">New user registered</div>
+        <div class="truncate text-xs opacity-60">@Model.Email</div>
+    </div>
+</li>
+
+@code {
+    [Parameter, EditorRequired] public UserRegistered Model { get; set; } = null!;
+}
