@@ -7,6 +7,8 @@ using AnimeFeedManager.ServiceDefaults;
 using AnimeFeedManager.Shared;
 using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
+using AnimeFeedManager.Web.Features.Notifications.Endpoints;
+using AnimeFeedManager.Web.Features.Notifications.Registration;
 using AnimeFeedManager.Web.Features.Security;
 using AnimeFeedManager.Web.Features.Security.Endpoints;
 using AnimeFeedManager.Web.Htmx;
@@ -23,6 +25,7 @@ builder.AddWebAppDefaults(
 builder.AddCosmosInfrastructure(CosmosContainerRegistry.EntityRegistry, LibraryJsonContext.Default);
 builder.AddAzureBlobServiceClient("blobs");
 builder.Services.AddEventBus();
+builder.Services.AddNotifications();
 builder.AddCronScheduler();
 builder.AddLibrary();
 builder.AddAuth();
@@ -80,6 +83,7 @@ app.UseAntiforgery();
 app.MapDefaultEndpoints();
 app.MapAdminEndpoints();
 app.MapSecurityEndpoints();
+app.MapNotificationEndpoints();
 app.MapRazorComponents<AnimeFeedManager.Web.Features.App>();
 
 app.Run();

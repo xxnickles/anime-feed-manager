@@ -38,9 +38,9 @@ internal static class AdminEndpoints
             "library-import",
             (job, ct) => job.Run(ImportTarget.Now(), ct));
 
-        return Notifications.Success(
+        return Toasts.Success(
             "Library import",
-            Notifications.Text("Latest season import started — running in the background."));
+            Toasts.Text("Latest season import started — running in the background."));
     }
 
     // Same fire-and-forget seam as the latest trigger, pinned to a chosen season. The form
@@ -58,13 +58,13 @@ internal static class AdminEndpoints
                         "library-import",
                         (job, ct) => job.Run(ImportTarget.For(season), ct));
 
-                    return Notifications.Success(
+                    return Toasts.Success(
                         "Library import",
-                        Notifications.Text($"{season} import started — running in the background."));
+                        Toasts.Text($"{season} import started — running in the background."));
                 },
                 error => error is DomainValidationErrors validation
                     ? FieldErrors.Oob(validation)
-                    : Notifications.Error("Library import", error));
+                    : Toasts.Error("Library import", error));
 
     // Lenient year bind: a missing / non-numeric value becomes a "Year"-tagged domain error
     // (matching the field slot) instead of a raw 400. Range validation stays in Year.ParseAsYear,

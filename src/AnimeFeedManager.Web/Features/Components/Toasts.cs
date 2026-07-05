@@ -11,7 +11,7 @@ namespace AnimeFeedManager.Web.Features.Components;
 /// triggering component. Reusable across admin / trigger actions; <see cref="Error"/> maps a
 /// <see cref="DomainError"/> to a toast type + message.
 /// </summary>
-internal static class Notifications
+internal static class Toasts
 {
     internal static RazorComponentResult Success(string title, RenderFragment message, TimeSpan? closeTime = null)
         => Toast(title, message, ToastType.Success, closeTime);
