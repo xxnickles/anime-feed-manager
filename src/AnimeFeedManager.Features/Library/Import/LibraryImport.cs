@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using AnimeFeedManager.Features.Library.Entities;
+using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Library.Import.Jikan.Mappers;
@@ -8,6 +9,7 @@ using AnimeFeedManager.Features.Library.Import.Storage;
 using AnimeFeedManager.Features.Library.Seasons;
 using AnimeFeedManager.Features.Library.Seasons.Types;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
+using AnimeFeedManager.Infrastructure.Eventing;
 using AnimeFeedManager.Shared;
 
 namespace AnimeFeedManager.Features.Library.Import;
@@ -29,6 +31,7 @@ internal static class LibraryImport
         SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
         LibrarySeasonsIndexUpserter upsertIndex,
         SeriesImageProcessor processImage,
+        EventPublisher<SeasonImported> publishImported,
         TimeProvider time,
         CancellationToken cancellationToken)
     {
@@ -51,9 +54,13 @@ internal static class LibraryImport
             .Tap(result => SetImportActivityTags(importActivity, result))
             .AddLogOnSuccess(LogFactories.Log<ImportResult>((result, iLogger) =>
                 iLogger.LogInformation("Imported {Imported} series", result.Imported)))
+            // Keep the ImportResult through the index upsert so a fully-successful import can announce
+            // itself: a public "new season" toast + an admin operational toast, both over SSE.
             .Bind(result => upsertIndex(
-                new SeasonEntry(result.SeriesSeason, now, result.Imported, PosterPath(result.Poster), IsCurrent: false),
-                kind, cancellationToken))
+                    new SeasonEntry(result.SeriesSeason, now, result.Imported, PosterPath(result.Poster), IsCurrent: false),
+                    kind, cancellationToken)
+                .Map(_ => result))
+            .Tap(result => PublishImported(result, publishImported))
             .Map(_ => new Unit())
             .MarkActivityErroredOnError();
     }
@@ -283,6 +290,14 @@ internal static class LibraryImport
         samples.OfType<PosterSample>().MaxBy(sample => sample.Score);
 
     private static string PosterPath(PosterSample? poster) => poster?.Cover ?? string.Empty;
+
+    // Announce only imports that actually persisted something; an empty run has nothing to show.
+    // Carries the best-poster blob path (null when none stored) — the toast render prefixes the base.
+    private static void PublishImported(ImportResult result, EventPublisher<SeasonImported> publish)
+    {
+        if (result.Imported <= 0) return;
+        publish(new SeasonImported(result.SeriesSeason, result.Imported, result.Poster?.Cover));
+    }
 
     private record CoverResult(Series Series, string? StoredCover);
 

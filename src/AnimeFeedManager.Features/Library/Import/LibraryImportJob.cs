@@ -3,6 +3,7 @@ using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Library.Import.Storage;
 using AnimeFeedManager.Features.Library.Seasons;
 using AnimeFeedManager.Features.Library.Seasons.Storage;
+using AnimeFeedManager.Infrastructure.Eventing;
 using Azure.Storage.Blobs;
 
 namespace AnimeFeedManager.Features.Library.Import;
@@ -22,6 +23,7 @@ public sealed class LibraryImportJob(
     ICosmosContainerFactory cosmosFactory,
     IImageHttpClient imageHttpClient,
     BlobServiceClient blobServiceClient,
+    EventBus eventBus,
     TimeProvider time,
     ILogger<LibraryImportJob> logger)
 {
@@ -36,6 +38,6 @@ public sealed class LibraryImportJob(
 
     public Task Run(ImportTarget target, CancellationToken cancellationToken) =>
         LibraryImport
-            .Execute(target, jikan, _persistSeries, _upsertIndex, _processImage, time, cancellationToken)
+            .Execute(target, jikan, _persistSeries, _upsertIndex, _processImage, eventBus.Publish, time, cancellationToken)
             .FlushLogs(logger);
 }
