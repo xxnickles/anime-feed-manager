@@ -1,0 +1,46 @@
+@using AnimeFeedManager.Features.Library.Events
+@using Azure.Storage.Blobs
+@inject BlobServiceClient BlobServiceClient
+
+@* Public "new season available" toast, pushed over SSE (Audience.Public → everyone). Reuses the
+   standard Notification card for the dismiss/auto-close lifecycle; the cover + season link ride in
+   its Message slot. Root hx-swap-oob="beforeend:#toast-panel" routes it into the shell's toast host
+   (see NotificationOob.razor) — the SSE infra only decides audience/rendering, the component owns
+   placement. Sent unnamed so htmx 4 auto-swaps it through the core pipeline. *@
+
+<div hx-swap-oob="beforeend:#toast-panel">
+    <Notification Title="New season available" Type="ToastType.Success" CloseTime="TimeSpan.FromSeconds(10)">
+        <Message>
+            <div class="flex items-center gap-3">
+                @if (CoverUrl is not null)
+                {
+                    <img src="@CoverUrl" alt="" loading="lazy"
+                         class="h-16 w-12 shrink-0 rounded border-2 border-base-content object-cover" />
+                }
+                <div class="flex flex-col gap-1">
+                    <span>@SeasonLabel is now available.</span>
+                    <a href="/@Model.Season" class="font-semibold text-primary underline underline-offset-2">Browse the season</a>
+                </div>
+            </div>
+        </Message>
+    </Notification>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public SeasonImported Model { get; set; } = null!;
+
+    // Absolute cover URL (blob base + stored path), matching SeasonGrid's resolution; null when the
+    // import stored no cover — the toast then renders text-only.
+    private string? CoverUrl =>
+        Model.CoverPath is { } path ? $"{BlobServiceClient.Uri.AbsoluteUri.TrimEnd('/')}/{path}" : null;
+
+    private string SeasonLabel
+    {
+        get
+        {
+            var season = Model.Season.Season.ToString();
+            var cased = season.Length == 0 ? season : char.ToUpperInvariant(season[0]) + season[1..];
+            return $"{cased} {Model.Season.Year}";
+        }
+    }
+}

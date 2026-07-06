@@ -1,0 +1,28 @@
+@using AnimeFeedManager.Features.Library.Events
+
+@* Admin operational toast for a completed import, pushed over SSE (Audience.Admin). Admins also
+   receive the public SeasonImportedToast — this is a deliberate second notification (groundwork for
+   a future persisted admin notification panel), carrying the import count the public toast omits.
+   Reuses the Notification card; root hx-swap-oob routes it into #toast-panel. Sent unnamed. *@
+
+<div hx-swap-oob="beforeend:#toast-panel">
+    <Notification Title="Library import complete" Type="ToastType.Info">
+        <Message>
+            <span class="font-semibold">@Model.Imported</span> series imported for @SeasonLabel.
+        </Message>
+    </Notification>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public SeasonImported Model { get; set; } = null!;
+
+    private string SeasonLabel
+    {
+        get
+        {
+            var season = Model.Season.Season.ToString();
+            var cased = season.Length == 0 ? season : char.ToUpperInvariant(season[0]) + season[1..];
+            return $"{cased} {Model.Season.Year}";
+        }
+    }
+}
