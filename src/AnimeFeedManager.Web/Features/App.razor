@@ -1,4 +1,5 @@
 @using AnimeFeedManager.Web.Htmx
+@using AnimeFeedManager.Web.Features.Security
 @inject IWebHostEnvironment Env
 @inject IHttpContextAccessor HttpContextAccessor
 
@@ -9,6 +10,18 @@
     // then shapes it per request type (boosted nav wraps #main-content + OOB topbar; a
     // partial swap returns just the target).
     var isHtmxRequest = HttpContextAccessor.GetHtmxRequestType() is Htmx;
+
+    // SSE endpoint for the current viewer's max entitled audience, mapped from the canonical
+    // AppUser projection. The single connect element below opens exactly one connection at this
+    // level. Rendered only in the full document; it persists across boosted navigations (only
+    // #main-content swaps) and is rebuilt on every full reload — including the full-reload
+    // login/logout transitions (HxRedirect) — so it reconnects to the right endpoint automatically.
+    var sseLevel = HttpContextAccessor.HttpContext?.GetCurrentUser() switch
+    {
+        AdminUser => "admin",
+        RegularUser => "registered",
+        _ => "public"
+    };
 }
 
 @if (isHtmxRequest)
@@ -70,6 +83,12 @@ else
            z-[200] so toasts clear the z-[100] mobile menu. hx-preserve keeps the stack across
            full-document / back-forward body swaps. *@
         <div id="toast-panel" class="toast toast-bottom toast-start z-[200]" hx-preserve></div>
+
+        @* Single SSE connection for the whole session, opened at the viewer's audience level. Messages
+           arrive unnamed and carry their own hx-swap-oob target (e.g. #toast-panel), so this element
+           needs no hx-target/hx-swap of its own. The hx-sse extension self-activates from the attribute
+           (script loaded below); no hx-ext opt-in. *@
+        <div hx-sse:connect="/sse/@sseLevel" class="hidden" aria-hidden="true"></div>
 
         @* Custom confirm dialog — intercepts hx-confirm app-wide (replaces window.confirm). *@
         <HtmxConfirm />
