@@ -127,6 +127,12 @@
   100% { box-shadow: 0 0 0 0 transparent; }
 }
 
+.pulse-dot.is-offline {
+  background: var(--color-base-300);
+  box-shadow: none;
+  animation: none;
+}
+
 /* === Segmented control === */
 .segmented {
   display: inline-flex;

@@ -88,7 +88,7 @@ else
            arrive unnamed and carry their own hx-swap-oob target (e.g. #toast-panel), so this element
            needs no hx-target/hx-swap of its own. The hx-sse extension self-activates from the attribute
            (script loaded below); no hx-ext opt-in. *@
-        <div hx-sse:connect="/sse/@sseLevel" class="hidden" aria-hidden="true"></div>
+        <div id="sse-connect" hx-sse:connect="/sse/@sseLevel" class="hidden" aria-hidden="true"></div>
 
         @* Custom confirm dialog — intercepts hx-confirm app-wide (replaces window.confirm). *@
         <HtmxConfirm />

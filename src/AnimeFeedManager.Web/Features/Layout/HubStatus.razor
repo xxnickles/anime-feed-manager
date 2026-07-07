@@ -1,0 +1,26 @@
+@using AnimeFeedManager.Web.Features.Security
+@inject IHttpContextAccessor HttpContextAccessor
+
+@* Live SSE hub indicator: dot + audience label + connected/disconnected word.
+   sseLevel mirrors App.razor's own AppUser switch, resolved independently here
+   so this component stays self-contained. Connection state reacts to the real
+   hx-sse:connect element's lifecycle events — see HubStatus.razor.hs. *@
+
+<span class="flex items-center gap-2" _="@Script">
+    <span id="hub-dot" class="pulse-dot is-offline" aria-hidden="true"></span>
+    <span>Hub: @_sseLevel · <span id="hub-status-word">disconnected</span></span>
+</span>
+
+@code {
+    private string _sseLevel = "public";
+
+    protected override void OnInitialized()
+    {
+        _sseLevel = HttpContextAccessor.HttpContext?.GetCurrentUser() switch
+        {
+            AdminUser => "admin",
+            RegularUser => "registered",
+            _ => "public"
+        };
+    }
+}

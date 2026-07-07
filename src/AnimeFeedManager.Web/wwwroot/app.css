@@ -4011,6 +4011,11 @@
     box-shadow: 0 0 0 0 transparent;
   }
 }
+.pulse-dot.is-offline {
+  background: var(--color-base-300);
+  box-shadow: none;
+  animation: none;
+}
 .segmented {
   display: inline-flex;
   padding: 2px;
