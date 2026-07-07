@@ -89,10 +89,15 @@ public sealed class SseStream
     {
         try
         {
+            // Write immediately on connect, before the first delay: TypedResults.ServerSentEvents
+            // doesn't flush response headers until the first item is written, so without this a
+            // silent connection sends zero bytes for a full interval — long enough to lose the race
+            // against the client's own request timeout (e.g. htmx's default 60s) and get aborted
+            // before ever establishing.
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(interval, cancellationToken);
                 await writer.WriteAsync(new SseItem<string>(string.Empty, "ping"), cancellationToken);
+                await Task.Delay(interval, cancellationToken);
             }
         }
         catch (OperationCanceledException) { /* expected */ }

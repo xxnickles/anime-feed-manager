@@ -1,10 +1,12 @@
 using System.Collections.Concurrent;
 using AnimeFeedManager.Features.Library.Entities;
+using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import;
 using AnimeFeedManager.Features.Library.Import.Storage;
 using AnimeFeedManager.Features.Library.Seasons;
 using AnimeFeedManager.Features.Library.Seasons.Types;
+using AnimeFeedManager.Infrastructure.Eventing;
 
 
 namespace AnimeFeedManager.Features.Tests.Library.Import;
@@ -233,8 +235,10 @@ public class LibraryImportTests
         LibrarySeasonsIndexUpserter upsertIndex,
         SeriesImageProcessor processImage) =>
         LibraryImport.Execute(
-            target, jikan, persistSeries, upsertIndex, processImage,
+            target, jikan, persistSeries, upsertIndex, processImage, NoopPublisher,
             TimeProvider.System, TestContext.Current.CancellationToken);
+
+    private static readonly EventPublisher<SeasonImported> NoopPublisher = _ => { };
 
     private static SingleSeriesPersistenceHandler<CosmosOperationCost> RecordingPersist(ConcurrentBag<Series> into) =>
         (series, _) =>
