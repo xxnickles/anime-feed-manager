@@ -1,5 +1,7 @@
 using AnimeFeedManager.Features;
 using AnimeFeedManager.Features.Auth.Registration;
+using AnimeFeedManager.Features.Feeds;
+using AnimeFeedManager.Features.Feeds.Registration;
 using AnimeFeedManager.Features.Library;
 using AnimeFeedManager.Features.Library.Registration;
 using AnimeFeedManager.Infrastructure.Registration;
@@ -22,12 +24,13 @@ builder.AddWebAppDefaults(
     Telemetry.LibraryImportSource,
     Telemetry.LibraryCatalogSource,
     Telemetry.AuthSource);
-builder.AddCosmosInfrastructure(CosmosContainerRegistry.EntityRegistry, LibraryJsonContext.Default);
+builder.AddCosmosInfrastructure(CosmosContainerRegistry.EntityRegistry, LibraryJsonContext.Default, FeedsJsonContext.Default);
 builder.AddAzureBlobServiceClient("blobs");
 builder.Services.AddEventBus();
 builder.Services.AddNotifications();
 builder.AddCronScheduler();
 builder.AddLibrary();
+builder.AddFeeds();
 builder.AddAuth();
 
 builder.Services.AddCascadingAuthenticationState();
