@@ -14,8 +14,9 @@ public static class ServiceCollectionExtensions
         /// <summary>
         /// Registers the Feeds feature: the Nyaa and AniList clients, the
         /// <see cref="SeriesClassificationSubscriber"/> that reacts to Library's
-        /// <c>SeasonImported</c> event to classify Trackable vs Untrackable series, and the
-        /// <see cref="NyaaCollectionCronJob"/> hot-path collection job.
+        /// <c>SeasonImported</c> event to classify Trackable vs Untrackable series, the
+        /// <see cref="NyaaCollectionCronJob"/> hot-path collection job, and the
+        /// <see cref="AiringClockCheckCronJob"/> cold-clock job for Untrackable series.
         /// Depends on the host having already called <c>AddCosmosInfrastructure(...)</c>,
         /// <c>AddEventBus()</c>, <c>AddCronScheduler()</c>, and <c>AddLibrary()</c>
         /// (for <c>IJikanClient</c>).
@@ -29,6 +30,9 @@ public static class ServiceCollectionExtensions
 
             builder.Services.AddScoped<NyaaCollectionJob>();
             builder.Services.AddCronJob<NyaaCollectionCronJob>();
+
+            builder.Services.AddScoped<AiringClockCheckJob>();
+            builder.Services.AddCronJob<AiringClockCheckCronJob>();
 
             return builder;
         }

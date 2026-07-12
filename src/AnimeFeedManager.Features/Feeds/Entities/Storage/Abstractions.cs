@@ -21,6 +21,13 @@ public delegate Task<Result<Unit>> NyaaConfirmationUpserter(
 public delegate Task<Result<NyaaConfirmation>> NyaaConfirmationLoader(
     int seriesId, CancellationToken cancellationToken);
 
+public delegate Task<Result<Unit>> AiringClockFlagUpserter(
+    AiringClockFlag flag, CancellationToken cancellationToken);
+
+/// <summary>Point-read by series id. Returns <c>NotFoundError</c> when never flagged.</summary>
+public delegate Task<Result<AiringClockFlag>> AiringClockFlagLoader(
+    int seriesId, CancellationToken cancellationToken);
+
 /// <summary>Write-only — read side belongs to the future notification-delivery process.</summary>
 public delegate Task<Result<Unit>> ReleaseDetectedUpserter(
     ReleaseDetected release, CancellationToken cancellationToken);
