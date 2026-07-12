@@ -12,7 +12,7 @@ public sealed record AiringClockFlag : FeedsDocument
 {
     public int SeriesId { get; }
 
-    public required int LastFlaggedEpisode { get; init; }
+    public int LastFlaggedEpisode { get; init; }
 
     public AiringClockFlag(int seriesId)
     {

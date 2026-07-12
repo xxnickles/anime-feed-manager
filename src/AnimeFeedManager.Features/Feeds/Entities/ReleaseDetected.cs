@@ -2,6 +2,7 @@ namespace AnimeFeedManager.Features.Feeds.Entities;
 
 public enum ReleaseContentType
 {
+    Unknown,
     Episode,
     Batch,
     MovieOrOva,
@@ -21,15 +22,15 @@ public sealed record ReleaseDetected : FeedsDocument
 {
     public int SeriesId { get; }
 
-    public required ReleaseContentType ContentType { get; init; }
+    public ReleaseContentType ContentType { get; init; } = ReleaseContentType.Unknown;
     public int? Episode { get; init; }
     public int? EpisodeRangeEnd { get; init; }
-    public required bool Confirmed { get; init; }
+    public bool Confirmed { get; init; }
     public FeedsPlatform[] Platforms { get; init; } = [];
 
     public string? SourceTitle { get; init; }
     public string? SourceLink { get; init; }
-    public required DateTimeOffset DetectedAt { get; init; }
+    public DateTimeOffset DetectedAt { get; init; }
 
     public ReleaseDetected(int seriesId)
     {

@@ -19,5 +19,5 @@ namespace AnimeFeedManager.Features.Feeds.Entities;
 [JsonDerivedType(typeof(ReleaseDetected), "release-detected")]
 public abstract record FeedsDocument : CosmosDocument
 {
-    public required string PartitionKey { get; init; }
+    public string PartitionKey { get; init; } = string.Empty;
 }

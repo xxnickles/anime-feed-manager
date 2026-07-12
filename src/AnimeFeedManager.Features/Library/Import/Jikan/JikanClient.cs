@@ -21,6 +21,12 @@ public interface IJikanClient
     /// (<c>seasons/{year}/{season}</c>).
     /// </summary>
     IAsyncEnumerable<Result<JikanPage>> GetSeason(Year year, Season season, CancellationToken token = default);
+
+    /// <summary>
+    /// Fetches the licensed streaming platforms for a series (<c>anime/{id}/streaming</c>).
+    /// Licensor/platform data, not per-episode release confirmation.
+    /// </summary>
+    Task<Result<ImmutableArray<JikanStreamingEntry>>> GetStreamingPlatforms(int malId, CancellationToken token = default);
 }
 
 internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
@@ -30,6 +36,32 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
 
     public IAsyncEnumerable<Result<JikanPage>> GetSeason(Year year, Season season, CancellationToken token = default) =>
         EnumeratePages($"seasons/{year}/{season}", token);
+
+    public async Task<Result<ImmutableArray<JikanStreamingEntry>>> GetStreamingPlatforms(
+        int malId, CancellationToken token = default)
+    {
+        try
+        {
+            using var response = await httpClient.GetAsync($"anime/{malId}/streaming", token);
+            response.EnsureSuccessStatusCode();
+
+            await using var stream = await response.Content.ReadAsStreamAsync(token);
+            var payload = await JsonSerializer.DeserializeAsync(
+                stream, JikanJsonContext.Default.JikanStreamingResponse, token);
+
+            return payload is null
+                ? Error.Create($"Jikan returned a null streaming payload for anime {malId}")
+                : ImmutableArray.CreateRange(payload.Data);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            return ExceptionError.FromException(e);
+        }
+    }
 
     private async IAsyncEnumerable<Result<JikanPage>> EnumeratePages(
         string path,

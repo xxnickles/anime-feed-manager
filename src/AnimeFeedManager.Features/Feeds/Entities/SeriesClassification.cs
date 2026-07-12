@@ -20,7 +20,7 @@ public sealed record SeriesClassification : FeedsDocument
 {
     public int SeriesId { get; }
 
-    public required SeriesTrackability Trackability { get; init; }
+    public SeriesTrackability Trackability { get; init; } = SeriesTrackability.Untrackable;
     public FeedsPlatform[] Platforms { get; init; } = [];
 
     public SeriesClassification(int seriesId)
