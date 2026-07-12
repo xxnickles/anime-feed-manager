@@ -23,4 +23,5 @@ namespace AnimeFeedManager.Features.Library;
 [JsonSerializable(typeof(SpecialSeries))]
 [JsonSerializable(typeof(LibrarySeasonsIndex))]
 [JsonSerializable(typeof(SeasonEntry))]
+[JsonSerializable(typeof(SeriesTitleProjection))]
 public partial class LibraryJsonContext : JsonSerializerContext;

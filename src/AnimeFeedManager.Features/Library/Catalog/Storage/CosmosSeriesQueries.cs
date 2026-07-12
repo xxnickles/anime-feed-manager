@@ -25,6 +25,11 @@ public static class CosmosSeriesQueries
         (season, malId, cancellationToken) => factory.GetContainer<Series>()
             .Bind(container => LoadById(container, season, malId, cancellationToken));
 
+    public static CurrentlyAiringSeriesTitlesOutsideSeasonLoader CurrentlyAiringSeriesTitlesOutsideSeasonLoaderHandler(
+        this ICosmosContainerFactory factory) =>
+        (excludedSeason, cancellationToken) => factory.GetContainer<Series>()
+            .Bind(container => LoadCurrentlyAiringOutsideSeason(container, excludedSeason, cancellationToken));
+
     // Stream-based read: we decode each document via LibraryJsonContext.Default.Series (the
     // polymorphic JsonTypeInfo) so the `seriesType` discriminator lands each row on the right
     // concrete type. This mirrors CosmosSeriesUpsert's deliberate choice — the SDK's typed
@@ -80,6 +85,57 @@ public static class CosmosSeriesQueries
     // documented as failing, so we read the raw stream and decode via LibraryJsonContext.Default.Series.
     // The stream overload returns a NotFound response instead of throwing, so a missing series lands
     // in the error channel as a NotFoundError rather than as an exception.
+    // Cross-partition (no PartitionKey in QueryRequestOptions) filtered projection: Cosmos still
+    // fans out to every partition to evaluate the WHERE clause, but that fan-out is bounded by
+    // season count (same acceptable growth profile as LoadSeason), and status/seriesSeason are
+    // auto-indexed so it isn't a brute-force scan. The projection omits `seriesType`, so it can't
+    // round-trip through the polymorphic Series discriminator — SeriesTitleProjection is a plain,
+    // non-polymorphic DTO decoded directly via LibraryJsonContext.Default.SeriesTitleProjection.
+    private static async Task<Result<ImmutableArray<SeriesTitleProjection>>> LoadCurrentlyAiringOutsideSeason(
+        Container container,
+        SeriesSeason excludedSeason,
+        CancellationToken cancellationToken)
+    {
+        using var activity = Source.StartActivity("Library.Catalog.CurrentlyAiringOutsideSeason");
+        activity?.SetTag("library.catalog.excluded_season", excludedSeason.ToString());
+        var query = new QueryDefinition(
+                "SELECT c.malId, c.allTitles FROM c WHERE c.status = @status AND c.seriesSeason != @season")
+            .WithParameter("@status", SeriesStatus.CurrentlyAiringValue)
+            .WithParameter("@season", excludedSeason.ToString());
+        try
+        {
+            using var iterator = container.GetItemQueryStreamIterator(query);
+
+            var builder = ImmutableArray.CreateBuilder<SeriesTitleProjection>();
+            double totalRu = 0;
+            while (iterator.HasMoreResults)
+            {
+                using var response = await iterator.ReadNextAsync(cancellationToken);
+                response.EnsureSuccessStatusCode();
+                totalRu += response.Headers.RequestCharge;
+
+                using var document = await JsonDocument.ParseAsync(response.Content, cancellationToken: cancellationToken);
+                foreach (var element in document.RootElement.GetProperty("Documents").EnumerateArray())
+                {
+                    if (element.Deserialize(LibraryJsonContext.Default.SeriesTitleProjection) is { } projection)
+                        builder.Add(projection);
+                }
+            }
+
+            activity?.SetTag("library.catalog.cost.ru", Math.Round(totalRu, 2));
+            activity?.SetTag("library.catalog.result_count", builder.Count);
+            return builder.ToImmutable();
+        }
+        catch (CosmosException e)
+        {
+            return CosmosQueryError.Create(e, container.Id);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            return ExceptionError.FromException(e);
+        }
+    }
+
     private static async Task<Result<Series>> LoadById(
         Container container,
         SeriesSeason season,

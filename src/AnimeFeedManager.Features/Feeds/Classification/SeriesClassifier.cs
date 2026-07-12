@@ -40,4 +40,12 @@ internal static class SeriesClassifier
             Platforms = [..platforms.Select(p => new FeedsPlatform(p.Name, p.Url ?? string.Empty))]
         };
     }
+
+    /// <summary>
+    /// A confirmed Nyaa match is direct proof of trackability — stronger evidence than the
+    /// platform-list inference. Used by the collection job to promote a series the moment a
+    /// release actually lands, without waiting for the next classification pass.
+    /// </summary>
+    public static SeriesClassification MarkTrackable(SeriesClassification current) =>
+        current with { Trackability = SeriesTrackability.Trackable };
 }

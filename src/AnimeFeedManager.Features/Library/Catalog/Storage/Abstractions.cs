@@ -21,3 +21,14 @@ public delegate Task<Result<Series>> SeriesByIdLoader(
     SeriesSeason season,
     int malId,
     CancellationToken cancellationToken);
+
+/// <summary>
+/// Cross-partition, filtered, projected query: every <c>CurrentlyAiring</c> series outside
+/// <paramref name="excludedSeason"/> — the long-running/daily shows (e.g. Detective Conan)
+/// that keep airing well past the season they were imported into. Fan-out is bounded by
+/// season count (slow-growing), and the status filter keeps the match set small regardless
+/// of library size, so this is safe to run on the same cadence as the current-season load.
+/// </summary>
+public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> CurrentlyAiringSeriesTitlesOutsideSeasonLoader(
+    SeriesSeason excludedSeason,
+    CancellationToken cancellationToken);
