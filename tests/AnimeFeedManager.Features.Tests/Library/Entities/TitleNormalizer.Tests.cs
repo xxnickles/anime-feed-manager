@@ -1,6 +1,6 @@
-using AnimeFeedManager.Features.Feeds.Matching;
+using AnimeFeedManager.Features.Library.Entities;
 
-namespace AnimeFeedManager.Features.Tests.Feeds.Matching;
+namespace AnimeFeedManager.Features.Tests.Library.Entities;
 
 public class TitleNormalizerTests
 {

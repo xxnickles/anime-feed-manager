@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace AnimeFeedManager.Features.Feeds.Matching;
+namespace AnimeFeedManager.Features.Library.Entities;
 
 /// <summary>
 /// Collapses a title to lowercase alphanumerics only, dropping spaces/punctuation entirely.

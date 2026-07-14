@@ -26,6 +26,13 @@ public abstract record Series : CosmosDocument
     public SeriesTitles Titles { get; init; }
     public string[] AllTitles { get; init; } = [];
 
+    /// <summary>
+    /// <see cref="TitleNormalizer.Normalize"/> applied to each entry in <see cref="AllTitles"/>,
+    /// persisted so Cosmos queries can match against it directly — the normalization itself
+    /// (regex strip-non-alphanumeric + lowercase) can't be expressed as a SQL predicate.
+    /// </summary>
+    public string[] NormalizedTitles { get; init; } = [];
+
     public string? Synopsis { get; init; }
     public string? CoverImageUrl { get; init; }
     public string? TrailerUrl { get; init; }
