@@ -58,6 +58,32 @@ public class LibraryTitleIndexTests
         Assert.False(index.TryMatch("Anything", out _));
     }
 
+    [Fact]
+    public void Should_Fuzzy_Match_When_Release_Title_Has_An_Extra_Word()
+    {
+        var index = LibraryTitleIndex.Build([Series(1, "Kaiju No. 8")]);
+
+        Assert.True(index.TryMatch("Kaiju No. 8 Movie", out var seriesId));
+        Assert.Equal(1, seriesId);
+    }
+
+    [Fact]
+    public void Should_Fuzzy_Match_When_Release_Title_Is_Missing_A_Word()
+    {
+        var index = LibraryTitleIndex.Build([Series(1, "Chuunibyou demo Koi ga Shitai")]);
+
+        Assert.True(index.TryMatch("Chuunibyou Koi ga Shitai", out var seriesId));
+        Assert.Equal(1, seriesId);
+    }
+
+    [Fact]
+    public void Should_Not_Fuzzy_Match_Genuinely_Different_Titles_Below_Threshold()
+    {
+        var index = LibraryTitleIndex.Build([Series(1, "One Piece")]);
+
+        Assert.False(index.TryMatch("One Punch Man", out _));
+    }
+
     private static TvSeries Series(int malId, params string[] allTitles) =>
         new(malId) { AllTitles = allTitles };
 }
