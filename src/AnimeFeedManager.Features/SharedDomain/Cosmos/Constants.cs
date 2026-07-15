@@ -1,9 +1,9 @@
 namespace AnimeFeedManager.Features.SharedDomain.Cosmos;
 
-internal static class CosmosContainers
+public static class CosmosContainers
 {
-    internal const string Series = "series";
-    internal const string System = "system";
-    internal const string Users = "users";
-    internal const string Feeds = "feeds";
+    public const string Series = "series";
+    public const string System = "system";
+    public const string Users = "users";
+    public const string Feeds = "feeds";
 }

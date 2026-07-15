@@ -2,6 +2,7 @@
 
 using AnimeFeedManager.AspireHost;
 using AnimeFeedManager.Features;
+using AnimeFeedManager.Features.SharedDomain.Cosmos;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -15,7 +16,15 @@ var cosmos = builder.AddAzureCosmosDB("cosmos")
 var db = cosmos.AddCosmosDatabase(databaseName);
 
 foreach (var (containerName, partitionKeyPath) in CosmosContainerRegistry.ContainerPartitionKeys)
-    db.AddContainer(containerName, partitionKeyPath);
+{
+    var container = db.AddContainer(containerName, partitionKeyPath);
+
+    // ReleaseDetected is the only entity that sets a per-item `ttl`; Cosmos only honors it when
+    // the container has DefaultTimeToLive set. -1 enables per-item overrides without expiring
+    // the other document types sharing this container (they never set `ttl`).
+    if (containerName == CosmosContainers.Feeds)
+        container.Resource.ContainerProperties.DefaultTimeToLive = -1;
+}
 
 // Dev admin seed (orchestration, not app runtime) — see AdminSeedExtensions.
 cosmos.SeedAdminOnReady(builder.Configuration, databaseName);

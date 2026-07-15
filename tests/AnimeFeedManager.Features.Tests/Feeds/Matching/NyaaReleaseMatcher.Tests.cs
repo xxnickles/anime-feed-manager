@@ -35,4 +35,18 @@ public class NyaaReleaseMatcherTests
 
         Assert.Null(result);
     }
+
+    [Fact]
+    public void Should_Fuzzy_Match_When_Release_Title_Carries_An_Extra_Word_The_Library_Title_Lacks()
+    {
+        var index = LibraryTitleIndex.Build([new TvSeries(21) { AllTitles = ["Kaiju No. 8"] }]);
+        var entry = new NyaaEntry(
+            "[SubsPlease] Kaiju No. 8 Movie - 01 [1080p][ABCDEF12].mkv",
+            "https://nyaa.si/download/3.torrent", "https://nyaa.si/view/3", DateTimeOffset.UtcNow);
+
+        var result = NyaaReleaseMatcher.Match(entry, index);
+
+        Assert.NotNull(result);
+        Assert.Equal(21, result.SeriesId);
+    }
 }
