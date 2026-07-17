@@ -19,6 +19,7 @@ namespace AnimeFeedManager.Features.Feeds.Collection;
 internal sealed class AiringClockCheckJob(
     IAniListClient aniList,
     ICosmosContainerFactory cosmosFactory,
+    TimeProvider time,
     ILogger<AiringClockCheckJob> logger)
 {
     private const CollectionSource Source = CollectionSource.AiringClockCheck;
@@ -38,19 +39,29 @@ internal sealed class AiringClockCheckJob(
 
     public async Task Run(CancellationToken cancellationToken)
     {
-        var startedAt = DateTimeOffset.UtcNow;
-        var errors = new List<string>();
+        var startedAt = time.GetUtcNow();
 
-        var candidateIdsResult = await BuildCandidateIds(cancellationToken);
-        var counts = await candidateIdsResult.MatchToValue(
-            ids => LoadAndProcessSchedules(ids, errors, cancellationToken),
-            error =>
-            {
-                errors.Add($"Failed to build candidate series set: {error.Message}");
-                return Task.FromResult(default(RunCounts));
-            });
+        var run = await BuildCandidateIds(cancellationToken)
+            .Bind(ids => LoadAndProcessSchedules(ids, cancellationToken)).MatchToValue(
+                counts => new CollectionRun(Source)
+                {
+                    StartedAt = startedAt,
+                    CompletedAt = time.GetUtcNow(),
+                    ItemsScanned = counts.ItemsScanned,
+                    MatchedCount = counts.Flagged,
+                    UnmatchedCount = counts.Unmatched,
+                    Errors = []
+                },
+                error => new CollectionRun(Source)
+                {
+                    StartedAt = startedAt,
+                    CompletedAt = time.GetUtcNow(),
+                    Errors = [error.Message]
+                });
 
-        await PersistRun(startedAt, counts, errors, cancellationToken);
+        await _upsertRun(run, cancellationToken)
+            .AddLogOnFailure(_ => log => log.LogWarning("Failed to persist collection run for source {Source}", Source))
+            .Complete(logger);
     }
 
     private Task<Result<ImmutableArray<int>>> BuildCandidateIds(CancellationToken cancellationToken) =>
@@ -61,20 +72,14 @@ internal sealed class AiringClockCheckJob(
                         .Concat(longRunners.Select(p => p.MalId))
                         .ToImmutableArray())));
 
-    private async Task<RunCounts> LoadAndProcessSchedules(ImmutableArray<int> candidateIds, List<string> errors, CancellationToken cancellationToken)
+    private async Task<Result<RunCounts>> LoadAndProcessSchedules(ImmutableArray<int> candidateIds, CancellationToken cancellationToken)
     {
         var untrackable = await LoadUntrackableCandidates(candidateIds, cancellationToken);
         if (untrackable.Length == 0)
             return new RunCounts(0, 0, 0);
 
-        var scheduleResult = await aniList.GetAiringSchedules([..untrackable.Select(u => u.MalId)], cancellationToken);
-        return await scheduleResult.MatchToValue(
-            clocks => ProcessClocks(clocks, untrackable, cancellationToken),
-            error =>
-            {
-                errors.Add($"AniList fetch failed: {error.Message}");
-                return Task.FromResult(new RunCounts(untrackable.Length, 0, untrackable.Length));
-            });
+        return await aniList.GetAiringSchedules([..untrackable.Select(u => u.MalId)], cancellationToken)
+            .Bind(clocks => ProcessClocks(clocks, untrackable, cancellationToken));
     }
 
     private async Task<ImmutableArray<UntrackableSeries>> LoadUntrackableCandidates(
@@ -93,7 +98,7 @@ internal sealed class AiringClockCheckJob(
         return [..untrackable];
     }
 
-    private async Task<RunCounts> ProcessClocks(
+    private async Task<Result<RunCounts>> ProcessClocks(
         ImmutableArray<AniListEpisodeClock> clocks, ImmutableArray<UntrackableSeries> untrackable, CancellationToken cancellationToken)
     {
         var platformsByMalId = untrackable.ToDictionary(u => u.MalId, u => u.Platforms);
@@ -127,7 +132,7 @@ internal sealed class AiringClockCheckJob(
             EpisodeRangeEnd = isSingleEpisode ? null : flagged.EpisodeEnd,
             Confirmed = false,
             Platforms = platforms,
-            DetectedAt = DateTimeOffset.UtcNow
+            DetectedAt = time.GetUtcNow()
         };
 
         return _upsertFlag(flagged.UpdatedFlag, cancellationToken)
@@ -137,20 +142,4 @@ internal sealed class AiringClockCheckJob(
             .Complete(logger);
     }
 
-    private Task PersistRun(DateTimeOffset startedAt, RunCounts counts, List<string> errors, CancellationToken cancellationToken)
-    {
-        var run = new CollectionRun(Source)
-        {
-            StartedAt = startedAt,
-            CompletedAt = DateTimeOffset.UtcNow,
-            ItemsScanned = counts.ItemsScanned,
-            MatchedCount = counts.Flagged,
-            UnmatchedCount = counts.Unmatched,
-            Errors = [..errors]
-        };
-
-        return _upsertRun(run, cancellationToken)
-            .AddLogOnFailure(_ => log => log.LogWarning("Failed to persist collection run for source {Source}", Source))
-            .Complete(logger);
-    }
 }

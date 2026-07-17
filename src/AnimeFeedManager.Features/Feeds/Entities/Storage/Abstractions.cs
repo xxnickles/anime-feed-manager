@@ -28,9 +28,18 @@ public delegate Task<Result<Unit>> AiringClockFlagUpserter(
 public delegate Task<Result<AiringClockFlag>> AiringClockFlagLoader(
     int seriesId, CancellationToken cancellationToken);
 
-/// <summary>Write-only — read side belongs to the future notification-delivery process.</summary>
 public delegate Task<Result<Unit>> ReleaseDetectedUpserter(
     ReleaseDetected release, CancellationToken cancellationToken);
+
+/// <summary>
+/// Cross-partition query for every <see cref="ReleaseDetected"/> still <see cref="ReleaseDetectedStatus.Pending"/>
+/// dispatch — the read side for the future notification-delivery process. <see cref="ReleaseDetected"/>
+/// is partitioned by series id, so this necessarily fans out to every series partition; the
+/// docType + status filter keeps the match set small regardless of library size, and the ~48h
+/// <see cref="ReleaseDetected.Ttl"/> caps how long an entry can stay Pending before Cosmos removes it.
+/// </summary>
+public delegate Task<Result<ImmutableArray<ReleaseDetected>>> PendingReleaseDetectedLoader(
+    CancellationToken cancellationToken);
 
 /// <summary>Write-only — one document per job execution, read side is the observability trail.</summary>
 public delegate Task<Result<Unit>> CollectionRunUpserter(
