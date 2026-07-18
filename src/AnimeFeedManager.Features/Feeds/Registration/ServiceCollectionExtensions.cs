@@ -15,11 +15,12 @@ public static class ServiceCollectionExtensions
         /// Registers the Feeds feature: the Nyaa and AniList clients, the
         /// <see cref="SeriesClassificationSubscriber"/> that reacts to Library's
         /// <c>SeasonImported</c> event to classify Trackable vs Untrackable series, the
-        /// <see cref="NyaaCollectionCronJob"/> hot-path collection job, and the
-        /// <see cref="AiringClockCheckCronJob"/> cold-clock job for Untrackable series.
-        /// Depends on the host having already called <c>AddCosmosInfrastructure(...)</c>,
-        /// <c>AddEventBus()</c>, <c>AddCronScheduler()</c>, and <c>AddLibrary()</c>
-        /// (for <c>IJikanClient</c>).
+        /// <see cref="NyaaCollectionCronJob"/> hot-path collection job, the
+        /// <see cref="AiringClockCheckCronJob"/> cold-clock job for Untrackable series, and the
+        /// <see cref="NyaaReconciliationCronJob"/> cold path for series outside the hot path's
+        /// current-season scope. Depends on the host having already called
+        /// <c>AddCosmosInfrastructure(...)</c>, <c>AddEventBus()</c>, <c>AddCronScheduler()</c>,
+        /// and <c>AddLibrary()</c> (for <c>IJikanClient</c>).
         /// </summary>
         public IHostApplicationBuilder AddFeeds()
         {
@@ -33,6 +34,9 @@ public static class ServiceCollectionExtensions
 
             builder.Services.AddScoped<AiringClockCheckJob>();
             builder.Services.AddCronJob<AiringClockCheckCronJob>();
+
+            builder.Services.AddScoped<NyaaReconciliationJob>();
+            builder.Services.AddCronJob<NyaaReconciliationCronJob>();
 
             return builder;
         }

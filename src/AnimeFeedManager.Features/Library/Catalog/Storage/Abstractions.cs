@@ -32,3 +32,14 @@ public delegate Task<Result<Series>> SeriesByIdLoader(
 public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> CurrentlyAiringSeriesTitlesOutsideSeasonLoader(
     SeriesSeason excludedSeason,
     CancellationToken cancellationToken);
+
+/// <summary>
+/// Cross-partition, projected query: every series outside <paramref name="excludedSeason"/>,
+/// regardless of status — the reconciliation (cold path) candidate set. Broader than
+/// <see cref="CurrentlyAiringSeriesTitlesOutsideSeasonLoader"/> (no status filter), since late
+/// Nyaa releases (batch/BD-remux) can land against a series from any prior season. Titles-only
+/// projection keeps this cheap regardless of library age.
+/// </summary>
+public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> SeriesTitlesOutsideSeasonLoader(
+    SeriesSeason excludedSeason,
+    CancellationToken cancellationToken);

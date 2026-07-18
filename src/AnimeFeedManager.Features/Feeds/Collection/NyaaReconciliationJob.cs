@@ -9,27 +9,25 @@ using AnimeFeedManager.Features.Library.Seasons.Storage;
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
-/// Hot path: every 30 minutes, snapshot Nyaa and match against the current season plus any
-/// still-airing long-running series from prior seasons (Detective Conan-style dailies — see
-/// <see cref="CurrentlyAiringSeriesTitlesOutsideSeasonLoader"/>). A genuinely new match emits a
-/// <see cref="ReleaseDetected"/>, advances the <see cref="NyaaConfirmation"/> high-water mark,
-/// and promotes an Untrackable classification to Trackable. The long tail of finished/older
-/// seasons is covered separately, on a slower cadence, by <see cref="NyaaReconciliationJob"/>.
-/// Feed fetch/diff/match/reconcile/persist is shared with that job via <see cref="NyaaFeedProcessor"/>.
+/// Cold path: twice daily, snapshot the same Nyaa feed <see cref="NyaaCollectionJob"/> watches,
+/// but match against every series outside the current season (see
+/// <see cref="SeriesTitlesOutsideSeasonLoader"/>) — late batch/BD-remux releases for finished or
+/// older-season shows the hot path never sees. Maintains its own <see cref="CollectionCheckpoint"/>
+/// watermark on the shared feed; feed fetch/diff/match/reconcile/persist is shared with the hot
+/// path via <see cref="NyaaFeedProcessor"/>.
 /// </summary>
-internal sealed class NyaaCollectionJob(
+internal sealed class NyaaReconciliationJob(
     INyaaClient nyaa,
     ICosmosContainerFactory cosmosFactory,
     TimeProvider time,
-    ILogger<NyaaCollectionJob> logger)
+    ILogger<NyaaReconciliationJob> logger)
 {
-    private const CollectionSource Source = CollectionSource.NyaaCollection;
+    private const CollectionSource Source = CollectionSource.NyaaReconciliation;
 
     private readonly LatestSeasonResolver _resolveCurrentSeason = cosmosFactory.LatestSeasonResolverHandler();
-    private readonly SeriesBySeasonLoader _loadCurrentSeason = cosmosFactory.SeriesBySeasonLoaderHandler();
 
-    private readonly CurrentlyAiringSeriesTitlesOutsideSeasonLoader _loadLongRunners =
-        cosmosFactory.CurrentlyAiringSeriesTitlesOutsideSeasonLoaderHandler();
+    private readonly SeriesTitlesOutsideSeasonLoader _loadCandidates =
+        cosmosFactory.SeriesTitlesOutsideSeasonLoaderHandler();
 
     private readonly CollectionRunUpserter _upsertRun = cosmosFactory.CosmosCollectionRunUpserterHandler();
 
@@ -65,7 +63,6 @@ internal sealed class NyaaCollectionJob(
 
     private Task<Result<LibraryTitleIndex>> BuildTitleIndex(CancellationToken cancellationToken) =>
         _resolveCurrentSeason(cancellationToken)
-            .Bind(season => _loadCurrentSeason(season, cancellationToken)
-                .Bind(currentSeasonSeries => _loadLongRunners(season, cancellationToken)
-                    .Map(longRunners => LibraryTitleIndex.Build(currentSeasonSeries, longRunners))));
+            .Bind(season => _loadCandidates(season, cancellationToken)
+                .Map(candidates => LibraryTitleIndex.Build([], candidates)));
 }

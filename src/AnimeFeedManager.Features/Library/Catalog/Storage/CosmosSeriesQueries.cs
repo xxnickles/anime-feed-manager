@@ -30,6 +30,11 @@ public static class CosmosSeriesQueries
         (excludedSeason, cancellationToken) => factory.GetContainer<Series>()
             .Bind(container => LoadCurrentlyAiringOutsideSeason(container, excludedSeason, cancellationToken));
 
+    public static SeriesTitlesOutsideSeasonLoader SeriesTitlesOutsideSeasonLoaderHandler(
+        this ICosmosContainerFactory factory) =>
+        (excludedSeason, cancellationToken) => factory.GetContainer<Series>()
+            .Bind(container => LoadTitlesOutsideSeason(container, excludedSeason, cancellationToken));
+
     // Stream-based read: we decode each document via LibraryJsonContext.Default.Series (the
     // polymorphic JsonTypeInfo) so the `seriesType` discriminator lands each row on the right
     // concrete type. This mirrors CosmosSeriesUpsert's deliberate choice — the SDK's typed
@@ -101,6 +106,53 @@ public static class CosmosSeriesQueries
         var query = new QueryDefinition(
                 "SELECT c.malId, c.allTitles FROM c WHERE c.status = @status AND c.seriesSeason != @season")
             .WithParameter("@status", SeriesStatus.CurrentlyAiringValue)
+            .WithParameter("@season", excludedSeason.ToString());
+        try
+        {
+            using var iterator = container.GetItemQueryStreamIterator(query);
+
+            var builder = ImmutableArray.CreateBuilder<SeriesTitleProjection>();
+            double totalRu = 0;
+            while (iterator.HasMoreResults)
+            {
+                using var response = await iterator.ReadNextAsync(cancellationToken);
+                response.EnsureSuccessStatusCode();
+                totalRu += response.Headers.RequestCharge;
+
+                using var document = await JsonDocument.ParseAsync(response.Content, cancellationToken: cancellationToken);
+                foreach (var element in document.RootElement.GetProperty("Documents").EnumerateArray())
+                {
+                    if (element.Deserialize(LibraryJsonContext.Default.SeriesTitleProjection) is { } projection)
+                        builder.Add(projection);
+                }
+            }
+
+            activity?.SetTag("library.catalog.cost.ru", Math.Round(totalRu, 2));
+            activity?.SetTag("library.catalog.result_count", builder.Count);
+            return builder.ToImmutable();
+        }
+        catch (CosmosException e)
+        {
+            return CosmosQueryError.Create(e, container.Id);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            return ExceptionError.FromException(e);
+        }
+    }
+
+    // Same shape as LoadCurrentlyAiringOutsideSeason, minus the status filter — reconciliation
+    // needs every series outside the current season as a candidate, not just CurrentlyAiring
+    // long-runners (already covered by the hot path). Overlap between the two is harmless: the
+    // shared, seriesId-keyed NyaaConfirmation naturally dedupes whichever job matches first.
+    private static async Task<Result<ImmutableArray<SeriesTitleProjection>>> LoadTitlesOutsideSeason(
+        Container container,
+        SeriesSeason excludedSeason,
+        CancellationToken cancellationToken)
+    {
+        using var activity = Source.StartActivity("Library.Catalog.TitlesOutsideSeason");
+        activity?.SetTag("library.catalog.excluded_season", excludedSeason.ToString());
+        var query = new QueryDefinition("SELECT c.malId, c.allTitles FROM c WHERE c.seriesSeason != @season")
             .WithParameter("@season", excludedSeason.ToString());
         try
         {
