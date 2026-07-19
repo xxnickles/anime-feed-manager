@@ -1,4 +1,5 @@
 using AnimeFeedManager.Infrastructure.Sse;
+using AnimeFeedManager.Web.Features.Admin;
 using AnimeFeedManager.Web.Features.Catalog.Seasons;
 using AnimeFeedManager.Web.Features.Security;
 
@@ -16,5 +17,6 @@ internal static class NotificationsRegistration
     internal static IServiceCollection AddNotifications(this IServiceCollection services) =>
         services.AddSingleton(_ => new SseBindings()
             .AddSecurityNotifications()
-            .AddCatalogNotifications());
+            .AddCatalogNotifications()
+            .AddFeedsNotifications());
 }

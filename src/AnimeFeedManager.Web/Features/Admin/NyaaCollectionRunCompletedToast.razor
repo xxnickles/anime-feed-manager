@@ -1,0 +1,28 @@
+@using AnimeFeedManager.Features.Feeds.Entities
+@using AnimeFeedManager.Features.Feeds.Events
+
+@* Admin operational toast for a completed Nyaa collection run (hot or cold path), pushed over
+   SSE (Audience.Admin only — no public counterpart, this is internal operational signal).
+   Reuses the Notification card; root hx-swap-oob routes it into #toast-panel. Only sent when
+   the run matched something (see NyaaCollectionJob/NyaaReconciliationJob's Matched > 0 guard). *@
+
+<div hx-swap-oob="beforeend:#toast-panel">
+    <Notification Title="@Title" Type="ToastType.Info">
+        <Message>
+            <span class="font-semibold">@Model.MatchedCount</span> matched,
+            <span class="font-semibold">@Model.UnmatchedCount</span> unmatched
+            (@Model.ItemsScanned scanned).
+        </Message>
+    </Notification>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public NyaaCollectionRunCompleted Model { get; set; } = null!;
+
+    private string Title => Model.Source switch
+    {
+        CollectionSource.NyaaCollection => "Nyaa collection complete",
+        CollectionSource.NyaaReconciliation => "Nyaa reconciliation complete",
+        _ => "Nyaa run complete"
+    };
+}

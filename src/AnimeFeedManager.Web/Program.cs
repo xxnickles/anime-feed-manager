@@ -84,7 +84,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 app.MapDefaultEndpoints();
-app.MapAdminEndpoints();
+
+var admin = app.MapGroup("/admin").RequireAuthorization(Policies.AdminRequired);
+admin.MapAdminEndpoints();
+admin.MapFeedsAdminEndpoints();
+
 app.MapSecurityEndpoints();
 app.MapNotificationEndpoints();
 app.MapRazorComponents<AnimeFeedManager.Web.Features.App>();

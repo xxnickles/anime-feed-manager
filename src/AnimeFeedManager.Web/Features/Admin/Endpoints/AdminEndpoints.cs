@@ -5,7 +5,6 @@ using AnimeFeedManager.Shared.Results.Errors;
 using AnimeFeedManager.Shared.Results.Static;
 using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Components;
-using AnimeFeedManager.Web.Features.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
@@ -14,14 +13,14 @@ namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 /// Admin season-library triggers. htmx-posted <c>&lt;form&gt;</c>s that fire an in-process import
 /// via the shared <see cref="LibraryImportJob"/> seam and return a Razor card fragment as
 /// feedback. Antiforgery stays on: the cards post a form carrying the token, and the
-/// <c>[FromForm]</c> binding makes each endpoint enforce validation.
+/// <c>[FromForm]</c> binding makes each endpoint enforce validation. Nests under the caller's
+/// shared <c>/admin</c> group (auth applied once there) rather than building its own.
 /// </summary>
 internal static class AdminEndpoints
 {
     internal static IEndpointRouteBuilder MapAdminEndpoints(this IEndpointRouteBuilder routes)
     {
-        var import = routes.MapGroup("/admin/library/import")
-            .RequireAuthorization(Policies.AdminRequired);
+        var import = routes.MapGroup("/library/import");
 
         import.MapPost("/latest", TriggerLatest);
         import.MapPost("/season", TriggerSeason);
