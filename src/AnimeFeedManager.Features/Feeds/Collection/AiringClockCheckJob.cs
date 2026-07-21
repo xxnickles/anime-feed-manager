@@ -1,10 +1,12 @@
 using AnimeFeedManager.Features.Feeds.Entities;
 using AnimeFeedManager.Features.Feeds.Entities.Storage;
+using AnimeFeedManager.Features.Feeds.Events;
 using AnimeFeedManager.Features.Feeds.Sources.AniList;
 using AnimeFeedManager.Features.Feeds.Sources.AniList.Types;
 using AnimeFeedManager.Features.Library.Catalog.Storage;
 using AnimeFeedManager.Features.Library.Seasons;
 using AnimeFeedManager.Features.Library.Seasons.Storage;
+using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
@@ -16,10 +18,11 @@ namespace AnimeFeedManager.Features.Feeds.Collection;
 /// and advances that series' <see cref="AiringClockFlag"/>. Trackable series are covered instead
 /// by <see cref="NyaaCollectionJob"/> and never reach this job.
 /// </summary>
-internal sealed class AiringClockCheckJob(
+public sealed class AiringClockCheckJob(
     IAniListClient aniList,
     ICosmosContainerFactory cosmosFactory,
     TimeProvider time,
+    EventBus eventBus,
     ILogger<AiringClockCheckJob> logger)
 {
     private const CollectionSource Source = CollectionSource.AiringClockCheck;
@@ -42,7 +45,9 @@ internal sealed class AiringClockCheckJob(
         var startedAt = time.GetUtcNow();
 
         var run = await BuildCandidateIds(cancellationToken)
-            .Bind(ids => LoadAndProcessSchedules(ids, cancellationToken)).MatchToValue(
+            .Bind(ids => LoadAndProcessSchedules(ids, cancellationToken))
+            .Tap(PublishRunCompleted)
+            .MatchToValue(
                 counts => new CollectionRun(Source)
                 {
                     StartedAt = startedAt,
@@ -62,6 +67,14 @@ internal sealed class AiringClockCheckJob(
         await _upsertRun(run, cancellationToken)
             .AddLogOnFailure(_ => log => log.LogWarning("Failed to persist collection run for source {Source}", Source))
             .Complete(logger);
+    }
+
+    // Announce only runs that actually flagged something new; a routine empty pull has
+    // nothing worth an admin toast for.
+    private void PublishRunCompleted(RunCounts counts)
+    {
+        if (counts.Flagged <= 0) return;
+        eventBus.Publish(new AiringClockCheckRunCompleted(counts.ItemsScanned, counts.Flagged, counts.Unmatched));
     }
 
     private Task<Result<ImmutableArray<int>>> BuildCandidateIds(CancellationToken cancellationToken) =>
