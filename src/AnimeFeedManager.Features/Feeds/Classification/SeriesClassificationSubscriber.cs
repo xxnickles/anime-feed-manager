@@ -23,8 +23,13 @@ internal sealed class SeriesClassificationSubscriber(
     ILogger<SeriesClassificationSubscriber> logger) : IHostedService
 {
     private readonly SeriesBySeasonLoader _loadSeason = cosmosFactory.SeriesBySeasonLoaderHandler();
-    private readonly SeriesClassificationLoader _loadClassification = cosmosFactory.CosmosSeriesClassificationLoaderHandler();
-    private readonly SeriesClassificationUpserter _upsertClassification = cosmosFactory.CosmosSeriesClassificationUpserterHandler();
+
+    private readonly SeriesClassificationLoader _loadClassification =
+        cosmosFactory.CosmosSeriesClassificationLoaderHandler();
+
+    private readonly SeriesClassificationUpserter _upsertClassification =
+        cosmosFactory.CosmosSeriesClassificationUpserterHandler();
+
     private IDisposable? _subscription;
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -41,12 +46,21 @@ internal sealed class SeriesClassificationSubscriber(
 
     private Task HandleSeasonImported(SeasonImported evt, CancellationToken cancellationToken) =>
         _loadSeason(evt.Season, cancellationToken).Match(
-            series => ClassifyAll(series, cancellationToken),
+            series => ClassifyAll(evt.Season, series, cancellationToken),
             error => Task.Run(() => logger.LogWarning(
                 "Skipping classification for season {Season}: {Error}", evt.Season, error.Message), cancellationToken));
 
-    private Task ClassifyAll(ImmutableArray<Series> series, CancellationToken cancellationToken) =>
-        Task.WhenAll(series.Select(s => ClassifyOne(s.MalId, cancellationToken)));
+    // Back to simple sequential, one at a time (jikan-streaming's rate limiter is now a plain
+    // 1/sec, no burst — see Jikan's registration). The persistent 504s that motivated the
+    // burst/cooldown experiment turned out to be Jikan's "no data for this series" response, now
+    // handled directly (see JikanClient.GetStreamingPlatforms) rather than paced around — this
+    // simple baseline is to see whether a real 429 ever shows up under plain, conservative pacing.
+    private async Task ClassifyAll(SeriesSeason season, ImmutableArray<Series> series,
+        CancellationToken cancellationToken)
+    {
+        foreach (var s in series)
+            await ClassifyOne(s.MalId, cancellationToken);
+    }
 
     // Trackability is monotonic (see SeriesClassifier) — load whatever we previously knew (absence
     // or any load error just means "no prior evidence", not a hard failure) so a fresh Jikan read
@@ -61,6 +75,7 @@ internal sealed class SeriesClassificationSubscriber(
         await jikan.GetStreamingPlatforms(malId, cancellationToken)
             .Map(platforms => SeriesClassifier.Classify(malId, platforms, previousTrackability))
             .Bind(classification => _upsertClassification(classification, cancellationToken))
+            .AddLogOnSuccess(_ => log => log.LogInformation("Classified series {MalId}", malId))
             .AddLogOnFailure(_ => log => log.LogWarning("Failed to classify series {MalId}", malId))
             .AddLogOnFailure(error => error.LogAction())
             .Complete(logger);

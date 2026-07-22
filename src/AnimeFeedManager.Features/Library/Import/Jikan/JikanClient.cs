@@ -1,3 +1,4 @@
+using System.Net;
 using AnimeFeedManager.Features.Library.Import.Jikan.Types;
 
 namespace AnimeFeedManager.Features.Library.Import.Jikan;
@@ -29,8 +30,21 @@ public interface IJikanClient
     Task<Result<ImmutableArray<JikanStreamingEntry>>> GetStreamingPlatforms(int malId, CancellationToken token = default);
 }
 
-internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
+/// <summary>
+/// Two named <see cref="HttpClient"/>s back this one client: <see cref="ImportClientName"/> for
+/// season/page fetches (bulk import traffic, low volume) and <see cref="StreamingClientName"/> for
+/// per-series classification lookups (one call per series in a season — the volume driver). Each
+/// has its own resilience pipeline (see <c>Registration/ServiceCollectionExtensions</c>) so tuning
+/// one's rate-limiting shape never affects the other.
+/// </summary>
+internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikanClient
 {
+    internal const string ImportClientName = "jikan-import";
+    internal const string StreamingClientName = "jikan-streaming";
+
+    private readonly HttpClient _importClient = httpClientFactory.CreateClient(ImportClientName);
+    private readonly HttpClient _streamingClient = httpClientFactory.CreateClient(StreamingClientName);
+
     public IAsyncEnumerable<Result<JikanPage>> GetCurrentSeason(CancellationToken token = default) =>
         EnumeratePages("seasons/now", token);
 
@@ -42,7 +56,16 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
     {
         try
         {
-            using var response = await httpClient.GetAsync($"anime/{malId}/streaming", token);
+            using var response = await _streamingClient.GetAsync($"anime/{malId}/streaming", token);
+
+            // Jikan returns 504 with a BadResponseException body ("Jikan failed to connect to
+            // MyAnimeList") for series it simply has no streaming data for — observed in production
+            // to behave like "not found," not a transient outage. Treated as a clean empty result;
+            // retries are also disabled for this status on this client (see the streaming pipeline's
+            // ShouldHandle override in Registration/ServiceCollectionExtensions).
+            if (response.StatusCode == HttpStatusCode.GatewayTimeout)
+                return ImmutableArray<JikanStreamingEntry>.Empty;
+
             response.EnsureSuccessStatusCode();
 
             await using var stream = await response.Content.ReadAsStreamAsync(token);
@@ -52,6 +75,13 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
             return payload is null
                 ? Error.Create($"Jikan returned a null streaming payload for anime {malId}")
                 : ImmutableArray.CreateRange(payload.Data);
+        }
+        // HttpClient.Timeout and resilience-pipeline timeouts also throw OperationCanceledException,
+        // indistinguishable by type from genuine caller cancellation — only rethrow when the
+        // caller's own token asked for it; otherwise this is just another transient failure.
+        catch (OperationCanceledException e) when (!token.IsCancellationRequested)
+        {
+            return ExceptionError.FromException(e);
         }
         catch (OperationCanceledException)
         {
@@ -90,7 +120,7 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
     {
         try
         {
-            using var response = await httpClient.GetAsync($"{path}?page={pageNumber}", token);
+            using var response = await _importClient.GetAsync($"{path}?page={pageNumber}", token);
             response.EnsureSuccessStatusCode();
 
             await using var stream = await response.Content.ReadAsStreamAsync(token);
@@ -104,6 +134,12 @@ internal sealed class JikanClient(HttpClient httpClient) : IJikanClient
             // within the advertised range can come back empty. EnumeratePages treats that as the
             // natural end of the season (page 1 still fails upstream — ResolveSeason needs a TV item).
             return payload;
+        }
+        // See GetStreamingPlatforms — internal timeouts also throw OperationCanceledException;
+        // only genuine caller cancellation should bypass Result-based error handling.
+        catch (OperationCanceledException e) when (!token.IsCancellationRequested)
+        {
+            return ExceptionError.FromException(e);
         }
         catch (OperationCanceledException)
         {
