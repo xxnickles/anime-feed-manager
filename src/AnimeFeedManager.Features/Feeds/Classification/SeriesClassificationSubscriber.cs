@@ -17,10 +17,9 @@ namespace AnimeFeedManager.Features.Feeds.Classification;
 /// is ever treated as permanently "done" for tracking purposes.
 /// </summary>
 internal sealed class SeriesClassificationSubscriber(
-    EventBus eventBus,
     IJikanClient jikan,
     ICosmosContainerFactory cosmosFactory,
-    ILogger<SeriesClassificationSubscriber> logger) : IHostedService
+    ILogger<SeriesClassificationSubscriber> logger) : EventSubscriber<SeasonImported>
 {
     private readonly SeriesBySeasonLoader _loadSeason = cosmosFactory.SeriesBySeasonLoaderHandler();
 
@@ -30,21 +29,7 @@ internal sealed class SeriesClassificationSubscriber(
     private readonly SeriesClassificationUpserter _upsertClassification =
         cosmosFactory.CosmosSeriesClassificationUpserterHandler();
 
-    private IDisposable? _subscription;
-
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        _subscription = eventBus.Subscribe<SeasonImported>(HandleSeasonImported);
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        _subscription?.Dispose();
-        return Task.CompletedTask;
-    }
-
-    private Task HandleSeasonImported(SeasonImported evt, CancellationToken cancellationToken) =>
+    public override Task Handle(SeasonImported evt, CancellationToken cancellationToken) =>
         _loadSeason(evt.Season, cancellationToken).Match(
             series => ClassifyAll(evt.Season, series, cancellationToken),
             error => Task.Run(() => logger.LogWarning(

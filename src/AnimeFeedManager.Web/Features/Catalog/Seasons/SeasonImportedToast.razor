@@ -9,7 +9,7 @@
    placement. Sent unnamed so htmx 4 auto-swaps it through the core pipeline. *@
 
 <div hx-swap-oob="beforeend:#toast-panel">
-    <Notification Title="New season available" Type="ToastType.Success" CloseTime="TimeSpan.FromSeconds(10)">
+    <Notification Title="New season available" Type="Outcome.Success" CloseTime="TimeSpan.FromSeconds(10)">
         <Message>
             <div class="flex items-center gap-3">
                 @if (CoverUrl is not null)

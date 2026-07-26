@@ -1,5 +1,6 @@
 using AnimeFeedManager.Shared.Results;
 using AnimeFeedManager.Shared.Results.Errors;
+using AnimeFeedManager.Shared.Types;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -14,12 +15,12 @@ namespace AnimeFeedManager.Web.Features.Components;
 internal static class Toasts
 {
     internal static RazorComponentResult Success(string title, RenderFragment message, TimeSpan? closeTime = null)
-        => Toast(title, message, ToastType.Success, closeTime);
+        => Toast(title, message, Outcome.Success, closeTime);
 
     internal static RazorComponentResult Error(string title, DomainError error, TimeSpan? closeTime = null)
-        => Toast(title, ErrorContent(error), ToToastType(error), closeTime);
+        => Toast(title, ErrorContent(error), ToOutcome(error), closeTime);
 
-    internal static RazorComponentResult Toast(string title, RenderFragment message, ToastType type,
+    internal static RazorComponentResult Toast(string title, RenderFragment message, Outcome type,
         TimeSpan? closeTime = null)
         => new RazorComponentResult<NotificationOob>(new Dictionary<string, object?>
         {
@@ -31,11 +32,11 @@ internal static class Toasts
 
     internal static RenderFragment Text(string message) => builder => builder.AddContent(0, message);
 
-    private static ToastType ToToastType(DomainError error) => error switch
+    private static Outcome ToOutcome(DomainError error) => error switch
     {
-        NotFoundError => ToastType.Info,
-        DomainValidationErrors or FormDataValidationError => ToastType.Warning,
-        _ => ToastType.Error
+        NotFoundError => Outcome.Info,
+        DomainValidationErrors or FormDataValidationError => Outcome.Warning,
+        _ => Outcome.Error
     };
 
     private static RenderFragment ErrorContent(DomainError error) => error switch

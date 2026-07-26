@@ -2,6 +2,7 @@ using AnimeFeedManager.Features.Feeds.Classification;
 using AnimeFeedManager.Features.Feeds.Collection;
 using AnimeFeedManager.Features.Feeds.Sources.AniList.Registration;
 using AnimeFeedManager.Features.Feeds.Sources.Nyaa.Registration;
+using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Infrastructure.Registration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,7 +28,7 @@ public static class ServiceCollectionExtensions
             builder.AddNyaaClient();
             builder.AddAniListClient();
 
-            builder.Services.AddHostedService<SeriesClassificationSubscriber>();
+            builder.Services.AddEventHandler<SeasonImported, SeriesClassificationSubscriber>();
 
             builder.Services.AddScoped<NyaaCollectionJob>();
             builder.Services.AddCronJob<NyaaCollectionCronJob>();

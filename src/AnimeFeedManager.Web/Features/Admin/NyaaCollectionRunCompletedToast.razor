@@ -7,7 +7,7 @@
    the run matched something (see NyaaCollectionJob/NyaaReconciliationJob's Matched > 0 guard). *@
 
 <div hx-swap-oob="beforeend:#toast-panel">
-    <Notification Title="@Title" Type="ToastType.Info">
+    <Notification Title="@Title" Type="Outcome.Info">
         <Message>
             <span class="font-semibold">@Model.MatchedCount</span> matched,
             <span class="font-semibold">@Model.UnmatchedCount</span> unmatched

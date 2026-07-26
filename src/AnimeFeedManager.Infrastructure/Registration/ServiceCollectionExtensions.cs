@@ -17,12 +17,30 @@ public static class ServiceCollectionExtensions
     extension(IServiceCollection services)
     {
         /// <summary>
-        /// Registers <see cref="EventBus"/> as a singleton. The bus's pump task starts
-        /// when the singleton is first resolved.
+        /// Registers <see cref="EventBus"/> as a singleton (the bus's pump task starts when the
+        /// singleton is first resolved) plus <see cref="EventSubscriptionHost"/>, the single
+        /// dispatcher for every statically-registered <see cref="EventSubscriber{TEvent}"/>.
         /// </summary>
         public IServiceCollection AddEventBus()
         {
             services.AddSingleton<EventBus>();
+            services.AddHostedService<EventSubscriptionHost>();
+            return services;
+        }
+
+        /// <summary>
+        /// Registers <typeparamref name="THandler"/> as a scoped, statically-bound reaction to
+        /// <typeparamref name="TEvent"/> — <see cref="EventSubscriptionHost"/> discovers and
+        /// subscribes it to the bus once at startup. Mirrors <c>AddCronJob&lt;TJob&gt;</c>'s
+        /// registration ergonomics: a new reactive feature costs this one line, not a new
+        /// <see cref="IHostedService"/>.
+        /// </summary>
+        public IServiceCollection AddEventHandler<TEvent, THandler>()
+            where TEvent : notnull
+            where THandler : EventSubscriber<TEvent>
+        {
+            services.AddScoped<THandler>();
+            services.AddSingleton<IEventSubscriptionBinding, EventSubscriptionBinding<TEvent, THandler>>();
             return services;
         }
 
