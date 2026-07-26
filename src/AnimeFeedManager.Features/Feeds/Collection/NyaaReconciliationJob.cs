@@ -54,11 +54,15 @@ public sealed class NyaaReconciliationJob(
                     UnmatchedCount = counts.Unmatched,
                     Errors = []
                 },
-                error => new CollectionRun(Source)
+                error =>
                 {
-                    StartedAt = startedAt,
-                    CompletedAt = time.GetUtcNow(),
-                    Errors = [error.Message]
+                    eventBus.Publish(new OperationFailed(Source.ToString(), error.Message, time.GetUtcNow()));
+                    return new CollectionRun(Source)
+                    {
+                        StartedAt = startedAt,
+                        CompletedAt = time.GetUtcNow(),
+                        Errors = [error.Message]
+                    };
                 });
 
         await _upsertRun(runResult, cancellationToken)
