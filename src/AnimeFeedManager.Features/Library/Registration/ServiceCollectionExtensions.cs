@@ -1,6 +1,7 @@
 using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import;
 using AnimeFeedManager.Features.Library.Import.Jikan.Registration;
+using AnimeFeedManager.Infrastructure.Eventing;
 using AnimeFeedManager.Infrastructure.Registration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,6 +30,7 @@ public static class ServiceCollectionExtensions
             builder.Services.AddScoped<LibraryImportJob>();
             builder.Services
                 .AddCronJob<LibraryImportCronJob>();
+            builder.Services.AddEventHandler<OperationFailed, LibraryEventHandler>();
 
             builder.Services.AddHttpClient<IImageHttpClient, ImageHttpClient>();
             builder.Services.AddHostedService<ImagesContainerInitializer>();

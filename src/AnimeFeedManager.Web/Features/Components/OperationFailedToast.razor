@@ -1,0 +1,20 @@
+@using AnimeFeedManager.Infrastructure.Eventing
+
+@* Generic admin toast for any OperationFailed event — one component for every job's hard
+   failure, since the content (source + message) is the same shape regardless of which job
+   raised it. Pushed over SSE (Audience.Admin only). Reuses the Notification card; root
+   hx-swap-oob routes it into #toast-panel. *@
+
+<div hx-swap-oob="beforeend:#toast-panel">
+    <Notification Title="@Title" Type="Model.Outcome">
+        <Message>
+            <span>@Model.Message</span>
+        </Message>
+    </Notification>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public OperationFailed Model { get; set; } = null!;
+
+    private string Title => $"{Model.Source} failed";
+}

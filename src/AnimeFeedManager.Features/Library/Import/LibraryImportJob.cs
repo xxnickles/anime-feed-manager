@@ -39,5 +39,6 @@ public sealed class LibraryImportJob(
     public Task Run(ImportTarget target, CancellationToken cancellationToken) =>
         LibraryImport
             .Execute(target, jikan, _persistSeries, _upsertIndex, _processImage, eventBus.Publish, time, cancellationToken)
+            .TapError(error => eventBus.Publish(new OperationFailed(LibrarySources.Import, error.Message, time.GetUtcNow())))
             .FlushLogs(logger);
 }
