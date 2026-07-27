@@ -44,3 +44,10 @@ public delegate Task<Result<ImmutableArray<ReleaseDetected>>> PendingReleaseDete
 /// <summary>Write-only — one document per job execution, read side is the observability trail.</summary>
 public delegate Task<Result<Unit>> CollectionRunUpserter(
     CollectionRun run, CancellationToken cancellationToken);
+
+/// <summary>
+/// Most recent <paramref name="takePerSource"/> runs for each known <see cref="CollectionSource"/>,
+/// concatenated (not globally capped — that's the caller's job when merging across buckets).
+/// </summary>
+public delegate Task<Result<ImmutableArray<CollectionRun>>> RecentCollectionRunsLoader(
+    int takePerSource, CancellationToken cancellationToken);

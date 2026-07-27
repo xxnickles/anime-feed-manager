@@ -1,0 +1,85 @@
+@using System.Collections.Immutable
+@using AnimeFeedManager.Features.Admin.Activity
+@using AnimeFeedManager.Features.Feeds.Entities
+@using AnimeFeedManager.Features.Feeds.Entities.Storage
+@using AnimeFeedManager.Features.Library.Entities
+@using AnimeFeedManager.Features.Library.Entities.Storage
+@inject ICosmosContainerFactory Factory
+@inject ILogger<AdminActivityFeed> Logger
+
+@* Unified admin-only feed of recent operational events across buckets (Library import failures,
+   Feeds job runs), source-tagged, each row rendered natively by its concrete type. Loading is
+   server-side (SSR), same convention as SeasonGrid: inject the container factory, build the
+   loaders inline, hand them to AdminActivityFeedQuery (Features-owned — sequential Bind/Map, no
+   concurrent Cosmos reads). *@
+
+@if (_error)
+{
+    <WarnBanner Title="Couldn't load recent activity"
+                Description="Something went wrong reading the activity feed. Refresh to try again." />
+}
+else if (_items.Length is 0)
+{
+    <WarnBanner Title="No recent activity"
+                Description="Nothing has run yet." />
+}
+else
+{
+    <div class="flex flex-col gap-2">
+        @foreach (var item in _items)
+        {
+            <div class="flex items-start gap-3 rounded-none border-2 border-base-content bg-base-100 p-3 shadow-brutal">
+                <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full @OutcomeColor(item.Outcome)"></span>
+                <div class="flex flex-1 flex-col gap-0.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-display text-sm font-black">@item.Source</span>
+                        <span class="text-xs text-base-content/50">@item.OccurredAt.ToLocalTime().ToString("MMM d, HH:mm")</span>
+                    </div>
+                    @if (item is CollectionRun run)
+                    {
+                        <span class="text-sm text-base-content/70">
+                            @run.ItemsScanned scanned, @run.MatchedCount matched, @run.UnmatchedCount unmatched
+                        </span>
+                    }
+                    else if (item is LibraryEvent libraryEvent)
+                    {
+                        <span class="text-sm text-base-content/70">@libraryEvent.Kind — @libraryEvent.Summary</span>
+                    }
+                    else
+                    {
+                        <span class="text-sm text-base-content/70">@item.Summary</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private const int PerSourceTake = 10;
+    private const int OverallTake = 20;
+
+    private ImmutableArray<IPersistedEvent> _items = [];
+    private bool _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AdminActivityFeedQuery.Execute(
+                Factory.RecentLibraryEventsLoaderHandler(),
+                Factory.RecentCollectionRunsLoaderHandler(),
+                PerSourceTake, OverallTake, CancellationToken.None)
+            .FlushLogs(Logger)
+            .Match(
+                items => _items = items,
+                _ => _error = true);
+    }
+
+    private static string OutcomeColor(Outcome outcome) => outcome switch
+    {
+        Outcome.Success => "bg-success",
+        Outcome.Error => "bg-error",
+        Outcome.Warning => "bg-warning",
+        Outcome.Info => "bg-info",
+        _ => "bg-info"
+    };
+}

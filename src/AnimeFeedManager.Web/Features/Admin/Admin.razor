@@ -1,4 +1,5 @@
 @page "/admin"
+@using AnimeFeedManager.Web.Features.Admin.Activity
 @using AnimeFeedManager.Web.Features.Admin.Cards
 @using AnimeFeedManager.Web.Features.Security
 @using Microsoft.AspNetCore.Authorization
@@ -56,6 +57,17 @@
             <NyaaReconciliationCard />
             <AiringClockCheckCard />
         </div>
+    </section>
+
+    @* Section: recent activity across Library + Feeds *@
+    <section class="flex flex-col gap-4">
+        <div class="flex items-center justify-between gap-3">
+            <h2 class="font-display text-lg font-black tracking-[-0.02em] text-base-content">
+                Recent Activity
+            </h2>
+        </div>
+
+        <AdminActivityFeed />
     </section>
 
 </div>
