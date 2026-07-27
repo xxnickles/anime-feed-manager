@@ -60,7 +60,7 @@ internal static class LibraryImport
                     new SeasonEntry(result.SeriesSeason, now, result.Imported, PosterPath(result.Poster), IsCurrent: false),
                     kind, cancellationToken)
                 .Map(_ => result))
-            .Tap(result => PublishImported(result, publishImported))
+            .Tap(result => PublishImported(result, publishImported, now))
             .Map(_ => new Unit())
             .MarkActivityErroredOnError();
     }
@@ -114,7 +114,8 @@ internal static class LibraryImport
             {
                 Imported = first.Imported + next.Imported,
                 TotalCost = first.TotalCost + next.TotalCost,
-                Poster = BestPoster([first.Poster, next.Poster])
+                Poster = BestPoster([first.Poster, next.Poster]),
+                ByType = MergeByType(first.ByType.Concat(next.ByType))
             }))
             .Bind(results => results switch
             {
@@ -172,7 +173,8 @@ internal static class LibraryImport
             // persisted cover doubles as a season-poster candidate ranked by score.
             .Bind(parsed => WithStoredCover(parsed, processImage, seriesActivity, cancellationToken)
                 .Bind(cover => Persist(cover.Series, persistSeries, seriesActivity, cancellationToken)
-                    .Map(cost => new SeriesOutcome(cost, PosterFrom(cover)))))
+                    .Map(cost => new SeriesOutcome(cost, PosterFrom(cover),
+                        new SeriesTypeCount(cover.Series.TypeKey, cover.Series.TypeLabel, 1)))))
             .BindOnErrorWhen(
                 binder: error =>
                 {
@@ -181,7 +183,9 @@ internal static class LibraryImport
                         .SetTag("library.import.series.skip_reason", error.GetType().Name);
                     seriesActivity?.AddEvent(new ActivityEvent("series.skipped",
                         tags: new ActivityTagsCollection { { "reason", error.Message } }));
-                    return new SeriesOutcome(new CosmosOperationCost(0), null);
+                    // Skips don't contribute a type: a parse failure never resolved one, and a
+                    // permanent persist failure's type isn't threaded through this error branch.
+                    return new SeriesOutcome(new CosmosOperationCost(0), null, null);
                 },
                 predicate: IsPermanent);
     }
@@ -251,8 +255,17 @@ internal static class LibraryImport
             season,
             list.Count,
             list.Aggregate(default(CosmosOperationCost), (acc, outcome) => acc + outcome.Cost),
-            BestPoster(list.Select(outcome => outcome.Poster)));
+            BestPoster(list.Select(outcome => outcome.Poster)),
+            MergeByType(list.Select(outcome => outcome.Type).OfType<SeriesTypeCount>()));
     }
+
+    // Sums counts for repeated TypeKeys — used both to roll a page's outcomes up by type and to
+    // merge per-type counts across pages.
+    private static ImmutableArray<SeriesTypeCount> MergeByType(IEnumerable<SeriesTypeCount> counts) =>
+        counts
+            .GroupBy(count => count.TypeKey)
+            .Select(group => new SeriesTypeCount(group.Key, group.First().TypeLabel, group.Sum(count => count.Count)))
+            .ToImmutableArray();
 
     private static void SetPageActivityTags(Activity? activity, BulkResult<ImportResult> bulkResult)
     {
@@ -293,18 +306,22 @@ internal static class LibraryImport
 
     // Announce only imports that actually persisted something; an empty run has nothing to show.
     // Carries the best-poster blob path (null when none stored) — the toast render prefixes the base.
-    private static void PublishImported(ImportResult result, EventPublisher<SeasonImported> publish)
+    private static void PublishImported(ImportResult result, EventPublisher<SeasonImported> publish, DateTimeOffset now)
     {
         if (result.Imported <= 0) return;
-        publish(new SeasonImported(result.SeriesSeason, result.Imported, result.Poster?.Cover));
+        publish(new SeasonImported(result.SeriesSeason, result.Poster?.Cover, result.ByType, now));
     }
 
     private record CoverResult(Series Series, string? StoredCover);
 
     private record PosterSample(double Score, string Cover);
 
-    private record SeriesOutcome(CosmosOperationCost Cost, PosterSample? Poster);
+    private record SeriesOutcome(CosmosOperationCost Cost, PosterSample? Poster, SeriesTypeCount? Type);
 
     private record ImportResult(
-        SeriesSeason SeriesSeason, int Imported, CosmosOperationCost TotalCost, PosterSample? Poster);
+        SeriesSeason SeriesSeason,
+        int Imported,
+        CosmosOperationCost TotalCost,
+        PosterSample? Poster,
+        ImmutableArray<SeriesTypeCount> ByType);
 }

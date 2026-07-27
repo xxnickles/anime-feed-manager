@@ -22,7 +22,7 @@ public class SeriesClassificationSubscriberTests
         var factory = Substitute.For<ICosmosContainerFactory>();
         factory.GetContainer<Series>().Returns(CosmosInfraError.EntityNotRegistered<Series>());
         var handler = CreateHandler(factory);
-        var evt = new SeasonImported(Spring2026, 5, null);
+        var evt = new SeasonImported(Spring2026, null, [], DateTimeOffset.UtcNow);
 
         var exception = await Record.ExceptionAsync(() => handler.Handle(evt, TestContext.Current.CancellationToken));
 

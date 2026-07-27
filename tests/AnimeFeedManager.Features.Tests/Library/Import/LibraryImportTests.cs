@@ -129,6 +129,67 @@ public class LibraryImportTests
 
     #endregion
 
+    #region SeasonImported — ByType breakdown
+
+    [Fact]
+    public async Task Should_Report_ByType_Breakdown_For_Imported_Series()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Stream(Result<JikanPage>.Success(Page(
+                Anime(1, type: "TV"),
+                Anime(2, type: "TV"),
+                Anime(3, type: "Movie")))));
+
+        SeasonImported? published = null;
+        await RunImport(ImportTarget.Now(), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), UpsertNoop, StoreOk,
+            CapturingPublisher(e => published = e));
+
+        Assert.NotNull(published);
+        Assert.Equal(2, published!.ByType.Single(t => t.TypeKey == "tv").Count);
+        Assert.Equal(1, published.ByType.Single(t => t.TypeKey == "movie").Count);
+    }
+
+    [Fact]
+    public async Task Should_Exclude_Skipped_Items_From_ByType_Breakdown()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Stream(Result<JikanPage>.Success(Page(Anime(1, type: "TV"), Anime(2, type: "Music")))));
+
+        SeasonImported? published = null;
+        await RunImport(ImportTarget.Now(), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), UpsertNoop, StoreOk,
+            CapturingPublisher(e => published = e));
+
+        Assert.NotNull(published);
+        var only = Assert.Single(published!.ByType);
+        Assert.Equal("tv", only.TypeKey);
+        Assert.Equal(1, only.Count);
+    }
+
+    [Fact]
+    public async Task Should_Merge_ByType_Counts_Across_Pages()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Stream(
+                Result<JikanPage>.Success(Page(Anime(1, type: "TV"))),
+                Result<JikanPage>.Success(Page(Anime(2, type: "TV"), Anime(3, type: "Movie")))));
+
+        SeasonImported? published = null;
+        await RunImport(ImportTarget.Now(), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), UpsertNoop, StoreOk,
+            CapturingPublisher(e => published = e));
+
+        Assert.NotNull(published);
+        Assert.Equal(2, published!.ByType.Single(t => t.TypeKey == "tv").Count);
+        Assert.Equal(1, published.ByType.Single(t => t.TypeKey == "movie").Count);
+    }
+
+    #endregion
+
     #region Season routing
 
     [Fact]
@@ -233,12 +294,16 @@ public class LibraryImportTests
         IJikanClient jikan,
         SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
         LibrarySeasonsIndexUpserter upsertIndex,
-        SeriesImageProcessor processImage) =>
+        SeriesImageProcessor processImage,
+        EventPublisher<SeasonImported>? publishImported = null) =>
         LibraryImport.Execute(
-            target, jikan, persistSeries, upsertIndex, processImage, NoopPublisher,
+            target, jikan, persistSeries, upsertIndex, processImage, publishImported ?? NoopPublisher,
             TimeProvider.System, TestContext.Current.CancellationToken);
 
     private static readonly EventPublisher<SeasonImported> NoopPublisher = _ => { };
+
+    private static EventPublisher<SeasonImported> CapturingPublisher(Action<SeasonImported> capture) =>
+        capture.Invoke;
 
     private static SingleSeriesPersistenceHandler<CosmosOperationCost> RecordingPersist(ConcurrentBag<Series> into) =>
         (series, _) =>

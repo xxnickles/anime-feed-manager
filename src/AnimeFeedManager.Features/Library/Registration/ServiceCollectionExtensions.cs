@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import;
 using AnimeFeedManager.Features.Library.Import.Jikan.Registration;
@@ -31,6 +32,7 @@ public static class ServiceCollectionExtensions
             builder.Services
                 .AddCronJob<LibraryImportCronJob>();
             builder.Services.AddEventHandler<OperationFailed, LibraryEventHandler>();
+            builder.Services.AddEventHandler<SeasonImported, SeasonImportedEventHandler>();
 
             builder.Services.AddHttpClient<IImageHttpClient, ImageHttpClient>();
             builder.Services.AddHostedService<ImagesContainerInitializer>();

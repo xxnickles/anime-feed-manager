@@ -34,13 +34,5 @@
     private string? CoverUrl =>
         Model.CoverPath is { } path ? $"{BlobServiceClient.Uri.AbsoluteUri.TrimEnd('/')}/{path}" : null;
 
-    private string SeasonLabel
-    {
-        get
-        {
-            var season = Model.Season.Season.ToString();
-            var cased = season.Length == 0 ? season : char.ToUpperInvariant(season[0]) + season[1..];
-            return $"{cased} {Model.Season.Year}";
-        }
-    }
+    private string SeasonLabel => Model.Season.ToDisplayLabel();
 }

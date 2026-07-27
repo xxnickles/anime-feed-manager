@@ -35,6 +35,14 @@ public sealed record SeriesSeason(Season Season, Year Year) : IComparable<Series
 
 public static class SeriesSeasonExtensions
 {
+    /// <summary>"Spring 2026" — title-cased season name plus year, for toasts/notifications/summaries.</summary>
+    public static string ToDisplayLabel(this SeriesSeason season)
+    {
+        var value = season.Season.ToString();
+        var cased = value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];
+        return $"{cased} {season.Year}";
+    }
+
     /// <summary>
     /// Parses a (season, year) tuple into a <see cref="SeriesSeason"/>, validating
     /// both components via their existing parsers.
