@@ -67,6 +67,7 @@ public sealed class NyaaCollectionJob(
                     };
                 });
 
+        eventBus.Publish(runResult);
         await _upsertRun(runResult, cancellationToken)
             .AddLogOnFailure(_ => log => log.LogWarning("Failed to persist collection run for source {Source}", Source))
             .Complete(logger);

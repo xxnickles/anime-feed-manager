@@ -68,6 +68,7 @@ public sealed class AiringClockCheckJob(
                     };
                 });
 
+        eventBus.Publish(run);
         await _upsertRun(run, cancellationToken)
             .AddLogOnFailure(_ => log => log.LogWarning("Failed to persist collection run for source {Source}", Source))
             .Complete(logger);
