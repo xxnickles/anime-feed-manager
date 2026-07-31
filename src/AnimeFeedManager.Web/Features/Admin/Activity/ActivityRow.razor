@@ -40,7 +40,8 @@
         _ => "bg-info"
     };
 
-    private static string Bucket(Outcome outcome) => outcome switch
+    // internal: also used by AdminActivityFeed to compute its filter-pill counts.
+    internal static string Bucket(Outcome outcome) => outcome switch
     {
         Outcome.Success or Outcome.Info => "succeeded",
         _ => "error"

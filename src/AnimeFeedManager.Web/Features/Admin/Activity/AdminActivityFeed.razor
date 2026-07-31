@@ -9,8 +9,25 @@
    occurrences), rows rendered by ActivityRow. Server-side (SSR): inject the container factory,
    build loaders inline, hand them to AdminActivityFeedQuery (Features-owned Bind/Map chain). *@
 
-@* activity-list: SSE refresh target (NotificationsRegistration) and filter pills' query scope —
-   present in every branch, not just the row list. *@
+@* Pills are skipped on an SSE-triggered refresh (Model is not null there) so a live update never
+   resets the user's current filter selection — only #activity-list is meant to change. *@
+@if (Model is null)
+{
+    <div role="group" aria-label="Filter by outcome" class="mb-1 flex flex-wrap gap-2">
+        <FilterPill Value="all" Pressed="true">
+            All <span class="ml-1 font-mono text-[0.68rem] opacity-70" data-count="all">@_items.Length</span>
+        </FilterPill>
+        <FilterPill Value="succeeded">
+            Succeeded <span class="ml-1 font-mono text-[0.68rem] opacity-70" data-count="succeeded">@SucceededCount</span>
+        </FilterPill>
+        <FilterPill Value="error">
+            Error <span class="ml-1 font-mono text-[0.68rem] opacity-70" data-count="error">@ErrorCount</span>
+        </FilterPill>
+    </div>
+}
+
+@* activity-list: SSE refresh target (NotificationsRegistration) — present in every branch,
+   not just the row list. *@
 <div id="activity-list" class="flex flex-col gap-2">
     @if (_error)
     {
@@ -35,13 +52,18 @@
     private const int PerSourceTake = 10;
     private const int OverallTake = 20;
 
-    // Never read — AddHtml<TEvent,TComponent> always binds the payload as "Model", so this lets
-    // LibraryEvent/FeedsOccurrence/CollectionRun (all IPersistedEvent) bind straight to this
-    // component as a "something changed, re-query" signal (see NotificationsRegistration).
+    // AddHtml<TEvent,TComponent> always binds the payload as "Model", so LibraryEvent/
+    // FeedsOccurrence/CollectionRun (all IPersistedEvent) can bind straight to this component as
+    // a live-refresh trigger (see NotificationsRegistration). The payload itself is never read —
+    // only checked for null, to tell a refresh pass from the normal page embed (see Model is null
+    // above).
     [Parameter] public IPersistedEvent? Model { get; set; }
 
     private ImmutableArray<IPersistedEvent> _items = [];
     private bool _error;
+
+    private int SucceededCount => _items.Count(item => ActivityRow.Bucket(item.Outcome) == "succeeded");
+    private int ErrorCount => _items.Count(item => ActivityRow.Bucket(item.Outcome) == "error");
 
     protected override async Task OnInitializedAsync()
     {
