@@ -12,12 +12,12 @@
     "update:libman": "node libman-update.js"
   },
   "devDependencies": {
-    "@swc/core": "^1.15.46",
+    "@swc/core": "^1.15.47",
     "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/typography": "^0.5.20",
     "chokidar": "^5.0.0",
     "concurrently": "^10.0.4",
-    "daisyui": "^5.7.4",
+    "daisyui": "^5.7.9",
     "glob": "^13.0.6",
     "npm-check-updates": "^23.0.0",
     "tailwindcss": "^4.3.3"
