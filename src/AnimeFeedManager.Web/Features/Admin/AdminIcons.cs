@@ -25,4 +25,11 @@ internal static class AdminIcons
 
     public static readonly MarkupString AiringClockCheck = new(
         $"<svg {Attrs}><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></svg>");
+
+    // Activity-row-only icons — keyed by IPersistedEvent.Source, not a trigger card.
+    public static readonly MarkupString LibraryImport = new(
+        $"<svg {Attrs}><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3\"/></svg>");
+
+    public static readonly MarkupString Classification = new(
+        $"<svg {Attrs}><path d=\"M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z\"/></svg>");
 }

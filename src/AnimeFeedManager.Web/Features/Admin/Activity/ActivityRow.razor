@@ -1,0 +1,58 @@
+@using AnimeFeedManager.Features.Feeds.Entities
+@using AnimeFeedManager.Shared.Types
+
+@* One Recent Activity row — icon (by Source) + outcome dot (by Outcome) + header/message.
+   data-outcome-bucket drives the client-side filter pills (Piece: filter pills / recount). *@
+
+<div class="flex items-start gap-3 rounded-none border-2 border-base-content bg-base-100 p-3 shadow-brutal"
+     data-outcome-bucket="@Bucket(Model.Outcome)">
+    <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full @OutcomeColor(Model.Outcome)"></span>
+    <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-md border-2 border-base-content/40 bg-base-content/5 text-base-content/70">
+        @IconFor(Model.Source)
+    </span>
+    <div class="flex flex-1 flex-col gap-0.5">
+        <div class="flex items-center justify-between gap-2">
+            <span class="font-display text-sm font-black">@Model.Source</span>
+            <span class="text-xs text-base-content/50">@Model.OccurredAt.ToLocalTime().ToString("MMM d, HH:mm")</span>
+        </div>
+        @if (Model is CollectionRun run)
+        {
+            <span class="text-sm text-base-content/70">
+                @run.ItemsScanned scanned, @run.MatchedCount matched, @run.UnmatchedCount unmatched
+            </span>
+        }
+        else
+        {
+            <span class="text-sm text-base-content/70">@Model.Kind — @Model.Summary</span>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IPersistedEvent Model { get; set; } = null!;
+
+    private static string OutcomeColor(Outcome outcome) => outcome switch
+    {
+        Outcome.Success => "bg-success",
+        Outcome.Error => "bg-error",
+        Outcome.Warning => "bg-warning",
+        Outcome.Info => "bg-info",
+        _ => "bg-info"
+    };
+
+    private static string Bucket(Outcome outcome) => outcome switch
+    {
+        Outcome.Success or Outcome.Info => "succeeded",
+        _ => "error"
+    };
+
+    private static MarkupString IconFor(string source) => source switch
+    {
+        "LibraryImport" => AdminIcons.LibraryImport,
+        "Classification" => AdminIcons.Classification,
+        "NyaaCollection" => AdminIcons.NyaaCollection,
+        "NyaaReconciliation" => AdminIcons.NyaaReconciliation,
+        "AiringClockCheck" => AdminIcons.AiringClockCheck,
+        _ => new MarkupString(string.Empty)
+    };
+}

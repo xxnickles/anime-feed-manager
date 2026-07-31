@@ -3567,6 +3567,10 @@
   .aspect-\[2\/3\] {
     aspect-ratio: 2/3;
   }
+  .size-7 {
+    width: calc(var(--spacing) * 7);
+    height: calc(var(--spacing) * 7);
+  }
   .size-9 {
     width: calc(var(--spacing) * 9);
     height: calc(var(--spacing) * 9);
@@ -3932,6 +3936,12 @@
     border-color: var(--color-base-content);
     @supports (color: color-mix(in lab, red, red)) {
       border-color: color-mix(in oklab, var(--color-base-content) 30%, transparent);
+    }
+  }
+  .border-base-content\/40 {
+    border-color: var(--color-base-content);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-base-content) 40%, transparent);
     }
   }
   .border-base-content\/\[0\.06\] {

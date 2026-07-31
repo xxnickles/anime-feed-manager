@@ -1,6 +1,5 @@
 @using System.Collections.Immutable
 @using AnimeFeedManager.Features.Admin.Activity
-@using AnimeFeedManager.Features.Feeds.Entities
 @using AnimeFeedManager.Features.Feeds.Entities.Storage
 @using AnimeFeedManager.Features.Library.Entities.Storage
 @inject ICosmosContainerFactory Factory
@@ -27,27 +26,7 @@ else
     <div class="flex flex-col gap-2">
         @foreach (var item in _items)
         {
-            <div class="flex items-start gap-3 rounded-none border-2 border-base-content bg-base-100 p-3 shadow-brutal">
-                <span class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full @OutcomeColor(item.Outcome)"></span>
-                <div class="flex flex-1 flex-col gap-0.5">
-                    <div class="flex items-center justify-between gap-2">
-                        <span class="font-display text-sm font-black">@item.Source</span>
-                        <span class="text-xs text-base-content/50">@item.OccurredAt.ToLocalTime().ToString("MMM d, HH:mm")</span>
-                    </div>
-                    @if (item is CollectionRun run)
-                    {
-                        <span class="text-sm text-base-content/70">
-                            @run.ItemsScanned scanned, @run.MatchedCount matched, @run.UnmatchedCount unmatched
-                        </span>
-                    }
-                    else
-                    {
-                        @* LibraryEvent, FeedsOccurrence, and any future non-CollectionRun bucket
-                           all render the same way via the shared IPersistedEvent members. *@
-                        <span class="text-sm text-base-content/70">@item.Kind — @item.Summary</span>
-                    }
-                </div>
-            </div>
+            <ActivityRow Model="item" />
         }
     </div>
 }
@@ -71,13 +50,4 @@ else
                 items => _items = items,
                 _ => _error = true);
     }
-
-    private static string OutcomeColor(Outcome outcome) => outcome switch
-    {
-        Outcome.Success => "bg-success",
-        Outcome.Error => "bg-error",
-        Outcome.Warning => "bg-warning",
-        Outcome.Info => "bg-info",
-        _ => "bg-info"
-    };
 }
