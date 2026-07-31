@@ -5,35 +5,40 @@
 @inject ICosmosContainerFactory Factory
 @inject ILogger<AdminActivityFeed> Logger
 
-@* Unified admin-only feed of recent operational events across buckets (Library import
-   failures/successes, Feeds job runs, Feeds occurrences like Jikan degradation), source-tagged,
-   each row rendered natively by its concrete type. Loading is server-side (SSR), same convention
-   as SeasonGrid: inject the container factory, build the loaders inline, hand them to
-   AdminActivityFeedQuery (Features-owned — sequential Bind/Map, no concurrent Cosmos reads). *@
+@* Unified admin-only feed of recent operational events (Library import, Feeds job runs, Feeds
+   occurrences), rows rendered by ActivityRow. Server-side (SSR): inject the container factory,
+   build loaders inline, hand them to AdminActivityFeedQuery (Features-owned Bind/Map chain). *@
 
-@if (_error)
-{
-    <WarnBanner Title="Couldn't load recent activity"
-                Description="Something went wrong reading the activity feed. Refresh to try again." />
-}
-else if (_items.Length is 0)
-{
-    <WarnBanner Title="No recent activity"
-                Description="Nothing has run yet." />
-}
-else
-{
-    <div class="flex flex-col gap-2">
+@* activity-list: SSE refresh target (NotificationsRegistration) and filter pills' query scope —
+   present in every branch, not just the row list. *@
+<div id="activity-list" class="flex flex-col gap-2">
+    @if (_error)
+    {
+        <WarnBanner Title="Couldn't load recent activity"
+                    Description="Something went wrong reading the activity feed. Refresh to try again." />
+    }
+    else if (_items.Length is 0)
+    {
+        <WarnBanner Title="No recent activity"
+                    Description="Nothing has run yet." />
+    }
+    else
+    {
         @foreach (var item in _items)
         {
             <ActivityRow Model="item" />
         }
-    </div>
-}
+    }
+</div>
 
 @code {
     private const int PerSourceTake = 10;
     private const int OverallTake = 20;
+
+    // Never read — AddHtml<TEvent,TComponent> always binds the payload as "Model", so this lets
+    // LibraryEvent/FeedsOccurrence/CollectionRun (all IPersistedEvent) bind straight to this
+    // component as a "something changed, re-query" signal (see NotificationsRegistration).
+    [Parameter] public IPersistedEvent? Model { get; set; }
 
     private ImmutableArray<IPersistedEvent> _items = [];
     private bool _error;

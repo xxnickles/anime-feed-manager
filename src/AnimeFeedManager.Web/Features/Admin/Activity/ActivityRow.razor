@@ -1,8 +1,8 @@
 @using AnimeFeedManager.Features.Feeds.Entities
 @using AnimeFeedManager.Shared.Types
 
-@* One Recent Activity row — icon (by Source) + outcome dot (by Outcome) + header/message.
-   data-outcome-bucket drives the client-side filter pills (Piece: filter pills / recount). *@
+@* One Recent Activity row — icon (by Source), outcome dot (by Outcome), header, message.
+   data-outcome-bucket drives the filter pills. *@
 
 <div class="flex items-start gap-3 rounded-none border-2 border-base-content bg-base-100 p-3 shadow-brutal"
      data-outcome-bucket="@Bucket(Model.Outcome)">

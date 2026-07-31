@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Components;
 namespace AnimeFeedManager.Web.Features.Admin;
 
 /// <summary>
-/// Shared inline SVGs for the admin trigger cards and (later) their matching activity-row
-/// icons — one icon per operation, reused wherever that operation shows up so it stays
-/// recognizable across the page. Sourced from the Claude Design admin mockup.
+/// Shared inline SVGs for the admin trigger cards and their matching activity-row icons.
+/// Sourced from the Claude Design admin mockup.
 /// </summary>
 internal static class AdminIcons
 {
