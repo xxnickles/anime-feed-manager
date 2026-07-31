@@ -112,6 +112,42 @@ public class SeriesClassifierTests
 
     #endregion
 
+    #region Monotonic platforms
+
+    [Fact]
+    public void Should_Preserve_Previous_Platforms_When_Fresh_Read_Is_Empty()
+    {
+        var previous = new[] { new FeedsPlatform("Crunchyroll", "https://crunchyroll.com/series/1") };
+
+        var result = SeriesClassifier.Classify(
+            1, ImmutableArray<JikanStreamingEntry>.Empty,
+            previousTrackability: SeriesTrackability.Trackable, previousPlatforms: previous);
+
+        Assert.Equal(previous, result.Platforms);
+    }
+
+    [Fact]
+    public void Should_Replace_Previous_Platforms_When_Fresh_Read_Has_Data()
+    {
+        var previous = new[] { new FeedsPlatform("Crunchyroll", "https://crunchyroll.com/series/1") };
+        var platforms = ImmutableArray.Create(new JikanStreamingEntry("Netflix", "https://netflix.com/title/1"));
+
+        var result = SeriesClassifier.Classify(
+            1, platforms, previousTrackability: SeriesTrackability.Trackable, previousPlatforms: previous);
+
+        Assert.Equal("Netflix", Assert.Single(result.Platforms).Name);
+    }
+
+    [Fact]
+    public void Should_Default_To_Empty_Platforms_When_No_Previous_And_Fresh_Read_Is_Empty()
+    {
+        var result = SeriesClassifier.Classify(1, ImmutableArray<JikanStreamingEntry>.Empty);
+
+        Assert.Empty(result.Platforms);
+    }
+
+    #endregion
+
     #region Identity
 
     [Fact]

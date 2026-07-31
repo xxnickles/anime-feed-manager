@@ -2,16 +2,15 @@
 @using AnimeFeedManager.Features.Admin.Activity
 @using AnimeFeedManager.Features.Feeds.Entities
 @using AnimeFeedManager.Features.Feeds.Entities.Storage
-@using AnimeFeedManager.Features.Library.Entities
 @using AnimeFeedManager.Features.Library.Entities.Storage
 @inject ICosmosContainerFactory Factory
 @inject ILogger<AdminActivityFeed> Logger
 
-@* Unified admin-only feed of recent operational events across buckets (Library import failures,
-   Feeds job runs), source-tagged, each row rendered natively by its concrete type. Loading is
-   server-side (SSR), same convention as SeasonGrid: inject the container factory, build the
-   loaders inline, hand them to AdminActivityFeedQuery (Features-owned — sequential Bind/Map, no
-   concurrent Cosmos reads). *@
+@* Unified admin-only feed of recent operational events across buckets (Library import
+   failures/successes, Feeds job runs, Feeds occurrences like Jikan degradation), source-tagged,
+   each row rendered natively by its concrete type. Loading is server-side (SSR), same convention
+   as SeasonGrid: inject the container factory, build the loaders inline, hand them to
+   AdminActivityFeedQuery (Features-owned — sequential Bind/Map, no concurrent Cosmos reads). *@
 
 @if (_error)
 {
@@ -41,13 +40,11 @@ else
                             @run.ItemsScanned scanned, @run.MatchedCount matched, @run.UnmatchedCount unmatched
                         </span>
                     }
-                    else if (item is LibraryEvent libraryEvent)
-                    {
-                        <span class="text-sm text-base-content/70">@libraryEvent.Kind — @libraryEvent.Summary</span>
-                    }
                     else
                     {
-                        <span class="text-sm text-base-content/70">@item.Summary</span>
+                        @* LibraryEvent, FeedsOccurrence, and any future non-CollectionRun bucket
+                           all render the same way via the shared IPersistedEvent members. *@
+                        <span class="text-sm text-base-content/70">@item.Kind — @item.Summary</span>
                     }
                 </div>
             </div>
@@ -67,6 +64,7 @@ else
         await AdminActivityFeedQuery.Execute(
                 Factory.RecentLibraryEventsLoaderHandler(),
                 Factory.RecentCollectionRunsLoaderHandler(),
+                Factory.RecentFeedsOccurrencesLoaderHandler(),
                 PerSourceTake, OverallTake, CancellationToken.None)
             .FlushLogs(Logger)
             .Match(

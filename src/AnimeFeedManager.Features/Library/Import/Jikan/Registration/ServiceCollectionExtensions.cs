@@ -14,33 +14,23 @@ public static class ServiceCollectionExtensions
     extension(IHostApplicationBuilder builder)
     {
         /// <summary>
-        /// Registers <see cref="IJikanClient"/> over two independently-tuned named HTTP pipelines —
-        /// <see cref="JikanClient.ImportClientName"/> (season/page fetches, low volume: burst 3,
-        /// sustained 1/s → 60/min, matching Jikan v4's documented limits) and
-        /// <see cref="JikanClient.StreamingClientName"/> (per-series classification lookups, the
-        /// volume driver: same documented limits as the import pipeline, burst 3/sustained 1/s —
-        /// see the rate limiter's inline comment for the burst/cooldown experiment this replaced).
-        /// Both retry on 429/5xx/408 with exponential backoff plus <c>Retry-After</c> honored by the
-        /// default strategy — except the streaming client excludes 504, which Jikan returns for
-        /// series with no streaming data at all (functionally "not found," not a transient outage;
-        /// see <see cref="JikanClient.GetStreamingPlatforms"/>). Retry sits OUTER and the rate
-        /// limiter INNER so every retry attempt re-acquires a token (the reverse order lets retries
-        /// bypass the limiter entirely). The streaming
-        /// client is fully isolated from the app-wide standard resilience handler
-        /// (<c>RemoveAllResilienceHandlers</c>) — that global handler was confirmed retrying blind
-        /// to this pipeline's own rate limiter in production, compounding delay on top of an
-        /// already-tuned retry, so only this pipeline governs its pacing. The import client shows
-        /// no such evidence and stays on the app default. No circuit breaker either way — Jikan is
-        /// a non-critical, retry-anytime source. Binds <see cref="JikanOptions"/> from configuration
-        /// section "<see cref="JikanOptions.SectionName"/>".
+        /// Registers <see cref="IJikanClient"/> over two named HTTP pipelines — import (season/page
+        /// fetches) and streaming (per-series classification lookups) — each burst 3/sustained 1/s,
+        /// retry OUTER of the rate limiter so retries re-acquire a token. Both exclude 504 from
+        /// retry (see <see cref="JikanClient.FetchPage"/>/<see cref="JikanClient.GetStreamingPlatforms"/>)
+        /// and remove the app-wide standard resilience handler, which otherwise retries 504 blind to
+        /// that exclusion. No circuit breaker — Jikan is non-critical, retry-anytime. Binds
+        /// <see cref="JikanOptions"/> from "<see cref="JikanOptions.SectionName"/>".
         /// </summary>
         public IHostApplicationBuilder AddJikanClient()
         {
             builder.Services.Configure<JikanOptions>(
                 builder.Configuration.GetSection(JikanOptions.SectionName));
 
+#pragma warning disable EXTEXP0001 // RemoveAllResilienceHandlers is experimental; deliberate, scoped use — see doc comment above.
             builder.Services
                 .AddHttpClient(JikanClient.ImportClientName, ConfigureClient)
+                .RemoveAllResilienceHandlers()
                 .AddResilienceHandler("jikan-import-pipeline", static (pipeline, context) =>
                     ConfigurePipeline(pipeline, context, new TokenBucketRateLimiterOptions
                     {
@@ -50,9 +40,8 @@ public static class ServiceCollectionExtensions
                         AutoReplenishment = true,
                         QueueLimit = int.MaxValue,
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst
-                    }));
+                    }, retryGatewayTimeouts: false));
 
-#pragma warning disable EXTEXP0001 // RemoveAllResilienceHandlers is experimental; deliberate, scoped use — see doc comment above.
             builder.Services
                 .AddHttpClient(JikanClient.StreamingClientName, ConfigureClient)
                 .RemoveAllResilienceHandlers()
@@ -116,10 +105,10 @@ public static class ServiceCollectionExtensions
 
                 if (!retryGatewayTimeouts)
                 {
-                    // Jikan's 504 on this endpoint means "no data for this series" (see
-                    // JikanClient.GetStreamingPlatforms), not a transient outage — retrying it is
-                    // wasted load for something that won't change. Same as the default predicate
-                    // otherwise (HttpRequestException, timeouts, 408/429/other 5xx).
+                    // Jikan's 504 is a known, recurring "unavailable" signal (see
+                    // JikanUnavailableError), not a transient outage — retrying it is wasted load
+                    // for something that won't change. Same as the default predicate otherwise
+                    // (HttpRequestException, timeouts, 408/429/other 5xx).
                     retryOptions.ShouldHandle = args =>
                         ValueTask.FromResult(
                             args.Outcome.Result?.StatusCode != HttpStatusCode.GatewayTimeout

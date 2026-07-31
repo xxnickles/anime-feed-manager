@@ -4,6 +4,7 @@ using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Infrastructure.Cosmos;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
+using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Features.Tests.Feeds.Classification;
 
@@ -14,7 +15,8 @@ public class SeriesClassificationSubscriberTests
     private static readonly SeriesSeason Spring2026 = new(Season.Spring(), Year.FromNumber(2026));
 
     private static SeriesClassificationSubscriber CreateHandler(ICosmosContainerFactory factory) =>
-        new(Substitute.For<IJikanClient>(), factory, NullLogger<SeriesClassificationSubscriber>.Instance);
+        new(Substitute.For<IJikanClient>(), factory, new EventBus(NullLogger<EventBus>.Instance),
+            NullLogger<SeriesClassificationSubscriber>.Instance);
 
     [Fact]
     public async Task Should_Not_Throw_When_Season_Load_Fails()

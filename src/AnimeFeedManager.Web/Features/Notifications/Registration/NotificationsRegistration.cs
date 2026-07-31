@@ -22,6 +22,7 @@ internal static class NotificationsRegistration
         services.AddSingleton(_ => new SseBindings()
             .AddSecurityNotifications()
             .AddCatalogNotifications()
+            .AddLibraryNotifications()
             .AddFeedsNotifications()
             .AddHtml<OperationFailed, OperationFailedToast>(Audience.Admin));
 }

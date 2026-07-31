@@ -26,7 +26,9 @@ public sealed record CollectionRun : FeedsDocument, IPersistedEvent
 
     public DateTimeOffset OccurredAt => CompletedAt ?? StartedAt;
     public string Kind => "run";
-    public Outcome Outcome => Errors.Length > 0 ? Outcome.Error : UnmatchedCount > 0 ? Outcome.Warning : Outcome.Success;
+    // Unmatched items are routine (not every scanned item corresponds to a tracked series) —
+    // informational, not a warning. Only actual errors mark the run unhealthy.
+    public Outcome Outcome => Errors.Length > 0 ? Outcome.Error : UnmatchedCount > 0 ? Outcome.Info : Outcome.Success;
 
     public string Summary => Errors.Length > 0
         ? string.Join("; ", Errors)

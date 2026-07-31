@@ -23,7 +23,7 @@ public class CollectionRunTests
     }
 
     [Fact]
-    public void Should_Derive_Warning_Outcome_When_No_Errors_But_Unmatched_Items_Exist()
+    public void Should_Derive_Info_Outcome_When_No_Errors_But_Unmatched_Items_Exist()
     {
         var run = new CollectionRun(CollectionSource.NyaaCollection)
         {
@@ -32,7 +32,7 @@ public class CollectionRunTests
             UnmatchedCount = 3
         };
 
-        Assert.Equal(Outcome.Warning, run.Outcome);
+        Assert.Equal(Outcome.Info, run.Outcome);
     }
 
     [Fact]

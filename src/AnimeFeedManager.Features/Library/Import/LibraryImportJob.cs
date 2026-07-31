@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Library.Entities.Storage;
 using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Library.Import.Storage;
@@ -36,9 +37,13 @@ public sealed class LibraryImportJob(
     private readonly SeriesImageProcessor _processImage =
         new ImageProcessorDependencies(imageHttpClient, blobServiceClient).SeriesImageProcessorHandler();
 
+    private readonly LibraryEventUpserter _upsertLibraryEvent =
+        cosmosFactory.CosmosLibraryEventUpserterHandler();
+
     public Task Run(ImportTarget target, CancellationToken cancellationToken) =>
         LibraryImport
-            .Execute(target, jikan, _persistSeries, _upsertIndex, _processImage, eventBus.Publish, time, cancellationToken)
+            .Execute(target, jikan, _persistSeries, _upsertIndex, _processImage, eventBus.Publish,
+                _upsertLibraryEvent, eventBus.Publish, time, cancellationToken)
             .TapError(error => eventBus.Publish(new OperationFailed(LibrarySources.Import, error.Message, time.GetUtcNow())))
             .FlushLogs(logger);
 }

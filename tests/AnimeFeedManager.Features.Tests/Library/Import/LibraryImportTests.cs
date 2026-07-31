@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using AnimeFeedManager.Features.Library.Entities;
+using AnimeFeedManager.Features.Library.Entities.Storage;
 using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import;
@@ -190,6 +191,45 @@ public class LibraryImportTests
 
     #endregion
 
+    #region Jikan degraded — library event
+
+    [Fact]
+    public async Task Should_Persist_Jikan_Degraded_Library_Event_When_A_Page_Is_Degraded()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Stream(Result<JikanPage>.Success(DegradedPage())));
+
+        LibraryEvent? persisted = null;
+        LibraryEvent? published = null;
+        await RunImport(ImportTarget.Now(), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), UpsertNoop, StoreOk,
+            upsertLibraryEvent: CapturingLibraryEventUpserter(e => persisted = e),
+            publishLibraryEvent: e => published = e);
+
+        Assert.NotNull(persisted);
+        Assert.Equal("jikan-unavailable", persisted!.Kind);
+        Assert.Equal(Outcome.Warning, persisted.Outcome);
+        Assert.Same(persisted, published);
+    }
+
+    [Fact]
+    public async Task Should_Not_Persist_Jikan_Degraded_Library_Event_When_No_Page_Is_Degraded()
+    {
+        var jikan = Substitute.For<IJikanClient>();
+        jikan.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Stream(Result<JikanPage>.Success(Page(Anime(1)))));
+
+        LibraryEvent? persisted = null;
+        await RunImport(ImportTarget.Now(), jikan,
+            RecordingPersist(new ConcurrentBag<Series>()), UpsertNoop, StoreOk,
+            upsertLibraryEvent: CapturingLibraryEventUpserter(e => persisted = e));
+
+        Assert.Null(persisted);
+    }
+
+    #endregion
+
     #region Season routing
 
     [Fact]
@@ -295,15 +335,30 @@ public class LibraryImportTests
         SingleSeriesPersistenceHandler<CosmosOperationCost> persistSeries,
         LibrarySeasonsIndexUpserter upsertIndex,
         SeriesImageProcessor processImage,
-        EventPublisher<SeasonImported>? publishImported = null) =>
+        EventPublisher<SeasonImported>? publishImported = null,
+        LibraryEventUpserter? upsertLibraryEvent = null,
+        EventPublisher<LibraryEvent>? publishLibraryEvent = null) =>
         LibraryImport.Execute(
             target, jikan, persistSeries, upsertIndex, processImage, publishImported ?? NoopPublisher,
+            upsertLibraryEvent ?? NoopLibraryEventUpserter, publishLibraryEvent ?? NoopLibraryEventPublisher,
             TimeProvider.System, TestContext.Current.CancellationToken);
 
     private static readonly EventPublisher<SeasonImported> NoopPublisher = _ => { };
 
     private static EventPublisher<SeasonImported> CapturingPublisher(Action<SeasonImported> capture) =>
         capture.Invoke;
+
+    private static readonly LibraryEventUpserter NoopLibraryEventUpserter =
+        (_, _) => Task.FromResult(Result<Unit>.Success(new Unit()));
+
+    private static LibraryEventUpserter CapturingLibraryEventUpserter(Action<LibraryEvent> capture) =>
+        (libraryEvent, _) =>
+        {
+            capture(libraryEvent);
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
+
+    private static readonly EventPublisher<LibraryEvent> NoopLibraryEventPublisher = _ => { };
 
     private static SingleSeriesPersistenceHandler<CosmosOperationCost> RecordingPersist(ConcurrentBag<Series> into) =>
         (series, _) =>
@@ -355,6 +410,9 @@ public class LibraryImportTests
 
     private static JikanPage Page(params JikanAnime[] items) =>
         new([.. items], Page: 1, LastPage: 1, TotalItems: items.Length) { Season = Spring2026 };
+
+    private static JikanPage DegradedPage() =>
+        new([], Page: 1, LastPage: 1, TotalItems: 0) { Season = Spring2026, Degraded = true };
 
     private static JikanAnime Anime(int malId, string? coverUrl = null, string type = "TV",
         string title = "Test Series", double? score = null)

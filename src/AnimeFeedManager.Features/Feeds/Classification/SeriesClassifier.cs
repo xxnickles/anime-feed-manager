@@ -14,7 +14,9 @@ namespace AnimeFeedManager.Features.Feeds.Classification;
 /// <see cref="SeriesTrackability.Untrackable"/>, regardless of what a fresh Jikan read says. A real
 /// Nyaa confirmation (or a prior Trackable classification) is stronger evidence than the
 /// platform-list inference — Jikan's data can flicker or a platform can be delisted, but that
-/// shouldn't erase proof the series is actually reachable via Nyaa.
+/// shouldn't erase proof the series is actually reachable via Nyaa. The platform list itself is
+/// monotonic the same way: an empty fresh read (a 504 reads as "no platforms") never overwrites
+/// previously-known platforms — only real data replaces real data.
 /// </remarks>
 internal static class SeriesClassifier
 {
@@ -24,7 +26,8 @@ internal static class SeriesClassifier
     public static SeriesClassification Classify(
         int seriesId,
         ImmutableArray<JikanStreamingEntry> platforms,
-        SeriesTrackability previousTrackability = SeriesTrackability.Untrackable)
+        SeriesTrackability previousTrackability = SeriesTrackability.Untrackable,
+        FeedsPlatform[]? previousPlatforms = null)
     {
         var computed = platforms.Any(p => TrackablePlatforms.Contains(p.Name))
             ? SeriesTrackability.Trackable
@@ -34,10 +37,12 @@ internal static class SeriesClassifier
             ? SeriesTrackability.Trackable
             : computed;
 
+        var freshPlatforms = platforms.Select(p => new FeedsPlatform(p.Name, p.Url ?? string.Empty)).ToArray();
+
         return new SeriesClassification(seriesId)
         {
             Trackability = trackability,
-            Platforms = [..platforms.Select(p => new FeedsPlatform(p.Name, p.Url ?? string.Empty))]
+            Platforms = freshPlatforms.Length > 0 ? freshPlatforms : previousPlatforms ?? []
         };
     }
 

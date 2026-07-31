@@ -1,0 +1,16 @@
+@using AnimeFeedManager.Features.Library.Entities
+
+@* Admin toast for a live LibraryEvent occurrence (Audience.Admin only, no public counterpart).
+   Generic by Kind/Summary so any future LibraryEvent kind gets a toast for free. *@
+
+<div hx-swap-oob="beforeend:#toast-panel">
+    <Notification Title="@Model.Source" Type="Model.Outcome">
+        <Message>
+            <span>@Model.Kind — @Model.Summary</span>
+        </Message>
+    </Notification>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public LibraryEvent Model { get; set; } = null!;
+}

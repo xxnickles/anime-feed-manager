@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using AnimeFeedManager.Features.Library.Entities;
+using AnimeFeedManager.Features.Library.Entities.Storage;
 using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import.Jikan;
@@ -32,6 +33,8 @@ internal static class LibraryImport
         LibrarySeasonsIndexUpserter upsertIndex,
         SeriesImageProcessor processImage,
         EventPublisher<SeasonImported> publishImported,
+        LibraryEventUpserter upsertLibraryEvent,
+        EventPublisher<LibraryEvent> publishLibraryEvent,
         TimeProvider time,
         CancellationToken cancellationToken)
     {
@@ -50,7 +53,7 @@ internal static class LibraryImport
         // Only a current-season import moves the airing marker; the merge owns the invariant, so
         // the entry's IsCurrent here is irrelevant (passed false).
         var kind = target is ImportTarget.CurrentSeason ? SeasonImportKind.Current : SeasonImportKind.Specific;
-        return await PersistSeries(source, now, persistSeries, processImage, cancellationToken)
+        return await PersistSeries(source, now, persistSeries, processImage, upsertLibraryEvent, publishLibraryEvent, cancellationToken)
             .Tap(result => SetImportActivityTags(importActivity, result))
             .AddLogOnSuccess(LogFactories.Log<ImportResult>((result, iLogger) =>
                 iLogger.LogInformation("Imported {Imported} series", result.Imported)))
@@ -70,11 +73,14 @@ internal static class LibraryImport
         DateTimeOffset now,
         SingleSeriesPersistenceHandler<CosmosOperationCost> seriesPersistenceHandler,
         SeriesImageProcessor processImage,
+        LibraryEventUpserter upsertLibraryEvent,
+        EventPublisher<LibraryEvent> publishLibraryEvent,
         CancellationToken cancellationToken
     )
     {
         var accumulated = new List<Result<ImportResult>>();
         var pageIndex = 0;
+        var degradedPages = 0;
 
         await foreach (var pageResult in source.WithCancellation(cancellationToken))
         {
@@ -84,7 +90,11 @@ internal static class LibraryImport
 
             var persistResult =
                 await pageResult
-                    .Tap(page => pageActivity?.SetTag("library.import.page.input_count", page.Items.Length))
+                    .Tap(page =>
+                    {
+                        pageActivity?.SetTag("library.import.page.input_count", page.Items.Length);
+                        if (page.Degraded) degradedPages++;
+                    })
                     .Bind(page => ProcessPage(page, seriesPersistenceHandler, processImage, now, cancellationToken))
                     .Tap(bulkResult => SetPageActivityTags(pageActivity, bulkResult))
                     // Partial errors become a full error as they are only possible for recoverable cases
@@ -109,7 +119,7 @@ internal static class LibraryImport
                 break;
         }
 
-        return accumulated
+        return await accumulated
             .Flatten(results => results.Aggregate((first, next) => first with
             {
                 Imported = first.Imported + next.Imported,
@@ -123,7 +133,33 @@ internal static class LibraryImport
                 PartialSuccessBulkResult<ImportResult> partial => new AggregatedError(
                     "Partial success during import; will retry", partial.Errors),
                 _ => throw new UnreachableException()
-            });
+            })
+            .Bind(result => PersistDegradedEvent(
+                result, degradedPages, pageIndex, now, upsertLibraryEvent, publishLibraryEvent, cancellationToken));
+    }
+
+    // One summary event per run, not one per page — persisted for the activity feed and published
+    // live for the admin toast. Best-effort: a failure to persist doesn't fail the import.
+    private static Task<Result<ImportResult>> PersistDegradedEvent(
+        ImportResult result, int degradedPages, int totalPages, DateTimeOffset now,
+        LibraryEventUpserter upsertLibraryEvent, EventPublisher<LibraryEvent> publishLibraryEvent,
+        CancellationToken cancellationToken)
+    {
+        if (degradedPages <= 0) return Task.FromResult(Result<ImportResult>.Success(result));
+
+        var libraryEvent = new LibraryEvent(LibrarySources.Import)
+        {
+            Kind = "jikan-unavailable",
+            Outcome = Outcome.Warning,
+            Summary = $"{degradedPages} of {totalPages} page(s) not available in Jikan",
+            OccurredAt = now
+        };
+        publishLibraryEvent(libraryEvent);
+
+        return upsertLibraryEvent(libraryEvent, cancellationToken)
+            .Map(_ => result)
+            .AddLogOnFailure(_ => log => log.LogWarning("Failed to persist jikan-unavailable library event"))
+            .BindOnErrorWhen(binder: _ => result, predicate: _ => true);
     }
 
     private static async Task<Result<BulkResult<ImportResult>>> ProcessPage(

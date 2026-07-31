@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Tests.Library.Import.Jikan.Helpers;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -150,6 +151,127 @@ public sealed class JikanClientTests
         Assert.Single(pages);
         Assert.True(pages[0].IsFailure);
     }
+
+    #region 504 handling
+
+    [Fact]
+    public async Task GetSeason_YieldsDegradedEmptyPage_When504OnPage1()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+
+        host.Server
+            .Given(Request.Create().WithPath("/seasons/2026/spring").WithParam("page", "1").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(504)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody("""{"status":504,"type":"BadResponseException","message":"unavailable","error":null}"""));
+
+        var pages = await CollectAsync(host.Client.GetSeason(SpringYear, SpringSeason, token));
+
+        var page = Assert.Single(pages);
+        Assert.False(page.IsFailure);
+        var jikanPage = page.MatchToValue(p => p, _ => null!);
+        Assert.True(jikanPage.Degraded);
+        Assert.Empty(jikanPage.Items);
+        // Season is known from the caller (GetSeason), not re-derived from page data.
+        Assert.Equal(SpringSeason, jikanPage.Season.Season);
+        Assert.Equal(SpringYear, jikanPage.Season.Year);
+    }
+
+    [Fact]
+    public async Task GetSeason_DoesNotRetry_On504()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+
+        host.Server
+            .Given(Request.Create().WithPath("/seasons/2026/spring").WithParam("page", "1").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(504));
+
+        await CollectAsync(host.Client.GetSeason(SpringYear, SpringSeason, token));
+
+        var requests = host.Server.LogEntries
+            .Count(entry => entry.RequestMessage?.Path == "/seasons/2026/spring");
+        Assert.Equal(1, requests);
+    }
+
+    [Fact]
+    public async Task GetSeason_YieldsDegradedEmptyPage_When504OnPage2()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+        var page1 = JikanTestHost.LoadFixture("jikan-pagination-page1.json");
+
+        host.Server
+            .Given(Request.Create().WithPath("/seasons/2026/spring").WithParam("page", "1").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json").WithBody(page1));
+        host.Server
+            .Given(Request.Create().WithPath("/seasons/2026/spring").WithParam("page", "2").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(504));
+
+        var pages = await CollectAsync(host.Client.GetSeason(SpringYear, SpringSeason, token));
+
+        Assert.Equal(2, pages.Count);
+        Assert.False(pages[0].IsFailure);
+        Assert.False(pages[1].IsFailure);
+        var page2 = pages[1].MatchToValue(p => p, _ => null!);
+        Assert.True(page2.Degraded);
+        Assert.Empty(page2.Items);
+    }
+
+    [Fact]
+    public async Task GetCurrentSeason_YieldsFailure_When504OnPage1()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+
+        host.Server
+            .Given(Request.Create().WithPath("/seasons/now").WithParam("page", "1").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(504));
+
+        var pages = await CollectAsync(host.Client.GetCurrentSeason(token));
+
+        // No caller-known season to fall back on, so a page-1 504 still fails the run outright.
+        var page = Assert.Single(pages);
+        Assert.True(page.IsFailure);
+    }
+
+    [Fact]
+    public async Task GetStreamingPlatforms_YieldsJikanUnavailableError_On504()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+
+        host.Server
+            .Given(Request.Create().WithPath("/anime/1/streaming").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(504));
+
+        var result = await host.Client.GetStreamingPlatforms(1, token);
+
+        Assert.True(result.IsFailure);
+        var error = result.MatchToValue(_ => (DomainError?)null, e => e);
+        Assert.IsType<JikanUnavailableError>(error);
+    }
+
+    [Fact]
+    public async Task GetStreamingPlatforms_DoesNotRetry_On504()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+
+        host.Server
+            .Given(Request.Create().WithPath("/anime/1/streaming").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(504));
+
+        await host.Client.GetStreamingPlatforms(1, token);
+
+        var requests = host.Server.LogEntries
+            .Count(entry => entry.RequestMessage?.Path == "/anime/1/streaming");
+        Assert.Equal(1, requests);
+    }
+
+    #endregion
 
     private static async Task<List<Result<JikanPage>>> CollectAsync(IAsyncEnumerable<Result<JikanPage>> source)
     {

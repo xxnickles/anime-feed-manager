@@ -17,4 +17,12 @@ public sealed record JikanPage(
     /// mapper can stamp it on non-TV series. Defaults to the sentinel until resolved.
     /// </summary>
     public SeriesSeason Season { get; init; } = SeriesSeason.Default;
+
+    /// <summary>
+    /// True when this page is empty because Jikan reported itself unavailable (504), not because
+    /// it genuinely had no data — see <see cref="JikanUnavailableError"/>. Aggregated by
+    /// <c>LibraryImport</c> across a run to report degraded fetches instead of silently treating
+    /// them as a confirmed empty result.
+    /// </summary>
+    public bool Degraded { get; init; }
 }

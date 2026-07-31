@@ -4,6 +4,7 @@ using AnimeFeedManager.Features.Library.Catalog.Storage;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Import.Jikan;
+using AnimeFeedManager.Features.Library.Import.Jikan.Types;
 using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Features.Feeds.Classification;
@@ -19,6 +20,7 @@ namespace AnimeFeedManager.Features.Feeds.Classification;
 internal sealed class SeriesClassificationSubscriber(
     IJikanClient jikan,
     ICosmosContainerFactory cosmosFactory,
+    EventBus eventBus,
     ILogger<SeriesClassificationSubscriber> logger) : EventSubscriber<SeasonImported>
 {
     private readonly SeriesBySeasonLoader _loadSeason = cosmosFactory.SeriesBySeasonLoaderHandler();
@@ -28,6 +30,9 @@ internal sealed class SeriesClassificationSubscriber(
 
     private readonly SeriesClassificationUpserter _upsertClassification =
         cosmosFactory.CosmosSeriesClassificationUpserterHandler();
+
+    private readonly FeedsOccurrenceUpserter _upsertOccurrence =
+        cosmosFactory.CosmosFeedsOccurrenceUpserterHandler();
 
     public override Task Handle(SeasonImported evt, CancellationToken cancellationToken) =>
         _loadSeason(evt.Season, cancellationToken).Match(
@@ -43,25 +48,65 @@ internal sealed class SeriesClassificationSubscriber(
     private async Task ClassifyAll(SeriesSeason season, ImmutableArray<Series> series,
         CancellationToken cancellationToken)
     {
+        var degraded = 0;
         foreach (var s in series)
-            await ClassifyOne(s.MalId, cancellationToken);
+            if (await ClassifyOne(s.MalId, cancellationToken))
+                degraded++;
+
+        if (degraded > 0)
+            await PersistDegradedOccurrence(degraded, series.Length, cancellationToken);
     }
 
     // Trackability is monotonic (see SeriesClassifier) — load whatever we previously knew (absence
     // or any load error just means "no prior evidence", not a hard failure) so a fresh Jikan read
-    // can only upgrade Untrackable -> Trackable, never the reverse.
-    private async Task ClassifyOne(int malId, CancellationToken cancellationToken)
+    // can only upgrade Untrackable -> Trackable, never the reverse. Returns true when this series'
+    // read was degraded (Jikan reported unavailable), for ClassifyAll to aggregate across the pass.
+    private async Task<bool> ClassifyOne(int malId, CancellationToken cancellationToken)
     {
         var previous = await _loadClassification(malId, cancellationToken);
         var previousTrackability = previous.MatchToValue(
             classification => classification.Trackability,
             _ => SeriesTrackability.Untrackable);
+        var previousPlatforms = previous.MatchToValue(
+            classification => classification.Platforms,
+            _ => null!);
 
-        await jikan.GetStreamingPlatforms(malId, cancellationToken)
-            .Map(platforms => SeriesClassifier.Classify(malId, platforms, previousTrackability))
+        var platformsResult = await jikan.GetStreamingPlatforms(malId, cancellationToken);
+        var degraded = platformsResult.MatchToValue(_ => false, error => error is JikanUnavailableError);
+
+        await platformsResult
+            // Jikan's 504 is a known, recurring "unavailable" signal — recover to an empty read
+            // rather than failing classification outright; SeriesClassifier's own monotonic guard
+            // keeps an empty read from erasing previously-known platforms.
+            .BindOnErrorWhen(
+                binder: _ => ImmutableArray<JikanStreamingEntry>.Empty,
+                predicate: error => error is JikanUnavailableError)
+            .Map(platforms => SeriesClassifier.Classify(malId, platforms, previousTrackability, previousPlatforms))
             .Bind(classification => _upsertClassification(classification, cancellationToken))
             .AddLogOnSuccess(_ => log => log.LogInformation("Classified series {MalId}", malId))
             .AddLogOnFailure(_ => log => log.LogWarning("Failed to classify series {MalId}", malId))
+            .AddLogOnFailure(error => error.LogAction())
+            .Complete(logger);
+
+        return degraded;
+    }
+
+    // One summary occurrence per classification pass, not one per series — persisted for the
+    // activity feed and published live for the admin toast. Best-effort: a failure to persist
+    // doesn't fail classification.
+    private async Task PersistDegradedOccurrence(int degraded, int total, CancellationToken cancellationToken)
+    {
+        var occurrence = new FeedsOccurrence(FeedsSources.Classification)
+        {
+            Kind = "jikan-unavailable",
+            Outcome = Outcome.Warning,
+            Summary = $"{degraded} of {total} series not available in Jikan",
+            OccurredAt = DateTimeOffset.UtcNow
+        };
+        eventBus.Publish(occurrence);
+
+        await _upsertOccurrence(occurrence, cancellationToken)
+            .AddLogOnFailure(_ => log => log.LogWarning("Failed to persist jikan-unavailable feeds occurrence"))
             .AddLogOnFailure(error => error.LogAction())
             .Complete(logger);
     }

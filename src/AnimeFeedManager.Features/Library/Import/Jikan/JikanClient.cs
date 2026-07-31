@@ -5,10 +5,11 @@ namespace AnimeFeedManager.Features.Library.Import.Jikan;
 
 /// <summary>
 /// Thin HTTP boundary over the Jikan v4 anime endpoints relevant to library import.
-/// Streams a season page by page as <see cref="Result{T}"/>. Page 1 also resolves the
-/// season (TV-only on Jikan); if page 1 fails the stream ends, since the season — and the
-/// page count — can't be established without it. Later page failures are yielded for the
-/// consumer to decide on.
+/// Streams a season page by page as <see cref="Result{T}"/>. For <see cref="GetSeason"/> the
+/// season/year are already known from the caller, so page 1 doesn't need to resolve them; for
+/// <see cref="GetCurrentSeason"/> they're resolved from page 1's first TV item (TV-only on
+/// Jikan), and if page 1 fails the stream ends, since the season — and the page count — can't be
+/// established without it. Later page failures are yielded for the consumer to decide on.
 /// </summary>
 public interface IJikanClient
 {
@@ -46,10 +47,10 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
     private readonly HttpClient _streamingClient = httpClientFactory.CreateClient(StreamingClientName);
 
     public IAsyncEnumerable<Result<JikanPage>> GetCurrentSeason(CancellationToken token = default) =>
-        EnumeratePages("seasons/now", token);
+        EnumeratePages("seasons/now", knownSeason: null, token);
 
     public IAsyncEnumerable<Result<JikanPage>> GetSeason(Year year, Season season, CancellationToken token = default) =>
-        EnumeratePages($"seasons/{year}/{season}", token);
+        EnumeratePages($"seasons/{year}/{season}", new SeriesSeason(season, year), token);
 
     public async Task<Result<ImmutableArray<JikanStreamingEntry>>> GetStreamingPlatforms(
         int malId, CancellationToken token = default)
@@ -60,11 +61,11 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
 
             // Jikan returns 504 with a BadResponseException body ("Jikan failed to connect to
             // MyAnimeList") for series it simply has no streaming data for — observed in production
-            // to behave like "not found," not a transient outage. Treated as a clean empty result;
-            // retries are also disabled for this status on this client (see the streaming pipeline's
-            // ShouldHandle override in Registration/ServiceCollectionExtensions).
+            // to behave like "not found," not a transient outage. Retries are also disabled for
+            // this status on this client (see the streaming pipeline's ShouldHandle override in
+            // Registration/ServiceCollectionExtensions). The caller recovers this explicitly.
             if (response.StatusCode == HttpStatusCode.GatewayTimeout)
-                return ImmutableArray<JikanStreamingEntry>.Empty;
+                return JikanUnavailableError.Create($"anime/{malId}/streaming");
 
             response.EnsureSuccessStatusCode();
 
@@ -95,12 +96,23 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
 
     private async IAsyncEnumerable<Result<JikanPage>> EnumeratePages(
         string path,
+        SeriesSeason? knownSeason,
         [EnumeratorCancellation] CancellationToken token)
     {
-        // season/year are TV-only on Jikan. Resolve once from page 1's first TV item and
+        // season/year are TV-only on Jikan. When the caller already knows the season (GetSeason)
+        // use it directly; otherwise (GetCurrentSeason) resolve it from page 1's first TV item and
         // propagate to every page so non-TV series inherit it (it's the Cosmos partition key).
         var firstPage = await FetchPage(path, pageNumber: 1, token)
-            .Bind(payload => ResolveSeason(payload).Map(seriesSeason => (Payload: payload, Season: seriesSeason)))
+            .Bind(payload => knownSeason is { } known
+                ? Result<(JikanSeasonResponse Payload, SeriesSeason Season, bool Degraded)>.Success((payload, known, false))
+                : ResolveSeason(payload).Map(seriesSeason => (Payload: payload, Season: seriesSeason, Degraded: false)))
+            // Jikan's 504 is a known, recurring "unavailable" signal (JikanUnavailableError) —
+            // recover to an empty, degraded page rather than failing the run, but only when the
+            // season is already known; GetCurrentSeason has no way to know what "now" refers to
+            // without a TV item, so that path still fails outright on a page-1 504.
+            .BindOnErrorWhen(
+                binder: _ => (Payload: EmptyResponse(1), Season: knownSeason ?? SeriesSeason.Default, Degraded: true),
+                predicate: error => error is JikanUnavailableError && knownSeason is not null)
             .ToLoggedPage(path);
 
         yield return firstPage;
@@ -112,7 +124,10 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
 
         for (var pageNumber = 2; pageNumber <= lastPage; pageNumber++)
             yield return await FetchPage(path, pageNumber, token)
-                .Map(payload => (payload, season))
+                .Map(payload => (payload, season, degraded: false))
+                .BindOnErrorWhen(
+                    binder: _ => (payload: EmptyResponse(pageNumber), season, degraded: true),
+                    predicate: error => error is JikanUnavailableError)
                 .ToLoggedPage(path);
     }
 
@@ -121,6 +136,13 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
         try
         {
             using var response = await _importClient.GetAsync($"{path}?page={pageNumber}", token);
+
+            // See GetStreamingPlatforms — same known, recurring "unavailable" signal. Recovered by
+            // EnumeratePages, not here, since only it knows whether a season is already available
+            // to stamp the recovered page with.
+            if (response.StatusCode == HttpStatusCode.GatewayTimeout)
+                return JikanUnavailableError.Create($"{path}?page={pageNumber}");
+
             response.EnsureSuccessStatusCode();
 
             await using var stream = await response.Content.ReadAsStreamAsync(token);
@@ -151,6 +173,10 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
         }
     }
 
+    private static JikanSeasonResponse EmptyResponse(int pageNumber) =>
+        new(new JikanPagination(LastVisiblePage: pageNumber, HasNextPage: false, CurrentPage: pageNumber,
+            Items: new JikanPaginationItems(Count: 0, Total: 0, PerPage: 0)));
+
     /// <summary>
     /// Reads the season off the first TV item on the page (TV is the only type Jikan stamps
     /// season/year on). Fails if no TV item is present — without one we can't establish the
@@ -169,7 +195,7 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
 /// </summary>
 file static class JikanPageProjection
 {
-    extension(Task<Result<(JikanSeasonResponse payload, SeriesSeason season)>> source)
+    extension(Task<Result<(JikanSeasonResponse payload, SeriesSeason season, bool degraded)>> source)
     {
         /// <summary>
         /// Maps the response to a <see cref="JikanPage"/> stamped with the season (filtering to
@@ -177,20 +203,21 @@ file static class JikanPageProjection
         /// </summary>
         public Task<Result<JikanPage>> ToLoggedPage(string path) =>
             source
-                .Map(data => MapPage(data.payload, data.season))
+                .Map(data => MapPage(data.payload, data.season, data.degraded))
                 .AddLogOnSuccess(LogFactories.Log<JikanPage>((page, logger) => logger.LogInformation(
                     "Jikan {Path} page {Page}/{LastPage} retrieved ({Count} series, {Total} total)",
                     path, page.Page, page.LastPage, page.Items.Length, page.TotalItems)));
     }
 
-    private static JikanPage MapPage(JikanSeasonResponse payload, SeriesSeason season) =>
+    private static JikanPage MapPage(JikanSeasonResponse payload, SeriesSeason season, bool degraded) =>
         new(
             Items: [..payload.Data.Where(IsSeries)],
             Page: payload.Pagination.CurrentPage,
             LastPage: payload.Pagination.LastVisiblePage,
             TotalItems: payload.Pagination.Items.Total)
         {
-            Season = season
+            Season = season,
+            Degraded = degraded
         };
 
     private static bool IsSeries(JikanAnime anime) =>

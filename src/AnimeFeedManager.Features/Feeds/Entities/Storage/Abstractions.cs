@@ -51,3 +51,11 @@ public delegate Task<Result<Unit>> CollectionRunUpserter(
 /// </summary>
 public delegate Task<Result<ImmutableArray<CollectionRun>>> RecentCollectionRunsLoader(
     int takePerSource, CancellationToken cancellationToken);
+
+/// <summary>Write-only — one document per notable occurrence, read side is the admin activity feed.</summary>
+public delegate Task<Result<Unit>> FeedsOccurrenceUpserter(
+    FeedsOccurrence occurrence, CancellationToken cancellationToken);
+
+/// <summary>Most recent <paramref name="take"/> occurrences, newest first.</summary>
+public delegate Task<Result<ImmutableArray<FeedsOccurrence>>> RecentFeedsOccurrencesLoader(
+    int take, CancellationToken cancellationToken);
