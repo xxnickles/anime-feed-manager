@@ -7,29 +7,24 @@
 
 @* Unified admin-only feed of recent operational events (Library import, Feeds job runs, Feeds
    occurrences), rows rendered by ActivityRow. Server-side (SSR): inject the container factory,
-   build loaders inline, hand them to AdminActivityFeedQuery (Features-owned Bind/Map chain). *@
+   build loaders inline, hand them to AdminActivityFeedQuery (Features-owned Bind/Map chain).
+   Also the response body for GET /admin/activity (see ActivityEndpoints) — the live-refresh
+   target for the SSE "activity-changed" signal (see NotificationsRegistration); every render is
+   a fresh query, so pill counts are always correct, no client-side recompute needed. *@
 
-@* Pills are skipped on an SSE-triggered refresh (Model is not null there) so a live update never
-   resets the user's current filter selection — only #activity-list is meant to change. *@
-@if (Model is null)
-{
-    <div role="group" aria-label="Filter by outcome" class="mb-1 flex flex-wrap gap-2">
-        <FilterPill Value="all" Pressed="true">
-            All <span id="activity-count-all" class="ml-1 font-mono text-[0.68rem] opacity-70">@_items.Length</span>
-        </FilterPill>
-        <FilterPill Value="succeeded">
-            Succeeded <span id="activity-count-succeeded" class="ml-1 font-mono text-[0.68rem] opacity-70">@SucceededCount</span>
-        </FilterPill>
-        <FilterPill Value="error">
-            Error <span id="activity-count-error" class="ml-1 font-mono text-[0.68rem] opacity-70">@ErrorCount</span>
-        </FilterPill>
-    </div>
-}
+<div role="group" aria-label="Filter by outcome" class="mb-1 flex flex-wrap gap-2">
+    <FilterPill Value="all" Pressed="true">
+        All <span class="ml-1 font-mono text-[0.68rem] opacity-70">@_items.Length</span>
+    </FilterPill>
+    <FilterPill Value="succeeded">
+        Succeeded <span class="ml-1 font-mono text-[0.68rem] opacity-70">@SucceededCount</span>
+    </FilterPill>
+    <FilterPill Value="error">
+        Error <span class="ml-1 font-mono text-[0.68rem] opacity-70">@ErrorCount</span>
+    </FilterPill>
+</div>
 
-@* activity-list: SSE refresh target (NotificationsRegistration) — present in every branch, not
-   just the row list. _="@Script" recomputes the pill counts (ids above) whenever this element's
-   own row set changes, whether that's this refresh or a later live one. *@
-<div id="activity-list" class="flex flex-col gap-2" _="@Script">
+<div id="activity-list" class="flex flex-col gap-2">
     @if (_error)
     {
         <WarnBanner Title="Couldn't load recent activity"
@@ -50,15 +45,12 @@
 </div>
 
 @code {
+    // Shared by the SSE bindings (NotificationsRegistration) and the hx-trigger in Admin.razor —
+    // one constant so the publisher and the listener can't drift out of sync.
+    public const string RefreshSseEvent = "activity-changed";
+
     private const int PerSourceTake = 10;
     private const int OverallTake = 20;
-
-    // AddHtml<TEvent,TComponent> always binds the payload as "Model", so LibraryEvent/
-    // FeedsOccurrence/CollectionRun (all IPersistedEvent) can bind straight to this component as
-    // a live-refresh trigger (see NotificationsRegistration). The payload itself is never read —
-    // only checked for null, to tell a refresh pass from the normal page embed (see Model is null
-    // above).
-    [Parameter] public IPersistedEvent? Model { get; set; }
 
     private ImmutableArray<IPersistedEvent> _items = [];
     private bool _error;

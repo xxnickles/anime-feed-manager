@@ -88,6 +88,7 @@ app.MapDefaultEndpoints();
 var admin = app.MapGroup("/admin").RequireAuthorization(Policies.AdminRequired);
 admin.MapAdminEndpoints();
 admin.MapFeedsAdminEndpoints();
+admin.MapActivityEndpoints();
 
 app.MapSecurityEndpoints();
 app.MapNotificationEndpoints();

@@ -1,5 +1,5 @@
--- Recent Activity outcome filter: click a pill to show only matching rows (or all). Counts are
--- recomputed by AdminActivityFeed.razor.hs, not here — this only toggles visibility.
+-- Recent Activity outcome filter: click a pill to show only matching rows (or all). Pill
+-- counts are a fresh server render (AdminActivityFeed) on every load/refresh, not touched here.
 on click from <button[data-filter]/> in me
   set filter to target's @data-filter
   for btn in <button[data-filter]/> in me

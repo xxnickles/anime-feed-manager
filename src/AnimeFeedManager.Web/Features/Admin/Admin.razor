@@ -68,7 +68,15 @@
             </h2>
         </div>
 
-        <AdminActivityFeed />
+        @* Re-GETs on the SSE "activity-changed" signal (NotificationsRegistration) rather than
+           swapping in server-pushed HTML directly — a plain request/response, so the feed is
+           always a fresh, correct render (see ActivityEndpoints). *@
+        <div id="activity-feed-root"
+             hx-trigger="@(AdminActivityFeed.RefreshSseEvent) from:#sse-connect"
+             hx-get="/admin/activity"
+             hx-swap="innerHTML">
+            <AdminActivityFeed />
+        </div>
     </section>
 
 </div>

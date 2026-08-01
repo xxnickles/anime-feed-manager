@@ -3,6 +3,7 @@ using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Import;
 using AnimeFeedManager.Infrastructure.Cosmos;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
+using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Features.Tests.Library.Import;
 
@@ -11,7 +12,7 @@ public class SeasonImportedEventHandlerTests
     private static readonly SeriesSeason Spring2026 = new(Season.Spring(), Year.FromNumber(2026));
 
     private static SeasonImportedEventHandler CreateHandler(ICosmosContainerFactory factory) =>
-        new(factory, NullLogger<SeasonImportedEventHandler>.Instance);
+        new(factory, new EventBus(NullLogger<EventBus>.Instance), NullLogger<SeasonImportedEventHandler>.Instance);
 
     private static SeasonImported Evt() =>
         new(Spring2026, null, [new SeriesTypeCount("tv", "TV", 1)], DateTimeOffset.UtcNow);
