@@ -55,6 +55,38 @@ public class EventBusTests
 
     #endregion
 
+    #region Non-Blocking Dispatch
+
+    [Fact]
+    public async Task Should_Deliver_Event_Without_Waiting_For_Slow_Dispatch_Queued_Earlier()
+    {
+        await using var bus = new EventBus(NullLogger<EventBus>.Instance);
+
+        var slowHandlerStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseSlowHandler = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        bus.Subscribe<EventA>(async (_, _) =>
+        {
+            slowHandlerStarted.TrySetResult();
+            await releaseSlowHandler.Task;
+        });
+
+        var fastTcs = new TaskCompletionSource<EventB>(TaskCreationOptions.RunContinuationsAsynchronously);
+        bus.Subscribe<EventB>((evt, _) => { fastTcs.TrySetResult(evt); return Task.CompletedTask; });
+
+        bus.Publish(new EventA(1));
+        await slowHandlerStarted.Task.WaitAsync(DeliveryTimeout, TestContext.Current.CancellationToken);
+
+        bus.Publish(new EventB("second"));
+
+        // EventB must arrive even though EventA's handler, published first, is still blocked.
+        var received = await fastTcs.Task.WaitAsync(DeliveryTimeout, TestContext.Current.CancellationToken);
+        Assert.Equal("second", received.S);
+
+        releaseSlowHandler.TrySetResult();
+    }
+
+    #endregion
+
     #region Type Routing
 
     [Fact]
@@ -231,6 +263,55 @@ public class EventBusTests
         await Task.Delay(NegativeAssertDelay, TestContext.Current.CancellationToken);
 
         Assert.False(fired);
+    }
+
+    [Fact]
+    public async Task Should_Wait_For_InFlight_Dispatch_When_DisposeAsync_Is_Called()
+    {
+        var bus = new EventBus(NullLogger<EventBus>.Instance);
+
+        var handlerStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseHandler = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var handlerCompleted = false;
+        bus.Subscribe<EventA>(async (_, _) =>
+        {
+            handlerStarted.TrySetResult();
+            await releaseHandler.Task;
+            handlerCompleted = true;
+        });
+
+        bus.Publish(new EventA(1));
+        await handlerStarted.Task.WaitAsync(DeliveryTimeout, TestContext.Current.CancellationToken);
+
+        var disposeTask = bus.DisposeAsync().AsTask();
+        await Task.Delay(NegativeAssertDelay, TestContext.Current.CancellationToken);
+        Assert.False(disposeTask.IsCompleted); // still draining the in-flight dispatch
+
+        releaseHandler.TrySetResult();
+        await disposeTask.WaitAsync(DeliveryTimeout, TestContext.Current.CancellationToken);
+
+        Assert.True(handlerCompleted);
+    }
+
+    [Fact]
+    public async Task Should_Give_Up_Draining_When_InFlight_Dispatch_Exceeds_Drain_Timeout()
+    {
+        var bus = new EventBus(NullLogger<EventBus>.Instance, shutdownDrainTimeout: TimeSpan.FromMilliseconds(50));
+
+        var handlerStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var neverRelease = new TaskCompletionSource();
+        bus.Subscribe<EventA>(async (_, _) =>
+        {
+            handlerStarted.TrySetResult();
+            await neverRelease.Task;
+        });
+
+        bus.Publish(new EventA(1));
+        await handlerStarted.Task.WaitAsync(DeliveryTimeout, TestContext.Current.CancellationToken);
+
+        // Must still complete promptly, bounded by the short drain timeout, even though the
+        // in-flight dispatch never finishes.
+        await bus.DisposeAsync().AsTask().WaitAsync(DeliveryTimeout, TestContext.Current.CancellationToken);
     }
 
     #endregion

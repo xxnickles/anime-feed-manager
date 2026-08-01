@@ -12,36 +12,42 @@
    target for the SSE "activity-changed" signal (see NotificationsRegistration); every render is
    a fresh query, so pill counts are always correct, no client-side recompute needed. *@
 
-<div role="group" aria-label="Filter by outcome" class="mb-1 flex flex-wrap gap-2">
-    <FilterPill Value="all" Pressed="true">
-        All <span class="ml-1 font-mono text-[0.68rem] opacity-70">@_items.Length</span>
-    </FilterPill>
-    <FilterPill Value="succeeded">
-        Succeeded <span class="ml-1 font-mono text-[0.68rem] opacity-70">@SucceededCount</span>
-    </FilterPill>
-    <FilterPill Value="error">
-        Error <span class="ml-1 font-mono text-[0.68rem] opacity-70">@ErrorCount</span>
-    </FilterPill>
-</div>
+@* _="@Script" is bound here, not on a page-level ancestor — this whole subtree is what
+   GET /admin/activity replaces on every live refresh, and hyperscript's runtime reinstalls _=
+   scripts on any newly-inserted element, so the filter click-handler stays correctly wired to
+   whatever buttons/rows are currently rendered. *@
+<div _="@Script">
+    <div role="group" aria-label="Filter by outcome" class="mb-1 flex flex-wrap gap-2">
+        <FilterPill Value="all" Pressed="true">
+            All <span class="ml-1 font-mono text-[0.68rem] opacity-70">@_items.Length</span>
+        </FilterPill>
+        <FilterPill Value="succeeded">
+            Succeeded <span class="ml-1 font-mono text-[0.68rem] opacity-70">@SucceededCount</span>
+        </FilterPill>
+        <FilterPill Value="error">
+            Error <span class="ml-1 font-mono text-[0.68rem] opacity-70">@ErrorCount</span>
+        </FilterPill>
+    </div>
 
-<div id="activity-list" class="flex flex-col gap-2">
-    @if (_error)
-    {
-        <WarnBanner Title="Couldn't load recent activity"
-                    Description="Something went wrong reading the activity feed. Refresh to try again." />
-    }
-    else if (_items.Length is 0)
-    {
-        <WarnBanner Title="No recent activity"
-                    Description="Nothing has run yet." />
-    }
-    else
-    {
-        @foreach (var item in _items)
+    <div id="activity-list" class="flex flex-col gap-2">
+        @if (_error)
         {
-            <ActivityRow Model="item" />
+            <WarnBanner Title="Couldn't load recent activity"
+                        Description="Something went wrong reading the activity feed. Refresh to try again." />
         }
-    }
+        else if (_items.Length is 0)
+        {
+            <WarnBanner Title="No recent activity"
+                        Description="Nothing has run yet." />
+        }
+        else
+        {
+            @foreach (var item in _items)
+            {
+                <ActivityRow Model="item" />
+            }
+        }
+    </div>
 </div>
 
 @code {

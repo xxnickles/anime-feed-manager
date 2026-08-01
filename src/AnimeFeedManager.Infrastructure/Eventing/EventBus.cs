@@ -3,26 +3,28 @@ using System.Collections.Concurrent;
 namespace AnimeFeedManager.Infrastructure.Eventing;
 
 /// <summary>
-/// In-process pub/sub bus. Subscribers are keyed by event CLR type (exact match — no
-/// base-type fan-out). Publishing is fire-and-forget: each publish enqueues a typed
-/// dispatch closure onto an unbounded internal channel, and a single pump task awaits
-/// them in order. Inside the closure the event remains strongly typed end-to-end;
-/// erasure lives only in the closure's <see cref="Func{Task}"/> shape, never in the
-/// event payload. Per-subscriber exceptions are caught and logged so one bad
-/// subscriber cannot disrupt siblings or the pump.
+/// In-process pub/sub bus, keyed by event CLR type (exact match, no base-type fan-out).
+/// Each publish enqueues a dispatch closure; the pump starts each one without awaiting
+/// it, so a slow dispatch never delays one queued behind it. Per-subscriber exceptions
+/// are caught and logged — never disrupt siblings, the pump, or the shutdown drain.
 /// </summary>
 public sealed class EventBus : IAsyncDisposable
 {
+    public static readonly TimeSpan DefaultShutdownDrainTimeout = TimeSpan.FromSeconds(10);
+
     private readonly ConcurrentDictionary<Type, ImmutableList<Delegate>> _subscribers = new();
+    private readonly ConcurrentDictionary<Task, byte> _inFlight = new();
     private readonly Channel<Func<Task>> _dispatchers = Channel.CreateUnbounded<Func<Task>>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
     private readonly CancellationTokenSource _stopping = new();
+    private readonly TimeSpan _shutdownDrainTimeout;
     private readonly Task _pump;
     private readonly ILogger<EventBus> _logger;
 
-    public EventBus(ILogger<EventBus> logger)
+    public EventBus(ILogger<EventBus> logger, TimeSpan? shutdownDrainTimeout = null)
     {
         _logger = logger;
+        _shutdownDrainTimeout = shutdownDrainTimeout ?? DefaultShutdownDrainTimeout;
         _pump = Task.Run(Pump);
     }
 
@@ -58,12 +60,27 @@ public sealed class EventBus : IAsyncDisposable
                 (_, existing) => existing.Remove(stored)));
     }
 
+    /// <summary>
+    /// Cancels the stopping token, then drains: waits for the pump loop to notice the closed
+    /// channel, then for every dispatch it had already started (bounded by the drain timeout,
+    /// since a dispatch is fire-and-forget from the pump's perspective and could otherwise
+    /// outlive shutdown).
+    /// </summary>
     public async ValueTask DisposeAsync()
     {
         _dispatchers.Writer.TryComplete();
         await _stopping.CancelAsync();
         try { await _pump; }
         catch (OperationCanceledException) { }
+
+        var inFlight = _inFlight.Keys.ToArray();
+        if (inFlight.Length > 0)
+        {
+            using var timeout = new CancellationTokenSource(_shutdownDrainTimeout);
+            try { await Task.WhenAll(inFlight).WaitAsync(timeout.Token); }
+            catch (OperationCanceledException) { /* drain window elapsed; shutdown proceeds */ }
+        }
+
         _stopping.Dispose();
     }
 
@@ -73,7 +90,9 @@ public sealed class EventBus : IAsyncDisposable
         {
             await foreach (var dispatch in _dispatchers.Reader.ReadAllAsync(_stopping.Token))
             {
-                await dispatch();
+                var task = dispatch();
+                _inFlight.TryAdd(task, 0);
+                _ = task.ContinueWith(t => _inFlight.TryRemove(t, out _), TaskScheduler.Default);
             }
         }
         catch (OperationCanceledException) when (_stopping.IsCancellationRequested)

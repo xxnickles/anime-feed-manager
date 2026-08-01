@@ -1,5 +1,8 @@
--- Recent Activity outcome filter: click a pill to show only matching rows (or all). Pill
--- counts are a fresh server render (AdminActivityFeed) on every load/refresh, not touched here.
+-- Recent Activity outcome filter: click a pill to show only matching rows (or all). Bound to
+-- this component's own root, not a page-level ancestor — hyperscript's runtime DOM observer
+-- reinstalls _= scripts on any newly-inserted element, so this re-snapshots the current buttons
+-- every time GET /admin/activity replaces this content, instead of going stale. Pill counts are
+-- a fresh server render, not touched here.
 on click from <button[data-filter]/> in me
   set filter to target's @data-filter
   for btn in <button[data-filter]/> in me
