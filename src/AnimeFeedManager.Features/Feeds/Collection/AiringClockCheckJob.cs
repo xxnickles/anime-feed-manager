@@ -1,8 +1,8 @@
 using AnimeFeedManager.Features.Feeds.Entities;
-using AnimeFeedManager.Features.Feeds.Entities.Storage;
 using AnimeFeedManager.Features.Feeds.Events;
 using AnimeFeedManager.Features.Feeds.Sources.AniList;
 using AnimeFeedManager.Features.Feeds.Sources.AniList.Types;
+using AnimeFeedManager.Features.Feeds.Storage;
 using AnimeFeedManager.Features.Library.Catalog.Storage;
 using AnimeFeedManager.Features.Library.Seasons;
 using AnimeFeedManager.Features.Library.Seasons.Storage;

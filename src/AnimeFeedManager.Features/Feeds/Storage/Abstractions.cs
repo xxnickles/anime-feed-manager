@@ -1,4 +1,6 @@
-namespace AnimeFeedManager.Features.Feeds.Entities.Storage;
+using AnimeFeedManager.Features.Feeds.Entities;
+
+namespace AnimeFeedManager.Features.Feeds.Storage;
 
 public delegate Task<Result<Unit>> SeriesClassificationUpserter(
     SeriesClassification classification, CancellationToken cancellationToken);

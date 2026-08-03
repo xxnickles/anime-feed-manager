@@ -1,8 +1,9 @@
 using AnimeFeedManager.Features.Feeds.Classification;
+using AnimeFeedManager.Features.Feeds.Entities;
 using AnimeFeedManager.Infrastructure.Cosmos.Static;
 using Microsoft.Azure.Cosmos;
 
-namespace AnimeFeedManager.Features.Feeds.Entities.Storage;
+namespace AnimeFeedManager.Features.Feeds.Storage;
 
 public static class CosmosFeedsOccurrenceStorage
 {

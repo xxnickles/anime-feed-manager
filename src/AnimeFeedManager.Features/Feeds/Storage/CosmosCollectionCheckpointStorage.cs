@@ -1,8 +1,9 @@
 using System.Net;
+using AnimeFeedManager.Features.Feeds.Entities;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using Microsoft.Azure.Cosmos;
 
-namespace AnimeFeedManager.Features.Feeds.Entities.Storage;
+namespace AnimeFeedManager.Features.Feeds.Storage;
 
 public static class CosmosCollectionCheckpointStorage
 {

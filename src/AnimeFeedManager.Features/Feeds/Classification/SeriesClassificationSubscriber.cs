@@ -1,5 +1,5 @@
 using AnimeFeedManager.Features.Feeds.Entities;
-using AnimeFeedManager.Features.Feeds.Entities.Storage;
+using AnimeFeedManager.Features.Feeds.Storage;
 using AnimeFeedManager.Features.Library.Catalog.Storage;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Features.Library.Events;

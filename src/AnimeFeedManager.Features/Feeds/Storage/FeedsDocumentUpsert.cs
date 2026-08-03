@@ -1,7 +1,8 @@
+using AnimeFeedManager.Features.Feeds.Entities;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using Microsoft.Azure.Cosmos;
 
-namespace AnimeFeedManager.Features.Feeds.Entities.Storage;
+namespace AnimeFeedManager.Features.Feeds.Storage;
 
 /// <summary>
 /// Shared stream-based upsert for any <see cref="FeedsDocument"/> — every document type in the

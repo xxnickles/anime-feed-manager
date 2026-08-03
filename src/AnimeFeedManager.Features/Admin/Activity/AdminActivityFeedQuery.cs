@@ -1,4 +1,4 @@
-using AnimeFeedManager.Features.Feeds.Entities.Storage;
+using AnimeFeedManager.Features.Feeds.Storage;
 using AnimeFeedManager.Features.Library.Entities.Storage;
 
 namespace AnimeFeedManager.Features.Admin.Activity;

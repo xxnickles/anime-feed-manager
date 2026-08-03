@@ -1,9 +1,9 @@
 using AnimeFeedManager.Features.Feeds.Classification;
 using AnimeFeedManager.Features.Feeds.Entities;
-using AnimeFeedManager.Features.Feeds.Entities.Storage;
 using AnimeFeedManager.Features.Feeds.Matching;
 using AnimeFeedManager.Features.Feeds.Sources.Nyaa;
 using AnimeFeedManager.Features.Feeds.Sources.Nyaa.Types;
+using AnimeFeedManager.Features.Feeds.Storage;
 
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
