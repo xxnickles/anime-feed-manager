@@ -18,6 +18,7 @@ namespace AnimeFeedManager.Features.Feeds.Entities;
 [JsonDerivedType(typeof(CollectionRun), "run")]
 [JsonDerivedType(typeof(ReleaseDetected), "release-detected")]
 [JsonDerivedType(typeof(FeedsOccurrence), "occurrence")]
+[JsonDerivedType(typeof(SeriesSubscriber), "subscriber")]
 public abstract record FeedsDocument : CosmosDocument
 {
     public string PartitionKey { get; init; } = string.Empty;

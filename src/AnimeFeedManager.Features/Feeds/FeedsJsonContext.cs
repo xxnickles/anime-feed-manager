@@ -18,4 +18,5 @@ namespace AnimeFeedManager.Features.Feeds;
 [JsonSerializable(typeof(CollectionRun))]
 [JsonSerializable(typeof(ReleaseDetected))]
 [JsonSerializable(typeof(FeedsOccurrence))]
+[JsonSerializable(typeof(SeriesSubscriber))]
 public partial class FeedsJsonContext : JsonSerializerContext;

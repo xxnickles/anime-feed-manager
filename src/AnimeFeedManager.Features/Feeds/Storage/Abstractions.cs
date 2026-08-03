@@ -61,3 +61,15 @@ public delegate Task<Result<Unit>> FeedsOccurrenceUpserter(
 /// <summary>Most recent <paramref name="take"/> occurrences, newest first.</summary>
 public delegate Task<Result<ImmutableArray<FeedsOccurrence>>> RecentFeedsOccurrencesLoader(
     int take, CancellationToken cancellationToken);
+
+/// <summary>Subscribes a user to a series — plain create, idempotent (re-subscribing just re-upserts).</summary>
+public delegate Task<Result<Unit>> SeriesSubscriberUpserter(
+    SeriesSubscriber subscriber, CancellationToken cancellationToken);
+
+/// <summary>Unsubscribes a user from a series — plain delete; already-unsubscribed is a no-op success.</summary>
+public delegate Task<Result<Unit>> SeriesSubscriberRemover(
+    int seriesId, string userId, CancellationToken cancellationToken);
+
+/// <summary>Every subscriber of a series — single-partition query, no cross-partition fan-out.</summary>
+public delegate Task<Result<ImmutableArray<SeriesSubscriber>>> SeriesSubscribersLoader(
+    int seriesId, CancellationToken cancellationToken);
