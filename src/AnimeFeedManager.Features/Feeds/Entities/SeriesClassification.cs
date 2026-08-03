@@ -16,17 +16,13 @@ public readonly record struct FeedsPlatform(string Name, string Url);
 /// series rely solely on the AniList airing clock. <see cref="Platforms"/> also carries into
 /// <see cref="ReleaseDetected"/> as notification enrichment ("also on Crunchyroll").
 /// </summary>
-public sealed record SeriesClassification : FeedsDocument
+public sealed record SeriesClassification : SeriesFeedsDocument
 {
-    public int SeriesId { get; }
-
     public SeriesTrackability Trackability { get; init; } = SeriesTrackability.Untrackable;
     public FeedsPlatform[] Platforms { get; init; } = [];
 
-    public SeriesClassification(int seriesId)
+    public SeriesClassification(int seriesId) : base(seriesId)
     {
-        SeriesId = seriesId;
         Id = $"classification:{seriesId}";
-        PartitionKey = seriesId.ToString();
     }
 }

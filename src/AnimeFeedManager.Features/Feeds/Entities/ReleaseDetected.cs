@@ -30,11 +30,9 @@ public enum ReleaseDetectedStatus
 /// shared "feeds" container has <c>DefaultTimeToLive</c> enabled (see AppHost.cs); the other
 /// document types sharing that container never set <c>ttl</c>, so they're unaffected.
 /// </summary>
-public sealed record ReleaseDetected : FeedsDocument
+public sealed record ReleaseDetected : SeriesFeedsDocument
 {
     public const int DefaultTtlSeconds = 60 * 60 * 48;
-
-    public int SeriesId { get; }
 
     public ReleaseContentType ContentType { get; init; } = ReleaseContentType.Unknown;
     public int? Episode { get; init; }
@@ -50,9 +48,7 @@ public sealed record ReleaseDetected : FeedsDocument
     [JsonPropertyName("ttl")]
     public int Ttl { get; init; } = DefaultTtlSeconds;
 
-    public ReleaseDetected(int seriesId)
+    public ReleaseDetected(int seriesId) : base(seriesId)
     {
-        SeriesId = seriesId;
-        PartitionKey = seriesId.ToString();
     }
 }

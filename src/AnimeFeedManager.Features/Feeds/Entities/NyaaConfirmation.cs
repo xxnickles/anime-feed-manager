@@ -7,16 +7,12 @@ namespace AnimeFeedManager.Features.Feeds.Entities;
 /// document's mere existence is the confirmation; for episodic formats it holds the highest
 /// episode number confirmed so far (a batch release advances it to the batch's end).
 /// </summary>
-public sealed record NyaaConfirmation : FeedsDocument
+public sealed record NyaaConfirmation : SeriesFeedsDocument
 {
-    public int SeriesId { get; }
-
     public int? LastConfirmedEpisode { get; init; }
 
-    public NyaaConfirmation(int seriesId)
+    public NyaaConfirmation(int seriesId) : base(seriesId)
     {
-        SeriesId = seriesId;
         Id = $"nyaa-confirmation:{seriesId}";
-        PartitionKey = seriesId.ToString();
     }
 }

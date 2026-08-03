@@ -8,16 +8,12 @@ namespace AnimeFeedManager.Features.Feeds.Entities;
 /// AniList is queried fresh every run (one batch call) — this document is the only state we
 /// persist, not a cache of AniList's answer.
 /// </summary>
-public sealed record AiringClockFlag : FeedsDocument
+public sealed record AiringClockFlag : SeriesFeedsDocument
 {
-    public int SeriesId { get; }
-
     public int LastFlaggedEpisode { get; init; }
 
-    public AiringClockFlag(int seriesId)
+    public AiringClockFlag(int seriesId) : base(seriesId)
     {
-        SeriesId = seriesId;
         Id = $"airing-clock-flag:{seriesId}";
-        PartitionKey = seriesId.ToString();
     }
 }
