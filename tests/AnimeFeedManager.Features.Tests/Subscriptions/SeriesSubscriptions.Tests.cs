@@ -20,7 +20,7 @@ public class SeriesSubscriptionsTests
 
         var result = await SeriesSubscriptions.Subscribe(
             "user-1", 42, Spring2026,
-            CapturingUserUpsert(s => captured = s), SeriesSubscriberUpsertOk, FixedTime(Now),
+            CapturingUserUpsert(s => captured = s), SeriesSubscriberUpsertOk, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
@@ -37,7 +37,7 @@ public class SeriesSubscriptionsTests
 
         await SeriesSubscriptions.Subscribe(
             "user-1", 42, Spring2026,
-            CapturingUserUpsert(s => captured = s), SeriesSubscriberUpsertOk, FixedTime(Now),
+            CapturingUserUpsert(s => captured = s), SeriesSubscriberUpsertOk, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.Equal(Now, captured!.SubscribedAt);
@@ -50,7 +50,7 @@ public class SeriesSubscriptionsTests
 
         var result = await SeriesSubscriptions.Subscribe(
             "user-1", 42, Spring2026,
-            UserSubscriptionUpsertOk, CapturingSeriesUpsert(s => captured = s), FixedTime(Now),
+            UserSubscriptionUpsertOk, CapturingSeriesUpsert(s => captured = s), SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
@@ -60,11 +60,40 @@ public class SeriesSubscriptionsTests
     }
 
     [Fact]
+    public async Task Should_Upsert_Subscription_Event_With_Created_Kind_When_Subscribing()
+    {
+        SubscriptionEvent? captured = null;
+
+        var result = await SeriesSubscriptions.Subscribe(
+            "user-1", 42, Spring2026,
+            UserSubscriptionUpsertOk, SeriesSubscriberUpsertOk, CapturingSubscriptionEventUpsert(e => captured = e), FixedTime(Now),
+            TestContext.Current.CancellationToken);
+
+        Assert.False(result.IsFailure);
+        Assert.NotNull(captured);
+        Assert.Equal("user-1", captured!.UserId);
+        Assert.Equal(42, captured.SeriesId);
+        Assert.Equal(SubscriptionEventKind.Created, captured.Kind);
+        Assert.Equal(Now, captured.OccurredAt);
+    }
+
+    [Fact]
     public async Task Should_Succeed_When_Series_Subscriber_Upsert_Fails()
     {
         var result = await SeriesSubscriptions.Subscribe(
             "user-1", 42, Spring2026,
-            UserSubscriptionUpsertOk, SeriesSubscriberUpsertFails, FixedTime(Now),
+            UserSubscriptionUpsertOk, SeriesSubscriberUpsertFails, SubscriptionEventUpsertOk, FixedTime(Now),
+            TestContext.Current.CancellationToken);
+
+        Assert.False(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Should_Succeed_When_Subscription_Event_Upsert_Fails()
+    {
+        var result = await SeriesSubscriptions.Subscribe(
+            "user-1", 42, Spring2026,
+            UserSubscriptionUpsertOk, SeriesSubscriberUpsertOk, SubscriptionEventUpsertFails, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
@@ -82,7 +111,7 @@ public class SeriesSubscriptionsTests
 
         await SeriesSubscriptions.Subscribe(
             "user-1", 42, Spring2026,
-            UserSubscriptionUpsertFails, upsertSeriesSubscriber, FixedTime(Now),
+            UserSubscriptionUpsertFails, upsertSeriesSubscriber, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.False(seriesSubscriberCalled);
@@ -93,7 +122,7 @@ public class SeriesSubscriptionsTests
     {
         var result = await SeriesSubscriptions.Subscribe(
             "user-1", 42, Spring2026,
-            UserSubscriptionUpsertFails, SeriesSubscriberUpsertOk, FixedTime(Now),
+            UserSubscriptionUpsertFails, SeriesSubscriberUpsertOk, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.True(result.IsFailure);
@@ -121,7 +150,8 @@ public class SeriesSubscriptionsTests
         };
 
         var result = await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, removeUserSubscription, removeSeriesSubscriber, TestContext.Current.CancellationToken);
+            "user-1", 42, removeUserSubscription, removeSeriesSubscriber, SubscriptionEventUpsertOk, FixedTime(Now),
+            TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
         Assert.Equal(("user-1", 42), userRemoved);
@@ -129,10 +159,38 @@ public class SeriesSubscriptionsTests
     }
 
     [Fact]
+    public async Task Should_Upsert_Subscription_Event_With_Removed_Kind_When_Unsubscribing()
+    {
+        SubscriptionEvent? captured = null;
+
+        var result = await SeriesSubscriptions.Unsubscribe(
+            "user-1", 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveOk, CapturingSubscriptionEventUpsert(e => captured = e), FixedTime(Now),
+            TestContext.Current.CancellationToken);
+
+        Assert.False(result.IsFailure);
+        Assert.NotNull(captured);
+        Assert.Equal("user-1", captured!.UserId);
+        Assert.Equal(42, captured.SeriesId);
+        Assert.Equal(SubscriptionEventKind.Removed, captured.Kind);
+        Assert.Equal(Now, captured.OccurredAt);
+    }
+
+    [Fact]
     public async Task Should_Succeed_When_Series_Subscriber_Remove_Fails()
     {
         var result = await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveFails, TestContext.Current.CancellationToken);
+            "user-1", 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveFails, SubscriptionEventUpsertOk, FixedTime(Now),
+            TestContext.Current.CancellationToken);
+
+        Assert.False(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Should_Succeed_When_Subscription_Event_Upsert_Fails_On_Unsubscribe()
+    {
+        var result = await SeriesSubscriptions.Unsubscribe(
+            "user-1", 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveOk, SubscriptionEventUpsertFails, FixedTime(Now),
+            TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
     }
@@ -148,7 +206,8 @@ public class SeriesSubscriptionsTests
         };
 
         await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, UserSubscriptionRemoveFails, removeSeriesSubscriber, TestContext.Current.CancellationToken);
+            "user-1", 42, UserSubscriptionRemoveFails, removeSeriesSubscriber, SubscriptionEventUpsertOk, FixedTime(Now),
+            TestContext.Current.CancellationToken);
 
         Assert.False(seriesSubscriberCalled);
     }
@@ -157,7 +216,8 @@ public class SeriesSubscriptionsTests
     public async Task Should_Return_Failure_When_User_Subscription_Remove_Fails()
     {
         var result = await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, UserSubscriptionRemoveFails, SeriesSubscriberRemoveOk, TestContext.Current.CancellationToken);
+            "user-1", 42, UserSubscriptionRemoveFails, SeriesSubscriberRemoveOk, SubscriptionEventUpsertOk, FixedTime(Now),
+            TestContext.Current.CancellationToken);
 
         Assert.True(result.IsFailure);
     }
@@ -199,6 +259,23 @@ public class SeriesSubscriptionsTests
         (_, _) =>
         {
             Result<Unit> failure = ExceptionError.FromException(new Exception("series subscriber upsert failed"));
+            return Task.FromResult(failure);
+        };
+
+    private static SubscriptionEventUpserter CapturingSubscriptionEventUpsert(Action<SubscriptionEvent> capture) =>
+        (subscriptionEvent, _) =>
+        {
+            capture(subscriptionEvent);
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
+
+    private static readonly SubscriptionEventUpserter SubscriptionEventUpsertOk =
+        (_, _) => Task.FromResult(Result<Unit>.Success(new Unit()));
+
+    private static readonly SubscriptionEventUpserter SubscriptionEventUpsertFails =
+        (_, _) =>
+        {
+            Result<Unit> failure = ExceptionError.FromException(new Exception("subscription event upsert failed"));
             return Task.FromResult(failure);
         };
 
