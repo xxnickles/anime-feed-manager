@@ -12,4 +12,5 @@ namespace AnimeFeedManager.Features.Subscriptions;
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(UserDocument))]
 [JsonSerializable(typeof(UserSubscription))]
+[JsonSerializable(typeof(SubscriptionEvent))]
 public partial class SubscriptionsJsonContext : JsonSerializerContext;
