@@ -14,6 +14,7 @@ using AnimeFeedManager.Web.Features.Notifications.Endpoints;
 using AnimeFeedManager.Web.Features.Notifications.Registration;
 using AnimeFeedManager.Web.Features.Security;
 using AnimeFeedManager.Web.Features.Security.Endpoints;
+using AnimeFeedManager.Web.Features.Subscriptions.Endpoints;
 using AnimeFeedManager.Web.Htmx;
 using AnimeFeedManager.Web.Htmx.Static;
 using Microsoft.AspNetCore.Authentication;
@@ -94,6 +95,7 @@ admin.MapActivityEndpoints();
 
 app.MapSecurityEndpoints();
 app.MapNotificationEndpoints();
+app.MapSubscriptionEndpoints();
 app.MapRazorComponents<AnimeFeedManager.Web.Features.App>();
 
 app.Run();

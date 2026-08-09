@@ -13,7 +13,7 @@ namespace AnimeFeedManager.Features.Subscriptions;
 /// operation; drift between them and the source of truth is rare and low-severity at this app's
 /// scale, so there's no compensation/rollback on the first write.
 /// </summary>
-internal static class SeriesSubscriptions
+public static class SeriesSubscriptions
 {
     public static Task<Result<Unit>> Subscribe(
         string userId,
