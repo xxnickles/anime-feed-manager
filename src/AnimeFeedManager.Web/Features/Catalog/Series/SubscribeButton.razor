@@ -7,11 +7,13 @@
 
 <form hx-post="@(IsSubscribed ? "/subscriptions/unsubscribe" : "/subscriptions/subscribe")"
       hx-target="this" hx-swap="outerHTML" _="on click halt bubbling"
+      hx-confirm="@ConfirmMessage"
       class="@(Compact ? "absolute right-2 top-2 z-10" : "w-full max-w-60")">
     <AntiforgeryToken/>
     <input type="hidden" name="SeriesId" value="@SeriesId"/>
     <input type="hidden" name="Season" value="@Season"/>
     <input type="hidden" name="Compact" value="@(Compact ? "true" : "false")"/>
+    <input type="hidden" name="SeriesTitle" value="@SeriesTitle"/>
     <button type="submit" aria-pressed="@(IsSubscribed ? "true" : "false")" aria-label="@Label" title="@Label"
             class="@ButtonClass">
         @if (IsSubscribed)
@@ -37,12 +39,16 @@
 @code {
     [Parameter, EditorRequired] public int SeriesId { get; set; }
     [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = default!;
+    [Parameter, EditorRequired] public string SeriesTitle { get; set; } = string.Empty;
     [Parameter] public bool IsSubscribed { get; set; }
     [Parameter] public bool Compact { get; set; }
 
     private string Label => IsSubscribed ? "Unsubscribe" : "Subscribe";
 
+    private string ConfirmMessage =>
+        $"{(IsSubscribed ? "Unsubscribe from" : "Subscribe to")} {(string.IsNullOrWhiteSpace(SeriesTitle) ? "this series" : SeriesTitle)}?";
+
     private string ButtonClass => Compact
-        ? "flex size-9 items-center justify-center rounded-full border-2 border-base-content bg-base-100/80 text-base-content shadow-brutal backdrop-blur-sm transition-colors aria-pressed:border-primary aria-pressed:text-primary"
+        ? "flex size-9 items-center justify-center rounded-full border-2 border-base-content bg-base-100/80 text-base-content shadow-brutal-sm backdrop-blur-sm transition-colors aria-pressed:border-primary aria-pressed:text-primary"
         : "flex w-full items-center justify-center gap-2 rounded-lg border-2 border-base-content bg-base-100 px-3 py-2 font-display text-sm font-bold text-base-content shadow-brutal transition-colors aria-pressed:border-primary aria-pressed:bg-primary/10 aria-pressed:text-primary";
 }

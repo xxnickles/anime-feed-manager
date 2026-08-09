@@ -11,6 +11,7 @@ public sealed class SubscribeForm
     public int SeriesId { get; set; }
     public string? Season { get; set; }
     public bool Compact { get; set; }
+    public string SeriesTitle { get; set; } = string.Empty;
 }
 
 public sealed class UnsubscribeForm
@@ -18,4 +19,5 @@ public sealed class UnsubscribeForm
     public int SeriesId { get; set; }
     public string? Season { get; set; }
     public bool Compact { get; set; }
+    public string SeriesTitle { get; set; } = string.Empty;
 }

@@ -22,7 +22,7 @@
         {
             <div class="status-pin @pin.Color"><span class="pin-dot"></span>@pin.Label</div>
         }
-        <SubscribeButton Compact="true" SeriesId="Series.MalId" Season="Series.SeriesSeason" IsSubscribed="IsSubscribed"/>
+        <SubscribeButton Compact="true" SeriesId="Series.MalId" Season="Series.SeriesSeason" SeriesTitle="@PrimaryTitle" IsSubscribed="IsSubscribed"/>
         @if (PosterUrl is not null)
         {
             <img src="@PosterUrl" alt="@PrimaryTitle" loading="lazy"

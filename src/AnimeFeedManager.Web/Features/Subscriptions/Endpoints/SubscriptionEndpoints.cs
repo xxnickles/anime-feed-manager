@@ -51,12 +51,12 @@ internal static class SubscriptionEndpoints
             .ToComponentResult(
                 season =>
                 [
-                    ButtonFragment(form.SeriesId, season, form.Compact, isSubscribed: true),
+                    ButtonFragment(form.SeriesId, season, form.Compact, form.SeriesTitle, isSubscribed: true),
                     Toasts.SuccessFragment("Subscribe", Toasts.Text("You're now subscribed."))
                 ],
                 error =>
                 [
-                    ButtonFragment(form.SeriesId, FallbackSeason(form.Season), form.Compact, isSubscribed: false),
+                    ButtonFragment(form.SeriesId, FallbackSeason(form.Season), form.Compact, form.SeriesTitle, isSubscribed: false),
                     Toasts.ErrorFragment("Subscribe", error)
                 ]);
 
@@ -79,12 +79,12 @@ internal static class SubscriptionEndpoints
             .ToComponentResult(
                 season =>
                 [
-                    ButtonFragment(form.SeriesId, season, form.Compact, isSubscribed: false),
+                    ButtonFragment(form.SeriesId, season, form.Compact, form.SeriesTitle, isSubscribed: false),
                     Toasts.SuccessFragment("Unsubscribe", Toasts.Text("You've been unsubscribed."))
                 ],
                 error =>
                 [
-                    ButtonFragment(form.SeriesId, FallbackSeason(form.Season), form.Compact, isSubscribed: true),
+                    ButtonFragment(form.SeriesId, FallbackSeason(form.Season), form.Compact, form.SeriesTitle, isSubscribed: true),
                     Toasts.ErrorFragment("Unsubscribe", error)
                 ]);
 
@@ -106,12 +106,13 @@ internal static class SubscriptionEndpoints
     private static SeriesSeason FallbackSeason(string? season) =>
         (season ?? string.Empty).ParseAsSeriesSeason().MatchToValue(s => s, _ => SeriesSeason.Default);
 
-    private static RenderFragment ButtonFragment(int seriesId, SeriesSeason season, bool compact, bool isSubscribed) =>
+    private static RenderFragment ButtonFragment(int seriesId, SeriesSeason season, bool compact, string? seriesTitle, bool isSubscribed) =>
         ComponentResponseHelpers.AsFragment<SubscribeButton>(new Dictionary<string, object?>
         {
             [nameof(SubscribeButton.SeriesId)] = seriesId,
             [nameof(SubscribeButton.Season)] = season,
             [nameof(SubscribeButton.Compact)] = compact,
+            [nameof(SubscribeButton.SeriesTitle)] = seriesTitle ?? string.Empty,
             [nameof(SubscribeButton.IsSubscribed)] = isSubscribed
         });
 }

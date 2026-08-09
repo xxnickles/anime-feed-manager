@@ -76,7 +76,7 @@
                             }
                         </div>
 
-                        <SubscribeButton SeriesId="series.MalId" Season="series.SeriesSeason" IsSubscribed="_isSubscribed"/>
+                        <SubscribeButton SeriesId="series.MalId" Season="series.SeriesSeason" SeriesTitle="@SeriesTitle(series)" IsSubscribed="_isSubscribed"/>
 
                         @if (ExternalLinks(series).Any())
                         {
