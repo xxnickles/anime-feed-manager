@@ -1,15 +1,17 @@
 @* Subscribe/unsubscribe toggle for a series. Fully server-rendered from IsSubscribed on every
    request — hx-swap replaces the whole button with the server's next-state render, so there's no
    client-side toggle logic. Compact mode is the poster-overlay affordance (icon only, opposite
-   corner from the airing pin); full mode is the detail-page affordance (icon + label). *@
+   corner from the airing pin); full mode is the detail-page affordance (icon + label). The compact
+   form nests inside SeriesCard's card-wide <a> — "halt bubbling" keeps a click here from also
+   triggering the card's navigation. *@
 
 <form hx-post="@(IsSubscribed ? "/subscriptions/unsubscribe" : "/subscriptions/subscribe")"
-      hx-target="this" hx-swap="outerHTML"
+      hx-target="this" hx-swap="outerHTML" _="on click halt bubbling"
       class="@(Compact ? "absolute right-2 top-2 z-10" : "w-full max-w-60")">
     <AntiforgeryToken/>
     <input type="hidden" name="SeriesId" value="@SeriesId"/>
     <input type="hidden" name="Season" value="@Season"/>
-    <input type="hidden" name="Compact" value="@Compact"/>
+    <input type="hidden" name="Compact" value="@(Compact ? "true" : "false")"/>
     <button type="submit" aria-pressed="@(IsSubscribed ? "true" : "false")" aria-label="@Label" title="@Label"
             class="@ButtonClass">
         @if (IsSubscribed)

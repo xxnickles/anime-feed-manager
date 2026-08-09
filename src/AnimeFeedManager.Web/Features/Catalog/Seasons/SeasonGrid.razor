@@ -45,7 +45,7 @@ else
         <div class="grid grid-cols-[repeat(auto-fill,minmax(13rem,1fr))] gap-5">
             @foreach (var series in _series)
             {
-                <SeriesCard Series="series" PosterUrl="@PosterUrl(series)"/>
+                <SeriesCard Series="series" PosterUrl="@PosterUrl(series)" IsSubscribed="@IsSubscribed(series)"/>
             }
         </div>
     </div>

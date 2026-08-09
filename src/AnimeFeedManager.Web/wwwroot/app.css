@@ -1718,9 +1718,10 @@
     input.input {
       position: relative;
       display: inline-flex;
+      text-align: start;
     }
-    input.input[type="url"], input.input[type="email"] {
-      text-align: left;
+    input.input[type="url"], input.input[type="tel"], input.input[type="email"], input.input[type="number"] {
+      direction: ltr;
     }
     input.input::-webkit-datetime-edit, input.input::-webkit-date-and-time-value {
       display: grid;
@@ -1743,9 +1744,10 @@
     .input input {
       position: relative;
       display: inline-flex;
+      text-align: start;
     }
-    .input input[type="url"], .input input[type="email"] {
-      text-align: left;
+    .input input[type="url"], .input input[type="tel"], .input input[type="email"], .input input[type="number"] {
+      direction: ltr;
     }
     .input input::-webkit-datetime-edit, .input input::-webkit-date-and-time-value {
       display: grid;
@@ -1777,7 +1779,6 @@
     .input:focus {
       outline: 2px solid var(--input-color);
       outline-offset: 2px;
-      isolation: isolate;
     }
     @media (pointer: coarse) {
       @supports (-webkit-touch-callout: none) {
@@ -1798,7 +1799,6 @@
     .input:focus-within {
       outline: 2px solid var(--input-color);
       outline-offset: 2px;
-      isolation: isolate;
     }
     @media (pointer: coarse) {
       @supports (-webkit-touch-callout: none) {
@@ -1864,6 +1864,14 @@
     .input:has( > input[disabled]) > input[disabled] {
       cursor: not-allowed;
     }
+  }
+  :is(.input[type="url"], .input[type="tel"], .input[type="email"], .input[type="number"]):dir(rtl) {
+    border-start-start-radius: var(--join-se, var(--radius-field));
+    border-start-end-radius: var(--join-ss, var(--radius-field));
+    border-end-start-radius: var(--join-ee, var(--radius-field));
+    border-end-end-radius: var(--join-es, var(--radius-field));
+  }
+  @layer daisyui.l1.l2.l3 {
     .range {
       appearance: none;
       webkit-appearance: none;
@@ -2230,6 +2238,61 @@
       --step-bg: var(--color-error);
       --step-fg: var(--color-error-content);
     }
+    .swap {
+      position: relative;
+      display: inline-grid;
+      cursor: pointer;
+      place-content: center;
+      vertical-align: middle;
+      webkit-user-select: none;
+      user-select: none;
+    }
+    .swap input {
+      appearance: none;
+      border: none;
+    }
+    .swap > * {
+      grid-column-start: 1;
+      grid-row-start: 1;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .swap > * {
+        transition-property: transform, rotate, opacity;
+        transition-duration: 0.2s;
+        transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+      }
+    }
+    .swap .swap-on {
+      opacity: 0%;
+    }
+    .swap .swap-indeterminate {
+      opacity: 0%;
+    }
+    .swap input:indeterminate ~ .swap-on {
+      opacity: 0%;
+    }
+    .swap input:is(:checked, :indeterminate) ~ .swap-off {
+      opacity: 0%;
+    }
+    .swap input:checked ~ .swap-on {
+      opacity: 100%;
+      backface-visibility: visible;
+    }
+    .swap input:indeterminate ~ .swap-indeterminate {
+      opacity: 100%;
+      backface-visibility: visible;
+    }
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
   }
   @layer daisyui.l1.l2.l3 {
     .select {
@@ -2326,8 +2389,6 @@
     .select:focus {
       outline: 2px solid var(--input-color);
       outline-offset: 2px;
-      isolation: isolate;
-      background-image: linear-gradient(135deg, #0000 50%, currentColor 50%), linear-gradient(45deg, currentColor 50%, #0000 50%);
     }
     .select:focus-within {
       --input-color: var(--color-base-content);
@@ -2341,8 +2402,6 @@
     .select:focus-within {
       outline: 2px solid var(--input-color);
       outline-offset: 2px;
-      isolation: isolate;
-      background-image: linear-gradient(135deg, #0000 50%, currentColor 50%), linear-gradient(45deg, currentColor 50%, #0000 50%);
     }
     .select:open {
       --input-color: var(--color-base-content);
@@ -2356,7 +2415,6 @@
     .select:open {
       outline: 2px solid var(--input-color);
       outline-offset: 2px;
-      isolation: isolate;
       background-image: linear-gradient(135deg, #0000 50%, currentColor 50%), linear-gradient(45deg, currentColor 50%, #0000 50%);
     }
     .select:has( > select[disabled]) {
@@ -2518,65 +2576,6 @@
     [dir="rtl"] .select select::picker(select) {
       translate: 0.5rem 0;
     }
-  }
-  @layer daisyui.l1.l2 {
-    .swap {
-      position: relative;
-      display: inline-grid;
-      cursor: pointer;
-      place-content: center;
-      vertical-align: middle;
-      webkit-user-select: none;
-      user-select: none;
-    }
-    .swap input {
-      appearance: none;
-      border: none;
-    }
-    .swap > * {
-      grid-column-start: 1;
-      grid-row-start: 1;
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .swap > * {
-        transition-property: transform, rotate, opacity;
-        transition-duration: 0.2s;
-        transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-      }
-    }
-    .swap .swap-on {
-      opacity: 0%;
-    }
-    .swap .swap-indeterminate {
-      opacity: 0%;
-    }
-    .swap input:indeterminate ~ .swap-on {
-      opacity: 0%;
-    }
-    .swap input:is(:checked, :indeterminate) ~ .swap-off {
-      opacity: 0%;
-    }
-    .swap input:checked ~ .swap-on {
-      opacity: 100%;
-      backface-visibility: visible;
-    }
-    .swap input:indeterminate ~ .swap-indeterminate {
-      opacity: 100%;
-      backface-visibility: visible;
-    }
-  }
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border-width: 0;
-  }
-  @layer daisyui.l1.l2.l3 {
     .checkbox {
       border: var(--border) solid var(--input-color, var(--color-base-content));
     }
@@ -3028,8 +3027,14 @@
   .top-1\.5 {
     top: calc(var(--spacing) * 1.5);
   }
+  .top-2 {
+    top: calc(var(--spacing) * 2);
+  }
   .right-1 {
     right: var(--spacing);
+  }
+  .right-2 {
+    right: calc(var(--spacing) * 2);
   }
   .left-1\.5 {
     left: calc(var(--spacing) * 1.5);
@@ -3570,6 +3575,10 @@
   .aspect-\[2\/3\] {
     aspect-ratio: 2/3;
   }
+  .size-4 {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
   .size-7 {
     width: calc(var(--spacing) * 7);
     height: calc(var(--spacing) * 7);
@@ -3975,6 +3984,12 @@
     background-color: var(--color-base-100);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-base-100) 75%, transparent);
+    }
+  }
+  .bg-base-100\/80 {
+    background-color: var(--color-base-100);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-base-100) 80%, transparent);
     }
   }
   .bg-base-100\/85 {
@@ -4803,6 +4818,9 @@
   }
   .has-\[\#mobile-drawer\:checked\]\:overflow-hidden:has(:is(#mobile-drawer:checked)) {
     overflow: hidden;
+  }
+  .aria-pressed\:border-primary[aria-pressed="true"] {
+    border-color: var(--color-primary);
   }
   .aria-pressed\:bg-primary\/10[aria-pressed="true"] {
     background-color: var(--color-primary);

@@ -1,7 +1,6 @@
 @using AnimeFeedManager.Features.Library.Entities
 
-@* One series in the season grid. Real data only — no subscribe/watch/user state (that needs
-   auth, deferred). The whole card is a link into the detail route. `data-type` drives the grid's
+@* One series in the season grid. The whole card is a link into the detail route. `data-type` drives the grid's
    client-side type-segment filter. `@container` makes the card a query container so its layout is
    robust outside the 220px grid (e.g. a future related-strip); `content-visibility:auto` lets the
    browser skip offscreen cards in a large season. On click, the poster is tagged with the shared
@@ -23,6 +22,7 @@
         {
             <div class="status-pin @pin.Color"><span class="pin-dot"></span>@pin.Label</div>
         }
+        <SubscribeButton Compact="true" SeriesId="Series.MalId" Season="Series.SeriesSeason" IsSubscribed="IsSubscribed"/>
         @if (PosterUrl is not null)
         {
             <img src="@PosterUrl" alt="@PrimaryTitle" loading="lazy"
@@ -85,6 +85,8 @@
     // Absolute poster URL, resolved by the grid from the blob base + Series.CoverImageUrl.
     // null when the series has no stored cover — renders a titled placeholder.
     [Parameter] public string? PosterUrl { get; set; }
+
+    [Parameter] public bool IsSubscribed { get; set; }
 
     private string PrimaryTitle =>
         string.IsNullOrWhiteSpace(Series.Titles.English) ? Series.Titles.Default : Series.Titles.English!;

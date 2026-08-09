@@ -76,6 +76,8 @@
                             }
                         </div>
 
+                        <SubscribeButton SeriesId="series.MalId" Season="series.SeriesSeason" IsSubscribed="_isSubscribed"/>
+
                         @if (ExternalLinks(series).Any())
                         {
                             <div class="flex w-full max-w-60 flex-col">
