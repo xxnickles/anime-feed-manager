@@ -1,6 +1,7 @@
 using AnimeFeedManager.Shared.Results;
 using AnimeFeedManager.Shared.Results.Errors;
 using AnimeFeedManager.Shared.Types;
+using AnimeFeedManager.Web.Features.Components.Responses;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -23,6 +24,24 @@ internal static class Toasts
     internal static RazorComponentResult Toast(string title, RenderFragment message, Outcome type,
         TimeSpan? closeTime = null)
         => new RazorComponentResult<NotificationOob>(new Dictionary<string, object?>
+        {
+            [nameof(NotificationOob.Title)] = title,
+            [nameof(NotificationOob.Message)] = message,
+            [nameof(NotificationOob.Type)] = type,
+            [nameof(NotificationOob.CloseTime)] = closeTime
+        });
+
+    // Fragment-returning counterparts, for composing with other fragments via
+    // ComponentResponseHelpers.AggregateComponents (e.g. alongside a swapped component).
+    internal static RenderFragment SuccessFragment(string title, RenderFragment message, TimeSpan? closeTime = null) =>
+        ToastFragment(title, message, Outcome.Success, closeTime);
+
+    internal static RenderFragment ErrorFragment(string title, DomainError error, TimeSpan? closeTime = null) =>
+        ToastFragment(title, ErrorContent(error), ToOutcome(error), closeTime);
+
+    internal static RenderFragment ToastFragment(string title, RenderFragment message, Outcome type,
+        TimeSpan? closeTime = null) =>
+        ComponentResponseHelpers.AsFragment<NotificationOob>(new Dictionary<string, object?>
         {
             [nameof(NotificationOob.Title)] = title,
             [nameof(NotificationOob.Message)] = message,

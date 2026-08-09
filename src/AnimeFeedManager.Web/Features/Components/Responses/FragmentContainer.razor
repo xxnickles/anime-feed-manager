@@ -1,0 +1,7 @@
+@* Combines multiple independent component fragments into one response body — e.g. a
+   component's next-state render plus an OOB toast. See ComponentResponseHelpers.AggregateComponents. *@
+@ChildContent
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

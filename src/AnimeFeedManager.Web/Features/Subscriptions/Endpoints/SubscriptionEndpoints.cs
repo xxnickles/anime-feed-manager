@@ -7,7 +7,10 @@ using AnimeFeedManager.Shared.Results.Errors;
 using AnimeFeedManager.Shared.Results.Static;
 using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Catalog.Series;
+using AnimeFeedManager.Web.Features.Components;
+using AnimeFeedManager.Web.Features.Components.Responses;
 using AnimeFeedManager.Web.Features.Security;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +19,8 @@ namespace AnimeFeedManager.Web.Features.Subscriptions.Endpoints;
 /// <summary>
 /// Subscribe/unsubscribe toggle. htmx posts the <see cref="SubscribeButton"/>'s form here; the
 /// handlers compose the Subscriptions domain logic (delegates built locally from
-/// <see cref="ICosmosContainerFactory"/>), then re-render the button in its next state.
+/// <see cref="ICosmosContainerFactory"/>), then respond with the button's next-state render plus
+/// a toast — <see cref="ComponentResults.ToComponentResult{T}"/> aggregates both into one response.
 /// </summary>
 internal static class SubscriptionEndpoints
 {
@@ -28,7 +32,7 @@ internal static class SubscriptionEndpoints
         return routes;
     }
 
-    private static Task<IResult> Subscribe(
+    private static Task<RazorComponentResult> Subscribe(
         [FromForm] SubscribeForm form,
         HttpContext httpContext,
         ICosmosContainerFactory containerFactory,
@@ -38,17 +42,25 @@ internal static class SubscriptionEndpoints
         ParseRequest(httpContext, form.Season)
             .Bind(parsed => SeriesSubscriptions.Subscribe(
                     parsed.UserId, form.SeriesId, parsed.Season,
-                    containerFactory.CosmosUserSubscriptionUpserterHandler(),
+                    containerFactory.CosmosUserSubscriptionUpserter(),
                     containerFactory.CosmosSeriesSubscriberUpserterHandler(),
                     containerFactory.CosmosSubscriptionEventUpserterHandler(),
                     time, cancellationToken)
                 .Map(_ => parsed.Season))
             .FlushLogs(logger)
-            .MatchToValue<SeriesSeason, IResult>(
-                season => RenderButton(form.SeriesId, season, form.Compact, isSubscribed: true),
-                _ => RenderButton(form.SeriesId, FallbackSeason(form.Season), form.Compact, isSubscribed: false));
+            .ToComponentResult(
+                season =>
+                [
+                    ButtonFragment(form.SeriesId, season, form.Compact, isSubscribed: true),
+                    Toasts.SuccessFragment("Subscribe", Toasts.Text("You're now subscribed."))
+                ],
+                error =>
+                [
+                    ButtonFragment(form.SeriesId, FallbackSeason(form.Season), form.Compact, isSubscribed: false),
+                    Toasts.ErrorFragment("Subscribe", error)
+                ]);
 
-    private static Task<IResult> Unsubscribe(
+    private static Task<RazorComponentResult> Unsubscribe(
         [FromForm] UnsubscribeForm form,
         HttpContext httpContext,
         ICosmosContainerFactory containerFactory,
@@ -58,25 +70,33 @@ internal static class SubscriptionEndpoints
         ParseRequest(httpContext, form.Season)
             .Bind(parsed => SeriesSubscriptions.Unsubscribe(
                     parsed.UserId, form.SeriesId,
-                    containerFactory.CosmosUserSubscriptionRemoverHandler(),
+                    containerFactory.CosmosUserSubscriptionRemover(),
                     containerFactory.CosmosSeriesSubscriberRemoverHandler(),
                     containerFactory.CosmosSubscriptionEventUpserterHandler(),
                     time, cancellationToken)
                 .Map(_ => parsed.Season))
             .FlushLogs(logger)
-            .MatchToValue<SeriesSeason, IResult>(
-                season => RenderButton(form.SeriesId, season, form.Compact, isSubscribed: false),
-                _ => RenderButton(form.SeriesId, FallbackSeason(form.Season), form.Compact, isSubscribed: true));
+            .ToComponentResult(
+                season =>
+                [
+                    ButtonFragment(form.SeriesId, season, form.Compact, isSubscribed: false),
+                    Toasts.SuccessFragment("Unsubscribe", Toasts.Text("You've been unsubscribed."))
+                ],
+                error =>
+                [
+                    ButtonFragment(form.SeriesId, FallbackSeason(form.Season), form.Compact, isSubscribed: true),
+                    Toasts.ErrorFragment("Unsubscribe", error)
+                ]);
 
-    private static Result<(string UserId, SeriesSeason Season)> ParseRequest(HttpContext httpContext, string? season) =>
+    private static Result<(NoEmptyString UserId, SeriesSeason Season)> ParseRequest(HttpContext httpContext, string? season) =>
         CurrentUserId(httpContext)
             .Bind(userId => (season ?? string.Empty).ParseAsSeriesSeason()
                 .Map(parsedSeason => (UserId: userId, Season: parsedSeason)));
 
-    private static Result<string> CurrentUserId(HttpContext httpContext) =>
+    private static Result<NoEmptyString> CurrentUserId(HttpContext httpContext) =>
         httpContext.GetCurrentUser() switch
         {
-            AuthenticatedUser user => Result<string>.Success(user.UserId),
+            AuthenticatedUser user => Result<NoEmptyString>.Success(user.UserId),
             _ => Error.Create("Subscription action attempted without an authenticated user")
         };
 
@@ -86,8 +106,8 @@ internal static class SubscriptionEndpoints
     private static SeriesSeason FallbackSeason(string? season) =>
         (season ?? string.Empty).ParseAsSeriesSeason().MatchToValue(s => s, _ => SeriesSeason.Default);
 
-    private static IResult RenderButton(int seriesId, SeriesSeason season, bool compact, bool isSubscribed) =>
-        new RazorComponentResult<SubscribeButton>(new Dictionary<string, object?>
+    private static RenderFragment ButtonFragment(int seriesId, SeriesSeason season, bool compact, bool isSubscribed) =>
+        ComponentResponseHelpers.AsFragment<SubscribeButton>(new Dictionary<string, object?>
         {
             [nameof(SubscribeButton.SeriesId)] = seriesId,
             [nameof(SubscribeButton.Season)] = season,

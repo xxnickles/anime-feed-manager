@@ -2,9 +2,14 @@
 @using AnimeFeedManager.Features.Library.Catalog
 @using AnimeFeedManager.Features.Library.Entities
 @using AnimeFeedManager.Features.Library.Catalog.Storage
+@using AnimeFeedManager.Features.Subscriptions
+@using AnimeFeedManager.Features.Subscriptions.Storage
+@using AnimeFeedManager.Shared.Results
+@using AnimeFeedManager.Web.Features.Security
 @using Azure.Storage.Blobs
 @inject ICosmosContainerFactory Factory
 @inject BlobServiceClient BlobServiceClient
+@inject IHttpContextAccessor HttpContextAccessor
 @inject ILogger<SeasonGrid> Logger
 
 @* Renders one season's series as a responsive card grid, with a client-side type-segment filter.
@@ -51,6 +56,7 @@ else
 
     private ImmutableArray<Series> _series = [];
     private IReadOnlyList<(string Key, string Label)> _segments = [];
+    private ImmutableHashSet<int> _subscribedIds = [];
     private bool _error;
     private string _imageBase = string.Empty;
 
@@ -70,7 +76,22 @@ else
                     _segments = Segments(_series);
                 },
                 _ => _error = true);
+
+       
+            await (HttpContextAccessor.HttpContext?.GetCurrentUser() switch
+            {
+                AuthenticatedUser user => Result<NoEmptyString>.Success(user.UserId),
+                _ => HandledError.Create()
+            })
+            .Bind(user => SeriesSubscriptions.LoadSubscriptions( Factory.CosmosUserSubscriptionsLoader(), user, CancellationToken.None))
+            .FlushLogs(Logger) 
+            .Match(
+                subscriptions => _subscribedIds = [.. subscriptions.Select(s => s.SeriesId)],
+                _ => { });
+
     }
+
+    private bool IsSubscribed(Series series) => _subscribedIds.Contains(series.MalId);
 
     private static ImmutableArray<Series> Sort(ImmutableArray<Series> series) =>
         [.. series.OrderByDescending(s => s.Score ?? -1).ThenBy(SortTitle, StringComparer.OrdinalIgnoreCase)];

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace AnimeFeedManager.Features.Feeds.Entities;
 
 public enum ReleaseContentType

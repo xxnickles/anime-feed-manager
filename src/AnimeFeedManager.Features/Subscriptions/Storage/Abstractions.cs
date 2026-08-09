@@ -8,11 +8,11 @@ public delegate Task<Result<Unit>> UserSubscriptionUpserter(
 
 /// <summary>Unsubscribes a user from a series — plain delete; already-unsubscribed is a no-op success.</summary>
 public delegate Task<Result<Unit>> UserSubscriptionRemover(
-    string userId, int seriesId, CancellationToken cancellationToken);
+    NoEmptyString userId, int seriesId, CancellationToken cancellationToken);
 
 /// <summary>Every series a user subscribes to — single-partition query, no cross-partition fan-out.</summary>
 public delegate Task<Result<ImmutableArray<UserSubscription>>> UserSubscriptionsLoader(
-    string userId, CancellationToken cancellationToken);
+    NoEmptyString userId, CancellationToken cancellationToken);
 
 /// <summary>Write-only — one document per subscribe/unsubscribe occurrence.</summary>
 public delegate Task<Result<Unit>> SubscriptionEventUpserter(SubscriptionEvent subscriptionEvent, CancellationToken cancellationToken);

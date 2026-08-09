@@ -1,4 +1,3 @@
-using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Features.Tests.Library.Import.Jikan.Helpers;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;

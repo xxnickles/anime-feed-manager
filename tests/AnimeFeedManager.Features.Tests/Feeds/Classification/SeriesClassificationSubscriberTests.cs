@@ -1,7 +1,6 @@
 using AnimeFeedManager.Features.Feeds.Classification;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Features.Library.Events;
-using AnimeFeedManager.Features.Library.Import.Jikan;
 using AnimeFeedManager.Infrastructure.Cosmos;
 using AnimeFeedManager.Infrastructure.Cosmos.Results;
 using AnimeFeedManager.Infrastructure.Eventing;

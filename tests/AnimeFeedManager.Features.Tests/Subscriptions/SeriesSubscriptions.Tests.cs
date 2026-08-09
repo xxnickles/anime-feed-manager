@@ -10,6 +10,7 @@ public class SeriesSubscriptionsTests
 {
     private static readonly SeriesSeason Spring2026 = new(Season.Spring(), Year.FromNumber(2026));
     private static readonly DateTimeOffset Now = new(2026, 4, 1, 0, 0, 0, TimeSpan.Zero);
+    private static readonly NoEmptyString UserId = NoEmptyString.FromString("user-1");
 
     #region Subscribe
 
@@ -19,7 +20,7 @@ public class SeriesSubscriptionsTests
         UserSubscription? captured = null;
 
         var result = await SeriesSubscriptions.Subscribe(
-            "user-1", 42, Spring2026,
+            UserId, 42, Spring2026,
             CapturingUserUpsert(s => captured = s), SeriesSubscriberUpsertOk, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
@@ -36,7 +37,7 @@ public class SeriesSubscriptionsTests
         UserSubscription? captured = null;
 
         await SeriesSubscriptions.Subscribe(
-            "user-1", 42, Spring2026,
+            UserId, 42, Spring2026,
             CapturingUserUpsert(s => captured = s), SeriesSubscriberUpsertOk, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
@@ -49,7 +50,7 @@ public class SeriesSubscriptionsTests
         SeriesSubscriber? captured = null;
 
         var result = await SeriesSubscriptions.Subscribe(
-            "user-1", 42, Spring2026,
+            UserId, 42, Spring2026,
             UserSubscriptionUpsertOk, CapturingSeriesUpsert(s => captured = s), SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
@@ -65,7 +66,7 @@ public class SeriesSubscriptionsTests
         SubscriptionEvent? captured = null;
 
         var result = await SeriesSubscriptions.Subscribe(
-            "user-1", 42, Spring2026,
+            UserId, 42, Spring2026,
             UserSubscriptionUpsertOk, SeriesSubscriberUpsertOk, CapturingSubscriptionEventUpsert(e => captured = e), FixedTime(Now),
             TestContext.Current.CancellationToken);
 
@@ -78,21 +79,39 @@ public class SeriesSubscriptionsTests
     }
 
     [Fact]
-    public async Task Should_Succeed_When_Series_Subscriber_Upsert_Fails()
+    public async Task Should_Return_Failure_When_Series_Subscriber_Upsert_Fails()
     {
         var result = await SeriesSubscriptions.Subscribe(
-            "user-1", 42, Spring2026,
+            UserId, 42, Spring2026,
             UserSubscriptionUpsertOk, SeriesSubscriberUpsertFails, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
-        Assert.False(result.IsFailure);
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Should_Not_Upsert_Subscription_Event_When_Series_Subscriber_Upsert_Fails()
+    {
+        var subscriptionEventCalled = false;
+        SubscriptionEventUpserter upsertSubscriptionEvent = (_, _) =>
+        {
+            subscriptionEventCalled = true;
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
+
+        await SeriesSubscriptions.Subscribe(
+            UserId, 42, Spring2026,
+            UserSubscriptionUpsertOk, SeriesSubscriberUpsertFails, upsertSubscriptionEvent, FixedTime(Now),
+            TestContext.Current.CancellationToken);
+
+        Assert.False(subscriptionEventCalled);
     }
 
     [Fact]
     public async Task Should_Succeed_When_Subscription_Event_Upsert_Fails()
     {
         var result = await SeriesSubscriptions.Subscribe(
-            "user-1", 42, Spring2026,
+            UserId, 42, Spring2026,
             UserSubscriptionUpsertOk, SeriesSubscriberUpsertOk, SubscriptionEventUpsertFails, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
@@ -110,7 +129,7 @@ public class SeriesSubscriptionsTests
         };
 
         await SeriesSubscriptions.Subscribe(
-            "user-1", 42, Spring2026,
+            UserId, 42, Spring2026,
             UserSubscriptionUpsertFails, upsertSeriesSubscriber, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
@@ -121,7 +140,7 @@ public class SeriesSubscriptionsTests
     public async Task Should_Return_Failure_When_User_Subscription_Upsert_Fails()
     {
         var result = await SeriesSubscriptions.Subscribe(
-            "user-1", 42, Spring2026,
+            UserId, 42, Spring2026,
             UserSubscriptionUpsertFails, SeriesSubscriberUpsertOk, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
@@ -150,7 +169,7 @@ public class SeriesSubscriptionsTests
         };
 
         var result = await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, removeUserSubscription, removeSeriesSubscriber, SubscriptionEventUpsertOk, FixedTime(Now),
+            UserId, 42, removeUserSubscription, removeSeriesSubscriber, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
@@ -164,7 +183,7 @@ public class SeriesSubscriptionsTests
         SubscriptionEvent? captured = null;
 
         var result = await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveOk, CapturingSubscriptionEventUpsert(e => captured = e), FixedTime(Now),
+            UserId, 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveOk, CapturingSubscriptionEventUpsert(e => captured = e), FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
@@ -176,20 +195,37 @@ public class SeriesSubscriptionsTests
     }
 
     [Fact]
-    public async Task Should_Succeed_When_Series_Subscriber_Remove_Fails()
+    public async Task Should_Return_Failure_When_Series_Subscriber_Remove_Fails()
     {
         var result = await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveFails, SubscriptionEventUpsertOk, FixedTime(Now),
+            UserId, 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveFails, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
-        Assert.False(result.IsFailure);
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Should_Not_Upsert_Subscription_Event_When_Series_Subscriber_Remove_Fails()
+    {
+        var subscriptionEventCalled = false;
+        SubscriptionEventUpserter upsertSubscriptionEvent = (_, _) =>
+        {
+            subscriptionEventCalled = true;
+            return Task.FromResult(Result<Unit>.Success(new Unit()));
+        };
+
+        await SeriesSubscriptions.Unsubscribe(
+            UserId, 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveFails, upsertSubscriptionEvent, FixedTime(Now),
+            TestContext.Current.CancellationToken);
+
+        Assert.False(subscriptionEventCalled);
     }
 
     [Fact]
     public async Task Should_Succeed_When_Subscription_Event_Upsert_Fails_On_Unsubscribe()
     {
         var result = await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveOk, SubscriptionEventUpsertFails, FixedTime(Now),
+            UserId, 42, UserSubscriptionRemoveOk, SeriesSubscriberRemoveOk, SubscriptionEventUpsertFails, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.False(result.IsFailure);
@@ -206,7 +242,7 @@ public class SeriesSubscriptionsTests
         };
 
         await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, UserSubscriptionRemoveFails, removeSeriesSubscriber, SubscriptionEventUpsertOk, FixedTime(Now),
+            UserId, 42, UserSubscriptionRemoveFails, removeSeriesSubscriber, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
 
         Assert.False(seriesSubscriberCalled);
@@ -216,8 +252,53 @@ public class SeriesSubscriptionsTests
     public async Task Should_Return_Failure_When_User_Subscription_Remove_Fails()
     {
         var result = await SeriesSubscriptions.Unsubscribe(
-            "user-1", 42, UserSubscriptionRemoveFails, SeriesSubscriberRemoveOk, SubscriptionEventUpsertOk, FixedTime(Now),
+            UserId, 42, UserSubscriptionRemoveFails, SeriesSubscriberRemoveOk, SubscriptionEventUpsertOk, FixedTime(Now),
             TestContext.Current.CancellationToken);
+
+        Assert.True(result.IsFailure);
+    }
+
+    #endregion
+
+    #region LoadSubscriptions
+
+    [Fact]
+    public async Task Should_Return_Subscriptions_When_Loader_Succeeds()
+    {
+        var subscription = new UserSubscription(UserId, 42) { Season = Spring2026, SubscribedAt = Now };
+        UserSubscriptionsLoader loadSubscriptions = (_, _) =>
+            Task.FromResult(Result<ImmutableArray<UserSubscription>>.Success([subscription]));
+
+        var result = await SeriesSubscriptions.LoadSubscriptions(loadSubscriptions, UserId, TestContext.Current.CancellationToken);
+
+        Assert.False(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task Should_Pass_UserId_To_Loader_When_Loading_Subscriptions()
+    {
+        NoEmptyString? captured = null;
+        UserSubscriptionsLoader loadSubscriptions = (userId, _) =>
+        {
+            captured = userId;
+            return Task.FromResult(Result<ImmutableArray<UserSubscription>>.Success([]));
+        };
+
+        await SeriesSubscriptions.LoadSubscriptions(loadSubscriptions, UserId, TestContext.Current.CancellationToken);
+
+        Assert.Equal(UserId, captured);
+    }
+
+    [Fact]
+    public async Task Should_Return_Failure_When_Loader_Fails()
+    {
+        UserSubscriptionsLoader loadSubscriptions = (_, _) =>
+        {
+            Result<ImmutableArray<UserSubscription>> failure = ExceptionError.FromException(new Exception("load failed"));
+            return Task.FromResult(failure);
+        };
+
+        var result = await SeriesSubscriptions.LoadSubscriptions(loadSubscriptions, UserId, TestContext.Current.CancellationToken);
 
         Assert.True(result.IsFailure);
     }

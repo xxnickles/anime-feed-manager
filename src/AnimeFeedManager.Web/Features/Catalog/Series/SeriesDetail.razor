@@ -2,9 +2,14 @@
 @using AnimeFeedManager.Features.Library.Catalog
 @using AnimeFeedManager.Features.Library.Entities
 @using AnimeFeedManager.Features.Library.Catalog.Storage
+@using AnimeFeedManager.Features.Subscriptions
+@using AnimeFeedManager.Features.Subscriptions.Storage
+@using AnimeFeedManager.Shared.Results
+@using AnimeFeedManager.Web.Features.Security
 @using Azure.Storage.Blobs
 @inject ICosmosContainerFactory Factory
 @inject BlobServiceClient BlobServiceClient
+@inject IHttpContextAccessor HttpContextAccessor
 @inject ILogger<SeriesDetail> Logger
 
 @* One series' detail page (e.g. /series/2026-spring/52991). The season segment is required because a
@@ -191,6 +196,7 @@
 
     private SeriesDetailContext _context = new ProcessFailed();
     private string _imageBase = string.Empty;
+    private bool _isSubscribed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -207,6 +213,20 @@
                     NotFoundError => new SeriesNotFound(),
                     _ =>  new ProcessFailed()
                 });
+
+        if (_context is SeriesDetailAvailable)
+        {
+            await (HttpContextAccessor.HttpContext?.GetCurrentUser() switch
+                {
+                    AuthenticatedUser user => Result<NoEmptyString>.Success(user.UserId),
+                    _ => HandledError.Create()
+                })
+                .Bind(user => SeriesSubscriptions.LoadSubscriptions(Factory.CosmosUserSubscriptionsLoader(), user, CancellationToken.None))
+                .FlushLogs(Logger)
+                .Match(
+                    subscriptions => _isSubscribed = subscriptions.Any(s => s.SeriesId == MalId),
+                    _ => { });
+        }
     }
 
     private string PageTitle => _context is SeriesDetailAvailable {Series: { } series} ? SeriesTitle(series) : "Series";

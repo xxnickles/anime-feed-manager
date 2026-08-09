@@ -10,15 +10,15 @@ namespace AnimeFeedManager.Features.Subscriptions.Storage;
 
 public static class CosmosUserSubscriptionStorage
 {
-    public static UserSubscriptionUpserter CosmosUserSubscriptionUpserterHandler(this ICosmosContainerFactory factory) =>
+    public static UserSubscriptionUpserter CosmosUserSubscriptionUpserter(this ICosmosContainerFactory factory) =>
         (subscription, cancellationToken) => factory.GetContainer<UserSubscription>()
             .Bind(container => Upsert(container, subscription, cancellationToken));
 
-    public static UserSubscriptionRemover CosmosUserSubscriptionRemoverHandler(this ICosmosContainerFactory factory) =>
+    public static UserSubscriptionRemover CosmosUserSubscriptionRemover(this ICosmosContainerFactory factory) =>
         (userId, seriesId, cancellationToken) => factory.GetContainer<UserSubscription>()
             .Bind(container => Remove(container, userId, seriesId, cancellationToken));
 
-    public static UserSubscriptionsLoader CosmosUserSubscriptionsLoaderHandler(this ICosmosContainerFactory factory) =>
+    public static UserSubscriptionsLoader CosmosUserSubscriptionsLoader(this ICosmosContainerFactory factory) =>
         (userId, cancellationToken) => factory.GetContainer<UserSubscription>()
             .Bind(container => LoadSubscriptions(container, userId, cancellationToken));
 
@@ -30,7 +30,7 @@ public static class CosmosUserSubscriptionStorage
         {
             using var stream = new MemoryStream();
             await JsonSerializer.SerializeAsync(
-                stream, (UserDocument)subscription, SubscriptionsJsonContext.Default.UserDocument, cancellationToken);
+                stream, subscription, SubscriptionsJsonContext.Default.UserDocument, cancellationToken);
             stream.Position = 0;
 
             using var response = await container.UpsertItemStreamAsync(stream, partitionKey, cancellationToken: cancellationToken);
