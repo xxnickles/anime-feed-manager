@@ -34,13 +34,14 @@ public delegate Task<Result<Unit>> ReleaseDetectedUpserter(
     ReleaseDetected release, CancellationToken cancellationToken);
 
 /// <summary>
-/// Cross-partition query for every <see cref="ReleaseDetected"/> still <see cref="ReleaseDetectedStatus.Pending"/>
-/// dispatch — the read side for the future notification-delivery process. <see cref="ReleaseDetected"/>
-/// is partitioned by series id, so this necessarily fans out to every series partition; the
-/// docType + status filter keeps the match set small regardless of library size, and the ~48h
-/// <see cref="ReleaseDetected.Ttl"/> caps how long an entry can stay Pending before Cosmos removes it.
+/// Cross-partition query for every still-live <see cref="ReleaseDetected"/> — <see cref="ReleaseDetectedStatus.Pending"/>
+/// or <see cref="ReleaseDetectedStatus.Processed"/> alike — the discovery step for the notification-dispatch
+/// job. <see cref="ReleaseDetectedStatus.Processed"/> entries stay in scope so a late subscriber can still
+/// be caught up on a release already dispatched to everyone else. <see cref="ReleaseDetected"/> is
+/// partitioned by series id, so this necessarily fans out to every series partition; the ~48h
+/// <see cref="ReleaseDetected.Ttl"/> caps how long an entry stays queryable at all, regardless of status.
 /// </summary>
-public delegate Task<Result<ImmutableArray<ReleaseDetected>>> PendingReleaseDetectedLoader(
+public delegate Task<Result<ImmutableArray<ReleaseDetected>>> LiveReleaseDetectedLoader(
     CancellationToken cancellationToken);
 
 /// <summary>Write-only — one document per job execution, read side is the observability trail.</summary>
