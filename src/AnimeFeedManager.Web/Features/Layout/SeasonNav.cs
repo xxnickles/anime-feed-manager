@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Features.Library.Seasons.Types;
 

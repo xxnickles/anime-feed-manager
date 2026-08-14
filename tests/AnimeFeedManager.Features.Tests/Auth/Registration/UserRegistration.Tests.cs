@@ -213,7 +213,7 @@ public class UserRegistrationTests
 
     private static readonly UserByEmailGetter EmailTaken =
         (email, _) => Task.FromResult(Result<StoredUser>.Success(
-            new ValidStoredUser(email, NoEmptyString.FromString("existing-id"), UserRole.User())));
+            new ValidStoredUser(email, NoEmptyString.FromString("existing-id"), UserRole.User(), "Existing User")));
 
     private static readonly UserAccountUpserter UpsertOk =
         (_, _, _, _, _) => Task.FromResult(Result<Unit>.Success(new Unit()));

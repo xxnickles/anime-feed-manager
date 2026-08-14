@@ -8,7 +8,6 @@ using AnimeFeedManager.Features.Subscriptions;
 using AnimeFeedManager.Infrastructure.Registration;
 using AnimeFeedManager.ServiceDefaults;
 using AnimeFeedManager.Shared;
-using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
 using AnimeFeedManager.Web.Features.Notifications.Endpoints;
 using AnimeFeedManager.Web.Features.Notifications.Registration;

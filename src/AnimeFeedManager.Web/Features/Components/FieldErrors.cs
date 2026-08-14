@@ -1,4 +1,3 @@
-using AnimeFeedManager.Shared.Results.Errors;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace AnimeFeedManager.Web.Features.Components;

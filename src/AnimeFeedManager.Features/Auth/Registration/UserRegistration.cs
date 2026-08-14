@@ -83,7 +83,7 @@ public static class UserRegistration
         var reg = pending.Registration;
         var role = UserRole.User();
         return upsertAccount(reg.Email, reg.UserId, role, reg.DisplayName, cancellationToken)
-            .Bind(_ => registerInIndex(new UserIndexEntry(reg.Email, reg.UserId, role.ToString()), cancellationToken)
+            .Bind(_ => registerInIndex(new UserIndexEntry(reg.Email, reg.UserId, role.ToString(), reg.DisplayName), cancellationToken)
                 .AddLogOnFailure(_ => logger => logger.LogError(
                     "Registry update failed after account {UserId} was written; account is orphaned (not dedup-indexed)",
                     reg.UserId)))

@@ -1,11 +1,7 @@
 global using System.Collections.Immutable;
-global using System.Runtime.CompilerServices;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
-global using AnimeFeedManager.Features.SharedDomain.Cosmos;
-global using AnimeFeedManager.Infrastructure.Background.Cron;
 global using AnimeFeedManager.Infrastructure.Cosmos;
-global using AnimeFeedManager.Infrastructure.Cosmos.Types;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;
 global using AnimeFeedManager.Shared.Results.Static;

@@ -1,0 +1,88 @@
+@* Digest email — rendered standalone via HtmlRenderer (see BlazorEmailRenderer), not embedded in
+   the app shell. Every style is inline: email clients strip <style> blocks and ignore external
+   CSS, so nothing here can rely on Tailwind or the app's stylesheet. *@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Episodes Available</title>
+</head>
+<body style="margin:0;padding:0;background:#EDE3D3;font-family:Arial,Helvetica,sans-serif;color:#3B2A1E">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EDE3D3">
+<tr><td align="center" style="padding:32px 16px">
+
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;border:3px solid #3B2A1E;border-radius:14px;box-shadow:6px 6px 0 #3B2A1E;background:#FAF3EA">
+
+<tr><td style="background:#8C3B2E;padding:22px 28px;border-radius:11px 11px 0 0;border-bottom:3px solid #3B2A1E">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td>
+<div style="font:900 22px/1.2 Arial, Helvetica, sans-serif;color:#FAF3EA;letter-spacing:-0.5px">New Episodes Available</div>
+<div style="font:700 12px Arial, Helvetica, sans-serif;color:#F2CBAE;margin-top:4px">@Model.DigestDate.ToString("MMMM d, yyyy")</div>
+</td></tr></table>
+</td></tr>
+
+<tr><td style="padding:24px 28px 4px">
+<div style="font-size:15px;line-height:1.5">Hi <b>@Model.RecipientName</b>, here's what's ready from your last check.</div>
+</td></tr>
+
+<tr><td style="padding:16px 28px 4px">
+@foreach (var card in Model.Releases)
+{
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid #3B2A1E;border-radius:10px;background:#FFFFFF;margin-bottom:16px">
+    <tr><td style="padding:18px 20px 14px">
+    <span style="display:inline-block;padding:3px 10px;border:2px solid #3B2A1E;border-radius:999px;font:800 10px Arial, Helvetica, sans-serif;letter-spacing:1px;text-transform:uppercase;@BadgeStyle(card.Confirmed)">@BadgeText(card.ContentType)</span>
+    <div style="font:900 20px Arial, Helvetica, sans-serif;margin-top:10px">@card.SeriesTitle</div>
+    @{ var episodeLabel = EpisodeLabel(card); }
+    @if (episodeLabel is not null)
+    {
+        <div style="font:700 12px Arial, Helvetica, sans-serif;color:#6B5A4A;margin-top:2px">@episodeLabel</div>
+    }
+    </td></tr>
+    @if (card.Platforms.Length > 0)
+    {
+        <tr><td style="padding:0 20px"><div style="border-top:2px dashed #3B2A1E;font-size:0;line-height:0">&nbsp;</div></td></tr>
+        <tr><td style="padding:16px 20px 18px">
+        <div style="font:800 11px Arial, Helvetica, sans-serif;letter-spacing:1px;text-transform:uppercase;color:#8C3B2E;margin-bottom:8px">Available on</div>
+        @foreach (var platform in card.Platforms)
+        {
+            <a href="@platform.Url" style="display:inline-block;padding:6px 12px;border:2px solid #3B2A1E;border-radius:8px;box-shadow:2px 2px 0 #3B2A1E;font:800 12px Arial, Helvetica, sans-serif;text-decoration:none;color:@platform.Text;background:@platform.Background;margin:0 8px 8px 0">&#9658; @platform.Name</a>
+        }
+        </td></tr>
+    }
+    </table>
+}
+</td></tr>
+
+<tr><td style="padding:20px 28px 26px;border-top:2px solid #E6D6C2">
+<div style="font-size:11px;color:#8A7A6A;text-align:center;line-height:1.5">You're receiving this because you follow these series on Anime Feed Manager.<br>Anime Feed Manager © @Model.DigestDate.Year</div>
+</td></tr>
+
+</table>
+
+</td></tr>
+</table>
+</body>
+</html>
+
+@code {
+    [Parameter, EditorRequired] public NotificationDigestView Model { get; set; } = null!;
+
+    private static string BadgeStyle(bool confirmed) =>
+        confirmed ? "background:#3B2A1E;color:#FAF3EA" : "background:transparent;color:#3B2A1E";
+
+    private static string BadgeText(ReleaseContentType contentType) => contentType switch
+    {
+        ReleaseContentType.Episode => "Now Airing",
+        ReleaseContentType.Batch => "Batch Release",
+        ReleaseContentType.MovieOrOva => "Movie/OVA",
+        ReleaseContentType.BdRemux => "BD Remux",
+        _ => "New Release"
+    };
+
+    private static string? EpisodeLabel(ReleaseCardModel card) => (card.Episode, card.EpisodeRangeEnd) switch
+    {
+        ({ } episode, { } end) when end > episode => $"Episodes {episode}-{end}",
+        ({ } episode, _) => $"Episode {episode}",
+        _ => null
+    };
+}

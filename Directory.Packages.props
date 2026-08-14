@@ -32,7 +32,7 @@
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.9.0" />
     <!-- Test packages -->
     <PackageVersion Include="coverlet.collector" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
     <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="WireMock.Net" Version="2.14.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
@@ -44,7 +44,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.17.0" />
     <!-- Third-party packages -->
     <PackageVersion Include="Cronos" Version="0.13.0" />
-    <PackageVersion Include="MailKit" Version="4.16.0" />
+    <PackageVersion Include="MailKit" Version="4.17.0" />
     <PackageVersion Include="Passwordless.AspNetCore" Version="2.0.0" />
     <PackageVersion Include="PuppeteerSharp" Version="24.42.0" />
     <PackageVersion Include="Raffinert.FuzzySharp" Version="5.0.3" />

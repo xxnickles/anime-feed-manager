@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Results;
-using AnimeFeedManager.Shared.Results.Static;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http.HttpResults;
 

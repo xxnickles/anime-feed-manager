@@ -15,5 +15,5 @@ public sealed record UsersIndex : SystemDocument
     public ImmutableArray<UserIndexEntry> Users { get; init; } = ImmutableArray<UserIndexEntry>.Empty;
 }
 
-/// <summary>Denormalized registry entry: enough to dedup by email and resolve a user id + role.</summary>
-public sealed record UserIndexEntry(string Email, string UserId, string Role);
+/// <summary>Denormalized registry entry: enough to dedup by email, resolve a user id + role, and greet a user by name.</summary>
+public sealed record UserIndexEntry(string Email, string UserId, string Role, string DisplayName);

@@ -52,7 +52,7 @@ public static class CosmosUserStore
 
             activity?.SetTag("auth.user_account.found", document is UserAccount);
             return document is UserAccount account
-                ? ToStoredUser(account.Email, account.UserId, account.Role)
+                ? ToStoredUser(account.Email, account.UserId, account.Role, account.DisplayName)
                 : new NotAStoredUser();
         }
         catch (CosmosException e)
@@ -121,10 +121,10 @@ public static class CosmosUserStore
 
     // Parse the stored primitives back into domain types at the boundary; a malformed record
     // (should never happen — we only write validated values) degrades to NotAStoredUser.
-    internal static StoredUser ToStoredUser(string email, string userId, string role) =>
+    internal static StoredUser ToStoredUser(string email, string userId, string role, string displayName) =>
         email.ParseAsEmail().AsResult()
             .Bind(parsedEmail => userId.ParseAsNonEmpty().AsResult().Map(parsedId => (parsedEmail, parsedId)))
             .MatchToValue<(Email, NoEmptyString), StoredUser>(
-                parts => new ValidStoredUser(parts.Item1, parts.Item2, UserRole.FromString(role)),
+                parts => new ValidStoredUser(parts.Item1, parts.Item2, UserRole.FromString(role), displayName),
                 _ => new NotAStoredUser());
 }

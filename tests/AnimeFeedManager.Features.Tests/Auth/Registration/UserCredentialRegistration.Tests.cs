@@ -69,7 +69,7 @@ public class UserCredentialRegistrationTests
     #region Test Helpers
 
     private static readonly ValidStoredUser KnownUser =
-        new(Email.FromString("nick@example.com"), NoEmptyString.FromString("user-1"), UserRole.User());
+        new(Email.FromString("nick@example.com"), NoEmptyString.FromString("user-1"), UserRole.User(), "Nick");
 
     private static IPasswordlessClient ClientReturningToken(string token)
     {

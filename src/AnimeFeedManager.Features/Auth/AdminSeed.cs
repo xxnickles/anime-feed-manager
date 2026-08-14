@@ -31,6 +31,6 @@ public static class AdminSeed
         var role = UserRole.Admin();
         return containerFactory.UserAccountUpserterHandler()(email, userId, role, email, cancellationToken)
             .Bind(_ => containerFactory.UsersIndexRegistrarHandler()(
-                new UserIndexEntry(email, userId, role.ToString()), cancellationToken));
+                new UserIndexEntry(email, userId, role.ToString(), email), cancellationToken));
     }
 }

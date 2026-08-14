@@ -1,9 +1,5 @@
 using AnimeFeedManager.Features.Library.Import;
 using AnimeFeedManager.Infrastructure.Background.Jobs;
-using AnimeFeedManager.Shared.Results;
-using AnimeFeedManager.Shared.Results.Errors;
-using AnimeFeedManager.Shared.Results.Static;
-using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Components;
 using Microsoft.AspNetCore.Mvc;
 

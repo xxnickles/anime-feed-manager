@@ -152,7 +152,7 @@ public static class CosmosUsersIndex
 
     private static StoredUser FindByEmail(UsersIndex index, Email email) =>
         index.Users.FirstOrDefault(e => string.Equals(e.Email, email, StringComparison.OrdinalIgnoreCase)) is { } entry
-            ? CosmosUserStore.ToStoredUser(entry.Email, entry.UserId, entry.Role)
+            ? CosmosUserStore.ToStoredUser(entry.Email, entry.UserId, entry.Role, entry.DisplayName)
             : new NotAStoredUser();
 
     private static ImmutableArray<ValidStoredUser> FindByIds(UsersIndex index, ImmutableArray<string> userIds)
@@ -160,7 +160,7 @@ public static class CosmosUsersIndex
         var wanted = userIds.ToHashSet();
         return [..index.Users
             .Where(e => wanted.Contains(e.UserId))
-            .Select(e => CosmosUserStore.ToStoredUser(e.Email, e.UserId, e.Role))
+            .Select(e => CosmosUserStore.ToStoredUser(e.Email, e.UserId, e.Role, e.DisplayName))
             .OfType<ValidStoredUser>()];
     }
 

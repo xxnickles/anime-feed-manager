@@ -1,11 +1,6 @@
 using AnimeFeedManager.Features.Feeds.Storage;
 using AnimeFeedManager.Features.Subscriptions;
 using AnimeFeedManager.Features.Subscriptions.Storage;
-using AnimeFeedManager.Infrastructure.Cosmos;
-using AnimeFeedManager.Shared.Results;
-using AnimeFeedManager.Shared.Results.Errors;
-using AnimeFeedManager.Shared.Results.Static;
-using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Features.Catalog.Series;
 using AnimeFeedManager.Web.Features.Components;
 using AnimeFeedManager.Web.Features.Components.Responses;

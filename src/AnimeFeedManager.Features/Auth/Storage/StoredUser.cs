@@ -7,6 +7,6 @@ namespace AnimeFeedManager.Features.Auth.Storage;
 /// </summary>
 public abstract record StoredUser;
 
-public sealed record ValidStoredUser(Email Email, NoEmptyString UserId, UserRole Role) : StoredUser;
+public sealed record ValidStoredUser(Email Email, NoEmptyString UserId, UserRole Role, string DisplayName) : StoredUser;
 
 public sealed record NotAStoredUser : StoredUser;

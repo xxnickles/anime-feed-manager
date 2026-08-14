@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using AnimeFeedManager.Shared.Results.Static;
-using AnimeFeedManager.Shared.Types;
 
 namespace AnimeFeedManager.Web.Features.Security;
 

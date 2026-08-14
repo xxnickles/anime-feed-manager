@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace AnimeFeedManager.Web.Htmx;
 
 internal abstract record HtmxRequestType;
