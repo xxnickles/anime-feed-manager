@@ -26,6 +26,11 @@ public static class CosmosUsersIndex
         (entry, cancellationToken) => factory.GetContainer<UsersIndex>()
             .Bind(container => Register(container, entry, cancellationToken));
 
+    public static UsersByIdsGetter UsersByIdsGetterHandler(this ICosmosContainerFactory factory) =>
+        (userIds, cancellationToken) => factory.GetContainer<UsersIndex>()
+            .Bind(container => LoadIndex(container, cancellationToken))
+            .Map(index => FindByIds(index, userIds));
+
     private static async Task<Result<UsersIndex>> LoadIndex(Container container, CancellationToken cancellationToken)
     {
         using var activity = Source.StartActivity("Auth.UsersIndex.Read");
@@ -149,6 +154,15 @@ public static class CosmosUsersIndex
         index.Users.FirstOrDefault(e => string.Equals(e.Email, email, StringComparison.OrdinalIgnoreCase)) is { } entry
             ? CosmosUserStore.ToStoredUser(entry.Email, entry.UserId, entry.Role)
             : new NotAStoredUser();
+
+    private static ImmutableArray<ValidStoredUser> FindByIds(UsersIndex index, ImmutableArray<string> userIds)
+    {
+        var wanted = userIds.ToHashSet();
+        return [..index.Users
+            .Where(e => wanted.Contains(e.UserId))
+            .Select(e => CosmosUserStore.ToStoredUser(e.Email, e.UserId, e.Role))
+            .OfType<ValidStoredUser>()];
+    }
 
     // Replace by user id (idempotent re-write), else append. Mirrors the seasons-index merge style.
     internal static ImmutableArray<UserIndexEntry> Merge(ImmutableArray<UserIndexEntry> existing, UserIndexEntry incoming)

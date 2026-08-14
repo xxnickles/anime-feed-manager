@@ -16,6 +16,14 @@ public delegate Task<Result<StoredUser>> UserAccountGetter(
 public delegate Task<Result<StoredUser>> UserByEmailGetter(
     Email email, CancellationToken cancellationToken = default);
 
+/// <summary>
+/// Resolves every registry entry matching one of <paramref name="userIds"/> from the single
+/// <see cref="UsersIndex"/> document — one read regardless of how many ids are requested. Ids
+/// with no matching entry are silently omitted, not errors.
+/// </summary>
+public delegate Task<Result<ImmutableArray<ValidStoredUser>>> UsersByIdsGetter(
+    ImmutableArray<string> userIds, CancellationToken cancellationToken = default);
+
 /// <summary>Upserts a user's account document into its <c>userId</c> partition.</summary>
 public delegate Task<Result<Unit>> UserAccountUpserter(
     Email email, string userId, UserRole role, string displayName, CancellationToken cancellationToken = default);
