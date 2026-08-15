@@ -29,6 +29,14 @@ public interface IJikanClient
     /// Licensor/platform data, not per-episode release confirmation.
     /// </summary>
     Task<Result<ImmutableArray<JikanStreamingEntry>>> GetStreamingPlatforms(int malId, CancellationToken token = default);
+
+    /// <summary>
+    /// Streams every page of currently-airing TV anime (<c>anime?status=airing&amp;type=tv</c>),
+    /// globally — not scoped to a single season. Each item carries its own season/year
+    /// (<see cref="JikanAnime.Season"/>/<see cref="JikanAnime.Year"/>), unlike <see cref="GetSeason"/>
+    /// where the season is resolved once per page.
+    /// </summary>
+    IAsyncEnumerable<Result<JikanAiringPage>> GetCurrentlyAiringTv(CancellationToken token = default);
 }
 
 /// <summary>
@@ -51,6 +59,9 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
 
     public IAsyncEnumerable<Result<JikanPage>> GetSeason(Year year, Season season, CancellationToken token = default) =>
         EnumeratePages($"seasons/{year}/{season}", new SeriesSeason(season, year), token);
+
+    public IAsyncEnumerable<Result<JikanAiringPage>> GetCurrentlyAiringTv(CancellationToken token = default) =>
+        EnumerateAiringPages(token);
 
     public async Task<Result<ImmutableArray<JikanStreamingEntry>>> GetStreamingPlatforms(
         int malId, CancellationToken token = default)
@@ -131,11 +142,42 @@ internal sealed class JikanClient(IHttpClientFactory httpClientFactory) : IJikan
                 .ToLoggedPage(path);
     }
 
+    // status=airing&type=tv is a server-side filter, not a season scope — there's no page-level
+    // season to resolve (each item carries its own via JikanAnime.Season/Year), so this loop is
+    // simpler than EnumeratePages: every page, including the first, can recover a 504 to an empty
+    // degraded page.
+    private async IAsyncEnumerable<Result<JikanAiringPage>> EnumerateAiringPages(
+        [EnumeratorCancellation] CancellationToken token)
+    {
+        const string path = "anime?status=airing&type=tv";
+
+        var firstPage = await FetchPage(path, pageNumber: 1, token)
+            .Map(payload => (payload, degraded: false))
+            .BindOnErrorWhen(
+                binder: _ => (payload: EmptyResponse(1), degraded: true),
+                predicate: error => error is JikanUnavailableError)
+            .ToLoggedAiringPage(path);
+
+        yield return firstPage;
+        if (firstPage.IsFailure) yield break;
+
+        var lastPage = firstPage.MatchToValue(page => page.LastPage, _ => 1);
+
+        for (var pageNumber = 2; pageNumber <= lastPage; pageNumber++)
+            yield return await FetchPage(path, pageNumber, token)
+                .Map(payload => (payload, degraded: false))
+                .BindOnErrorWhen(
+                    binder: _ => (payload: EmptyResponse(pageNumber), degraded: true),
+                    predicate: error => error is JikanUnavailableError)
+                .ToLoggedAiringPage(path);
+    }
+
     private async Task<Result<JikanSeasonResponse>> FetchPage(string path, int pageNumber, CancellationToken token)
     {
         try
         {
-            using var response = await _importClient.GetAsync($"{path}?page={pageNumber}", token);
+            var separator = path.Contains('?') ? '&' : '?';
+            using var response = await _importClient.GetAsync($"{path}{separator}page={pageNumber}", token);
 
             // See GetStreamingPlatforms — same known, recurring "unavailable" signal. Recovered by
             // EnumeratePages, not here, since only it knows whether a season is already available
@@ -217,6 +259,26 @@ file static class JikanPageProjection
             TotalItems: payload.Pagination.Items.Total)
         {
             Season = season,
+            Degraded = degraded
+        };
+
+    extension(Task<Result<(JikanSeasonResponse payload, bool degraded)>> source)
+    {
+        /// <summary>Same as <see cref="ToLoggedPage"/>, for the season-less airing bulk fetch.</summary>
+        public Task<Result<JikanAiringPage>> ToLoggedAiringPage(string path) =>
+            source
+                .Map(data => MapAiringPage(data.payload, data.degraded))
+                .AddLogOnSuccess(LogFactories.Log<JikanAiringPage>((page, logger) => logger.LogInformation(
+                    "Jikan {Path} page {Page}/{LastPage} retrieved ({Count} series)",
+                    path, page.Page, page.LastPage, page.Items.Length)));
+    }
+
+    private static JikanAiringPage MapAiringPage(JikanSeasonResponse payload, bool degraded) =>
+        new(
+            Items: [..payload.Data.Where(IsSeries)],
+            Page: payload.Pagination.CurrentPage,
+            LastPage: payload.Pagination.LastVisiblePage)
+        {
             Degraded = degraded
         };
 

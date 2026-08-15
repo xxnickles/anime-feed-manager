@@ -195,7 +195,9 @@ public static partial class JikanSeriesMapper
 
     // ─── helpers ─────────────────────────────────────────────────────────────
 
-    private static SeriesTitles BuildTitles(JikanTitle[] titles)
+    // internal: reused by Library/Airing to build AiringSeriesEntry.AllTitles from the same
+    // Jikan title array, without a second title-extraction implementation.
+    internal static SeriesTitles BuildTitles(JikanTitle[] titles)
     {
         var synonyms = titles.Where(title => title.Type == "Synonym").Select(title => title.Title).ToArray();
         return new SeriesTitles(
@@ -203,11 +205,11 @@ public static partial class JikanSeriesMapper
             English: Pick("English"),
             Japanese: Pick("Japanese"),
             Synonyms: synonyms);
-        
+
         string? Pick(string type) => titles.FirstOrDefault(title => title.Type == type)?.Title;
     }
 
-    private static string[] BuildAllTitles(SeriesTitles titles)
+    internal static string[] BuildAllTitles(SeriesTitles titles)
     {
         var aggregated = new List<string>(capacity: 3 + titles.Synonyms.Length) { titles.Default };
         if (titles.English is not null) aggregated.Add(titles.English);

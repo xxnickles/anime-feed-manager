@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Library.Airing;
 using AnimeFeedManager.Features.Library.Events;
 using AnimeFeedManager.Features.Library.Images;
 using AnimeFeedManager.Features.Library.Import;
@@ -33,6 +34,10 @@ public static class ServiceCollectionExtensions
                 .AddCronJob<LibraryImportCronJob>();
             builder.Services.AddEventHandler<OperationFailed, LibraryEventHandler>();
             builder.Services.AddEventHandler<SeasonImported, SeasonImportedEventHandler>();
+
+            builder.Services.AddScoped<AiringSeriesIndexRefreshJob>();
+            builder.Services.AddCronJob<AiringSeriesIndexRefreshCronJob>();
+            builder.Services.AddEventHandler<SeasonImported, AiringSeriesIndexRefreshEventHandler>();
 
             builder.Services.AddHttpClient<IImageHttpClient, ImageHttpClient>();
             builder.Services.AddHostedService<ImagesContainerInitializer>();
