@@ -23,5 +23,20 @@ public static class BulkResultExtensionMembers
                     throw new ArgumentOutOfRangeException(nameof(bulkResult), bulkResult, null);
             }
         }
+        
+        public void LogErrors(ILogger logger)
+        {
+            switch (bulkResult)
+            {
+                case CompletedBulkResult<T>:
+                    break;
+                case PartialSuccessBulkResult<T> partialSuccess:
+                    foreach (var error in partialSuccess.Errors)
+                        error.WriteError(logger);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(bulkResult), bulkResult, null);
+            }
+        }
     }
 }

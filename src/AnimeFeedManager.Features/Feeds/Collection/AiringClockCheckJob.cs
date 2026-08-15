@@ -50,6 +50,7 @@ public sealed class AiringClockCheckJob(
         var run = await BuildCandidateIds(cancellationToken)
             .Bind(ids => LoadAndProcessSchedules(ids, cancellationToken))
             .Tap(PublishRunCompleted)
+            .FlushLogs(logger)
             .MatchToValue(
                 counts => new CollectionRun(Source)
                 {
@@ -117,7 +118,7 @@ public sealed class AiringClockCheckJob(
                 .Where(evaluation => evaluation.IsEligible)
                 .Select(evaluation => new UntrackableSeries(evaluation.MalId, evaluation.Platforms))
                 .ToImmutableArray())
-            .Tap(bulk => bulk.LogResults(logger, static (_, _) => { }))
+            .AddLogOnSuccess(LogFactories.LogBulkErrors<ImmutableArray<UntrackableSeries>>())
             .Map(bulk => bulk.Value);
     }
 

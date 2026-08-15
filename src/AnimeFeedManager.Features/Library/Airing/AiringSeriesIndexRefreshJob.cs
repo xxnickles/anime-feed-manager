@@ -44,7 +44,7 @@ public sealed class AiringSeriesIndexRefreshJob(
     private Result<ImmutableArray<AiringSeriesEntry>> MapEntries(ImmutableArray<JikanAnime> items) =>
         items.Select(ToEntry)
             .Flatten(entries => entries.ToImmutableArray())
-            .Tap(bulk => bulk.LogResults(logger, static (_, _) => { }))
+            .AddLogOnSuccess(LogFactories.LogBulkErrors<ImmutableArray<AiringSeriesEntry>>())
             .Map(bulk => bulk.Value);
 
     private static Result<AiringSeriesEntry> ToEntry(JikanAnime anime) =>
