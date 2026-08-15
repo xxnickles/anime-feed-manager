@@ -20,10 +20,10 @@ public enum ReleaseDetectedStatus
 /// A detected release, handed off to a future notification-delivery process — the sole
 /// interface between collection and delivery. Partitioned by <see cref="SeriesId"/>, alongside
 /// that series' <see cref="SeriesClassification"/>. <see cref="Confirmed"/> distinguishes a
-/// Nyaa-confirmed release from an AniList-clock best-effort one; <see cref="Platforms"/> is
-/// copied from <see cref="SeriesClassification"/> at detection time (a historical snapshot, not
-/// a live join) so delivery can say "also on Crunchyroll" or, for an unconfirmed detection,
-/// "expected on Netflix" without an extra lookup.
+/// Nyaa-confirmed release from an AniList-clock best-effort one; <see cref="Platforms"/> and
+/// <see cref="SeriesTitle"/> are copied from data the detecting job already has in memory at
+/// detection time (a historical snapshot, not a live join) so delivery can say "also on
+/// Crunchyroll" or render the series' display title without an extra lookup.
 /// <see cref="Ttl"/> expires undispatched entries after ~48h — only takes effect because the
 /// shared "feeds" container has <c>DefaultTimeToLive</c> enabled (see AppHost.cs); the other
 /// document types sharing that container never set <c>ttl</c>, so they're unaffected.
@@ -39,6 +39,7 @@ public sealed record ReleaseDetected : SeriesFeedsDocument
     public FeedsPlatform[] Platforms { get; init; } = [];
     public ReleaseDetectedStatus Status { get; init; } = ReleaseDetectedStatus.Pending;
 
+    public string SeriesTitle { get; init; } = string.Empty;
     public string? SourceTitle { get; init; }
     public string? SourceLink { get; init; }
     public DateTimeOffset DetectedAt { get; init; }

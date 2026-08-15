@@ -111,6 +111,7 @@ internal sealed class NyaaFeedProcessor(
             EpisodeRangeEnd = episodeRangeEnd,
             Confirmed = true,
             Platforms = platforms,
+            SeriesTitle = release.SeriesTitle,
             SourceTitle = release.Entry.Title,
             SourceLink = release.Entry.Link,
             DetectedAt = time.GetUtcNow()

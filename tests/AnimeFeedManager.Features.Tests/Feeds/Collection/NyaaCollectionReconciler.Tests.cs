@@ -149,6 +149,7 @@ public class NyaaCollectionReconcilerTests
 
     private static MatchedRelease Release(int seriesId, ReleaseContent content, bool isBdRemux = false) =>
         new(seriesId,
+            "Series Title",
             new NyaaEntry("Title", "https://nyaa.si/download/1.torrent", "https://nyaa.si/view/1", DateTimeOffset.UtcNow),
             content,
             isBdRemux);

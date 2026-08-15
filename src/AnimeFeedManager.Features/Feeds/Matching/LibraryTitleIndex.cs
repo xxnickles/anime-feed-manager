@@ -22,13 +22,19 @@ internal sealed class LibraryTitleIndex
     private const int FuzzyMatchThreshold = 85;
 
     private readonly FrozenDictionary<string, int> _bySeriesTitle;
+    private readonly FrozenDictionary<int, string> _titleByMalId;
     private readonly string[] _fuzzyTitles;
     private readonly int[] _fuzzySeriesIds;
     private readonly TokenSetScorer _fuzzyScorer = new();
 
-    private LibraryTitleIndex(FrozenDictionary<string, int> bySeriesTitle, string[] fuzzyTitles, int[] fuzzySeriesIds)
+    private LibraryTitleIndex(
+        FrozenDictionary<string, int> bySeriesTitle,
+        FrozenDictionary<int, string> titleByMalId,
+        string[] fuzzyTitles,
+        int[] fuzzySeriesIds)
     {
         _bySeriesTitle = bySeriesTitle;
+        _titleByMalId = titleByMalId;
         _fuzzyTitles = fuzzyTitles;
         _fuzzySeriesIds = fuzzySeriesIds;
     }
@@ -48,21 +54,28 @@ internal sealed class LibraryTitleIndex
     private static LibraryTitleIndex Build(IEnumerable<(int MalId, string[] AllTitles)> entries)
     {
         var bySeriesTitle = new Dictionary<string, int>();
+        var titleByMalId = new Dictionary<int, string>();
         var fuzzyTitles = new List<string>();
         var fuzzySeriesIds = new List<int>();
 
         foreach (var (malId, titles) in entries)
-        foreach (var title in titles)
         {
-            var normalized = TitleNormalizer.Normalize(title);
-            if (normalized.Length < 2) continue;
+            // AllTitles[0] is always the canonical/default title — see JikanSeriesMapper.BuildAllTitles.
+            if (titles.Length > 0) titleByMalId.TryAdd(malId, titles[0]);
 
-            bySeriesTitle.TryAdd(normalized, malId);
-            fuzzyTitles.Add(title);
-            fuzzySeriesIds.Add(malId);
+            foreach (var title in titles)
+            {
+                var normalized = TitleNormalizer.Normalize(title);
+                if (normalized.Length < 2) continue;
+
+                bySeriesTitle.TryAdd(normalized, malId);
+                fuzzyTitles.Add(title);
+                fuzzySeriesIds.Add(malId);
+            }
         }
 
-        return new LibraryTitleIndex(bySeriesTitle.ToFrozenDictionary(), [..fuzzyTitles], [..fuzzySeriesIds]);
+        return new LibraryTitleIndex(
+            bySeriesTitle.ToFrozenDictionary(), titleByMalId.ToFrozenDictionary(), [..fuzzyTitles], [..fuzzySeriesIds]);
     }
 
     public bool TryMatch(string cleanTitle, out int seriesId)
@@ -72,6 +85,9 @@ internal sealed class LibraryTitleIndex
 
         return TryFuzzyMatch(cleanTitle, out seriesId);
     }
+
+    /// <summary>The canonical display title for a series already known to this index, if any.</summary>
+    public string? GetTitle(int seriesId) => _titleByMalId.GetValueOrDefault(seriesId);
 
     private bool TryFuzzyMatch(string cleanTitle, out int seriesId)
     {
