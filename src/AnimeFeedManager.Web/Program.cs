@@ -24,6 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddWebAppDefaults(
     Telemetry.LibraryImportSource,
     Telemetry.LibraryCatalogSource,
+    Telemetry.LibraryAiringSource,
     Telemetry.AuthSource);
 builder.AddCosmosInfrastructure(
     CosmosContainerRegistry.EntityRegistry, LibraryJsonContext.Default, FeedsJsonContext.Default, SubscriptionsJsonContext.Default);

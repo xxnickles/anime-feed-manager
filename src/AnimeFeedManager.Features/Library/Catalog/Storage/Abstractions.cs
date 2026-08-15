@@ -43,3 +43,15 @@ public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> CurrentlyAir
 public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> SeriesTitlesOutsideSeasonLoader(
     SeriesSeason excludedSeason,
     CancellationToken cancellationToken);
+
+/// <summary>
+/// Cross-partition, projected query: titles for each of <paramref name="malIds"/>, regardless of
+/// season — the notification-dispatch job resolves titles for whatever series had a live release
+/// this pass, with no season on hand to scope a partition read. Same projection as
+/// <see cref="SeriesTitleProjection"/> (its <c>AllTitles[0]</c> is always the canonical default
+/// title — see <c>JikanSeriesMapper.BuildAllTitles</c>). Ids with no matching series are silently
+/// omitted, not errors.
+/// </summary>
+public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> SeriesTitlesByIdsLoader(
+    ImmutableArray<int> malIds,
+    CancellationToken cancellationToken);

@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Library.Airing.Types;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Features.Library.Seasons.Types;
 
@@ -25,4 +26,6 @@ namespace AnimeFeedManager.Features.Library;
 [JsonSerializable(typeof(LibraryEvent))]
 [JsonSerializable(typeof(SeasonEntry))]
 [JsonSerializable(typeof(SeriesTitleProjection))]
+[JsonSerializable(typeof(AiringSeriesIndex))]
+[JsonSerializable(typeof(AiringSeriesEntry))]
 public partial class LibraryJsonContext : JsonSerializerContext;

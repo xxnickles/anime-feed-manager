@@ -26,4 +26,10 @@ public static class Telemetry
     /// Leaf storage spans carry RU cost and ETag retry counts.
     /// </summary>
     public const string AuthSource = "AnimeFeedManager.Auth";
+
+    /// <summary>
+    /// Source for the currently-airing-TV index (Jikan bulk fetch, refresh read/write).
+    /// Leaf spans carry RU cost, Jikan page count, and entry count.
+    /// </summary>
+    public const string LibraryAiringSource = "AnimeFeedManager.Library.Airing";
 }
