@@ -27,20 +27,19 @@ internal sealed class NyaaFeedProcessor(
     private readonly NyaaConfirmationLoader _loadConfirmation = cosmosFactory.CosmosNyaaConfirmationLoaderHandler();
     private readonly NyaaConfirmationUpserter _upsertConfirmation = cosmosFactory.CosmosNyaaConfirmationUpserterHandler();
     private readonly SeriesClassificationLoader _loadClassification = cosmosFactory.CosmosSeriesClassificationLoaderHandler();
-    private readonly SeriesClassificationUpserter _upsertClassification = cosmosFactory.CosmosSeriesClassificationUpserterHandler();
     private readonly ReleaseDetectedUpserter _upsertReleaseDetected = cosmosFactory.CosmosReleaseDetectedUpserterHandler();
 
     public readonly record struct RunCounts(int ItemsScanned, int NewSinceCheckpoint, int Matched, int Unmatched);
 
-    public async Task<Result<RunCounts>> ProcessSince(
-        CollectionSource source, LibraryTitleIndex index, ILogger logger, CancellationToken cancellationToken)
-    {
-        var checkpointResult = await _loadCheckpoint(source, cancellationToken);
-        var checkpoint = checkpointResult.MatchToValue(c => c, _ => new CollectionCheckpoint(source));
-
-        return await nyaa.GetLatest(cancellationToken)
-            .Bind(entries => ProcessEntries(entries, checkpoint, index, logger, cancellationToken));
-    }
+    public Task<Result<RunCounts>> ProcessSince(
+        CollectionSource source, LibraryTitleIndex index, ILogger logger, CancellationToken cancellationToken) =>
+        _loadCheckpoint(source, cancellationToken)
+            // No checkpoint yet is the expected first-run case; any other load failure propagates.
+            .BindOnErrorWhen(
+                binder: _ => new CollectionCheckpoint(source),
+                predicate: error => error is NotFoundError)
+            .Bind(checkpoint => nyaa.GetLatest(cancellationToken)
+                .Bind(entries => ProcessEntries(entries, checkpoint, index, logger, cancellationToken)));
 
     private async Task<Result<RunCounts>> ProcessEntries(
         ImmutableArray<NyaaEntry> entries, CollectionCheckpoint checkpoint, LibraryTitleIndex index, ILogger logger,
@@ -85,18 +84,37 @@ internal sealed class NyaaFeedProcessor(
             ? entries
             : [..entries.TakeWhile(e => e.Guid != checkpoint.LastSeenGuid)];
 
-    private async Task ProcessMatch(MatchedRelease release, ILogger logger, CancellationToken cancellationToken)
+    private Task ProcessMatch(MatchedRelease release, ILogger logger, CancellationToken cancellationToken) =>
+        _loadConfirmation(release.SeriesId, cancellationToken)
+            .Map(ConfirmationLookup (c) => new ConfirmationLookup.Found(c))
+            // Never confirmed before is expected (first sighting); any other load failure propagates.
+            .BindOnErrorWhen(
+                binder: _ => new ConfirmationLookup.NotConfirmed(),
+                predicate: error => error is NotFoundError)
+            .Map(lookup => NyaaCollectionReconciler.Reconcile(release, lookup))
+            .Bind(reconciliation => reconciliation is ReconciliationResult.NewRelease newRelease
+                ? PersistNewRelease(release, newRelease, cancellationToken)
+                : Task.FromResult(Result<Unit>.Success(new Unit())))
+            .AddLogOnFailure(_ => log =>
+                log.LogWarning("Failed to persist detected release for series {SeriesId}", release.SeriesId))
+            .AddLogOnFailure(error => error.LogAction())
+            .Complete(logger);
+
+    private Task<Result<Unit>> PersistNewRelease(
+        MatchedRelease release, ReconciliationResult.NewRelease newRelease, CancellationToken cancellationToken) =>
+        _loadClassification(release.SeriesId, cancellationToken)
+            .Map(c => c.Platforms)
+            // No classification yet is expected for a series just now confirmed on Nyaa; any
+            // other load failure propagates.
+            .BindOnErrorWhen(
+                binder: _ => Array.Empty<FeedsPlatform>(),
+                predicate: error => error is NotFoundError)
+            .Bind(platforms => UpsertDetectedRelease(release, newRelease, platforms, cancellationToken));
+
+    private Task<Result<Unit>> UpsertDetectedRelease(
+        MatchedRelease release, ReconciliationResult.NewRelease newRelease, FeedsPlatform[] platforms,
+        CancellationToken cancellationToken)
     {
-        var previousResult = await _loadConfirmation(release.SeriesId, cancellationToken);
-        var previous = previousResult.MatchToValue(c => (NyaaConfirmation?) c, _ => null);
-
-        var reconciliation = NyaaCollectionReconciler.Reconcile(release, previous);
-        if (reconciliation is not ReconciliationResult.NewRelease newRelease)
-            return;
-
-        var classificationResult = await _loadClassification(release.SeriesId, cancellationToken);
-        var platforms = classificationResult.MatchToValue(c => c.Platforms, _ => []);
-
         var (episode, episodeRangeEnd) = newRelease switch
         {
             ReconciliationResult.NewRelease.SingleEpisode single => ((int?) single.Episode, (int?) null),
@@ -117,26 +135,7 @@ internal sealed class NyaaFeedProcessor(
             DetectedAt = time.GetUtcNow()
         };
 
-        await _upsertConfirmation(newRelease.UpdatedConfirmation, cancellationToken)
-            .Bind(_ => _upsertReleaseDetected(detected, cancellationToken))
-            .AddLogOnFailure(_ => log =>
-                log.LogWarning("Failed to persist detected release for series {SeriesId}", release.SeriesId))
-            .AddLogOnFailure(error => error.LogAction())
-            .Complete(logger);
-
-        await PromoteTrackability(classificationResult, release.SeriesId, logger, cancellationToken);
+        return _upsertConfirmation(newRelease.UpdatedConfirmation, cancellationToken)
+            .Bind(_ => _upsertReleaseDetected(detected, cancellationToken));
     }
-
-    // A confirmed match is direct proof of trackability; promotion is best-effort — if no
-    // classification exists yet, the next classification pass creates one from scratch.
-    private Task PromoteTrackability(Result<SeriesClassification> classification, int seriesId, ILogger logger,
-        CancellationToken cancellationToken) =>
-        classification.Match(
-            current => current.Trackability == SeriesTrackability.Trackable
-                ? Task.CompletedTask
-                : _upsertClassification(SeriesClassifier.MarkTrackable(current), cancellationToken)
-                    .AddLogOnFailure(_ => log =>
-                        log.LogWarning("Failed to promote classification for series {SeriesId}", seriesId))
-                    .Complete(logger),
-            _ => Task.CompletedTask);
 }

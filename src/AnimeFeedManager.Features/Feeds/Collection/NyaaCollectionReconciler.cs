@@ -4,6 +4,21 @@ using AnimeFeedManager.Features.Feeds.Matching;
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
+/// Whether a <see cref="NyaaConfirmation"/> exists for a series — closed so a "not found" load
+/// can't be silently widened to a nullable transport at a method boundary.
+/// </summary>
+internal abstract record ConfirmationLookup
+{
+    private ConfirmationLookup()
+    {
+    }
+
+    public sealed record Found(NyaaConfirmation Confirmation) : ConfirmationLookup;
+
+    public sealed record NotConfirmed : ConfirmationLookup;
+}
+
+/// <summary>
 /// Outcome of reconciling a matched Nyaa entry against what's already confirmed for that
 /// series — closed so consumers pattern-match instead of branching on nulls. <see cref="NewRelease"/>
 /// is itself closed by episode shape (single/batch/none), mirroring <see cref="ReleaseContent"/>,
@@ -46,8 +61,10 @@ internal abstract record ReconciliationResult
 /// </summary>
 internal static class NyaaCollectionReconciler
 {
-    public static ReconciliationResult Reconcile(MatchedRelease release, NyaaConfirmation? previous)
+    public static ReconciliationResult Reconcile(MatchedRelease release, ConfirmationLookup lookup)
     {
+        var previous = lookup is ConfirmationLookup.Found found ? found.Confirmation : null;
+
         if (release.IsBdRemux)
             return NewReleaseFor(release, ReleaseContentType.BdRemux, previous);
 

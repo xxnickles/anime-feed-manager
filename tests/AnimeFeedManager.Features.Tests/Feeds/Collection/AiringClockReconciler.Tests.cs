@@ -13,7 +13,7 @@ public class AiringClockReconcilerTests
     {
         var clock = Clock(21, nextEpisode: 1);
 
-        var result = AiringClockReconciler.Reconcile(clock, previous: null);
+        var result = AiringClockReconciler.Reconcile(clock, new AiringClockFlagLookup.NeverFlagged());
 
         Assert.IsType<AiringClockResult.NoChange>(result);
     }
@@ -23,7 +23,7 @@ public class AiringClockReconcilerTests
     {
         var clock = Clock(21, nextEpisode: 2);
 
-        var result = AiringClockReconciler.Reconcile(clock, previous: null);
+        var result = AiringClockReconciler.Reconcile(clock, new AiringClockFlagLookup.NeverFlagged());
 
         var flagged = Assert.IsType<AiringClockResult.Flagged>(result);
         Assert.Equal(1, flagged.EpisodeStart);
@@ -37,7 +37,7 @@ public class AiringClockReconcilerTests
     {
         var clock = Clock(21, nextEpisode: 5);
 
-        var result = AiringClockReconciler.Reconcile(clock, previous: null);
+        var result = AiringClockReconciler.Reconcile(clock, new AiringClockFlagLookup.NeverFlagged());
 
         var flagged = Assert.IsType<AiringClockResult.Flagged>(result);
         Assert.Equal(1, flagged.EpisodeStart);
@@ -55,7 +55,7 @@ public class AiringClockReconcilerTests
         var clock = Clock(21, nextEpisode: 6);
         var previous = new AiringClockFlag(21) { LastFlaggedEpisode = 5 };
 
-        var result = AiringClockReconciler.Reconcile(clock, previous);
+        var result = AiringClockReconciler.Reconcile(clock, new AiringClockFlagLookup.Found(previous));
 
         Assert.IsType<AiringClockResult.NoChange>(result);
     }
@@ -66,7 +66,7 @@ public class AiringClockReconcilerTests
         var clock = Clock(21, nextEpisode: 7);
         var previous = new AiringClockFlag(21) { LastFlaggedEpisode = 5 };
 
-        var result = AiringClockReconciler.Reconcile(clock, previous);
+        var result = AiringClockReconciler.Reconcile(clock, new AiringClockFlagLookup.Found(previous));
 
         var flagged = Assert.IsType<AiringClockResult.Flagged>(result);
         Assert.Equal(6, flagged.EpisodeStart);
@@ -80,7 +80,7 @@ public class AiringClockReconcilerTests
         var clock = Clock(21, nextEpisode: 9);
         var previous = new AiringClockFlag(21) { LastFlaggedEpisode = 5 };
 
-        var result = AiringClockReconciler.Reconcile(clock, previous);
+        var result = AiringClockReconciler.Reconcile(clock, new AiringClockFlagLookup.Found(previous));
 
         var flagged = Assert.IsType<AiringClockResult.Flagged>(result);
         Assert.Equal(6, flagged.EpisodeStart);

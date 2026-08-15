@@ -1,9 +1,8 @@
 namespace AnimeFeedManager.Features.Library.Airing.Types;
 
 /// <summary>
-/// One currently-airing TV series. <see cref="Season"/> matches the <c>Series</c> container's
-/// partition-key format exactly, so a series can be located directly — no follow-up lookup.
-/// <see cref="AllTitles"/> is denormalized from the same Jikan response (not re-fetched from
-/// <c>Series</c>), so the TV title-matching index can be built straight from this entry.
+/// One currently-airing TV series. <see cref="Season"/> matches <c>Series</c>'s partition-key
+/// format directly. <see cref="AllTitles"/> is denormalized from Jikan so a title-matching index
+/// can build straight from this entry, no <c>Series</c> lookup needed.
 /// </summary>
 public sealed record AiringSeriesEntry(int MalId, SeriesSeason Season, string[] AllTitles);

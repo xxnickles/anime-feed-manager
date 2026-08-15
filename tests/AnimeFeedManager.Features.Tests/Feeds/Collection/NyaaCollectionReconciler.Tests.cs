@@ -14,7 +14,7 @@ public class NyaaCollectionReconcilerTests
     {
         var release = Release(21, new ReleaseContent.SingleEpisode(5));
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous: null);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.NotConfirmed());
 
         var newRelease = Assert.IsType<ReconciliationResult.NewRelease.SingleEpisode>(result);
         Assert.Equal(5, newRelease.Episode);
@@ -29,7 +29,7 @@ public class NyaaCollectionReconcilerTests
         var release = Release(21, new ReleaseContent.SingleEpisode(6));
         var previous = new NyaaConfirmation(21) { LastConfirmedEpisode = 5 };
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.Found(previous));
 
         var newRelease = Assert.IsType<ReconciliationResult.NewRelease.SingleEpisode>(result);
         Assert.Equal(6, newRelease.Episode);
@@ -42,7 +42,7 @@ public class NyaaCollectionReconcilerTests
         var release = Release(21, new ReleaseContent.SingleEpisode(5));
         var previous = new NyaaConfirmation(21) { LastConfirmedEpisode = 5 };
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.Found(previous));
 
         Assert.IsType<ReconciliationResult.AlreadyConfirmed>(result);
     }
@@ -56,7 +56,7 @@ public class NyaaCollectionReconcilerTests
     {
         var release = Release(21, new ReleaseContent.Batch(1, 12));
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous: null);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.NotConfirmed());
 
         var newRelease = Assert.IsType<ReconciliationResult.NewRelease.BatchRelease>(result);
         Assert.Equal(1, newRelease.EpisodeStart);
@@ -71,7 +71,7 @@ public class NyaaCollectionReconcilerTests
         var release = Release(21, new ReleaseContent.Batch(1, 12));
         var previous = new NyaaConfirmation(21) { LastConfirmedEpisode = 12 };
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.Found(previous));
 
         Assert.IsType<ReconciliationResult.AlreadyConfirmed>(result);
     }
@@ -85,7 +85,7 @@ public class NyaaCollectionReconcilerTests
     {
         var release = Release(21, new ReleaseContent.NonNumbered());
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous: null);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.NotConfirmed());
 
         var newRelease = Assert.IsType<ReconciliationResult.NewRelease.WithoutEpisodeCount>(result);
         Assert.Equal(ReleaseContentType.MovieOrOva, newRelease.ContentType);
@@ -98,7 +98,7 @@ public class NyaaCollectionReconcilerTests
         var release = Release(21, new ReleaseContent.NonNumbered());
         var previous = new NyaaConfirmation(21);
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.Found(previous));
 
         Assert.IsType<ReconciliationResult.AlreadyConfirmed>(result);
     }
@@ -113,7 +113,7 @@ public class NyaaCollectionReconcilerTests
         var release = Release(21, new ReleaseContent.Batch(1, 12), isBdRemux: true);
         var previous = new NyaaConfirmation(21) { LastConfirmedEpisode = 12 };
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.Found(previous));
 
         var newRelease = Assert.IsType<ReconciliationResult.NewRelease.BatchRelease>(result);
         Assert.Equal(ReleaseContentType.BdRemux, newRelease.ContentType);
@@ -125,7 +125,7 @@ public class NyaaCollectionReconcilerTests
         var release = Release(21, new ReleaseContent.Batch(1, 12), isBdRemux: true);
         var previous = new NyaaConfirmation(21) { LastConfirmedEpisode = 12 };
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.Found(previous));
 
         var newRelease = Assert.IsType<ReconciliationResult.NewRelease.BatchRelease>(result);
         Assert.Equal(12, newRelease.UpdatedConfirmation.LastConfirmedEpisode);
@@ -137,7 +137,7 @@ public class NyaaCollectionReconcilerTests
         var release = Release(21, new ReleaseContent.SingleEpisode(13), isBdRemux: true);
         var previous = new NyaaConfirmation(21) { LastConfirmedEpisode = 12 };
 
-        var result = NyaaCollectionReconciler.Reconcile(release, previous);
+        var result = NyaaCollectionReconciler.Reconcile(release, new ConfirmationLookup.Found(previous));
 
         var newRelease = Assert.IsType<ReconciliationResult.NewRelease.SingleEpisode>(result);
         Assert.Equal(13, newRelease.UpdatedConfirmation.LastConfirmedEpisode);

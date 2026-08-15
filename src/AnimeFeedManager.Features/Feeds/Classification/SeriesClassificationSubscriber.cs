@@ -57,16 +57,13 @@ internal sealed class SeriesClassificationSubscriber(
             await PersistDegradedOccurrence(degraded, series.Length, cancellationToken);
     }
 
-    // Trackability is monotonic (see SeriesClassifier) — load whatever we previously knew (absence
-    // or any load error just means "no prior evidence", not a hard failure) so a fresh Jikan read
-    // can only upgrade Untrackable -> Trackable, never the reverse. Returns true when this series'
-    // read was degraded (Jikan reported unavailable), for ClassifyAll to aggregate across the pass.
+    // Load whatever platforms we previously knew (absence or any load error just means "no prior
+    // evidence", not a hard failure) so a fresh Jikan read can only add to them, never erase them
+    // (see SeriesClassifier's monotonic platform-list guard). Returns true when this series' read
+    // was degraded (Jikan reported unavailable), for ClassifyAll to aggregate across the pass.
     private async Task<bool> ClassifyOne(int malId, CancellationToken cancellationToken)
     {
         var previous = await _loadClassification(malId, cancellationToken);
-        var previousTrackability = previous.MatchToValue(
-            classification => classification.Trackability,
-            _ => SeriesTrackability.Untrackable);
         var previousPlatforms = previous.MatchToValue(
             classification => classification.Platforms,
             _ => null!);
@@ -81,7 +78,7 @@ internal sealed class SeriesClassificationSubscriber(
             .BindOnErrorWhen(
                 binder: _ => ImmutableArray<JikanStreamingEntry>.Empty,
                 predicate: error => error is JikanUnavailableError)
-            .Map(platforms => SeriesClassifier.Classify(malId, platforms, previousTrackability, previousPlatforms))
+            .Map(platforms => SeriesClassifier.Classify(malId, platforms, previousPlatforms))
             .Bind(classification => _upsertClassification(classification, cancellationToken))
             .AddLogOnSuccess(_ => log => log.LogInformation("Classified series {MalId}", malId))
             .AddLogOnFailure(_ => log => log.LogWarning("Failed to classify series {MalId}", malId))

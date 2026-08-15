@@ -4,6 +4,21 @@ using AnimeFeedManager.Features.Feeds.Sources.AniList.Types;
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
+/// Whether an <see cref="AiringClockFlag"/> exists for a series — closed so a "not found" load
+/// can't be silently widened to a nullable transport at a method boundary.
+/// </summary>
+internal abstract record AiringClockFlagLookup
+{
+    private AiringClockFlagLookup()
+    {
+    }
+
+    public sealed record Found(AiringClockFlag Flag) : AiringClockFlagLookup;
+
+    public sealed record NeverFlagged : AiringClockFlagLookup;
+}
+
+/// <summary>
 /// Outcome of reconciling an AniList episode clock against a series' <see cref="AiringClockFlag"/> —
 /// closed so consumers pattern-match instead of branching on nulls.
 /// </summary>
@@ -26,8 +41,9 @@ internal abstract record AiringClockResult
 /// </summary>
 internal static class AiringClockReconciler
 {
-    public static AiringClockResult Reconcile(AniListEpisodeClock clock, AiringClockFlag? previous)
+    public static AiringClockResult Reconcile(AniListEpisodeClock clock, AiringClockFlagLookup lookup)
     {
+        var previous = lookup is AiringClockFlagLookup.Found found ? found.Flag : null;
         var lastAired = clock.NextEpisode - 1;
         var previouslyFlagged = previous?.LastFlaggedEpisode ?? 0;
 
