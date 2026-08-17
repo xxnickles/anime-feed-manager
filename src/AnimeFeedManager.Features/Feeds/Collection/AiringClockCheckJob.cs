@@ -3,22 +3,22 @@ using AnimeFeedManager.Features.Feeds.Events;
 using AnimeFeedManager.Features.Feeds.Sources.AniList;
 using AnimeFeedManager.Features.Feeds.Sources.AniList.Types;
 using AnimeFeedManager.Features.Feeds.Storage;
+using AnimeFeedManager.Features.Library.Airing;
+using AnimeFeedManager.Features.Library.Airing.Storage;
+using AnimeFeedManager.Features.Library.Airing.Types;
 using AnimeFeedManager.Features.Library.Catalog.Storage;
-using AnimeFeedManager.Features.Library.Seasons;
-using AnimeFeedManager.Features.Library.Seasons.Storage;
 using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
 /// Cold-clock path: once daily, batch-query AniList for the next-airing-episode schedule of every
-/// TV series in the current-season/long-runner candidate pool that hasn't yet been confirmed on
-/// Nyaa (no <see cref="NyaaConfirmation"/> on file — see <see cref="LoadUntrackableCandidates"/>).
-/// A newly-aired episode emits a best-effort <see cref="ReleaseDetected"/> (<c>Confirmed: false</c>)
+/// TV series in the airing index that hasn't yet been confirmed on Nyaa (no
+/// <see cref="NyaaConfirmation"/> on file — see <see cref="LoadUntrackableCandidates"/>). A
+/// newly-aired episode emits a best-effort <see cref="ReleaseDetected"/> (<c>Confirmed: false</c>)
 /// and advances that series' <see cref="AiringClockFlag"/>. The moment a series gets a real Nyaa
 /// match, it drops out of this job's candidates on the next run — no separate classification step
-/// needed. Candidate-pool sourcing (currently <see cref="CurrentlyAiringSeriesTitlesOutsideSeasonLoader"/>)
-/// is being replaced by the currently-airing-TV index; not yet done here.
+/// needed.
 /// </summary>
 public sealed class AiringClockCheckJob(
     IAniListClient aniList,
@@ -29,9 +29,7 @@ public sealed class AiringClockCheckJob(
 {
     private const CollectionSource Source = CollectionSource.AiringClockCheck;
 
-    private readonly LatestSeasonResolver _resolveCurrentSeason = cosmosFactory.LatestSeasonResolverHandler();
-    private readonly SeriesBySeasonLoader _loadCurrentSeason = cosmosFactory.SeriesBySeasonLoaderHandler();
-    private readonly CurrentlyAiringSeriesTitlesOutsideSeasonLoader _loadLongRunners = cosmosFactory.CurrentlyAiringSeriesTitlesOutsideSeasonLoaderHandler();
+    private readonly AiringSeriesIndexLoader _loadAiringIndex = cosmosFactory.AiringSeriesIndexLoaderHandler();
     private readonly SeriesClassificationLoader _loadClassification = cosmosFactory.CosmosSeriesClassificationLoaderHandler();
     private readonly NyaaConfirmationLoader _loadConfirmation = cosmosFactory.CosmosNyaaConfirmationLoaderHandler();
     private readonly AiringClockFlagLoader _loadFlag = cosmosFactory.CosmosAiringClockFlagLoaderHandler();
@@ -39,7 +37,7 @@ public sealed class AiringClockCheckJob(
     private readonly ReleaseDetectedUpserter _upsertReleaseDetected = cosmosFactory.CosmosReleaseDetectedUpserterHandler();
     private readonly CollectionRunUpserter _upsertRun = cosmosFactory.CosmosCollectionRunUpserterHandler();
 
-    private readonly record struct UntrackableSeries(int MalId, FeedsPlatform[] Platforms);
+    private readonly record struct UntrackableSeries(int MalId, string Title, FeedsPlatform[] Platforms);
 
     private readonly record struct RunCounts(int ItemsScanned, int Flagged, int Unmatched);
 
@@ -47,8 +45,8 @@ public sealed class AiringClockCheckJob(
     {
         var startedAt = time.GetUtcNow();
 
-        var run = await BuildCandidateIds(cancellationToken)
-            .Bind(ids => LoadAndProcessSchedules(ids, cancellationToken))
+        var run = await LoadCandidateEntries(cancellationToken)
+            .Bind(entries => LoadAndProcessSchedules(entries, cancellationToken))
             .Tap(PublishRunCompleted)
             .FlushLogs(logger)
             .MatchToValue(
@@ -86,60 +84,56 @@ public sealed class AiringClockCheckJob(
         eventBus.Publish(new AiringClockCheckRunCompleted(counts.ItemsScanned, counts.Flagged, counts.Unmatched));
     }
 
-    private Task<Result<ImmutableArray<int>>> BuildCandidateIds(CancellationToken cancellationToken) =>
-        _resolveCurrentSeason(cancellationToken)
-            .Bind(season => _loadCurrentSeason(season, cancellationToken)
-                .Bind(currentSeasonSeries => _loadLongRunners(season, cancellationToken)
-                    .Map(longRunners => currentSeasonSeries.Select(s => s.MalId)
-                        .Concat(longRunners.Select(p => p.MalId))
-                        .ToImmutableArray())));
+    private Task<Result<ImmutableArray<AiringSeriesEntry>>> LoadCandidateEntries(CancellationToken cancellationToken) =>
+        _loadAiringIndex(cancellationToken).Map(index => index.Entries);
 
-    private Task<Result<RunCounts>> LoadAndProcessSchedules(ImmutableArray<int> candidateIds, CancellationToken cancellationToken) =>
-        LoadUntrackableCandidates(candidateIds, cancellationToken)
+    private Task<Result<RunCounts>> LoadAndProcessSchedules(
+        ImmutableArray<AiringSeriesEntry> entries, CancellationToken cancellationToken) =>
+        LoadUntrackableCandidates(entries, cancellationToken)
             .Bind(untrackable => untrackable.Length == 0
                 ? Task.FromResult(Result<RunCounts>.Success(new RunCounts(0, 0, 0)))
                 : aniList.GetAiringSchedules([..untrackable.Select(u => u.MalId)], cancellationToken)
                     .Bind(clocks => ProcessClocks(clocks, untrackable, cancellationToken)));
 
-    private readonly record struct CandidateEvaluation(int MalId, bool IsEligible, FeedsPlatform[] Platforms);
+    private readonly record struct CandidateEvaluation(int MalId, string Title, bool IsEligible, FeedsPlatform[] Platforms);
 
     // A confirmed Nyaa match means the series is no longer clock-eligible. A load failure that
     // isn't just "nothing on file yet" is a genuine failure — BulkResult tracks it rather than
     // silently treating it as eligible.
     private async Task<Result<ImmutableArray<UntrackableSeries>>> LoadUntrackableCandidates(
-        ImmutableArray<int> candidateIds, CancellationToken cancellationToken)
+        ImmutableArray<AiringSeriesEntry> entries, CancellationToken cancellationToken)
     {
-        var evaluations = new List<Result<CandidateEvaluation>>(candidateIds.Length);
-        foreach (var malId in candidateIds)
-            evaluations.Add(await EvaluateCandidate(malId, cancellationToken));
+        var evaluations = new List<Result<CandidateEvaluation>>(entries.Length);
+        foreach (var entry in entries)
+            evaluations.Add(await EvaluateCandidate(entry, cancellationToken));
 
         return evaluations
             .Flatten(results => results
                 .Where(evaluation => evaluation.IsEligible)
-                .Select(evaluation => new UntrackableSeries(evaluation.MalId, evaluation.Platforms))
+                .Select(evaluation => new UntrackableSeries(evaluation.MalId, evaluation.Title, evaluation.Platforms))
                 .ToImmutableArray())
             .AddLogOnSuccess(LogFactories.LogBulkErrors<ImmutableArray<UntrackableSeries>>())
             .Map(bulk => bulk.Value);
     }
 
-    private Task<Result<CandidateEvaluation>> EvaluateCandidate(int malId, CancellationToken cancellationToken) =>
-        _loadConfirmation(malId, cancellationToken)
-            .Map(_ => new CandidateEvaluation(malId, false, []))
+    private Task<Result<CandidateEvaluation>> EvaluateCandidate(AiringSeriesEntry entry, CancellationToken cancellationToken) =>
+        _loadConfirmation(entry.MalId, cancellationToken)
+            .Map(_ => new CandidateEvaluation(entry.MalId, entry.AllTitles[0], false, []))
             .BindOnErrorWhen(
-                binder: _ => LoadEligiblePlatforms(malId, cancellationToken),
+                binder: _ => LoadEligiblePlatforms(entry, cancellationToken),
                 predicate: error => error is NotFoundError);
 
-    private Task<Result<CandidateEvaluation>> LoadEligiblePlatforms(int malId, CancellationToken cancellationToken) =>
-        _loadClassification(malId, cancellationToken)
-            .Map(c => new CandidateEvaluation(malId, true, c.Platforms))
+    private Task<Result<CandidateEvaluation>> LoadEligiblePlatforms(AiringSeriesEntry entry, CancellationToken cancellationToken) =>
+        _loadClassification(entry.MalId, cancellationToken)
+            .Map(c => new CandidateEvaluation(entry.MalId, entry.AllTitles[0], true, c.Platforms))
             .BindOnErrorWhen(
-                binder: _ => new CandidateEvaluation(malId, true, []),
+                binder: _ => new CandidateEvaluation(entry.MalId, entry.AllTitles[0], true, []),
                 predicate: error => error is NotFoundError);
 
     private async Task<Result<RunCounts>> ProcessClocks(
         ImmutableArray<AniListEpisodeClock> clocks, ImmutableArray<UntrackableSeries> untrackable, CancellationToken cancellationToken)
     {
-        var platformsByMalId = untrackable.ToDictionary(u => u.MalId, u => u.Platforms);
+        var byMalId = untrackable.ToDictionary(u => u.MalId);
         var flagged = 0;
 
         foreach (var clock in clocks)
@@ -159,8 +153,8 @@ public sealed class AiringClockCheckJob(
                     if (reconciliation is not AiringClockResult.Flagged flaggedResult) return;
 
                     flagged++;
-                    var platforms = platformsByMalId.GetValueOrDefault(clock.MalId, []);
-                    await ProcessFlagged(clock, flaggedResult, platforms, cancellationToken);
+                    var candidate = byMalId.GetValueOrDefault(clock.MalId, new UntrackableSeries(clock.MalId, string.Empty, []));
+                    await ProcessFlagged(clock, flaggedResult, candidate, cancellationToken);
                 },
                 onError: error =>
                 {
@@ -175,7 +169,7 @@ public sealed class AiringClockCheckJob(
     }
 
     private Task ProcessFlagged(
-        AniListEpisodeClock clock, AiringClockResult.Flagged flagged, FeedsPlatform[] platforms, CancellationToken cancellationToken)
+        AniListEpisodeClock clock, AiringClockResult.Flagged flagged, UntrackableSeries candidate, CancellationToken cancellationToken)
     {
         var isSingleEpisode = flagged.EpisodeStart == flagged.EpisodeEnd;
         var detected = new ReleaseDetected(clock.MalId)
@@ -184,7 +178,8 @@ public sealed class AiringClockCheckJob(
             Episode = isSingleEpisode ? flagged.EpisodeStart : null,
             EpisodeRangeEnd = isSingleEpisode ? null : flagged.EpisodeEnd,
             Confirmed = false,
-            Platforms = platforms,
+            Platforms = candidate.Platforms,
+            SeriesTitle = candidate.Title,
             DetectedAt = time.GetUtcNow()
         };
 
