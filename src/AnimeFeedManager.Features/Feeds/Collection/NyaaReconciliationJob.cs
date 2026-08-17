@@ -11,7 +11,7 @@ using AnimeFeedManager.Infrastructure.Eventing;
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
-/// Cold path: twice daily, snapshot the same Nyaa feed <see cref="NyaaCollectionJob"/> watches,
+/// Cold path: twice daily, snapshot the same Nyaa feed <see cref="TvReconciliationJob"/> watches,
 /// but match against every series outside the current season (see
 /// <see cref="SeriesTitlesOutsideSeasonLoader"/>) — late batch/BD-remux releases for finished or
 /// older-season shows the hot path never sees. Maintains its own <see cref="CollectionCheckpoint"/>

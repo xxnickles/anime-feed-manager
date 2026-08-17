@@ -3,37 +3,33 @@ using AnimeFeedManager.Features.Feeds.Events;
 using AnimeFeedManager.Features.Feeds.Matching;
 using AnimeFeedManager.Features.Feeds.Sources.Nyaa;
 using AnimeFeedManager.Features.Feeds.Storage;
+using AnimeFeedManager.Features.Library.Airing;
+using AnimeFeedManager.Features.Library.Airing.Storage;
 using AnimeFeedManager.Features.Library.Catalog.Storage;
-using AnimeFeedManager.Features.Library.Seasons;
-using AnimeFeedManager.Features.Library.Seasons.Storage;
+using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
-/// Hot path: every 30 minutes, snapshot Nyaa and match against the current season plus any
-/// still-airing long-running series from prior seasons (Detective Conan-style dailies — see
-/// <see cref="CurrentlyAiringSeriesTitlesOutsideSeasonLoader"/>). A genuinely new match emits a
-/// <see cref="ReleaseDetected"/>, advances the <see cref="NyaaConfirmation"/> high-water mark,
-/// and promotes an Untrackable classification to Trackable. The long tail of finished/older
-/// seasons is covered separately, on a slower cadence, by <see cref="NyaaReconciliationJob"/>.
-/// Feed fetch/diff/match/reconcile/persist is shared with that job via <see cref="NyaaFeedProcessor"/>.
+/// Every 30 minutes, snapshot Nyaa and match against every TV series in the currently-airing
+/// index (see <see cref="AiringSeriesIndexLoader"/>) — no season/long-runner distinction, every
+/// currently-airing TV series is uniformly in the index regardless of premiere season. A
+/// genuinely new match emits a <see cref="ReleaseDetected"/> and advances the
+/// <see cref="NyaaConfirmation"/> high-water mark. Non-TV content is covered separately by
+/// <see cref="NyaaReconciliationJob"/>. Feed fetch/diff/match/reconcile/persist is shared with
+/// that job via <see cref="NyaaFeedProcessor"/>.
 /// </summary>
-public sealed class NyaaCollectionJob(
+public sealed class TvReconciliationJob(
     INyaaClient nyaa,
     ICosmosContainerFactory cosmosFactory,
     TimeProvider time,
     EventBus eventBus,
-    ILogger<NyaaCollectionJob> logger)
+    ILogger<TvReconciliationJob> logger)
 {
     private const CollectionSource Source = CollectionSource.NyaaCollection;
 
-    private readonly LatestSeasonResolver _resolveCurrentSeason = cosmosFactory.LatestSeasonResolverHandler();
-    private readonly SeriesBySeasonLoader _loadCurrentSeason = cosmosFactory.SeriesBySeasonLoaderHandler();
-
-    private readonly CurrentlyAiringSeriesTitlesOutsideSeasonLoader _loadLongRunners =
-        cosmosFactory.CurrentlyAiringSeriesTitlesOutsideSeasonLoaderHandler();
-
+    private readonly AiringSeriesIndexLoader _loadAiringIndex = cosmosFactory.AiringSeriesIndexLoaderHandler();
     private readonly CollectionRunUpserter _upsertRun = cosmosFactory.CosmosCollectionRunUpserterHandler();
 
     private readonly NyaaFeedProcessor _processor = new(nyaa, cosmosFactory, time);
@@ -82,8 +78,7 @@ public sealed class NyaaCollectionJob(
     }
 
     private Task<Result<LibraryTitleIndex>> BuildTitleIndex(CancellationToken cancellationToken) =>
-        _resolveCurrentSeason(cancellationToken)
-            .Bind(season => _loadCurrentSeason(season, cancellationToken)
-                .Bind(currentSeasonSeries => _loadLongRunners(season, cancellationToken)
-                    .Map(longRunners => LibraryTitleIndex.Build(currentSeasonSeries, longRunners))));
+        _loadAiringIndex(cancellationToken)
+            .Map(index => LibraryTitleIndex.Build(
+                [], index.Entries.Select(entry => new SeriesTitleProjection(entry.MalId, entry.AllTitles))));
 }

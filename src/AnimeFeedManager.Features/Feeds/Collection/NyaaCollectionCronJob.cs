@@ -1,10 +1,10 @@
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
-/// Hot path: fires every 30 minutes. Thin wrapper delegating to <see cref="NyaaCollectionJob"/>;
+/// Hot path: fires every 30 minutes. Thin wrapper delegating to <see cref="TvReconciliationJob"/>;
 /// the cron expression is overridable via configuration (<see cref="CronJobOverride"/>).
 /// </summary>
-internal sealed class NyaaCollectionCronJob(NyaaCollectionJob job) : CronJob
+internal sealed class NyaaCollectionCronJob(TvReconciliationJob job) : CronJob
 {
     public override string Name => "nyaa-collection";
 

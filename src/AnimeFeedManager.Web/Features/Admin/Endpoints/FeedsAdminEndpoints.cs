@@ -7,7 +7,7 @@ namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 
 /// <summary>
 /// Admin Nyaa-collection and airing-clock triggers. Bodiless htmx-posted <c>&lt;form&gt;</c>s that
-/// fire the hot-path (<see cref="NyaaCollectionJob"/>), cold-path (<see cref="NyaaReconciliationJob"/>),
+/// fire the TV path (<see cref="TvReconciliationJob"/>), non-TV path (<see cref="NyaaReconciliationJob"/>),
 /// and airing-clock (<see cref="AiringClockCheckJob"/>) runs in-process via <see cref="JobExecutor"/>,
 /// sharing the same single-flight gate keys as their cron wrappers so manual and scheduled runs stay
 /// mutually exclusive. Feedback is an immediate OOB toast; a second, stats-bearing toast follows
@@ -30,7 +30,7 @@ internal static class FeedsAdminEndpoints
 
     private static IResult TriggerCollection([FromForm] Noop _, JobExecutor executor)
     {
-        executor.Trigger<NyaaCollectionJob>(
+        executor.Trigger<TvReconciliationJob>(
             "nyaa-collection",
             (job, ct) => job.Run(ct));
 
