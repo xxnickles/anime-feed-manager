@@ -8,12 +8,13 @@ using AnimeFeedManager.Features.Feeds.Storage;
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
-/// Shared engine behind both Nyaa collection jobs (<see cref="NyaaCollectionJob"/> hot path,
-/// <see cref="NyaaReconciliationJob"/> cold path): fetch the feed, diff against the caller's own
+/// Shared engine behind both Nyaa collection jobs (<see cref="TvReconciliationJob"/>,
+/// <see cref="NonTvReconciliationJob"/>): fetch the feed, diff against the caller's own
 /// checkpoint, match new entries against the caller-supplied <see cref="LibraryTitleIndex"/>,
 /// reconcile via <see cref="NyaaCollectionReconciler"/>, and persist confirmations/detections/the
-/// checkpoint. The two jobs differ only in which title index they build and which
-/// <see cref="CollectionSource"/> (and therefore checkpoint watermark) they run under —
+/// checkpoint. The two jobs differ only in which title index they build (TV airing index vs.
+/// non-TV per-season candidates) and which <see cref="CollectionSource"/> (and therefore
+/// checkpoint watermark) they run under —
 /// <see cref="NyaaConfirmation"/> stays shared/seriesId-keyed, so overlap between the two (e.g.
 /// still-airing long-runners visible to both indexes) naturally dedupes on whichever matches first.
 /// </summary>

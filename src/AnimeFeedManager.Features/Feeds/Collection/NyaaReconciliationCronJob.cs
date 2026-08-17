@@ -1,10 +1,10 @@
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
-/// Cold path: fires twice daily. Thin wrapper delegating to <see cref="NyaaReconciliationJob"/>;
+/// Cold path: fires twice daily. Thin wrapper delegating to <see cref="NonTvReconciliationJob"/>;
 /// the cron expression is overridable via configuration (<see cref="CronJobOverride"/>).
 /// </summary>
-internal sealed class NyaaReconciliationCronJob(NyaaReconciliationJob job) : CronJob
+internal sealed class NyaaReconciliationCronJob(NonTvReconciliationJob job) : CronJob
 {
     public override string Name => "nyaa-reconciliation";
 

@@ -3,35 +3,28 @@ using AnimeFeedManager.Features.Feeds.Events;
 using AnimeFeedManager.Features.Feeds.Matching;
 using AnimeFeedManager.Features.Feeds.Sources.Nyaa;
 using AnimeFeedManager.Features.Feeds.Storage;
-using AnimeFeedManager.Features.Library.Catalog.Storage;
-using AnimeFeedManager.Features.Library.Seasons;
-using AnimeFeedManager.Features.Library.Seasons.Storage;
 using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
-/// Cold path: twice daily, snapshot the same Nyaa feed <see cref="TvReconciliationJob"/> watches,
-/// but match against every series outside the current season (see
-/// <see cref="SeriesTitlesOutsideSeasonLoader"/>) — late batch/BD-remux releases for finished or
-/// older-season shows the hot path never sees. Maintains its own <see cref="CollectionCheckpoint"/>
-/// watermark on the shared feed; feed fetch/diff/match/reconcile/persist is shared with the hot
-/// path via <see cref="NyaaFeedProcessor"/>.
+/// Twice daily, snapshot the same Nyaa feed <see cref="TvReconciliationJob"/> watches, but match
+/// against non-TV content only (movie/OVA/ONA/special) not already present in the currently-airing
+/// TV index — see <see cref="NonTvCandidateLoader"/>. Finished TV gets no further notifications
+/// once it drops out of the airing index (accepted scope reduction — see the redesign design doc,
+/// §5). Feed fetch/diff/match/reconcile/persist is shared with the TV path via
+/// <see cref="NyaaFeedProcessor"/>.
 /// </summary>
-public sealed class NyaaReconciliationJob(
+public sealed class NonTvReconciliationJob(
     INyaaClient nyaa,
     ICosmosContainerFactory cosmosFactory,
     TimeProvider time,
     EventBus eventBus,
-    ILogger<NyaaReconciliationJob> logger)
+    ILogger<NonTvReconciliationJob> logger)
 {
     private const CollectionSource Source = CollectionSource.NyaaReconciliation;
 
-    private readonly LatestSeasonResolver _resolveCurrentSeason = cosmosFactory.LatestSeasonResolverHandler();
-
-    private readonly SeriesTitlesOutsideSeasonLoader _loadCandidates =
-        cosmosFactory.SeriesTitlesOutsideSeasonLoaderHandler();
-
+    private readonly NonTvCandidateLoader _loadCandidates = cosmosFactory.NonTvCandidateLoaderHandler();
     private readonly CollectionRunUpserter _upsertRun = cosmosFactory.CosmosCollectionRunUpserterHandler();
 
     private readonly NyaaFeedProcessor _processor = new(nyaa, cosmosFactory, time);
@@ -80,7 +73,5 @@ public sealed class NyaaReconciliationJob(
     }
 
     private Task<Result<LibraryTitleIndex>> BuildTitleIndex(CancellationToken cancellationToken) =>
-        _resolveCurrentSeason(cancellationToken)
-            .Bind(season => _loadCandidates(season, cancellationToken)
-                .Map(candidates => LibraryTitleIndex.Build([], candidates)));
+        _loadCandidates(cancellationToken).Map(candidates => LibraryTitleIndex.Build([], candidates));
 }

@@ -35,7 +35,7 @@ public static class ServiceCollectionExtensions
             builder.Services.AddScoped<AiringClockCheckJob>();
             builder.Services.AddCronJob<AiringClockCheckCronJob>();
 
-            builder.Services.AddScoped<NyaaReconciliationJob>();
+            builder.Services.AddScoped<NonTvReconciliationJob>();
             builder.Services.AddCronJob<NyaaReconciliationCronJob>();
 
             return builder;
