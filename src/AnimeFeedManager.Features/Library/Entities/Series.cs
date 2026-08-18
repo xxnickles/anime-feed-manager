@@ -37,7 +37,6 @@ public abstract record Series : CosmosDocument
     public string? CoverImageUrl { get; init; }
     public string? TrailerUrl { get; init; }
 
-    public SeriesStatus Status { get; init; } = SeriesStatus.Unknown();
     public string[] Genres { get; init; } = [];
     public string[] Studios { get; init; } = [];
     public double? Score { get; init; }

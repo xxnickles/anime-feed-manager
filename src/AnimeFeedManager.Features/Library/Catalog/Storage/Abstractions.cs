@@ -23,28 +23,6 @@ public delegate Task<Result<Series>> SeriesByIdLoader(
     CancellationToken cancellationToken);
 
 /// <summary>
-/// Cross-partition, filtered, projected query: every <c>CurrentlyAiring</c> series outside
-/// <paramref name="excludedSeason"/> — the long-running/daily shows (e.g. Detective Conan)
-/// that keep airing well past the season they were imported into. Fan-out is bounded by
-/// season count (slow-growing), and the status filter keeps the match set small regardless
-/// of library size, so this is safe to run on the same cadence as the current-season load.
-/// </summary>
-public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> CurrentlyAiringSeriesTitlesOutsideSeasonLoader(
-    SeriesSeason excludedSeason,
-    CancellationToken cancellationToken);
-
-/// <summary>
-/// Cross-partition, projected query: every series outside <paramref name="excludedSeason"/>,
-/// regardless of status — the reconciliation (cold path) candidate set. Broader than
-/// <see cref="CurrentlyAiringSeriesTitlesOutsideSeasonLoader"/> (no status filter), since late
-/// Nyaa releases (batch/BD-remux) can land against a series from any prior season. Titles-only
-/// projection keeps this cheap regardless of library age.
-/// </summary>
-public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> SeriesTitlesOutsideSeasonLoader(
-    SeriesSeason excludedSeason,
-    CancellationToken cancellationToken);
-
-/// <summary>
 /// Cross-partition, projected query: titles for each of <paramref name="malIds"/>, regardless of
 /// season — the notification-dispatch job resolves titles for whatever series had a live release
 /// this pass, with no season on hand to scope a partition read. Same projection as
