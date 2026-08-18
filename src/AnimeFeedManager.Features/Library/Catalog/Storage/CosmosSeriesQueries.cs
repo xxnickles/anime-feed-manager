@@ -25,10 +25,6 @@ public static class CosmosSeriesQueries
         (season, malId, cancellationToken) => factory.GetContainer<Series>()
             .Bind(container => LoadById(container, season, malId, cancellationToken));
 
-    public static SeriesTitlesByIdsLoader SeriesTitlesByIdsLoaderHandler(this ICosmosContainerFactory factory) =>
-        (malIds, cancellationToken) => factory.GetContainer<Series>()
-            .Bind(container => LoadTitlesByIds(container, malIds, cancellationToken));
-
     // Stream-based read: we decode each document via LibraryJsonContext.Default.Series (the
     // polymorphic JsonTypeInfo) so the `seriesType` discriminator lands each row on the right
     // concrete type. This mirrors CosmosSeriesUpsert's deliberate choice — the SDK's typed
@@ -62,53 +58,6 @@ public static class CosmosSeriesQueries
                 {
                     if (element.Deserialize(LibraryJsonContext.Default.Series) is { } series)
                         builder.Add(series);
-                }
-            }
-
-            activity?.SetTag("library.catalog.cost.ru", Math.Round(totalRu, 2));
-            activity?.SetTag("library.catalog.result_count", builder.Count);
-            return builder.ToImmutable();
-        }
-        catch (CosmosException e)
-        {
-            return CosmosQueryError.Create(e, container.Id);
-        }
-        catch (Exception e) when (e is not OperationCanceledException)
-        {
-            return ExceptionError.FromException(e);
-        }
-    }
-
-    // Cross-partition, no partition key to scope by (no season on hand) — fans out to every
-    // physical partition regardless of how selective @ids is; RU/result tags exist to measure
-    // real cost once this runs against a live Cosmos instance, same as this container's other
-    // cross-partition queries.
-    private static async Task<Result<ImmutableArray<SeriesTitleProjection>>> LoadTitlesByIds(
-        Container container,
-        ImmutableArray<int> malIds,
-        CancellationToken cancellationToken)
-    {
-        using var activity = Source.StartActivity("Library.Catalog.TitlesByIds");
-        activity?.SetTag("library.catalog.requested_count", malIds.Length);
-        var query = new QueryDefinition("SELECT c.malId, c.allTitles FROM c WHERE ARRAY_CONTAINS(@ids, c.malId)")
-            .WithParameter("@ids", malIds.ToArray());
-        try
-        {
-            using var iterator = container.GetItemQueryStreamIterator(query);
-
-            var builder = ImmutableArray.CreateBuilder<SeriesTitleProjection>();
-            double totalRu = 0;
-            while (iterator.HasMoreResults)
-            {
-                using var response = await iterator.ReadNextAsync(cancellationToken);
-                response.EnsureSuccessStatusCode();
-                totalRu += response.Headers.RequestCharge;
-
-                using var document = await JsonDocument.ParseAsync(response.Content, cancellationToken: cancellationToken);
-                foreach (var element in document.RootElement.GetProperty("Documents").EnumerateArray())
-                {
-                    if (element.Deserialize(LibraryJsonContext.Default.SeriesTitleProjection) is { } projection)
-                        builder.Add(projection);
                 }
             }
 
