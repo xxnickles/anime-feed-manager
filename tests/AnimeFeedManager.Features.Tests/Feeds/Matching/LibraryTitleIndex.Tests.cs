@@ -59,6 +59,22 @@ public class LibraryTitleIndexTests
     }
 
     [Fact]
+    public void Should_Return_Canonical_Default_Title_From_GetTitle()
+    {
+        var index = LibraryTitleIndex.Build([Series(1, "One Piece", "ワンピース")]);
+
+        Assert.Equal("One Piece", index.GetTitle(1));
+    }
+
+    [Fact]
+    public void Should_Return_Null_From_GetTitle_When_Series_Id_Is_Unknown()
+    {
+        var index = LibraryTitleIndex.Build([Series(1, "One Piece")]);
+
+        Assert.Null(index.GetTitle(999));
+    }
+
+    [Fact]
     public void Should_Fuzzy_Match_When_Release_Title_Has_An_Extra_Word()
     {
         var index = LibraryTitleIndex.Build([Series(1, "Kaiju No. 8")]);

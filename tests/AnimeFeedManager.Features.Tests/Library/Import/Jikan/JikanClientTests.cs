@@ -272,9 +272,128 @@ public sealed class JikanClientTests
 
     #endregion
 
+    #region GetCurrentlyAiringTv pagination
+
+    [Fact]
+    public async Task GetCurrentlyAiringTv_TraversesAllPages_WhenMultiplePagesExist()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+        var page1 = JikanTestHost.LoadFixture("jikan-pagination-page1.json");
+        var page2 = JikanTestHost.LoadFixture("jikan-pagination-page2.json");
+
+        host.Server
+            .Given(Request.Create().WithPath("/anime")
+                .WithParam("status", "airing").WithParam("type", "tv").WithParam("page", "1").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json").WithBody(page1));
+        host.Server
+            .Given(Request.Create().WithPath("/anime")
+                .WithParam("status", "airing").WithParam("type", "tv").WithParam("page", "2").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json").WithBody(page2));
+
+        var pages = await CollectAsync(host.Client.GetCurrentlyAiringTv(token));
+
+        Assert.Equal(2, pages.Count);
+        Assert.All(pages, r => Assert.False(r.IsFailure));
+
+        var items1 = pages[0].MatchToValue(p => p.Items, _ => ImmutableArray<JikanAnime>.Empty);
+        var items2 = pages[1].MatchToValue(p => p.Items, _ => ImmutableArray<JikanAnime>.Empty);
+        Assert.Equal([1001, 1002], items1.Select(a => a.MalId));
+        Assert.Equal([1003], items2.Select(a => a.MalId));
+    }
+
+    [Fact]
+    public async Task GetCurrentlyAiringTv_YieldsFailureAndStops_WhenAPageFailsAfterSuccess()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create(maxRetryAttempts: 0);
+        var page1 = JikanTestHost.LoadFixture("jikan-pagination-page1.json");
+
+        host.Server
+            .Given(Request.Create().WithPath("/anime")
+                .WithParam("status", "airing").WithParam("type", "tv").WithParam("page", "1").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json").WithBody(page1));
+        host.Server
+            .Given(Request.Create().WithPath("/anime")
+                .WithParam("status", "airing").WithParam("type", "tv").WithParam("page", "2").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(500));
+
+        var pages = await CollectAsync(host.Client.GetCurrentlyAiringTv(token));
+
+        Assert.Equal(2, pages.Count);
+        Assert.False(pages[0].IsFailure);
+        Assert.True(pages[1].IsFailure);
+    }
+
+    // Unlike GetSeason, there's no "known season" to fall back on for GetCurrentlyAiringTv — but
+    // there's also nothing that needs one (each item carries its own season/year), so a page-1 504
+    // recovers to a degraded empty page here, where GetSeason's caller-unaware GetCurrentSeason path
+    // would fail outright.
+    [Fact]
+    public async Task GetCurrentlyAiringTv_YieldsDegradedEmptyPage_When504OnPage1()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+
+        host.Server
+            .Given(Request.Create().WithPath("/anime")
+                .WithParam("status", "airing").WithParam("type", "tv").WithParam("page", "1").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(504)
+                .WithHeader("Content-Type", "application/json")
+                .WithBody("""{"status":504,"type":"BadResponseException","message":"unavailable","error":null}"""));
+
+        var pages = await CollectAsync(host.Client.GetCurrentlyAiringTv(token));
+
+        var page = Assert.Single(pages);
+        Assert.False(page.IsFailure);
+        var jikanPage = page.MatchToValue(p => p, _ => null!);
+        Assert.True(jikanPage.Degraded);
+        Assert.Empty(jikanPage.Items);
+    }
+
+    [Fact]
+    public async Task GetCurrentlyAiringTv_YieldsDegradedEmptyPage_When504OnPage2()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var host = JikanTestHost.Create();
+        var page1 = JikanTestHost.LoadFixture("jikan-pagination-page1.json");
+
+        host.Server
+            .Given(Request.Create().WithPath("/anime")
+                .WithParam("status", "airing").WithParam("type", "tv").WithParam("page", "1").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(200)
+                .WithHeader("Content-Type", "application/json").WithBody(page1));
+        host.Server
+            .Given(Request.Create().WithPath("/anime")
+                .WithParam("status", "airing").WithParam("type", "tv").WithParam("page", "2").UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(504));
+
+        var pages = await CollectAsync(host.Client.GetCurrentlyAiringTv(token));
+
+        Assert.Equal(2, pages.Count);
+        Assert.False(pages[0].IsFailure);
+        Assert.False(pages[1].IsFailure);
+        var page2 = pages[1].MatchToValue(p => p, _ => null!);
+        Assert.True(page2.Degraded);
+        Assert.Empty(page2.Items);
+    }
+
+    #endregion
+
     private static async Task<List<Result<JikanPage>>> CollectAsync(IAsyncEnumerable<Result<JikanPage>> source)
     {
         var pages = new List<Result<JikanPage>>();
+        await foreach (var p in source)
+            pages.Add(p);
+        return pages;
+    }
+
+    private static async Task<List<Result<JikanAiringPage>>> CollectAsync(IAsyncEnumerable<Result<JikanAiringPage>> source)
+    {
+        var pages = new List<Result<JikanAiringPage>>();
         await foreach (var p in source)
             pages.Add(p);
         return pages;

@@ -37,6 +37,20 @@ public class NyaaReleaseMatcherTests
     }
 
     [Fact]
+    public void Should_Set_SeriesTitle_To_The_Library_Canonical_Title()
+    {
+        var index = LibraryTitleIndex.Build([new TvSeries(21) { AllTitles = ["Meitantei Precure", "Detective Precure"] }]);
+        var entry = new NyaaEntry(
+            "[Erai-raws] Meitantei Precure - 24 [1080p CR WEB-DL AVC AAC][068DA821]",
+            "https://nyaa.si/download/1.torrent", "https://nyaa.si/view/1", DateTimeOffset.UtcNow);
+
+        var result = NyaaReleaseMatcher.Match(entry, index);
+
+        Assert.NotNull(result);
+        Assert.Equal("Meitantei Precure", result.SeriesTitle);
+    }
+
+    [Fact]
     public void Should_Fuzzy_Match_When_Release_Title_Carries_An_Extra_Word_The_Library_Title_Lacks()
     {
         var index = LibraryTitleIndex.Build([new TvSeries(21) { AllTitles = ["Kaiju No. 8"] }]);
