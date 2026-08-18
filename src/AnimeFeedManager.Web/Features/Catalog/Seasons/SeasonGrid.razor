@@ -1,4 +1,7 @@
+@using System.Collections.Frozen
 @using System.Collections.Immutable
+@using AnimeFeedManager.Features.Library.Airing
+@using AnimeFeedManager.Features.Library.Airing.Storage
 @using AnimeFeedManager.Features.Library.Catalog
 @using AnimeFeedManager.Features.Library.Catalog.Storage
 @using AnimeFeedManager.Features.Library.Entities
@@ -44,7 +47,7 @@ else
         <div class="grid grid-cols-[repeat(auto-fill,minmax(13rem,1fr))] gap-5">
             @foreach (var series in _series)
             {
-                <SeriesCard Series="series" PosterUrl="@PosterUrl(series)" IsSubscribed="@IsSubscribed(series)"/>
+                <SeriesCard Series="series" PosterUrl="@PosterUrl(series)" IsSubscribed="@IsSubscribed(series)" IsAiring="@_airingIds.Contains(series.MalId)"/>
             }
         </div>
     </div>
@@ -56,6 +59,7 @@ else
     private ImmutableArray<Series> _series = [];
     private IReadOnlyList<(string Key, string Label)> _segments = [];
     private ImmutableHashSet<int> _subscribedIds = [];
+    private FrozenSet<int> _airingIds = FrozenSet<int>.Empty;
     private bool _error;
     private string _imageBase = string.Empty;
 
@@ -76,7 +80,12 @@ else
                 },
                 _ => _error = true);
 
-       
+        await Factory.AiringSeriesIndexLoaderHandler()(CancellationToken.None)
+            .FlushLogs(Logger)
+            .Match(
+                index => _airingIds = index.Entries.Select(e => e.MalId).ToFrozenSet(),
+                _ => { });
+
             await (HttpContextAccessor.HttpContext?.GetCurrentUser() switch
             {
                 AuthenticatedUser user => Result<NoEmptyString>.Success(user.UserId),

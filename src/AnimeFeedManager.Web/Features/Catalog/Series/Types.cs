@@ -10,4 +10,4 @@ internal record InvalidSeason() : SeriesDetailContext;
 internal record SeriesNotFound() : SeriesDetailContext;
 internal record ProcessFailed(): SeriesDetailContext;
 internal record SeriesDetailAvailable(
-    AnimeFeedManager.Features.Library.Entities.Series Series, SeriesSeason Season) : SeriesDetailContext;
+    AnimeFeedManager.Features.Library.Entities.Series Series, SeriesSeason Season, bool IsAiring) : SeriesDetailContext;

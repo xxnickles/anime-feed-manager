@@ -1,4 +1,7 @@
 @page "/series/{Season}/{MalId:int}"
+@using System.Collections.Frozen
+@using AnimeFeedManager.Features.Library.Airing
+@using AnimeFeedManager.Features.Library.Airing.Storage
 @using AnimeFeedManager.Features.Library.Catalog
 @using AnimeFeedManager.Features.Library.Catalog.Storage
 @using AnimeFeedManager.Features.Library.Entities
@@ -36,7 +39,7 @@
         <WarnBanner Title="Couldn't load this series"
                     Description="Something went wrong fetching the series. Refresh to try again."/>
         break;
-    case SeriesDetailAvailable {Series: { } series}:
+    case SeriesDetailAvailable {Series: { } series, IsAiring: var isAiring}:
     {
         <article class="relative -mx-4 -mt-5 overflow-hidden md:-mx-8">
             @if (PosterUrl(series) is { } backdrop)
@@ -58,7 +61,7 @@
                     @* ── Poster column ── *@
                     <div class="flex flex-col gap-3">
                         <div class="relative w-full max-w-60">
-                            @if (AiringPin(series) is { } pin)
+                            @if (AiringPin(isAiring) is { } pin)
                             {
                                 <div class="status-pin @pin.Color"><span class="pin-dot"></span>@pin.Label</div>
                             }
@@ -152,7 +155,7 @@
                             </div>
                             <div class="bg-base-100 px-3.5 py-2.5">
                                 <dt class="@Eyebrow">Status</dt>
-                                <dd class="mt-1.5 font-display text-lg font-bold">@series.Status.ToDisplayString()</dd>
+                                <dd class="mt-1.5 font-display text-lg font-bold">@(isAiring ? "Airing" : "—")</dd>
                             </div>
                             <div class="bg-base-100 px-3.5 py-2.5">
                                 <dt class="@Eyebrow">Season</dt>
@@ -202,12 +205,18 @@
     protected override async Task OnInitializedAsync()
     {
         _imageBase = $"{BlobServiceClient.Uri.AbsoluteUri.TrimEnd('/')}/";
+        var airingIds = await Factory.AiringSeriesIndexLoaderHandler()(CancellationToken.None)
+            .FlushLogs(Logger)
+            .MatchToValue(
+                index => index.Entries.Select(e => e.MalId).ToFrozenSet(),
+                _ => FrozenSet<int>.Empty);
+
         _context = await Season.ParseAsSeriesSeason()
             .Bind(parsed => CatalogQueries.GetSeasonalSeries(Factory.SeriesByIdLoaderHandler(), parsed, MalId, CancellationToken.None)
                 .Map(series => (Series: series, Season: parsed)))
             .FlushLogs(Logger)
             .MatchToValue<(Series Series, SeriesSeason Season), SeriesDetailContext>(
-                data =>new SeriesDetailAvailable(data.Series, data.Season),
+                data => new SeriesDetailAvailable(data.Series, data.Season, airingIds.Contains(data.Series.MalId)),
                 error => error switch
                 {
                     DomainValidationErrors =>  new InvalidSeason(),
@@ -242,13 +251,8 @@
     private string? PosterUrl(Series series) =>
         series.CoverImageUrl is { } path ? _imageBase + path : null;
 
-    // Airing-status pin (NOT user status). Only live/upcoming earn a pin; finished/unknown show none.
-    private static (string Label, string Color)? AiringPin(Series series) => series.Status.ToString() switch
-    {
-        SeriesStatus.CurrentlyAiringValue => ("Airing", "text-success"),
-        SeriesStatus.NotYetAiredValue => ("Upcoming", "text-info"),
-        _ => null
-    };
+    // Airing-status pin (NOT user status).
+    private static (string Label, string Color)? AiringPin(bool isAiring) => isAiring ? ("Airing", "text-success") : null;
 
     private static int ScorePercent(double score) => (int)Math.Round(Math.Clamp(score, 0, 10) * 10);
 

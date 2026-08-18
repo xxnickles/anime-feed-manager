@@ -88,6 +88,10 @@
 
     [Parameter] public bool IsSubscribed { get; set; }
 
+    // Whether this series is in the currently-airing TV index — computed by the caller
+    // (SeasonGrid), not read off Series (non-TV content and finished/upcoming TV never set this).
+    [Parameter] public bool IsAiring { get; set; }
+
     private string PrimaryTitle =>
         string.IsNullOrWhiteSpace(Series.Titles.English) ? Series.Titles.Default : Series.Titles.English!;
 
@@ -95,12 +99,6 @@
     private string? SecondaryTitle =>
         string.Equals(Series.Titles.Default, PrimaryTitle, StringComparison.Ordinal) ? null : Series.Titles.Default;
 
-    // Airing-status pin (NOT user status). Only the live/upcoming states earn a pin;
-    // finished/unknown show none. Colour rides currentColor into .pin-dot.
-    private (string Label, string Color)? AiringPin => Series.Status.ToString() switch
-    {
-        SeriesStatus.CurrentlyAiringValue => ("Airing", "text-success"),
-        SeriesStatus.NotYetAiredValue => ("Upcoming", "text-info"),
-        _ => null
-    };
+    // Airing-status pin (NOT user status). Colour rides currentColor into .pin-dot.
+    private (string Label, string Color)? AiringPin => IsAiring ? ("Airing", "text-success") : null;
 }
