@@ -2,7 +2,7 @@ namespace AnimeFeedManager.Features.Feeds.Entities;
 
 public enum CollectionSource
 {
-    NyaaCollection,
+    TvReconciliation,
     AiringClockCheck,
-    NyaaReconciliation
+    NonTvReconciliation
 }

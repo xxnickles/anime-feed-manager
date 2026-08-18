@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 
 /// <summary>
-/// Admin Nyaa-collection and airing-clock triggers. Bodiless htmx-posted <c>&lt;form&gt;</c>s that
+/// Admin Nyaa-reconciliation and airing-clock triggers. Bodiless htmx-posted <c>&lt;form&gt;</c>s that
 /// fire the TV path (<see cref="TvReconciliationJob"/>), non-TV path (<see cref="NonTvReconciliationJob"/>),
 /// and airing-clock (<see cref="AiringClockCheckJob"/>) runs in-process via <see cref="JobExecutor"/>,
 /// sharing the same single-flight gate keys as their cron wrappers so manual and scheduled runs stay
@@ -20,34 +20,34 @@ internal static class FeedsAdminEndpoints
     {
         var nyaa = routes.MapGroup("/feeds/nyaa");
 
-        nyaa.MapPost("/collection", TriggerCollection);
-        nyaa.MapPost("/reconciliation", TriggerReconciliation);
+        nyaa.MapPost("/tv-reconciliation", TriggerTvReconciliation);
+        nyaa.MapPost("/non-tv-reconciliation", TriggerNonTvReconciliation);
 
         routes.MapPost("/feeds/airing-clock-check", TriggerAiringClockCheck);
 
         return routes;
     }
 
-    private static IResult TriggerCollection([FromForm] Noop _, JobExecutor executor)
+    private static IResult TriggerTvReconciliation([FromForm] Noop _, JobExecutor executor)
     {
         executor.Trigger<TvReconciliationJob>(
-            "nyaa-collection",
+            "tv-reconciliation",
             (job, ct) => job.Run(ct));
 
         return Toasts.Success(
-            "Nyaa collection",
-            Toasts.Text("Hot-path collection run started — running in the background."));
+            "TV reconciliation",
+            Toasts.Text("TV reconciliation run started — running in the background."));
     }
 
-    private static IResult TriggerReconciliation([FromForm] Noop _, JobExecutor executor)
+    private static IResult TriggerNonTvReconciliation([FromForm] Noop _, JobExecutor executor)
     {
         executor.Trigger<NonTvReconciliationJob>(
-            "nyaa-reconciliation",
+            "non-tv-reconciliation",
             (job, ct) => job.Run(ct));
 
         return Toasts.Success(
-            "Nyaa reconciliation",
-            Toasts.Text("Cold-path reconciliation run started — running in the background."));
+            "Non-TV reconciliation",
+            Toasts.Text("Non-TV reconciliation run started — running in the background."));
     }
 
     private static IResult TriggerAiringClockCheck([FromForm] Noop _, JobExecutor executor)

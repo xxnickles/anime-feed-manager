@@ -16,9 +16,9 @@ public static class ServiceCollectionExtensions
         /// Registers the Feeds feature: the Nyaa and AniList clients, the
         /// <see cref="SeriesClassificationSubscriber"/> that reacts to Library's
         /// <c>SeasonImported</c> event to build each series' platform set, the
-        /// <see cref="NyaaCollectionCronJob"/> hot-path TV reconciliation job, the
+        /// <see cref="TvReconciliationCronJob"/> TV reconciliation job, the
         /// <see cref="AiringClockCheckCronJob"/> cold-clock job for TV series unconfirmed on Nyaa,
-        /// and the <see cref="NyaaReconciliationCronJob"/> non-TV path. Depends on the host having
+        /// and the <see cref="NonTvReconciliationCronJob"/> non-TV path. Depends on the host having
         /// already called <c>AddCosmosInfrastructure(...)</c>, <c>AddEventBus()</c>,
         /// <c>AddCronScheduler()</c>, and <c>AddLibrary()</c> (for <c>IJikanClient</c>).
         /// </summary>
@@ -30,13 +30,13 @@ public static class ServiceCollectionExtensions
             builder.Services.AddEventHandler<SeasonImported, SeriesClassificationSubscriber>();
 
             builder.Services.AddScoped<TvReconciliationJob>();
-            builder.Services.AddCronJob<NyaaCollectionCronJob>();
+            builder.Services.AddCronJob<TvReconciliationCronJob>();
 
             builder.Services.AddScoped<AiringClockCheckJob>();
             builder.Services.AddCronJob<AiringClockCheckCronJob>();
 
             builder.Services.AddScoped<NonTvReconciliationJob>();
-            builder.Services.AddCronJob<NyaaReconciliationCronJob>();
+            builder.Services.AddCronJob<NonTvReconciliationCronJob>();
 
             return builder;
         }

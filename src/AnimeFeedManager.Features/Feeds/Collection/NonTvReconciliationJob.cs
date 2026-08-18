@@ -22,7 +22,7 @@ public sealed class NonTvReconciliationJob(
     EventBus eventBus,
     ILogger<NonTvReconciliationJob> logger)
 {
-    private const CollectionSource Source = CollectionSource.NyaaReconciliation;
+    private const CollectionSource Source = CollectionSource.NonTvReconciliation;
 
     private readonly NonTvCandidateLoader _loadCandidates = cosmosFactory.NonTvCandidateLoaderHandler();
     private readonly CollectionRunUpserter _upsertRun = cosmosFactory.CosmosCollectionRunUpserterHandler();

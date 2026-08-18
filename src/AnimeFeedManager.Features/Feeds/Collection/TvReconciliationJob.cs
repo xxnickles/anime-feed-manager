@@ -27,7 +27,7 @@ public sealed class TvReconciliationJob(
     EventBus eventBus,
     ILogger<TvReconciliationJob> logger)
 {
-    private const CollectionSource Source = CollectionSource.NyaaCollection;
+    private const CollectionSource Source = CollectionSource.TvReconciliation;
 
     private readonly AiringSeriesIndexLoader _loadAiringIndex = cosmosFactory.AiringSeriesIndexLoaderHandler();
     private readonly CollectionRunUpserter _upsertRun = cosmosFactory.CosmosCollectionRunUpserterHandler();

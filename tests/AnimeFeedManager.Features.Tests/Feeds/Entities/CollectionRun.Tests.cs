@@ -12,7 +12,7 @@ public class CollectionRunTests
     [Fact]
     public void Should_Derive_Error_Outcome_When_Errors_Present()
     {
-        var run = new CollectionRun(CollectionSource.NyaaCollection)
+        var run = new CollectionRun(CollectionSource.TvReconciliation)
         {
             StartedAt = Started,
             CompletedAt = Completed,
@@ -25,7 +25,7 @@ public class CollectionRunTests
     [Fact]
     public void Should_Derive_Info_Outcome_When_No_Errors_But_Unmatched_Items_Exist()
     {
-        var run = new CollectionRun(CollectionSource.NyaaCollection)
+        var run = new CollectionRun(CollectionSource.TvReconciliation)
         {
             StartedAt = Started,
             CompletedAt = Completed,
@@ -38,7 +38,7 @@ public class CollectionRunTests
     [Fact]
     public void Should_Derive_Success_Outcome_When_No_Errors_And_Nothing_Unmatched()
     {
-        var run = new CollectionRun(CollectionSource.NyaaCollection)
+        var run = new CollectionRun(CollectionSource.TvReconciliation)
         {
             StartedAt = Started,
             CompletedAt = Completed,
@@ -55,7 +55,7 @@ public class CollectionRunTests
     [Fact]
     public void Should_Join_Errors_In_Summary_When_Errors_Present()
     {
-        var run = new CollectionRun(CollectionSource.NyaaCollection)
+        var run = new CollectionRun(CollectionSource.TvReconciliation)
         {
             StartedAt = Started,
             CompletedAt = Completed,
@@ -68,7 +68,7 @@ public class CollectionRunTests
     [Fact]
     public void Should_Summarize_Counts_When_No_Errors()
     {
-        var run = new CollectionRun(CollectionSource.NyaaCollection)
+        var run = new CollectionRun(CollectionSource.TvReconciliation)
         {
             StartedAt = Started,
             CompletedAt = Completed,
