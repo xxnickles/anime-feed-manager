@@ -19,7 +19,7 @@ internal static class AdminIcons
     public static readonly MarkupString TvReconciliation = new(
         $"<svg {Attrs}><path d=\"M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16M5 19a1 1 0 1 1-2 0 1 1 0 0 1 2 0\"/></svg>");
 
-    public static readonly MarkupString NonTvReconciliation = new(
+    public static readonly MarkupString NonAiringReconciliation = new(
         $"<svg {Attrs}><path d=\"M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16\"/></svg>");
 
     public static readonly MarkupString AiringClockCheck = new(

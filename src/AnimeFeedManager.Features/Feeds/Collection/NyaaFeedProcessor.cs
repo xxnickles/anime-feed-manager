@@ -9,7 +9,7 @@ namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
 /// Shared engine behind both Nyaa collection jobs (<see cref="TvReconciliationJob"/>,
-/// <see cref="NonTvReconciliationJob"/>): fetch the feed, diff against the caller's own
+/// <see cref="NonAiringReconciliationJob"/>): fetch the feed, diff against the caller's own
 /// checkpoint, match new entries against the caller-supplied <see cref="LibraryTitleIndex"/>,
 /// reconcile via <see cref="NyaaCollectionReconciler"/>, and persist confirmations/detections/the
 /// checkpoint. The two jobs differ only in which title index they build (TV airing index vs.

@@ -11,16 +11,18 @@ using AnimeFeedManager.Features.Library.Seasons.Types;
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
-/// Non-TV (movie/OVA/ONA/special) candidates for Nyaa matching, across every imported season,
-/// excluding anything present in the currently-airing TV index. Loops <c>LibrarySeasonsIndex</c>
-/// and reads each season's partition individually via <see cref="SeriesBySeasonLoader"/> — cost
-/// scales with season count, not total series count.
+/// Candidates for Nyaa matching outside the active airing window — every series, of any type,
+/// not present in the currently-airing TV index. Movie/OVA/ONA/special series are always in
+/// scope (that index is TV-only); TV series rejoin once they drop out of it (finished, or never
+/// classified as airing). Loops <c>LibrarySeasonsIndex</c> and reads each season's partition
+/// individually via <see cref="SeriesBySeasonLoader"/> — cost scales with season count, not
+/// total series count.
 /// </summary>
-public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> NonTvCandidateLoader(CancellationToken cancellationToken);
+public delegate Task<Result<ImmutableArray<SeriesTitleProjection>>> NonAiringCandidateLoader(CancellationToken cancellationToken);
 
-public static class NonTvCandidates
+public static class NonAiringCandidates
 {
-    public static NonTvCandidateLoader NonTvCandidateLoaderHandler(this ICosmosContainerFactory factory)
+    public static NonAiringCandidateLoader NonAiringCandidateLoaderHandler(this ICosmosContainerFactory factory)
     {
         var loadSeasons = factory.LibrarySeasonsIndexLoaderHandler();
         var loadSeries = factory.SeriesBySeasonLoaderHandler();
@@ -56,15 +58,16 @@ public static class NonTvCandidates
         return perSeason
             .Flatten(seriesLists => seriesLists
                 .SelectMany(series => series)
-                .Where(series => IsNonTvCandidate(series, airingMalIds))
+                .Where(series => IsNonAiringCandidate(series, airingMalIds))
                 .Select(series => new SeriesTitleProjection(series.MalId, series.AllTitles))
                 .ToImmutableArray())
             .AddLogOnSuccess(LogFactories.LogBulkErrors<ImmutableArray<SeriesTitleProjection>>())
             .Map(bulk => bulk.Value);
     }
 
-    // Only TvSeries carries a broadcast clock (Series.Schedule); every other variant
-    // (Movie/OVA/ONA/TvSpecial/Special) is Nyaa-observation-only.
-    internal static bool IsNonTvCandidate(Series series, FrozenSet<int> airingMalIds) =>
-        series is not TvSeries && !airingMalIds.Contains(series.MalId);
+    // The airing index is TV-only (sourced from Jikan's currently-airing-TV endpoint), so a
+    // non-TV series' MalId can never appear in it — this reduces to "not currently airing,"
+    // regardless of type. That's what lets a TV series rejoin once it finishes airing.
+    internal static bool IsNonAiringCandidate(Series series, FrozenSet<int> airingMalIds) =>
+        !airingMalIds.Contains(series.MalId);
 }

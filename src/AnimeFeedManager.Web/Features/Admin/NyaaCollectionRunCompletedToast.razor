@@ -1,9 +1,9 @@
 @using AnimeFeedManager.Features.Feeds.Events
 
-@* Admin operational toast for a completed Nyaa collection run (TV or non-TV path), pushed over
-   SSE (Audience.Admin only — no public counterpart, this is internal operational signal).
+@* Admin operational toast for a completed Nyaa collection run (TV or non-airing path), pushed
+   over SSE (Audience.Admin only — no public counterpart, this is internal operational signal).
    Reuses the Notification card; root hx-swap-oob routes it into #toast-panel. Only sent when
-   the run matched something (see TvReconciliationJob/NonTvReconciliationJob's Matched > 0 guard). *@
+   the run matched something (see TvReconciliationJob/NonAiringReconciliationJob's Matched > 0 guard). *@
 
 <div hx-swap-oob="beforeend:#toast-panel">
     <Notification Title="@Title" Type="Outcome.Info">
@@ -21,7 +21,7 @@
     private string Title => Model.Source switch
     {
         CollectionSource.TvReconciliation => "TV reconciliation complete",
-        CollectionSource.NonTvReconciliation => "Non-TV reconciliation complete",
+        CollectionSource.NonAiringReconciliation => "Non-TV reconciliation complete",
         _ => "Nyaa run complete"
     };
 }

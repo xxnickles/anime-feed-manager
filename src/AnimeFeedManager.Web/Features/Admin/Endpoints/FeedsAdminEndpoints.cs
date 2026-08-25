@@ -7,7 +7,7 @@ namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 
 /// <summary>
 /// Admin Nyaa-reconciliation and airing-clock triggers. Bodiless htmx-posted <c>&lt;form&gt;</c>s that
-/// fire the TV path (<see cref="TvReconciliationJob"/>), non-TV path (<see cref="NonTvReconciliationJob"/>),
+/// fire the TV path (<see cref="TvReconciliationJob"/>), non-airing path (<see cref="NonAiringReconciliationJob"/>),
 /// and airing-clock (<see cref="AiringClockCheckJob"/>) runs in-process via <see cref="JobExecutor"/>,
 /// sharing the same single-flight gate keys as their cron wrappers so manual and scheduled runs stay
 /// mutually exclusive. Feedback is an immediate OOB toast; a second, stats-bearing toast follows
@@ -21,7 +21,7 @@ internal static class FeedsAdminEndpoints
         var nyaa = routes.MapGroup("/feeds/nyaa");
 
         nyaa.MapPost("/tv-reconciliation", TriggerTvReconciliation);
-        nyaa.MapPost("/non-tv-reconciliation", TriggerNonTvReconciliation);
+        nyaa.MapPost("/non-airing-reconciliation", TriggerNonAiringReconciliation);
 
         routes.MapPost("/feeds/airing-clock-check", TriggerAiringClockCheck);
 
@@ -39,15 +39,15 @@ internal static class FeedsAdminEndpoints
             Toasts.Text("TV reconciliation run started — running in the background."));
     }
 
-    private static IResult TriggerNonTvReconciliation([FromForm] Noop _, JobExecutor executor)
+    private static IResult TriggerNonAiringReconciliation([FromForm] Noop _, JobExecutor executor)
     {
-        executor.Trigger<NonTvReconciliationJob>(
-            "non-tv-reconciliation",
+        executor.Trigger<NonAiringReconciliationJob>(
+            "non-airing-reconciliation",
             (job, ct) => job.Run(ct));
 
         return Toasts.Success(
-            "Non-TV reconciliation",
-            Toasts.Text("Non-TV reconciliation run started — running in the background."));
+            "Non-airing reconciliation",
+            Toasts.Text("Non-airing reconciliation run started — running in the background."));
     }
 
     private static IResult TriggerAiringClockCheck([FromForm] Noop _, JobExecutor executor)

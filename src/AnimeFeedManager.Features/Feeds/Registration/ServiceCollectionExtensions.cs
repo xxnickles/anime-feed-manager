@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
         /// <c>SeasonImported</c> event to build each series' platform set, the
         /// <see cref="TvReconciliationCronJob"/> TV reconciliation job, the
         /// <see cref="AiringClockCheckCronJob"/> cold-clock job for TV series unconfirmed on Nyaa,
-        /// and the <see cref="NonTvReconciliationCronJob"/> non-TV path. Depends on the host having
+        /// and the <see cref="NonAiringReconciliationCronJob"/> non-TV path. Depends on the host having
         /// already called <c>AddCosmosInfrastructure(...)</c>, <c>AddEventBus()</c>,
         /// <c>AddCronScheduler()</c>, and <c>AddLibrary()</c> (for <c>IJikanClient</c>).
         /// </summary>
@@ -35,8 +35,8 @@ public static class ServiceCollectionExtensions
             builder.Services.AddScoped<AiringClockCheckJob>();
             builder.Services.AddCronJob<AiringClockCheckCronJob>();
 
-            builder.Services.AddScoped<NonTvReconciliationJob>();
-            builder.Services.AddCronJob<NonTvReconciliationCronJob>();
+            builder.Services.AddScoped<NonAiringReconciliationJob>();
+            builder.Services.AddCronJob<NonAiringReconciliationCronJob>();
 
             return builder;
         }

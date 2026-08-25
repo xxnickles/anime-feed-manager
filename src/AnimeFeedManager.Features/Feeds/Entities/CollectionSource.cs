@@ -4,5 +4,5 @@ public enum CollectionSource
 {
     TvReconciliation,
     AiringClockCheck,
-    NonTvReconciliation
+    NonAiringReconciliation
 }

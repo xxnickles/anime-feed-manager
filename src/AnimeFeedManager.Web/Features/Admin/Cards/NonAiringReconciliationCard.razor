@@ -1,6 +1,6 @@
-@* Non-TV reconciliation trigger. No data to send, but we still post a <form> so the antiforgery
+@* Non-airing reconciliation trigger. No data to send, but we still post a <form> so the antiforgery
    token rides along (the Noop construct). htmx posts to the Feeds admin endpoint, which fires
-   the reconciliation run (JobExecutor, single-flight "non-tv-reconciliation" gate — shared with
+   the reconciliation run (JobExecutor, single-flight "non-airing-reconciliation" gate — shared with
    the twice-daily cron) and returns an out-of-band toast as feedback. hx-swap="none" leaves this
    card untouched; transition:false keeps the toast response out of the view transition. *@
 
@@ -8,19 +8,19 @@
      class="relative flex h-full flex-col gap-3 rounded-2xl border-2 border-base-content bg-base-100 p-5 shadow-brutal">
     <div class="flex flex-col gap-1">
         <span class="mb-0.5 inline-flex size-9 items-center justify-center rounded-lg border-2 border-base-content bg-primary/15 text-primary">
-            @AdminIcons.NonTvReconciliation
+            @AdminIcons.NonAiringReconciliation
         </span>
         <h3 class="font-display text-base font-black tracking-[-0.02em] text-base-content">
-            Non-TV Reconciliation
+            Non-Airing Reconciliation
         </h3>
         <p class="text-sm text-base-content/70">
             Match Nyaa against movie/OVA/ONA/special content not in the airing index.
         </p>
     </div>
 
-    <form hx-post="/admin/feeds/nyaa/non-tv-reconciliation"
+    <form hx-post="/admin/feeds/nyaa/non-airing-reconciliation"
           hx-swap="none transition:false"
-          hx-confirm="Run non-TV reconciliation now?"
+          hx-confirm="Run non-airing reconciliation now?"
           hx-indicator="closest [data-loader-host]"
           class="mt-auto">
         <AntiforgeryToken />
@@ -29,5 +29,5 @@
         </button>
     </form>
 
-    <SectionLoader Operation="Running non-TV reconciliation…" />
+    <SectionLoader Operation="Running non-airing reconciliation…" />
 </div>

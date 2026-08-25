@@ -9,22 +9,22 @@ namespace AnimeFeedManager.Features.Feeds.Collection;
 
 /// <summary>
 /// Twice daily, snapshot the same Nyaa feed <see cref="TvReconciliationJob"/> watches, but match
-/// against non-TV content only (movie/OVA/ONA/special) not already present in the currently-airing
-/// TV index — see <see cref="NonTvCandidateLoader"/>. Finished TV gets no further notifications
-/// once it drops out of the airing index (accepted scope reduction — see the redesign design doc,
-/// §5). Feed fetch/diff/match/reconcile/persist is shared with the TV path via
-/// <see cref="NyaaFeedProcessor"/>.
+/// against everything not already present in the currently-airing TV index — see
+/// <see cref="NonAiringCandidateLoader"/>. Always covers movie/OVA/ONA/special (that index is
+/// TV-only), and TV series rejoin here once they drop out of the airing index (finished, or
+/// never classified as airing). Feed fetch/diff/match/reconcile/persist is shared with the TV
+/// path via <see cref="NyaaFeedProcessor"/>.
 /// </summary>
-public sealed class NonTvReconciliationJob(
+public sealed class NonAiringReconciliationJob(
     INyaaClient nyaa,
     ICosmosContainerFactory cosmosFactory,
     TimeProvider time,
     EventBus eventBus,
-    ILogger<NonTvReconciliationJob> logger)
+    ILogger<NonAiringReconciliationJob> logger)
 {
-    private const CollectionSource Source = CollectionSource.NonTvReconciliation;
+    private const CollectionSource Source = CollectionSource.NonAiringReconciliation;
 
-    private readonly NonTvCandidateLoader _loadCandidates = cosmosFactory.NonTvCandidateLoaderHandler();
+    private readonly NonAiringCandidateLoader _loadCandidates = cosmosFactory.NonAiringCandidateLoaderHandler();
     private readonly CollectionRunUpserter _upsertRun = cosmosFactory.CosmosCollectionRunUpserterHandler();
 
     private readonly NyaaFeedProcessor _processor = new(nyaa, cosmosFactory, time);

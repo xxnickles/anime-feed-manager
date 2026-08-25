@@ -17,7 +17,7 @@ namespace AnimeFeedManager.Features.Feeds.Collection;
 /// currently-airing TV series is uniformly in the index regardless of premiere season. A
 /// genuinely new match emits a <see cref="ReleaseDetected"/> and advances the
 /// <see cref="NyaaConfirmation"/> high-water mark. Non-TV content is covered separately by
-/// <see cref="NonTvReconciliationJob"/>. Feed fetch/diff/match/reconcile/persist is shared with
+/// <see cref="NonAiringReconciliationJob"/>. Feed fetch/diff/match/reconcile/persist is shared with
 /// that job via <see cref="NyaaFeedProcessor"/>.
 /// </summary>
 public sealed class TvReconciliationJob(
