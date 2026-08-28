@@ -33,6 +33,9 @@ public delegate Task<Result<AiringClockFlag>> AiringClockFlagLoader(
 public delegate Task<Result<Unit>> ReleaseDetectedUpserter(
     ReleaseDetected release, CancellationToken cancellationToken);
 
+/// <summary>All not-yet-dispatched releases, cross-partition — the notification-dispatch job's discovery query.</summary>
+public delegate Task<Result<ImmutableArray<ReleaseDetected>>> PendingReleaseDetectedLoader(CancellationToken cancellationToken);
+
 /// <summary>Write-only — one document per job execution, read side is the observability trail.</summary>
 public delegate Task<Result<Unit>> CollectionRunUpserter(
     CollectionRun run, CancellationToken cancellationToken);
