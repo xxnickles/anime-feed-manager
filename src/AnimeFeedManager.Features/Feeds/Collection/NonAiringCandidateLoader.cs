@@ -59,7 +59,7 @@ public static class NonAiringCandidates
             .Flatten(seriesLists => seriesLists
                 .SelectMany(series => series)
                 .Where(series => IsNonAiringCandidate(series, airingMalIds))
-                .Select(series => new SeriesTitleProjection(series.MalId, series.AllTitles))
+                .Select(series => new SeriesTitleProjection(series.MalId, series.AllTitles, series.SeriesSeason))
                 .ToImmutableArray())
             .AddLogOnSuccess(LogFactories.LogBulkErrors<ImmutableArray<SeriesTitleProjection>>())
             .Map(bulk => bulk.Value);

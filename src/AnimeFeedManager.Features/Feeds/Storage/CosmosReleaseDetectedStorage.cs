@@ -1,5 +1,4 @@
 using AnimeFeedManager.Features.Feeds.Entities;
-using AnimeFeedManager.Infrastructure.Cosmos.Static;
 
 namespace AnimeFeedManager.Features.Feeds.Storage;
 

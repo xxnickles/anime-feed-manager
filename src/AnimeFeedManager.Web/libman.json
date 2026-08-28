@@ -3,7 +3,7 @@
   "defaultProvider": "jsdelivr",
   "libraries": [
     {
-      "library": "htmx.org@4.0.0-beta6",
+      "library": "htmx.org@4.0.0",
       "destination": "wwwroot/lib/htmx/",
       "files": [
         "dist/htmx.js",

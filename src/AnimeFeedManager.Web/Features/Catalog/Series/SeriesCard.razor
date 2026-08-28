@@ -18,7 +18,7 @@
    class="group @@container flex flex-col overflow-hidden rounded-2xl border-2 border-base-content bg-base-100 shadow-brutal transition-transform duration-200 hover:-translate-y-0.5 [content-visibility:auto] [contain-intrinsic-size:auto_24rem]">
 
     <div class="relative overflow-hidden">
-        @if (AiringPin is { } pin)
+        @if (StatusPin is { } pin)
         {
             <div class="status-pin @pin.Color"><span class="pin-dot"></span>@pin.Label</div>
         }
@@ -99,6 +99,12 @@
     private string? SecondaryTitle =>
         string.Equals(Series.Titles.Default, PrimaryTitle, StringComparison.Ordinal) ? null : Series.Titles.Default;
 
-    // Airing-status pin (NOT user status). Colour rides currentColor into .pin-dot.
-    private (string Label, string Color)? AiringPin => IsAiring ? ("Airing", "text-success") : null;
+    // Airing/completed status pin (NOT user status). Colour rides currentColor into .pin-dot.
+    // Airing takes priority — the two shouldn't overlap, but the airing index only refreshes
+    // daily, so a just-finished episode can briefly leave both true; Airing is the more
+    // actionable state to surface. Completed reads straight off Series — no extra index needed.
+    private (string Label, string Color)? StatusPin =>
+        IsAiring ? ("Airing", "text-success")
+        : Series is TvSeries { Completed: true } ? ("Completed", "text-base-content/60")
+        : null;
 }

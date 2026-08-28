@@ -12,6 +12,9 @@ public sealed record TvSeries : Series
     public int? Episodes { get; init; }
     public int? EpisodeDurationMinutes { get; init; }
 
+    /// <summary>Set once Nyaa confirmation reaches <see cref="Episodes"/>. Never un-set.</summary>
+    public bool Completed { get; init; }
+
     public override string TypeKey => "tv";
     public override string TypeLabel => "TV";
     public override Broadcast? Schedule => Broadcast;

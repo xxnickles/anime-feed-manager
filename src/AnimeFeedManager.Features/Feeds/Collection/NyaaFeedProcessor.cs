@@ -1,9 +1,11 @@
-using AnimeFeedManager.Features.Feeds.Classification;
 using AnimeFeedManager.Features.Feeds.Entities;
 using AnimeFeedManager.Features.Feeds.Matching;
 using AnimeFeedManager.Features.Feeds.Sources.Nyaa;
 using AnimeFeedManager.Features.Feeds.Sources.Nyaa.Types;
 using AnimeFeedManager.Features.Feeds.Storage;
+using AnimeFeedManager.Features.Library.Catalog.Storage;
+using AnimeFeedManager.Features.Library.Entities;
+using AnimeFeedManager.Features.Library.Import.Storage;
 
 namespace AnimeFeedManager.Features.Feeds.Collection;
 
@@ -29,6 +31,10 @@ internal sealed class NyaaFeedProcessor(
     private readonly NyaaConfirmationUpserter _upsertConfirmation = cosmosFactory.CosmosNyaaConfirmationUpserterHandler();
     private readonly SeriesClassificationLoader _loadClassification = cosmosFactory.CosmosSeriesClassificationLoaderHandler();
     private readonly ReleaseDetectedUpserter _upsertReleaseDetected = cosmosFactory.CosmosReleaseDetectedUpserterHandler();
+    private readonly SeriesByIdLoader _loadSeries = cosmosFactory.SeriesByIdLoaderHandler();
+    private readonly SingleSeriesPersistenceHandler<CosmosOperationCost> _persistSeries = cosmosFactory.CosmosSingleSeriesPersistenceHandler();
+
+    private static readonly Task<Result<Unit>> NoOp = Task.FromResult<Result<Unit>>(new Unit());
 
     public readonly record struct RunCounts(int ItemsScanned, int NewSinceCheckpoint, int Matched, int Unmatched);
 
@@ -110,7 +116,31 @@ internal sealed class NyaaFeedProcessor(
             .BindOnErrorWhen(
                 binder: _ => Array.Empty<FeedsPlatform>(),
                 predicate: error => error is NotFoundError)
-            .Bind(platforms => UpsertDetectedRelease(release, newRelease, platforms, cancellationToken));
+            .Bind(platforms => UpsertDetectedRelease(release, newRelease, platforms, cancellationToken))
+            .Bind(unit => CheckCompletion(release, newRelease, cancellationToken)
+                // Completion tracking is presentational, not part of the hand-off contract — a
+                // failure here shouldn't undo (or be reported as) a failure of the confirmation +
+                // ReleaseDetected write that already succeeded above.
+                .AddLogOnFailure(_ => log =>
+                    log.LogWarning("Failed to update completion status for series {SeriesId}", release.SeriesId))
+                .BindOnErrorWhen(binder: _ => unit, predicate: _ => true));
+
+    // Only episode-based confirmations (single/batch) carry a count to compare against the
+    // series' expected total; movie/OVA confirmations have nothing to complete.
+    private Task<Result<Unit>> CheckCompletion(
+        MatchedRelease release, ReconciliationResult.NewRelease newRelease, CancellationToken cancellationToken) =>
+        newRelease.UpdatedConfirmation.LastConfirmedEpisode is not { } confirmedEpisode
+            ? NoOp
+            : _loadSeries(release.Season, release.SeriesId, cancellationToken)
+                .Bind(series => MarkCompleteIfNeeded(series, confirmedEpisode, cancellationToken));
+
+    private Task<Result<Unit>> MarkCompleteIfNeeded(Series series, int confirmedEpisode, CancellationToken cancellationToken) =>
+        series is TvSeries { Completed: false } tv && IsComplete(confirmedEpisode, tv.Episodes)
+            ? _persistSeries(tv with { Completed = true }, cancellationToken).Map(_ => new Unit())
+            : NoOp;
+
+    internal static bool IsComplete(int confirmedEpisode, int? expectedEpisodes) =>
+        expectedEpisodes is { } expected && confirmedEpisode >= expected;
 
     private Task<Result<Unit>> UpsertDetectedRelease(
         MatchedRelease release, ReconciliationResult.NewRelease newRelease, FeedsPlatform[] platforms,

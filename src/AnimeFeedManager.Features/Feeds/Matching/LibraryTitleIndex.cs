@@ -6,7 +6,14 @@ using Raffinert.FuzzySharp.SimilarityRatio.Scorer.StrategySensitive;
 namespace AnimeFeedManager.Features.Feeds.Matching;
 
 /// <summary>
-/// Title -> series id lookup, built once per collection run from the whole library (every
+/// The data a successful match guarantees — constructed once per indexed series, never
+/// assembled piecemeal from separate lookups, so there's no "matched but missing title/season"
+/// state to defend against downstream.
+/// </summary>
+internal sealed record MatchedSeries(int MalId, string Title, SeriesSeason Season);
+
+/// <summary>
+/// Title -> series lookup, built once per collection run from the whole library (every
 /// series, any season/status — sequels, BD releases, and movies can land regardless of current
 /// season). Matching is exact-normalized first, falling back to fuzzy word-set scoring: fansub
 /// groups routinely add/drop whole words (English glosses, "Movie" suffixes, year
@@ -21,26 +28,23 @@ internal sealed class LibraryTitleIndex
     // this runs against real feed traffic.
     private const int FuzzyMatchThreshold = 85;
 
-    private readonly FrozenDictionary<string, int> _bySeriesTitle;
-    private readonly FrozenDictionary<int, string> _titleByMalId;
+    private readonly FrozenDictionary<string, MatchedSeries> _bySeriesTitle;
     private readonly string[] _fuzzyTitles;
-    private readonly int[] _fuzzySeriesIds;
+    private readonly MatchedSeries[] _fuzzySeries;
     private readonly TokenSetScorer _fuzzyScorer = new();
 
     private LibraryTitleIndex(
-        FrozenDictionary<string, int> bySeriesTitle,
-        FrozenDictionary<int, string> titleByMalId,
+        FrozenDictionary<string, MatchedSeries> bySeriesTitle,
         string[] fuzzyTitles,
-        int[] fuzzySeriesIds)
+        MatchedSeries[] fuzzySeries)
     {
         _bySeriesTitle = bySeriesTitle;
-        _titleByMalId = titleByMalId;
         _fuzzyTitles = fuzzyTitles;
-        _fuzzySeriesIds = fuzzySeriesIds;
+        _fuzzySeries = fuzzySeries;
     }
 
     public static LibraryTitleIndex Build(IEnumerable<Series> library) =>
-        Build(library.Select(series => (series.MalId, series.AllTitles)));
+        Build(library.Select(series => (series.MalId, series.AllTitles, series.SeriesSeason)));
 
     /// <summary>
     /// Same as <see cref="Build(IEnumerable{Series})"/>, plus a set of lightweight title
@@ -48,56 +52,45 @@ internal sealed class LibraryTitleIndex
     /// for callers that don't have (or don't want to pay for) the full <see cref="Series"/>.
     /// </summary>
     public static LibraryTitleIndex Build(IEnumerable<Series> library, IEnumerable<SeriesTitleProjection> additional) =>
-        Build(library.Select(series => (series.MalId, series.AllTitles))
-            .Concat(additional.Select(projection => (projection.MalId, projection.AllTitles))));
+        Build(library.Select(series => (series.MalId, series.AllTitles, series.SeriesSeason))
+            .Concat(additional.Select(projection => (projection.MalId, projection.AllTitles, projection.Season))));
 
-    private static LibraryTitleIndex Build(IEnumerable<(int MalId, string[] AllTitles)> entries)
+    private static LibraryTitleIndex Build(IEnumerable<(int MalId, string[] AllTitles, SeriesSeason Season)> entries)
     {
-        var bySeriesTitle = new Dictionary<string, int>();
-        var titleByMalId = new Dictionary<int, string>();
+        var bySeriesTitle = new Dictionary<string, MatchedSeries>();
         var fuzzyTitles = new List<string>();
-        var fuzzySeriesIds = new List<int>();
+        var fuzzySeries = new List<MatchedSeries>();
 
-        foreach (var (malId, titles) in entries)
+        foreach (var (malId, titles, season) in entries)
         {
+            if (titles.Length == 0) continue; // nothing to match against or report as a title
+
             // AllTitles[0] is always the canonical/default title — see JikanSeriesMapper.BuildAllTitles.
-            if (titles.Length > 0) titleByMalId.TryAdd(malId, titles[0]);
+            var matched = new MatchedSeries(malId, titles[0], season);
 
             foreach (var title in titles)
             {
                 var normalized = TitleNormalizer.Normalize(title);
                 if (normalized.Length < 2) continue;
 
-                bySeriesTitle.TryAdd(normalized, malId);
+                bySeriesTitle.TryAdd(normalized, matched);
                 fuzzyTitles.Add(title);
-                fuzzySeriesIds.Add(malId);
+                fuzzySeries.Add(matched);
             }
         }
 
-        return new LibraryTitleIndex(
-            bySeriesTitle.ToFrozenDictionary(), titleByMalId.ToFrozenDictionary(), [..fuzzyTitles], [..fuzzySeriesIds]);
+        return new LibraryTitleIndex(bySeriesTitle.ToFrozenDictionary(), [..fuzzyTitles], [..fuzzySeries]);
     }
 
-    public bool TryMatch(string cleanTitle, out int seriesId)
+    /// <summary>The matched series' data, or <c>null</c> if nothing in the library matches.</summary>
+    public MatchedSeries? TryMatch(string cleanTitle) =>
+        _bySeriesTitle.TryGetValue(TitleNormalizer.Normalize(cleanTitle), out var exact) ? exact : TryFuzzyMatch(cleanTitle);
+
+    private MatchedSeries? TryFuzzyMatch(string cleanTitle)
     {
-        if (_bySeriesTitle.TryGetValue(TitleNormalizer.Normalize(cleanTitle), out seriesId))
-            return true;
-
-        return TryFuzzyMatch(cleanTitle, out seriesId);
-    }
-
-    /// <summary>The canonical display title for a series already known to this index, if any.</summary>
-    public string? GetTitle(int seriesId) => _titleByMalId.GetValueOrDefault(seriesId);
-
-    private bool TryFuzzyMatch(string cleanTitle, out int seriesId)
-    {
-        seriesId = 0;
-        if (_fuzzyTitles.Length == 0) return false;
+        if (_fuzzyTitles.Length == 0) return null;
 
         var best = Process.ExtractOne(cleanTitle, _fuzzyTitles, processor: null, scorer: _fuzzyScorer, cutoff: FuzzyMatchThreshold);
-        if (best is null) return false;
-
-        seriesId = _fuzzySeriesIds[best.Index];
-        return true;
+        return best is null ? null : _fuzzySeries[best.Index];
     }
 }

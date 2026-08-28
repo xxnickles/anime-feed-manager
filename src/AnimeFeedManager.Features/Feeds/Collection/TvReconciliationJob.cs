@@ -5,7 +5,6 @@ using AnimeFeedManager.Features.Feeds.Sources.Nyaa;
 using AnimeFeedManager.Features.Feeds.Storage;
 using AnimeFeedManager.Features.Library.Airing;
 using AnimeFeedManager.Features.Library.Airing.Storage;
-using AnimeFeedManager.Features.Library.Catalog.Storage;
 using AnimeFeedManager.Features.Library.Entities;
 using AnimeFeedManager.Infrastructure.Eventing;
 
@@ -80,5 +79,5 @@ public sealed class TvReconciliationJob(
     private Task<Result<LibraryTitleIndex>> BuildTitleIndex(CancellationToken cancellationToken) =>
         _loadAiringIndex(cancellationToken)
             .Map(index => LibraryTitleIndex.Build(
-                [], index.Entries.Select(entry => new SeriesTitleProjection(entry.MalId, entry.AllTitles))));
+                [], index.Entries.Select(entry => new SeriesTitleProjection(entry.MalId, entry.AllTitles, entry.Season))));
 }

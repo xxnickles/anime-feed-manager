@@ -1,6 +1,5 @@
 @page "/series/{Season}/{MalId:int}"
 @using System.Collections.Frozen
-@using AnimeFeedManager.Features.Library.Airing
 @using AnimeFeedManager.Features.Library.Airing.Storage
 @using AnimeFeedManager.Features.Library.Catalog
 @using AnimeFeedManager.Features.Library.Catalog.Storage
@@ -61,7 +60,7 @@
                     @* ── Poster column ── *@
                     <div class="flex flex-col gap-3">
                         <div class="relative w-full max-w-60">
-                            @if (AiringPin(isAiring) is { } pin)
+                            @if (StatusPin(series, isAiring) is { } pin)
                             {
                                 <div class="status-pin @pin.Color"><span class="pin-dot"></span>@pin.Label</div>
                             }
@@ -155,7 +154,7 @@
                             </div>
                             <div class="bg-base-100 px-3.5 py-2.5">
                                 <dt class="@Eyebrow">Status</dt>
-                                <dd class="mt-1.5 font-display text-lg font-bold">@(isAiring ? "Airing" : "—")</dd>
+                                <dd class="mt-1.5 font-display text-lg font-bold">@StatusText(series, isAiring)</dd>
                             </div>
                             <div class="bg-base-100 px-3.5 py-2.5">
                                 <dt class="@Eyebrow">Season</dt>
@@ -251,8 +250,16 @@
     private string? PosterUrl(Series series) =>
         series.CoverImageUrl is { } path ? _imageBase + path : null;
 
-    // Airing-status pin (NOT user status).
-    private static (string Label, string Color)? AiringPin(bool isAiring) => isAiring ? ("Airing", "text-success") : null;
+    // Airing/completed status pin (NOT user status). Airing takes priority — see SeriesCard's
+    // StatusPin for why the two can (rarely, briefly) overlap. Completed reads straight off
+    // Series — no extra index needed.
+    private static (string Label, string Color)? StatusPin(Series series, bool isAiring) =>
+        isAiring ? ("Airing", "text-success")
+        : series is TvSeries { Completed: true } ? ("Completed", "text-base-content/60")
+        : null;
+
+    private static string StatusText(Series series, bool isAiring) =>
+        isAiring ? "Airing" : series is TvSeries { Completed: true } ? "Completed" : "—";
 
     private static int ScorePercent(double score) => (int)Math.Round(Math.Clamp(score, 0, 10) * 10);
 

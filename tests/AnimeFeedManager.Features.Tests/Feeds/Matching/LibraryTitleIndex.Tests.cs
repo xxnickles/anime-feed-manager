@@ -10,8 +10,10 @@ public class LibraryTitleIndexTests
     {
         var index = LibraryTitleIndex.Build([Series(1, "One Piece")]);
 
-        Assert.True(index.TryMatch("One Piece", out var seriesId));
-        Assert.Equal(1, seriesId);
+        var matched = index.TryMatch("One Piece");
+
+        Assert.NotNull(matched);
+        Assert.Equal(1, matched.MalId);
     }
 
     [Fact]
@@ -19,8 +21,10 @@ public class LibraryTitleIndexTests
     {
         var index = LibraryTitleIndex.Build([Series(1, "Grow Up Show: Himawari no Circus-dan", "Grow Up Show - Himawari no Circus-dan")]);
 
-        Assert.True(index.TryMatch("Grow Up Show - Himawari no Circus-dan", out var seriesId));
-        Assert.Equal(1, seriesId);
+        var matched = index.TryMatch("Grow Up Show - Himawari no Circus-dan");
+
+        Assert.NotNull(matched);
+        Assert.Equal(1, matched.MalId);
     }
 
     [Fact]
@@ -28,16 +32,18 @@ public class LibraryTitleIndexTests
     {
         var index = LibraryTitleIndex.Build([Series(1, "Mahou Shoujo Lyrical Nanoha Exceeds: Gun Blaze Vengeance")]);
 
-        Assert.True(index.TryMatch("mahou shoujo lyrical nanoha EXCEEDS - Gun Blaze Vengeance", out var seriesId));
-        Assert.Equal(1, seriesId);
+        var matched = index.TryMatch("mahou shoujo lyrical nanoha EXCEEDS - Gun Blaze Vengeance");
+
+        Assert.NotNull(matched);
+        Assert.Equal(1, matched.MalId);
     }
 
     [Fact]
-    public void Should_Return_False_When_No_Series_Matches()
+    public void Should_Return_Null_When_No_Series_Matches()
     {
         var index = LibraryTitleIndex.Build([Series(1, "One Piece")]);
 
-        Assert.False(index.TryMatch("Naruto", out _));
+        Assert.Null(index.TryMatch("Naruto"));
     }
 
     [Fact]
@@ -45,9 +51,11 @@ public class LibraryTitleIndexTests
     {
         var index = LibraryTitleIndex.Build([Series(1, "One Piece", "ワンピース")]); // Japanese title, non-ASCII
 
-        Assert.True(index.TryMatch("One Piece", out var seriesId));
-        Assert.Equal(1, seriesId);
-        Assert.False(index.TryMatch("", out _));
+        var matched = index.TryMatch("One Piece");
+
+        Assert.NotNull(matched);
+        Assert.Equal(1, matched.MalId);
+        Assert.Null(index.TryMatch(""));
     }
 
     [Fact]
@@ -55,23 +63,31 @@ public class LibraryTitleIndexTests
     {
         var index = LibraryTitleIndex.Build([]);
 
-        Assert.False(index.TryMatch("Anything", out _));
+        Assert.Null(index.TryMatch("Anything"));
     }
 
     [Fact]
-    public void Should_Return_Canonical_Default_Title_From_GetTitle()
+    public void Should_Return_Canonical_Default_Title_When_Matched()
     {
         var index = LibraryTitleIndex.Build([Series(1, "One Piece", "ワンピース")]);
 
-        Assert.Equal("One Piece", index.GetTitle(1));
+        var matched = index.TryMatch("One Piece");
+
+        Assert.NotNull(matched);
+        Assert.Equal("One Piece", matched.Title);
     }
 
     [Fact]
-    public void Should_Return_Null_From_GetTitle_When_Series_Id_Is_Unknown()
+    public void Should_Return_The_Series_Season_When_Matched()
     {
-        var index = LibraryTitleIndex.Build([Series(1, "One Piece")]);
+        var season = new SeriesSeason(Season.Summer(), Year.FromNumber(2026));
+        var series = Series(1, "One Piece") with { SeriesSeason = season };
+        var index = LibraryTitleIndex.Build([series]);
 
-        Assert.Null(index.GetTitle(999));
+        var matched = index.TryMatch("One Piece");
+
+        Assert.NotNull(matched);
+        Assert.Equal(season, matched.Season);
     }
 
     [Fact]
@@ -79,8 +95,10 @@ public class LibraryTitleIndexTests
     {
         var index = LibraryTitleIndex.Build([Series(1, "Kaiju No. 8")]);
 
-        Assert.True(index.TryMatch("Kaiju No. 8 Movie", out var seriesId));
-        Assert.Equal(1, seriesId);
+        var matched = index.TryMatch("Kaiju No. 8 Movie");
+
+        Assert.NotNull(matched);
+        Assert.Equal(1, matched.MalId);
     }
 
     [Fact]
@@ -88,8 +106,10 @@ public class LibraryTitleIndexTests
     {
         var index = LibraryTitleIndex.Build([Series(1, "Chuunibyou demo Koi ga Shitai")]);
 
-        Assert.True(index.TryMatch("Chuunibyou Koi ga Shitai", out var seriesId));
-        Assert.Equal(1, seriesId);
+        var matched = index.TryMatch("Chuunibyou Koi ga Shitai");
+
+        Assert.NotNull(matched);
+        Assert.Equal(1, matched.MalId);
     }
 
     [Fact]
@@ -97,7 +117,7 @@ public class LibraryTitleIndexTests
     {
         var index = LibraryTitleIndex.Build([Series(1, "One Piece")]);
 
-        Assert.False(index.TryMatch("One Punch Man", out _));
+        Assert.Null(index.TryMatch("One Punch Man"));
     }
 
     private static TvSeries Series(int malId, params string[] allTitles) =>

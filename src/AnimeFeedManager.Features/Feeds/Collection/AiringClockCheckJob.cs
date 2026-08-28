@@ -6,7 +6,6 @@ using AnimeFeedManager.Features.Feeds.Storage;
 using AnimeFeedManager.Features.Library.Airing;
 using AnimeFeedManager.Features.Library.Airing.Storage;
 using AnimeFeedManager.Features.Library.Airing.Types;
-using AnimeFeedManager.Features.Library.Catalog.Storage;
 using AnimeFeedManager.Infrastructure.Eventing;
 
 namespace AnimeFeedManager.Features.Feeds.Collection;
