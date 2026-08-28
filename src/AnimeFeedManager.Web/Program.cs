@@ -9,6 +9,7 @@ using AnimeFeedManager.Infrastructure.Registration;
 using AnimeFeedManager.ServiceDefaults;
 using AnimeFeedManager.Shared;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
+using AnimeFeedManager.Web.Features.NotificationEmail.Registration;
 using AnimeFeedManager.Web.Features.Notifications.Endpoints;
 using AnimeFeedManager.Web.Features.Notifications.Registration;
 using AnimeFeedManager.Web.Features.Security;
@@ -35,6 +36,7 @@ builder.AddCronScheduler();
 builder.AddLibrary();
 builder.AddFeeds();
 builder.AddAuth();
+builder.AddNotificationDispatch();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

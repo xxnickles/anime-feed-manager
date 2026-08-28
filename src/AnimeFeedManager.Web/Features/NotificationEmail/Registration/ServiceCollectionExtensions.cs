@@ -1,4 +1,7 @@
+using AnimeFeedManager.Features.Notifications;
+using AnimeFeedManager.Features.Notifications.Registration;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimeFeedManager.Web.Features.NotificationEmail.Registration;
 
@@ -15,6 +18,25 @@ public static class ServiceCollectionExtensions
         public IHostApplicationBuilder AddNotificationEmailRenderer()
         {
             builder.Services.AddScoped<HtmlRenderer>();
+            return builder;
+        }
+
+        /// <summary>
+        /// Composition root for the notification-dispatch job: wires the Gmail sender config and the
+        /// Blazor renderer, registers <see cref="NotificationEmailRenderer"/> scoped (built from the
+        /// scoped <see cref="HtmlRenderer"/>) so <see cref="NotificationDispatchCronJob"/> — which
+        /// lives in <c>Features</c> and only knows the delegate, never <see cref="HtmlRenderer"/> —
+        /// resolves normally via plain constructor injection.
+        /// </summary>
+        public IHostApplicationBuilder AddNotificationDispatch()
+        {
+            builder.AddNotificationEmailRenderer();
+            builder.AddGmailEmailSender();
+
+            builder.Services.AddScoped<NotificationEmailRenderer>(sp =>
+                sp.GetRequiredService<HtmlRenderer>().NotificationEmailRendererHandler());
+            builder.Services.AddScoped<NotificationDispatchCronJob>();
+
             return builder;
         }
     }
