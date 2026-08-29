@@ -9,7 +9,7 @@ on:
       - 'src/AnimeFeedManager.Shared/**'
       - 'src/AnimeFeedManager.Services.Shared/**'
       - 'src/AnimeFeedManager.Web.BlazorComponents/**'
-      - 'src/Directory.Packages.props'
+      - 'Directory.Packages.props'
       - '!src/**/*.md'
   workflow_dispatch:
 
@@ -40,7 +40,7 @@ jobs:
         run: dotnet build src/AnimeFeedManager.Functions -c Release --no-restore
 
       - name: Test
-        run: dotnet test src/AnimeFeedManager.Features.Tests -c Release --verbosity normal
+        run: dotnet test tests/AnimeFeedManager.Features.Tests -c Release --verbosity normal
 
       - name: Publish
         run: dotnet publish src/AnimeFeedManager.Functions -c Release -o ./output

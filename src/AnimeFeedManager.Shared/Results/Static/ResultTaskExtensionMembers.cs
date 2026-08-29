@@ -94,6 +94,43 @@ public static class ResultTaskExtensionMembers
             Func<T, bool> predicate) => resultTask.Bind(v =>
             predicate(v) ? binder(v).Map(mapper) : resultTask.Map(mapper));
 
+        /// <summary>
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnError{T}(Result{T}, Func{DomainError, Result{T}})"/>.
+        /// </summary>
+        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
+        /// <returns>The original success or the result from the binder.</returns>
+        public async Task<Result<T>> BindOnError(Func<DomainError, Result<T>> binder)
+            => (await resultTask).BindOnError(binder);
+
+        /// <summary>
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnError{T}(Result{T}, Func{DomainError, Task{Result{T}}})"/>.
+        /// </summary>
+        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
+        /// <returns>The original success or the awaited result from the binder.</returns>
+        public async Task<Result<T>> BindOnError(Func<DomainError, Task<Result<T>>> binder)
+            => await (await resultTask).BindOnError(binder);
+
+        /// <summary>
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnErrorWhen{T}(Result{T}, Func{DomainError, Result{T}}, Func{DomainError, bool})"/>.
+        /// </summary>
+        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
+        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
+        /// <returns>The original success, the binder's result if the predicate matches, otherwise the original failure.</returns>
+        public async Task<Result<T>> BindOnErrorWhen(
+            Func<DomainError, Result<T>> binder,
+            Func<DomainError, bool> predicate)
+            => (await resultTask).BindOnErrorWhen(binder, predicate);
+
+        /// <summary>
+        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnErrorWhen{T}(Result{T}, Func{DomainError, Task{Result{T}}}, Func{DomainError, bool})"/>.
+        /// </summary>
+        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
+        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
+        /// <returns>The original success, the awaited binder's result if the predicate matches, otherwise the original failure.</returns>
+        public async Task<Result<T>> BindOnErrorWhen(
+            Func<DomainError, Task<Result<T>>> binder,
+            Func<DomainError, bool> predicate)
+            => await (await resultTask).BindOnErrorWhen(binder, predicate);
 
         // ──────────────────────────────────────────────────────────────────
         // Side Effects - Tap
@@ -119,6 +156,29 @@ public static class ResultTaskExtensionMembers
             var r = await resultTask;
             if (r.IsSuccess)
                 await r.Tap(action);
+            return r;
+        }
+
+        /// <summary>
+        /// Executes a side effect action on the failure value without modifying the result.
+        /// Async wrapper for <see cref="ResultExtensionMembers.TapError{T}(Result{T}, Action{DomainError})"/>.
+        /// </summary>
+        /// <param name="action">Action to execute on the failure value.</param>
+        /// <returns>The original result unchanged.</returns>
+        public async Task<Result<T>> TapError(Action<DomainError> action)
+            => (await resultTask).TapError(action);
+
+        /// <summary>
+        /// Executes an async side effect action on the failure value without modifying the result.
+        /// Async wrapper for <see cref="ResultExtensionMembers.TapError{T}(Result{T}, Func{DomainError, Task})"/>.
+        /// </summary>
+        /// <param name="action">Async action to execute on the failure value.</param>
+        /// <returns>The original result unchanged.</returns>
+        public async Task<Result<T>> TapError(Func<DomainError, Task> action)
+        {
+            var r = await resultTask;
+            if (r.IsFailure)
+                await r.TapError(action);
             return r;
         }
 

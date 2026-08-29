@@ -9,8 +9,8 @@ on:
       - 'src/AnimeFeedManager.Features/**'
       - 'src/AnimeFeedManager.Shared/**'
       - 'src/AnimeFeedManager.Services.Shared/**'
-      - 'src/Directory.Packages.props'
-      - 'src/Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'Directory.Build.props'
       - '!src/**/*.md'
   workflow_dispatch:
 
@@ -53,7 +53,7 @@ jobs:
         run: dotnet build ${{ env.APP_PATH }} -c Release --no-restore
 
       - name: Test
-        run: dotnet test src/AnimeFeedManager.Features.Tests -c Release --verbosity normal
+        run: dotnet test tests/AnimeFeedManager.Features.Tests -c Release --verbosity normal
 
       - name: Publish
         run: dotnet publish ${{ env.APP_PATH }} -c Release -o ./output
