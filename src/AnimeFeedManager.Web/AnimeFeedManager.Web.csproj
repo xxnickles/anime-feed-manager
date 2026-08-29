@@ -28,10 +28,4 @@
       <Folder Include="wwwroot\lib\" />
     </ItemGroup>
 
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Features\Components\SeasonSelector\SeasonLinks.razor" />
-      <_ContentIncludedByDefault Remove="Features\Components\SeasonSelector\SeasonsSelector.razor" />
-    </ItemGroup>
-
-
 </Project>
