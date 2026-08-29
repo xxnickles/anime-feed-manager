@@ -47,7 +47,7 @@ internal sealed class HtmxRequestMiddleware
         {
             return context.Request.Headers.TryGetValue("HX-Boosted", out _)
                 ? new HxBoosted()
-                : new HxForm(GetCurrentPageUrl(context)); // a single value is expected in the header, otherwise we just assign the root path
+                : new Partial(GetCurrentPageUrl(context)); // a single value is expected in the header, otherwise we just assign the root path
         }
 
         // Default to HTML

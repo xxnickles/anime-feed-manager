@@ -22,7 +22,7 @@ public class HtmxRequestValidator : ComponentBase
                 $"{nameof(HtmxRequestValidator)} must be placed inside an EditForm component.");
         }
         
-        if (HttpContextAccessor.GetHtmxRequestType() is HxForm)
+        if (HttpContextAccessor.GetHtmxRequestType() is Partial)
         {
             CurrentEditContext?.Validate();
         }

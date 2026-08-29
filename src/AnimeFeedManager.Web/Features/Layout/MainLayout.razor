@@ -1,13 +1,9 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @inject IHttpContextAccessor HttpContextAccessor
 
-@if (_isHtmxRequest)
+@if (_isPartialRequest)
 {
     @Body
-    <SideMenu hx-swap-oob="true" />
-    <div id="nav-auth" hx-swap-oob="true">
-        <NavAuthButtons />
-    </div>
 }
 else
 {
@@ -19,17 +15,10 @@ else
 }
 
 @code {
-    private bool _isHtmxRequest;
+    private bool _isPartialRequest;
 
     protected override void OnInitialized()
     {
-        _isHtmxRequest = HttpContextAccessor.GetHtmxRequestType() is HxBoosted or HxForm;
-        if (_isHtmxRequest)
-        {
-            var response = HttpContextAccessor.HttpContext!.Response;
-            response.HxRetarget("#main-content");
-            response.HxReswap("innerHTML transition:true");
-        }
+        _isPartialRequest = HttpContextAccessor.GetHtmxRequestType() is Partial;
     }
 }
-

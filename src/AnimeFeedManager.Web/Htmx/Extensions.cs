@@ -8,9 +8,17 @@ internal sealed record Html : HtmxRequestType;
 
 internal sealed record Json : HtmxRequestType;
 
+/// <summary>
+/// A boosted page navigation. Renders identically to <see cref="Html"/> (full document) under the
+/// whole-body-boost shell model; kept as its own type for non-rendering consumers (redirect handling,
+/// future request tagging), not for render branching.
+/// </summary>
 internal sealed record HxBoosted : HtmxRequestType;
 
-internal sealed record HxForm(string CurrentPagePath) : HtmxRequestType;
+/// <summary>
+/// A non-boosted htmx request (explicit hx-get/hx-post + hx-target) expecting a targeted fragment back.
+/// </summary>
+internal sealed record Partial(string CurrentPagePath) : HtmxRequestType;
 
 internal static class HtmxExtensions
 {
