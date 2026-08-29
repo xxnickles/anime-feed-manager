@@ -304,7 +304,7 @@ class NullLogger {
 NullLogger.instance = new NullLogger();
 
 ;// ./src/pkg-version.ts
-const VERSION = '10.0.0';
+const VERSION = '10.0.11';
 
 ;// ./src/Utils.ts
 // Licensed to the .NET Foundation under one or more agreements.

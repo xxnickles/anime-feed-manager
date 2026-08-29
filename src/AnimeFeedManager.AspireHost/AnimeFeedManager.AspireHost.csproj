@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+<Project Sdk="Aspire.AppHost.Sdk/13.5.3">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -6,7 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UserSecretsId>da683371-3e1b-43a8-98f0-0f445a0365dd</UserSecretsId>
-    </PropertyGroup>
+        <AspireUseCliBundle>true</AspireUseCliBundle>
+    </PropertyGroup>   
 
     <ItemGroup>        
         <PackageReference Include="Aspire.Hosting.Azure.Functions" />

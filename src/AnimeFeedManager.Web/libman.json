@@ -19,7 +19,7 @@
       ]
     },
     {
-      "library": "hyperscript.org@0.9.91",
+      "library": "hyperscript.org@0.9.93",
       "destination": "wwwroot/lib/hyperscript/",
       "files": [
         "dist/_hyperscript.min.js",
@@ -33,7 +33,7 @@
       ]
     },
     {
-      "library": "@microsoft/signalr@10.0.0",
+      "library": "@microsoft/signalr@10.0.11",
       "destination": "wwwroot/lib/signalr",
       "files": [
         "dist/browser/signalr.js",
