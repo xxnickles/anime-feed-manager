@@ -55,7 +55,6 @@
     <PackageVersion Include="Passwordless.AspNetCore" Version="2.0.0" />
     <PackageVersion Include="PuppeteerSharp" Version="25.8.0" />
     <PackageVersion Include="Raffinert.FuzzySharp" Version="6.0.0" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
-    <PackageVersion Include="xunit.v3" Version="4.0.0" />
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.0" />
   </ItemGroup>
 </Project>
