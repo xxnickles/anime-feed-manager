@@ -11,7 +11,7 @@
       ]
     },
     {
-      "library": "htmx.org@2.0.10",
+      "library": "htmx.org@4.0.0",
       "destination": "wwwroot/lib/htmx/",
       "files": [
         "dist/htmx.min.js",

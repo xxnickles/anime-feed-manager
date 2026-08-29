@@ -51,11 +51,11 @@ internal static class Registration
                                 ctx.Response.Headers.Location = ctx.RedirectUri;
                                 ctx.Response.StatusCode = 401;
                                 break;
-                            // For HX form requests, customize the redirect path
-                            case HxForm hxForm:
+                            // For non-boosted (partial) htmx requests, customize the redirect path
+                            case Partial partialRequest:
                             {
                                 var loginPath = QueryHelpers.AddQueryString(options.LoginPath,
-                                    options.ReturnUrlParameter, hxForm.CurrentPagePath);
+                                    options.ReturnUrlParameter, partialRequest.CurrentPagePath);
                                 ctx.Response.Redirect(loginPath);
                                 break;
                             }
@@ -80,11 +80,11 @@ internal static class Registration
                                 ctx.Response.Headers.Location = ctx.RedirectUri;
                                 ctx.Response.StatusCode = 403;
                                 break;
-                            // For HX form requests, customize the redirect path
-                            case HxForm hxForm:
+                            // For non-boosted (partial) htmx requests, customize the redirect path
+                            case Partial partialRequest:
                             {
                                 var loginPath = QueryHelpers.AddQueryString(options.LoginPath,
-                                    options.ReturnUrlParameter, hxForm.CurrentPagePath);
+                                    options.ReturnUrlParameter, partialRequest.CurrentPagePath);
                                 ctx.Response.Redirect(loginPath);
                                 break;
                             }

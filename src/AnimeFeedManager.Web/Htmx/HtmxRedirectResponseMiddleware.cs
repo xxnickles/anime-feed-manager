@@ -21,7 +21,7 @@ public sealed class HtmxRedirectResponseMiddleware
         {
             var requestType = context.Features.Get<HtmxRequestFeature>()?.RequestType ?? new Html();
             if (context.Response.StatusCode is not (302 or 303) ||
-                requestType is not (HxBoosted or HxForm)) return Task.CompletedTask;
+                requestType is not (HxBoosted or Partial)) return Task.CompletedTask;
 
             var location = context.Response.Headers["Location"].ToString();
             context.Response.HxLocation(location);
