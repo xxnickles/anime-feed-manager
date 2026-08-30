@@ -111,7 +111,7 @@ public class SeasonUpdateLatestFlagTests
         };
         var incoming = new SeriesSeason(Season.Fall(), Year.FromNumber(2026), true);
 
-        var latestGetter = A.Fake<LatestSeasonGetter>();
+        var latestGetter = Substitute.For<LatestSeasonGetter>();
 
         var calls = 0;
         SeasonUpdater seasonUpdater = (s, _) =>
@@ -131,7 +131,7 @@ public class SeasonUpdateLatestFlagTests
         result.AssertSuccess();
         Assert.Equal(0, calls); // No updates nor demotions should be performed
         // Ensure latestGetter and demotion not invoked
-        A.CallTo(() => latestGetter(A<CancellationToken>._)).MustNotHaveHappened();
+        _ = latestGetter.DidNotReceive()(Arg.Any<CancellationToken>());
         return;
 
         // matching the current latest will produce no update

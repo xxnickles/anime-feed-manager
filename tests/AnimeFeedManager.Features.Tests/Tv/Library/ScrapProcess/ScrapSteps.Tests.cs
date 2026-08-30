@@ -12,7 +12,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
     {
         private readonly IFixture _defaultFixture = new Fixture()
             .Customize(new DefaultSeasonDataCustomization())
-            .Customize(new AutoFakeItEasyCustomization());
+            .Customize(new AutoNSubstituteCustomization());
 
         [Fact]
         public async Task Should_Enrich_Data_With_StoredSeries()
@@ -53,13 +53,13 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     SeriesStatus.Ongoing()));
             
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = A.Fake<StoredSeries>();
-            A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
+            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
             // Setup TimeProvider fake
-            var timeProvider = A.Fake<TimeProvider>();
-            A.CallTo(() => timeProvider.GetUtcNow())
+            var timeProvider = Substitute.For<TimeProvider>();
+            timeProvider.GetUtcNow()
                 .Returns(DateTimeOffset.Parse("2025-05-05T14:30:45+04:00"));
 
             var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);
@@ -106,13 +106,13 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var storedSeries = ImmutableArray<TvSeriesInfo>.Empty;
 
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = A.Fake<StoredSeries>();
-            A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
+            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
             // Setup TimeProvider fake - current season
-            var timeProvider = A.Fake<TimeProvider>();
-            A.CallTo(() => timeProvider.GetUtcNow())
+            var timeProvider = Substitute.For<TimeProvider>();
+            timeProvider.GetUtcNow()
                 .Returns(DateTimeOffset.Parse("2025-05-05T14:30:45+04:00"));
 
             var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);
@@ -165,13 +165,13 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var storedSeries = dbSeries;
 
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = A.Fake<StoredSeries>();
-            A.CallTo(() => storedSeriesGetter(seriesSeason, A<CancellationToken>._))
+            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
             // Setup TimeProvider fake with a date in the future against the scrapped seasoon
-            var timeProvider = A.Fake<TimeProvider>();
-            A.CallTo(() => timeProvider.GetUtcNow())
+            var timeProvider = Substitute.For<TimeProvider>();
+            timeProvider.GetUtcNow()
                 .Returns(DateTimeOffset.Parse("2025-05-05T14:30:45+04:00"));
 
             var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);

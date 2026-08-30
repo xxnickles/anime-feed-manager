@@ -12,14 +12,14 @@ public class JikanTvScrapperTests
     public async Task Latest_Routes_To_GetCurrentSeason()
     {
         var anime = CreateAnime(title: "X", season: "spring", year: 2026);
-        var jikanClient = A.Fake<IJikanClient>();
-        A.CallTo(() => jikanClient.GetCurrentSeason(A<CancellationToken>._))
+        var jikanClient = Substitute.For<IJikanClient>();
+        jikanClient.GetCurrentSeason(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<JikanAnime>>.Success([anime])));
 
         var result = await EmptyFeed().ScrapSeries(jikanClient, new Latest(), CancellationToken.None);
 
-        A.CallTo(() => jikanClient.GetCurrentSeason(A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-        A.CallTo(() => jikanClient.GetSeason(A<int>._, A<string>._, A<CancellationToken>._)).MustNotHaveHappened();
+        _ = jikanClient.Received(1).GetCurrentSeason(Arg.Any<CancellationToken>());
+        _ = jikanClient.DidNotReceive().GetSeason(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
         result.AssertOnSuccess(data => Assert.Single(data.SeriesData));
     }
 
@@ -27,15 +27,15 @@ public class JikanTvScrapperTests
     public async Task BySeason_Routes_To_GetSeason_With_Args()
     {
         var anime = CreateAnime(title: "X", season: "spring", year: 2026);
-        var jikanClient = A.Fake<IJikanClient>();
-        A.CallTo(() => jikanClient.GetSeason(2026, "spring", A<CancellationToken>._))
+        var jikanClient = Substitute.For<IJikanClient>();
+        jikanClient.GetSeason(2026, "spring", Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<JikanAnime>>.Success([anime])));
 
         var selector = new BySeason(Season.Spring(), Year.FromNumber(2026));
         var result = await EmptyFeed().ScrapSeries(jikanClient, selector, CancellationToken.None);
 
-        A.CallTo(() => jikanClient.GetSeason(2026, "spring", A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-        A.CallTo(() => jikanClient.GetCurrentSeason(A<CancellationToken>._)).MustNotHaveHappened();
+        _ = jikanClient.Received(1).GetSeason(2026, "spring", Arg.Any<CancellationToken>());
+        _ = jikanClient.DidNotReceive().GetCurrentSeason(Arg.Any<CancellationToken>());
         result.AssertOnSuccess(data => Assert.Single(data.SeriesData));
     }
 
@@ -46,8 +46,8 @@ public class JikanTvScrapperTests
         var ona = CreateAnime(title: "OnaShow", type: "ONA");
         var movie = CreateAnime(title: "MovieShow", type: "Movie");
 
-        var jikanClient = A.Fake<IJikanClient>();
-        A.CallTo(() => jikanClient.GetCurrentSeason(A<CancellationToken>._))
+        var jikanClient = Substitute.For<IJikanClient>();
+        jikanClient.GetCurrentSeason(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<JikanAnime>>.Success(
                 [tv, ona, movie])));
 
@@ -73,8 +73,8 @@ public class JikanTvScrapperTests
             season: "spring",
             year: 2026);
 
-        var jikanClient = A.Fake<IJikanClient>();
-        A.CallTo(() => jikanClient.GetCurrentSeason(A<CancellationToken>._))
+        var jikanClient = Substitute.For<IJikanClient>();
+        jikanClient.GetCurrentSeason(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<JikanAnime>>.Success([anime])));
 
         var result = await EmptyFeed().ScrapSeries(jikanClient, new Latest(), CancellationToken.None);
@@ -103,8 +103,8 @@ public class JikanTvScrapperTests
     public async Task Null_Synopsis_Becomes_Empty_String()
     {
         var anime = CreateAnime(synopsis: null, season: "spring", year: 2026);
-        var jikanClient = A.Fake<IJikanClient>();
-        A.CallTo(() => jikanClient.GetCurrentSeason(A<CancellationToken>._))
+        var jikanClient = Substitute.For<IJikanClient>();
+        jikanClient.GetCurrentSeason(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<JikanAnime>>.Success([anime])));
 
         var result = await EmptyFeed().ScrapSeries(jikanClient, new Latest(), CancellationToken.None);
@@ -116,8 +116,8 @@ public class JikanTvScrapperTests
     public async Task Invalid_Image_Url_Becomes_NoImage()
     {
         var anime = CreateAnime(imageUrl: null, season: "spring", year: 2026);
-        var jikanClient = A.Fake<IJikanClient>();
-        A.CallTo(() => jikanClient.GetCurrentSeason(A<CancellationToken>._))
+        var jikanClient = Substitute.For<IJikanClient>();
+        jikanClient.GetCurrentSeason(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<JikanAnime>>.Success([anime])));
 
         var result = await EmptyFeed().ScrapSeries(jikanClient, new Latest(), CancellationToken.None);
@@ -128,8 +128,8 @@ public class JikanTvScrapperTests
     [Fact]
     public async Task Client_Failure_Propagates_As_Result_Failure()
     {
-        var jikanClient = A.Fake<IJikanClient>();
-        A.CallTo(() => jikanClient.GetCurrentSeason(A<CancellationToken>._))
+        var jikanClient = Substitute.For<IJikanClient>();
+        jikanClient.GetCurrentSeason(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<JikanAnime>>.Failure(HandledError.Create())));
 
         var result = await EmptyFeed().ScrapSeries(jikanClient, new Latest(), CancellationToken.None);

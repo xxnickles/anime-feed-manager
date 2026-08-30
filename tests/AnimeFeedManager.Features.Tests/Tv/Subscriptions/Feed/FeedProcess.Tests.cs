@@ -12,7 +12,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Subscriptions.Feed;
 public class FeedProcessTests
 {
     private readonly IFixture _fixture = new Fixture()
-        .Customize(new AutoFakeItEasyCustomization());
+        .Customize(new AutoNSubstituteCustomization());
 
     #region Happy Path Tests
 
@@ -492,8 +492,8 @@ public class FeedProcessTests
 
     private static INewReleaseProvider CreateReleaseProvider(DailySeriesFeed[] feeds)
     {
-        var provider = A.Fake<INewReleaseProvider>();
-        A.CallTo(() => provider.Get())
+        var provider = Substitute.For<INewReleaseProvider>();
+        provider.Get()
             .Returns(Task.FromResult(Result<DailySeriesFeed[]>.Success(feeds)));
         return provider;
     }

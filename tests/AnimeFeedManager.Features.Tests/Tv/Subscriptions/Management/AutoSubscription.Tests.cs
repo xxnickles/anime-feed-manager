@@ -9,7 +9,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Subscriptions.Management;
 public class AutoSubscriptionTests
 {
     private readonly IFixture _fixture = new Fixture()
-        .Customize(new AutoFakeItEasyCustomization());
+        .Customize(new AutoNSubstituteCustomization());
 
     [Fact]
     public async Task StartProcess_Should_Return_Success_When_Interested_Series_Found()
@@ -38,8 +38,8 @@ public class AutoSubscriptionTests
             }
         );
 
-        var seriesGetter = A.Fake<TvInterestedBySeries>();
-        A.CallTo(() => seriesGetter(seriesId, A<CancellationToken>._))
+        var seriesGetter = Substitute.For<TvInterestedBySeries>();
+        seriesGetter(seriesId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success(interestedSubscriptions)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
@@ -64,8 +64,8 @@ public class AutoSubscriptionTests
         const string feedTitle = "Test Anime Feed";
         var emptySubscriptions = ImmutableArray<SubscriptionStorage>.Empty;
 
-        var seriesGetter = A.Fake<TvInterestedBySeries>();
-        A.CallTo(() => seriesGetter(seriesId, A<CancellationToken>._))
+        var seriesGetter = Substitute.For<TvInterestedBySeries>();
+        seriesGetter(seriesId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success(emptySubscriptions)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
@@ -84,8 +84,8 @@ public class AutoSubscriptionTests
         const string feedTitle = "Test Anime Feed";
         var error = Error.Create("Database error");
 
-        var seriesGetter = A.Fake<TvInterestedBySeries>();
-        A.CallTo(() => seriesGetter(seriesId, A<CancellationToken>._))
+        var seriesGetter = Substitute.For<TvInterestedBySeries>();
+        seriesGetter(seriesId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Failure(error)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
@@ -112,19 +112,19 @@ public class AutoSubscriptionTests
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
 
-        var updater = A.Fake<TvSubscriptionsUpdater>();
-        A.CallTo(() => updater(A<IEnumerable<SubscriptionStorage>>._, A<CancellationToken>._))
+        var updater = Substitute.For<TvSubscriptionsUpdater>();
+        updater(Arg.Any<IEnumerable<SubscriptionStorage>>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
 
         result.AssertSuccess();
-        A.CallTo(() => updater(
-            A<IEnumerable<SubscriptionStorage>>.That.Matches(subs =>
+        _ = updater.Received(1)(
+            Arg.Is<IEnumerable<SubscriptionStorage>>(subs =>
                 subs.Count() == 1 && subs.First().PartitionKey == "user-1"
             ),
-            A<CancellationToken>._
-        )).MustHaveHappenedOnceExactly();
+            Arg.Any<CancellationToken>()
+        );
     }
 
     [Fact]
@@ -146,8 +146,8 @@ public class AutoSubscriptionTests
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
 
         var error = Error.Create("Storage error");
-        var updater = A.Fake<TvSubscriptionsUpdater>();
-        A.CallTo(() => updater(A<IEnumerable<SubscriptionStorage>>._, A<CancellationToken>._))
+        var updater = Substitute.For<TvSubscriptionsUpdater>();
+        updater(Arg.Any<IEnumerable<SubscriptionStorage>>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<Unit>.Failure(error)));
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
@@ -161,13 +161,12 @@ public class AutoSubscriptionTests
         var error = Error.Create("Previous step error");
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Failure(error));
 
-        var updater = A.Fake<TvSubscriptionsUpdater>();
+        var updater = Substitute.For<TvSubscriptionsUpdater>();
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
 
         result.AssertError();
-        A.CallTo(() => updater(A<IEnumerable<SubscriptionStorage>>._, A<CancellationToken>._))
-            .MustNotHaveHappened();
+        _ = updater.DidNotReceive()(Arg.Any<IEnumerable<SubscriptionStorage>>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
