@@ -14,7 +14,7 @@ public class FeedTitlesScrapTests
 {
     private readonly IFixture _fixture = new Fixture()
         .Customize(new DefaultSeasonDataCustomization())
-        .Customize(new AutoFakeItEasyCustomization());
+        .Customize(new AutoNSubstituteCustomization());
 
     [Fact]
     public async Task Should_Update_Only_Series_Without_Feed_With_Matches()
@@ -32,15 +32,18 @@ public class FeedTitlesScrapTests
 
         var seriesList = ImmutableArray.Create(s1, s2, s3, s4);
 
-        var getter = A.Fake<RawStoredSeries>();
-        A.CallTo(() => getter(season, A<CancellationToken>._))
+        var getter = Substitute.For<RawStoredSeries>();
+        getter(season, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<AnimeInfoStorage>>.Success(seriesList)));
 
         var updatedSent = new List<AnimeInfoStorage>();
-        var updater = A.Fake<TvLibraryStorageUpdater>();
-        A.CallTo(() => updater(A<IEnumerable<AnimeInfoStorage>>._, A<CancellationToken>._))
-            .Invokes((IEnumerable<AnimeInfoStorage> items, CancellationToken _) => { updatedSent.AddRange(items); })
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+        var updater = Substitute.For<TvLibraryStorageUpdater>();
+        updater(Arg.Any<IEnumerable<AnimeInfoStorage>>(), Arg.Any<CancellationToken>())
+            .Returns(callInfo =>
+            {
+                updatedSent.AddRange(callInfo.Arg<IEnumerable<AnimeInfoStorage>>());
+                return Task.FromResult(Result<Unit>.Success(new Unit()));
+            });
 
         var input = Result<FeedTitleUpdateData>.Success(new FeedTitleUpdateData(season, feedTitles, []));
         var result = await Task.FromResult(input)
@@ -81,15 +84,18 @@ public class FeedTitlesScrapTests
 
         var seriesList = ImmutableArray.Create(s1, s2);
 
-        var getter = A.Fake<RawStoredSeries>();
-        A.CallTo(() => getter(season, A<CancellationToken>._))
+        var getter = Substitute.For<RawStoredSeries>();
+        getter(season, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<AnimeInfoStorage>>.Success(seriesList)));
 
-        var updater = A.Fake<TvLibraryStorageUpdater>();
+        var updater = Substitute.For<TvLibraryStorageUpdater>();
         var captured = Array.Empty<AnimeInfoStorage>();
-        A.CallTo(() => updater(A<IEnumerable<AnimeInfoStorage>>._, A<CancellationToken>._))
-            .Invokes((IEnumerable<AnimeInfoStorage> items, CancellationToken _) => { captured = items.ToArray(); })
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+        updater(Arg.Any<IEnumerable<AnimeInfoStorage>>(), Arg.Any<CancellationToken>())
+            .Returns(callInfo =>
+            {
+                captured = callInfo.Arg<IEnumerable<AnimeInfoStorage>>().ToArray();
+                return Task.FromResult(Result<Unit>.Success(new Unit()));
+            });
 
         var input = Result<FeedTitleUpdateData>.Success(new FeedTitleUpdateData(season, feedTitles, []));
         var result = await Task.FromResult(input)
@@ -114,12 +120,12 @@ public class FeedTitlesScrapTests
 
         var seriesList = ImmutableArray.Create(s1, s2, s3);
 
-        var getter = A.Fake<RawStoredSeries>();
-        A.CallTo(() => getter(season, A<CancellationToken>._))
+        var getter = Substitute.For<RawStoredSeries>();
+        getter(season, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<AnimeInfoStorage>>.Success(seriesList)));
 
-        var updater = A.Fake<TvLibraryStorageUpdater>();
-        A.CallTo(() => updater(A<IEnumerable<AnimeInfoStorage>>._, A<CancellationToken>._))
+        var updater = Substitute.For<TvLibraryStorageUpdater>();
+        updater(Arg.Any<IEnumerable<AnimeInfoStorage>>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
 
         var postman = new TestDomainPostman();

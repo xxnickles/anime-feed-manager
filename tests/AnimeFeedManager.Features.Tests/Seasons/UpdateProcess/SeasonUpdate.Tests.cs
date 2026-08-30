@@ -1,4 +1,4 @@
-﻿using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.Storage.Stores;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
@@ -12,14 +12,14 @@ public class SeasonUpdateTests
     {
         var season = new SeriesSeason(Season.Spring(), Year.FromNumber(2025));
 
-        var seasonGetter = A.Fake<SeasonGetter>();
-        A.CallTo(() => seasonGetter(season, A<CancellationToken>._))
+        var seasonGetter = Substitute.For<SeasonGetter>();
+        seasonGetter(season, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Result<SeasonStorageData>>(new NoUpdateRequired()));
 
-        var latestGetter = A.Fake<LatestSeasonGetter>();
+        var latestGetter = Substitute.For<LatestSeasonGetter>();
         // Should not be called due to predicate
-        var seasonUpdater = A.Fake<SeasonUpdater>();
-        
+        var seasonUpdater = Substitute.For<SeasonUpdater>();
+
         var token = CancellationToken.None;
         var result = await SeasonUpdate
             .CheckSeasonExist(seasonGetter, season, token)
@@ -33,8 +33,8 @@ public class SeasonUpdateTests
              Assert.IsType<NoUpdateRequired>(data.SeasonData);
         });
 
-        A.CallTo(() => seasonUpdater(A<SeasonStorage>._, A<CancellationToken>._)).MustNotHaveHappened();
-        A.CallTo(() => latestGetter(A<CancellationToken>._)).MustNotHaveHappened();
+        _ = seasonUpdater.DidNotReceive()(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>());
+        _ = latestGetter.DidNotReceive()(Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -42,13 +42,13 @@ public class SeasonUpdateTests
     {
         var season = new SeriesSeason(Season.Summer(), Year.FromNumber(2025), false);
 
-        var seasonGetter = A.Fake<SeasonGetter>();
-        A.CallTo(() => seasonGetter(season, A<CancellationToken>._))
+        var seasonGetter = Substitute.For<SeasonGetter>();
+        seasonGetter(season, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Result<SeasonStorageData>>(new NoMatch()));
 
-        var latestGetter = A.Fake<LatestSeasonGetter>();
+        var latestGetter = Substitute.For<LatestSeasonGetter>();
         // Predicate WhenNewIsNotLatest will call this (CurrentLatestSeasonData initially NoMatch)
-        A.CallTo(() => latestGetter(A<CancellationToken>._))
+        latestGetter(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Result<SeasonStorageData>>(new CurrentLatestSeason(new SeasonStorage
             {
                 PartitionKey = SeasonStorage.SeasonPartition,
@@ -58,9 +58,9 @@ public class SeasonUpdateTests
                 Year = 2025
             })));
 
-        var seasonUpdater = A.Fake<SeasonUpdater>();
-        A.CallTo(() => seasonUpdater(A<SeasonStorage>._, A<CancellationToken>._))
-            .ReturnsLazily((SeasonStorage s, CancellationToken _) => Task.FromResult(Result<Unit>.Success()));
+        var seasonUpdater = Substitute.For<SeasonUpdater>();
+        seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromResult(Result<Unit>.Success()));
 
         var token = CancellationToken.None;
         var result = await SeasonUpdate
@@ -77,7 +77,7 @@ public class SeasonUpdateTests
             Assert.Equal(season.Year.Value, (ushort)newData.Season.Year);
         });
 
-        A.CallTo(() => seasonUpdater(A<SeasonStorage>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+        _ = seasonUpdater.Received(1)(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -94,14 +94,14 @@ public class SeasonUpdateTests
 
         var season = new SeriesSeason(Season.Spring(), Year.FromNumber(2025));
 
-        var seasonGetter = A.Fake<SeasonGetter>();
-        A.CallTo(() => seasonGetter(season, A<CancellationToken>._))
+        var seasonGetter = Substitute.For<SeasonGetter>();
+        seasonGetter(season, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Result<SeasonStorageData>>(new ExistentSeason(existingStorage)));
 
-        var seasonUpdater = A.Fake<SeasonUpdater>();
-        A.CallTo(() => seasonUpdater(existingStorage, A<CancellationToken>._))
+        var seasonUpdater = Substitute.For<SeasonUpdater>();
+        seasonUpdater(existingStorage, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<Unit>.Success()));
-        
+
         var token = CancellationToken.None;
         var result = await SeasonUpdate
             .CheckSeasonExist(seasonGetter, season, token)
@@ -110,7 +110,7 @@ public class SeasonUpdateTests
 
         result.AssertOnSuccess(data => Assert.IsType<ExistentSeason>(data.SeasonData));
 
-        A.CallTo(() => seasonUpdater(existingStorage, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+        _ = seasonUpdater.Received(1)(existingStorage, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -118,9 +118,9 @@ public class SeasonUpdateTests
     {
         var incoming = new SeriesSeason(Season.Fall(), Year.FromNumber(2025), true);
 
-        var seasonGetter = A.Fake<SeasonGetter>();
+        var seasonGetter = Substitute.For<SeasonGetter>();
         // Incoming is latest but not present -> NoMatch, then CreateNewSeason -> ReplaceLatestSeason
-        A.CallTo(() => seasonGetter(incoming, A<CancellationToken>._))
+        seasonGetter(incoming, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Result<SeasonStorageData>>(new NoMatch()));
 
         var currentLatest = new SeasonStorage
@@ -132,12 +132,12 @@ public class SeasonUpdateTests
             Year = 2025
         };
 
-        var latestGetter = A.Fake<LatestSeasonGetter>();
-        A.CallTo(() => latestGetter(A<CancellationToken>._))
+        var latestGetter = Substitute.For<LatestSeasonGetter>();
+        latestGetter(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Result<SeasonStorageData>>(new CurrentLatestSeason(currentLatest)));
 
-        var seasonUpdater = A.Fake<SeasonUpdater>();
-        A.CallTo(() => seasonUpdater(A<SeasonStorage>._, A<CancellationToken>._))
+        var seasonUpdater = Substitute.For<SeasonUpdater>();
+        seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<Unit>.Success()));
 
         var token = CancellationToken.None;
@@ -155,7 +155,7 @@ public class SeasonUpdateTests
         });
 
         // Two updates: one for new latest, one for demotion
-        A.CallTo(() => seasonUpdater(A<SeasonStorage>._, A<CancellationToken>._)).MustHaveHappenedTwiceExactly();
+        _ = seasonUpdater.Received(2)(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -163,17 +163,17 @@ public class SeasonUpdateTests
     {
         var incoming = new SeriesSeason(Season.Winter(), Year.FromNumber(2026), true);
 
-        var seasonGetter = A.Fake<SeasonGetter>();
-        A.CallTo(() => seasonGetter(incoming, A<CancellationToken>._))
+        var seasonGetter = Substitute.For<SeasonGetter>();
+        seasonGetter(incoming, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Result<SeasonStorageData>>(new NoMatch()));
 
-        var latestGetter = A.Fake<LatestSeasonGetter>();
+        var latestGetter = Substitute.For<LatestSeasonGetter>();
         // No current latest in storage
-        A.CallTo(() => latestGetter(A<CancellationToken>._))
+        latestGetter(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Result<SeasonStorageData>>(new NoMatch()));
 
-        var seasonUpdater = A.Fake<SeasonUpdater>();
-        A.CallTo(() => seasonUpdater(A<SeasonStorage>._, A<CancellationToken>._))
+        var seasonUpdater = Substitute.For<SeasonUpdater>();
+        seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<Unit>.Success()));
         var token = CancellationToken.None;
         var result = await SeasonUpdate
@@ -190,6 +190,6 @@ public class SeasonUpdateTests
         });
 
         // Only one store call, no demotion
-        A.CallTo(() => seasonUpdater(A<SeasonStorage>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+        _ = seasonUpdater.Received(1)(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>());
     }
 }
