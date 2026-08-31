@@ -1,4 +1,4 @@
-namespace AnimeFeedManager.Features.Tests.Shared.Results;
+namespace AnimeFeedManager.Shared.Tests.Results;
 
 public class ValidationTests
 {

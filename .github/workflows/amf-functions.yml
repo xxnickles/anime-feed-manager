@@ -40,7 +40,9 @@ jobs:
         run: dotnet build src/AnimeFeedManager.Functions -c Release --no-restore
 
       - name: Test
-        run: dotnet test tests/AnimeFeedManager.Features.Tests -c Release --verbosity normal
+        run: |
+          dotnet test tests/AnimeFeedManager.Features.Tests -c Release --verbosity normal
+          dotnet test tests/AnimeFeedManager.Shared.Tests -c Release --verbosity normal
 
       - name: Publish
         run: dotnet publish src/AnimeFeedManager.Functions -c Release -o ./output
