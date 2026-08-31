@@ -1,4 +1,4 @@
-namespace AnimeFeedManager.Features.Tests.Shared.Results.Static;
+namespace AnimeFeedManager.Shared.Tests.Results.Static;
 
 public class CollectionExtensionsTests
 {
