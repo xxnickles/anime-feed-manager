@@ -1,4 +1,6 @@
-﻿global using AnimeFeedManager.Features.Infrastructure.TableStorage;
+﻿global using System.Diagnostics;
+global using AnimeFeedManager.Features.Infrastructure.TableStorage;
+global using AnimeFeedManager.Shared;
 global using AnimeFeedManager.Shared.Charts;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;

@@ -9,7 +9,12 @@ using AnimeFeedManager.Web.Features.Tv.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+builder.AddServiceDefaults(
+    Telemetry.TvLibraryQueriesSource,
+    Telemetry.UserAuthenticationSource,
+    Telemetry.WebAdminSource,
+    Telemetry.WebSecuritySource,
+    Telemetry.WebTvSource);
 builder.RegisterStorageServices();
 
 // Add services to the container.

@@ -6,14 +6,17 @@ namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
 internal static partial class InterestedHandlers
 {
-    internal static Task<RazorComponentResult> AddSeriesToInterested(
+    private static readonly ActivitySource Source = new(Telemetry.WebTvSource);
+
+    internal static async Task<RazorComponentResult> AddSeriesToInterested(
         [FromForm] TvInterestedViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<ForInterested> logger,
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        return Validate(viewModel)
+        using var activity = Source.StartActivity("Web.Tv");
+        return await Validate(viewModel)
             .Bind(model => Data.AddUser(context, model))
             .Bind(data => InterestedSeries.VerifyStorage(
                 data.User,
@@ -22,6 +25,7 @@ internal static partial class InterestedHandlers
                 clientFactory.TableStorageTvSubscription, cancellationToken))
             .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater,
                 clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 // Render the ForInterestedRemoval component with a success notification
@@ -41,14 +45,15 @@ internal static partial class InterestedHandlers
     }
 
 
-    internal static Task<RazorComponentResult> RemoveInterestedSeries(
+    internal static async Task<RazorComponentResult> RemoveInterestedSeries(
         [FromForm] TvInterestedViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<ForInterestedRemoval> logger,
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        return Validate(viewModel)
+        using var activity = Source.StartActivity("Web.Tv");
+        return await Validate(viewModel)
             .Bind(model => Data.AddUser(context, model))
             .Bind(data => InterestedSeries.VerifyStorage(
                 data.User,
@@ -57,6 +62,7 @@ internal static partial class InterestedHandlers
                 clientFactory.TableStorageTvSubscription, cancellationToken))
             .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater,
                 clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 // Render the ForInterested component with a success notification

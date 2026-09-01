@@ -7,6 +7,8 @@ namespace AnimeFeedManager.Functions.SystemEvents;
 
 public class OnSystemEvent
 {
+    private static readonly ActivitySource Source = new(Telemetry.SystemEventsUpdateSource);
+
     private readonly ITableClientFactory _tableClientFactory;
     private readonly BlazorRenderer _blazorRenderer;
     private readonly ILogger<OnSystemEvent> _logger;
@@ -29,6 +31,7 @@ public class OnSystemEvent
         CancellationToken cancellationToken)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnSystemEvent));
+        using var activity = Source.StartActivity("SystemEvents.Update");
         return await SystemEventUpdate.StartProcess(message)
             .StoreEvent(_tableClientFactory.TableStorageEventUpdater(), cancellationToken)
             .PrepareUiNotification()
@@ -41,6 +44,7 @@ public class OnSystemEvent
                         EventPayloadDeserializer.Deserialize, _blazorRenderer)
                     .Map<string, SignalRMessageAction?>(CreateSignalRMessage);
             })
+            .MarkActivityErroredOnError()
             .FlushLogs(_logger)
             .MatchToValue(r => r, _ => null);
     }

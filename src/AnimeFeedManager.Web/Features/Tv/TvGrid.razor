@@ -31,12 +31,16 @@ else
     AppUser _user = new Anonymous();
     FilterCounters _filterCounters = new();
 
+    private static readonly ActivitySource Source = new(Telemetry.TvLibraryQueriesSource);
+
     protected override async Task OnInitializedAsync()
     {
+        using var activity = Source.StartActivity("Tv.Library.Queries");
         _user = HttpContextAccessor.HttpContext?.GetCurrentUser() ?? new Anonymous();
         await TableClientFactory.TableStorageTvLibraryGetter
             .GetTvLibrarySeries(Season, BlobServiceClient.Uri, CancellationToken.None)
             .GetTvLibraryForUser(_user, TableClientFactory.TableStorageTvSubscriptions, CancellationToken.None)
+            .MarkActivityErroredOnError()
             .FlushLogs(Logger)
             .Match(
                 series =>

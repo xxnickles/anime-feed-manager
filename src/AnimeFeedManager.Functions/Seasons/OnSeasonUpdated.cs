@@ -7,6 +7,8 @@ namespace AnimeFeedManager.Functions.Seasons;
 
 public class OnSeasonUpdated
 {
+    private static readonly ActivitySource Source = new(Telemetry.SeasonsUpdateSource);
+
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IDomainPostman _domainPostman;
     private readonly ILogger<OnSeasonUpdated> _logger;
@@ -28,6 +30,7 @@ public class OnSeasonUpdated
         CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnSeasonUpdated));
+        using var activity = Source.StartActivity("Seasons.Update");
         await SeasonUpdate.CheckSeasonExist(_tableClientFactory.TableStorageSeason, message.Season, token)
             .CreateNewSeason()
             .AddLatestSeasonData(_tableClientFactory.TableStorageLatestSeason, token)
@@ -37,6 +40,7 @@ public class OnSeasonUpdated
                 _tableClientFactory.TableStorageLastestSeasonsUpdater,
                 token)
             .SentEvents(_domainPostman.SendMessages, message.Season, token)
+            .MarkActivityErroredOnError()
             .AddLogOnSuccess(LogSuccess)
             .Complete(_logger);
     }

@@ -6,24 +6,28 @@ namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
 internal static class SubscriptionHandlers
 {
-    internal static Task<RazorComponentResult> Subscribe(
+    private static readonly ActivitySource Source = new(Telemetry.WebTvSource);
+
+    internal static async Task<RazorComponentResult> Subscribe(
         [FromForm] TvSubscriptionViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<ForSubscription> logger,
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        return Validate(viewModel)
+        using var activity = Source.StartActivity("Web.Tv");
+        return await Validate(viewModel)
             .Bind(model => Data.AddUser(context, model))
             .Bind(data => Subscription.VerifyStorage(
                 data.User,
-                data.Model.SeriesId, 
+                data.Model.SeriesId,
                 data.Model.SeriesTitle,
                 data.Model.SeriesFeedTitle,
                 data.Model.SeriesLink,
                 clientFactory.TableStorageTvSubscription, cancellationToken))
             .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
                 clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 // Render the ForSubscriptionRemoval component with a success notification
@@ -43,24 +47,26 @@ internal static class SubscriptionHandlers
     }
 
 
-    internal static Task<RazorComponentResult> Unsubscribe(
+    internal static async Task<RazorComponentResult> Unsubscribe(
         [FromForm] TvSubscriptionViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<ForSubscriptionRemoval> logger,
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        return Validate(viewModel)
+        using var activity = Source.StartActivity("Web.Tv");
+        return await Validate(viewModel)
             .Bind(model => Data.AddUser(context, model))
             .Bind(data => Subscription.VerifyStorage(
                 data.User,
-                data.Model.SeriesId, 
+                data.Model.SeriesId,
                 data.Model.SeriesTitle,
                 data.Model.SeriesFeedTitle,
                 data.Model.SeriesLink,
                 clientFactory.TableStorageTvSubscription, cancellationToken))
             .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
                 clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 // Render the ForSubscription component with a success notification

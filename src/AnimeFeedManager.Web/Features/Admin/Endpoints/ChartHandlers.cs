@@ -8,19 +8,23 @@ namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 
 internal static class ChartHandlers
 {
-    internal static Task<RazorComponentResult> ScrapLibrarySummary(
+    private static readonly ActivitySource Source = new(Telemetry.WebAdminSource);
+
+    internal static async Task<RazorComponentResult> ScrapLibrarySummary(
         [FromQuery] string? period,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity("Web.Admin");
         var range = ChartDateRange.FromPeriod(period);
-        return ScrapLibraryChart.Get(
+        return await ScrapLibraryChart.Get(
                 clientFactory.TableStorageEvents<ScrapTvLibraryResult>(),
                 clientFactory.TableStorageEvents<ScrapTvLibraryFailedResult>(),
                 range.From,
                 range.To,
                 cancellationToken)
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 data => [ChartContent.AsRenderFragment("Scraping Events", data, ChartJsOptions.IntegerScale)],
@@ -28,36 +32,40 @@ internal static class ChartHandlers
             );
     }
 
-    internal static Task<RazorComponentResult> NotificationSummary(
+    internal static async Task<RazorComponentResult> NotificationSummary(
         [FromQuery] string? period,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity("Web.Admin");
         var range = ChartDateRange.FromPeriod(period);
-        return NotificationSentChart.Get(
+        return await NotificationSentChart.Get(
                 clientFactory.TableStorageBroadEvents<NotificationSent>(),
                 range.From,
                 range.To,
                 cancellationToken)
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 data => [ChartContent.AsRenderFragment("Notifications Sent", data, ChartJsOptions.IntegerScale)],
                 error => [ChartError.AsRenderFragment(error.Message)]);
     }
-    
-    internal static Task<RazorComponentResult> FeedUpdatesSummary(
+
+    internal static async Task<RazorComponentResult> FeedUpdatesSummary(
         [FromQuery] string? period,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity("Web.Admin");
         var range = ChartDateRange.FromPeriod(period);
-        return FeedUpdatesChart.Get(
+        return await FeedUpdatesChart.Get(
                 clientFactory.TableStorageEvents<FeedTitlesUpdateResult>(),
                 range.From,
                 range.To,
                 cancellationToken)
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 data => [ChartContent.AsRenderFragment("Feed Updates", data, ChartJsOptions.IntegerScale)],

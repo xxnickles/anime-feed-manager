@@ -8,6 +8,8 @@ namespace AnimeFeedManager.Functions.Tv.Notifications;
 
 public class TriggerFeedNotifications
 {
+    private static readonly ActivitySource Source = new(Telemetry.TvSubscriptionsFeedSource);
+
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IDomainPostman _domainPostman;
     private readonly INewReleaseProvider _newReleaseProvider;
@@ -49,11 +51,13 @@ public class TriggerFeedNotifications
             .Complete(_logger);
     }
 
-    private Task<Result<FeedProcessSummary>> RunProcess(Result<DailySeriesFeed[]> feed, CancellationToken token)
+    private async Task<Result<FeedProcessSummary>> RunProcess(Result<DailySeriesFeed[]> feed, CancellationToken token)
     {
-        return feed.RunProcess(
+        using var activity = Source.StartActivity("Tv.Subscriptions.Feed");
+        return await feed.RunProcess(
             _tableClientFactory.TableStorageTvUserActiveSubscriptions,
             _domainPostman.SendMessages,
-            token);
+            token)
+            .MarkActivityErroredOnError();
     }
 }

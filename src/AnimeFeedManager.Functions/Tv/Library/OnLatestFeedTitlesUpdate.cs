@@ -8,6 +8,8 @@ namespace AnimeFeedManager.Functions.Tv.Library;
 
 public class OnLatestFeedTitlesUpdate
 {
+    private static readonly ActivitySource Source = new(Telemetry.TvLibraryFeedTitlesSource);
+
     private readonly ITableClientFactory _tableClientFactory;
     private readonly ISeasonFeedDataProvider _seasonFeedDataProvider;
     private readonly IDomainPostman _domainPostman;
@@ -51,12 +53,14 @@ public class OnLatestFeedTitlesUpdate
             .Complete(_logger);
     }
 
-    private Task<Result<ScrapTvLibraryResult>> RunProcess(CancellationToken token)
+    private async Task<Result<ScrapTvLibraryResult>> RunProcess(CancellationToken token)
     {
-        return FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeason, token)
+        using var activity = Source.StartActivity("Tv.Library.FeedTitles");
+        return await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeason, token)
             .GetFeedTitles(_seasonFeedDataProvider)
             .UpdateSeries(_tableClientFactory.TableStorageRawExistentStoredSeries(),
                 _tableClientFactory.TableStorageTvLibraryUpdater, token)
-            .SendEvents(_domainPostman.SendMessages, token);
+            .SendEvents(_domainPostman.SendMessages, token)
+            .MarkActivityErroredOnError();
     }
 }
