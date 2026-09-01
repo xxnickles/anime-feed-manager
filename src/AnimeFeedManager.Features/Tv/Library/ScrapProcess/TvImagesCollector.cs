@@ -8,6 +8,8 @@ internal static class TvImagesCollector
 {
     private const int BatchSize = 10;
 
+    private static readonly ActivitySource Source = new(Telemetry.ImagesSource);
+
     public static async Task<Result<ScrapTvLibraryData>> AddImagesLink(
         this ImageProcessor imageProvider,
         ScrapTvLibraryData data,
@@ -38,10 +40,12 @@ internal static class TvImagesCollector
     {
         if (storageData is { Image: ScrappedImageUrl scrappedImageUrl, Series.RowKey: not null })
         {
+            using var activity = Source.StartActivity("Images");
             return await imageProvider(new ImageProcessData(
                     IdHelpers.CleanAndFormatAnimeTitle(storageData.Series.RowKey),
                     targetDirectory,
                     scrappedImageUrl.Url), cancellationToken)
+                .MarkActivityErroredOnError()
                 .Map(uri => AddUrl(storageData, uri));
         }
 

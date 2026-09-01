@@ -9,6 +9,8 @@ namespace AnimeFeedManager.Functions.Tv.Library;
 
 public class OnTvLibraryUpdate
 {
+    private static readonly ActivitySource Source = new(Telemetry.TvLibraryImportSource);
+
     private readonly ITvLibraryScrapper _scrapper;
     private readonly IImageProvider _imageProvider;
     private readonly ITableClientFactory _tableClientFactory;
@@ -61,16 +63,20 @@ public class OnTvLibraryUpdate
             .Complete(_logger);
     }
 
-    private Task<Result<ScrapTvLibraryResult>> RunScraper(
+    private async Task<Result<ScrapTvLibraryResult>> RunScraper(
         SeasonParameters? seasonParameters,
-        CancellationToken token) =>
-        ScrapTvSeries(
+        CancellationToken token)
+    {
+        using var activity = Source.StartActivity("Tv.Library.Import");
+        return await ScrapTvSeries(
                 seasonParameters,
                 _scrapper.ScrapTvSeries,
                 _imageProvider.Process,
                 _tableClientFactory.TableStorageTvLibraryUpdater,
                 token)
-            .SendEvents(_domainPostman.SendMessages, seasonParameters, token);
+            .SendEvents(_domainPostman.SendMessages, seasonParameters, token)
+            .MarkActivityErroredOnError();
+    }
 
 
     private static Result<SeasonSelector> TryGetSeasonSelector(SeasonParameters? season)

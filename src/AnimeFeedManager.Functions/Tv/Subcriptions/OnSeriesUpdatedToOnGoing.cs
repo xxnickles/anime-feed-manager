@@ -5,6 +5,8 @@ namespace AnimeFeedManager.Functions.Tv.Subcriptions;
 
 public class OnSeriesUpdatedToOnGoing
 {
+    private static readonly ActivitySource Source = new(Telemetry.TvSubscriptionsManagementSource);
+
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IDomainPostman _domainPostman;
     private readonly ILogger<OnSeriesUpdatedToOnGoing> _logger;
@@ -25,7 +27,9 @@ public class OnSeriesUpdatedToOnGoing
         UpdatedToOngoing message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnSeriesUpdatedToOnGoing));
+        using var activity = Source.StartActivity("Tv.Subscriptions.Management");
         await AutoSubscription.TryToSubscribe(message.Series, message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
+            .MarkActivityErroredOnError()
             .AddLogOnSuccess(summary => logger => logger.LogInformation("{Count} Automatic Subscriptions for {Series} has been created", summary.Changes, message.Series))
             .Complete(_logger);
     }

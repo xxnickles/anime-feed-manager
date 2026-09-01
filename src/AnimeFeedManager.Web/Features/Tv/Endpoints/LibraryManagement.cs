@@ -7,19 +7,23 @@ namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
 internal static class LibraryManagement
 {
-    internal static Task<RazorComponentResult> UpdateAlternativeSeries(
+    private static readonly ActivitySource Source = new(Telemetry.WebTvSource);
+
+    internal static async Task<RazorComponentResult> UpdateAlternativeSeries(
         [FromForm] AlternativeTitlesViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<AlternativeTitlesEditor> logger,
         CancellationToken cancellationToken)
-        =>
-            Validate(viewModel).Bind(model => UpdateAlternativeTitles(
+    {
+        using var activity = Source.StartActivity("Web.Tv");
+        return await Validate(viewModel).Bind(model => UpdateAlternativeTitles(
                     model.SeriesId,
                     model.Season,
                     model.AlternativeTitles ?? [],
                     clientFactory.TableStorageTvSeriesGetter,
                     clientFactory.TableStorageTvSeriesUpdater,
                     cancellationToken))
+                .MarkActivityErroredOnError()
                 .FlushLogs(logger)
                 .ToComponentResult(
                     _ =>
@@ -33,14 +37,17 @@ internal static class LibraryManagement
                         AlternativeTitlesEditor.AsRenderFragment(viewModel),
                         Notifications.CreateErrorToast("Alternative Titles", error)
                     ]);
+    }
 
-    internal static Task<RazorComponentResult> RemoveSeries(
+    internal static async Task<RazorComponentResult> RemoveSeries(
         [FromForm] RemoveSeriesViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<SeriesDeleter> logger,
         HttpContext context,
-        CancellationToken token) =>
-        Validate(viewModel)
+        CancellationToken token)
+    {
+        using var activity = Source.StartActivity("Web.Tv");
+        return await Validate(viewModel)
             .Bind(model => DeleteSeries(viewModel.SeriesId, viewModel.Season,
                 clientFactory.TableStorageTvSeriesRemover, token))
             .Map(result =>
@@ -50,6 +57,7 @@ internal static class LibraryManagement
                     TvEndpointJsonContext.Default.RemoveSeriesTrigger);
                 return result;
             })
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(_ =>
                 [
@@ -60,4 +68,5 @@ internal static class LibraryManagement
                 [
                     Notifications.CreateErrorToast("Alternative Titles", error)
                 ]);
+    }
 }

@@ -6,6 +6,8 @@ namespace AnimeFeedManager.Functions.Tv.Library;
 
 public class OnFeedTitlesUpdate
 {
+    private static readonly ActivitySource Source = new(Telemetry.TvLibraryFeedTitlesSource);
+
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IDomainPostman _domainPostman;
     private readonly ILogger<OnFeedTitlesUpdate> _logger;
@@ -26,13 +28,15 @@ public class OnFeedTitlesUpdate
         FeedTitlesUpdated message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnFeedTitlesUpdate));
+        using var activity = Source.StartActivity("Tv.Library.FeedTitles");
 
         if(message.FeedTitles is null or [])
             _logger.LogError("No titles where sent with the update for season {Year}-{Season}", message.Season.Year, message.Season.Season);
-         
+
         await FeedTitlesUpdate.StoreTitles(new FeedTitleUpdateData(message.Season, message.FeedTitles ?? []),
                 _tableClientFactory.TableStorageFeedTitlesUpdater, token)
             .SentEvents(_domainPostman.SendMessages, message.Season, token)
+            .MarkActivityErroredOnError()
             .AddLogOnSuccess(_ => logger => logger.LogInformation("Feed titles have been updated"))
             .Complete(_logger);
     }

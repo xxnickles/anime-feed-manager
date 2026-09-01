@@ -13,17 +13,21 @@ namespace AnimeFeedManager.Web.Features.Security.Endpoints;
 
 internal static class SecurityHandlers
 {
-    internal static Task<IResult> VerifySignIn(
+    private static readonly ActivitySource WebSource = new(Telemetry.WebSecuritySource);
+    private static readonly ActivitySource AuthSource = new(Telemetry.UserAuthenticationSource);
+
+    internal static async Task<IResult> VerifySignIn(
         [FromQuery] string token,
         IPasswordlessClient passwordlessClient,
         ILogger<LoginPage> logger,
         CancellationToken cancellationToken)
     {
-        return passwordlessClient.GetLoginInformation(token, cancellationToken)
+        using var activity = WebSource.StartActivity("Web.Security");
+        return await passwordlessClient.GetLoginInformation(token, cancellationToken)
             .ToJsonResponse(logger);
     }
 
-    internal static Task<RazorComponentResult> CreateToken(
+    internal static async Task<RazorComponentResult> CreateToken(
         [FromForm] RegisterViewModel viewModel,
         ITableClientFactory tableClientFactory,
         IPasswordlessClient passwordlessClient,
@@ -31,7 +35,9 @@ internal static class SecurityHandlers
         ILogger<RegisterPage> logger,
         CancellationToken cancellationToken)
     {
-        return UserRegistration.TryToRegister(
+        using var webActivity = WebSource.StartActivity("Web.Security");
+        using var authActivity = AuthSource.StartActivity("User.Authentication");
+        return await UserRegistration.TryToRegister(
                 viewModel.DisplayName,
                 viewModel.Email,
                 passwordlessClient,
@@ -45,6 +51,7 @@ internal static class SecurityHandlers
                 viewModel.UserId = result.UserId;
                 return viewModel;
             })
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 model => [RegistrationForm.SuccessFragment(model)],
@@ -59,6 +66,8 @@ internal static class SecurityHandlers
         ILogger<LoginPage> logger,
         CancellationToken cancellationToken)
     {
+        using var webActivity = WebSource.StartActivity("Web.Security");
+        using var authActivity = AuthSource.StartActivity("User.Authentication");
         return await viewModel.Id.ParseAsNonEmpty(nameof(viewModel.Id))
             .AsResult()
             .Bind(id => Users.GetById(
@@ -66,6 +75,7 @@ internal static class SecurityHandlers
                 id,
                 cancellationToken))
             .Bind(TryToCreatePrincipal)
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .Tap(principal => httpContext.SignInAsync(
                 principal,
@@ -99,13 +109,15 @@ internal static class SecurityHandlers
             new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
     }
 
-    internal static Task<RazorComponentResult> AddCredential([FromForm] AddCredentialsViewModel viewModel,
+    internal static async Task<RazorComponentResult> AddCredential([FromForm] AddCredentialsViewModel viewModel,
         ITableClientFactory tableClientFactory,
         IPasswordlessClient passwordlessClient,
         ILogger<AddCredentialPage> logger,
         CancellationToken cancellationToken)
     {
-        return UserCredentialRegistration.TryAddCredential(
+        using var webActivity = WebSource.StartActivity("Web.Security");
+        using var authActivity = AuthSource.StartActivity("User.Authentication");
+        return await UserCredentialRegistration.TryAddCredential(
                 viewModel.Id,
                 tableClientFactory.TableStorageExistentUserGetterById(),
                 passwordlessClient,
@@ -115,6 +127,7 @@ internal static class SecurityHandlers
                 viewModel.Token = result.Token.Token;
                 return viewModel;
             })
+            .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 model => [AddCredentialForm.SuccessFragment(model)],

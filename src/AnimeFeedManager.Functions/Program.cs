@@ -27,6 +27,16 @@ builder.Logging.AddOpenTelemetry(logging =>
 var otelBuilder = builder.Services.AddOpenTelemetry()
     .UseFunctionsWorkerDefaults();
 
+otelBuilder.WithTracing(tracing => tracing
+    .AddSource(Telemetry.SeasonsUpdateSource)
+    .AddSource(Telemetry.SystemEventsUpdateSource)
+    .AddSource(Telemetry.TvLibraryImportSource)
+    .AddSource(Telemetry.TvLibraryFeedTitlesSource)
+    .AddSource(Telemetry.TvLibraryCompletionSource)
+    .AddSource(Telemetry.ImagesSource)
+    .AddSource(Telemetry.TvSubscriptionsFeedSource)
+    .AddSource(Telemetry.TvSubscriptionsManagementSource));
+
 // Export to Azure Monitor when connection string is available (production)
 if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
 {
