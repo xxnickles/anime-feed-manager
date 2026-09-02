@@ -11,9 +11,6 @@ namespace AnimeFeedManager.Features.Tests.Tv.Subscriptions.Feed;
 
 public class FeedProcessTests
 {
-    private readonly IFixture _fixture = new Fixture()
-        .Customize(new AutoNSubstituteCustomization());
-
     #region Happy Path Tests
 
     [Fact]
