@@ -8,9 +8,6 @@ namespace AnimeFeedManager.Features.Tests.Tv.Subscriptions.Management;
 
 public class AutoSubscriptionTests
 {
-    private readonly IFixture _fixture = new Fixture()
-        .Customize(new AutoNSubstituteCustomization());
-
     [Fact]
     public async Task StartProcess_Should_Return_Success_When_Interested_Series_Found()
     {
