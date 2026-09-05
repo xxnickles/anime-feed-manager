@@ -3,7 +3,12 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="flex items-center gap-2 overflow-hidden">
+        <div class="flex items-center gap-2 overflow-hidden"
+             _="on click from <a/> in me
+                  if window.matchMedia('(max-width: 767.98px)').matches
+                    set #drawer's checked to false
+                  end
+                end">
             <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-content"
                   aria-hidden="true">
                 @Initials(context.User.Identity?.Name)
@@ -17,7 +22,12 @@
         </div>
     </Authorized>
     <NotAuthorized>
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1"
+             _="on click from <a/> in me
+                  if window.matchMedia('(max-width: 767.98px)').matches
+                    set #drawer's checked to false
+                  end
+                end">
             <NavLink href="@GetLoginPath()"
                      class="max-md:is-drawer-close:tooltip md:is-drawer-open:tooltip max-md:is-drawer-close:tooltip-right md:is-drawer-open:tooltip-right max-md:is-drawer-close:justify-center md:is-drawer-open:justify-center max-md:is-drawer-close:px-0 md:is-drawer-open:px-0 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content"
                      data-tip="Login">
