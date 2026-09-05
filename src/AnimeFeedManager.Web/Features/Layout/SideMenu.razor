@@ -1,4 +1,9 @@
 <ul id="side-menu" class="flex w-full flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-2" role="list"
+    _="on click from <a/> in me
+         if window.matchMedia('(max-width: 767.98px)').matches
+           set #drawer's checked to false
+         end
+       end"
     @attributes="AdditionalAttributes">
     <li>
         <NavLink href="/" Match="NavLinkMatch.All"

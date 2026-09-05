@@ -14,7 +14,90 @@
 */
 
 @plugin "daisyui" {
-    themes: emerald --default, dim --prefersdark;
+    themes: emerald --default, dim --prefersdark, sunset, cmyk, crayon, crayon-dark;
+}
+
+@plugin "daisyui/theme" {
+    name: "crayon";
+    default: false;
+    prefersdark: false;
+    color-scheme: light;
+    --color-base-100: #fffdf7;
+    --color-base-200: #fff6dc;
+    --color-base-300: #ffe9b8;
+    --color-base-content: #1b1b1b;
+    --color-primary: #ff4f3d;
+    --color-primary-content: #1b1b1b;
+    --color-secondary: #2f8fe0;
+    --color-secondary-content: #ffffff;
+    --color-accent: #ffd23f;
+    --color-accent-content: #1b1b1b;
+    --color-neutral: #1b1b1b;
+    --color-neutral-content: #fffdf7;
+    --color-info: #a7d8ff;
+    --color-info-content: #1b1b1b;
+    --color-success: #c9f07a;
+    --color-success-content: #1b1b1b;
+    --color-warning: #ffd23f;
+    --color-warning-content: #1b1b1b;
+    --color-error: #ff3d3d;
+    --color-error-content: #1b1b1b;
+    --radius-selector: 1rem;
+    --radius-field: 0.75rem;
+    --radius-box: 0.75rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 2px;
+    --depth: 0;
+    --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+    name: "crayon-dark";
+    default: false;
+    prefersdark: false;
+    color-scheme: dark;
+    --color-base-100: #2a2a30;
+    --color-base-200: #1e1e22;
+    --color-base-300: #151518;
+    --color-base-content: #fbf7ec;
+    --color-primary: #ff6b5a;
+    --color-primary-content: #1b1b1b;
+    --color-secondary: #5db3ff;
+    --color-secondary-content: #1b1b1b;
+    --color-accent: #ffe066;
+    --color-accent-content: #1b1b1b;
+    --color-neutral: #fbf7ec;
+    --color-neutral-content: #1e1e22;
+    --color-info: #5db3ff;
+    --color-info-content: #1b1b1b;
+    --color-success: #c8f56a;
+    --color-success-content: #1b1b1b;
+    --color-warning: #ffe066;
+    --color-warning-content: #1b1b1b;
+    --color-error: #ff5a5a;
+    --color-error-content: #1b1b1b;
+    --radius-selector: 1rem;
+    --radius-field: 0.75rem;
+    --radius-box: 0.75rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 2px;
+    --depth: 0;
+    --noise: 0;
+}
+
+[data-theme="crayon"],
+[data-theme="crayon-dark"] {
+    font-family: "Comic Sans MS", "Comic Neue", cursive, var(--font-sans);
+}
+
+[data-theme="crayon"] .card,
+[data-theme="crayon"] .btn,
+[data-theme="crayon-dark"] .card,
+[data-theme="crayon-dark"] .btn {
+    border-width: 2px;
+    box-shadow: 3px 3px 0 var(--color-base-content);
 }
 
 @theme {
