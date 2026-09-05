@@ -9,17 +9,24 @@
     var commitUrl = hasCommit ? $"https://github.com/xxnickles/anime-feed-manager/commit/{commitSha}" : "";
 }
 
-<div class="text-xs opacity-60 hidden md:flex items-center gap-1 mx-2 font-mono">
-    <span>v@(version)</span>
-    @if (hasCommit)
-    {
-        <span class="opacity-40">|</span>
-        <a href="@commitUrl"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="link link-hover opacity-80 hover:opacity-100"
-           title="View commit @commitSha on GitHub">
-            @commitSha
-        </a>
-    }
+<div class="flex items-center gap-3 rounded-lg px-3 py-2">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+         stroke="currentColor" class="size-5 shrink-0 text-base-content/70">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+    </svg>
+    <div class="flex min-w-0 flex-col leading-tight">
+        <span class="truncate font-mono text-sm text-secondary">v@(version)</span>
+        @if (hasCommit)
+        {
+            <a href="@commitUrl"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="link link-hover truncate font-mono text-xs text-base-content/60 hover:text-base-content"
+               title="View commit @commitSha on GitHub">
+                @commitSha
+            </a>
+        }
+    </div>
 </div>
