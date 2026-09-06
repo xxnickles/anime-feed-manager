@@ -3,50 +3,41 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="flex items-center gap-2 overflow-hidden"
-             _="on click from <a/> in me
-                  if window.matchMedia('(max-width: 767.98px)').matches
-                    set #drawer's checked to false
-                  end
-                end">
+        <div class="flex items-center gap-2 overflow-hidden">
             <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold text-secondary-content"
                   aria-hidden="true">
                 @Initials(context.User.Identity?.Name)
             </span>
-            <div class="max-md:is-drawer-close:hidden md:is-drawer-open:hidden min-w-0 leading-tight">
+            <div class="min-w-0 leading-tight">
                 <div class="truncate text-sm">@context.User.Identity?.Name</div>
-                <NavLink href="@GetLogoutPath()" class="text-xs text-base-content/60 hover:text-base-content">
+                <NavLink href="@GetLogoutPath()" class="text-xs text-base-content/60 hover:text-base-content"
+                         hx-swap="outerHTML swap:300ms">
                     Sign out
                 </NavLink>
             </div>
         </div>
     </Authorized>
     <NotAuthorized>
-        <div class="flex flex-col gap-1"
-             _="on click from <a/> in me
-                  if window.matchMedia('(max-width: 767.98px)').matches
-                    set #drawer's checked to false
-                  end
-                end">
+        <div class="flex flex-col gap-1">
             <NavLink href="@GetLoginPath()"
-                     class="max-md:is-drawer-close:tooltip md:is-drawer-open:tooltip max-md:is-drawer-close:tooltip-right md:is-drawer-open:tooltip-right max-md:is-drawer-close:justify-center md:is-drawer-open:justify-center max-md:is-drawer-close:px-0 md:is-drawer-open:px-0 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content"
-                     data-tip="Login">
+                     class="max-md:justify-center flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content"
+                     hx-swap="outerHTML swap:300ms">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                      stroke="currentColor" class="size-5 shrink-0">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
                 </svg>
-                <span class="max-md:is-drawer-close:hidden md:is-drawer-open:hidden">Login</span>
+                <span>Login</span>
             </NavLink>
             <NavLink href="register"
-                     class="max-md:is-drawer-close:tooltip md:is-drawer-open:tooltip max-md:is-drawer-close:tooltip-right md:is-drawer-open:tooltip-right max-md:is-drawer-close:justify-center md:is-drawer-open:justify-center max-md:is-drawer-close:px-0 md:is-drawer-open:px-0 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content"
-                     data-tip="Register">
+                     class="max-md:justify-center flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content"
+                     hx-swap="outerHTML swap:300ms">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                      stroke="currentColor" class="size-5 shrink-0">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"/>
                 </svg>
-                <span class="max-md:is-drawer-close:hidden md:is-drawer-open:hidden">Register</span>
+                <span>Register</span>
             </NavLink>
         </div>
     </NotAuthorized>
