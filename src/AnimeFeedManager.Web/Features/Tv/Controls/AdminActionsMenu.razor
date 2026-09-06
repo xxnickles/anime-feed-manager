@@ -1,0 +1,18 @@
+@* Compact dropdown for admin-only card actions (alt-titles edit, delete) — same
+   details/summary pattern as GridFilter/ThemeSelector. *@
+<details class="dropdown dropdown-end" _="on click elsewhere remove @@open from me">
+    <summary class="btn btn-ghost btn-sm btn-circle" aria-haspopup="true" aria-label="More actions">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+             stroke="currentColor" class="size-4" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M6 12h.008v.008H6V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM12 12h.008v.008H12V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM18 12h.008v.008H18V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+        </svg>
+    </summary>
+    <ul class="dropdown-content menu bg-base-100 rounded-box shadow-xl w-52 p-2 z-10">
+        @Buttons
+    </ul>
+</details>
+
+@code {
+    [Parameter] public RenderFragment? Buttons { get; set; }
+}

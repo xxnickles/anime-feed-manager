@@ -1,20 +1,21 @@
 ﻿@if (Model is not null)
 {
-    <FabButtonContainer Label="Edit Alternative Titles">
-        <button type="button" class="btn btn-sm btn-circle btn-secondary shadow-md"
+    <li>
+        <button type="button"
                 aria-label="Manage Alternative Titles for @Model.SeriesTitle"
-                _="on click call (the next <dialog/>).showModal()">
+                _="on click remove @@open from the closest <details/> then call (the next <dialog/>).showModal()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                  stroke="currentColor"
-                 class="size-6">
+                 class="size-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
             </svg>
+            Edit Alternative Titles
         </button>
+    </li>
 
-        <dialog class="modal">
-            <AlternativeTitlesEditor Model="Model"></AlternativeTitlesEditor>
-        </dialog>
-    </FabButtonContainer>
+    <dialog class="modal">
+        <AlternativeTitlesEditor Model="Model"></AlternativeTitlesEditor>
+    </dialog>
 }
 @code {
     [Parameter, EditorRequired] public AlternativeTitlesViewModel? Model { get; set; }

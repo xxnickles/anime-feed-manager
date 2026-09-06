@@ -5,7 +5,7 @@
 {
     <CardWrapper FilterAttributes="@FilterAttributesHelper.GetFilterAttributes(Series)">
         <SeriesCard SeriesInfo="@Series.TvSeries.AsSeriesCard()" LoaderId="@_loaderId" Id="@_cardId">
-            <CardControls>
+            <CardBadge>
                 @switch (Series)
                 {
                     case Available:
@@ -25,38 +25,39 @@
                         <Badge Id="@_cardBadgeId" Text="Not Available" Type="StatusType.Warning"></Badge>
                         break;
                 }
+            </CardBadge>
 
+            <CardActions>
                 @if (Series.User is AuthenticatedUser)
                 {
-                    <ExpandableFab>
-                        <Buttons>
-                            @switch (Series)
-                            {
-                                case AvailableForSubscription:
-                                    <ForSubscription Model="@GetSubscriptionModel(Series)"></ForSubscription>
-                                    break;
-                                case Subscribed:
-                                    <ForSubscriptionRemoval
-                                        Model="@GetSubscriptionModel(Series)"></ForSubscriptionRemoval>
-                                    break;
-                                case AvailableForFuture:
-                                    <ForInterested Model="@GetInterestedModel(Series)"></ForInterested>
-                                    break;
-                                case Interested:
-                                    <ForInterestedRemoval Model="@GetInterestedModel(Series)"></ForInterestedRemoval>
-                                    break;
-                            }
+                    @switch (Series)
+                    {
+                        case AvailableForSubscription:
+                            <ForSubscription Model="@GetSubscriptionModel(Series)"></ForSubscription>
+                            break;
+                        case Subscribed:
+                            <ForSubscriptionRemoval Model="@GetSubscriptionModel(Series)"></ForSubscriptionRemoval>
+                            break;
+                        case AvailableForFuture:
+                            <ForInterested Model="@GetInterestedModel(Series)"></ForInterested>
+                            break;
+                        case Interested:
+                            <ForInterestedRemoval Model="@GetInterestedModel(Series)"></ForInterestedRemoval>
+                            break;
+                    }
 
-                            @if (Series.User is AdminUser)
-                            {
+                    @if (Series.User is AdminUser)
+                    {
+                        <AdminActionsMenu>
+                            <Buttons>
                                 <AlternativeTitlesEditorModal
                                     Model="GetAlternativeTitlesModel(Series)"></AlternativeTitlesEditorModal>
                                 <SeriesDeleter Model="GetRemoveSeries(Series)"></SeriesDeleter>
-                            }
-                        </Buttons>
-                    </ExpandableFab>
+                            </Buttons>
+                        </AdminActionsMenu>
+                    }
                 }
-            </CardControls>
+            </CardActions>
         </SeriesCard>
     </CardWrapper>
 }
