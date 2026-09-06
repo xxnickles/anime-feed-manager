@@ -274,3 +274,5 @@ __pycache__/
 .claude/
 .playwright-mcp/
 CLAUDE.md
+# Playwright CLI output (may contain credentials)
+.playwright-cli/

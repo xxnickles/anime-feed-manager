@@ -1,72 +1,64 @@
-﻿/*
+/*
 SignalR Extension
 ============================
-This extension adds support for SignalR to htmx.
-Based on WebSockets extension (https://github.com/bigskysoftware/htmx/blob/master/src/ext/ws.js)
-and SSE extension (https://github.com/bigskysoftware/htmx/blob/master/src/ext/sse.js)
-by bigskysoftware.
+This extension adds support for SignalR to htmx 4.
+Ported from the htmx 1/2-era extension (based on the WebSockets/SSE extensions by bigskysoftware)
+to htmx 4's registerExtension API: hook methods are named after the htmx event
+(colons -> underscores) instead of a generic onEvent(name, evt) dispatcher, and
+the internal API surface passed to init() is a small, fixed set of primitives
+(attributeValue, htmxProp, insertContent, onTrigger, collectFormData,
+getAttributeObject, triggerHtmxEvent, ...) rather than the old getInternalData/
+getTarget/getSwapSpecification/swap/addTriggerHandler/getInputValues/getHeaders/
+filterValues/withExtensions surface, none of which exist in htmx 4.
 */
 
 (function () {
 
-    /** @type {import("../htmx").HtmxInternalApi} */
+    /** @type {object} htmx 4's internal API object, passed to init() */
     var api;
 
     var signalRConnect = "signalr-connect";
     var signalRSubscribe = "signalr-subscribe";
     var signalRSend = "signalr-send";
 
-    htmx.defineExtension("signalr", {
+    htmx.registerExtension("signalr", {
 
         /**
          * init is called once, when this extension is first registered.
-         * @param {import("../htmx").HtmxInternalApi} apiRef
+         * @param {object} apiRef
          */
         init: function (apiRef) {
 
             // Store reference to internal API
             api = apiRef;
 
-            // Default function for creating new EventSource objects
+            // Default function for creating new HubConnection objects
             if (htmx.createHubConnection == undefined) {
                 htmx.createHubConnection = createHubConnection;
             }
         },
 
         /**
-         * onEvent handles all events passed to this extension.
-         *
-         * @param {string} name
-         * @param {Event} evt
+         * Fires once per processed root node (not recursively per descendant),
+         * so this element and all matching descendants must be queried here.
+         * @param {HTMLElement} elt
          */
-        onEvent: function (name, evt) {
+        htmx_before_process: function (elt) {
+            forEach(queryAttributeOnThisOrChildren(elt, signalRConnect), ensureHubConnection);
+            forEach(queryAttributeOnThisOrChildren(elt, signalRSubscribe), ensureSubscription);
+            forEach(queryAttributeOnThisOrChildren(elt, signalRSend), ensureSending);
+        },
 
-            var parent = evt.target ?? evt.detail.elt;
-
-            switch (name) {
-
-                // Try to remove hub connection when elements are removed
-                case "htmx:beforeCleanupElement":
-
-                    var internalData = api.getInternalData(parent)
-
-                    if (internalData.HubConnection != undefined) {
-                        internalData.HubConnection.stop();
-                    }
-                    return;
-
-                // Try to create hub connections when elements are processed
-                case "htmx:beforeProcessNode":
-
-                    forEach(queryAttributeOnThisOrChildren(parent, signalRConnect), function (child) {
-                        ensureHubConnection(child)
-                    });
-                    forEach(queryAttributeOnThisOrChildren(parent, signalRSubscribe), function (child) {
-                        ensureSubscription(child)
-                    });
-                    forEach(queryAttributeOnThisOrChildren(parent, signalRSend), function (child) {
-                        ensureSending(child)
-                    });
+        /**
+         * Fires once per htmx-powered element being cleaned up (elt itself, or a
+         * descendant previously marked powered via htmxProp). Tears down the hub
+         * connection owned by this element, if any.
+         * @param {HTMLElement} elt
+         */
+        htmx_before_cleanup: function (elt) {
+            var hubConnection = elt._htmx?.HubConnection;
+            if (hubConnection != undefined) {
+                hubConnection.stop();
             }
         }
     });
@@ -81,40 +73,39 @@ by bigskysoftware.
 
         // If the element containing the connection no longer exists, then
         // do not connect/reconnect the Hub.
-        if (!api.bodyContains(hubElt)) {
+        if (!document.body.contains(hubElt)) {
             return;
         }
-        if (!signalR) {
-            logError('SignalR object not found. Make sure to include SignalR script in the page scripts before this extension.');
+        if (typeof signalR === 'undefined') {
+            console.error('SignalR object not found. Make sure to include SignalR script in the page scripts before this extension.');
             return;
         }
 
         // Get the source straight from the element's value
-        var signalrHubUrl = api.getAttributeValue(hubElt, signalRConnect)
+        var signalrHubUrl = api.attributeValue(hubElt, signalRConnect);
 
         // Create a new HubConnection and event handlers
-        /** @type {HubConnection} */
         var hubConnection = htmx.createHubConnection(signalrHubUrl);
-        api.triggerEvent(hubElt, 'htmx:signalr:starting');
+        api.triggerHtmxEvent(hubElt, 'htmx:signalr:starting');
 
         hubConnection.onreconnecting(function (error) {
-            api.triggerEvent(hubElt, 'htmx:signalr:reconnecting', { error: error });
+            api.triggerHtmxEvent(hubElt, 'htmx:signalr:reconnecting', { error: error });
         });
         hubConnection.onreconnected(function (connectionId) {
-            api.triggerEvent(hubElt, 'htmx:signalr:reconnected', { connectionId: connectionId });
+            api.triggerHtmxEvent(hubElt, 'htmx:signalr:reconnected', { connectionId: connectionId });
         });
         hubConnection.onclose(function (error) {
-            api.triggerEvent(hubElt, 'htmx:signalr:close', { error: error });
+            api.triggerHtmxEvent(hubElt, 'htmx:signalr:close', { error: error });
         });
 
         hubConnection.start().then(function () {
-            api.triggerEvent(hubElt, 'htmx:signalr:start', { connectionId: hubConnection.connectionId })
+            api.triggerHtmxEvent(hubElt, 'htmx:signalr:start', { connectionId: hubConnection.connectionId });
         }).catch(function (ex) {
-            api.triggerErrorEvent(hubElt, 'htmx:signalr:start-error', { message: ex.message, errorType: ex.errorType })
+            api.triggerHtmxEvent(hubElt, 'htmx:signalr:start-error', { error: ex, errorType: ex.errorType });
         });
 
-        // Put the HubConnection into the HTML Element's custom data.
-        api.getInternalData(hubElt).HubConnection = hubConnection;
+        // Put the HubConnection into the element's htmx-internal data.
+        api.htmxProp(hubElt).HubConnection = hubConnection;
     }
 
     /**
@@ -126,11 +117,11 @@ by bigskysoftware.
 
         // If the element containing the connection no longer exists, then
         // do not connect/reconnect the Hub.
-        if (!api.bodyContains(elt)) {
+        if (!document.body.contains(elt)) {
             return;
         }
-        if (!signalR) {
-            logError('SignalR object not found. Make sure to include SignalR script in the page scripts before this extension.');
+        if (typeof signalR === 'undefined') {
+            console.error('SignalR object not found. Make sure to include SignalR script in the page scripts before this extension.');
             return;
         }
 
@@ -144,8 +135,8 @@ by bigskysoftware.
     }
 
     /**
-     * ensureMethodHandler creates a listener that handles invocations of a method defined on the element
-     * by "signalr-method" attribute.
+     * ensureSubscription creates a listener that swaps the target element's content
+     * whenever the given hub method is invoked, per the element's "signalr-subscribe" attribute.
      * @param {HTMLElement} elt
      * @returns
      */
@@ -153,11 +144,11 @@ by bigskysoftware.
 
         // If the element containing the connection no longer exists, then
         // do not subscribe
-        if (!api.bodyContains(elt)) {
+        if (!document.body.contains(elt)) {
             return;
         }
-        if (!signalR) {
-            logError('SignalR object not found. Make sure to include SignalR script in the page scripts before this extension.');
+        if (typeof signalR === 'undefined') {
+            console.error('SignalR object not found. Make sure to include SignalR script in the page scripts before this extension.');
             return;
         }
 
@@ -167,9 +158,9 @@ by bigskysoftware.
             return;
         }
 
-        var hubConnection = api.getInternalData(hubElement).HubConnection;
+        var hubConnection = api.htmxProp(hubElement).HubConnection;
 
-        var signalrSubscribeAttribute = api.getAttributeValue(elt, signalRSubscribe);
+        var signalrSubscribeAttribute = api.attributeValue(elt, signalRSubscribe);
         var signalrMethodNames = signalrSubscribeAttribute.split(",");
 
         for (let i = 0; i < signalrMethodNames.length; i++) {
@@ -177,7 +168,7 @@ by bigskysoftware.
 
             hubConnection.on(method, function handler(message) {
                 if (maybeCloseHubConnectionSource(hubElement)) {
-                    hubConnection.off(method, handler)
+                    hubConnection.off(method, handler);
                     return;
                 }
 
@@ -185,90 +176,102 @@ by bigskysoftware.
                     return;
                 }
 
-                var target = api.getTarget(elt);
-
-                var messageSpec = {
-                    message: message,
-                    method: method,
-                    target: target,
-                };
-                if (!api.triggerEvent(elt, 'htmx:signalr:message', messageSpec)) {
+                if (!api.triggerHtmxEvent(elt, 'htmx:signalr:message', { message: message, method: method })) {
                     return;
                 }
 
-                // Other parts of htmx expect to have response object as a string
-                // So, we serialize it
-                if (typeof (messageSpec.message) === "object") {
-                    messageSpec.message = JSON.stringify(messageSpec.message);
+                // The rest of htmx expects HTML content as a string, so serialize objects
+                if (typeof message === "object") {
+                    message = JSON.stringify(message);
                 }
 
-                api.withExtensions(elt, function (extension) {
-                    messageSpec.message = extension.transformResponse(messageSpec.message, null, elt);
+                if (message === null || message === undefined) {
+                    return;
+                }
+
+                var template = document.createElement('template');
+                template.innerHTML = message;
+
+                api.insertContent({
+                    target: resolveTarget(elt),
+                    swapSpec: api.attributeValue(elt, "hx-swap") ?? htmx.config.defaultSwap,
+                    fragment: template.content
                 });
-
-                if (messageSpec.message === null || messageSpec.message === undefined) {
-                    return;
-                }
-
-                var swapSpec = api.getSwapSpecification(elt);
-                api.swap(messageSpec.target, messageSpec.message, swapSpec);
             });
         }
     }
 
     /**
-     * processHubConnectionSend adds event listeners to the <form> element so that
-     * messages can be sent to the HubConnection server when the form is submitted.
+     * processHubConnectionSend wires up the element's trigger (hx-trigger, or a sensible
+     * default per tag) so that messages are sent to the HubConnection on that trigger.
      * @param {HTMLElement} hubElt
      * @param {HTMLElement} sendElt
      */
     function processHubConnectionSend(hubElt, sendElt) {
-        var nodeData = api.getInternalData(sendElt);
-        var triggerSpecs = api.getTriggerSpecs(sendElt);
-        triggerSpecs.forEach(function (ts) {
-            api.addTriggerHandler(sendElt, ts, nodeData, function (elt, evt) {
-                var HubConnection = api.getInternalData(hubElt).HubConnection;
-                var method = api.getAttributeValue(sendElt, signalRSend);
-                var headers = api.getHeaders(sendElt, hubElt);
-                var results = api.getInputValues(sendElt, 'post');
-                var errors = results.errors;
-                var rawParameters = Object.assign({}, results.values);
-                var expressionVars = api.getExpressionVars(sendElt);
-                var allParameters = api.mergeObjects(rawParameters, expressionVars);
-                var filteredParameters = api.filterValues(allParameters, sendElt);
-                filteredParameters['HEADERS'] = headers;
-                if (errors && errors.length > 0) {
-                    api.triggerEvent(sendElt, 'htmx:validation:halted', errors);
-                    return;
-                }
+        var triggerSpec = api.attributeValue(sendElt, "hx-trigger") || defaultTriggerFor(sendElt);
 
-                if (!api.triggerEvent(sendElt, 'htmx:signalr:beforeSend', { method: method, headers: headers, allParameters: allParameters, filteredParameters: filteredParameters })) {
-                    return;
-                };
+        api.onTrigger(sendElt, triggerSpec, function (evt) {
+            // Mirrors htmx core: decide + apply preventDefault synchronously, before any
+            // async work below, since evt.currentTarget/preventDefault are only meaningful
+            // during the event's own dispatch.
+            if (shouldCancelDefaultAction(evt)) {
+                evt.preventDefault();
+            }
 
-                HubConnection.send(method, filteredParameters);
-                if (api.shouldCancel(evt, sendElt)) {
-                    evt.preventDefault();
-                }
-
-                api.triggerEvent(sendElt, 'htmx:signalr:afterSend', { method: method, message: filteredParameters });
-
-            });
-        })
+            sendToHub(hubElt, sendElt, evt);
+        });
     }
 
     /**
-     * maybeCloseHubConnectionSource checks to the if the element that created the HubConnection
-     * still exists in the DOM.  If NOT, then the HubConnection is closed and this function
-     * returns TRUE.  If the element DOES EXIST, then no action is taken, and this function
+     * @param {HTMLElement} hubElt
+     * @param {HTMLElement} sendElt
+     * @param {Event} evt
+     */
+    async function sendToHub(hubElt, sendElt, evt) {
+        var hubConnection = api.htmxProp(hubElt).HubConnection;
+        var method = api.attributeValue(sendElt, signalRSend);
+        var validate = api.attributeValue(sendElt, "hx-validate") === "true";
+        var form = sendElt.form || sendElt.closest("form");
+
+        var body = api.collectFormData(sendElt, form, evt.submitter, validate, false);
+        if (!body) {
+            api.triggerHtmxEvent(sendElt, 'htmx:validation:halted', { warn: "form validation failed" });
+            return;
+        }
+
+        var parameters = Object.fromEntries(body);
+
+        var valsResult = api.getAttributeObject(sendElt, "hx-vals", function (obj) {
+            Object.assign(parameters, obj);
+        });
+        if (valsResult) await valsResult;
+
+        var headersResult = api.getAttributeObject(sendElt, "hx-headers", function (obj) {
+            parameters['HEADERS'] = obj;
+        });
+        if (headersResult) await headersResult;
+
+        if (!api.triggerHtmxEvent(sendElt, 'htmx:signalr:beforeSend', { method: method, allParameters: parameters })) {
+            return;
+        }
+
+        hubConnection.send(method, parameters);
+
+        api.triggerHtmxEvent(sendElt, 'htmx:signalr:afterSend', { method: method, message: parameters });
+    }
+
+    /**
+     * maybeCloseHubConnectionSource checks if the element that created the HubConnection
+     * still exists in the DOM. If NOT, then the HubConnection is closed and this function
+     * returns TRUE. If the element DOES EXIST, then no action is taken, and this function
      * returns FALSE.
      *
-     * @param {*} elt
+     * @param {HTMLElement} elt
      * @returns
      */
     function maybeCloseHubConnectionSource(elt) {
-        if (!api.bodyContains(elt)) {
-            api.getInternalData(elt).HubConnection.stop();
+        if (!document.body.contains(elt)) {
+            api.htmxProp(elt).HubConnection.stop();
             return true;
         }
         return false;
@@ -277,19 +280,22 @@ by bigskysoftware.
     /**
      * maybeUnsubscribe checks if the element that created the subscription to method
      * still has matching subscription attribute. If NOT, then the subscription is removed and this function
-     * returns TRUE.  If the element DOES EXIST, then no action is taken, and this function
+     * returns TRUE. If the element DOES EXIST, then no action is taken, and this function
      * returns FALSE.
      *
-     * @param {*} elt
+     * @param {HTMLElement} hubElement
+     * @param {string} subscription
+     * @param {HTMLElement} elt
+     * @param {Function} handler
      * @returns
      */
     function maybeUnsubscribe(hubElement, subscription, elt, handler) {
-        if (!api.bodyContains(elt)) {
-            api.getInternalData(hubElement).HubConnection.off(subscription, handler);
+        if (!document.body.contains(elt)) {
+            api.htmxProp(hubElement).HubConnection.off(subscription, handler);
             return true;
         }
-        if (api.getAttributeValue(elt, signalRSubscribe).split(",").indexOf(subscription) == -1) {
-            api.getInternalData(hubElement).HubConnection.off(subscription, handler);
+        if (api.attributeValue(elt, signalRSubscribe).split(",").indexOf(subscription) === -1) {
+            api.htmxProp(hubElement).HubConnection.off(subscription, handler);
             return true;
         }
         return false;
@@ -306,7 +312,57 @@ by bigskysoftware.
         return new signalR.HubConnectionBuilder()
             .withUrl(url)
             .withAutomaticReconnect()
-            .build()
+            .build();
+    }
+
+    /**
+     * resolveTarget resolves the swap target for a subscribed element: its "hx-target"
+     * attribute (as a plain CSS selector), or the element itself.
+     * @param {HTMLElement} elt
+     */
+    function resolveTarget(elt) {
+        var selector = api.attributeValue(elt, "hx-target");
+        if (!selector || selector === "this") {
+            return elt;
+        }
+        return document.querySelector(selector) || elt;
+    }
+
+    /**
+     * defaultTriggerFor mirrors htmx core's own default hx-trigger fallback by tag.
+     * @param {HTMLElement} elt
+     */
+    function defaultTriggerFor(elt) {
+        if (elt.matches("form")) return "submit";
+        if (elt.matches("input:not([type=button]):not([type=submit]),select,textarea")) return "change";
+        return "click";
+    }
+
+    /**
+     * shouldCancelDefaultAction mirrors htmx core's own default-action guard, so a
+     * signalr-send button/form doesn't also submit/navigate natively.
+     * @param {Event} evt
+     */
+    function shouldCancelDefaultAction(evt) {
+        var elt = evt.currentTarget;
+        var isSubmit = evt.type === 'submit' && elt?.tagName === 'FORM';
+        if (isSubmit) return true;
+
+        var isClick = evt.type === 'click' && evt.button === 0;
+        if (!isClick) return false;
+
+        var btn = elt?.closest?.('button, input[type="submit"], input[type="image"]');
+        var form = btn?.form || btn?.closest('form');
+        var isSubmitButton = btn && !btn.disabled && form &&
+            (btn.type === 'submit' || btn.type === 'image' || (!btn.type && btn.tagName === 'BUTTON'));
+        if (isSubmitButton) return true;
+
+        var link = elt?.closest?.('a');
+        if (!link || !link.href) return false;
+
+        var href = link.getAttribute('href');
+        var isFragmentOnly = href && href.startsWith('#') && href.length > 1;
+        return !isFragmentOnly;
     }
 
     /**
@@ -317,34 +373,37 @@ by bigskysoftware.
      */
     function queryAttributeOnThisOrChildren(elt, attributeName) {
 
-        var result = []
+        var result = [];
 
         // If the parent element also contains the requested attribute, then add it to the results too.
-        if (api.hasAttribute(elt, attributeName)) {
+        if (elt.hasAttribute?.(attributeName)) {
             result.push(elt);
         }
 
         // Search all child nodes that match the requested attribute
-        elt.querySelectorAll("[" + attributeName + "], [data-" + attributeName + "]").forEach(function (node) {
-            result.push(node)
-        })
+        elt.querySelectorAll?.("[" + attributeName + "], [data-" + attributeName + "]").forEach(function (node) {
+            result.push(node);
+        });
 
-        return result
+        return result;
     }
 
     /**
-     * findParentWithHubConnection returns all nodes that contain the requested attributeName, INCLUDING THE PROVIDED ROOT ELEMENT.
-     *
+     * findParentWithHubConnection returns the closest element (including itself) that owns a
+     * HubConnection.
      * @param {HTMLElement} elt
      */
     function findParentWithHubConnection(elt) {
-        var match = api.getClosestMatch(elt, hasHubConnection);
-        return match;
+        var node = elt;
+        while (node) {
+            if (hasHubConnection(node)) return node;
+            node = node.parentElement;
+        }
+        return null;
     }
 
     function hasHubConnection(node) {
-        var internalData = api.getInternalData(node);
-        return internalData.HubConnection != null;
+        return node._htmx?.HubConnection != null;
     }
 
     /**
