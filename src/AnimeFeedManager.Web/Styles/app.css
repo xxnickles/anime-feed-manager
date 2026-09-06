@@ -1,7 +1,5 @@
 @import 'tailwindcss';
-@import './fab.css';
 @import './grid-filter.css';
-@import './series-card.css';
 
 @source "../../AnimeFeedManager.Web.BlazorComponents";
 /*
