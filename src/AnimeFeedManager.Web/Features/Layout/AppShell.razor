@@ -1,23 +1,26 @@
-<div class="drawer md:drawer-open">
-    <input id="drawer" type="checkbox" class="drawer-toggle" hx-preserve/>
-    <div class="drawer-content flex min-h-screen flex-col">
+<div id="app-shell" class="flex min-h-screen">
+    <nav id="nav-panel" class="fixed inset-0 z-40 w-full -translate-x-full bg-base-200 transition-[translate] duration-300 ease-out flex min-h-full flex-col [.nav-open_&]:translate-x-0 max-md:[body.htmx-swapping_&]:-translate-x-full! md:static md:w-[236px] md:shrink-0 md:translate-x-0 md:border-r md:border-base-300">
+        <div class="flex items-center overflow-hidden border-b border-base-300 px-3 py-4">
+            <BrandLink/>
+            <button type="button" aria-label="Close navigation" class="btn btn-circle btn-ghost ml-auto md:hidden"
+                    _="on click remove .nav-open from #app-shell">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <SideMenu/>
+        <div class="overflow-hidden border-t border-base-300 px-2 py-1">
+            <AppVersion/>
+        </div>
+        <div class="overflow-hidden border-t border-base-300 px-2 py-3">
+            <NavAuthButtons/>
+        </div>
+    </nav>
+    <div class="flex min-w-0 flex-1 flex-col">
         <NavBar></NavBar>
         @ChildContent
-    </div>
-    <div class="drawer-side z-40 max-md:is-drawer-close:overflow-visible md:is-drawer-open:overflow-visible">
-        <label for="drawer" aria-label="close sidebar" class="drawer-overlay md:hidden"></label>
-        <div class="w-[236px] md:is-drawer-close:w-[236px] md:is-drawer-open:w-[60px] flex min-h-full flex-col border-r border-base-300 bg-base-200 transition-[width] duration-200">
-            <div class="flex items-center overflow-hidden border-b border-base-300 px-3 py-4">
-                <BrandLink/>
-            </div>
-            <SideMenu/>
-            <div class="max-md:is-drawer-close:hidden md:is-drawer-open:hidden overflow-hidden border-t border-base-300 px-2 py-1">
-                <AppVersion/>
-            </div>
-            <div class="overflow-hidden border-t border-base-300 px-2 py-3">
-                <NavAuthButtons/>
-            </div>
-        </div>
     </div>
 </div>
 
