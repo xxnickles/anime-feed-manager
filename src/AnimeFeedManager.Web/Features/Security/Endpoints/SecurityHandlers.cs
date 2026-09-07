@@ -71,10 +71,15 @@ internal static class SecurityHandlers
                 principal,
                 new AuthenticationProperties { IsPersistent = true }))
             .MatchToValue<ClaimsPrincipal, IResult>(
-                _ => Results.LocalRedirect(
-                    string.IsNullOrWhiteSpace(viewModel.ReturnUrl) ? "/" : viewModel.ReturnUrl),
+                _ => Results.LocalRedirect(LocalReturnUrl(viewModel.ReturnUrl)),
                 error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents());
     }
+
+    // Guards against open redirects: only same-site absolute paths are honoured.
+    private static string LocalReturnUrl(string? returnUrl) =>
+        !string.IsNullOrWhiteSpace(returnUrl) && returnUrl.StartsWith('/') && !returnUrl.StartsWith("//")
+            ? returnUrl
+            : "/";
 
     private static Result<ClaimsPrincipal> TryToCreatePrincipal(StoredUser user)
     {
