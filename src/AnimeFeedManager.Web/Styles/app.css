@@ -165,6 +165,17 @@ label:has(.invalid) {
     view-transition-class: vt-none;
 }
 
+/* daisyUI plays a 0.25s entrance animation on every direct child of .toast. That's wanted once per
+   toast, but #toast-panel is hx-preserve'd across navigation, and browsers without the native
+   Element.moveBefore() API fall back to insertBefore (remove+reinsert semantics), which restarts
+   the animation on an already-visible toast every time the panel is reparented. The .toast-settled
+   marker (added once each toast's entrance animation ends, see App.razor's #toast-panel hyperscript)
+   stops it from replaying on subsequent reparents. Specificity intentionally beats daisyUI's
+   `.toast > *` regardless of source order. */
+#toast-panel > *.toast-settled {
+    animation: none;
+}
+
 daisy-htmx-alerts {
     view-transition-name: daisy-alerts;
     view-transition-class: vt-none;

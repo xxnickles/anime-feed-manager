@@ -61,6 +61,6 @@ on dismiss from me
   end
   set :dismissed to true
   add .opacity-0 to me
-  settle
+  wait 500ms
   remove me
 end

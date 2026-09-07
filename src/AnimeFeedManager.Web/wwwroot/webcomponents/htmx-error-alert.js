@@ -115,7 +115,7 @@ class DaisyHTMXAlerts extends HTMLElement {
 
     connectedCallback() {
         // Get configuration from attributes
-        const attachTo = this.getAttribute('attach-to') || 'body';
+        this.attachTo = this.getAttribute('attach-to') || 'body';
         this.maxHtmxRetries = parseInt(this.getAttribute('max-retries') || '5', 10);
         this.retryDelay = parseInt(this.getAttribute('retry-delay') || '1000', 10);
 
@@ -133,16 +133,20 @@ class DaisyHTMXAlerts extends HTMLElement {
         // Load custom messages if provided
         this.loadCustomMessages();
 
-        // Get the target element where alerts should be attached
-        this.alertContainer = document.querySelector(attachTo);
-
-        if (!this.alertContainer) {
-            console.warn(`DaisyHTMXAlerts: Could not find element "${attachTo}", defaulting to body`);
-            this.alertContainer = document.body;
-        }
-
         // Setup HTMX error event listeners
         this.setupHTMXListeners();
+    }
+
+    // Resolved fresh on every call rather than cached: under a preserved container
+    // (hx-preserve + boosted swap), the element this.attachTo resolves to at
+    // connect-time can be a transient node about to be replaced by the restored one.
+    getAlertContainer() {
+        const container = document.querySelector(this.attachTo);
+        if (!container) {
+            console.warn(`DaisyHTMXAlerts: Could not find element "${this.attachTo}", defaulting to body`);
+            return document.body;
+        }
+        return container;
     }
 
     setupHTMXListeners() {
@@ -315,7 +319,7 @@ class DaisyHTMXAlerts extends HTMLElement {
         `;
 
         // Append to container
-        this.alertContainer.appendChild(alertDiv);
+        this.getAlertContainer().appendChild(alertDiv);
 
         // Trigger fade in after a brief delay to ensure the element is in the DOM
         requestAnimationFrame(() => {
@@ -379,7 +383,7 @@ class DaisyHTMXAlerts extends HTMLElement {
      * @public
      */
     clearAllAlerts() {
-        const alerts = this.alertContainer.querySelectorAll('[id^="daisy-htmx-alert-"]');
+        const alerts = this.getAlertContainer().querySelectorAll('[id^="daisy-htmx-alert-"]');
         alerts.forEach(alert => alert.remove());
     }
 }

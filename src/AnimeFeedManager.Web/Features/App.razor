@@ -94,7 +94,7 @@ else
 </head>
 
 <body class="bg-base-100 min-h-screen min-w-[380px] max-md:has-[#app-shell.nav-open]:overflow-hidden"
-      hx-boost="true"
+      hx-boost:inherited="true"
       signalr-connect="@SignalROptions.Value.Endpoint"
 >
 
@@ -108,7 +108,8 @@ else
 
 <daisy-htmx-alerts attach-to="#toast-panel"></daisy-htmx-alerts>
 <HtmxConfirm></HtmxConfirm>
-<div id="toast-panel" class="toast toast-center z-30 isolate" hx-preserve></div>
+<div id="toast-panel" class="toast toast-center z-30 isolate" hx-preserve
+     _="on animationend add .toast-settled to target"></div>
 @* <script src="_framework/blazor.web.js"></script> *@
 </body>
 

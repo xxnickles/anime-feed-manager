@@ -6120,6 +6120,9 @@
   view-transition-name: toast-panel;
   view-transition-class: vt-none;
 }
+#toast-panel > *.toast-settled {
+  animation: none;
+}
 daisy-htmx-alerts {
   view-transition-name: daisy-alerts;
   view-transition-class: vt-none;
