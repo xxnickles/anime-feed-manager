@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.User.Authentication.LoginProcess;
 using AnimeFeedManager.Features.User.Authentication.Queries;
 using AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 using AnimeFeedManager.Features.User.Authentication.Storage.Stores;
-using AnimeFeedManager.Web.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Passwordless;
@@ -15,17 +15,6 @@ internal static class SecurityHandlers
 {
     private static readonly ActivitySource WebSource = new(Telemetry.WebSecuritySource);
     private static readonly ActivitySource AuthSource = new(Telemetry.UserAuthenticationSource);
-
-    internal static async Task<IResult> VerifySignIn(
-        [FromQuery] string token,
-        IPasswordlessClient passwordlessClient,
-        ILogger<LoginPage> logger,
-        CancellationToken cancellationToken)
-    {
-        using var activity = WebSource.StartActivity("Web.Security");
-        return await passwordlessClient.GetLoginInformation(token, cancellationToken)
-            .ToJsonResponse(logger);
-    }
 
     internal static async Task<RazorComponentResult> CreateToken(
         [FromForm] RegisterViewModel viewModel,
@@ -62,14 +51,15 @@ internal static class SecurityHandlers
     internal static async Task<IResult> LoginUser(
         [FromForm] LoginViewModel viewModel,
         HttpContext httpContext,
+        IPasswordlessClient passwordlessClient,
         ITableClientFactory tableClientFactory,
         ILogger<LoginPage> logger,
         CancellationToken cancellationToken)
     {
         using var webActivity = WebSource.StartActivity("Web.Security");
         using var authActivity = AuthSource.StartActivity("User.Authentication");
-        return await viewModel.Id.ParseAsNonEmpty(nameof(viewModel.Id))
-            .AsResult()
+        return await LoginVerification.VerifyUser(passwordlessClient, viewModel.Token, cancellationToken)
+            .Bind(verified => verified.UserId.ParseAsNonEmpty("UserId").AsResult())
             .Bind(id => Users.GetById(
                 tableClientFactory.TableStorageExistentUserGetterById(),
                 id,

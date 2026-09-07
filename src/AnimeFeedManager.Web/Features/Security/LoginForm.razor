@@ -23,15 +23,10 @@
         </div>
     </fieldset>
 
-    <InputText @bind-Value="Model.Id"
-               name="@nameof(Model.Id)"
+    <InputText @bind-Value="Model.Token"
+               name="@nameof(Model.Token)"
                type="hidden"
-               data-passkey-user-id/>
-
-    <InputText @bind-Value="Model.Alias"
-               name="@nameof(Model.Alias)"
-               type="hidden"
-               data-passkey-alias/>
+               data-passkey-token-field/>
 
     <input type="hidden" name="@nameof(Model.ReturnUrl)" value="@Model.ReturnUrl"/>
 
