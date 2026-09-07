@@ -1,11 +1,11 @@
-﻿global using AnimeFeedManager.Features.Tests.Helpers;
+﻿global using System.Collections.Immutable;
+global using AnimeFeedManager.Features.Tests.Helpers;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;
 global using AnimeFeedManager.Shared.Results.Static;
 global using AnimeFeedManager.Shared.Types;
 global using AutoFixture;
 global using AutoFixture.AutoNSubstitute;
-global using NSubstitute;
 global using Microsoft.Extensions.Logging;
-global using System.Collections.Immutable;
+global using NSubstitute;
 global using Xunit;

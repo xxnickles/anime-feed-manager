@@ -26,6 +26,14 @@ internal static class HtmxExtensions
     {
         return context.HttpContext?.Features.Get<HtmxRequestFeature>()?.RequestType ?? new Html();
     }
+
+    /// <summary>
+    /// True when this request was classified as an htmx request (<see cref="HxBoosted"/> or
+    /// <see cref="Partial"/>) by <see cref="HtmxRequestMiddleware"/>. Requires <c>UseHtmx()</c> to have
+    /// run earlier in the pipeline.
+    /// </summary>
+    public static bool IsHtmxRequest(this HttpContext context) =>
+        context.Features.Get<HtmxRequestFeature>()?.RequestType is HxBoosted or Partial;
 }
 
 /// <summary>
