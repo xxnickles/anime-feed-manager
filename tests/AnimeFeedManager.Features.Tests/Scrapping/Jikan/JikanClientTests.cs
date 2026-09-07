@@ -107,6 +107,35 @@ public class JikanClientTests : IDisposable
     }
 
     [Fact]
+    public async Task GetSeason_MiddlePageFails_SkipsItAndReturnsRemainingPages()
+    {
+        StubPage("/seasons/2026/spring", 1, SinglePagePayload(currentPage: 1, malId: 1, title: "Page1Series", hasNextPage: true, lastVisiblePage: 3));
+        StubFailedPage("/seasons/2026/spring", 2);
+        StubPage("/seasons/2026/spring", 3, SinglePagePayload(currentPage: 3, malId: 3, title: "Page3Series", hasNextPage: false, lastVisiblePage: 3));
+
+        var client = CreateClient();
+        var result = await client.GetSeason(2026, "spring", CancellationToken.None);
+
+        result.AssertOnSuccess(items =>
+        {
+            Assert.Equal(2, items.Length);
+            Assert.Equal("Page1Series", items[0].Title);
+            Assert.Equal("Page3Series", items[1].Title);
+        });
+    }
+
+    [Fact]
+    public async Task GetCurrentSeason_FirstPageFails_ReturnsFailure()
+    {
+        StubFailedPage("/seasons/now", 1);
+
+        var client = CreateClient();
+        var result = await client.GetCurrentSeason(CancellationToken.None);
+
+        result.AssertError();
+    }
+
+    [Fact]
     public async Task GetCurrentSeason_NonTvItems_NotFiltered()
     {
         StubPage("/seasons/now", 1, JikanTestFixtures.Load("jikan-seasons-now.json"));
@@ -128,6 +157,21 @@ public class JikanClientTests : IDisposable
 
     private void StubEmptyLastPage(string path, int page) =>
         StubPage(path, page, """{"data":[],"pagination":{"has_next_page":false,"current_page":99}}""");
+
+    private void StubFailedPage(string path, int page, int statusCode = 504) =>
+        _server
+            .Given(Request.Create().WithPath(path).WithParam("page", page.ToString()).UsingGet())
+            .RespondWith(Response.Create().WithStatusCode(statusCode));
+
+    private static string SinglePagePayload(int currentPage, int malId, string title, bool hasNextPage, int lastVisiblePage) =>
+        $$"""
+          {
+            "pagination": { "has_next_page": {{hasNextPage.ToString().ToLowerInvariant()}}, "current_page": {{currentPage}}, "last_visible_page": {{lastVisiblePage}} },
+            "data": [
+              { "mal_id": {{malId}}, "title": "{{title}}", "images": { "jpg": { "large_image_url": "https://example.test/{{malId}}.jpg" } }, "type": "TV" }
+            ]
+          }
+          """;
 
     private JikanClient CreateClient() =>
         new(new HttpClient { BaseAddress = new Uri(_server.Url!) }, NullLogger<JikanClient>.Instance);
