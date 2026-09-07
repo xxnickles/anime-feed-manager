@@ -30,32 +30,24 @@ on submit
         if (error) {
           const unauthorized = error.status === 401 || error.status === 403;
           resolve({
-            phase: 'authError',
+            ok: false,
             unauthorized: unauthorized,
             message: unauthorized ? '' : (error.title || error.message || 'Authentication flow was not completed. Please try again')
           });
           return;
         }
-        const verifyRes = await fetch('/verify-signin?token=' + token);
-        const { success, userId } = await verifyRes.json();
-        if (success) {
-          resolve({ phase: 'verified', userId: userId });
-        } else {
-          resolve({ phase: 'authError', unauthorized: false, message: 'Authentication verification failed' });
-        }
+        resolve({ ok: true, token: token });
       } catch (e) {
         console.error('Things went bad on sign-in', e);
-        resolve({ phase: 'exception', unauthorized: false, message: e.message || 'An unexpected error occurred' });
+        resolve({ ok: false, unauthorized: false, message: e.message || 'An unexpected error occurred' });
       }
     });
   end
   set result to it
 
-  if result.phase is 'verified'
-    set aliasHidden to the first <input[data-passkey-alias]/> in me
-    set userIdHidden to the first <input[data-passkey-user-id]/> in me
-    set aliasHidden's value to alias
-    set userIdHidden's value to result.userId
+  if result.ok
+    set tokenHidden to the first <input[data-passkey-token-field]/> in me
+    set tokenHidden's value to result.token
     send loginComplete to me
   else
     set aliasInput's disabled to false
