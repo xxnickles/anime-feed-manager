@@ -12,7 +12,7 @@
 */
 
 @plugin "daisyui" {
-    themes: emerald --default, dim --prefersdark, sunset, cmyk, crayon, crayon-dark;
+    themes: cmyk --default, sunset --prefersdark, crayon, crayon-dark;
 }
 
 @plugin "daisyui/theme" {
@@ -83,19 +83,6 @@
     --border: 2px;
     --depth: 0;
     --noise: 0;
-}
-
-[data-theme="crayon"],
-[data-theme="crayon-dark"] {
-    font-family: "Comic Sans MS", "Comic Neue", cursive, var(--font-sans);
-}
-
-[data-theme="crayon"] .card,
-[data-theme="crayon"] .btn,
-[data-theme="crayon-dark"] .card,
-[data-theme="crayon-dark"] .btn {
-    border-width: 2px;
-    box-shadow: 3px 3px 0 var(--color-base-content);
 }
 
 @theme {
