@@ -1,12 +1,12 @@
 <dialog id="confim-htmx-event" class="modal" hx-boost="false"
         _="on htmx:confirm from window
              halt the event's default
-             if event.detail.question is empty
+             if event.detail.ctx.confirm is empty
                call event.detail.issueRequest(true)
              else
                set :detail to event.detail
                set p to the first <p[data-question-text]/> in me
-               set p's textContent to :detail.question
+               set p's textContent to :detail.ctx.confirm
                call my showModal()
              end
            end
