@@ -8,6 +8,6 @@ internal static class Endpoints
 
         group.MapPost("/add-credential", SecurityHandlers.AddCredential);
         group.MapPost("/login", SecurityHandlers.LoginUser);
-
+        group.MapGet("/logout", SecurityHandlers.Logout);
     }
 }

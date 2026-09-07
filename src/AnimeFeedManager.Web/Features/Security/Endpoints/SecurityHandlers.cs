@@ -76,6 +76,17 @@ internal static class SecurityHandlers
                 error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents());
     }
 
+    // The CancellationToken keeps the signature off the (HttpContext) => Task RequestDelegate shape,
+    // so it binds as a route handler whose IResult is written (ASP0016).
+    internal static async Task<IResult> Logout(
+        [FromQuery] string? returnUrl,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Redirect(httpContext, LocalReturnUrl(returnUrl));
+    }
+
     // Auth-state transitions full-reload (HX-Redirect) for htmx so the shell rebuilds with the
     // now-authenticated nav; a normal browser request gets a local redirect.
     private static IResult Redirect(HttpContext httpContext, string localPath)
