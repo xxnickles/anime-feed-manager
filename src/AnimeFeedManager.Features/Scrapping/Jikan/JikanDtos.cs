@@ -6,7 +6,8 @@ internal sealed record JikanSeasonResponse(
 
 internal sealed record JikanPagination(
     [property: JsonPropertyName("has_next_page")] bool HasNextPage,
-    [property: JsonPropertyName("current_page")] int CurrentPage);
+    [property: JsonPropertyName("current_page")] int CurrentPage,
+    [property: JsonPropertyName("last_visible_page")] int LastVisiblePage = 0);
 
 public sealed record JikanAnime(
     [property: JsonPropertyName("mal_id")] int MalId,
