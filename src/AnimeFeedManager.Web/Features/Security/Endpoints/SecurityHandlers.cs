@@ -1,10 +1,11 @@
 using System.Security.Claims;
-using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.User.Authentication.LoginProcess;
 using AnimeFeedManager.Features.User.Authentication.Queries;
 using AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 using AnimeFeedManager.Features.User.Authentication.Storage.Stores;
+using AnimeFeedManager.Shared.Types;
+using AnimeFeedManager.Web.Htmx.Static;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Passwordless;
@@ -71,8 +72,19 @@ internal static class SecurityHandlers
                 principal,
                 new AuthenticationProperties { IsPersistent = true }))
             .MatchToValue<ClaimsPrincipal, IResult>(
-                _ => Results.LocalRedirect(LocalReturnUrl(viewModel.ReturnUrl)),
+                _ => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
                 error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents());
+    }
+
+    // Auth-state transitions full-reload (HX-Redirect) for htmx so the shell rebuilds with the
+    // now-authenticated nav; a normal browser request gets a local redirect.
+    private static IResult Redirect(HttpContext httpContext, string localPath)
+    {
+        if (!httpContext.IsHtmxRequest())
+            return Results.LocalRedirect(localPath);
+
+        httpContext.Response.HxRedirect(localPath);
+        return Results.Ok();
     }
 
     // Guards against open redirects: only same-site absolute paths are honoured.
