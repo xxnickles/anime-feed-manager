@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 using AnimeFeedManager.Features.Scrapping.Jikan;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
@@ -60,6 +61,27 @@ public static class Registration
 
         serviceCollection.TryAddScoped<ISeasonFeedDataProvider, SeasonFeedDataProvider>();
         serviceCollection.TryAddScoped<INewReleaseProvider, NewReleaseProvider>();
+        return serviceCollection;
+    }
+
+    public static IServiceCollection RegisterAnimeScheduleServices(this IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddHttpClient<IAnimeScheduleClient, AnimeScheduleClient>(client =>
+            {
+                client.BaseAddress = new Uri("https://animeschedule.net/api/v3/");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("AnimeFeedManager/1.0");
+            })
+            // The API answers 429 with no Retry-After; pages are walked sequentially to stay under
+            // its burst budget, and the limiter is a backstop against concurrent callers.
+            // TotalRequestTimeout is generous because a season walk is many sequential requests.
+            .AddStandardResilienceHandler(options =>
+            {
+                options.Retry.MaxRetryAttempts = 3;
+                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(60);
+                options.RateLimiter.DefaultRateLimiterOptions.PermitLimit = 2;
+                options.RateLimiter.DefaultRateLimiterOptions.QueueLimit = 16;
+            });
         return serviceCollection;
     }
 
