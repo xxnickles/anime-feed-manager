@@ -43,11 +43,11 @@ public delegate Task<Result<ImmutableArray<TvSeries>>> TvLibrary(
     Uri publicBlobUri,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<TvSeries>> TvLibrarySeries(
-    SeriesSeason season,
-    string id,
-    Uri publicBlobUri,
-    CancellationToken cancellationToken = default);
+// public delegate Task<Result<TvSeries>> TvLibrarySeries(
+//     SeriesSeason season,
+//     string id,
+//     Uri publicBlobUri,
+//     CancellationToken cancellationToken = default);
 
 public delegate Task<Result<AnimeInfoStorage>> TvSeriesGetter(string id, string season,
     CancellationToken cancellationToken = default);
@@ -81,20 +81,20 @@ public static class ExistentSeries
                                       IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year), token)
                         .Map(series => series.Select(s => LibraryMapper(s, blobUri)).ToImmutableArray()));
 
-        public TvLibrarySeries TableStorageTvLibrarySeries =>
-            (season, id, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
-                .WithOperationName("TableStorageTvLibrarySeries")
-                .WithLogProperties([
-                    new KeyValuePair<string, object>("Season", season),
-                    new KeyValuePair<string, object>("BlobUri", blobUri),
-                ])
-                .Bind(client => client
-                    .ExecuteQuery<AnimeInfoStorage>(
-                        series =>
-                            series.PartitionKey == IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year) &&
-                            series.RowKey == id, token)
-                    .SingleItem()
-                    .Map(s => LibraryMapper(s, blobUri)));
+        // public TvLibrarySeries TableStorageTvLibrarySeries =>
+        //     (season, id, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
+        //         .WithOperationName("TableStorageTvLibrarySeries")
+        //         .WithLogProperties([
+        //             new KeyValuePair<string, object>("Season", season),
+        //             new KeyValuePair<string, object>("BlobUri", blobUri),
+        //         ])
+        //         .Bind(client => client
+        //             .ExecuteQuery<AnimeInfoStorage>(
+        //                 series =>
+        //                     series.PartitionKey == IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year) &&
+        //                     series.RowKey == id, token)
+        //             .SingleItem()
+        //             .Map(s => LibraryMapper(s, blobUri)));
 
         public TvSeriesGetter TableStorageTvSeriesGetter =>
             (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
