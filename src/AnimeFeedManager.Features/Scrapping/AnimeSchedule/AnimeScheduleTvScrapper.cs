@@ -33,15 +33,15 @@ internal static partial class AnimeScheduleTvScrapper
                 "{Count} TV series scraped from AnimeSchedule for {Season}",
                 data.SeriesData.Count(), data.Season));
 
-    // Latest still marks the resolved season as the latest one, matching current election
-    // behaviour; separating election from scraping is a later change.
+    // Scraping never elects the featured season — that is a deliberate admin action — so every
+    // season produced here carries IsLatest false.
     private static Task<Result<SeriesSeason>> ResolveSeason(
         IAnimeScheduleClient client,
         SeasonSelector selector,
         CancellationToken token) =>
         selector switch
         {
-            Latest => client.ResolveCurrentSeason(token).Map(season => season with {IsLatest = true}),
+            Current => client.ResolveCurrentSeason(token),
             BySeason bySeason => Task.FromResult<Result<SeriesSeason>>(
                 new SeriesSeason(bySeason.Season, bySeason.Year)),
             _ => throw new UnreachableException()

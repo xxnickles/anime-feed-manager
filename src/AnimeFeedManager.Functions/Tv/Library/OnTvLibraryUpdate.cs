@@ -77,15 +77,4 @@ public class OnTvLibraryUpdate
             .SendEvents(_domainPostman.SendMessages, seasonParameters, token)
             .MarkActivityErroredOnError();
     }
-
-
-    private static Result<SeasonSelector> TryGetSeasonSelector(SeasonParameters? season)
-    {
-        if (season is null)
-            return new Latest();
-
-        return (season.Season, season.Year, false)
-            .ParseAsSeriesSeason()
-            .Map<SeriesSeason, SeasonSelector>(parsedSeason => new BySeason(parsedSeason.Season, parsedSeason.Year));
-    }
 }

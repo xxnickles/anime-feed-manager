@@ -4,15 +4,7 @@ public record SeasonParameters(string Season, int Year);
 
 public abstract record SeasonSelector;
 
-public record Latest : SeasonSelector;
+/// <summary>Resolve the season to scrape from currently-airing data. Says nothing about which season is featured.</summary>
+public record Current : SeasonSelector;
 
 public record BySeason(Season Season, Year Year) : SeasonSelector;
-
-public static class Extensions
-{
-    public static bool IsLatest(this SeasonSelector seasonSelector) => seasonSelector switch
-    {
-        Latest => true,
-        _ => false
-    };
-}
