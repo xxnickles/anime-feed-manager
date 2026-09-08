@@ -2,6 +2,12 @@ namespace AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 
 public interface IAnimeScheduleClient
 {
+    /// <summary>
+    /// The season most represented among currently-airing series. Derived from live data rather
+    /// than the calendar, because seasons start before and run past their nominal boundaries.
+    /// </summary>
+    Task<Result<SeriesSeason>> ResolveCurrentSeason(CancellationToken token = default);
+
     Task<Result<ImmutableArray<AnimeScheduleAnime>>> GetSeason(int year, string season,
         CancellationToken token = default);
 }
@@ -22,6 +28,25 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
     public Task<Result<ImmutableArray<AnimeScheduleAnime>>> GetSeason(int year, string season,
         CancellationToken token = default) =>
         FetchAllPages($"anime?seasons={season}&years={year}", token);
+
+    public Task<Result<SeriesSeason>> ResolveCurrentSeason(CancellationToken token = default) =>
+        FetchAllPages("anime?airing-statuses=ongoing", token)
+            .WithOperationName(nameof(ResolveCurrentSeason))
+            .Bind(MostRepresentedSeason);
+
+    // Long-running series keep older seasons in the ongoing set, but never in numbers that rival
+    // the season actually airing.
+    private static Result<SeriesSeason> MostRepresentedSeason(ImmutableArray<AnimeScheduleAnime> ongoing) =>
+        ongoing
+            .Select(anime => anime.Season)
+            .Where(season => Season.IsValid(season?.Season ?? string.Empty) && int.TryParse(season!.Year, out _))
+            .GroupBy(season => (Name: season!.Season!, Year: int.Parse(season.Year!)))
+            .MaxBy(group => group.Count()) is { } winner
+            ? (winner.Key.Name, winner.Key.Year, false).ParseAsSeriesSeason()
+                .AddLogOnSuccess(season => logger => logger.LogInformation(
+                    "Resolved {Season} as the current season, from {Count} of {Total} ongoing series",
+                    season, winner.Count(), ongoing.Length))
+            : Error.Create("AnimeSchedule returned no ongoing series carrying a usable season");
 
     // Page 1 is terminal on failure — without it there is no page count to walk. Later pages are
     // gathered as a bulk result, so a failed page is skipped and reported rather than discarding
