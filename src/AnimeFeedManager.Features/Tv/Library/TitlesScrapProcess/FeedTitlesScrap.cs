@@ -60,7 +60,7 @@ public static class FeedTitlesScrap
         if (entity.Status == SeriesStatus.Ongoing())
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
 
-        var alternativeTitles = entity.AlternativeTitles?.StringToAppArray() ?? [];
+        var alternativeTitles = StoredAlternativeTitles.Parse(entity.AlternativeTitles).ForMatching;
         var feedMatch = feedTitles.TryGetFeedMatch(entity.Title ?? string.Empty);
 
         // If no match found with the main title, try with alternative titles

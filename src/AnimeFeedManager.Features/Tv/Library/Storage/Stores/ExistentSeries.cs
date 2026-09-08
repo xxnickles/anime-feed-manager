@@ -6,14 +6,14 @@ public record TvSeriesInfo(
     string Title,
     string? FeedTitle,
     string? FeedUrl,
-    string[] AlternativeTitles,
+    AlternativeTitlesData AlternativeTitles,
     SeriesStatus Status);
 
 public sealed record TvSeriesInfoWithImage(
     string Title,
     string? FeedTitle,
     string? FeedUrl,
-    string[] AlternativeTitles,
+    AlternativeTitlesData AlternativeTitles,
     SeriesStatus Status,
     string ImageUrl) : TvSeriesInfo(Title, FeedTitle, FeedUrl, AlternativeTitles, Status);
 
@@ -24,7 +24,7 @@ public sealed record TvSeries(
     string Synopsis,
     string? FeedTitle,
     string? FeedUrl,
-    string[] AlternativeTitles,
+    AlternativeTitlesData AlternativeTitles,
     SeriesStatus Status,
     Uri? Image,
     DateTimeOffset? LastUpdated);
@@ -138,7 +138,7 @@ public static class ExistentSeries
         entity.Synopsis ?? string.Empty,
         entity.FeedTitle,
         entity.FeedLink,
-        ConvertAlternativeTitles(entity.AlternativeTitles),
+        StoredAlternativeTitles.Parse(entity.AlternativeTitles),
         (SeriesStatus) entity.Status,
         entity.ImagePath is not null ? GetUri(publicBlobUri, entity.ImagePath) : null,
         entity.Timestamp);
@@ -158,17 +158,14 @@ public static class ExistentSeries
                 entity.Title ?? string.Empty,
                 entity.FeedTitle,
                 entity.FeedLink,
-                ConvertAlternativeTitles(entity.AlternativeTitles),
+                StoredAlternativeTitles.Parse(entity.AlternativeTitles),
                 (SeriesStatus) entity.Status)
             : new TvSeriesInfoWithImage(entity.Title ?? string.Empty,
                 entity.FeedTitle,
                 entity.FeedLink,
-                ConvertAlternativeTitles(entity.AlternativeTitles),
+                StoredAlternativeTitles.Parse(entity.AlternativeTitles),
                 (SeriesStatus) entity.Status,
                 entity.ImagePath ?? string.Empty);
-
-    private static string[] ConvertAlternativeTitles(string? alternativeTitles) =>
-        string.IsNullOrWhiteSpace(alternativeTitles) ? [] : alternativeTitles.Split(SharedUtils.ArraySeparator);
 
     private static Task<Result<AnimeInfoStorage>> GetAnimeInfo(
         this TableClient tableClient,

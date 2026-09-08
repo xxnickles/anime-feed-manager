@@ -82,7 +82,12 @@ internal static class TvStorageEnrichment
         }
 
         baseSeries.Status = CalculateSeriesStatus(currentInfo.Status, feedDataInProcess is not null, isOldSeason);
-        baseSeries.AlternativeTitles = currentInfo.AlternativeTitles.AppArrayToString();
+
+        // This scrap owns the provider block; the stored user block survives it untouched.
+        baseSeries.AlternativeTitles = (StoredAlternativeTitles.Parse(baseSeries.AlternativeTitles) with
+        {
+            User = currentInfo.AlternativeTitles.User
+        }).ToStoredString();
 
         if (currentInfo is not TvSeriesInfoWithImage withImage)
             return storageSeries with

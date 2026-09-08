@@ -20,11 +20,15 @@ public static class Series
         CancellationToken token) => seriesRemover(seriesId, seriesSeason, token);
 
 
+    // The editor owns the user block only; the provider block is left as the last scrap wrote it.
     private static AnimeInfoStorage UpdateAlternativeTitles(
         AnimeInfoStorage storage,
         string[] alternativeTitles)
     {
-        storage.AlternativeTitles = alternativeTitles.Length > 0 ? alternativeTitles.AppArrayToString() : string.Empty;
+        storage.AlternativeTitles = (StoredAlternativeTitles.Parse(storage.AlternativeTitles) with
+        {
+            User = alternativeTitles
+        }).ToStoredString();
         return storage;
     }
 }

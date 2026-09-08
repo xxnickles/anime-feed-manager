@@ -44,7 +44,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     "Test Anime",
                     "Test Anime Feed",
                     "https://example.com/test-anime-feed",
-                    ["Alt Title 1", "Alt Title 2"],
+                    new AlternativeTitlesData(User: ["Alt Title 1", "Alt Title 2"]),
                     SeriesStatus.Ongoing()));
             
             // Setup StoredSeriesGetter fake
@@ -65,7 +65,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 Assert.Equal("Test Anime Feed", updatedSeries.FeedTitle);
                 Assert.Equal("https://example.com/test-anime-feed", updatedSeries.FeedLink);
                 Assert.Equal(SeriesStatus.OngoingValue, updatedSeries.Status);
-                Assert.Equal("Alt Title 1|Alt Title 2", updatedSeries.AlternativeTitles);
+                Assert.Equal(["Alt Title 1", "Alt Title 2"],
+                    StoredAlternativeTitles.Parse(updatedSeries.AlternativeTitles).User!);
             });
         }
 
@@ -129,7 +130,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
         [Fact]
         internal async Task Should_Set_Status_Completed_When_Exist_And_Is_OldSeason_And_NoMatchingFeed()
         {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, [], SeriesStatus.NotAvailable());
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
+                SeriesStatus.NotAvailable());
             await OldSeasonVerification([storedSeries]);
         }
 
