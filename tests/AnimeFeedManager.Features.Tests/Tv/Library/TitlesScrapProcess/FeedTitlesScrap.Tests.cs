@@ -12,14 +12,10 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.TitlesScrapProcess;
 
 public class FeedTitlesScrapTests
 {
-    private readonly IFixture _fixture = new Fixture()
-        .Customize(new DefaultSeasonDataCustomization())
-        .Customize(new AutoNSubstituteCustomization());
-
     [Fact]
     public async Task Should_Update_Only_Series_Without_Feed_With_Matches()
     {
-        var season = _fixture.Create<SeriesSeason>();
+        var season = TestSeasons.Default;
         var feedTitles = ImmutableArray.Create(
             new FeedData("Sword Warriors", "https://example.com/sword-warriors"),
             new FeedData("Magic Academy", "https://example.com/magic-academy"));
@@ -74,7 +70,7 @@ public class FeedTitlesScrapTests
     [Fact]
     public async Task Should_Not_Update_When_No_Matches_Or_Already_Ongoing()
     {
-        var season = _fixture.Create<SeriesSeason>();
+        var season = TestSeasons.Default;
         var feedTitles = ImmutableArray.Create(
             new FeedData("Other 1", "https://example.com/other-1"),
             new FeedData("Other 2", "https://example.com/other-2"));
@@ -109,7 +105,7 @@ public class FeedTitlesScrapTests
     [Fact]
     public async Task Should_Create_Events_Only_For_Updated_Series()
     {
-        var season = _fixture.Create<SeriesSeason>();
+        var season = TestSeasons.Default;
         var feedTitles = ImmutableArray.Create(
             new FeedData("T1", "https://example.com/t1"),
             new FeedData("T2", "https://example.com/t2"));

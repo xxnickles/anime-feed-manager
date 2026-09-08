@@ -6,7 +6,6 @@
   <Folder Name="/Backend/">
     <Project Path="tests/AnimeFeedManager.Features.Tests/AnimeFeedManager.Features.Tests.csproj" />
     <Project Path="tests/AnimeFeedManager.Shared.Tests/AnimeFeedManager.Shared.Tests.csproj" />
-    <Project Path="tests/AnimeFeedManager.Services.Shared.Tests/AnimeFeedManager.Services.Shared.Tests.csproj" />
     <Project Path="src/AnimeFeedManager.Features/AnimeFeedManager.Features.csproj" />
     <Project Path="src/AnimeFeedManager.Functions/AnimeFeedManager.Functions.csproj" />
     <Project Path="src/AnimeFeedManager.Services.Shared/AnimeFeedManager.Services.Shared.csproj" />

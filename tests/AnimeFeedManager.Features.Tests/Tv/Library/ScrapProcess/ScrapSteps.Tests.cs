@@ -10,16 +10,11 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
 {
     public class ScrapStepsTests
     {
-        private readonly IFixture _defaultFixture = new Fixture()
-            .Customize(new DefaultSeasonDataCustomization())
-            .Customize(new AutoNSubstituteCustomization());
-
         [Fact]
         public async Task Should_Enrich_Data_With_StoredSeries()
         {
             // Create initial ScrapTvLibraryData
-            var seriesSeason = _defaultFixture
-                .Create<SeriesSeason>();
+            var seriesSeason = TestSeasons.Default;
 
             var feedTitles = ImmutableArray.Create(
                 new FeedData("Series 1", "https://example.com/series-1"),
@@ -78,8 +73,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
         public async Task Should_Set_Status_To_Ongoing_When_NewSeries_Have_Matching_Feed()
         {
             // Create initial ScrapTvLibraryData
-            var seriesSeason = _defaultFixture
-                .Create<SeriesSeason>();
+            var seriesSeason = TestSeasons.Default;
             var feedTitles = ImmutableArray.Create(
                 new FeedData("Test Anime", "https://example.com/test-anime"),
                 new FeedData("Series 2", "https://example.com/series-2")); // Matching feed title
