@@ -50,4 +50,29 @@ public class BulkResultExtensionsTests
 
         Assert.Equal(2, logger.CallCount);
     }
+
+    [Fact]
+    public void Should_Log_Each_Error_When_Logging_Errors_Only()
+    {
+        var logger = new TrackingLogger();
+
+        var bulk = new PartialSuccessBulkResult<int>(5, [
+            NotFoundError.Create("err1"),
+            NotFoundError.Create("err2")
+        ]);
+
+        bulk.LogErrors(logger);
+
+        Assert.Equal(2, logger.CallCount);
+    }
+
+    [Fact]
+    public void Should_Log_Nothing_When_Logging_Errors_Of_CompletedBulkResult()
+    {
+        var logger = new TrackingLogger();
+
+        new CompletedBulkResult<int>(42).LogErrors(logger);
+
+        Assert.Equal(0, logger.CallCount);
+    }
 }
