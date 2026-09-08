@@ -105,7 +105,7 @@
     {
         return new AlternativeTitlesViewModel
         {
-            AlternativeTitles = series.TvSeries.AlternativeTitles,
+            AlternativeTitles = series.TvSeries.AlternativeTitles.User ?? [],
             SeriesTitle = series.TvSeries.Title,
             Season = series.TvSeries.SeasonString,
             SeriesId = series.TvSeries.Id

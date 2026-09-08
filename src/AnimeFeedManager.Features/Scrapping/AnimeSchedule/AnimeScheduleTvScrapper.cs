@@ -72,10 +72,18 @@ internal static partial class AnimeScheduleTvScrapper
                 FeedTitle = null,
                 FeedLink = null,
                 Date = PremierDate(anime.Premier),
-                Status = SeriesStatus.NotAvailableValue
+                Status = SeriesStatus.NotAvailableValue,
+                AlternativeTitles = ProviderTitles(anime.Names).ToStoredString()
             },
             Image(anime.ImageVersionRoute),
             Status.NewSeries);
+
+    // Only the provider block is filled here; the user block belongs to the editor and is merged
+    // back in by TvStorageEnrichment for series already in storage.
+    private static AlternativeTitlesData ProviderTitles(AnimeScheduleNames? names) =>
+        names is null
+            ? AlternativeTitlesData.Empty
+            : new AlternativeTitlesData(names.Romaji, names.English, names.Native, names.Synonyms);
 
     // Descriptions carry inline markup, and sequels routinely have none at all.
     private static string Synopsis(string? description)
