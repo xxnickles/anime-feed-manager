@@ -23,7 +23,7 @@ public static class TvScrapProcess
     private static Result<SeasonSelector> TryGetSeasonSelector(SeasonParameters? season)
     {
         if (season is null)
-            return new Latest();
+            return new Current();
 
         return (season.Season, season.Year, false)
             .ParseAsSeriesSeason()

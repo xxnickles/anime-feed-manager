@@ -13,11 +13,11 @@ public class AnimeScheduleTvScrapperTests
     #region Season selection
 
     [Fact]
-    public async Task Latest_Routes_To_ResolveCurrentSeason()
+    public async Task Current_Routes_To_ResolveCurrentSeason()
     {
         var client = ClientReturning(CreateAnime(title: "X"));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         _ = client.Received(1).ResolveCurrentSeason(Arg.Any<CancellationToken>());
         result.AssertOnSuccess(data => Assert.Single(data.SeriesData));
@@ -39,13 +39,13 @@ public class AnimeScheduleTvScrapperTests
     }
 
     [Fact]
-    public async Task Latest_Marks_Resolved_Season_As_Latest()
+    public async Task Current_Does_Not_Mark_Season_As_Latest()
     {
         var client = ClientReturning(CreateAnime(title: "X"));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
-        result.AssertOnSuccess(data => Assert.True(data.Season.IsLatest));
+        result.AssertOnSuccess(data => Assert.False(data.Season.IsLatest));
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public class AnimeScheduleTvScrapperTests
         client.ResolveCurrentSeason(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<SeriesSeason>.Failure(HandledError.Create())));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertError();
     }
@@ -87,7 +87,7 @@ public class AnimeScheduleTvScrapperTests
             CreateAnime(title: "Web", mediaTypeRoute: "ona"),
             CreateAnime(title: "Extra", mediaTypeRoute: "special"));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data =>
         {
@@ -105,7 +105,7 @@ public class AnimeScheduleTvScrapperTests
             CreateAnime(title: "Kept", mediaTypeRoute: "tv"),
             CreateAnime(title: "Untyped", mediaTypes: []));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Single(data.SeriesData, entry => entry.Series.Title == "Kept"));
     }
@@ -120,7 +120,7 @@ public class AnimeScheduleTvScrapperTests
         var client = ClientReturning(CreateAnime(
             description: """The third season of <span class="italics">Some Show</span>."""));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data =>
             Assert.Equal("The third season of Some Show.", Single(data).Series.Synopsis));
@@ -131,7 +131,7 @@ public class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime(description: "First.<br><br>Second."));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Equal("First.\n\nSecond.", Single(data).Series.Synopsis));
     }
@@ -141,7 +141,7 @@ public class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime(description: "Bread &amp; Butter &#39;s tale"));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Equal("Bread & Butter 's tale", Single(data).Series.Synopsis));
     }
@@ -151,7 +151,7 @@ public class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime(description: null));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Equal(NoSynopsis, Single(data).Series.Synopsis));
     }
@@ -161,7 +161,7 @@ public class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime(description: "<span></span>   "));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Equal(NoSynopsis, Single(data).Series.Synopsis));
     }
@@ -175,7 +175,7 @@ public class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime(premier: DateTime.MinValue));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Null(Single(data).Series.Date));
     }
@@ -185,7 +185,7 @@ public class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime(premier: null));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Null(Single(data).Series.Date));
     }
@@ -196,7 +196,7 @@ public class AnimeScheduleTvScrapperTests
         var premier = new DateTime(2026, 7, 4, 0, 0, 0, DateTimeKind.Utc);
         var client = ClientReturning(CreateAnime(premier: premier));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data =>
         {
@@ -215,7 +215,7 @@ public class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime(imageVersionRoute: "anime/jpg/default/show-abc.jpg"));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data =>
         {
@@ -231,7 +231,7 @@ public class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime(imageVersionRoute: null));
 
-        var result = await EmptyFeed().ScrapSeries(client, new Latest(), CancellationToken.None);
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.IsType<NoImage>(Single(data).Image));
     }
