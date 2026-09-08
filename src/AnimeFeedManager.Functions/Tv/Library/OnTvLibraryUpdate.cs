@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Features.Common;
-using AnimeFeedManager.Features.Scrapping.Types;
+﻿using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;

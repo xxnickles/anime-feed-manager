@@ -18,15 +18,12 @@ public static class SeriesSeasonExtensions
     public static Result<SeriesSeason> ParseAsSeriesSeason(this string seasonString)
     {
         var parts = seasonString.Split('-');
-        if (parts.Length is not 2)
-        {
-            return Validation<SeriesSeason>.Invalid(
+
+        return parts.Length == 2 && int.TryParse(parts[1], out var year)
+            ? (parts[0], year, false).ParseAsSeriesSeason()
+            : Validation<SeriesSeason>.Invalid(
                 DomainValidationError
                     .Create<SeriesSeason>($"'{seasonString}' is not a valid Season string (Season-Year)")
                     .ToErrors()).AsResult();
-        }
-
-        return (parts[0], int.Parse(parts[1]), false)
-            .ParseAsSeriesSeason();
     }
 }

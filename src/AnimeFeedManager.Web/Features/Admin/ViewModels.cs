@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Web.Common.Validation;
+﻿using System.ComponentModel.DataAnnotations;
+using AnimeFeedManager.Web.Common.Validation;
 
 namespace AnimeFeedManager.Web.Features.Admin;
 
@@ -11,6 +12,15 @@ public class BySeasonViewModel
 
     public static BySeasonViewModel Current =>
         new() {Season = Shared.Types.Season.Current, Year = Shared.Types.Year.Current};
+}
+
+/// <summary>
+/// Carries the picked season as a "season-year" key; the choices themselves are loaded by the card.
+/// </summary>
+public class FeaturedSeasonViewModel
+{
+    [Required(ErrorMessage = "A season must be selected")]
+    public string Season { get; set; } = string.Empty;
 }
 
 /// <summary>

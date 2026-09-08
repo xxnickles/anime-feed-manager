@@ -1,0 +1,79 @@
+﻿@using AnimeFeedManager.Features.Seasons.Queries
+@using AnimeFeedManager.Features.Seasons.Storage
+@using AnimeFeedManager.Web.Features.Admin.Base
+@implements INotifiableComponent<FeaturedSeasonViewModel>
+@inject ITableClientFactory TableClientFactory
+@inject ILogger<FeaturedSeasonUpdate> Logger
+
+<AdminCardForm Title="Set Featured Season"
+               SubmitText="Set Featured"
+               ViewModel="@ViewModel"
+               FormName="@FormName"
+               hx-swap="outerHTML"
+               hx-put="/admin/seasons/featured"
+               hx-confirm="Do you want to make the selected season the featured one?">
+    <fieldset class="fieldset w-full">
+        <label class="select mt-4 w-full">
+            <span class="label">Season</span>
+            <InputSelect class="validator-no-success"
+                         title="Featured Season Selection"
+                         @bind-Value="ViewModel.Season"
+                         name="@nameof(ViewModel.Season)">
+                @foreach (var season in _choices)
+                {
+                    <option value="@SeasonKey(season)">@SeasonLabel(season)</option>
+                }
+            </InputSelect>
+        </label>
+        <Hint For="() => ViewModel.Season"></Hint>
+    </fieldset>
+</AdminCardForm>
+
+@code {
+
+    private const string FormName = "featured-season-form";
+
+    private ImmutableArray<SeriesSeason> _choices = [];
+
+    [Parameter] public FeaturedSeasonViewModel ViewModel { get; set; } = new();
+
+    internal static string SeasonKey(SeriesSeason season) => $"{season.Season}-{season.Year}";
+
+    private static string SeasonLabel(SeriesSeason season) => $"{season.Year} {season.Season}";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SeasonQueries
+            .GetLast4Seasons(TableClientFactory.TableStorageLatest4SeasonsGetter(Logger), CancellationToken.None)
+            .FlushLogs(Logger)
+            .Match(
+                // Stored oldest-first; the newest season is the likelier pick, so lead with it.
+                seasons => _choices = [..seasons.Reverse()],
+                _ => _choices = []);
+
+        if (string.IsNullOrWhiteSpace(ViewModel.Season) && !_choices.IsEmpty)
+        {
+            ViewModel.Season = SeasonKey(_choices[0]);
+        }
+    }
+
+    public static RenderFragment AsRenderFragment(FeaturedSeasonViewModel viewModel) =>
+        builder =>
+        {
+            builder.OpenComponent<FeaturedSeasonUpdate>(1);
+            builder.AddAttribute(2, nameof(ViewModel), viewModel);
+            builder.CloseComponent();
+        };
+
+    public static RenderFragment OkNotificationContent(FeaturedSeasonViewModel viewModel) =>
+        builder =>
+        {
+            builder.OpenElement(0, "b");
+            builder.AddContent(1, viewModel.Season);
+            builder.CloseElement();
+            builder.AddContent(2, " is being set as the featured season");
+        };
+
+    public static string SuccessNotificationTitle { get; } = "Featured Season";
+    public static string ErrorNotificationTitle { get; } = "Featured Season Failed";
+}

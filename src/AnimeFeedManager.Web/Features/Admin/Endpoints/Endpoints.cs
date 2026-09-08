@@ -13,6 +13,9 @@ internal static class Endpoints
         tvGroup.MapPut("/titles", TvAdminHandlers.Titles);
         tvGroup.MapPost("/run-notifications", TvAdminHandlers.TriggerNotificationProcess);
 
+        var seasonsGroup = adminGroup.MapGroup("/seasons");
+        seasonsGroup.MapPut("/featured", SeasonAdminHandlers.SetFeatured);
+
         var chartsGroup = adminGroup.MapGroup("/charts");
         chartsGroup.MapGet("/scrap-library", ChartHandlers.ScrapLibrarySummary);
         chartsGroup.MapGet("/notifications", ChartHandlers.NotificationSummary);
