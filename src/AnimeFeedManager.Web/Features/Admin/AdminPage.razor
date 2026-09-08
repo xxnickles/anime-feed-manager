@@ -1,4 +1,5 @@
 ﻿@page "/admin"
+@using AnimeFeedManager.Web.Features.Admin.SeasonCards
 @using AnimeFeedManager.Web.Features.Admin.TvCards
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = UserRole.AdminValue)]
@@ -8,7 +9,13 @@
 <h2 class="mb-8">Charts</h2>
 <Charts/>
 
-<h2 class="mb-8">Tv Series</h2>
+<h2 class="mb-8">Seasons</h2>
+<section
+    class="grid items-stretch grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10">
+    <FeaturedSeasonUpdate/>
+</section>
+
+<h2 class="mb-8 mt-10">Tv Series</h2>
 <section
     class="grid items-stretch grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10">
     <TvLatestSeasonUpdate/>
