@@ -49,6 +49,60 @@ public class SeasonUpdateLatestFlagTests
     }
 
     [Fact]
+    public async Task Promoting_When_Nothing_Is_Flagged_Should_Not_Demote_The_Season_It_Just_Promoted()
+    {
+        var incoming = new SeriesSeason(Season.Summer(), Year.FromNumber(2026), true);
+
+        // What TableStorageSeason hands back when the stored row is not flagged but the incoming
+        // season asks to be: the row, promoted.
+        var promoted = new SeasonStorage
+        {
+            PartitionKey = SeasonStorage.SeasonPartition,
+            RowKey = "2026-summer",
+            Latest = true,
+            Season = Season.Summer(),
+            Year = 2026
+        };
+
+        var newestKnown = new SeasonStorage
+        {
+            PartitionKey = SeasonStorage.SeasonPartition,
+            RowKey = "2026-summer",
+            Latest = false,
+            Season = Season.Summer(),
+            Year = 2026
+        };
+
+        var writes = new List<(string RowKey, bool Latest)>();
+
+        var token = CancellationToken.None;
+        var result = await SeasonUpdate
+            .CheckSeasonExist(SeasonGetter, incoming, token)
+            .CreateNewSeason()
+            .AddLatestSeasonData(LatestGetter, token)
+            .StoreUpdatedSeason(SeasonUpdater, token)
+            .DemoteCurrentLatest(SeasonUpdater, token);
+
+        result.AssertSuccess();
+        Assert.Equal([("2026-summer", true)], writes);
+        return;
+
+        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
+            Task.FromResult<Result<SeasonStorageData>>(new ReplaceLatestSeason(promoted));
+
+        // Nothing carries the flag, so the newest season stands in for it — and it is the very
+        // season being promoted.
+        Task<Result<SeasonStorageData>> LatestGetter(CancellationToken ct) =>
+            Task.FromResult<Result<SeasonStorageData>>(new FallbackLatestSeason(newestKnown));
+
+        Task<Result<Unit>> SeasonUpdater(SeasonStorage s, CancellationToken ct)
+        {
+            writes.Add((s.RowKey!, s.Latest));
+            return Task.FromResult(Result<Unit>.Success());
+        }
+    }
+
+    [Fact]
     public async Task New_Latest_Should_Set_Latest_True_And_Demote_Previous_To_False()
     {
         var incoming = new SeriesSeason(Season.Summer(), Year.FromNumber(2025), true);

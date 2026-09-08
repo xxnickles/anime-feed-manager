@@ -15,15 +15,18 @@ public static class FeedTitlesScrap
             {
                 return season switch
                 {
-                    CurrentLatestSeason latest => (latest.Season.Season ?? string.Empty, latest.Season.Year,
-                            latest.Season.Latest)
-                        .ParseAsSeriesSeason()
-                        .Map(latestSeason => new FeedTitleUpdateData(latestSeason, [], [])),
+                    CurrentLatestSeason latest => FeedUpdateDataFor(latest.Season),
+                    FallbackLatestSeason newest => FeedUpdateDataFor(newest.Season),
                     NoMatch => Error.Create("There is no latest season data in storage."),
                     _ => Error.Create($"Season is not latest. Received {season.GetType().Name}")
                 };
             });
 
+
+    private static Result<FeedTitleUpdateData> FeedUpdateDataFor(SeasonStorage season) =>
+        (season.Season ?? string.Empty, season.Year, season.Latest)
+        .ParseAsSeriesSeason()
+        .Map(parsed => new FeedTitleUpdateData(parsed, [], []));
 
     public static Task<Result<FeedTitleUpdateData>> GetFeedTitles(this Task<Result<FeedTitleUpdateData>> data,
         ISeasonFeedDataProvider seasonFeedDataProvider) =>

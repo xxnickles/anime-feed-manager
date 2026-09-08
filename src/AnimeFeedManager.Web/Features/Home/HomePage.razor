@@ -20,12 +20,16 @@ else
 @code {
     private SeriesSeason? _season;
 
+    private static Result<SeriesSeason> ParseSeason(SeasonStorage season) =>
+        (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason();
+
     protected override async Task OnInitializedAsync()
     {
         await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeason, CancellationToken.None)
             .Bind(season => season switch
             {
-                CurrentLatestSeason currentLatestSeason => (currentLatestSeason.Season.Season ?? string.Empty, currentLatestSeason.Season.Year, currentLatestSeason.Season.Latest).ParseAsSeriesSeason(),
+                CurrentLatestSeason currentLatestSeason => ParseSeason(currentLatestSeason.Season),
+                FallbackLatestSeason newestSeason => ParseSeason(newestSeason.Season),
                 _ => Error.Create("Season is not latest")
             })
             .FlushLogs(Logger)

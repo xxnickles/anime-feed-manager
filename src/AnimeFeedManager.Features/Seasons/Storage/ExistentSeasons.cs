@@ -19,15 +19,20 @@ public static class ExistentSeasons
 {
     extension(ITableClientFactory clientFactory)
     {
+        // Election is a deliberate admin action, so nothing may carry the flag. Rather than leave the
+        // app featureless, the newest known season stands in — tagged so the promotion path can tell
+        // the two apart.
         public LatestSeasonGetter TableStorageLatestSeason =>
             cancellationToken => clientFactory.GetClient<SeasonStorage>()
                 .WithOperationName("TableStorageLatestSeason")
-                .Bind(client =>
-                    client.ExecuteQuery<SeasonStorage>(
-                            storage => storage.PartitionKey == SeasonStorage.SeasonPartition && storage.Latest == true,
-                            cancellationToken)
-                        .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(seasons =>
-                            !seasons.IsEmpty ? new CurrentLatestSeason(seasons[0]) : new NoMatch()));
+                .Bind(client => client
+                    .ExecuteQuery<SeasonStorage>(
+                        storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
+                        cancellationToken)
+                    .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(seasons =>
+                        seasons.FirstOrDefault(season => season.Latest) is { } flagged
+                            ? new CurrentLatestSeason(flagged)
+                            : NewestSeason(seasons)));
 
         public SeasonGetter TableStorageSeason =>
             (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
@@ -78,6 +83,15 @@ public static class ExistentSeasons
                 )
                 .Map(seasons => seasons.TransformToSeriesSeason(logger));
     }
+
+    private static SeasonStorageData NewestSeason(ImmutableArray<SeasonStorage> seasons) =>
+        seasons
+            .Where(season => Season.IsValid(season.Season ?? string.Empty))
+            .OrderByDescending(season => season.Year)
+            .ThenByDescending(season => Season.FromString(season.Season))
+            .FirstOrDefault() is { } newest
+            ? new FallbackLatestSeason(newest)
+            : new NoMatch();
 
     private static ReplaceLatestSeason UpdateCurrentToLatest(SeasonStorage storage)
     {
