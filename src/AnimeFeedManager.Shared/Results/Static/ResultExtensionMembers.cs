@@ -335,6 +335,19 @@ public static class ResultExtensionMembers
             result with {TraceContext = result.TraceContext.WithProperty(key, value)};
 
         /// <summary>
+        /// Adds a property derived from the success value to the trace context. On failure the
+        /// selector is not invoked and the result passes through unchanged, mirroring
+        /// <see cref="AddLogOnSuccess"/>.
+        /// </summary>
+        /// <param name="key">The property name.</param>
+        /// <param name="valueSelector">Selector invoked with the success value to produce the property value.</param>
+        /// <returns>The result with the added property when successful, otherwise unchanged.</returns>
+        public Result<T> WithLogProperty(string key, Func<T, object> valueSelector) =>
+            result.IsFailure
+                ? result
+                : result with {TraceContext = result.TraceContext.WithProperty(key, valueSelector(result.ResultValue!))};
+
+        /// <summary>
         /// Adds an "OperationName" property to the trace context.
         /// Convenience method for <see cref="WithLogProperty"/> with a standard key.
         /// </summary>

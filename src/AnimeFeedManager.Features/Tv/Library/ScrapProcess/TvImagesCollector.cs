@@ -16,9 +16,12 @@ internal static class TvImagesCollector
         CancellationToken token = default)
     {
         var targetDirectory = $"{data.Season.Year}/{data.Season.Season}";
-        var all = new List<Result<StorageData>>();
+        // SeriesData is a deferred projection and is walked more than once here.
+        var seriesData = data.SeriesData.ToArray();
+        var candidates = seriesData.Count(series => series.Image is ScrappedImageUrl);
+        var all = new List<Result<ImageOutcome>>();
 
-        foreach (var batch in data.SeriesData.Chunk(BatchSize))
+        foreach (var batch in seriesData.Chunk(BatchSize))
         {
             var batchResults = await Task.WhenAll(
                 batch.Select(s => AddImageLink(imageProvider, s, targetDirectory, token)));
@@ -27,29 +30,47 @@ internal static class TvImagesCollector
 
         return all
             .Flatten(items => items.ToImmutableArray())
-            .AddLogOnSuccess(LogFactories.LogBulkResult<ImmutableArray<StorageData>>(
-                (items, logger) => logger.LogInformation("{Count} images processed", items.Length)))
-            .Map(bulk => data with { SeriesData = bulk.Value });
+            .AddLogOnSuccess(bulk => LogImageOutcome(bulk, candidates, seriesData.Length))
+            .AddLogOnSuccess(bulk => bulk.LogErrors)
+            .Map(bulk => data with { SeriesData = bulk.Value.Select(outcome => outcome.Data) });
     }
 
-    private static async Task<Result<StorageData>> AddImageLink(
+    private readonly record struct ImageOutcome(StorageData Data, bool Downloaded);
+
+    // Series with nothing to fetch pass through this step as successes, so the only honest count is
+    // of the ones that actually had an image to download.
+    private static Action<ILogger> LogImageOutcome(
+        BulkResult<ImmutableArray<ImageOutcome>> bulk,
+        int candidates,
+        int total) => logger =>
+    {
+        var downloaded = bulk.Value.Count(outcome => outcome.Downloaded);
+
+        logger.LogInformation(
+            "{Downloaded} of {Candidates} images downloaded, {Failed} series kept without one; {Skipped} of {Total} series had no image to fetch",
+            downloaded, candidates, candidates - downloaded, total - candidates, total);
+    };
+
+    private static async Task<Result<ImageOutcome>> AddImageLink(
         ImageProcessor imageProvider,
         StorageData storageData,
         string targetDirectory,
         CancellationToken cancellationToken)
     {
-        if (storageData is { Image: ScrappedImageUrl scrappedImageUrl, Series.RowKey: not null })
-        {
-            using var activity = Source.StartActivity("Images");
-            return await imageProvider(new ImageProcessData(
-                    IdHelpers.CleanAndFormatAnimeTitle(storageData.Series.RowKey),
-                    targetDirectory,
-                    scrappedImageUrl.Url), cancellationToken)
-                .MarkActivityErroredOnError()
-                .Map(uri => AddUrl(storageData, uri));
-        }
+        if (storageData is not { Image: ScrappedImageUrl scrappedImageUrl, Series.RowKey: not null })
+            return new ImageOutcome(storageData, false);
 
-        return storageData;
+        using var activity = Source.StartActivity("Images");
+        return await imageProvider(new ImageProcessData(
+                IdHelpers.CleanAndFormatAnimeTitle(storageData.Series.RowKey),
+                targetDirectory,
+                scrappedImageUrl.Url), cancellationToken)
+            .MarkActivityErroredOnError()
+            .Map(uri => new ImageOutcome(AddUrl(storageData, uri), true))
+            // A cover that will not download must not cost the series its row in the library.
+            .AddLogOnFailure(error => logger => logger.LogWarning(
+                "Storing {Series} without an image: {Reason}", storageData.Series.Title, error.Message))
+            .BindOnError(_ => new ImageOutcome(storageData, false));
     }
 
 

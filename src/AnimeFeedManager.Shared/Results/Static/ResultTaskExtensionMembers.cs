@@ -232,6 +232,15 @@ public static class ResultTaskExtensionMembers
             => (await resultTask).AddLogOnSuccess(logAction);
 
         /// <summary>
+        /// Adds a log action that will only be executed if the result is a failure.
+        /// Async wrapper for <see cref="ResultExtensionMembers.AddLogOnFailure{T}(Result{T}, Func{DomainError, Action{ILogger}})"/>.
+        /// </summary>
+        /// <param name="logAction">Function that takes the error and returns a log action.</param>
+        /// <returns>The result with the conditionally added log action.</returns>
+        public async Task<Result<T>> AddLogOnFailure(Func<DomainError, Action<ILogger>> logAction)
+            => (await resultTask).AddLogOnFailure(logAction);
+
+        /// <summary>
         /// Adds an "OperationName" property to the trace context.
         /// Async wrapper for <see cref="ResultExtensionMembers.WithOperationName{T}(Result{T}, string)"/>.
         /// </summary>
@@ -249,6 +258,17 @@ public static class ResultTaskExtensionMembers
         /// <returns>The result with the added property.</returns>
         public async Task<Result<T>> WithLogProperty(string key, object value)
             => (await resultTask).WithLogProperty(key, value);
+
+        /// <summary>
+        /// Adds a property derived from the success value to the trace context. On failure the
+        /// selector is not invoked and the result passes through unchanged.
+        /// Async wrapper for <see cref="ResultExtensionMembers.WithLogProperty{T}(Result{T}, string, Func{T, object})"/>.
+        /// </summary>
+        /// <param name="key">The property name.</param>
+        /// <param name="valueSelector">Selector invoked with the success value to produce the property value.</param>
+        /// <returns>The result with the added property when successful, otherwise unchanged.</returns>
+        public async Task<Result<T>> WithLogProperty(string key, Func<T, object> valueSelector)
+            => (await resultTask).WithLogProperty(key, valueSelector);
 
         /// <summary>
         /// Adds multiple properties to the trace context that will be included in the logging scope.

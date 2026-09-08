@@ -141,4 +141,79 @@ public class CollectionExtensionsTests
         Assert.False(success.IsFailure);
         Assert.True(failure.IsFailure);
     }
+
+    #region Trace Context Tests
+
+    [Fact]
+    public void Should_Keep_Log_Actions_Staged_On_Items_When_Flattening()
+    {
+        var logger = new RecordingLogger();
+        var results = new[]
+        {
+            Result<int>.Success(1).AddLogOnSuccess(_ => log => log.LogInformation("first")),
+            Result<int>.Success(2).AddLogOnSuccess(_ => log => log.LogInformation("second"))
+        };
+
+        results.Flatten(items => items.ToList()).FlushLogs(logger);
+
+        Assert.Equal(["first", "second"], logger.Entries);
+    }
+
+    [Fact]
+    public void Should_Keep_Log_Properties_Staged_On_Items_When_Flattening()
+    {
+        var logger = new RecordingLogger();
+        var results = new[]
+        {
+            Result<int>.Success(1)
+                .WithLogProperty("First", "a")
+                .AddLogOnSuccess(_ => log => log.LogInformation("first")),
+            Result<int>.Success(2).WithLogProperty("Second", "b")
+        };
+
+        results.Flatten(items => items.ToList()).FlushLogs(logger);
+
+        Assert.Contains(new KeyValuePair<string, object>("First", "a"), logger.ScopeProperties);
+        Assert.Contains(new KeyValuePair<string, object>("Second", "b"), logger.ScopeProperties);
+    }
+
+    [Fact]
+    public void Should_Keep_Log_Actions_Staged_On_Failed_Items_When_Flattening()
+    {
+        var logger = new RecordingLogger();
+        var results = new[]
+        {
+            Result<int>.Success(1),
+            Result<int>.Failure(NotFoundError.Create("gone"))
+                .AddLogOnFailure(error => log => log.LogWarning("{Message}", error.Message))
+        };
+
+        results.Flatten(items => items.ToList()).FlushLogs(logger);
+
+        Assert.Contains("gone", logger.Entries);
+    }
+
+    #endregion
+
+    #region Test Helpers
+
+    private sealed class RecordingLogger : ILogger
+    {
+        public List<string> Entries { get; } = [];
+        public List<KeyValuePair<string, object>> ScopeProperties { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+        {
+            if (state is IEnumerable<KeyValuePair<string, object>> properties)
+                ScopeProperties.AddRange(properties);
+            return null;
+        }
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
+            Func<TState, Exception?, string> formatter) => Entries.Add(formatter(state, exception));
+    }
+
+    #endregion
 }

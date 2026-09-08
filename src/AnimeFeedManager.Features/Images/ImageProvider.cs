@@ -39,11 +39,23 @@ public class ImageProvider : IImageProvider
     {
         try
         {
-            _logger.LogInformation("Downloading image for {Name} from {RemoteUrl}", data.FileName, data.Url);
+            _logger.LogDebug("Downloading image for {Name} from {RemoteUrl}", data.FileName, data.Url);
             var response = await _httpClient.GetAsync(data.Url, cancellationToken);
             response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            return await Upload(_blobServiceClient, data.FileName, data.TargetDirectory, stream, cancellationToken);
+
+            // Buffered so the logged size is the decompressed payload, and so the blob client gets a
+            // seekable stream it can retry from.
+            var payload = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            using var content = new MemoryStream(payload);
+            var blobUri = await Upload(_blobServiceClient, data.FileName, data.TargetDirectory, content,
+                cancellationToken);
+
+            _logger.LogInformation(
+                "Stored {Bytes} bytes at {BlobPath} for {Name}, served from {RemoteUrl} as {SourceContentType}",
+                payload.Length, blobUri, data.FileName, data.Url,
+                response.Content.Headers.ContentType?.MediaType ?? "an undeclared type");
+
+            return blobUri;
         }
         catch (Exception e)
         {
