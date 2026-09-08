@@ -25,7 +25,7 @@ public static class EventSending
 
 
     private static EventPayload GetErrorPayload(SeasonParameters? parameters) =>
-        new ScrapTvLibraryFailedResult(parameters is not null ? $"{parameters.Year}-{parameters.Season}" : "Latest")
+        new ScrapTvLibraryFailedResult(parameters is not null ? $"{parameters.Year}-{parameters.Season}" : "Current")
             .AsEventPayload();
 
     private static DomainMessage[] GetEvents((ScrapTvLibraryData processData, ScrapTvLibraryResult summary) data)
