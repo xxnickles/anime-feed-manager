@@ -51,6 +51,7 @@
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
     --font-logo: 'Prettier Script', sans-serif;
+    --nav-panel-width: 236px;
   }
 }
 @layer base {
@@ -4947,6 +4948,9 @@
   .w-full {
     width: 100%;
   }
+  .max-w-full {
+    max-width: 100%;
+  }
   .max-w-md {
     max-width: var(--container-md);
   }
@@ -4962,11 +4966,11 @@
   .min-w-12 {
     min-width: calc(var(--spacing) * 12);
   }
-  .min-w-\[95vw\] {
-    min-width: 95vw;
-  }
   .min-w-\[380px\] {
     min-width: 380px;
+  }
+  .min-w-\[calc\(100vw-2rem\)\] {
+    min-width: calc(100vw - 2rem);
   }
   .flex-1 {
     flex: 1;
@@ -5933,6 +5937,14 @@
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     }
   }
+  @media (width < 64rem) {
+    .max-lg\:justify-center {
+      justify-content: center;
+    }
+    .max-lg\:has-\[\#app-shell\.nav-open\]\:overflow-hidden:has(:is(#app-shell.nav-open)) {
+      overflow: hidden;
+    }
+  }
   @media (width < 48rem) {
     .max-md\:h-11 {
       height: calc(var(--spacing) * 11);
@@ -5943,9 +5955,6 @@
     .max-md\:text-3xl {
       font-size: var(--text-3xl);
       line-height: var(--tw-leading, var(--text-3xl--line-height));
-    }
-    .max-md\:has-\[\#app-shell\.nav-open\]\:overflow-hidden:has(:is(#app-shell.nav-open)) {
-      overflow: hidden;
     }
   }
   @media (width >= 40rem) {
@@ -5963,12 +5972,6 @@
     }
   }
   @media (width >= 48rem) {
-    .md\:sticky {
-      position: sticky;
-    }
-    .md\:top-0 {
-      top: 0px;
-    }
     .md\:mt-1\.5 {
       margin-top: calc(var(--spacing) * 1.5);
     }
@@ -5990,17 +5993,11 @@
     .md\:h-9 {
       height: calc(var(--spacing) * 9);
     }
-    .md\:h-screen {
-      height: 100vh;
-    }
     .md\:w-44 {
       width: calc(var(--spacing) * 44);
     }
     .md\:w-48 {
       width: calc(var(--spacing) * 48);
-    }
-    .md\:w-\[236px\] {
-      width: 236px;
     }
     .md\:w-auto {
       width: auto;
@@ -6016,10 +6013,6 @@
     }
     .md\:shrink-0 {
       flex-shrink: 0;
-    }
-    .md\:translate-x-0 {
-      --tw-translate-x: 0px;
-      translate: var(--tw-translate-x) var(--tw-translate-y);
     }
     .md\:flex-col {
       flex-direction: column;
@@ -6038,13 +6031,6 @@
       margin-inline-start: calc(var(--spacing) * var(--tw-space-x-reverse));
       margin-inline-end: calc(var(--spacing) * calc(1 - var(--tw-space-x-reverse)));
     }
-    .md\:self-start {
-      align-self: flex-start;
-    }
-    .md\:border-r {
-      border-right-style: var(--tw-border-style);
-      border-right-width: 1px;
-    }
     .md\:border-r-2 {
       border-right-style: var(--tw-border-style);
       border-right-width: 2px;
@@ -6052,9 +6038,6 @@
     .md\:border-b-0 {
       border-bottom-style: var(--tw-border-style);
       border-bottom-width: 0px;
-    }
-    .md\:border-base-300 {
-      border-color: var(--color-base-300);
     }
     .md\:px-5 {
       padding-inline: calc(var(--spacing) * 5);
@@ -6085,16 +6068,48 @@
     }
   }
   @media (width >= 64rem) {
+    .lg\:sticky {
+      position: sticky;
+    }
+    .lg\:top-0 {
+      top: 0px;
+    }
+    .lg\:hidden {
+      display: none;
+    }
+    .lg\:h-screen {
+      height: 100vh;
+    }
+    .lg\:w-\(--nav-panel-width\) {
+      width: var(--nav-panel-width);
+    }
     .lg\:min-w-\[25vw\] {
       min-width: 25vw;
+    }
+    .lg\:shrink-0 {
+      flex-shrink: 0;
+    }
+    .lg\:translate-x-0 {
+      --tw-translate-x: 0px;
+      translate: var(--tw-translate-x) var(--tw-translate-y);
+    }
+    .lg\:self-start {
+      align-self: flex-start;
+    }
+    .lg\:border-r {
+      border-right-style: var(--tw-border-style);
+      border-right-width: 1px;
+    }
+    .lg\:border-base-300 {
+      border-color: var(--color-base-300);
     }
   }
   .nav-open .\[\.nav-open_\&\]\:translate-x-0 {
     --tw-translate-x: 0px;
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
-  @media (width < 48rem) {
-    body.htmx-swapping .max-md\:\[body\.htmx-swapping_\&\]\:-translate-x-full\! {
+  @media (width < 64rem) {
+    body.htmx-swapping .max-lg\:\[body\.htmx-swapping_\&\]\:-translate-x-full\! {
       --tw-translate-x: -100% !important;
       translate: var(--tw-translate-x) var(--tw-translate-y) !important;
     }
@@ -6161,6 +6176,15 @@
 #toast-panel {
   view-transition-name: toast-panel;
   view-transition-class: vt-none;
+}
+@media (width >= 64rem) {
+  #toast-panel {
+    --toast-x: 0;
+    inset-inline: calc(var(--nav-panel-width) + 1rem) 1rem;
+    width: auto;
+    max-width: none;
+    align-items: center;
+  }
 }
 #toast-panel > *.toast-settled {
   animation: none;

@@ -66,7 +66,7 @@ internal static class LibraryManagement
                 ],
                 error =>
                 [
-                    Notifications.CreateErrorToast("Alternative Titles", error)
+                    Notifications.CreateErrorToast("Remove Series", error)
                 ]);
     }
 }

@@ -13,7 +13,7 @@
 else
 {
 <!DOCTYPE html>
-<html lang="en" class="scroll-pt-16 max-md:has-[#app-shell.nav-open]:overflow-hidden">
+<html lang="en" class="scroll-pt-16 max-lg:has-[#app-shell.nav-open]:overflow-hidden">
 
 <head>
     <meta charset="utf-8"/>
@@ -93,7 +93,7 @@ else
     <title>Anime Feed Manager</title>
 </head>
 
-<body class="bg-base-100 min-h-screen min-w-[380px] max-md:has-[#app-shell.nav-open]:overflow-hidden"
+<body class="bg-base-100 min-h-screen min-w-[380px] max-lg:has-[#app-shell.nav-open]:overflow-hidden"
       hx-boost:inherited="true"
       signalr-connect="@SignalROptions.Value.Endpoint"
 >
@@ -108,7 +108,7 @@ else
 
 <daisy-htmx-alerts attach-to="#toast-panel"></daisy-htmx-alerts>
 <HtmxConfirm></HtmxConfirm>
-<div id="toast-panel" class="toast toast-center z-30 isolate" hx-preserve
+<div id="toast-panel" class="toast toast-center z-50 isolate" hx-preserve
      _="on animationend add .toast-settled to target"></div>
 @* <script src="_framework/blazor.web.js"></script> *@
 </body>

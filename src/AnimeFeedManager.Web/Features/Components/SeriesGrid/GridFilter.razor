@@ -1,7 +1,10 @@
 @* Inline filter bar for filtering series by status.
    Dispatches filterChanged(filter, label) on body when a filter is picked.
    SeriesGrid listens and updates its data-filter attribute. *@
-<ul class="menu menu-horizontal menu-sm flex-nowrap gap-1 overflow-x-auto bg-base-200 rounded-box">
+@* max-w-full/min-w-0 clamp daisyUI's `.menu { width: fit-content }`, which otherwise sizes the bar
+   to its buttons and overruns the card column into document-level horizontal scroll. Capped, the
+   bar matches the card width and scrolls its own overflow instead. *@
+<ul class="menu menu-horizontal menu-sm flex-nowrap gap-1 min-w-0 max-w-full overflow-x-auto bg-base-200 rounded-box">
     <li>
         <button type="button" class="menu-active gap-1.5"
                 _="on click

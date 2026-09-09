@@ -88,6 +88,9 @@
 @theme {
     --font-sans: 'SF Mono', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-logo: 'Prettier Script', sans-serif;
+    /* Width of #nav-panel once it becomes a persistent sidebar at lg. Shared with #toast-panel,
+       which offsets by it to stay inside the content column. */
+    --nav-panel-width: 236px;
 }
 
 @layer base {
@@ -163,6 +166,20 @@ label:has(.invalid) {
 #toast-panel {
     view-transition-name: toast-panel;
     view-transition-class: vt-none;
+}
+
+/* At lg+ #nav-panel is a persistent sidebar stacked above the toasts. daisyUI's .toast-center
+   centers on the viewport, so the panel's left half sits under the nav and wide toasts get
+   clipped by it; anchor the panel to the content column instead. Unlayered, so it beats
+   daisyUI's utility-layer .toast rules regardless of source order. */
+@media (width >= 64rem) {
+    #toast-panel {
+        --toast-x: 0;
+        inset-inline: calc(var(--nav-panel-width) + 1rem) 1rem;
+        width: auto;
+        max-width: none;
+        align-items: center;
+    }
 }
 
 /* daisyUI plays a 0.25s entrance animation on every direct child of .toast. That's wanted once per
