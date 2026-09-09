@@ -54,7 +54,7 @@ on submit
     set submitBtn's disabled to false
     remove .btn-disabled from submitBtn
     add @hidden to spinner
-    set label's textContent to 'Login'
+    set label's textContent to 'Continue with passkey'
     if result.unauthorized
       remove @hidden from unauthBox
     else

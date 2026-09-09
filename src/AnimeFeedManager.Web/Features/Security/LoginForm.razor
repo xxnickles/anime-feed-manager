@@ -5,18 +5,22 @@
           hx-trigger="loginComplete"
           class="card-body"
           _="@Script">
-    <fieldset class="form-control">
-        <label class="floating-label" for="email-input">
-            <input
-                id="email-input"
-                data-passkey-alias-input
-                required
-                type="email"
-                placeholder="Enter your email"
-                class="input input-bordered"/>
+    <div>
+        <h1 class="text-xl font-semibold">Sign in</h1>
+        <p class="mt-1 text-sm text-base-content/70">Enter the email you registered with; your device will confirm it with a passkey.</p>
+    </div>
 
-            <span class="label-text">Email</span>
+    <fieldset class="form-control mt-4">
+        <label class="label" for="email-input">
+            <span class="label-text font-semibold">Email</span>
         </label>
+        <input
+            id="email-input"
+            data-passkey-alias-input
+            required
+            type="email"
+            placeholder="you@example.com"
+            class="input input-bordered w-full"/>
 
         <div data-passkey-inline-error hidden class="label">
             <span class="label-text-alt text-error">Please check your email and try again</span>
@@ -33,8 +37,12 @@
     <fieldset class="form-control mt-6">
         <button type="submit" class="btn btn-primary" data-passkey-submit>
             <span data-passkey-submit-spinner hidden class="loading loading-spinner loading-sm"></span>
-            <span data-passkey-submit-label>Login</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-4" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.03 5.91l-2.15 2.15H10.5v2.25H8.25v2.25H4.5v-2.82a1 1 0 0 1 .3-.7l6.27-6.27A6 6 0 1 1 21.75 8.25Z"/>
+            </svg>
+            <span data-passkey-submit-label>Continue with passkey</span>
         </button>
+        <p class="mt-2 text-xs text-base-content/60">Your browser will ask for Face ID, Touch ID, Windows Hello or a security key.</p>
     </fieldset>
 
     <div data-passkey-error hidden class="alert alert-error mt-4" role="alert">
@@ -69,6 +77,8 @@
             <span>@ErrorMessage</span>
         </div>
     }
+
+    <p class="mt-2 text-sm text-base-content/70">New here? <NavLink class="link link-primary font-semibold" href="/register">Create an account</NavLink></p>
 </EditForm>
 
 @code {
