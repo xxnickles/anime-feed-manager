@@ -1,16 +1,16 @@
 ﻿<div
     role="alert"
-    class="alert shadow-lg transition-opacity duration-500 min-w-[calc(100vw-2rem)] md:min-w-[50vw] lg:min-w-[25vw] alert-vertical sm:alert-horizontal @GetAlertTypeClass()"
+    class="alert shadow-lg transition-opacity duration-500 w-[min(92vw,32rem)] alert-vertical sm:alert-horizontal @GetAlertTypeClass()"
     data-close-seconds="@((int) CloseTime.TotalSeconds)"
     _="@Script"
 >
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-         class="stroke-current hidden md:block shrink-0 w-6 h-6">
+         class="stroke-current shrink-0 w-6 h-6">
         @Icons[Type]
     </svg>
 
     <section class="flex-1">
-        <h3 class="font-bold contents">@Title</h3>
+        <h3 class="font-bold">@Title</h3>
         <p class="text-xs">@Message</p>
     </section>
 

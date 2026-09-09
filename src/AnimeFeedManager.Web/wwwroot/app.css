@@ -3609,13 +3609,10 @@
     inset: 0px;
   }
   @layer daisyui.l1.l2 {
-    .toast-center {
-      inset-inline-start: calc(1/2 * 100%);
-      inset-inline-end: calc(1/2 * 100%);
-      --toast-x: -50%;
-    }
-    .toast-center:dir(rtl) {
-      --toast-x: 50%;
+    .toast-start {
+      inset-inline-start: calc(0.25rem * 4);
+      inset-inline-end: auto;
+      --toast-x: 0;
     }
     .dropdown-end {
       --anchor-h: span-inline-start;
@@ -4788,6 +4785,9 @@
   .w-60 {
     width: calc(var(--spacing) * 60);
   }
+  .w-\[min\(92vw\,32rem\)\] {
+    width: min(92vw, 32rem);
+  }
   .w-auto {
     width: auto;
   }
@@ -4817,9 +4817,6 @@
   }
   .min-w-\[380px\] {
     min-width: 380px;
-  }
-  .min-w-\[calc\(100vw-2rem\)\] {
-    min-width: calc(100vw - 2rem);
   }
   .flex-1 {
     flex: 1;
@@ -4937,14 +4934,14 @@
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
-  .grid-cols-\[repeat\(auto-fill\,minmax\(320px\,1fr\)\)\] {
-    grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
+  .grid-cols-\[repeat\(auto-fill\,minmax\(min\(320px\,100\%\)\,1fr\)\)\] {
+    grid-template-columns: repeat(auto-fill,minmax(min(320px, 100%),1fr));
   }
-  .grid-cols-\[repeat\(auto-fit\,minmax\(300px\,0\.9fr\)\)\] {
-    grid-template-columns: repeat(auto-fit,minmax(300px,0.9fr));
+  .grid-cols-\[repeat\(auto-fit\,minmax\(min\(300px\,100\%\)\,0\.9fr\)\)\] {
+    grid-template-columns: repeat(auto-fit,minmax(min(300px, 100%),0.9fr));
   }
-  .grid-cols-\[repeat\(auto-fit\,minmax\(300px\,1fr\)\)\] {
-    grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
+  .grid-cols-\[repeat\(auto-fit\,minmax\(min\(300px\,100\%\)\,1fr\)\)\] {
+    grid-template-columns: repeat(auto-fit,minmax(min(300px, 100%),1fr));
   }
   .grid-cols-\[repeat\(auto-fit\,minmax\(min\(420px\,100\%\)\,1fr\)\)\] {
     grid-template-columns: repeat(auto-fit,minmax(min(420px, 100%),1fr));
@@ -5866,9 +5863,6 @@
     .md\:max-w-sm {
       max-width: var(--container-sm);
     }
-    .md\:min-w-\[50vw\] {
-      min-width: 50vw;
-    }
     .md\:shrink-0 {
       flex-shrink: 0;
     }
@@ -5938,9 +5932,6 @@
     }
     .lg\:w-\(--nav-panel-width\) {
       width: var(--nav-panel-width);
-    }
-    .lg\:min-w-\[25vw\] {
-      min-width: 25vw;
     }
     .lg\:shrink-0 {
       flex-shrink: 0;
@@ -6039,7 +6030,7 @@
     inset-inline: calc(var(--nav-panel-width) + 1rem) 1rem;
     width: auto;
     max-width: none;
-    align-items: center;
+    align-items: flex-start;
   }
 }
 #toast-panel > *.toast-settled {

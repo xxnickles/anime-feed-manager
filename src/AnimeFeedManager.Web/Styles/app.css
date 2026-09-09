@@ -168,17 +168,17 @@ label:has(.invalid) {
     view-transition-class: vt-none;
 }
 
-/* At lg+ #nav-panel is a persistent sidebar stacked above the toasts. daisyUI's .toast-center
-   centers on the viewport, so the panel's left half sits under the nav and wide toasts get
-   clipped by it; anchor the panel to the content column instead. Unlayered, so it beats
-   daisyUI's utility-layer .toast rules regardless of source order. */
+/* At lg+ #nav-panel is a persistent sidebar stacked above the toasts. daisyUI's .toast-start
+   anchors 1rem from the viewport edge, which lands under the nav; anchor the panel to the
+   content column instead. Unlayered, so it beats daisyUI's utility-layer .toast rules
+   regardless of source order. */
 @media (width >= 64rem) {
     #toast-panel {
         --toast-x: 0;
         inset-inline: calc(var(--nav-panel-width) + 1rem) 1rem;
         width: auto;
         max-width: none;
-        align-items: center;
+        align-items: flex-start;
     }
 }
 

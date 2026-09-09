@@ -22,7 +22,7 @@
                 @foreach (var season in _seasons.Where(s => s.Season.StartsWith($"{year}-")))
                 {
                     <h2 class="text-2xl font-bold pt-6 pb-2">@FormatSeason(season.Season)</h2>
-                    <section class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 py-4">
+                    <section class="grid grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-6 py-4">
                         @foreach (var notification in season.Series)
                         {
                             <article class="card bg-base-100 shadow-sm row-span-2 grid grid-rows-subgrid">
