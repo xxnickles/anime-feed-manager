@@ -168,6 +168,16 @@ label:has(.invalid) {
     view-transition-class: vt-none;
 }
 
+#nav-panel {
+    view-transition-name: nav-panel;
+    view-transition-class: vt-none;
+}
+
+#top-bar {
+    view-transition-name: top-bar;
+    view-transition-class: vt-none;
+}
+
 /* At lg+ #nav-panel is a persistent sidebar stacked above the toasts. daisyUI's .toast-start
    anchors 1rem from the viewport edge, which lands under the nav; anchor the panel to the
    content column instead. Unlayered, so it beats daisyUI's utility-layer .toast rules
@@ -198,6 +208,9 @@ daisy-htmx-alerts {
     view-transition-class: vt-none;
 }
 
+/* -group carries position/size; without it a sticky or fixed element whose captured geometry
+   differs between the two states slides, even with the cross-fade suppressed. */
+::view-transition-group(.vt-none),
 ::view-transition-old(.vt-none),
 ::view-transition-new(.vt-none) {
     animation: none;

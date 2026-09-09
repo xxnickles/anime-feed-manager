@@ -6024,6 +6024,14 @@
   view-transition-name: toast-panel;
   view-transition-class: vt-none;
 }
+#nav-panel {
+  view-transition-name: nav-panel;
+  view-transition-class: vt-none;
+}
+#top-bar {
+  view-transition-name: top-bar;
+  view-transition-class: vt-none;
+}
 @media (width >= 64rem) {
   #toast-panel {
     --toast-x: 0;
@@ -6040,7 +6048,7 @@ daisy-htmx-alerts {
   view-transition-name: daisy-alerts;
   view-transition-class: vt-none;
 }
-::view-transition-old(.vt-none), ::view-transition-new(.vt-none) {
+::view-transition-group(.vt-none), ::view-transition-old(.vt-none), ::view-transition-new(.vt-none) {
   animation: none;
 }
 @media (prefers-reduced-motion: no-preference) {

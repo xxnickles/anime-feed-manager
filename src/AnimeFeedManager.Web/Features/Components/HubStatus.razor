@@ -1,6 +1,10 @@
-<div role="status"
+@* Preserved across navigation: the server always renders the "connecting" state, so a fresh
+   element would re-fade to the live colour on every swap. *@
+<div id="hub-status"
+     role="status"
      aria-live="polite"
      aria-atomic="true"
+     hx-preserve
      _="@Script">
 
   <!-- Icon-only status indicator with tooltip and accessible name -->
