@@ -1,0 +1,47 @@
+@* Renders <li> items directly into SideMenu's list. Active season comes from NavLink:
+   boosted navigation re-renders the whole shell server-side, so no client-side sync is needed. *@
+@using AnimeFeedManager.Features.Seasons.Queries
+@using AnimeFeedManager.Features.Seasons.Storage
+@inject ITableClientFactory TableClientFactory
+@inject ILogger<SeasonNavLinks> Logger;
+
+@if (_seasons.Length > 0)
+{
+    <li class="max-lg:text-center px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-base-content/50">
+        Recent seasons
+    </li>
+    @foreach (var season in _seasons)
+    {
+        <li>
+            <NavLink href="@GetLink(season)" Match="NavLinkMatch.All"
+                     ActiveClass="bg-primary/10 text-primary font-semibold"
+                     class="max-lg:justify-center flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content"
+                     hx-swap="outerHTML swap:300ms">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="size-5 shrink-0">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M3 5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25v9.5A2.25 2.25 0 0 1 18.75 17H5.25A2.25 2.25 0 0 1 3 14.75v-9.5ZM8.25 21h7.5M12 17v4"/>
+                </svg>
+                @* Season.ToString() is the lowercase backing value. *@
+                <span class="capitalize">@season.Season.ToString() @season.Year.ToString()</span>
+            </NavLink>
+        </li>
+    }
+}
+
+@code {
+
+    private ImmutableArray<SeriesSeason> _seasons = ImmutableArray<SeriesSeason>.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SeasonQueries
+            .GetLast4Seasons(TableClientFactory.TableStorageLatest4SeasonsGetter(Logger), CancellationToken.None)
+            .FlushLogs(Logger)
+            .Match(seasons => { _seasons = seasons; },
+                _ => { _seasons = []; });
+    }
+
+    private static string GetLink(SeriesSeason season) => $"{season.Season}-{season.Year}/{SeriesType.Tv.AsPlural()}";
+
+}
