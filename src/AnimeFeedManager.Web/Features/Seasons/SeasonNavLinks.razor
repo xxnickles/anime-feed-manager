@@ -37,6 +37,10 @@
     {
         await SeasonQueries
             .GetLast4Seasons(TableClientFactory.TableStorageLatest4SeasonsGetter(Logger), CancellationToken.None)
+            .Map(seasons => seasons
+                .OrderByDescending(season => season.Year)
+                .ThenByDescending(season => season.Season)
+                .ToImmutableArray())
             .FlushLogs(Logger)
             .Match(seasons => { _seasons = seasons; },
                 _ => { _seasons = []; });
