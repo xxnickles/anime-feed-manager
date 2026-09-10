@@ -8,7 +8,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 
-<SeasonLinks SelectedSeason="Season"></SeasonLinks>
+<SeriesSummary Season="Season" FilterCounters="_filterCounters"></SeriesSummary>
 @if (_series.Length > 0)
 {
     <SeriesGrid IsAuthenticated="@(_user is AuthenticatedUser)" FilterCounters="_filterCounters">

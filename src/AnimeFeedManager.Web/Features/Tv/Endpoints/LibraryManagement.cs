@@ -52,7 +52,7 @@ internal static class LibraryManagement
                 clientFactory.TableStorageTvSeriesRemover, token))
             .Map(result =>
             {
-                context.Response.HxTriggerAfterSwap(
+                context.Response.HxTrigger(
                     new RemoveSeriesTrigger(new RemoveSeriesEvent(viewModel.CardId)),
                     TvEndpointJsonContext.Default.RemoveSeriesTrigger);
                 return result;
@@ -66,7 +66,7 @@ internal static class LibraryManagement
                 ],
                 error =>
                 [
-                    Notifications.CreateErrorToast("Alternative Titles", error)
+                    Notifications.CreateErrorToast("Remove Series", error)
                 ]);
     }
 }

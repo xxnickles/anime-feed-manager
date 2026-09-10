@@ -36,32 +36,37 @@ else
               hx-indicator="#registration-loader"
               class="card-body">
 
-        <fieldset class="form-control">
-            <label class="floating-label validator" for="email-input">
-                <InputText
-                    id="email-input"
-                    name="@nameof(Model.Email)"
-                    @bind-Value="Model.Email"
-                    required
-                    type="email"
-                    placeholder="Enter your email"
-                    class="@($"input input-bordered w-full {(HasError ? "input-error" : "")}")"/>
-                <span class="label-text">Email</span>
+        <div>
+            <h1 class="text-xl font-semibold">Create your account</h1>
+            <p class="mt-1 text-sm text-base-content/70">We'll email you a one-time link to set up a passkey.</p>
+        </div>
+
+        <fieldset class="form-control mt-4">
+            <label class="label" for="email-input">
+                <span class="label-text font-semibold">Email</span>
             </label>
+            <InputText
+                id="email-input"
+                name="@nameof(Model.Email)"
+                @bind-Value="Model.Email"
+                required
+                type="email"
+                placeholder="you@example.com"
+                class="@($"input input-bordered w-full {(HasError ? "input-error" : "")}")"/>
         </fieldset>
 
         <fieldset class="form-control mt-4">
-            <label class="floating-label validator" for="display-name-input">
-                <InputText
-                    id="display-name-input"
-                    name="@nameof(Model.DisplayName)"
-                    @bind-Value="Model.DisplayName"
-                    required
-                    minlength="2"
-                    placeholder="Enter your display name"
-                    class="@($"input input-bordered w-full {(HasError ? "input-error" : "")}")"/>
-                <span class="label-text">Display Name</span>
+            <label class="label" for="display-name-input">
+                <span class="label-text font-semibold">Display name</span>
             </label>
+            <InputText
+                id="display-name-input"
+                name="@nameof(Model.DisplayName)"
+                @bind-Value="Model.DisplayName"
+                required
+                minlength="2"
+                placeholder="How we'll greet you"
+                class="@($"input input-bordered w-full {(HasError ? "input-error" : "")}")"/>
         </fieldset>
 
         <fieldset class="form-control mt-6">
@@ -83,10 +88,7 @@ else
             </div>
         }
 
-        <div class="text-center mt-4">
-            <span class="text-sm">Already have an account? </span>
-            <a class="link link-primary text-sm font-semibold" href="/login">Login</a>
-        </div>
+        <p class="mt-2 text-sm text-base-content/70">Already have an account? <a class="link link-primary font-semibold" href="/login">Login</a></p>
     </EditForm>
 }
 

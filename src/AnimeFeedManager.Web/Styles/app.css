@@ -34,10 +34,10 @@
     --color-neutral-content: #fffdf7;
     --color-info: #a7d8ff;
     --color-info-content: #1b1b1b;
-    --color-success: #c9f07a;
-    --color-success-content: #1b1b1b;
-    --color-warning: #ffd23f;
-    --color-warning-content: #1b1b1b;
+    --color-success: #15803d;
+    --color-success-content: #fffdf7;
+    --color-warning: #a16207;
+    --color-warning-content: #fffdf7;
     --color-error: #ff3d3d;
     --color-error-content: #1b1b1b;
     --radius-selector: 1rem;
@@ -88,6 +88,9 @@
 @theme {
     --font-sans: 'SF Mono', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-logo: 'Prettier Script', sans-serif;
+    /* Width of #nav-panel once it becomes a persistent sidebar at lg. Shared with #toast-panel,
+       which offsets by it to stay inside the content column. */
+    --nav-panel-width: 236px;
 }
 
 @layer base {
@@ -165,6 +168,30 @@ label:has(.invalid) {
     view-transition-class: vt-none;
 }
 
+#nav-panel {
+    view-transition-name: nav-panel;
+    view-transition-class: vt-none;
+}
+
+#top-bar {
+    view-transition-name: top-bar;
+    view-transition-class: vt-none;
+}
+
+/* At lg+ #nav-panel is a persistent sidebar stacked above the toasts. daisyUI's .toast-start
+   anchors 1rem from the viewport edge, which lands under the nav; anchor the panel to the
+   content column instead. Unlayered, so it beats daisyUI's utility-layer .toast rules
+   regardless of source order. */
+@media (width >= 64rem) {
+    #toast-panel {
+        --toast-x: 0;
+        inset-inline: calc(var(--nav-panel-width) + 1rem) 1rem;
+        width: auto;
+        max-width: none;
+        align-items: flex-start;
+    }
+}
+
 /* daisyUI plays a 0.25s entrance animation on every direct child of .toast. That's wanted once per
    toast, but #toast-panel is hx-preserve'd across navigation, and browsers without the native
    Element.moveBefore() API fall back to insertBefore (remove+reinsert semantics), which restarts
@@ -181,6 +208,9 @@ daisy-htmx-alerts {
     view-transition-class: vt-none;
 }
 
+/* -group carries position/size; without it a sticky or fixed element whose captured geometry
+   differs between the two states slides, even with the cross-fade suppressed. */
+::view-transition-group(.vt-none),
 ::view-transition-old(.vt-none),
 ::view-transition-new(.vt-none) {
     animation: none;

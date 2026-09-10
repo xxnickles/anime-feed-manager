@@ -2,9 +2,20 @@
 
 <AppPageTitle Title="@PageTitle("Login")" />
 
-<section class="mx-auto flex w-full max-w-sm flex-col items-center pt-8">
-    <article class="card w-full bg-base-100 shadow-sm">
-        <LoginForm Model="new LoginViewModel { ReturnUrl = ReturnUrl }" />
+<section class="flex w-full flex-1 flex-col items-center justify-center bg-base-100 px-4 py-10 min-h-[calc(100vh-4rem)]">
+    <article class="card w-full max-w-sm md:max-w-[600px] md:flex-row bg-base-200 border-base-300 card-border shadow-sm overflow-hidden">
+        <aside class="relative flex flex-row md:flex-col items-center md:items-stretch justify-between gap-2 md:gap-0 border-b-2 border-dashed border-primary-content/30 bg-primary px-4 py-3 text-primary-content md:w-44 md:shrink-0 md:border-b-0 md:border-r-2 md:px-5 md:py-6">
+            <span class="absolute -right-[9px] -top-[9px] hidden size-[18px] rounded-full bg-base-100 md:block" aria-hidden="true"></span>
+            <span class="absolute -bottom-[9px] -right-[9px] hidden size-[18px] rounded-full bg-base-100 md:block" aria-hidden="true"></span>
+            <div class="flex items-baseline gap-2 md:block">
+                <span class="text-[10px] font-bold uppercase tracking-[0.12em] opacity-75">Admit one</span>
+                <span class="block text-base font-semibold leading-tight md:mt-1.5 md:text-lg">Welcome back</span>
+            </div>
+            <span class="hidden text-[10px] uppercase tracking-[0.1em] opacity-70 md:block">Passkey only</span>
+        </aside>
+        <div class="min-w-0 flex-1">
+            <LoginForm Model="new LoginViewModel { ReturnUrl = ReturnUrl }" />
+        </div>
     </article>
 </section>
 

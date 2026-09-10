@@ -104,53 +104,22 @@ internal static class HtmxResponseExtensionMembers
         => response.Headers["HX-Refresh"] = "true";
 
     // ── Event Triggering ──────────────────────────────────────────────
+    // htmx 4 reads only HX-Trigger; the After-Swap and After-Settle variants were removed.
 
     /// <summary>
-    /// Triggers a client-side event immediately when the response is received
-    /// (before the DOM swap). Listeners can use <c>htmx:trigger</c> or
-    /// standard DOM event listeners to react.
+    /// Triggers a client-side event once the request settles, after the swap.
+    /// Comma-separate to fire several events.
     /// </summary>
     public static void HxTrigger(this HttpResponse response, string eventName)
         => response.Headers["HX-Trigger"] = eventName;
 
     /// <summary>
-    /// Triggers one or more client-side events with detail data immediately
-    /// when the response is received (before the DOM swap).
-    /// Each dictionary entry becomes an event; the value is accessible via <c>evt.detail</c>.
+    /// Triggers one or more client-side events carrying detail data, once the request settles.
+    /// Each property becomes an event whose value lands on <c>evt.detail</c>.
+    /// Events dispatch on the requesting element and bubble, so listeners may sit on an
+    /// ancestor; a <c>target</c> key in the detail redirects dispatch to that CSS selector.
     /// Callers provide a <see cref="JsonTypeInfo{T}"/> from a source-generated context.
     /// </summary>
     public static void HxTrigger<T>(this HttpResponse response, T events, JsonTypeInfo<T> typeInfo)
         => response.Headers["HX-Trigger"] = JsonSerializer.Serialize(events, typeInfo);
-
-    /// <summary>
-    /// Triggers a client-side event after the DOM swap has completed.
-    /// Useful for running logic that depends on the new content being in the DOM.
-    /// </summary>
-    public static void HxTriggerAfterSwap(this HttpResponse response, string eventName)
-        => response.Headers["HX-Trigger-After-Swap"] = eventName;
-
-    /// <summary>
-    /// Triggers one or more client-side events with detail data after the DOM swap
-    /// has completed. Each dictionary entry becomes an event; the value is accessible
-    /// via <c>evt.detail</c>.
-    /// Callers provide a <see cref="JsonTypeInfo{T}"/> from a source-generated context.
-    /// </summary>
-    public static void HxTriggerAfterSwap<T>(this HttpResponse response, T events, JsonTypeInfo<T> typeInfo)
-        => response.Headers["HX-Trigger-After-Swap"] = JsonSerializer.Serialize(events, typeInfo);
-
-    /// <summary>
-    /// Triggers a client-side event after the settle phase (CSS transitions complete).
-    /// Useful for animations or focus management that depend on the final DOM state.
-    /// </summary>
-    public static void HxTriggerAfterSettle(this HttpResponse response, string eventName)
-        => response.Headers["HX-Trigger-After-Settle"] = eventName;
-
-    /// <summary>
-    /// Triggers one or more client-side events with detail data after the settle phase
-    /// (CSS transitions complete). Each dictionary entry becomes an event; the value is
-    /// accessible via <c>evt.detail</c>.
-    /// Callers provide a <see cref="JsonTypeInfo{T}"/> from a source-generated context.
-    /// </summary>
-    public static void HxTriggerAfterSettle<T>(this HttpResponse response, T events, JsonTypeInfo<T> typeInfo)
-        => response.Headers["HX-Trigger-After-Settle"] = JsonSerializer.Serialize(events, typeInfo);
 }

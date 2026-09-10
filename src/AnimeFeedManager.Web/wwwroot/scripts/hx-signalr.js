@@ -81,6 +81,16 @@ filterValues/withExtensions surface, none of which exist in htmx 4.
             return;
         }
 
+        // signalr-connect lives on <body>, which boost's outerSync keeps and re-processes, so
+        // htmx_before_process reaches this element again on every navigation. Keep the live
+        // connection: recreating it orphans the previous socket and replays the whole
+        // starting -> start event sequence at every page change.
+        var existingConnection = hubElt._htmx?.HubConnection;
+        if (existingConnection != undefined &&
+            existingConnection.state !== signalR.HubConnectionState.Disconnected) {
+            return;
+        }
+
         // Get the source straight from the element's value
         var signalrHubUrl = api.attributeValue(hubElt, signalRConnect);
 

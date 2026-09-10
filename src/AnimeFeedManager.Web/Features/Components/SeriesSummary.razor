@@ -1,0 +1,23 @@
+@* Page header for a season's series listing. Carries the season because it is the only
+   in-content statement of it, and the sidebar that also shows it is off-canvas below lg.
+   Counts stay minimal: GridFilter badges every counter right underneath. *@
+<div class="px-4 md:px-10 pt-4 md:pt-6 pb-2">
+    <h1 class="text-2xl md:text-3xl font-bold tracking-tight">@SeriesType.Tv.AsPlural().ToUpperInvariant() series</h1>
+    <p class="mt-1 text-sm text-base-content/60">
+        @* capitalize is scoped to the season alone: Season.ToString() is the lowercase backing
+           value, and widening it would also capitalize "titles". *@
+        <span class="capitalize">@Season.Season.ToString()</span> @Season.Year.ToString() · @FilterCounters.Total @(FilterCounters.Total == 1 ? "title" : "titles")
+    </p>
+    <NavLink href="seasons" class="btn btn-sm btn-outline mt-3 lg:hidden">
+        All seasons
+    </NavLink>
+</div>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public SeriesSeason Season { get; set; } = new(Shared.Types.Season.Current, Year.Current);
+
+    [Parameter, EditorRequired] public FilterCounters FilterCounters { get; set; }
+
+}

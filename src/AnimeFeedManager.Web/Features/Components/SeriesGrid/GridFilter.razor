@@ -1,92 +1,94 @@
-@* Inline filter dropdown for filtering series by status.
+@* Inline filter bar for filtering series by status.
    Dispatches filterChanged(filter, label) on body when a filter is picked.
    SeriesGrid listens and updates its data-filter attribute. *@
-<details class="dropdown dropdown-end"
-         _="on click elsewhere remove @@open from me">
-    <summary class="btn btn-soft btn-sm"
-             aria-haspopup="true"
-             aria-label="Filter series">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-        </svg>
-        <span _="on filterChanged(label) from body put (label or 'Filter') into me">Filter</span>
-    </summary>
-    <ul class="dropdown-content menu bg-base-100 rounded-box shadow-xl w-52 p-2 z-10"
-        _="on filterChanged(filter) from body
-             repeat for ic in <.filter-check/> in me
-               if ic's @@data-filter is (filter or '')
-                 remove @@hidden from ic
-               else
-                 add @@hidden to ic
-               end
-             end">
+@* max-w-full/min-w-0 clamp daisyUI's `.menu { width: fit-content }`, which otherwise sizes the bar
+   to its buttons and overruns the card column into document-level horizontal scroll. Capped, the
+   bar matches the card width and scrolls its own overflow instead. *@
+<ul class="menu menu-horizontal menu-sm flex-nowrap gap-1 min-w-0 max-w-full overflow-x-auto bg-base-200 rounded-box">
+    <li>
+        <button type="button" class="menu-active gap-1.5"
+                _="on click
+                     remove .menu-active from <button/> in the closest <ul/>
+                     add .menu-active to me
+                     send filterChanged(filter: '', label: 'Filter') to body">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+            </svg>
+            <span class="hidden md:inline">All</span>
+            <span class="badge badge-xs">@FilterCounters.Total</span>
+        </button>
+    </li>
+    <li>
+        <button type="button" class="gap-1.5"
+                _="on click
+                     remove .menu-active from <button/> in the closest <ul/>
+                     add .menu-active to me
+                     send filterChanged(filter: 'available', label: 'Available') to body">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+            </svg>
+            <span class="hidden md:inline">Available</span>
+            <span class="badge badge-xs">@FilterCounters.Available</span>
+        </button>
+    </li>
+    @if (IsAuthenticated)
+    {
         <li>
-            <button type="button"
+            <button type="button" class="gap-1.5"
                     _="on click
-                         send filterChanged(filter: '', label: 'Filter') to body
-                         remove @@open from the closest <details/>">
-                @CheckIcon("", initialSelected: true)
-                All (@FilterCounters.Total)
+                         remove .menu-active from <button/> in the closest <ul/>
+                         add .menu-active to me
+                         send filterChanged(filter: 'subscribed', label: 'Subscribed') to body">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
+                </svg>
+                <span class="hidden md:inline">Subscribed</span>
+                <span class="badge badge-xs">@FilterCounters.Subscribed</span>
             </button>
         </li>
         <li>
-            <button type="button"
+            <button type="button" class="gap-1.5"
                     _="on click
-                         send filterChanged(filter: 'available', label: 'Available') to body
-                         remove @@open from the closest <details/>">
-                @CheckIcon("available")
-                Available (@FilterCounters.Available)
+                         remove .menu-active from <button/> in the closest <ul/>
+                         add .menu-active to me
+                         send filterChanged(filter: 'interested', label: 'Interested') to body">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"/>
+                </svg>
+                <span class="hidden md:inline">Interested</span>
+                <span class="badge badge-xs">@FilterCounters.Interested</span>
             </button>
         </li>
-        @if (IsAuthenticated)
-        {
-            <li>
-                <button type="button"
-                        _="on click
-                             send filterChanged(filter: 'subscribed', label: 'Subscribed') to body
-                             remove @@open from the closest <details/>">
-                    @CheckIcon("subscribed")
-                    Subscribed (@FilterCounters.Subscribed)
-                </button>
-            </li>
-            <li>
-                <button type="button"
-                        _="on click
-                             send filterChanged(filter: 'interested', label: 'Interested') to body
-                             remove @@open from the closest <details/>">
-                    @CheckIcon("interested")
-                    Interested (@FilterCounters.Interested)
-                </button>
-            </li>
-        }
-        <li>
-            <button type="button"
-                    _="on click
-                         send filterChanged(filter: 'completed', label: 'Completed') to body
-                         remove @@open from the closest <details/>">
-                @CheckIcon("completed")
-                Completed (@FilterCounters.Completed)
-            </button>
-        </li>
-        <li>
-            <button type="button"
-                    _="on click
-                         send filterChanged(filter: 'not-available', label: 'Not Available') to body
-                         remove @@open from the closest <details/>">
-                @CheckIcon("not-available")
-                Not Available (@FilterCounters.NotAvailable)
-            </button>
-        </li>
-    </ul>
-</details>
+    }
+    <li>
+        <button type="button" class="gap-1.5"
+                _="on click
+                     remove .menu-active from <button/> in the closest <ul/>
+                     add .menu-active to me
+                     send filterChanged(filter: 'completed', label: 'Completed') to body">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/>
+            </svg>
+            <span class="hidden md:inline">Completed</span>
+            <span class="badge badge-xs">@FilterCounters.Completed</span>
+        </button>
+    </li>
+    <li>
+        <button type="button" class="gap-1.5"
+                _="on click
+                     remove .menu-active from <button/> in the closest <ul/>
+                     add .menu-active to me
+                     send filterChanged(filter: 'not-available', label: 'Not Available') to body">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 shrink-0" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+            </svg>
+            <span class="hidden md:inline">Not Available</span>
+            <span class="badge badge-xs">@FilterCounters.NotAvailable</span>
+        </button>
+    </li>
+</ul>
 
 @code {
     [Parameter] public bool IsAuthenticated { get; set; }
     [Parameter, EditorRequired] public FilterCounters FilterCounters { get; set; }
-
-    private static RenderFragment CheckIcon(string filter, bool initialSelected = false) => @<span class="size-4 filter-check" data-filter="@filter" hidden="@(!initialSelected)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4" aria-hidden="true">
-            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" />
-        </svg>
-    </span>;
 }
