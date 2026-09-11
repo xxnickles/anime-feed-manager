@@ -1,141 +1,152 @@
 @implements AnimeFeedManager.Web.BlazorComponents.IRenderableComponent<NotificationModel>
-@* Email notification for new anime episodes *@
+@* Crayon-themed episode notification. Fluid-hybrid: no media queries (Gmail apps strip head styles). *@
 @if (ViewModel is not null)
 {
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <!--[if mso]>
-        <style type="text/css">
-            body, table, td {
-                font-family: Arial, Helvetica, sans-serif !important;
-            }
-        </style>
-        <![endif]-->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="light">
+        <meta name="supported-color-schemes" content="light">
+        <title>New episodes</title>
     </head>
-    <body
-        style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-    <!-- Email Container -->
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
-           style="background-color: #f4f4f5;">
+    <body style="margin:0; padding:0; background-color:@Warm; color:@Ink; font-family:@Marker; -webkit-text-size-adjust:100%;">
+
+    @* Inbox preview line; padded so clients don't pull body copy in after it. *@
+    <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent; height:0; width:0;">
+        @ViewModel.TotalEpisodeCount new episode@(ViewModel.TotalEpisodeCount != 1 ? "s" : "") ready to grab.
+        &#8203;&#847;&zwnj;&nbsp;&#8203;&#847;&zwnj;&nbsp;&#8203;&#847;&zwnj;&nbsp;&#8203;&#847;&zwnj;&nbsp;
+    </div>
+
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:@Warm;">
         <tr>
-            <td style="padding: 20px 0;">
-                <!-- Main Content Container -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600"
-                       style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <td align="center" style="padding:16px 12px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:600px; margin:0 auto;">
 
-                    <!-- Header -->
+                    @* Masthead *@
                     <tr>
-                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
-                                🎬 New Episodes Available
-                            </h1>
-                            <p style="margin: 8px 0 0 0; color: #f0f0f0; font-size: 14px;">
-                                @DateTime.Today.ToString("MMMM dd, yyyy")
-                            </p>
+                        <td style="padding:0 0 20px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="background-color:@Ink; padding:0 @Offset @Offset 0; border-radius:@Wobble;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td style="background-color:@Red; border:2px solid @Ink; border-radius:@Wobble; padding:22px 20px; text-align:center;">
+                                                    <h1 style="margin:0; font-family:@Marker; font-size:26px; font-weight:700; line-height:1.2; color:@Ink;">
+                                                        🎬 New Episodes
+                                                    </h1>
+                                                    <p style="margin:6px 0 0; font-size:13px; font-weight:700; color:@Ink;">
+                                                        @DateTime.Today.ToString("MMMM dd, yyyy")
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
-                    <!-- Greeting -->
+                    @* Greeting *@
                     <tr>
-                        <td style="padding: 24px 30px 16px;">
-                            <p style="margin: 0; color: #18181b; font-size: 16px; line-height: 1.5;">
-                                Hi <strong>@ViewModel.UserName</strong>,
+                        <td style="padding:0 4px 20px;">
+                            <p style="margin:0; font-size:17px; font-weight:700; color:@Ink;">
+                                Hi @ViewModel.UserName,
                             </p>
-                            <p style="margin: 8px 0 0 0; color: #52525b; font-size: 14px; line-height: 1.6;">
+                            <p style="margin:6px 0 0; font-size:14px; line-height:1.5; color:@Muted;">
                                 You have
-                                <strong style="color: #667eea;">@ViewModel.TotalEpisodeCount new
-                                    episode@(ViewModel.TotalEpisodeCount != 1 ? "s" : "")</strong> available to download
-                                from
-                                your subscriptions.
+                                <strong style="color:@Ink;">@ViewModel.TotalEpisodeCount new episode@(ViewModel.TotalEpisodeCount != 1 ? "s" : "")</strong>
+                                waiting from your subscriptions.
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Anime List -->
-                    <tr>
-                        <td style="padding: 0 30px 24px;">
-                            @foreach (var anime in ViewModel.AnimeFeeds)
-                            {
-                                <!-- Anime Card -->
-                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
-                                       style="margin-bottom: 20px; border: 1px solid #e4e4e7; border-radius: 6px; overflow: hidden;">
-                                    <!-- Anime Title Bar -->
+                    @* Series cards *@
+                    @foreach (var anime in ViewModel.AnimeFeeds)
+                    {
+                        <tr>
+                            <td style="padding:0 0 18px;">
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                     <tr>
-                                        <td style="background-color: #fafafa; padding: 12px 16px; border-bottom: 1px solid #e4e4e7;">
-                                            <h2 style="margin: 0; color: #18181b; font-size: 16px; font-weight: 600;">
-                                                @anime.Title
-                                            </h2>
-                                            <p style="margin: 4px 0 0 0; color: #71717a; font-size: 12px;">
-                                                @anime.Episodes.Length episode@(anime.Episodes.Length != 1 ? "s" : "")
-                                            </p>
-                                        </td>
-                                    </tr>
+                                        <td style="background-color:@Ink; padding:0 @Offset @Offset 0; border-radius:@Wobble;">
+                                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:@Paper; border:2px solid @Ink; border-radius:@Wobble;">
 
-                                    <!-- Episodes -->
-                                    @foreach (var episode in anime.Episodes.OrderByDescending(e => e.EpisodeNumber))
-                                    {
-                                        <tr>
-                                            <td style="padding: 14px 16px; border-bottom: 1px solid #f4f4f5;">
-                                                <table role="presentation" cellspacing="0" cellpadding="0" border="0"
-                                                       width="100%">
+                                                @* Series header doubles as the SubsPlease link *@
+                                                <tr>
+                                                    <td style="background-color:@Warm; border-bottom:2px solid @Ink; border-radius:@WobbleTop;">
+                                                        <a href="@anime.Url"
+                                                           style="display:block; padding:14px 16px; text-decoration:none; color:@Ink;">
+                                                            <span style="font-family:@Marker; font-size:17px; font-weight:700; color:@Ink;">
+                                                                @anime.Title
+                                                            </span>
+                                                            <span style="color:@Red; font-weight:700;">&nbsp;&rarr;</span>
+                                                            <span style="display:block; margin-top:3px; font-size:12px; font-weight:700; color:@Muted;">
+                                                                @anime.Episodes.Length episode@(anime.Episodes.Length != 1 ? "s" : "") &middot; view on SubsPlease
+                                                            </span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+
+                                                @{ var first = true; }
+                                                @foreach (var episode in anime.Episodes.OrderByDescending(e => e.EpisodeNumber))
+                                                {
                                                     <tr>
-                                                        <td style="vertical-align: middle;">
-                                                            <div
-                                                                style="display: inline-block; background-color: #667eea; color: #ffffff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-right: 8px;">
-                                                                EP @episode.EpisodeNumber
-                                                            </div>
-                                                            @if (episode.IsNew)
-                                                            {
-                                                                <span
-                                                                    style="display: inline-block; background-color: #22c55e; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                                                                    NEW
+                                                        <td style="padding:14px 16px; @(first ? "" : $"border-top:2px dashed {Ink};")">
+                                                            <p style="margin:0 0 10px;">
+                                                                <span style="display:inline-block; background-color:@Red; color:@Ink; border:2px solid @Ink; border-radius:@WobbleSm; padding:3px 10px; font-size:12px; font-weight:700;">
+                                                                    EP @episode.EpisodeNumber
                                                                 </span>
-                                                            }
-                                                        </td>
-                                                        <td style="text-align: right; vertical-align: middle; white-space: nowrap;">
+                                                                @if (episode.IsNew)
+                                                                {
+                                                                    <span style="display:inline-block; margin-left:6px; background-color:@Yellow; color:@Ink; border:2px solid @Ink; border-radius:@WobbleSm; padding:3px 9px; font-size:11px; font-weight:700;">
+                                                                        NEW
+                                                                    </span>
+                                                                }
+                                                            </p>
+                                                            @* inline-block buttons wrap on narrow screens without a media query *@
                                                             <a href="@episode.MagnetLink"
-                                                               style="display: inline-block; color: #667eea; text-decoration: none; font-size: 13px; font-weight: 500; margin-right: 12px; padding: 6px 12px; border: 1px solid #667eea; border-radius: 4px; transition: background-color 0.2s;">
+                                                               style="display:inline-block; margin:0 8px 8px 0; padding:12px 18px; background-color:@Red; color:@Ink; border:2px solid @Ink; border-radius:@WobbleSm; box-shadow:@Offset @Offset 0 @Ink; font-size:14px; font-weight:700; line-height:18px; text-decoration:none; text-align:center;">
                                                                 🧲 Magnet
                                                             </a>
                                                             <a href="@episode.TorrentLink"
-                                                               style="display: inline-block; color: #667eea; text-decoration: none; font-size: 13px; font-weight: 500; padding: 6px 12px; border: 1px solid #667eea; border-radius: 4px; transition: background-color 0.2s;">
+                                                               style="display:inline-block; margin:0 0 8px 0; padding:12px 18px; background-color:@Paper; color:@Ink; border:2px solid @Ink; border-radius:@WobbleSm; box-shadow:@Offset @Offset 0 @Ink; font-size:14px; font-weight:700; line-height:18px; text-decoration:none; text-align:center;">
                                                                 📥 Torrent
                                                             </a>
                                                         </td>
                                                     </tr>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                    }
+                                                    first = false;
+                                                }
+                                            </table>
+                                        </td>
+                                    </tr>
                                 </table>
-                            }
+                            </td>
+                        </tr>
+                    }
+
+                    @* Tip *@
+                    <tr>
+                        <td style="padding:2px 0 20px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td style="background-color:@Blue; border:2px solid @Ink; border-radius:@Wobble; padding:14px 16px;">
+                                        <p style="margin:0; font-size:13px; line-height:1.5; color:@Ink;">
+                                            💡 <strong>Tip:</strong> Magnet opens straight in your torrent client. Torrent downloads the .torrent file first.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
-                    <!-- Footer Message -->
+                    @* Footer *@
                     <tr>
-                        <td style="padding: 0 30px 24px;">
-                            <div
-                                style="background-color: #fafafa; padding: 16px; border-radius: 6px; border-left: 4px solid #667eea;">
-                                <p style="margin: 0; color: #52525b; font-size: 13px; line-height: 1.5;">
-                                    💡 <strong>Tip:</strong> Click the Magnet link to start downloading directly in your
-                                    torrent client, or use the Torrent link to download the .torrent file first.
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="padding: 20px 30px; background-color: #fafafa; border-radius: 0 0 8px 8px; border-top: 1px solid #e4e4e7;">
-                            <p style="margin: 0; color: #71717a; font-size: 12px; text-align: center; line-height: 1.5;">
-                                You're receiving this email because you subscribed to these series.<br/>
+                        <td style="padding:0 8px; text-align:center;">
+                            <p style="margin:0; font-size:12px; line-height:1.5; color:@Muted;">
+                                You're receiving this because you subscribed to these series.
                             </p>
-                            <p style="margin: 12px 0 0 0; color: #a1a1aa; font-size: 11px; text-align: center;">
+                            <p style="margin:8px 0 0; font-size:11px; color:@Muted;">
                                 Anime Feed Manager &copy; @DateTime.Today.Year
                             </p>
                         </td>
@@ -151,6 +162,23 @@
 
 @code {
     [Parameter] public NotificationModel? ViewModel { get; set; }
+
+    // Crayon theme (app.css). Marker faces resolve per-OS; Android falls through to sans-serif,
+    // so the black outlines carry the look, not the type.
+    private const string Ink = "#1b1b1b";
+    private const string Paper = "#fffdf7";
+    private const string Warm = "#fff6dc";
+    private const string Red = "#ff4f3d";
+    private const string Yellow = "#ffd23f";
+    private const string Blue = "#a7d8ff";
+    private const string Muted = "#5c5c5c";
+
+    // Unquoted so Blazor's attribute encoding doesn't turn quotes into entities for email sanitizers.
+    private const string Marker = "Marker Felt, Segoe Print, Chalkboard SE, ui-rounded, system-ui, sans-serif";
+    private const string Offset = "3px";
+    private const string Wobble = "14px 10px 16px 8px";
+    private const string WobbleTop = "12px 8px 0 0";
+    private const string WobbleSm = "10px 6px 12px 6px";
 
     public static RenderFragment AsRenderFragment(NotificationModel viewModel) => builder =>
     {

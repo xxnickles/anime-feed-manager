@@ -11,6 +11,14 @@ namespace AnimeFeedManager.Features.Infrastructure.Email;
 public delegate RenderFragment EmailTemplateFactory<in TModel>(TModel model) where TModel : notnull;
 
 /// <summary>
+/// Delegate that renders the plain-text alternative for an email template
+/// </summary>
+/// <typeparam name="TModel">The model type used by the email template</typeparam>
+/// <param name="model">The model data to render</param>
+/// <returns>Plain-text body sent alongside the HTML part</returns>
+public delegate string EmailTextFactory<in TModel>(TModel model) where TModel : notnull;
+
+/// <summary>
 /// Service for sending emails using SMTP with Blazor component rendering
 /// </summary>
 public interface IEmailNotificationSender
@@ -22,6 +30,7 @@ public interface IEmailNotificationSender
     /// <param name="to">Recipient email address</param>
     /// <param name="subject">Email subject line</param>
     /// <param name="templateFactory">Email template factory delegate that generates the content</param>
+    /// <param name="textFactory">Plain-text alternative for the same model</param>
     /// <param name="model">The model data to pass to the template</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Result indicating success or failure</returns>
@@ -29,6 +38,7 @@ public interface IEmailNotificationSender
         string to,
         string subject,
         EmailTemplateFactory<TModel> templateFactory,
+        EmailTextFactory<TModel> textFactory,
         TModel model,
         CancellationToken cancellationToken = default
     ) where TModel : notnull;

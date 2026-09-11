@@ -35,6 +35,7 @@ public class OnTvFeedNotification
                 notification.Subscriptions.UserEmail,
                 $"Subscriptions Available for Download ({DateTime.Today.ToShortDateString()})",
                 NotificationEmail.AsRenderFragment,
+                NotificationEmailText.Render,
                 notification.ToEmailModel(),
                 cancellationToken)
             .Bind(_ => NotificationProcess.UpdateUserSubscriptions(notification,
