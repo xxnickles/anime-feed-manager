@@ -7,6 +7,11 @@ using MimeKit;
 namespace AnimeFeedManager.Web.BlazorComponents.Email;
 
 /// <summary>
+/// Rendered multipart/alternative body
+/// </summary>
+internal sealed record EmailBody(string Html, string Text);
+
+/// <summary>
 /// Email sender implementation using Gmail SMTP with Blazor component rendering
 /// </summary>
 public sealed class EmailNotificationSender : IEmailNotificationSender
@@ -29,13 +34,14 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         string to,
         string subject,
         EmailTemplateFactory<TModel> templateFactory,
+        EmailTextFactory<TModel> textFactory,
         TModel model,
         CancellationToken cancellationToken = default) where TModel : notnull
     {
         try
         {
-            return RenderTemplate(templateFactory, model)
-                .Bind(html => SendEmailAsync(to, subject, html, cancellationToken));
+            return RenderBody(templateFactory, textFactory, model)
+                .Bind(body => SendEmailAsync(to, subject, body, cancellationToken));
         }
         catch (Exception ex)
         {
@@ -44,8 +50,9 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         }
     }
 
-    private async Task<Result<string>> RenderTemplate<TModel>(
+    private async Task<Result<EmailBody>> RenderBody<TModel>(
         EmailTemplateFactory<TModel> templateFactory,
+        EmailTextFactory<TModel> textFactory,
         TModel model) where TModel : notnull
     {
         try
@@ -56,7 +63,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
                     [nameof(WrapperComponent.ChildContent)] = templateFactory(model)
                 });
 
-            return Result<string>.Success(htmlContent);
+            return new EmailBody(htmlContent, textFactory(model));
         }
         catch (Exception ex)
         {
@@ -67,7 +74,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
     private async Task<Result<Unit>> SendEmailAsync(
         string to,
         string subject,
-        string htmlContent,
+        EmailBody body,
         CancellationToken cancellationToken)
     {
         try
@@ -79,7 +86,8 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
 
             var bodyBuilder = new BodyBuilder
             {
-                HtmlBody = htmlContent
+                HtmlBody = body.Html,
+                TextBody = body.Text
             };
             message.Body = bodyBuilder.ToMessageBody();
 
