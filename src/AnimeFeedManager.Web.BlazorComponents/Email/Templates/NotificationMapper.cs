@@ -25,6 +25,7 @@ public static class AnimeFeedNotificationMapper
                         MagnetLink: ep.MagnetLink,
                         TorrentLink: ep.TorrentLink,
                         IsNew: ep.IsNew))
+                    .NewestFirst()
                     .ToArray()))
             .ToArray();
 

@@ -110,7 +110,7 @@ public class FeedProcessTests
 
         var notifiedEpisodes = new Dictionary<string, string[]>
         {
-            ["Anime 1"] = ["1", "2"]
+            ["Anime 1"] = ["01", "02"]
         };
 
         var users = new[]
@@ -132,7 +132,7 @@ public class FeedProcessTests
         var notification = postman.SentNotifications[0];
         Assert.Single(notification.Feeds);
         Assert.Single(notification.Feeds[0].Episodes);
-        Assert.Equal("3", notification.Feeds[0].Episodes[0].EpisodeNumber);
+        Assert.Equal("03", notification.Feeds[0].Episodes[0].EpisodeNumber);
     }
 
     [Fact]
@@ -145,7 +145,7 @@ public class FeedProcessTests
 
         var notifiedEpisodes = new Dictionary<string, string[]>
         {
-            ["Anime 1"] = ["1", "2"]
+            ["Anime 1"] = ["01", "02"]
         };
 
         var users = new[]
@@ -177,7 +177,7 @@ public class FeedProcessTests
 
         var notifiedEpisodes = new Dictionary<string, string[]>
         {
-            ["Anime 1"] = ["1", "2"],
+            ["Anime 1"] = ["01", "02"],
             ["Anime 2"] = []
         };
 
@@ -202,12 +202,12 @@ public class FeedProcessTests
 
         var anime1Feed = notification.Feeds.First(f => f.Title == "Anime 1");
         Assert.Single(anime1Feed.Episodes);
-        Assert.Equal("3", anime1Feed.Episodes[0].EpisodeNumber);
+        Assert.Equal("03", anime1Feed.Episodes[0].EpisodeNumber);
 
         var anime2Feed = notification.Feeds.First(f => f.Title == "Anime 2");
         Assert.Equal(2, anime2Feed.Episodes.Length);
-        Assert.Equal("1", anime2Feed.Episodes[0].EpisodeNumber);
-        Assert.Equal("2", anime2Feed.Episodes[1].EpisodeNumber);
+        Assert.Equal("01", anime2Feed.Episodes[0].EpisodeNumber);
+        Assert.Equal("02", anime2Feed.Episodes[1].EpisodeNumber);
     }
 
     [Fact]
@@ -221,12 +221,12 @@ public class FeedProcessTests
 
         var user1NotifiedEpisodes = new Dictionary<string, string[]>
         {
-            ["Anime 1"] = ["1"]
+            ["Anime 1"] = ["01"]
         };
 
         var user2NotifiedEpisodes = new Dictionary<string, string[]>
         {
-            ["Anime 1"] = ["1", "2", "3"]
+            ["Anime 1"] = ["01", "02", "03"]
         };
 
         var users = new[]
@@ -251,12 +251,175 @@ public class FeedProcessTests
         var user1Notification = postman.SentNotifications.First(n => n.Subscriptions.UserId == "user1");
         Assert.Single(user1Notification.Feeds);
         Assert.Equal(2, user1Notification.Feeds[0].Episodes.Length);
-        Assert.Equal("2", user1Notification.Feeds[0].Episodes[0].EpisodeNumber);
-        Assert.Equal("3", user1Notification.Feeds[0].Episodes[1].EpisodeNumber);
+        Assert.Equal("02", user1Notification.Feeds[0].Episodes[0].EpisodeNumber);
+        Assert.Equal("03", user1Notification.Feeds[0].Episodes[1].EpisodeNumber);
 
         var user3Notification = postman.SentNotifications.First(n => n.Subscriptions.UserId == "user3");
         Assert.Single(user3Notification.Feeds);
         Assert.Equal(2, user3Notification.Feeds[0].Episodes.Length);
+    }
+
+    #endregion
+
+    #region Episode Number Format Tests
+
+    [Fact]
+    public async Task Should_Notify_New_Version_When_Original_Episode_Was_Already_Notified()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", "07", "07v2")
+        };
+
+        var notifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["07"]
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1"], notifiedEpisodes)
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
+
+        var notification = Assert.Single(postman.SentNotifications);
+        var episode = Assert.Single(notification.Feeds[0].Episodes);
+        Assert.Equal("07v2", episode.EpisodeNumber);
+    }
+
+    [Fact]
+    public async Task Should_Not_Notify_Again_When_Same_Version_Already_Notified()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", "07", "07v2")
+        };
+
+        var notifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["07", "07v2"]
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1"], notifiedEpisodes)
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        result.AssertOnSuccess(summary => { Assert.Equal(0, summary.UsersToNotify); });
+
+        Assert.Empty(postman.SentNotifications);
+    }
+
+    [Fact]
+    public async Task Should_Notify_Both_Releases_When_Neither_Version_Was_Notified()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", "07", "07v2")
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1"])
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
+
+        var notification = Assert.Single(postman.SentNotifications);
+        Assert.Equal(
+            ["07", "07v2"],
+            notification.Feeds[0].Episodes.Select(e => e.EpisodeNumber).ToArray());
+    }
+
+    [Fact]
+    public async Task Should_Filter_Notified_Episodes_When_Numbers_Cross_A_Digit_Width()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", "99", "100", "101")
+        };
+
+        var notifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["99", "100"]
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1"], notifiedEpisodes)
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
+
+        var notification = Assert.Single(postman.SentNotifications);
+        var episode = Assert.Single(notification.Feeds[0].Episodes);
+        Assert.Equal("101", episode.EpisodeNumber);
+    }
+
+    [Fact]
+    public async Task Should_Notify_Padded_Episode_When_Notified_Copy_Is_Unpadded()
+    {
+        var dailyFeeds = new[]
+        {
+            CreateDailyFeed("Anime 1", "https://example.com/anime-1", "07")
+        };
+
+        var notifiedEpisodes = new Dictionary<string, string[]>
+        {
+            ["Anime 1"] = ["7"]
+        };
+
+        var users = new[]
+        {
+            CreateUser("user1", "user1@example.com", ["Anime 1"], notifiedEpisodes)
+        };
+
+        var subscriptionsGetter = CreateSubscriptionsGetter(users);
+        var postman = CreatePostman();
+
+        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+            subscriptionsGetter,
+            postman,
+            CancellationToken.None);
+
+        result.AssertOnSuccess(summary => { Assert.Equal(1, summary.UsersToNotify); });
+
+        var notification = Assert.Single(postman.SentNotifications);
+        var episode = Assert.Single(notification.Feeds[0].Episodes);
+        Assert.Equal("07", episode.EpisodeNumber);
     }
 
     #endregion
@@ -456,18 +619,20 @@ public class FeedProcessTests
 
     #region Helper Methods
 
-    private static DailySeriesFeed CreateDailyFeed(string title, string url, int episodeCount)
-    {
-        var episodes = Enumerable.Range(1, episodeCount)
-            .Select(i => new EpisodeData(
-                i.ToString(),
-                $"magnet:?xt=urn:btih:example{i}",
-                $"https://example.com/torrent/{i}",
-                true))
-            .ToArray();
+    private static DailySeriesFeed CreateDailyFeed(string title, string url, int episodeCount) =>
+        CreateDailyFeed(title, url, Enumerable.Range(1, episodeCount).Select(EpisodeNumber).ToArray());
 
-        return new DailySeriesFeed(title, url, episodes);
-    }
+    private static DailySeriesFeed CreateDailyFeed(string title, string url, params string[] episodeNumbers) =>
+        new(title, url, episodeNumbers.Select(CreateEpisode).ToArray());
+
+    private static EpisodeData CreateEpisode(string episodeNumber) =>
+        new(episodeNumber,
+            $"magnet:?xt=urn:btih:example{episodeNumber}",
+            $"https://example.com/torrent/{episodeNumber}",
+            true);
+
+    // SubsPlease renders episode numbers zero-padded to two digits; fixtures mirror that.
+    private static string EpisodeNumber(int episode) => episode.ToString("00");
 
     private static UserActiveSubscriptions CreateUser(
         string userId,
