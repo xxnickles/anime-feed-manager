@@ -35,7 +35,8 @@ otelBuilder.WithTracing(tracing => tracing
     .AddSource(Telemetry.TvLibraryCompletionSource)
     .AddSource(Telemetry.ImagesSource)
     .AddSource(Telemetry.TvSubscriptionsFeedSource)
-    .AddSource(Telemetry.TvSubscriptionsManagementSource));
+    .AddSource(Telemetry.TvSubscriptionsManagementSource)
+    .AddSource(Telemetry.FunctionsMessageProcessingSource));
 
 // Export to Azure Monitor when connection string is available (production)
 if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))

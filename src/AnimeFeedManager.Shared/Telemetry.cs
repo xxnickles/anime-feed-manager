@@ -2,9 +2,10 @@ namespace AnimeFeedManager.Shared;
 
 /// <summary>
 /// Custom <see cref="System.Diagnostics.ActivitySource"/> names for OpenTelemetry tracing.
-/// Sources are registered via <c>tracing.AddSource(...)</c> — passed into
-/// <c>AddServiceDefaults(...)</c> at each host's composition root. Add new names here AND to
-/// that call so the spans are sampled.
+/// Sources must be registered via <c>tracing.AddSource(...)</c> at each host's composition root
+/// (<c>AddServiceDefaults(...)</c> in the Web host, the <c>WithTracing</c> block in the Functions
+/// host). Add new names here AND to that call — an unregistered source has no listener, so
+/// <c>StartActivity</c> silently returns null and the spans never exist.
 /// </summary>
 public static class Telemetry
 {
@@ -31,6 +32,9 @@ public static class Telemetry
 
     /// <summary>System event update/dispatch orchestration.</summary>
     public const string SystemEventsUpdateSource = "AnimeFeedManager.SystemEvents.Update";
+
+    /// <summary>Queue-message processing in the Functions host: links a handler span to the producer's trace.</summary>
+    public const string FunctionsMessageProcessingSource = "AnimeFeedManager.Functions.MessageProcessing";
 
     /// <summary>User authentication: credential/user registration and login verification.</summary>
     public const string UserAuthenticationSource = "AnimeFeedManager.User.Authentication";
