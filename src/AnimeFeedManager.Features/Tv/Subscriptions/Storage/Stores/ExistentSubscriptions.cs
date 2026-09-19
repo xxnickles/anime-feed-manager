@@ -6,14 +6,11 @@ public delegate Task<Result<ImmutableArray<SubscriptionStorage>>> TvSubscription
 public delegate Task<Result<SubscriptionStorage?>> TvSubscriptionGetter(string userId, string seriesId,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<SubscriptionStorage>>> TvSubscriptionsBySeries(string seriesId,
-    CancellationToken cancellationToken = default);
-
 public delegate Task<Result<ImmutableArray<SubscriptionStorage>>> TvInterestedBySeries(string seriesId,
     CancellationToken cancellationToken = default);
 
 /// <summary>
-/// Gets Active subscription by user
+/// Subscribed series grouped by user, for the given feed titles.
 /// </summary>
 public delegate Task<Result<UserActiveSubscriptions[]>> TvUserActiveSubscriptions(IEnumerable<string> feedTitles,
     CancellationToken token);
@@ -28,8 +25,7 @@ public static class ExistentSubscriptions
                 .WithLogProperty("UserId", userId)
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
-                        storage => storage.PartitionKey == userId &&
-                                   storage.Status != nameof(SubscriptionStatus.Expired), token));
+                        storage => storage.PartitionKey == userId, token));
 
         public TvSubscriptionGetter TableStorageTvSubscription =>
             (userId, seriesId, token) => clientFactory.GetClient<SubscriptionStorage>()
@@ -39,17 +35,7 @@ public static class ExistentSubscriptions
                     new KeyValuePair<string, object>("SeriesId", seriesId)
                 ])
                 .Bind(client => client.ExecuteQuery<SubscriptionStorage>(storage => storage.PartitionKey == userId &&
-                    storage.Status != nameof(SubscriptionStatus.Expired) &&
                     storage.RowKey == seriesId, token).SingleItemOrNull());
-
-        public TvSubscriptionsBySeries TableStorageTvSubscriptionsBySeries =>
-            (id, token) => clientFactory.GetClient<SubscriptionStorage>()
-                .WithOperationName("TableStorageTvSubscriptionsBySeries")
-                .WithLogProperty("SeriesId", id)
-                .Bind(client =>
-                    client.ExecuteQuery<SubscriptionStorage>(
-                        storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Subscribed) &&
-                                   storage.Status != nameof(SubscriptionStatus.Expired), token));
 
         public TvInterestedBySeries TableStorageTvInterestedBySeries =>
             (id, token) => clientFactory.GetClient<SubscriptionStorage>()
@@ -57,15 +43,15 @@ public static class ExistentSubscriptions
                 .WithLogProperty("SeriesId", id)
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
-                        storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Interested) &&
-                                   storage.Status == nameof(SubscriptionStatus.Active), token));
+                        storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Interested),
+                        token));
 
         public TvUserActiveSubscriptions TableStorageTvUserActiveSubscriptions =>
             (titles, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .WithOperationName("TableStorageTvActiveSubscribers")
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
-                            storage => storage.Status == nameof(SubscriptionStatus.Active),
+                            storage => storage.Type == nameof(SubscriptionType.Subscribed),
                             token)
                         .Map(subscriptions => subscriptions
                             .Where(s => s.SeriesFeedTitle != null && titles.Contains(s.SeriesFeedTitle))

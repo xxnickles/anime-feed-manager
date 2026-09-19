@@ -22,7 +22,6 @@ public class AutoSubscriptionTests
                 PartitionKey = userId1,
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.Interested),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = "Test Anime"
             },
             new SubscriptionStorage
@@ -30,7 +29,6 @@ public class AutoSubscriptionTests
                 PartitionKey = userId2,
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.Interested),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = "Test Anime"
             }
         );
@@ -100,7 +98,6 @@ public class AutoSubscriptionTests
                 PartitionKey = "user-1",
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.Subscribed),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = "Test Anime",
                 SeriesFeedTitle = "Test Feed"
             }
@@ -134,7 +131,6 @@ public class AutoSubscriptionTests
                 PartitionKey = "user-1",
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.Subscribed),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = "Test Anime"
             }
         );
@@ -265,7 +261,6 @@ public class AutoSubscriptionTests
             PartitionKey = "user-1",
             RowKey = seriesId,
             Type = nameof(SubscriptionType.Interested),
-            Status = nameof(SubscriptionStatus.Active),
             SeriesTitle = "Test Anime"
         };
 
@@ -344,7 +339,6 @@ public class AutoSubscriptionTests
                 PartitionKey = "user-1",
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.Interested),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = "Test Anime"
             },
             new SubscriptionStorage
@@ -352,7 +346,6 @@ public class AutoSubscriptionTests
                 PartitionKey = "user-2",
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.Interested),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = "Test Anime"
             },
             new SubscriptionStorage
@@ -360,7 +353,6 @@ public class AutoSubscriptionTests
                 PartitionKey = "user-3",
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.Interested),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = "Test Anime"
             }
         );

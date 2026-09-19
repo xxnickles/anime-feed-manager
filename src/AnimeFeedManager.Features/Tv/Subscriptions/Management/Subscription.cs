@@ -28,41 +28,6 @@ public static class Subscription
         CancellationToken token) =>
         storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
 
-
-    public static Task<Result<Summary>> ExpireSubscriptions(
-        string seriesId,
-        TvSubscriptionsBySeries getter,
-        TvSubscriptionUpdater subscriptionUpdater,
-        CancellationToken token) => getter(seriesId, token)
-        .Map(subscriptions => subscriptions.Select(MarkAsExpired).ToImmutableArray())
-        .Bind(subscriptions => StoreUpdates(subscriptions, subscriptionUpdater, token));
-
-
-    private static async Task<Result<Summary>> StoreUpdates(
-        ImmutableArray<SubscriptionStorage> subscriptions,
-        TvSubscriptionUpdater subscriptionUpdater,
-        CancellationToken token)
-    {
-        var results = await Task.WhenAll(
-            subscriptions.Select(s =>
-                subscriptionUpdater(s, token)
-                    .WithOperationName(nameof(StoreUpdates))
-                    .WithLogProperty("Subscription", s)));
-
-        return results
-            .Flatten(units => units.Count())
-            .AddLogOnSuccess(LogFactories.LogBulkResult<int>(
-                (count, logger) => logger.LogInformation("{Count} subscriptions expired", count)))
-            .Map(bulk => new Summary(bulk.Value));
-    }
-
-
-    private static SubscriptionStorage MarkAsExpired(SubscriptionStorage storage)
-    {
-        storage.Status = nameof(SubscriptionStatus.Expired);
-        return storage;
-    }
-
     private static SubscriptionStorage VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
         AuthenticatedUser user,
@@ -77,7 +42,6 @@ public static class Subscription
                 PartitionKey = user.UserId,
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.None),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesFeedTitle = feedTitle,
                 SeriesTitle = seriesTitle,
                 UserEmail = user.Email,

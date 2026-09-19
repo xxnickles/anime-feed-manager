@@ -31,20 +31,6 @@ public sealed record SeriesFeedUpdated(string SeriesId, string SeriesFeed) : Dom
 }
 
 /// <summary>
-/// Event that represents a series that have been completed. Will be used to Expire tv subscriptions.
-/// </summary>
-/// <param name="Id">All series that have been marked as completed</param>
-public sealed record CompletedSeries(string Id) : DomainMessage(new Box(TargetQueue))
-{
-    public const string TargetQueue = "completed-series-events";
-
-    public override BinaryData ToBinaryData()
-    {
-        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.CompletedSeries);
-    }
-}
-
-/// <summary>
 /// Event to verify ongoing series and complete them if they are not in the current feed anymore
 /// </summary>
 /// <param name="Feed">Feed</param>

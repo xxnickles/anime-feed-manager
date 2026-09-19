@@ -6,7 +6,6 @@ namespace AnimeFeedManager.Features.Tv;
 // Domain Messages
 [JsonSerializable(typeof(FeedTitlesUpdated))]
 [JsonSerializable(typeof(SeriesFeedUpdated))]
-[JsonSerializable(typeof(CompletedSeries))]
 [JsonSerializable(typeof(CompleteOngoingSeries))]
 [JsonSerializable(typeof(UpdatedToOngoing))]
 [JsonSerializable(typeof(UpdateTvSeriesEvent))]
