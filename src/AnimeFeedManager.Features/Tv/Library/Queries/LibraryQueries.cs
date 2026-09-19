@@ -48,20 +48,27 @@ public static class LibraryQueries
         };
     }
 
+    // Subscription state is independent of airing state — a completed series can still be
+    // subscribed, and stays so for when it returns. Only an unsubscribed series falls back
+    // to whatever its status offers.
     private static UserTvSeries MapForUser(
         TvSeries series,
         ImmutableArray<SubscriptionStorage> subscriptions,
-        AppUser user)
-    {
-        return (series.Status.ToString(), GetSubscriptionType(subscriptions, series.Id)) switch
+        AppUser user) =>
+        GetSubscriptionType(subscriptions, series.Id) switch
         {
-            (SeriesStatus.CompletedValue, _) => new Completed(user, series),
-            (SeriesStatus.OngoingValue, nameof(SubscriptionType.Subscribed)) => new Subscribed(user, series),
-            (SeriesStatus.OngoingValue, nameof(SubscriptionType.None)) => new AvailableForSubscription(user, series),
-            (_, nameof(SubscriptionType.Interested)) => new Interested(user, series),
+            nameof(SubscriptionType.Subscribed) => new Subscribed(user, series),
+            nameof(SubscriptionType.Interested) => new Interested(user, series),
+            _ => MapUnsubscribed(series, user)
+        };
+
+    private static UserTvSeries MapUnsubscribed(TvSeries series, AppUser user) =>
+        series.Status.ToString() switch
+        {
+            SeriesStatus.CompletedValue => new Completed(user, series),
+            SeriesStatus.OngoingValue => new AvailableForSubscription(user, series),
             _ => new AvailableForFuture(user, series)
         };
-    }
 
 
     private static string GetSubscriptionType(ImmutableArray<SubscriptionStorage> subscriptions,
