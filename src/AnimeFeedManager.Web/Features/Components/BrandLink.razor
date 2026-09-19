@@ -1,13 +1,35 @@
-﻿<NavLink href="/"
-         class="!no-underline normal-case flex items-center gap-2"
+﻿@* The <img> child covers both no-JS and the gap before the canvas has drawn; <afm-logo> slots it
+   in until then. It keeps explicit sizing because without JS there is no shadow root to size it.
+   LogoId must be unique per instance — hx-preserve matches on it to carry the live canvas across
+   boosted navigation, and entrance-once keys its per-tab claim on it. Stacked lets the mascot use
+   the nav panel's full width instead of sharing a row with the wordmark. *@
+<NavLink href="/"
+         class="@LinkClass"
          aria-label="Anime Feed Manager - Home">
-    @if (ShowMascot)
-    {
-        <img src="/logo.svg" alt="" class="max-md:h-11 md:h-9 w-auto shrink-0" aria-hidden="true" />
-    }
-    <span class="truncate max-md:text-3xl md:text-xl font-bold font-logo bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">Anime Feed Manager</span>
+    <afm-logo id="@LogoId"
+              hx-preserve
+              src="/logo.svg"
+              autoplay
+              entrance-once
+              htmx-loading
+              class="@MascotSize shrink-0"
+              aria-hidden="true">
+        <img src="/logo.svg" alt="" class="@MascotSize shrink-0" aria-hidden="true"/>
+    </afm-logo>
+    <span class="truncate max-w-full text-2xl font-bold font-logo bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">Anime Feed Manager</span>
 </NavLink>
 
 @code {
-    [Parameter] public bool ShowMascot { get; set; } = true;
+    /// <summary>Unique element id — required by hx-preserve.</summary>
+    [Parameter, EditorRequired] public string LogoId { get; set; } = string.Empty;
+
+    /// <summary>Stack the mascot above the wordmark rather than beside it.</summary>
+    [Parameter] public bool Stacked { get; set; }
+
+    @* NavLink is a component — its attributes cannot mix markup and C#, so the class is composed here. *@
+    private string LinkClass => "!no-underline normal-case flex " + (Stacked
+        ? "flex-col items-center gap-1 w-full"
+        : "items-center gap-2");
+
+    private string MascotSize => Stacked ? "size-24" : "size-20";
 }
