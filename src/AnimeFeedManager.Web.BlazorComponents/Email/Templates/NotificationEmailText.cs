@@ -44,10 +44,7 @@ public static class NotificationEmailText
             string.Empty
         };
 
-        // Same ordering as the HTML template so both parts agree.
-        var episodes = anime.Episodes
-            .OrderByDescending(episode => episode.EpisodeNumber)
-            .Select(RenderEpisode);
+        var episodes = anime.Episodes.Select(RenderEpisode);
 
         return string.Join(Environment.NewLine, lines.Concat(episodes));
     }

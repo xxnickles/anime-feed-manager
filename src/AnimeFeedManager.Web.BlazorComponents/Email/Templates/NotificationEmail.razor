@@ -89,7 +89,7 @@
                                                 </tr>
 
                                                 @{ var first = true; }
-                                                @foreach (var episode in anime.Episodes.OrderByDescending(e => e.EpisodeNumber))
+                                                @foreach (var episode in anime.Episodes)
                                                 {
                                                     <tr>
                                                         <td style="padding:14px 16px; @(first ? "" : $"border-top:2px dashed {Ink};")">

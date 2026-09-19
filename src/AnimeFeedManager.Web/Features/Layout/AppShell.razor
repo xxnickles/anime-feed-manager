@@ -1,7 +1,10 @@
 <div id="app-shell" class="flex min-h-screen">
     <nav id="nav-panel" class="fixed inset-0 z-40 w-full -translate-x-full bg-base-200 transition-[translate] duration-300 ease-out flex min-h-full flex-col [.nav-open_&]:translate-x-0 max-lg:[body.htmx-swapping_&]:-translate-x-full! lg:sticky lg:top-0 lg:h-screen lg:self-start lg:w-(--nav-panel-width) lg:shrink-0 lg:translate-x-0 lg:border-r lg:border-base-300">
         <div class="flex items-center overflow-hidden border-b border-base-300 px-3 py-4">
-            <BrandLink/>
+            @* Desktop only — mobile renders the brand in the top bar instead. *@
+            <div class="max-lg:hidden w-full">
+                <BrandLink LogoId="brand-logo-nav" Stacked/>
+            </div>
             <button type="button" aria-label="Close navigation" class="btn btn-circle btn-ghost ml-auto lg:hidden"
                     _="on click remove .nav-open from #app-shell">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

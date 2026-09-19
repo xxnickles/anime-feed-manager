@@ -13,6 +13,7 @@
     <Project Path="src/AnimeFeedManager.SourceGenerators/AnimeFeedManager.SourceGenerators.csproj" />
   </Folder>
   <Folder Name="/FrontEnd/">
+    <Project Path="tests/AnimeFeedManager.Web.BlazorComponents.Tests/AnimeFeedManager.Web.BlazorComponents.Tests.csproj" />
     <Project Path="src/AnimeFeedManager.Web.BlazorComponents/AnimeFeedManager.Web.BlazorComponents.csproj" />
     <Project Path="src/AnimeFeedManager.Web/AnimeFeedManager.Web.csproj" />
   </Folder>

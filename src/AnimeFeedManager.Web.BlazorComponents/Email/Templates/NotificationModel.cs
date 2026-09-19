@@ -15,7 +15,8 @@ public record NotificationModel(
 }
 
 /// <summary>
-/// Represents a group of episodes for a single anime series
+/// Represents a group of episodes for a single anime series.
+/// <paramref name="Episodes" /> is ordered newest first; both email parts render it as given.
 /// </summary>
 public record AnimeFeedGroup(
     string Title,

@@ -2,8 +2,7 @@
 
 public static class ContextInfo
 {
-    private static readonly string ActivitySourceName = typeof(ContextInfo).Assembly.GetName().Name ?? "AnimeFeedManager.Functions";
-    private static readonly ActivitySource ActivitySourceInstance = new(ActivitySourceName);
+    private static readonly ActivitySource ActivitySourceInstance = new(Telemetry.FunctionsMessageProcessingSource);
     
     public static Activity? StartTracedActivity(this DomainMessage message, string operationName)
     {
