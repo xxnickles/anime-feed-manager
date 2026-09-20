@@ -31,7 +31,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     Status = SeriesStatus.NotAvailableValue
                 },
                 new NoImage(),
-                Status.NewSeries);
+                Status.NewSeries,
+                AiringStatus.Unknown);
 
             var seriesDataList = ImmutableArray.Create(storageData);
             var scrapData = new ScrapTvLibraryData(seriesDataList, feedTitles, seriesSeason);
@@ -52,12 +53,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
-            // Setup TimeProvider fake
-            var timeProvider = Substitute.For<TimeProvider>();
-            timeProvider.GetUtcNow()
-                .Returns(DateTimeOffset.Parse("2025-05-05T14:30:45+04:00"));
-
-            var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);
+            var result = await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
 
             result.AssertOnSuccess(r =>
             {
@@ -90,7 +86,8 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     Status = SeriesStatus.NotAvailableValue
                 },
                 new NoImage(),
-                Status.NewSeries);
+                Status.NewSeries,
+                AiringStatus.Unknown);
 
             var seriesDataList = ImmutableArray.Create(storageData);
             var scrapData = new ScrapTvLibraryData(seriesDataList, feedTitles, seriesSeason);
@@ -105,12 +102,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
-            // Setup TimeProvider fake - current season
-            var timeProvider = Substitute.For<TimeProvider>();
-            timeProvider.GetUtcNow()
-                .Returns(DateTimeOffset.Parse("2025-05-05T14:30:45+04:00"));
-
-            var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);
+            var result = await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
 
             result.AssertOnSuccess(r =>
             {
@@ -121,62 +113,132 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             });
         }
 
-        [Fact]
-        internal async Task Should_Set_Status_Completed_When_New_And_Is_OldSeason_And_NoMatchingFeed()
+        [Theory]
+        [InlineData(AiringStatus.Ongoing)]
+        [InlineData(AiringStatus.Upcoming)]
+        [InlineData(AiringStatus.Finished)]
+        [InlineData(AiringStatus.Delayed)]
+        [InlineData(AiringStatus.Unknown)]
+        public async Task Should_Set_Status_Ongoing_When_Feed_Matches_Whatever_The_Provider_Says(AiringStatus airing)
         {
-            await OldSeasonVerification(ImmutableArray<TvSeriesInfo>.Empty);
+            await FeedMatchVerification(ImmutableArray<TvSeriesInfo>.Empty, airing, SeriesStatus.OngoingValue);
         }
 
         [Fact]
-        internal async Task Should_Set_Status_Completed_When_Exist_And_Is_OldSeason_And_NoMatchingFeed()
+        public async Task Should_Reopen_A_Completed_Series_When_It_Returns_To_The_Feed()
+        {
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
+                SeriesStatus.Completed());
+            await FeedMatchVerification([storedSeries], AiringStatus.Finished, SeriesStatus.OngoingValue);
+        }
+
+        private async Task FeedMatchVerification(
+            ImmutableArray<TvSeriesInfo> dbSeries,
+            AiringStatus airing,
+            string expectedStatus)
+        {
+            var seriesSeason = TestSeasons.Default;
+            var feedTitles = ImmutableArray.Create(
+                new FeedData("Test Anime", "https://example.com/test-anime"));
+
+            var processSeries = new StorageData(new AnimeInfoStorage
+            {
+                RowKey = "1",
+                PartitionKey = "2024-summer",
+                Title = "Test Anime",
+                Synopsis = "Test synopsis",
+                FeedTitle = string.Empty,
+                Status = SeriesStatus.NotAvailableValue
+            }, new NoImage(), Status.NewSeries, airing);
+
+            var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
+            var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
+
+            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
+
+            var result = await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
+
+            result.AssertOnSuccess(r =>
+            {
+                var updatedSeries = r.SeriesData.First().Series;
+                Assert.Equal("Test Anime", updatedSeries.FeedTitle);
+                Assert.Equal(expectedStatus, updatedSeries.Status);
+            });
+        }
+
+        [Fact]
+        internal async Task Should_Set_Status_Completed_When_New_And_Provider_Says_Finished_And_NoMatchingFeed()
+        {
+            await NoFeedMatchVerification(ImmutableArray<TvSeriesInfo>.Empty, AiringStatus.Finished,
+                SeriesStatus.CompletedValue);
+        }
+
+        [Fact]
+        internal async Task Should_Set_Status_Completed_When_Exist_And_Provider_Says_Finished_And_NoMatchingFeed()
         {
             var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
                 SeriesStatus.NotAvailable());
-            await OldSeasonVerification([storedSeries]);
+            await NoFeedMatchVerification([storedSeries], AiringStatus.Finished, SeriesStatus.CompletedValue);
         }
 
-        private async Task OldSeasonVerification(ImmutableArray<TvSeriesInfo> dbSeries)
+        [Fact]
+        internal async Task Should_Set_Status_NotAvailable_When_New_And_Provider_Status_Is_Not_Finished()
         {
-            // Create initial ScrapTvLibraryData
-            // Season to scrap will be old
-            var seriesSeason = new SeriesSeason(Season.Summer(), Year.FromNumber(2024));
+            await NoFeedMatchVerification(ImmutableArray<TvSeriesInfo>.Empty, AiringStatus.Upcoming,
+                SeriesStatus.NotAvailableValue);
+        }
+
+        [Fact]
+        internal async Task Should_Hold_Ongoing_When_Series_Leaves_The_Feed_And_Provider_Has_Not_Finished_It()
+        {
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
+                SeriesStatus.Ongoing());
+            await NoFeedMatchVerification([storedSeries], AiringStatus.Delayed, SeriesStatus.OngoingValue);
+        }
+
+        [Fact]
+        internal async Task Should_Hold_Completed_When_A_Completed_Series_Is_Reimported()
+        {
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
+                SeriesStatus.Completed());
+            await NoFeedMatchVerification([storedSeries], AiringStatus.Unknown, SeriesStatus.CompletedValue);
+        }
+
+        private async Task NoFeedMatchVerification(
+            ImmutableArray<TvSeriesInfo> dbSeries,
+            AiringStatus airing,
+            string expectedStatus)
+        {
+            var seriesSeason = TestSeasons.Default;
             var feedTitles = ImmutableArray.Create(
                 new FeedData("Other Series", "https://example.com/other-series")); // No matching feed title
 
             var processSeries = new StorageData(new AnimeInfoStorage
             {
                 RowKey = "1",
-                PartitionKey = "2023-spring", // Old season
+                PartitionKey = "2024-summer",
                 Title = "Test Anime",
                 Synopsis = "Test synopsis",
                 FeedTitle = string.Empty,
                 Status = SeriesStatus.NotAvailableValue
-            }, new NoImage(), Status.NewSeries);
+            }, new NoImage(), Status.NewSeries, airing);
 
             var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
-            var resultScrapData = Result<ScrapTvLibraryData>.Success(scrapData);
-            var initialData = Task.FromResult(resultScrapData);
+            var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
 
-            // Empty stored series (no existing series)
-            var storedSeries = dbSeries;
-
-            // Setup StoredSeriesGetter fake
             var storedSeriesGetter = Substitute.For<StoredSeries>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
+                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
 
-            // Setup TimeProvider fake with a date in the future against the scrapped seasoon
-            var timeProvider = Substitute.For<TimeProvider>();
-            timeProvider.GetUtcNow()
-                .Returns(DateTimeOffset.Parse("2025-05-05T14:30:45+04:00"));
-
-            var result = await initialData.AddDataFromStorage(storedSeriesGetter, timeProvider, CancellationToken.None);
+            var result = await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
 
             result.AssertOnSuccess(r =>
             {
                 var updatedSeries = r.SeriesData.First().Series;
                 Assert.Equal(string.Empty, updatedSeries.FeedTitle);
-                Assert.Equal(SeriesStatus.CompletedValue, updatedSeries.Status);
+                Assert.Equal(expectedStatus, updatedSeries.Status);
             });
         }
     }

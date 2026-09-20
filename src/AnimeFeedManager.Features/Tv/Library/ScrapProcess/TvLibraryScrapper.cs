@@ -17,27 +17,21 @@ internal sealed class TvLibraryScrapper : ITvLibraryScrapper
     private readonly ISeasonFeedDataProvider _seasonFeedDataProvider;
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IAnimeScheduleClient _animeScheduleClient;
-    private readonly TimeProvider _timeProvider;
 
     public TvLibraryScrapper(
         ISeasonFeedDataProvider seasonFeedDataProvider,
         ITableClientFactory tableClientFactory,
-        IAnimeScheduleClient animeScheduleClient,
-        TimeProvider timeProvider)
+        IAnimeScheduleClient animeScheduleClient)
     {
         _seasonFeedDataProvider = seasonFeedDataProvider;
         _tableClientFactory = tableClientFactory;
         _animeScheduleClient = animeScheduleClient;
-        _timeProvider = timeProvider;
     }
 
     public Task<Result<ScrapTvLibraryData>> ScrapTvSeries(SeasonSelector season, CancellationToken token = default)
     {
         return _seasonFeedDataProvider.Get()
             .ScrapSeries(_animeScheduleClient, season, token)
-            .AddDataFromStorage(
-                _tableClientFactory.TableStorageExistentStoredSeries,
-                _timeProvider,
-                token);
+            .AddDataFromStorage(_tableClientFactory.TableStorageExistentStoredSeries, token);
     }
 }

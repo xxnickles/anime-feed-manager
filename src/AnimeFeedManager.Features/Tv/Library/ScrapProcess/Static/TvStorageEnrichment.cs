@@ -8,29 +8,24 @@ internal static class TvStorageEnrichment
     internal static Task<Result<ScrapTvLibraryData>> AddDataFromStorage(
         this Task<Result<ScrapTvLibraryData>> data,
         StoredSeries storedSeries,
-        TimeProvider timeProvider,
         CancellationToken token = default) =>
-        data.Bind(d => AddExistentDataFromStorage(d, storedSeries, timeProvider, token));
+        data.Bind(d => AddExistentDataFromStorage(d, storedSeries, token));
 
     private static Task<Result<ScrapTvLibraryData>> AddExistentDataFromStorage(
         ScrapTvLibraryData scrapTvLibraryData,
         StoredSeries storedSeries,
-        TimeProvider timeProvider,
         CancellationToken token = default)
     {
-        var isOldSeason = Utils.IsOldSeason(scrapTvLibraryData.Season, timeProvider);
-
         return storedSeries(scrapTvLibraryData.Season, token)
             .Map(series => scrapTvLibraryData.SeriesData.Select(s =>
-                ProcessSeriesData(s, scrapTvLibraryData.FeedData, series, isOldSeason)))
+                ProcessSeriesData(s, scrapTvLibraryData.FeedData, series)))
             .Map(seriesData => scrapTvLibraryData with { SeriesData = seriesData });
     }
 
     private static StorageData ProcessSeriesData(
         StorageData storageSeries,
         ImmutableArray<FeedData> feedData,
-        ImmutableArray<TvSeriesInfo> existentSeries,
-        bool isOldSeason)
+        ImmutableArray<TvSeriesInfo> existentSeries)
     {
         var currentInfo = existentSeries.FirstOrDefault(s => s.Title == storageSeries.Series.Title);
         var feedDataInProcess = feedData.TryGetFeedMatch(storageSeries.Series.Title ?? string.Empty);
@@ -39,25 +34,17 @@ internal static class TvStorageEnrichment
 
         if (currentInfo is not null)
         {
-            return ProcessExistentSeries(
-                storageSeries,
-                baseSeries,
-                currentInfo,
-                feedDataInProcess,
-                isOldSeason);
+            return ProcessExistentSeries(storageSeries, baseSeries, currentInfo, feedDataInProcess);
         }
 
         if (feedDataInProcess is not null)
         {
-            baseSeries.Status = SeriesStatus.OngoingValue;
             baseSeries.FeedTitle = feedDataInProcess.Title;
             baseSeries.FeedLink = feedDataInProcess.Url;
-            return storageSeries with { Series = baseSeries, Status = Status.NewSeries };
         }
 
-        if (!isOldSeason) return storageSeries with { Status = Status.NewSeries };
-
-        baseSeries.Status = SeriesStatus.Completed();
+        // Nothing stored, so no transition to guard against.
+        baseSeries.Status = ResolveStatus(storageSeries.Airing, feedDataInProcess is not null, null);
         return storageSeries with { Series = baseSeries, Status = Status.NewSeries };
     }
 
@@ -65,8 +52,7 @@ internal static class TvStorageEnrichment
         StorageData storageSeries,
         AnimeInfoStorage baseSeries,
         TvSeriesInfo currentInfo,
-        FeedData? feedDataInProcess,
-        bool isOldSeason)
+        FeedData? feedDataInProcess)
     {
         if (!string.IsNullOrWhiteSpace(currentInfo.FeedTitle) || !string.IsNullOrWhiteSpace(currentInfo.FeedUrl))
         {
@@ -81,7 +67,7 @@ internal static class TvStorageEnrichment
             baseSeries.FeedLink = feedDataInProcess?.Url;
         }
 
-        baseSeries.Status = CalculateSeriesStatus(currentInfo.Status, feedDataInProcess is not null, isOldSeason);
+        baseSeries.Status = ResolveStatus(storageSeries.Airing, feedDataInProcess is not null, currentInfo.Status);
 
         // This scrap owns the provider block; the stored user block survives it untouched.
         baseSeries.AlternativeTitles = (StoredAlternativeTitles.Parse(baseSeries.AlternativeTitles) with
@@ -99,18 +85,23 @@ internal static class TvStorageEnrichment
             };
 
         baseSeries.ImagePath = withImage.ImageUrl;
-        return new StorageData(baseSeries, new AlreadyExistInSystem(), Status.UpdatedSeries);
+        return new StorageData(baseSeries, new AlreadyExistInSystem(), Status.UpdatedSeries, storageSeries.Airing);
     }
 
-    private static string CalculateSeriesStatus(SeriesStatus currentStatus, bool hasFeedMatch, bool isOldSeason) =>
-        (currentStatus.ToString(), hasFeedMatch) switch
-        {
-            (SeriesStatus.NotAvailableValue, true) => SeriesStatus.OngoingValue,
-            (SeriesStatus.NotAvailableValue, false) => isOldSeason
-                ? SeriesStatus.Completed()
-                : SeriesStatus.NotAvailable(),
-            (SeriesStatus.OngoingValue, false) => SeriesStatus.Completed(),
-            (SeriesStatus.OngoingValue, true) => SeriesStatus.Ongoing(),
-            (_, _) => SeriesStatus.NotAvailable(),
-        };
+    /// <summary>
+    /// The feed decides availability; the provider only resolves what "not in the feed" means.
+    /// <paramref name="stored"/> is consulted solely to veto a forbidden transition — a series that
+    /// has aired never rewinds to NotAvailable — never to derive the new status.
+    /// </summary>
+    private static string ResolveStatus(AiringStatus airing, bool hasFeedMatch, SeriesStatus? stored)
+    {
+        if (hasFeedMatch) return SeriesStatus.OngoingValue;
+        if (airing is AiringStatus.Finished) return SeriesStatus.CompletedValue;
+
+        // Held at its stored value, the completion sweep finishes the job on feed absence.
+        var current = stored?.ToString();
+        return current is SeriesStatus.OngoingValue or SeriesStatus.CompletedValue
+            ? current
+            : SeriesStatus.NotAvailableValue;
+    }
 }

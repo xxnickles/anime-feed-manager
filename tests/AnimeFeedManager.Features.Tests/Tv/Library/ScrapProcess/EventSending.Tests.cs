@@ -120,7 +120,7 @@ public class EventSendingTests
             Synopsis = "s",
             Status = seriesStatus
         };
-        return new StorageData(series, new NoImage(), processStatus);
+        return new StorageData(series, new NoImage(), processStatus, AiringStatus.Unknown);
     }
 
     private static ScrapTvLibraryData CreateTestLibrary(IEnumerable<StorageData> items, SeriesSeason season,

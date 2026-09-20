@@ -76,7 +76,19 @@ internal static partial class AnimeScheduleTvScrapper
                 AlternativeTitles = ProviderTitles(anime.Names).ToStoredString()
             },
             Image(anime.ImageVersionRoute),
-            Status.NewSeries);
+            Status.NewSeries,
+            ToAiringStatus(anime.Status));
+
+    // The provider's value set is open and its documentation omits values it actually sends, so
+    // anything unrecognised imports as Unknown and lets the feed decide.
+    private static AiringStatus ToAiringStatus(string status) => status.ToLowerInvariant() switch
+    {
+        "upcoming" => AiringStatus.Upcoming,
+        "ongoing" => AiringStatus.Ongoing,
+        "finished" => AiringStatus.Finished,
+        "delayed" => AiringStatus.Delayed,
+        _ => AiringStatus.Unknown
+    };
 
     // Only the provider block is filled here; the user block belongs to the editor and is merged
     // back in by TvStorageEnrichment for series already in storage.

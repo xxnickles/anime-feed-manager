@@ -5,6 +5,10 @@ internal sealed record AnimeScheduleResponse(
     int TotalAmount,
     AnimeScheduleAnime[] Anime);
 
+/// <summary>
+/// <paramref name="Status"/> is the provider's airing state: <c>Upcoming</c>, <c>Ongoing</c>,
+/// <c>Finished</c> or <c>Delayed</c>. The set is not closed — treat anything else as unknown.
+/// </summary>
 public sealed record AnimeScheduleAnime(
     string Id,
     string Title,
@@ -13,7 +17,8 @@ public sealed record AnimeScheduleAnime(
     DateTime? Premier,
     AnimeScheduleSeason? Season,
     AnimeScheduleNames? Names,
-    AnimeScheduleMediaType[]? MediaTypes);
+    AnimeScheduleMediaType[]? MediaTypes,
+    string Status);
 
 /// <summary>
 /// <paramref name="Year"/> is a string here, unlike the int <c>year</c> on the anime itself.
