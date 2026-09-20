@@ -47,7 +47,6 @@ public static class NotificationProcess
                     PartitionKey = updateNotification.Subscriptions.UserId,
                     RowKey = s.SeriesId,
                     Type = nameof(SubscriptionType.Subscribed),
-                    Status = nameof(SubscriptionStatus.Active),
                     SeriesTitle = feed.Title,
                     SeriesFeedTitle = feed.Title,
                     SeriesLink = feed.Url,

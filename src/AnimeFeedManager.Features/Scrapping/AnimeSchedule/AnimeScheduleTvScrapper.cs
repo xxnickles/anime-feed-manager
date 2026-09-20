@@ -60,7 +60,7 @@ internal static partial class AnimeScheduleTvScrapper
 
     // Shorts are a media type of their own here, and are part of the library.
     private static bool IsTvSeries(AnimeScheduleAnime anime) =>
-        (anime.MediaTypes ?? []).Any(mediaType => mediaType.Route is "tv" or "tv-short");
+        anime.MediaTypes.Any(mediaType => mediaType.Route is "tv" or "tv-short");
 
     private static StorageData ToStorageData(AnimeScheduleAnime anime, Season season, Year year) =>
         new(new AnimeInfoStorage
@@ -76,7 +76,19 @@ internal static partial class AnimeScheduleTvScrapper
                 AlternativeTitles = ProviderTitles(anime.Names).ToStoredString()
             },
             Image(anime.ImageVersionRoute),
-            Status.NewSeries);
+            Status.NewSeries,
+            ToAiringStatus(anime.Status));
+
+    // The provider's value set is open and its documentation omits values it actually sends, so
+    // anything unrecognised imports as Unknown and lets the feed decide.
+    private static AiringStatus ToAiringStatus(string status) => status.ToLowerInvariant() switch
+    {
+        "upcoming" => AiringStatus.Upcoming,
+        "ongoing" => AiringStatus.Ongoing,
+        "finished" => AiringStatus.Finished,
+        "delayed" => AiringStatus.Delayed,
+        _ => AiringStatus.Unknown
+    };
 
     // Only the provider block is filled here; the user block belongs to the editor and is merged
     // back in by TvStorageEnrichment for series already in storage.

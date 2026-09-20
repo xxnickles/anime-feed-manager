@@ -238,6 +238,51 @@ public class AnimeScheduleTvScrapperTests
 
     #endregion
 
+    #region Airing status
+
+    [Theory]
+    [InlineData("Upcoming", AiringStatus.Upcoming)]
+    [InlineData("Ongoing", AiringStatus.Ongoing)]
+    [InlineData("Finished", AiringStatus.Finished)]
+    [InlineData("Delayed", AiringStatus.Delayed)]
+    public async Task Provider_Status_Maps_To_AiringStatus(string providerStatus, AiringStatus expected)
+    {
+        var client = ClientReturning(CreateAnime(title: "X", status: providerStatus));
+
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
+
+        result.AssertOnSuccess(data => Assert.Equal(expected, Single(data).Airing));
+    }
+
+    [Theory]
+    [InlineData("ONGOING", AiringStatus.Ongoing)]
+    [InlineData("finished", AiringStatus.Finished)]
+    public async Task Provider_Status_Casing_Is_Ignored(string providerStatus, AiringStatus expected)
+    {
+        var client = ClientReturning(CreateAnime(title: "X", status: providerStatus));
+
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
+
+        result.AssertOnSuccess(data => Assert.Equal(expected, Single(data).Airing));
+    }
+
+    // The provider's documented value set already omits a value it sends, so unrecognised input
+    // must degrade rather than throw.
+    [Theory]
+    [InlineData("")]
+    [InlineData("  ")]
+    [InlineData("Hiatus")]
+    public async Task Unrecognised_Provider_Status_Is_Unknown(string providerStatus)
+    {
+        var client = ClientReturning(CreateAnime(title: "X", status: providerStatus));
+
+        var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
+
+        result.AssertOnSuccess(data => Assert.Equal(AiringStatus.Unknown, Single(data).Airing));
+    }
+
+    #endregion
+
     #region Test Helpers
 
     private static Task<Result<ImmutableArray<FeedData>>> EmptyFeed() =>
@@ -263,7 +308,8 @@ public class AnimeScheduleTvScrapperTests
         string? imageVersionRoute = "anime/jpg/default/show.jpg",
         DateTime? premier = null,
         string mediaTypeRoute = "tv",
-        AnimeScheduleMediaType[]? mediaTypes = null) =>
+        AnimeScheduleMediaType[]? mediaTypes = null,
+        string status = "Ongoing") =>
         new(id,
             title,
             description,
@@ -271,7 +317,8 @@ public class AnimeScheduleTvScrapperTests
             premier,
             new AnimeScheduleSeason("Summer 2026", "2026", "Summer", "summer-2026"),
             Names: null,
-            mediaTypes ?? [new AnimeScheduleMediaType(mediaTypeRoute.ToUpperInvariant(), mediaTypeRoute)]);
+            mediaTypes ?? [new AnimeScheduleMediaType(mediaTypeRoute.ToUpperInvariant(), mediaTypeRoute)],
+            status);
 
     #endregion
 }

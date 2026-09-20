@@ -38,19 +38,11 @@ public static class EventSending
             new CompleteOngoingSeries(titles),
             new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Completed,
                 data.summary.AsEventPayload()),
-            .. GetCompletedSeriesEvent(data.processData),
             .. GetUpdatedToOngoingEvents(data.processData),
             .. GetFeedUpdatedEvents(data.processData)
         ];
     }
 
-
-    private static CompletedSeries[] GetCompletedSeriesEvent(ScrapTvLibraryData data)
-    {
-        return data.SeriesData.Where(s => s.Series.Status == SeriesStatus.Completed())
-            .Select(s => new CompletedSeries(s.Series.RowKey ?? string.Empty))
-            .ToArray();
-    }
 
     private static DomainMessage[] GetFeedUpdatedEvents(ScrapTvLibraryData data)
     {

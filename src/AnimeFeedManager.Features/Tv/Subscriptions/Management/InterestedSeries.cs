@@ -39,7 +39,6 @@ public static class InterestedSeries
                 PartitionKey = userId,
                 RowKey = seriesId,
                 Type = nameof(SubscriptionType.None),
-                Status = nameof(SubscriptionStatus.Active),
                 SeriesTitle = seriesTitle,
                 UserEmail = userEmail
             };

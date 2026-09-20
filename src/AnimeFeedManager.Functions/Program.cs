@@ -54,8 +54,6 @@ if (!string.IsNullOrEmpty(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
 builder.RegisterStorageServices()
     .RegisterAppDependencies();
 
-builder.Services.AddSingleton(TimeProvider.System);
-
 builder.Services
     .AddHttpClient();
 

@@ -11,29 +11,4 @@ internal static class Utils
             ? null
             : feedInfo.FirstOrDefault(info => Fuzz.WeightedRatio(info.Title, animeTitle) > 73);
     }
-
-    internal static bool IsOldSeason(SeriesSeason seasonInformation, TimeProvider timeProvider)
-    {
-        var reference = timeProvider.GetUtcNow().AddMonths(-5);
-        var referenceSeason = reference.Month switch
-        {
-            < 4 => Season.Winter(),
-            < 7 => Season.Spring(),
-            < 10 => Season.Summer(),
-            _ => Season.Fall()
-        };
-
-        var referenceYear = Year.FromNumber(reference.Year);
-        if (seasonInformation.Year > referenceYear)
-        {
-            return false;
-        }
-
-        if (seasonInformation.Year == referenceYear)
-        {
-            return referenceSeason > seasonInformation.Season;
-        }
-
-        return true;
-    }
 }

@@ -13,13 +13,13 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess;
 public class EventSendingTests
 {
     [Fact]
-    public async Task Should_Send_Only_Completed_And_UpdatedToOngoing_And_FeedUpdated_Correctly()
+    public async Task Should_Send_Only_UpdatedToOngoing_And_FeedUpdated_Correctly()
     {
         var season = new SeriesSeason(Season.Summer(), Year.FromNumber(2025));
 
         var items = new List<StorageData>
         {
-            // Completed series (should emit CompletedSeries)
+            // Completed series (emits no per-series event)
             MakeSeries("c-1", "Completed A", string.Empty, SeriesStatus.Completed(), Status.NewSeries),
             // Ongoing and updated (should emit UpdatedToOngoing and SeriesFeedUpdated)
             MakeSeries("o-1", "Ongoing A", "OngoingA-Feed", SeriesStatus.Ongoing(), Status.UpdatedSeries),
@@ -27,7 +27,7 @@ public class EventSendingTests
             MakeSeries("o-2", "Ongoing B", "OngoingB-Feed", SeriesStatus.Ongoing(), Status.NoChanges),
             // NotAvailable with feed (should emit SeriesFeedUpdated only)
             MakeSeries("n-1", "NA A", "NAA-Feed", SeriesStatus.NotAvailable(), Status.NewSeries),
-            // Completed but process says NoChanges (still should emit CompletedSeries because filter is on Series.Status)
+            // Completed but process says NoChanges (emits no per-series event)
             MakeSeries("c-2", "Completed B", string.Empty, SeriesStatus.Completed(), Status.NoChanges),
             // NotAvailable and no feed (no specific events)
             MakeSeries("n-2", "NA B", string.Empty, SeriesStatus.NotAvailable(), Status.NoChanges)
@@ -52,10 +52,6 @@ public class EventSendingTests
         Assert.Contains(messages,
             m => m is CompleteOngoingSeries cos && cos.Feed.SequenceEqual(new[] {"feed-a", "feed-b"}));
         Assert.Contains(messages, m => m is SystemEvent se && se.Type == EventType.Completed);
-
-        // CompletedSeries only for items with Series.Status == Completed
-        var completed = messages.OfType<CompletedSeries>().Select(x => x.Id).OrderBy(x => x).ToArray();
-        Assert.Equal(new[] {"c-1", "c-2"}, completed);
 
         // UpdatedToOngoing only for items with Series.Status == Ongoing AND item.Status != NoChanges
         var updatedToOngoing = messages.OfType<UpdatedToOngoing>().Select(x => x.Series).ToArray();
@@ -124,7 +120,7 @@ public class EventSendingTests
             Synopsis = "s",
             Status = seriesStatus
         };
-        return new StorageData(series, new NoImage(), processStatus);
+        return new StorageData(series, new NoImage(), processStatus, AiringStatus.Unknown);
     }
 
     private static ScrapTvLibraryData CreateTestLibrary(IEnumerable<StorageData> items, SeriesSeason season,
