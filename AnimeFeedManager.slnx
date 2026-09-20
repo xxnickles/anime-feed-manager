@@ -4,18 +4,22 @@
     <Project Path="src/AnimeFeedManager.ServiceDefaults/AnimeFeedManager.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/Backend/">
-    <Project Path="tests/AnimeFeedManager.Features.Tests/AnimeFeedManager.Features.Tests.csproj" />
-    <Project Path="tests/AnimeFeedManager.Shared.Tests/AnimeFeedManager.Shared.Tests.csproj" />
-    <Project Path="src/AnimeFeedManager.Features/AnimeFeedManager.Features.csproj" />
     <Project Path="src/AnimeFeedManager.Functions/AnimeFeedManager.Functions.csproj" />
-    <Project Path="src/AnimeFeedManager.Services.Shared/AnimeFeedManager.Services.Shared.csproj" />
-    <Project Path="src/AnimeFeedManager.Shared/AnimeFeedManager.Shared.csproj" />
-    <Project Path="src/AnimeFeedManager.SourceGenerators/AnimeFeedManager.SourceGenerators.csproj" />
+  </Folder>
+  <Folder Name="/Features/">
+    <Project Path="src/AnimeFeedManager.Features/AnimeFeedManager.Features.csproj" />
+    <Project Path="tests/AnimeFeedManager.Features.Tests/AnimeFeedManager.Features.Tests.csproj" />
   </Folder>
   <Folder Name="/FrontEnd/">
     <Project Path="tests/AnimeFeedManager.Web.BlazorComponents.Tests/AnimeFeedManager.Web.BlazorComponents.Tests.csproj" />
     <Project Path="src/AnimeFeedManager.Web.BlazorComponents/AnimeFeedManager.Web.BlazorComponents.csproj" />
     <Project Path="src/AnimeFeedManager.Web/AnimeFeedManager.Web.csproj" />
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="src/AnimeFeedManager.Services.Shared/AnimeFeedManager.Services.Shared.csproj" />
+    <Project Path="src/AnimeFeedManager.Shared/AnimeFeedManager.Shared.csproj" />
+    <Project Path="src/AnimeFeedManager.SourceGenerators/AnimeFeedManager.SourceGenerators.csproj" />
+    <Project Path="tests/AnimeFeedManager.Shared.Tests/AnimeFeedManager.Shared.Tests.csproj" />
   </Folder>
 
   <Folder Name="/SolutionItems/">
