@@ -53,16 +53,52 @@ public static class ExistentSubscriptions
                     client.ExecuteQuery<SubscriptionStorage>(
                             storage => storage.Type == nameof(SubscriptionType.Subscribed),
                             token)
-                        .Map(subscriptions => subscriptions
-                            .Where(s => s.SeriesFeedTitle != null && titles.Contains(s.SeriesFeedTitle))
-                            .GroupBy(s => s.PartitionKey)
-                            .Select(g => new UserActiveSubscriptions(
-                                g.Key ?? string.Empty,
-                                g.First().UserEmail,
-                                g.Select(s => new ActiveSubscription(
-                                    s.RowKey ?? string.Empty,
-                                    s.SeriesFeedTitle ?? string.Empty,
-                                    (s.NotifiedEpisodes ?? string.Empty).StringToAppArray())).ToArray()))
-                            .ToArray()));
+                        .Bind(subscriptions => ToUserActiveSubscriptions(subscriptions, titles)));
     }
+
+    internal static Result<UserActiveSubscriptions[]> ToUserActiveSubscriptions(
+        ImmutableArray<SubscriptionStorage> rows,
+        IEnumerable<string> feedTitles) =>
+        rows
+            .Where(s => s.SeriesFeedTitle != null && feedTitles.Contains(s.SeriesFeedTitle))
+            .GroupBy(s => s.PartitionKey)
+            .Select(ToUserSubscriptions)
+            .Flatten(users => users.ToArray())
+            .AddLogOnSuccess(bulk => bulk.LogErrors)
+            .Map(bulk => bulk.Value);
+
+    private static Result<UserActiveSubscriptions> ToUserSubscriptions(
+        IGrouping<string?, SubscriptionStorage> userRows) =>
+        userRows
+            .GroupBy(s => s.SeriesFeedTitle!)
+            .Select(PickAiringSeries)
+            .Flatten(subscriptions => subscriptions.ToArray())
+            .Map(bulk => new UserActiveSubscriptions(
+                userRows.Key ?? string.Empty,
+                userRows.First().UserEmail,
+                bulk.Value));
+
+    /// <summary>
+    /// A series and its later season can share one feed title. The feed's episodes belong to whichever
+    /// is airing now, so the newest wins. Fails only when no candidate carries a readable season.
+    /// </summary>
+    private static Result<ActiveSubscription> PickAiringSeries(
+        IGrouping<string, SubscriptionStorage> sharingFeedTitle)
+    {
+        var rows = sharingFeedTitle.ToArray();
+
+        if (rows.Length == 1)
+            return ToActiveSubscription(rows[0]);
+
+        return rows
+            .Select(row => IdHelpers.SeriesSeasonFromId(row.RowKey ?? string.Empty)
+                .Map(parsed => (Row: row, SeriesSeason: parsed)))
+            .Flatten(candidates => candidates.MaxBy(c => (c.SeriesSeason.Year, c.SeriesSeason.Season)).Row)
+            .Map(bulk => ToActiveSubscription(bulk.Value));
+    }
+
+    private static ActiveSubscription ToActiveSubscription(SubscriptionStorage row) =>
+        new(row.RowKey ?? string.Empty,
+            row.SeriesFeedTitle ?? string.Empty,
+            (row.NotifiedEpisodes ?? string.Empty).StringToAppArray());
 }
