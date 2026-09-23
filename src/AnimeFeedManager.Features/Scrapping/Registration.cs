@@ -1,7 +1,9 @@
+using System.Net;
 using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PuppeteerSharp;
 using PuppeteerSharp.BrowserData;
@@ -75,6 +77,12 @@ public static class Registration
             // TotalRequestTimeout is generous because a season walk is many sequential requests.
             .AddStandardResilienceHandler(options =>
             {
+                // A 429 here is a soft ban on the whole caller IP range, lasting hours. The default
+                // predicate counts it as transient and would spend every retry attempt deepening it,
+                // so it is excluded; everything else keeps the standard transient handling.
+                options.Retry.ShouldHandle = args => ValueTask.FromResult(
+                    args.Outcome.Result?.StatusCode != HttpStatusCode.TooManyRequests
+                    && HttpClientResiliencePredicates.IsTransient(args.Outcome));
                 options.Retry.MaxRetryAttempts = 3;
                 options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
                 options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(60);
