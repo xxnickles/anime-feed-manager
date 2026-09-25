@@ -13,13 +13,13 @@ public class AnimeScheduleTvScrapperTests
     #region Season selection
 
     [Fact]
-    public async Task Current_Routes_To_ResolveCurrentSeason()
+    public async Task Current_Routes_To_GetCurrentSeason()
     {
         var client = ClientReturning(CreateAnime(title: "X"));
 
         var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
-        _ = client.Received(1).ResolveCurrentSeason(Arg.Any<CancellationToken>());
+        _ = client.Received(1).GetCurrentSeason(Arg.Any<CancellationToken>());
         result.AssertOnSuccess(data => Assert.Single(data.SeriesData));
     }
 
@@ -34,7 +34,7 @@ public class AnimeScheduleTvScrapperTests
         var result = await EmptyFeed().ScrapSeries(client, selector, CancellationToken.None);
 
         _ = client.Received(1).GetSeason(2026, "spring", Arg.Any<CancellationToken>());
-        _ = client.DidNotReceive().ResolveCurrentSeason(Arg.Any<CancellationToken>());
+        _ = client.DidNotReceive().GetCurrentSeason(Arg.Any<CancellationToken>());
         result.AssertOnSuccess(data => Assert.Single(data.SeriesData));
     }
 
@@ -65,8 +65,8 @@ public class AnimeScheduleTvScrapperTests
     public async Task Client_Failure_Propagates()
     {
         var client = Substitute.For<IAnimeScheduleClient>();
-        client.ResolveCurrentSeason(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<SeriesSeason>.Failure(HandledError.Create())));
+        client.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result<CurrentSeasonSeries>.Failure(HandledError.Create())));
 
         var result = await EmptyFeed().ScrapSeries(client, new Current(), CancellationToken.None);
 
@@ -293,9 +293,9 @@ public class AnimeScheduleTvScrapperTests
     private static IAnimeScheduleClient ClientReturning(params AnimeScheduleAnime[] series)
     {
         var client = Substitute.For<IAnimeScheduleClient>();
-        client.ResolveCurrentSeason(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<SeriesSeason>.Success(
-                new SeriesSeason(Season.Summer(), Year.FromNumber(2026)))));
+        client.GetCurrentSeason(Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result<CurrentSeasonSeries>.Success(
+                new CurrentSeasonSeries(new SeriesSeason(Season.Summer(), Year.FromNumber(2026)), []))));
         client.GetSeason(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>>.Success([..series])));
         return client;

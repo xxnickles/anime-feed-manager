@@ -102,10 +102,10 @@ public class AnimeScheduleClientTests : IDisposable
 
     #endregion
 
-    #region ResolveCurrentSeason
+    #region GetCurrentSeason
 
     [Fact]
-    public async Task ResolveCurrentSeason_ReturnsSeasonWithMostOngoingSeries()
+    public async Task GetCurrentSeason_ReturnsSeasonWithMostOngoingSeries()
     {
         StubOngoingPage(1, totalAmount: 5,
             Entry("a", "A", season: "Summer", year: "2026"),
@@ -114,27 +114,42 @@ public class AnimeScheduleClientTests : IDisposable
             Entry("d", "D", season: "Spring", year: "2026"),
             Entry("e", "E", season: "Fall", year: "1999"));
 
-        var result = await CreateClient().ResolveCurrentSeason(CancellationToken.None);
+        var result = await CreateClient().GetCurrentSeason(CancellationToken.None);
 
-        result.AssertOnSuccess(season =>
+        result.AssertOnSuccess(current =>
         {
-            Assert.Equal(Season.Summer(), season.Season);
-            Assert.Equal(2026, season.Year);
+            Assert.Equal(Season.Summer(), current.Season.Season);
+            Assert.Equal(2026, current.Season.Year);
         });
     }
 
     [Fact]
-    public async Task ResolveCurrentSeason_ResolvedSeasonIsNotMarkedLatest()
+    public async Task GetCurrentSeason_ReturnsEveryOngoingSeries_WhateverItsSeason()
     {
-        StubOngoingPage(1, totalAmount: 1, Entry("a", "A", season: "Summer", year: "2026"));
+        StubOngoingPage(1, PageSize + 1,
+            Entry("a", "A", season: "Summer", year: "2026"),
+            Entry("b", "B", season: "Fall", year: "1999"),
+            Entry("c", "C", season: null, year: null));
+        StubOngoingPage(2, PageSize + 1, Entry("d", "D", season: "Spring", year: "2026"));
 
-        var result = await CreateClient().ResolveCurrentSeason(CancellationToken.None);
+        var result = await CreateClient().GetCurrentSeason(CancellationToken.None);
 
-        result.AssertOnSuccess(season => Assert.False(season.IsLatest));
+        result.AssertOnSuccess(current =>
+            Assert.Equal(["A", "B", "C", "D"], current.Series.Select(series => series.Title)));
     }
 
     [Fact]
-    public async Task ResolveCurrentSeason_IgnoresEntriesWithUnusableSeason()
+    public async Task GetCurrentSeason_ResolvedSeasonIsNotMarkedLatest()
+    {
+        StubOngoingPage(1, totalAmount: 1, Entry("a", "A", season: "Summer", year: "2026"));
+
+        var result = await CreateClient().GetCurrentSeason(CancellationToken.None);
+
+        result.AssertOnSuccess(current => Assert.False(current.Season.IsLatest));
+    }
+
+    [Fact]
+    public async Task GetCurrentSeason_IgnoresEntriesWithUnusableSeason()
     {
         StubOngoingPage(1, totalAmount: 4,
             Entry("a", "A", season: "", year: "2027"),
@@ -142,27 +157,27 @@ public class AnimeScheduleClientTests : IDisposable
             Entry("c", "C", season: "Spring", year: "2026"),
             Entry("d", "D", season: null, year: null));
 
-        var result = await CreateClient().ResolveCurrentSeason(CancellationToken.None);
+        var result = await CreateClient().GetCurrentSeason(CancellationToken.None);
 
-        result.AssertOnSuccess(season =>
+        result.AssertOnSuccess(current =>
         {
-            Assert.Equal(Season.Spring(), season.Season);
-            Assert.Equal(2026, season.Year);
+            Assert.Equal(Season.Spring(), current.Season.Season);
+            Assert.Equal(2026, current.Season.Year);
         });
     }
 
     [Fact]
-    public async Task ResolveCurrentSeason_NoUsableSeasons_ReturnsFailure()
+    public async Task GetCurrentSeason_NoUsableSeasons_ReturnsFailure()
     {
         StubOngoingPage(1, totalAmount: 1, Entry("a", "A", season: null, year: null));
 
-        var result = await CreateClient().ResolveCurrentSeason(CancellationToken.None);
+        var result = await CreateClient().GetCurrentSeason(CancellationToken.None);
 
         result.AssertError();
     }
 
     [Fact]
-    public async Task ResolveCurrentSeason_FirstPageFails_ReturnsFailure()
+    public async Task GetCurrentSeason_FirstPageFails_ReturnsFailure()
     {
         _server
             .Given(Request.Create().WithPath("/anime")
@@ -171,7 +186,7 @@ public class AnimeScheduleClientTests : IDisposable
                 .UsingGet())
             .RespondWith(Response.Create().WithStatusCode(500));
 
-        var result = await CreateClient().ResolveCurrentSeason(CancellationToken.None);
+        var result = await CreateClient().GetCurrentSeason(CancellationToken.None);
 
         result.AssertError();
     }

@@ -41,7 +41,7 @@ internal static partial class AnimeScheduleTvScrapper
         CancellationToken token) =>
         selector switch
         {
-            Current => client.ResolveCurrentSeason(token),
+            Current => client.GetCurrentSeason(token).Map(current => current.Season),
             BySeason bySeason => Task.FromResult<Result<SeriesSeason>>(
                 new SeriesSeason(bySeason.Season, bySeason.Year)),
             _ => throw new UnreachableException()

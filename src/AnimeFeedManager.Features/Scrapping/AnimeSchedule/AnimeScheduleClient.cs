@@ -2,13 +2,17 @@ using System.Net;
 
 namespace AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 
+/// <param name="Season">The season most represented among <paramref name="Series"/>.</param>
+/// <param name="Series">Every currently-airing series, whatever season it belongs to.</param>
+public sealed record CurrentSeasonSeries(SeriesSeason Season, ImmutableArray<AnimeScheduleAnime> Series);
+
 public interface IAnimeScheduleClient
 {
     /// <summary>
-    /// The season most represented among currently-airing series. Derived from live data rather
+    /// Currently-airing series, with the season they most represent. Derived from live data rather
     /// than the calendar, because seasons start before and run past their nominal boundaries.
     /// </summary>
-    Task<Result<SeriesSeason>> ResolveCurrentSeason(CancellationToken token = default);
+    Task<Result<CurrentSeasonSeries>> GetCurrentSeason(CancellationToken token = default);
 
     Task<Result<ImmutableArray<AnimeScheduleAnime>>> GetSeason(int year, string season,
         CancellationToken token = default);
@@ -31,10 +35,11 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
         CancellationToken token = default) =>
         FetchAllPages($"anime?seasons={season}&years={year}", token);
 
-    public Task<Result<SeriesSeason>> ResolveCurrentSeason(CancellationToken token = default) =>
+    public Task<Result<CurrentSeasonSeries>> GetCurrentSeason(CancellationToken token = default) =>
         FetchAllPages("anime?airing-statuses=ongoing", token)
-            .WithOperationName(nameof(ResolveCurrentSeason))
-            .Bind(MostRepresentedSeason);
+            .WithOperationName(nameof(GetCurrentSeason))
+            .Bind(ongoing => MostRepresentedSeason(ongoing)
+                .Map(season => new CurrentSeasonSeries(season, ongoing)));
 
     // Long-running series keep older seasons in the ongoing set, but never in numbers that rival
     // the season actually airing.

@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
     <!-- Azure packages -->
-    <PackageVersion Include="Azure.Data.Tables" Version="12.12.0" />
+    <PackageVersion Include="Azure.Data.Tables" Version="12.13.0" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.6.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.9.0" />
@@ -40,8 +40,8 @@
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.10.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <!-- OpenTelemetry packages -->
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.19.0" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.19.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.19.1" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.19.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.19.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.19.0" />
@@ -50,9 +50,9 @@
     <PackageVersion Include="MailKit" Version="4.18.0" />
     <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="Passwordless.AspNetCore" Version="2.0.0" />
-    <PackageVersion Include="PuppeteerSharp" Version="25.11.0" />
+    <PackageVersion Include="PuppeteerSharp" Version="25.12.0" />
     <PackageVersion Include="Raffinert.FuzzySharp" Version="6.0.1" />
-    <PackageVersion Include="WireMock.Net" Version="2.16.0" />
+    <PackageVersion Include="WireMock.Net" Version="2.18.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.1" />
   </ItemGroup>
 </Project>
