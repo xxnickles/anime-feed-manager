@@ -36,7 +36,6 @@ internal static class Registration
         // App
         builder.Services.RegisterStorageBasedServices();
         builder.Services.RegisterImageServices();
-        builder.Services.RegisterTvScrappingServices();
         builder.Services.RegisterEmailSender(builder.Configuration);
    
 

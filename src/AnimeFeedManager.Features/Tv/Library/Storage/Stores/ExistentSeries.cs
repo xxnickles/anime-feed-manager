@@ -29,7 +29,7 @@ public sealed record TvSeries(
     Uri? Image,
     DateTimeOffset? LastUpdated);
 
-public delegate Task<Result<ImmutableArray<TvSeriesInfo>>> StoredSeries(SeriesSeason season,
+public delegate Task<Result<ImmutableArray<TvSeriesInfo>>> StoredSeriesGetter(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
 public delegate Task<Result<ImmutableArray<AnimeInfoStorage>>> RawStoredSeries(SeriesSeason season,
@@ -56,7 +56,7 @@ public static class ExistentSeries
 {
     extension(ITableClientFactory clientFactory)
     {
-        public StoredSeries TableStorageExistentStoredSeries =>
+        public StoredSeriesGetter TableStorageExistentStoredSeriesGetter =>
             (season, token) =>
                 clientFactory.GetClient<AnimeInfoStorage>()
                     .Bind(client => client.GetStoredSeries(season, token))

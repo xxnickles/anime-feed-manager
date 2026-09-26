@@ -49,7 +49,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     SeriesStatus.Ongoing()));
             
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
@@ -98,7 +98,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var storedSeries = ImmutableArray<TvSeriesInfo>.Empty;
 
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
@@ -154,7 +154,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
             var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
 
-            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
 
@@ -228,7 +228,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
             var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
 
-            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
 

@@ -9,34 +9,19 @@ namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 public delegate Task<Result<ScrapTvLibraryData>> TvScrapper(SeasonSelector season, CancellationToken token);
 
-public interface ITvLibraryScrapper
+public static class TvLibraryScrapper
 {
-    Task<Result<ScrapTvLibraryData>> ScrapTvSeries(SeasonSelector season, CancellationToken token = default);
-}
-
-internal sealed class TvLibraryScrapper : ITvLibraryScrapper
-{
-    private readonly ISeasonFeedDataProvider _seasonFeedDataProvider;
-    private readonly ITableClientFactory _tableClientFactory;
-    private readonly IAnimeScheduleClient _animeScheduleClient;
-
-    public TvLibraryScrapper(
+    public static TvScrapper Scrapper(
+        IAnimeScheduleClient animeScheduleClient,
         ISeasonFeedDataProvider seasonFeedDataProvider,
-        ITableClientFactory tableClientFactory,
-        IAnimeScheduleClient animeScheduleClient)
-    {
-        _seasonFeedDataProvider = seasonFeedDataProvider;
-        _tableClientFactory = tableClientFactory;
-        _animeScheduleClient = animeScheduleClient;
-    }
-
-    public Task<Result<ScrapTvLibraryData>> ScrapTvSeries(SeasonSelector season, CancellationToken token = default)
-    {
-        return ResolveSeason(season, _tableClientFactory.TableStorageLatestSeason, token)
-            .Bind(resolved => _seasonFeedDataProvider.Get()
-                .ScrapSeries(_animeScheduleClient, resolved, token))
-            .AddDataFromStorage(_tableClientFactory.TableStorageExistentStoredSeries, token);
-    }
+        LatestSeasonGetter latestSeasonGetter,
+        StoredSeriesGetter storedSeriesGetter
+    ) => (season, token) => {
+        return ResolveSeason(season, latestSeasonGetter, token)
+            .Bind(resolved => seasonFeedDataProvider.Get()
+                .ScrapSeries(animeScheduleClient, resolved, token))
+            .AddDataFromStorage(storedSeriesGetter, token);
+    };
 
     // The featured season is elected by hand, so the current season is whichever one storage holds
     // as latest. Scraping never elects it, so every season resolved here carries IsLatest false.

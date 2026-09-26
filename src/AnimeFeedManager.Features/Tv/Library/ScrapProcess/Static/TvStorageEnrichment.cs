@@ -7,16 +7,16 @@ internal static class TvStorageEnrichment
 {
     internal static Task<Result<ScrapTvLibraryData>> AddDataFromStorage(
         this Task<Result<ScrapTvLibraryData>> data,
-        StoredSeries storedSeries,
+        StoredSeriesGetter storedSeriesGetter,
         CancellationToken token = default) =>
-        data.Bind(d => AddExistentDataFromStorage(d, storedSeries, token));
+        data.Bind(d => AddExistentDataFromStorage(d, storedSeriesGetter, token));
 
     private static Task<Result<ScrapTvLibraryData>> AddExistentDataFromStorage(
         ScrapTvLibraryData scrapTvLibraryData,
-        StoredSeries storedSeries,
+        StoredSeriesGetter storedSeriesGetter,
         CancellationToken token = default)
     {
-        return storedSeries(scrapTvLibraryData.Season, token)
+        return storedSeriesGetter(scrapTvLibraryData.Season, token)
             .Map(series => scrapTvLibraryData.SeriesData.Select(s =>
                 ProcessSeriesData(s, scrapTvLibraryData.FeedData, series)))
             .Map(seriesData => scrapTvLibraryData with { SeriesData = seriesData });
