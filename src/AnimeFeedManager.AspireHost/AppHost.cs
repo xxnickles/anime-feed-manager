@@ -3,16 +3,16 @@ using Aspire.Hosting.Azure;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var signalR = builder.AddAzureSignalR("signalr", AzureSignalRServiceMode.Serverless)
-    .RunAsEmulator();
+    .RunAsEmulator(emulator => emulator.WithImageTag("latest")
+        .WithImagePullPolicy(ImagePullPolicy.Missing)
+    );
 
 var storage = builder.AddAzureStorage("storage")
-    .RunAsEmulator(emulator =>
-    {
-        // emulator.WithDataVolume("azurite-data");
-        emulator.WithImageTag("latest");
-        emulator.WithBindMount(builder.Configuration["AzuriteDataPath"] ?? "../../../azurite-data", "/data");
-        emulator.WithLifetime(ContainerLifetime.Persistent);
-    });
+    .RunAsEmulator(emulator => emulator.WithImageTag("latest")
+            .WithImagePullPolicy(ImagePullPolicy.Missing)
+            .WithBindMount(builder.Configuration["AzuriteDataPath"] ?? "../../../azurite-data", "/data")
+            .WithLifetime(ContainerLifetime.Persistent)
+    );
 
 var blobs = storage.AddBlobs("BlobConnection");
 var queues = storage.AddQueues("QueueConnection");
@@ -25,6 +25,7 @@ builder.AddJavaScriptApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 const string chromeDevToken = "local-dev-token";
 
 var chrome = builder.AddContainer("chrome", "ghcr.io/browserless/chromium", "latest")
+    .WithImagePullPolicy(ImagePullPolicy.Missing)
     .WithHttpEndpoint(port: 3000, targetPort: 3000, name: "http")
     .WithEnvironment("TOKEN", chromeDevToken)
     .WithEnvironment("TIMEOUT", "120000")
@@ -63,6 +64,7 @@ builder.AddProject<Projects.AnimeFeedManager_Web>("web")
 
 
 builder.Build().Run();
+return;
 
 static string GetLocalCommitSha()
 {

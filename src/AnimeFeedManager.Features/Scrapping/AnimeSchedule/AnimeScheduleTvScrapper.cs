@@ -43,9 +43,10 @@ internal static partial class AnimeScheduleTvScrapper
             feedData,
             season);
 
-    // Shorts are a media type of their own here, and are part of the library.
+    // Shorts are a media type of their own here, and are part of the library. Untyped entries
+    // (the field is omitted, not empty) can't be confirmed as TV and are dropped.
     private static bool IsTvSeries(AnimeScheduleAnime anime) =>
-        anime.MediaTypes.Any(mediaType => mediaType.Route is "tv" or "tv-short");
+        anime.MediaTypes?.Any(mediaType => mediaType.Route is "tv" or "tv-short") is true;
 
     private static StorageData ToStorageData(AnimeScheduleAnime anime, Season season, Year year) =>
         new(new AnimeInfoStorage

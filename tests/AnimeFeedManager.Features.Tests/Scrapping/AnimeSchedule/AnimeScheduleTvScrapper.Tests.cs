@@ -86,6 +86,19 @@ public class AnimeScheduleTvScrapperTests
         result.AssertOnSuccess(data => Assert.Single(data.SeriesData, entry => entry.Series.Title == "Kept"));
     }
 
+    // The API omits the field rather than sending an empty list.
+    [Fact]
+    public async Task Entry_With_Missing_Media_Types_Is_Dropped()
+    {
+        var client = ClientReturning(
+            CreateAnime(title: "Kept", mediaTypeRoute: "tv"),
+            CreateAnime(title: "Untyped") with { MediaTypes = null });
+
+        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+
+        result.AssertOnSuccess(data => Assert.Single(data.SeriesData, entry => entry.Series.Title == "Kept"));
+    }
+
     #endregion
 
     #region Synopsis

@@ -17,7 +17,7 @@ public sealed record AnimeScheduleAnime(
     DateTime? Premier,
     AnimeScheduleSeason? Season,
     AnimeScheduleNames? Names,
-    AnimeScheduleMediaType[] MediaTypes,
+    AnimeScheduleMediaType[]? MediaTypes,
     string Status);
 
 /// <summary>
