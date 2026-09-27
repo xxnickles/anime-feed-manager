@@ -65,7 +65,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
 
             return new EmailBody(htmlContent, textFactory(model));
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return EmailRenderError.Create($"Template rendering failed: {ex.Message}");
         }
@@ -100,7 +100,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
 
             return new Unit();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return EmailSendError.Create($"SMTP send failed: {ex.Message}");
         }

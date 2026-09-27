@@ -13,7 +13,7 @@ internal static class StorageClientExtensions
             {
                 return Result<Response<T>>.Success(await action(client));
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not OperationCanceledException)
             {
                 return TableClient.HandleEntityException<Response<T>, T>(e);
             }
@@ -26,7 +26,7 @@ internal static class StorageClientExtensions
             {
                 return Result<Response>.Success(await action(client));
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not OperationCanceledException)
             {
                 return TableClient.HandleEntityException<Response, T>(e);
             }
@@ -60,7 +60,7 @@ internal static class StorageClientExtensions
 
                 return Result<ImmutableArray<T>>.Success(builder.DrainToImmutable());
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not OperationCanceledException)
             {
                 return ExceptionError.FromExceptionWithMessage(e,
                     "An error occurred when executing a Table Client query");
@@ -91,7 +91,7 @@ internal static class StorageClientExtensions
 
                 return Result<Unit>.Success();
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not OperationCanceledException)
             {
                 return ExceptionError.FromExceptionWithMessage(e,
                     "An error occurred when executing add batch operation");

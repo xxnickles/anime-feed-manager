@@ -33,7 +33,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
             return await ScrapeNewReleasesFromHomepage(page)
                 .Bind(shows => FetchEpisodesForAllShows(page, shows));
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             LogAnErrorOccurredWhenScrappingNewReleasesFromSubsplease(exception);
             return HandledError.Create();
@@ -75,7 +75,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
 
             return data ?? [];
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             LogHomePageScrappingException(exception);
             return HandledError.Create();
@@ -101,7 +101,7 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
 
             return data ?? [];
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             LogExceptionProcessingSeries(exception, showUrl);
             return HandledError.Create();

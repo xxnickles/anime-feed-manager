@@ -75,7 +75,9 @@ public class OnTvLibraryUpdate
         using var activity = Source.StartActivity("Tv.Library.Import");
         return await ScrapTvSeries(
                 seasonParameters,
-                TvLibraryScrapper.Scrapper(_animeScheduleClient, _seasonFeedDataProvider,
+                TvLibraryScrapper.Scrapper(
+                    _animeScheduleClient,
+                    _seasonFeedDataProvider,
                     _tableClientFactory.TableStorageLatestSeason,
                     _tableClientFactory.TableStorageExistentStoredSeriesGetter),
                 _imageProvider.Process,
