@@ -28,13 +28,18 @@ internal static class TvStorageEnrichment
         ImmutableArray<TvSeriesInfo> existentSeries)
     {
         var currentInfo = existentSeries.FirstOrDefault(s => s.Title == storageSeries.Series.Title);
-        var feedDataInProcess = feedData.TryGetFeedMatch(storageSeries.Series.Title ?? string.Empty);
-
         var baseSeries = storageSeries.Series;
+
+        // This scrap owns the provider block; the stored user block survives it untouched.
+        var alternativeTitles = StoredAlternativeTitles.Parse(baseSeries.AlternativeTitles) with
+        {
+            User = currentInfo?.AlternativeTitles.User
+        };
+        var feedDataInProcess = feedData.TryGetFeedMatch(baseSeries.Title, alternativeTitles);
 
         if (currentInfo is not null)
         {
-            return ProcessExistentSeries(storageSeries, baseSeries, currentInfo, feedDataInProcess);
+            return ProcessExistentSeries(storageSeries, baseSeries, currentInfo, alternativeTitles, feedDataInProcess);
         }
 
         if (feedDataInProcess is not null)
@@ -52,6 +57,7 @@ internal static class TvStorageEnrichment
         StorageData storageSeries,
         AnimeInfoStorage baseSeries,
         TvSeriesInfo currentInfo,
+        AlternativeTitlesData alternativeTitles,
         FeedData? feedDataInProcess)
     {
         if (!string.IsNullOrWhiteSpace(currentInfo.FeedTitle) || !string.IsNullOrWhiteSpace(currentInfo.FeedUrl))
@@ -69,11 +75,7 @@ internal static class TvStorageEnrichment
 
         baseSeries.Status = ResolveStatus(storageSeries.Airing, feedDataInProcess is not null, currentInfo.Status);
 
-        // This scrap owns the provider block; the stored user block survives it untouched.
-        baseSeries.AlternativeTitles = (StoredAlternativeTitles.Parse(baseSeries.AlternativeTitles) with
-        {
-            User = currentInfo.AlternativeTitles.User
-        }).ToStoredString();
+        baseSeries.AlternativeTitles = alternativeTitles.ToStoredString();
 
         if (currentInfo is not TvSeriesInfoWithImage withImage)
             return storageSeries with
