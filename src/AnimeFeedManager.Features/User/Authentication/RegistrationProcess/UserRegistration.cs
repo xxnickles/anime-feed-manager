@@ -83,7 +83,7 @@ public static class UserRegistration
         {
             return PasswordlessError.FromException(e);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             return ExceptionError.FromException(e);
         }

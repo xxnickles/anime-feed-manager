@@ -9,6 +9,39 @@ public enum SeasonUpdateStatus
 }
 
 
+/// <summary>A season created in the system. Sticky, with a page-refresh action so open clients pick it up.</summary>
+public sealed record NewSeasonAdded(SeriesSeason Season) : SystemNotificationPayload
+{
+    public override string AsJson()
+    {
+        return JsonSerializer.Serialize(this, SeasonsJsonContext.Default.NewSeasonAdded);
+    }
+
+    public override NotificationComponent AsNotificationComponent()
+    {
+        return new NotificationComponent("New season available",
+            builder =>
+            {
+                builder.OpenElement(1, "strong");
+                builder.AddContent(2, $"{Season.Year}-{Season.Season}");
+                builder.CloseElement();
+                builder.AddContent(3, " has been added.");
+            })
+        {
+            Actions = builder =>
+            {
+                builder.OpenElement(1, "button");
+                builder.AddAttribute(2, "type", "button");
+                builder.AddAttribute(3, "class", "btn btn-xs btn-neutral");
+                builder.AddAttribute(4, "_", "on click call location.reload()");
+                builder.AddContent(5, "Refresh");
+                builder.CloseElement();
+            },
+            Lifetime = new Sticky()
+        };
+    }
+}
+
 public sealed record SeasonUpdateResult(SeriesSeason Season, SeasonUpdateStatus SeasonUpdateStatus)
     : SystemNotificationPayload
 {

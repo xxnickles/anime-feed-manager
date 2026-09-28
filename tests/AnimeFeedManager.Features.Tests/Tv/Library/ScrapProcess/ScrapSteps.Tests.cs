@@ -49,7 +49,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                     SeriesStatus.Ongoing()));
             
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
@@ -98,7 +98,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var storedSeries = ImmutableArray<TvSeriesInfo>.Empty;
 
             // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
 
@@ -154,7 +154,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
             var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
 
-            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
 
@@ -228,7 +228,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
             var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
             var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
 
-            var storedSeriesGetter = Substitute.For<StoredSeries>();
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
             storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
                 .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
 
@@ -240,6 +240,66 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
                 Assert.Equal(string.Empty, updatedSeries.FeedTitle);
                 Assert.Equal(expectedStatus, updatedSeries.Status);
             });
+        }
+
+        [Fact]
+        public async Task Should_Match_Feed_By_Stored_User_Title_When_Main_Title_Does_Not_Match()
+        {
+            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null,
+                new AlternativeTitlesData(User: ["Magic Academy"]), SeriesStatus.NotAvailable());
+
+            var result = await AltTitleMatchVerification([storedSeries], providerTitles: null);
+
+            result.AssertOnSuccess(r =>
+            {
+                var processed = r.SeriesData.First();
+                Assert.Equal("Magic Academy", processed.Series.FeedTitle);
+                Assert.Equal("https://example.com/magic-academy", processed.Series.FeedLink);
+                Assert.Equal(SeriesStatus.OngoingValue, processed.Series.Status);
+                Assert.Equal(Status.UpdatedSeries, processed.Status);
+            });
+        }
+
+        [Fact]
+        public async Task Should_Match_Feed_By_Provider_Synonym_When_New_Series_Main_Title_Does_Not_Match()
+        {
+            var result = await AltTitleMatchVerification(ImmutableArray<TvSeriesInfo>.Empty,
+                new AlternativeTitlesData(Synonyms: ["Magic Academy"]));
+
+            result.AssertOnSuccess(r =>
+            {
+                var updatedSeries = r.SeriesData.First().Series;
+                Assert.Equal("Magic Academy", updatedSeries.FeedTitle);
+                Assert.Equal(SeriesStatus.OngoingValue, updatedSeries.Status);
+            });
+        }
+
+        private static async Task<Result<ScrapTvLibraryData>> AltTitleMatchVerification(
+            ImmutableArray<TvSeriesInfo> dbSeries,
+            AlternativeTitlesData? providerTitles)
+        {
+            var seriesSeason = TestSeasons.Default;
+            var feedTitles = ImmutableArray.Create(
+                new FeedData("Magic Academy", "https://example.com/magic-academy"));
+
+            var processSeries = new StorageData(new AnimeInfoStorage
+            {
+                RowKey = "1",
+                PartitionKey = "2024-summer",
+                Title = "Test Anime",
+                FeedTitle = string.Empty,
+                Status = SeriesStatus.NotAvailableValue,
+                AlternativeTitles = providerTitles?.ToStoredString()
+            }, new NoImage(), Status.NewSeries, AiringStatus.Ongoing);
+
+            var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
+            var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
+
+            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
+            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
+                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
+
+            return await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
         }
     }
 }

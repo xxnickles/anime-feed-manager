@@ -34,7 +34,7 @@ public sealed class SeasonFeedDataProvider : ISeasonFeedDataProvider
             await browser.CloseAsync();
             return data.ToImmutableArray();
         }
-        catch(Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             _logger.LogError(exception, "An error occurred when scrapping titles from SubsPlease");
             return HandledError.Create();;

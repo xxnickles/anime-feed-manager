@@ -48,7 +48,7 @@ public class ResourceCreator(
             logger.LogInformation("Container {ContainerName} created", ImageProvider.Container);
 
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             logger.LogError(e, "An error occurred when creating container {ContainerName}", ImageProvider.Container);
         }
@@ -78,7 +78,7 @@ public class ResourceCreator(
                 logger.LogInformation("Queue {QueueName} created", response.Value.Name);
             }
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             logger.LogError(e, "An error occurred when creating queue {QueueName}", queueName);
         }
@@ -109,7 +109,7 @@ public class ResourceCreator(
                 logger.LogInformation("Table {TableName} created", response.Value.Name);
             }
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             logger.LogError(e, "An error occurred when creating table {TableName}", tableName);
         }

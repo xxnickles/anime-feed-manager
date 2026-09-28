@@ -1,4 +1,7 @@
-﻿using AnimeFeedManager.Features.Scrapping.Types;
+﻿using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
+using AnimeFeedManager.Features.Scrapping.Types;
+using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
@@ -10,20 +13,23 @@ public class OnTvLibraryUpdate
 {
     private static readonly ActivitySource Source = new(Telemetry.TvLibraryImportSource);
 
-    private readonly ITvLibraryScrapper _scrapper;
+    private readonly IAnimeScheduleClient _animeScheduleClient;
+    private readonly ISeasonFeedDataProvider _seasonFeedDataProvider;
     private readonly IImageProvider _imageProvider;
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IDomainPostman _domainPostman;
     private readonly ILogger<OnTvLibraryUpdate> _logger;
 
     public OnTvLibraryUpdate(
-        ITvLibraryScrapper scrapper,
+        IAnimeScheduleClient animeScheduleClient,
+        ISeasonFeedDataProvider seasonFeedDataProvider,
         IImageProvider imageProvider,
         ITableClientFactory tableClientFactory,
         IDomainPostman domainPostman,
         ILogger<OnTvLibraryUpdate> logger)
     {
-        _scrapper = scrapper;
+        _animeScheduleClient = animeScheduleClient;
+        _seasonFeedDataProvider = seasonFeedDataProvider;
         _imageProvider = imageProvider;
         _tableClientFactory = tableClientFactory;
         _domainPostman = domainPostman;
@@ -69,7 +75,11 @@ public class OnTvLibraryUpdate
         using var activity = Source.StartActivity("Tv.Library.Import");
         return await ScrapTvSeries(
                 seasonParameters,
-                _scrapper.ScrapTvSeries,
+                TvLibraryScrapper.Scrapper(
+                    _animeScheduleClient,
+                    _seasonFeedDataProvider,
+                    _tableClientFactory.TableStorageLatestSeason,
+                    _tableClientFactory.TableStorageExistentStoredSeriesGetter),
                 _imageProvider.Process,
                 _tableClientFactory.TableStorageTvLibraryUpdater,
                 token)

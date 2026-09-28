@@ -15,37 +15,22 @@ internal static partial class AnimeScheduleTvScrapper
     internal static Task<Result<ScrapTvLibraryData>> ScrapSeries(
         this Task<Result<ImmutableArray<FeedData>>> feedTitles,
         IAnimeScheduleClient client,
-        SeasonSelector selector,
+        SeriesSeason season,
         CancellationToken token) =>
-        feedTitles.Bind(feedData => GetInitialProcessData(feedData, client, selector, token));
+        feedTitles.Bind(feedData => GetInitialProcessData(feedData, client, season, token));
 
     private static Task<Result<ScrapTvLibraryData>> GetInitialProcessData(
         ImmutableArray<FeedData> feedData,
         IAnimeScheduleClient client,
-        SeasonSelector selector,
+        SeriesSeason season,
         CancellationToken token) =>
-        ResolveSeason(client, selector, token)
-            .Bind(season => client.GetSeason(season.Year, season.Season, token)
-                .Map(series => BuildResult(series, season, feedData)))
+        client.GetSeason(season.Year, season.Season, token)
+            .Map(series => BuildResult(series, season, feedData))
             .WithOperationName(nameof(GetInitialProcessData))
-            .WithLogProperty("Season", selector)
+            .WithLogProperty("Season", season)
             .AddLogOnSuccess(data => logger => logger.LogInformation(
                 "{Count} TV series scraped from AnimeSchedule for {Season}",
                 data.SeriesData.Count(), data.Season));
-
-    // Scraping never elects the featured season — that is a deliberate admin action — so every
-    // season produced here carries IsLatest false.
-    private static Task<Result<SeriesSeason>> ResolveSeason(
-        IAnimeScheduleClient client,
-        SeasonSelector selector,
-        CancellationToken token) =>
-        selector switch
-        {
-            Current => client.ResolveCurrentSeason(token),
-            BySeason bySeason => Task.FromResult<Result<SeriesSeason>>(
-                new SeriesSeason(bySeason.Season, bySeason.Year)),
-            _ => throw new UnreachableException()
-        };
 
     private static ScrapTvLibraryData BuildResult(
         ImmutableArray<AnimeScheduleAnime> series,
@@ -58,9 +43,10 @@ internal static partial class AnimeScheduleTvScrapper
             feedData,
             season);
 
-    // Shorts are a media type of their own here, and are part of the library.
+    // Shorts are a media type of their own here, and are part of the library. Untyped entries
+    // (the field is omitted, not empty) can't be confirmed as TV and are dropped.
     private static bool IsTvSeries(AnimeScheduleAnime anime) =>
-        anime.MediaTypes.Any(mediaType => mediaType.Route is "tv" or "tv-short");
+        anime.MediaTypes?.Any(mediaType => mediaType.Route is "tv" or "tv-short") is true;
 
     private static StorageData ToStorageData(AnimeScheduleAnime anime, Season season, Year year) =>
         new(new AnimeInfoStorage

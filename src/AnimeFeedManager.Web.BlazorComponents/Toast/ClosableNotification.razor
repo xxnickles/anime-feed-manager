@@ -1,48 +1,29 @@
 ﻿<div
     role="alert"
     class="alert shadow-lg transition-opacity duration-500 w-[min(92vw,32rem)] alert-vertical sm:alert-horizontal @GetAlertTypeClass()"
-    data-close-seconds="@((int) CloseTime.TotalSeconds)"
+    data-close-seconds="@CloseSeconds"
     _="@Script"
 >
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-         class="stroke-current shrink-0 w-6 h-6">
+         class="stroke-current shrink-0 self-start w-6 h-6">
         @Icons[Type]
     </svg>
 
     <section class="flex-1">
         <h3 class="font-bold">@Title</h3>
         <p class="text-xs">@Message</p>
+        @if (Actions is not null)
+        {
+            <div class="mt-1.5 flex flex-wrap items-center gap-3">@Actions</div>
+        }
     </section>
 
-    <div>
-        <!-- Pause/Resume Button with Counter -->
-        <button
-            type="button"
-            class="btn btn-sm btn-info"
-            data-toast-pause
-            title="Pause auto-dismiss"
-        >
-            <!-- Pause/Play Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
-                 class="w-4 h-4">
-                <!-- Pause Icon (when not paused) -->
-                <path data-toast-pause-icon stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M10 9v6m4-6v6"></path>
-                <!-- Play Icon (when paused) -->
-                <path data-toast-play-icon hidden stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M14.752 11.168l-6.518-3.759A1 1 0 007 8.359v7.282a1 1 0 001.234.97l6.518-3.759a1 1 0 000-1.74z"></path>
-            </svg>
-            <span data-toast-counter class="text-xs"></span>
-        </button>
-
-        <!-- Dismiss Button -->
-        <button
-            type="button"
-            class="btn btn-secondary btn-sm"
-            data-toast-dismiss>
-            Dismiss
-        </button>
-    </div>
+    <button type="button" class="btn btn-ghost btn-sm btn-square self-start [--btn-rest-fg:currentColor]" data-toast-dismiss aria-label="Dismiss">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" class="w-4 h-4" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
+        </svg>
+    </button>
 </div>
 
 @code {
@@ -50,7 +31,15 @@
     [Parameter, EditorRequired] public RenderFragment Message { get; set; } = _ => { };
 
     [Parameter, EditorRequired] public ToastType Type { get; set; } = ToastType.Info;
-    [Parameter] public TimeSpan CloseTime { get; set; } = TimeSpan.FromSeconds(5);
+    [Parameter] public RenderFragment? Actions { get; set; }
+    [Parameter] public NotificationLifetime Lifetime { get; set; } = NotificationLifetime.Default;
+
+    // Null omits data-close-seconds, which the script reads as sticky.
+    private int? CloseSeconds => Lifetime switch
+    {
+        Timed timed => (int)timed.CloseTime.TotalSeconds,
+        _ => null
+    };
 
     private static readonly Dictionary<ToastType, MarkupString> Icons = new()
     {
@@ -68,6 +57,4 @@
         ToastType.Error => "alert-error",
         _ => string.Empty
     };
-
-
 }

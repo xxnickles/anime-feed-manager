@@ -1,0 +1,17 @@
+@* "beforeend" is a non-outer swap: htmx strips this wrapper and appends only the toast,
+   newest nearest the panel's corner. *@
+<div hx-swap-oob="beforeend:#toast-panel">
+    <ClosableNotification Title="@Title"
+                          Message="@Message"
+                          Type="@Type"
+                          Actions="@Actions"
+                          Lifetime="@Lifetime" />
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public RenderFragment Message { get; set; } = _ => { };
+    [Parameter] public ToastType Type { get; set; } = ToastType.Info;
+    [Parameter] public RenderFragment? Actions { get; set; }
+    [Parameter] public NotificationLifetime Lifetime { get; set; } = NotificationLifetime.Default;
+}

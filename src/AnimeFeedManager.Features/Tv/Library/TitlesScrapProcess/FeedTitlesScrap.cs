@@ -60,19 +60,8 @@ public static class FeedTitlesScrap
         if (entity.Status == SeriesStatus.Ongoing())
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
 
-        var alternativeTitles = StoredAlternativeTitles.Parse(entity.AlternativeTitles).ForMatching;
-        var feedMatch = feedTitles.TryGetFeedMatch(entity.Title ?? string.Empty);
-
-        // If no match found with the main title, try with alternative titles
-        if (feedMatch is null)
-        {
-            foreach (var altTitle in alternativeTitles)
-            {
-                feedMatch = feedTitles.TryGetFeedMatch(altTitle);
-                if (feedMatch is not null)
-                    break;
-            }
-        }
+        var feedMatch = feedTitles.TryGetFeedMatch(
+            entity.Title, StoredAlternativeTitles.Parse(entity.AlternativeTitles));
 
         if (feedMatch is null)
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);

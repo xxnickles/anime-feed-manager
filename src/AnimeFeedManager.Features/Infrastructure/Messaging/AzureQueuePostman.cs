@@ -69,7 +69,7 @@ public class AzureQueuePostman : IDomainPostman
 
             return new Unit();
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             _logger.LogError(e, "An occurred when trying to send multiple messages to {Queues}",
                 string.Join(", ", processMessages.Select(m => m.MessageBox)));
@@ -88,7 +88,7 @@ public class AzureQueuePostman : IDomainPostman
             await SendMessage(message, message.MessageBox, delay.Value, cancellationToken);
             return new Unit();
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
             return MessagesNotDelivered.Create(e.Message, message);
@@ -106,7 +106,7 @@ public class AzureQueuePostman : IDomainPostman
             await SendMessage(message, message.MessageBox, null, cancellationToken);
             return new Unit();
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             _logger.LogError(e, "Error sending message {Message}", message);
             return MessagesNotDelivered.Create(e.Message, message);
