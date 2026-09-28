@@ -1,14 +1,7 @@
 ﻿using AnimeFeedManager.Web.BlazorComponents;
-using AnimeFeedManager.Web.BlazorComponents.Toast;
 using Microsoft.AspNetCore.Components;
 
 namespace AnimeFeedManager.Web.Features.Components.Responses;
-
-public readonly record struct Notification(
-    string Title,
-    RenderFragment Message,
-    ToastType Type,
-    TimeSpan? CloseTime = null);
 
 internal static class ComponentResults
 {

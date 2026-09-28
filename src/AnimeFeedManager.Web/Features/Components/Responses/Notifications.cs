@@ -5,36 +5,26 @@ namespace AnimeFeedManager.Web.Features.Components.Responses;
 
 internal static class Notifications
 {
-    internal static RenderFragment CreateToast(Notification notification)
+    internal static RenderFragment CreateToast(string title, RenderFragment message, ToastType type,
+        RenderFragment? actions = null, NotificationLifetime? lifetime = null) => builder =>
     {
-        return builder =>
-        {
-            // Outer div with hx-swap-oob attribute
-            builder.OpenElement(0, "div");
-            builder.AddAttribute(1, "hx-swap-oob", "afterbegin:#toast-panel");
-
-            // Inner ClosableNotification component
-            builder.OpenComponent<ClosableNotification>(2);
-            builder.AddAttribute(3, "Title", notification.Title);
-            builder.AddAttribute(4, "Message", notification.Message);
-            builder.AddAttribute(5, "Type", notification.Type);
-            builder.AddAttribute(6, "Lifetime",
-                notification.CloseTime is { } closeTime ? new Timed(closeTime) : NotificationLifetime.Default);
-            builder.CloseComponent();
-
-            // Close outer div
-            builder.CloseElement();
-        };
-    }
+        builder.OpenComponent<NotificationOob>(0);
+        builder.AddComponentParameter(1, nameof(NotificationOob.Title), title);
+        builder.AddComponentParameter(2, nameof(NotificationOob.Message), message);
+        builder.AddComponentParameter(3, nameof(NotificationOob.Type), type);
+        builder.AddComponentParameter(4, nameof(NotificationOob.Actions), actions);
+        builder.AddComponentParameter(5, nameof(NotificationOob.Lifetime), lifetime ?? NotificationLifetime.Default);
+        builder.CloseComponent();
+    };
 
     internal static RenderFragment TextBody(string message) => builder => builder.AddContent(0, message);
 
     internal static RenderFragment CreateNotificationToast(string title, RenderFragment message,
         ToastType type = ToastType.Success) =>
-        CreateToast(new Notification(title, message, type));
+        CreateToast(title, message, type);
 
     internal static RenderFragment CreateErrorToast(string title, DomainError error) =>
-        CreateToast(new Notification(title, ErrorToContent(error), ToToastType(error)));
+        CreateToast(title, ErrorToContent(error), ToToastType(error));
 
     private static ToastType ToToastType(DomainError error) => error switch
     {
