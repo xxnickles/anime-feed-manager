@@ -7,5 +7,7 @@ namespace AnimeFeedManager.Features.Seasons;
 // Event Payloads
 [JsonSerializable(typeof(SeasonUpdateResult))]
 [EventPayloadSerializerContext(typeof(SeasonUpdateResult))]
+[JsonSerializable(typeof(NewSeasonAdded))]
+[EventPayloadSerializerContext(typeof(NewSeasonAdded))]
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 internal partial class SeasonsJsonContext : JsonSerializerContext;
