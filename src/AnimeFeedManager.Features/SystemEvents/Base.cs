@@ -2,7 +2,11 @@ using Microsoft.AspNetCore.Components;
 
 namespace AnimeFeedManager.Features.SystemEvents;
 
-public record NotificationComponent(string Title, RenderFragment Content);
+public record NotificationComponent(string Title, RenderFragment Content)
+{
+    public RenderFragment? Actions { get; init; }
+    public NotificationLifetime Lifetime { get; init; } = NotificationLifetime.Default;
+}
 
 public abstract record NotificationLifetime
 {
