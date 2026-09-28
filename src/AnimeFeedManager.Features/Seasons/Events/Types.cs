@@ -25,14 +25,14 @@ public sealed record NewSeasonAdded(SeriesSeason Season) : SystemNotificationPay
                 builder.OpenElement(1, "strong");
                 builder.AddContent(2, $"{Season.Year}-{Season.Season}");
                 builder.CloseElement();
-                builder.AddContent(3, " has been added. Refresh the page to see it.");
+                builder.AddContent(3, " has been added.");
             })
         {
             Actions = builder =>
             {
                 builder.OpenElement(1, "button");
                 builder.AddAttribute(2, "type", "button");
-                builder.AddAttribute(3, "class", "btn btn-sm btn-primary");
+                builder.AddAttribute(3, "class", "btn btn-xs btn-neutral");
                 builder.AddAttribute(4, "_", "on click call location.reload()");
                 builder.AddContent(5, "Refresh");
                 builder.CloseElement();

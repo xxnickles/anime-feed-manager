@@ -4499,6 +4499,9 @@
   .mt-1 {
     margin-top: var(--spacing);
   }
+  .mt-1\.5 {
+    margin-top: calc(var(--spacing) * 1.5);
+  }
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
@@ -5742,11 +5745,6 @@
       --btn-fg: var(--color-error-content);
       --btn-soft-bg: initial;
     }
-    .btn-info {
-      --btn-color: var(--color-info);
-      --btn-fg: var(--color-info-content);
-      --btn-soft-bg: initial;
-    }
     .btn-md {
       --fontsize: 0.875rem;
       --btn-p: 1rem;
@@ -5772,10 +5770,10 @@
       --btn-fg: var(--color-success-content);
       --btn-soft-bg: initial;
     }
-    .btn-warning {
-      --btn-color: var(--color-warning);
-      --btn-fg: var(--color-warning-content);
-      --btn-soft-bg: initial;
+    .btn-xs {
+      --fontsize: 0.6875rem;
+      --btn-p: 0.5rem;
+      --size: calc(var(--size-field, 0.25rem) * 6);
     }
     .card-sm .card-body {
       --card-p: 1rem;
@@ -5825,6 +5823,9 @@
       --badge-color: var(--color-warning);
       --badge-fg: var(--color-warning-content);
     }
+  }
+  .\[--btn-rest-fg\:currentColor\] {
+    --btn-rest-fg: currentColor;
   }
   @layer daisyui.l1.l2.l3 {
     .aura:has( > .card,  > .alert) {

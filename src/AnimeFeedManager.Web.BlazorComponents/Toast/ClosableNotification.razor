@@ -5,21 +5,20 @@
     _="@Script"
 >
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-         class="stroke-current shrink-0 w-6 h-6">
+         class="stroke-current shrink-0 self-start w-6 h-6">
         @Icons[Type]
     </svg>
 
     <section class="flex-1">
         <h3 class="font-bold">@Title</h3>
         <p class="text-xs">@Message</p>
+        @if (Actions is not null)
+        {
+            <div class="mt-1.5 flex flex-wrap items-center gap-3">@Actions</div>
+        }
     </section>
 
-    @if (Actions is not null)
-    {
-        <div class="flex gap-2">@Actions</div>
-    }
-
-    <button type="button" class="btn btn-ghost btn-sm btn-square" data-toast-dismiss aria-label="Dismiss">
+    <button type="button" class="btn btn-ghost btn-sm btn-square self-start [--btn-rest-fg:currentColor]" data-toast-dismiss aria-label="Dismiss">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" class="w-4 h-4" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
