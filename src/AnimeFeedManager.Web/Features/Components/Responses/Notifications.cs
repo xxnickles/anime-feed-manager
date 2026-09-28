@@ -18,7 +18,8 @@ internal static class Notifications
             builder.AddAttribute(3, "Title", notification.Title);
             builder.AddAttribute(4, "Message", notification.Message);
             builder.AddAttribute(5, "Type", notification.Type);
-            builder.AddAttribute(6, "CloseTime", notification.CloseTime ?? TimeSpan.FromSeconds(8));
+            builder.AddAttribute(6, "Lifetime",
+                notification.CloseTime is { } closeTime ? new Timed(closeTime) : NotificationLifetime.Default);
             builder.CloseComponent();
 
             // Close outer div
