@@ -13,21 +13,28 @@ public static class EventSending
             .Map(d => d.SeasonData switch
             {
                 NoUpdateRequired or NoMatch => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.NoChanges),
-                NewSeason or ReplaceLatestSeason => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.New),
+                NewSeason => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.New),
                 _ => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.Updated)
             })
-            .Bind(r => domainPostman([GetOnCompletedEvent(r)], cancellationToken)
+            .Bind(r => domainPostman(GetOnCompletedEvents(r), cancellationToken)
                 .Map(_ => r))
             .MapError(e => domainPostman([GetOnErrorEvent(seriesSeason)], cancellationToken)
                 .MatchToValue(_ => e, error => error));
 
 
-    private static SystemEvent GetOnCompletedEvent(SeasonUpdateResult data) => CreateEvent(data, EventType.Completed);
+    // Only a real creation reaches the browser; every outcome is kept in the admin event history.
+    private static SystemEvent[] GetOnCompletedEvents(SeasonUpdateResult data) =>
+        data.SeasonUpdateStatus is SeasonUpdateStatus.New
+            ? [CreateStoredEvent(data, EventType.Completed), CreateNewSeasonEvent(data.Season)]
+            : [CreateStoredEvent(data, EventType.Completed)];
 
     private static SystemEvent GetOnErrorEvent(SeriesSeason data) =>
-        CreateEvent(new SeasonUpdateResult(data, SeasonUpdateStatus.Error), EventType.Error);
+        CreateStoredEvent(new SeasonUpdateResult(data, SeasonUpdateStatus.Error), EventType.Error);
 
+    private static SystemEvent CreateStoredEvent(SeasonUpdateResult data, EventType type) => new(
+        TargetConsumer.Admin(), EventTarget.LocalStorage, type, data.AsEventPayload());
 
-    private static SystemEvent CreateEvent(SeasonUpdateResult data, EventType type) => new(TargetConsumer.Admin(),
-        EventTarget.Both, type, data.AsEventPayload());
+    private static SystemEvent CreateNewSeasonEvent(SeriesSeason season) => new(
+        TargetConsumer.Everybody(), EventTarget.Browser, EventType.Information,
+        new NewSeasonAdded(season).AsEventPayload());
 }
