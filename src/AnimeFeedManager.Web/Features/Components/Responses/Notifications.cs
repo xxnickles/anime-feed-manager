@@ -29,7 +29,7 @@ internal static class Notifications
     private static ToastType ToToastType(DomainError error) => error switch
     {
         NotFoundError => ToastType.Info,
-        DomainValidationErrors => ToastType.Warning,
+        DomainValidationErrors or FormDataValidationError => ToastType.Warning,
         _ => ToastType.Error
     };
 

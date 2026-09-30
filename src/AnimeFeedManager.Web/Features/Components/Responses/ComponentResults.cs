@@ -10,8 +10,8 @@ internal static class ComponentResults
         Func<DomainError, RenderFragment[]> onError)
     {
         return result.MatchToValue<T,RazorComponentResult>(
-            ok => onSuccess(ok).AggregateComponents(),
-            error => onError(error).AggregateComponents());
+            ok => onSuccess(ok).AggregateComponents(StatusCodes.Status200OK),
+            error => onError(error).AggregateComponents(error.ToStatusCode()));
     }
 
     extension<T>(Task<Result<T>> result)
@@ -34,12 +34,7 @@ internal static class ComponentResults
                         TComponent.SuccessNotificationTitle,
                         TComponent.OkNotificationContent(viewModel))
                 ],
-                error =>
-                [
-                    TComponent.AsRenderFragment(viewModel),
-                    Notifications.CreateErrorToast(TComponent.ErrorNotificationTitle, error)
-                ]
-            );
+                error => [Notifications.CreateErrorToast(TComponent.ErrorNotificationTitle, error)]);
         }
     }
 }

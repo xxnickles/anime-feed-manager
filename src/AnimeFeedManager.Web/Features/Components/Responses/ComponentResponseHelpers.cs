@@ -4,12 +4,16 @@ namespace AnimeFeedManager.Web.Features.Components.Responses;
 
 internal static class ComponentResponseHelpers
 {
-    internal static RazorComponentResult AggregateComponents(this RenderFragment[] fragments)
+    internal static RazorComponentResult AggregateComponents(this RenderFragment[] fragments,
+        int statusCode = StatusCodes.Status500InternalServerError)
     {
         return new RazorComponentResult<FragmentContainer>(new Dictionary<string, object?>
         {
-            { nameof(FragmentContainer.ChildContent), Combine(fragments) }
-        });
+            {nameof(FragmentContainer.ChildContent), Combine(fragments)}
+        })
+        {
+            StatusCode = statusCode
+        };
     }
 
     private static RenderFragment Combine(RenderFragment[] fragments) => builder =>
@@ -19,5 +23,4 @@ internal static class ComponentResponseHelpers
             builder.AddContent(0, fragments[i]);
         }
     };
-
 }
