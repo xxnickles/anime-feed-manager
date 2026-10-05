@@ -36,7 +36,7 @@ internal static partial class InterestedHandlers
                         Notifications.TextBody($"{viewModel.SeriesTitle} has been added to your interested list")),
                     Badge.AsOobFragment(StatusType.Secondary, "Interested", viewModel.CardBadgeId)
                 ],
-                error => [Notifications.CreateErrorToast("Add Interested", error)]);
+                error => [Notifications.CreateErrorNotification("Add Interested", error)]);
     }
 
 
@@ -68,6 +68,6 @@ internal static partial class InterestedHandlers
                         Notifications.TextBody($"{viewModel.SeriesTitle} has been removed from your interested list")),
                     Badge.AsOobFragment(StatusType.Warning, "Not Available", viewModel.CardBadgeId)
                 ],
-                error => [Notifications.CreateErrorToast("Remove Interested", error)]);
+                error => [Notifications.CreateErrorNotification("Remove Interested", error)]);
     }
 }

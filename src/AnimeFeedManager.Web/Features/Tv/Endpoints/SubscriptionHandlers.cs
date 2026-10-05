@@ -38,7 +38,7 @@ internal static class SubscriptionHandlers
                         Notifications.TextBody($"{viewModel.SeriesTitle} has been added to your subscriptions")),
                     Badge.AsOobFragment(StatusType.Primary, "Subscribed", viewModel.CardBadgeId)
                 ],
-                error => [Notifications.CreateErrorToast("TV Subscription", error)]);
+                error => [Notifications.CreateErrorNotification("TV Subscription", error)]);
     }
 
 
@@ -72,6 +72,6 @@ internal static class SubscriptionHandlers
                         Notifications.TextBody($"{viewModel.SeriesTitle} has been removed from your subscriptions")),
                     Badge.AsOobFragment(StatusType.Success, "Available", viewModel.CardBadgeId)
                 ],
-                error => [Notifications.CreateErrorToast("Unsubscribe", error)]);
+                error => [Notifications.CreateErrorNotification("Unsubscribe", error)]);
     }
 }

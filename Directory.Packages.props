@@ -10,8 +10,8 @@
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.6.0" />
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.9.0" />
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.2" />
-    <PackageVersion Include="Azure.Storage.Queues" Version="12.27.1" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.0" />
+    <PackageVersion Include="Azure.Storage.Queues" Version="12.28.0" />
     <!-- Aspire packages -->
     <PackageVersion Include="Aspire.Azure.Data.Tables" Version="13.6.0" />
     <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="13.6.0" />

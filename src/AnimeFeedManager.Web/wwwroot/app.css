@@ -44,7 +44,6 @@
     --radius-2xl: 1rem;
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
-    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --animate-spin: spin 1s linear infinite;
     --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
     --blur-md: 12px;
@@ -1663,27 +1662,27 @@
     }
   }
   @layer daisyui {
-    .btn:is(:disabled, [disabled], [aria-disabled="true"]) {
+    .btn:is(.btn-disabled, :disabled, [disabled], [aria-disabled="true"]) {
       pointer-events: none;
       color: var(--color-base-content);
     }
     @supports (color: color-mix(in lab, red, red)) {
-      .btn:is(:disabled, [disabled], [aria-disabled="true"]) {
+      .btn:is(.btn-disabled, :disabled, [disabled], [aria-disabled="true"]) {
         color: color-mix(in oklch, var(--color-base-content) 20%, #0000);
       }
     }
-    .btn:is(:disabled, [disabled], [aria-disabled="true"]) {
+    .btn:is(.btn-disabled, :disabled, [disabled], [aria-disabled="true"]) {
       --btn-bg: #0000;
       --btn-border: #0000;
       background-image: none;
       --btn-inset: 0 0 0 0 oklch(0% 0 0/0);
       --btn-shadow: 0 0 0 0 oklch(0% 0 0/0);
     }
-    :is(.btn-disabled, .btn:is(:disabled, [disabled], [aria-disabled="true"])):not(.btn-link, .btn-ghost) {
+    .btn:is(.btn-disabled, :disabled, [disabled], [aria-disabled="true"]):not(.btn-link, .btn-ghost) {
       background-color: var(--color-base-content);
     }
     @supports (color: color-mix(in lab, red, red)) {
-      :is(.btn-disabled, .btn:is(:disabled, [disabled], [aria-disabled="true"])):not(.btn-link, .btn-ghost) {
+      .btn:is(.btn-disabled, :disabled, [disabled], [aria-disabled="true"]):not(.btn-link, .btn-ghost) {
         background-color: color-mix(in oklab, var(--color-base-content) 10%, transparent);
       }
     }
@@ -1709,27 +1708,27 @@
     }
   }
   @layer daisyui {
-    .btn-disabled {
+    .btn:is(:is(.btn-disabled), :disabled, [disabled], [aria-disabled="true"]) {
       pointer-events: none;
       color: var(--color-base-content);
     }
     @supports (color: color-mix(in lab, red, red)) {
-      .btn-disabled {
+      .btn:is(:is(.btn-disabled), :disabled, [disabled], [aria-disabled="true"]) {
         color: color-mix(in oklch, var(--color-base-content) 20%, #0000);
       }
     }
-    .btn-disabled {
+    .btn:is(:is(.btn-disabled), :disabled, [disabled], [aria-disabled="true"]) {
       --btn-bg: #0000;
       --btn-border: #0000;
       background-image: none;
       --btn-inset: 0 0 0 0 oklch(0% 0 0/0);
       --btn-shadow: 0 0 0 0 oklch(0% 0 0/0);
     }
-    :is(:is(.btn-disabled), .btn:is(:disabled, [disabled], [aria-disabled="true"])):not(.btn-link, .btn-ghost) {
+    .btn:is(:is(.btn-disabled), :disabled, [disabled], [aria-disabled="true"]):not(.btn-link, .btn-ghost) {
       background-color: var(--color-base-content);
     }
     @supports (color: color-mix(in lab, red, red)) {
-      :is(:is(.btn-disabled), .btn:is(:disabled, [disabled], [aria-disabled="true"])):not(.btn-link, .btn-ghost) {
+      .btn:is(:is(.btn-disabled), :disabled, [disabled], [aria-disabled="true"]):not(.btn-link, .btn-ghost) {
         background-color: color-mix(in oklab, var(--color-base-content) 10%, transparent);
       }
     }
@@ -4007,6 +4006,22 @@
       grid-column: 1 / 4 !important;
       grid-row: 1 / 6 !important;
     }
+  }
+  @layer daisyui.l1.l2.l3 {
+    .modal-backdrop {
+      grid-column-start: 1;
+      grid-row-start: 1;
+      display: grid;
+      align-self: stretch;
+      justify-self: stretch;
+      color: transparent;
+      z-index: -1;
+    }
+    .modal-backdrop button {
+      cursor: pointer;
+    }
+  }
+  @layer daisyui.l1.l2 {
     .tabs-box {
       background-color: var(--color-base-200);
       padding: 0.25rem;
@@ -4803,6 +4818,9 @@
   .h-full {
     height: 100%;
   }
+  .max-h-64 {
+    max-height: calc(var(--spacing) * 64);
+  }
   .min-h-0 {
     min-height: 0px;
   }
@@ -5002,6 +5020,9 @@
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
+  .grid-cols-\[auto_1fr\] {
+    grid-template-columns: auto 1fr;
+  }
   .grid-cols-\[repeat\(auto-fill\,minmax\(min\(320px\,100\%\)\,1fr\)\)\] {
     grid-template-columns: repeat(auto-fill,minmax(min(320px, 100%),1fr));
   }
@@ -5083,6 +5104,12 @@
   .gap-10 {
     gap: calc(var(--spacing) * 10);
   }
+  .gap-x-3 {
+    column-gap: calc(var(--spacing) * 3);
+  }
+  .gap-y-1 {
+    row-gap: var(--spacing);
+  }
   .self-start {
     align-self: flex-start;
   }
@@ -5093,6 +5120,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .overflow-auto {
+    overflow: auto;
   }
   .overflow-hidden {
     overflow: hidden;
@@ -5475,6 +5505,12 @@
   .wrap-break-word {
     overflow-wrap: break-word;
   }
+  .break-all {
+    word-break: break-all;
+  }
+  .whitespace-pre-wrap {
+    white-space: pre-wrap;
+  }
   @layer daisyui.l1.l2 {
     .alert-error {
       color: var(--color-error-content);
@@ -5705,10 +5741,6 @@
   .ease-in {
     --tw-ease: var(--ease-in);
     transition-timing-function: var(--ease-in);
-  }
-  .ease-in-out {
-    --tw-ease: var(--ease-in-out);
-    transition-timing-function: var(--ease-in-out);
   }
   .ease-out {
     --tw-ease: var(--ease-out);

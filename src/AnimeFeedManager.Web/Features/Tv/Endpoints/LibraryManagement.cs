@@ -32,7 +32,7 @@ internal static class LibraryManagement
                         Notifications.CreateNotificationToast("Alternative Titles",
                             Notifications.TextBody($"Alternative titles for {viewModel.SeriesTitle} has been updated"))
                     ],
-                    error => [Notifications.CreateErrorToast("Alternative Titles", error)]);
+                    error => [Notifications.CreateErrorNotification("Alternative Titles", error)]);
     }
 
     internal static async Task<RazorComponentResult> RemoveSeries(
@@ -62,7 +62,7 @@ internal static class LibraryManagement
                 ],
                 error =>
                 [
-                    Notifications.CreateErrorToast("Remove Series", error)
+                    Notifications.CreateErrorNotification("Remove Series", error)
                 ]);
     }
 }

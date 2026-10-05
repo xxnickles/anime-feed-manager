@@ -34,7 +34,7 @@ internal static class ComponentResults
                         TComponent.SuccessNotificationTitle,
                         TComponent.OkNotificationContent(viewModel))
                 ],
-                error => [Notifications.CreateErrorToast(TComponent.ErrorNotificationTitle, error)]);
+                error => [Notifications.CreateErrorNotification(TComponent.ErrorNotificationTitle, error)]);
         }
     }
 }

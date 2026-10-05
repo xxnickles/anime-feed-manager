@@ -1,0 +1,12 @@
+@* Toast for htmx requests that never got a response (server unreachable). Aborts are ignored: htmx 4 reports
+   timeouts and deliberate cancels identically. Server errors arrive as their own toast or dialog. *@
+<template _="@Script">
+    <ClosableNotification Title="Connection failed"
+                          Message="@Message"
+                          Type="ToastType.Error" />
+</template>
+
+@code {
+    private static readonly RenderFragment Message =
+        builder => builder.AddContent(0, "Could not reach the server. Check your connection and try again.");
+}

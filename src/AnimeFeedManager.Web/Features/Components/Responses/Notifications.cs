@@ -23,8 +23,22 @@ internal static class Notifications
         ToastType type = ToastType.Success) =>
         CreateToast(title, message, type);
 
-    internal static RenderFragment CreateErrorToast(string title, DomainError error) =>
-        CreateToast(title, ErrorToContent(error), ToToastType(error));
+    // 4xx errors are the user's to fix: a toast. 5xx are ours: a dialog with the trace ID.
+    internal static RenderFragment CreateErrorNotification(string title, DomainError error) =>
+        error.ToStatusCode() >= StatusCodes.Status500InternalServerError
+            ? CreateErrorDialog(title, ErrorToContent(error), error.ToStatusCode(), error.ToString())
+            : CreateToast(title, ErrorToContent(error), ToToastType(error));
+
+    internal static RenderFragment CreateErrorDialog(string title, RenderFragment message, int statusCode,
+        string? details) => builder =>
+    {
+        builder.OpenComponent<ErrorDialogOob>(0);
+        builder.AddComponentParameter(1, nameof(ErrorDialogOob.Title), title);
+        builder.AddComponentParameter(2, nameof(ErrorDialogOob.Message), message);
+        builder.AddComponentParameter(3, nameof(ErrorDialogOob.StatusCode), statusCode);
+        builder.AddComponentParameter(4, nameof(ErrorDialogOob.Details), details);
+        builder.CloseComponent();
+    };
 
     private static ToastType ToToastType(DomainError error) => error switch
     {

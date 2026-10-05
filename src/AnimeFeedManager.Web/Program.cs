@@ -6,6 +6,7 @@ using AnimeFeedManager.Web.Features;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
 using AnimeFeedManager.Web.Features.Security.Endpoints;
 using AnimeFeedManager.Web.Features.Tv.Endpoints;
+using AnimeFeedManager.Web.Htmx;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,12 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+else
+{
+    // The developer exception page is a full document; in-page htmx requests get the error dialog instead.
+    app.UseWhen(context => HtmxRequestMiddleware.GetHtmxRequestType(context) is Partial,
+        branch => branch.UseExceptionHandler("/Error", createScopeForErrors: true));
 }
 
 app.UseStatusCodePagesWithReExecute("/status-code/{0}");

@@ -65,7 +65,6 @@ else
     </script>
 
     <RenderOnEnviroment Exclude="[Environments.Development]">
-        <script defer src="@Assets["webcomponents/htmx-error-alert.min.js"]"></script>
         <script defer src="@Assets["webcomponents/afm-logo.min.js"]"></script>
         <script defer src="@Assets["lib/htmx/dist/htmx.min.js"]"></script>
         <script defer src="@Assets["lib/hyperscript/dist/_hyperscript.min.js"]"></script>
@@ -81,7 +80,6 @@ else
     </RenderOnEnviroment>
 
     <RenderOnEnviroment Include="[Environments.Development]">
-        <script defer src="@Assets["webcomponents/htmx-error-alert.min.js"]"></script>
         <script defer src="@Assets["webcomponents/afm-logo.js"]"></script>
         <script defer src="@Assets["lib/htmx/dist/htmx.js"]"></script>
         <script defer src="@Assets["lib/hyperscript/dist/_hyperscript.js"]"></script>
@@ -113,10 +111,11 @@ else
 </div>
 
 
-<daisy-htmx-alerts attach-to="#toast-panel"></daisy-htmx-alerts>
+<HtmxErrorNotifier></HtmxErrorNotifier>
 <HtmxConfirm></HtmxConfirm>
 <div id="toast-panel" class="toast toast-start z-50 isolate" hx-preserve
      _="on animationend add .toast-settled to target"></div>
+<div id="error-dialog-host"></div>
 @* <script src="_framework/blazor.web.js"></script> *@
 </body>
 
