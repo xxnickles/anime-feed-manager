@@ -43,30 +43,24 @@ public static class LibraryQueries
         return series.Status.ToString() switch
         {
             SeriesStatus.OngoingValue => new Available(user, series),
-            SeriesStatus.CompletedValue => new Completed(user, series),
+            SeriesStatus.CompletedValue => new Completed(user, series, false),
             _ => new NotAvailable(user, series)
         };
     }
 
-    // Subscription state is independent of airing state — a completed series can still be
-    // subscribed, and stays so for when it returns. Only an unsubscribed series falls back
-    // to whatever its status offers.
+    // A completed series wins over any subscription state (it takes no user actions); the
+    // subscription survives only as a flag. Otherwise subscription state wins over airing state.
     private static UserTvSeries MapForUser(
         TvSeries series,
         ImmutableArray<SubscriptionStorage> subscriptions,
         AppUser user) =>
-        GetSubscriptionType(subscriptions, series.Id) switch
+        (series.Status.ToString(), GetSubscriptionType(subscriptions, series.Id)) switch
         {
-            nameof(SubscriptionType.Subscribed) => new Subscribed(user, series),
-            nameof(SubscriptionType.Interested) => new Interested(user, series),
-            _ => MapUnsubscribed(series, user)
-        };
-
-    private static UserTvSeries MapUnsubscribed(TvSeries series, AppUser user) =>
-        series.Status.ToString() switch
-        {
-            SeriesStatus.CompletedValue => new Completed(user, series),
-            SeriesStatus.OngoingValue => new AvailableForSubscription(user, series),
+            (SeriesStatus.CompletedValue, var type) =>
+                new Completed(user, series, type == nameof(SubscriptionType.Subscribed)),
+            (_, nameof(SubscriptionType.Subscribed)) => new Subscribed(user, series),
+            (_, nameof(SubscriptionType.Interested)) => new Interested(user, series),
+            (SeriesStatus.OngoingValue, _) => new AvailableForSubscription(user, series),
             _ => new AvailableForFuture(user, series)
         };
 
