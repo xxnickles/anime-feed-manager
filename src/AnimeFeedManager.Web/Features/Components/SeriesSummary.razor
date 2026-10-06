@@ -6,7 +6,13 @@
     <p class="mt-1 text-sm text-base-content/60">
         @* capitalize is scoped to the season alone: Season.ToString() is the lowercase backing
            value, and widening it would also capitalize "titles". *@
-        <span class="capitalize">@Season.Season.ToString()</span> @Season.Year.ToString() · @FilterCounters.Total @(FilterCounters.Total == 1 ? "title" : "titles")
+        <span class="capitalize">@Season.Season.ToString()</span> @Season.Year.ToString() ·
+        @* Admin delete removes a card without re-rendering the page; the total follows its removeSeries trigger. *@
+        <span data-total="@FilterCounters.Total"
+              _="on removeSeries from body
+                   set total to (my @@data-total as Int) - 1
+                   set my @@data-total to total
+                   if total is 1 put '1 title' into me else put total + ' titles' into me end">@FilterCounters.Total @(FilterCounters.Total == 1 ? "title" : "titles")</span>
     </p>
     <NavLink href="seasons" class="btn btn-sm btn-outline mt-3 lg:hidden">
         All seasons

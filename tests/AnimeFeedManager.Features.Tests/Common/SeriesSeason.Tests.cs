@@ -45,6 +45,26 @@ public class SeriesSeasonTests
 
     #endregion
 
+    #region ToSeasonKey
+
+    [Fact]
+    public void Should_Format_Season_Then_Year_When_Building_The_Key()
+    {
+        var key = new SeriesSeason(Season.Summer(), Year.FromNumber(2026)).ToSeasonKey();
+
+        Assert.Equal("summer-2026", key);
+    }
+
+    [Fact]
+    public void Should_Parse_Back_The_Same_Season_When_Reading_The_Key()
+    {
+        var season = new SeriesSeason(Season.Fall(), Year.FromNumber(2025));
+
+        season.ToSeasonKey().ParseAsSeriesSeason().AssertOnSuccess(parsed => Assert.Equal(season, parsed));
+    }
+
+    #endregion
+
     #region JSON serialization
 
     [Fact]

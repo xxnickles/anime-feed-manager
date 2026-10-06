@@ -46,6 +46,6 @@
                 _ => { _seasons = []; });
     }
 
-    private static string GetLink(SeriesSeason season) => $"{season.Season}-{season.Year}/{SeriesType.Tv.AsPlural()}";
+    private static string GetLink(SeriesSeason season) => $"{season.ToSeasonKey()}/{SeriesType.Tv.AsPlural()}";
 
 }

@@ -6,8 +6,6 @@ public static partial class IdHelpers
 {
     public static string GetUniqueId() => Guid.CreateVersion7().ToString("N");
 
-    // public static string GenerateAnimePartitionKey(Season season, ushort year) => $"{year.ToString()}-{season}";
-
     public static string GenerateAnimePartitionKey(string season, ushort year) => $"{year.ToString()}-{season}";
     public static string GenerateAnimePartitionKey(SeriesSeason season) => $"{season.Year.ToString()}-{season.Season.ToString()}";
 

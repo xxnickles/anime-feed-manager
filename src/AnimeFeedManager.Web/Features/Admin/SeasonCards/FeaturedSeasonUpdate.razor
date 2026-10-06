@@ -21,7 +21,7 @@
                          name="@nameof(ViewModel.Season)">
                 @foreach (var season in _choices)
                 {
-                    <option value="@SeasonKey(season)">@SeasonLabel(season)</option>
+                    <option value="@season.ToSeasonKey()">@SeasonLabel(season)</option>
                 }
             </InputSelect>
         </label>
@@ -37,8 +37,6 @@
 
     [Parameter] public FeaturedSeasonViewModel ViewModel { get; set; } = new();
 
-    internal static string SeasonKey(SeriesSeason season) => $"{season.Season}-{season.Year}";
-
     private static string SeasonLabel(SeriesSeason season) => $"{season.Year} {season.Season}";
 
     protected override async Task OnInitializedAsync()
@@ -53,7 +51,7 @@
 
         if (string.IsNullOrWhiteSpace(ViewModel.Season) && !_choices.IsEmpty)
         {
-            ViewModel.Season = SeasonKey(_choices[0]);
+            ViewModel.Season = _choices[0].ToSeasonKey();
         }
     }
 

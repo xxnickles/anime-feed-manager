@@ -42,7 +42,7 @@ public sealed record ScrapTvLibraryResult(
             Actions = builder =>
             {
                 builder.OpenElement(1, "a");
-                builder.AddAttribute(2, "href", $"/{Season.Season}-{Season.Year}/tv");
+                builder.AddAttribute(2, "href", $"/{Season.ToSeasonKey()}/tv");
                 builder.AddAttribute(3, "class", "link text-xs font-semibold");
                 builder.AddContent(4, "Go to season");
                 builder.CloseElement();
