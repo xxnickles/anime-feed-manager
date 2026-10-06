@@ -19,7 +19,7 @@ public sealed record TvSeriesInfoWithImage(
 
 public sealed record TvSeries(
     string Id,
-    string SeasonString,
+    SeriesSeason Season,
     string Title,
     string Synopsis,
     string? FeedTitle,
@@ -43,13 +43,13 @@ public delegate Task<Result<ImmutableArray<TvSeries>>> TvLibrary(
     Uri publicBlobUri,
     CancellationToken cancellationToken = default);
 
-// public delegate Task<Result<TvSeries>> TvLibrarySeries(
-//     SeriesSeason season,
-//     string id,
-//     Uri publicBlobUri,
-//     CancellationToken cancellationToken = default);
+public delegate Task<Result<TvSeries>> TvLibrarySeries(
+    string id,
+    SeriesSeason season,
+    Uri publicBlobUri,
+    CancellationToken cancellationToken = default);
 
-public delegate Task<Result<AnimeInfoStorage>> TvSeriesGetter(string id, string season,
+public delegate Task<Result<AnimeInfoStorage>> TvSeriesGetter(string id, SeriesSeason season,
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeries
@@ -79,22 +79,14 @@ public static class ExistentSeries
                         .ExecuteQuery<AnimeInfoStorage>(
                             series => series.PartitionKey ==
                                       IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year), token)
-                        .Map(series => series.Select(s => LibraryMapper(s, blobUri)).ToImmutableArray()));
+                        .Map(series => series.Select(s => LibraryMapper(s, season, blobUri)).ToImmutableArray()));
 
-        // public TvLibrarySeries TableStorageTvLibrarySeries =>
-        //     (season, id, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
-        //         .WithOperationName("TableStorageTvLibrarySeries")
-        //         .WithLogProperties([
-        //             new KeyValuePair<string, object>("Season", season),
-        //             new KeyValuePair<string, object>("BlobUri", blobUri),
-        //         ])
-        //         .Bind(client => client
-        //             .ExecuteQuery<AnimeInfoStorage>(
-        //                 series =>
-        //                     series.PartitionKey == IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year) &&
-        //                     series.RowKey == id, token)
-        //             .SingleItem()
-        //             .Map(s => LibraryMapper(s, blobUri)));
+        public TvLibrarySeries TableStorageTvLibrarySeries =>
+            (id, season, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
+                .WithOperationName("TableStorageTvLibrarySeries")
+                .WithLogProperty("PublicBlobUri", blobUri)
+                .Bind(client => client.GetAnimeInfo(id, season, token))
+                .Map(series => LibraryMapper(series, season, blobUri));
 
         public TvSeriesGetter TableStorageTvSeriesGetter =>
             (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
@@ -131,9 +123,9 @@ public static class ExistentSeries
     }
 
 
-    private static TvSeries LibraryMapper(AnimeInfoStorage entity, Uri publicBlobUri) => new(
+    private static TvSeries LibraryMapper(AnimeInfoStorage entity, SeriesSeason season, Uri publicBlobUri) => new(
         entity.RowKey ?? string.Empty,
-        entity.PartitionKey ?? string.Empty,
+        season,
         entity.Title ?? string.Empty,
         entity.Synopsis ?? string.Empty,
         entity.FeedTitle,
@@ -170,15 +162,16 @@ public static class ExistentSeries
     private static Task<Result<AnimeInfoStorage>> GetAnimeInfo(
         this TableClient tableClient,
         string id,
-        string seasonString,
+        SeriesSeason season,
         CancellationToken cancellationToken = default)
     {
+        var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);
         return tableClient.TryExecute<AnimeInfoStorage>(client =>
-                client.GetEntityAsync<AnimeInfoStorage>(seasonString, id, cancellationToken: cancellationToken))
+                client.GetEntityAsync<AnimeInfoStorage>(partitionKey, id, cancellationToken: cancellationToken))
             .WithOperationName(nameof(GetAnimeInfo))
             .WithLogProperties([
                 new KeyValuePair<string, object>("Id", id),
-                new KeyValuePair<string, object>("Season", seasonString)
+                new KeyValuePair<string, object>("Season", partitionKey)
             ])
             .Map(clientResult => clientResult.Value);
     }

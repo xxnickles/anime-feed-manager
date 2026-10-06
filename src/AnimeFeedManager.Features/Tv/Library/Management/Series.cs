@@ -4,7 +4,7 @@ public static class Series
 {
     public static Task<Result<Unit>> UpdateAlternativeTitles(
         string seriesId,
-        string seriesSeason,
+        SeriesSeason seriesSeason,
         string[] alternativeTitles,
         TvSeriesGetter seriesGetter,
         TvSeriesStorageUpdater storageUpdater,
@@ -14,8 +14,8 @@ public static class Series
 
 
     public static Task<Result<Unit>> DeleteSeries(
-        string seriesId, 
-        string seriesSeason,
+        string seriesId,
+        SeriesSeason seriesSeason,
         TvSeriesRemover seriesRemover,
         CancellationToken token) => seriesRemover(seriesId, seriesSeason, token);
 

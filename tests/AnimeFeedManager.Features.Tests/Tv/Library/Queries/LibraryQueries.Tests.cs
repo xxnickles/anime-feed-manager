@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Tv.Library.Queries;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
@@ -159,7 +160,7 @@ public class LibraryQueriesTests
 
     private static TvSeries MakeSeries(string status) => new(
         SeriesId,
-        "2026-summer",
+        new SeriesSeason(Season.Summer(), Year.FromNumber(2026)),
         "BLACK TORCH",
         "synopsis",
         "Black Torch",

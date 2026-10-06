@@ -35,17 +35,10 @@ public class TvSubscriptionViewModel : TvInterestedViewModel
 public class AlternativeTitlesViewModel : TvSeriesCardViewModel
 {
     public string[]? AlternativeTitles { get; set; }
-    
-    [Required(AllowEmptyStrings = false)]
-    public string Season { get; set; } = string.Empty;
 }
 
 public class RemoveSeriesViewModel : TvSeriesCardViewModel
 {
-    [Required(AllowEmptyStrings = false)]
-    public string Season { get; set; } = string.Empty;
-    
-   
     public string LoaderSelector { get; set; } = string.Empty;
     
     [Required(AllowEmptyStrings = false)]

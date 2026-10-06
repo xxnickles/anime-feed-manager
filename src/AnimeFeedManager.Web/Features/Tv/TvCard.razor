@@ -107,7 +107,6 @@
         {
             AlternativeTitles = series.TvSeries.AlternativeTitles.User ?? [],
             SeriesTitle = series.TvSeries.Title,
-            Season = series.TvSeries.SeasonString,
             SeriesId = series.TvSeries.Id
         };
     }
@@ -117,7 +116,6 @@
         return new RemoveSeriesViewModel
         {
             SeriesTitle = series.TvSeries.Title,
-            Season = series.TvSeries.SeasonString,
             SeriesId = series.TvSeries.Id,
             LoaderSelector = _loaderSelector,
             CardId = _cardId

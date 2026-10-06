@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
+﻿using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 using AnimeFeedManager.Web.Features.Tv.Controls;
 using AnimeFeedManager.Web.Htmx.Static;
 using static AnimeFeedManager.Features.Tv.Library.Management.Series;
@@ -16,10 +17,13 @@ internal static class LibraryManagement
         CancellationToken cancellationToken)
     {
         using var activity = Source.StartActivity("Web.Tv");
-        return await Validate(viewModel).Bind(model => UpdateAlternativeTitles(
-                    model.SeriesId,
-                    model.Season,
-                    model.AlternativeTitles ?? [],
+        return await Validate(viewModel)
+                .Bind(model => IdHelpers.SeriesSeasonFromId(model.SeriesId)
+                    .Map(season => (Model: model, Season: season)))
+                .Bind(data => UpdateAlternativeTitles(
+                    data.Model.SeriesId,
+                    data.Season,
+                    data.Model.AlternativeTitles ?? [],
                     clientFactory.TableStorageTvSeriesGetter,
                     clientFactory.TableStorageTvSeriesUpdater,
                     cancellationToken))
@@ -44,7 +48,9 @@ internal static class LibraryManagement
     {
         using var activity = Source.StartActivity("Web.Tv");
         return await Validate(viewModel)
-            .Bind(model => DeleteSeries(viewModel.SeriesId, viewModel.Season,
+            .Bind(model => IdHelpers.SeriesSeasonFromId(model.SeriesId)
+                .Map(season => (Model: model, Season: season)))
+            .Bind(data => DeleteSeries(data.Model.SeriesId, data.Season,
                 clientFactory.TableStorageTvSeriesRemover, token))
             .Map(result =>
             {
