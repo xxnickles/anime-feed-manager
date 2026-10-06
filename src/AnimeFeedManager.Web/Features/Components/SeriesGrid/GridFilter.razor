@@ -1,10 +1,22 @@
 @* Inline filter bar for filtering series by status.
    Dispatches filterChanged(filter, label) on body when a filter is picked.
-   SeriesGrid listens and updates its data-filter attribute. *@
+   SeriesGrid listens and updates its data-filter attribute.
+   Counts are server-rendered, then recounted from the cards' data-* attributes on cardsChanged
+   (sent by SeriesGrid when cards are swapped or removed). data-count-of names the attribute; empty counts all. *@
 @* max-w-full/min-w-0 clamp daisyUI's `.menu { width: fit-content }`, which otherwise sizes the bar
    to its buttons and overruns the card column into document-level horizontal scroll. Capped, the
    bar matches the card width and scrolls its own overflow instead. *@
-<ul class="menu menu-horizontal menu-sm flex-nowrap gap-1 min-w-0 max-w-full overflow-x-auto bg-base-200 rounded-box">
+<ul class="menu menu-horizontal menu-sm flex-nowrap gap-1 min-w-0 max-w-full overflow-x-auto bg-base-200 rounded-box"
+    _="on cardsChanged from closest <section/>
+         set grid to closest <section/>
+         repeat for badge in <span[data-count-of]/> in me
+           set selector to '.card-filter-wrapper'
+           set key to badge's @@data-count-of
+           if key is not ''
+             set selector to selector + '[data-' + key + '=true]'
+           end
+           put grid.querySelectorAll(selector).length into badge
+         end">
     <li>
         <button type="button" class="menu-active gap-1.5"
                 _="on click
@@ -15,7 +27,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12M8.25 17.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
             </svg>
             <span class="hidden md:inline">All</span>
-            <span class="badge badge-xs">@FilterCounters.Total</span>
+            <span class="badge badge-xs" data-count-of="">@FilterCounters.Total</span>
         </button>
     </li>
     <li>
@@ -28,7 +40,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
             </svg>
             <span class="hidden md:inline">Available</span>
-            <span class="badge badge-xs">@FilterCounters.Available</span>
+            <span class="badge badge-xs" data-count-of="available">@FilterCounters.Available</span>
         </button>
     </li>
     @if (IsAuthenticated)
@@ -43,7 +55,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
                 </svg>
                 <span class="hidden md:inline">Subscribed</span>
-                <span class="badge badge-xs">@FilterCounters.Subscribed</span>
+                <span class="badge badge-xs" data-count-of="subscribed">@FilterCounters.Subscribed</span>
             </button>
         </li>
         <li>
@@ -56,7 +68,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"/>
                 </svg>
                 <span class="hidden md:inline">Interested</span>
-                <span class="badge badge-xs">@FilterCounters.Interested</span>
+                <span class="badge badge-xs" data-count-of="interested">@FilterCounters.Interested</span>
             </button>
         </li>
     }
@@ -70,7 +82,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/>
             </svg>
             <span class="hidden md:inline">Completed</span>
-            <span class="badge badge-xs">@FilterCounters.Completed</span>
+            <span class="badge badge-xs" data-count-of="completed">@FilterCounters.Completed</span>
         </button>
     </li>
     <li>
@@ -83,7 +95,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
             </svg>
             <span class="hidden md:inline">Not Available</span>
-            <span class="badge badge-xs">@FilterCounters.NotAvailable</span>
+            <span class="badge badge-xs" data-count-of="not-available">@FilterCounters.NotAvailable</span>
         </button>
     </li>
 </ul>
