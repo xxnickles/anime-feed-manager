@@ -11,6 +11,11 @@ public static class SeriesSeasonExtensions
     }
 
     /// <summary>
+    /// Formats the "season-year" key read back by <see cref="ParseAsSeriesSeason(string)"/>.
+    /// </summary>
+    public static string ToSeasonKey(this SeriesSeason season) => $"{season.Season}-{season.Year}";
+
+    /// <summary>
     /// Parses a season string in "Season-Year" format
     /// </summary>
     /// <param name="seasonString"></param>

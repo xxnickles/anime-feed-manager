@@ -74,7 +74,8 @@ else
         _currentSeason is not null &&
         season == _currentSeason.Season && year == _currentSeason.Year;
 
-    private static string GetSeasonLink(Season season, Year year) => $"{season}-{year}/tv";
+    private static string GetSeasonLink(Season season, Year year) =>
+        $"{new SeriesSeason(season, year).ToSeasonKey()}/{SeriesType.Tv.AsPlural()}";
 
     private static string GetSeasonImage(Season season) => season switch
     {

@@ -6,7 +6,7 @@ public delegate Task<Result<Unit>> TvLibraryStorageUpdater(IEnumerable<AnimeInfo
 public delegate Task<Result<Unit>> TvSeriesStorageUpdater(AnimeInfoStorage series,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<Unit>> TvSeriesRemover(string id, string seasonString, CancellationToken token = default);
+public delegate Task<Result<Unit>> TvSeriesRemover(string id, SeriesSeason season, CancellationToken token = default);
 
 public static class TvLibraryStore
 {
@@ -22,8 +22,8 @@ public static class TvLibraryStore
                 clientFactory.GetClient<AnimeInfoStorage>().Bind(client => client.UpdateSeries(series, token));
 
         public TvSeriesRemover TableStorageTvSeriesRemover =>
-            (id, seasonString, token) => clientFactory.GetClient<AnimeInfoStorage>()
-                .Bind(client => client.RemoveSeries(id, seasonString, token));
+            (id, season, token) => clientFactory.GetClient<AnimeInfoStorage>()
+                .Bind(client => client.RemoveSeries(id, season, token));
     }
 
 
@@ -46,15 +46,18 @@ public static class TvLibraryStore
                 .WithLogProperty("Series", series);
 
         private Task<Result<Unit>> RemoveSeries(string id,
-            string seasonString,
-            CancellationToken token) =>
-            tableClient.TryExecute<AnimeInfoStorage>(client =>
-                    client.DeleteEntityAsync(seasonString, id, cancellationToken: token))
+            SeriesSeason season,
+            CancellationToken token)
+        {
+            var partitionKey = IdHelpers.GenerateAnimePartitionKey(season.Season, season.Year);
+            return tableClient.TryExecute<AnimeInfoStorage>(client =>
+                    client.DeleteEntityAsync(partitionKey, id, cancellationToken: token))
                 .WithDefaultMap()
                 .WithOperationName(nameof(RemoveSeries))
                 .WithLogProperties([
                     new KeyValuePair<string, object>("Id", id),
-                    new KeyValuePair<string, object>("Season", seasonString)
+                    new KeyValuePair<string, object>("Season", partitionKey)
                 ]);
+        }
     }
 }

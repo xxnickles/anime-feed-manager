@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
+using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 using AnimeFeedManager.Shared.Types;
-using AnimeFeedManager.Web.Features.Tv.Controls;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
@@ -15,26 +16,22 @@ internal partial class TvEndpointJsonContext : JsonSerializerContext;
 
 internal static class Data
 {
-    internal static Result<(AuthenticatedUser User, TvInterestedViewModel Model)> AddUser(HttpContext context,
-        TvInterestedViewModel viewModel)
-    {
-        var user = context.GetCurrentUser();
-        return user switch
+    // Season comes from the id, so the series read stays a partition + row key point operation.
+    internal static Task<Result<(AuthenticatedUser User, TvSeries Series)>> GetSeriesForUser(
+        HttpContext context,
+        string seriesId,
+        TvLibrarySeries seriesGetter,
+        Uri publicBlobUri,
+        CancellationToken token) =>
+        CurrentUser(context)
+            .Bind(user => IdHelpers.SeriesSeasonFromId(seriesId).Map(season => (User: user, Season: season)))
+            .Bind(data => seriesGetter(seriesId, data.Season, publicBlobUri, token)
+                .Map(series => (data.User, Series: series)));
+
+    private static Result<AuthenticatedUser> CurrentUser(HttpContext context) =>
+        context.GetCurrentUser() switch
         {
-            AuthenticatedUser au => (au, viewModel),
+            AuthenticatedUser user => user,
             _ => Error.Create("User can not be anonymous")
         };
-    }
-    
-    
-    internal static Result<(AuthenticatedUser User, TvSubscriptionViewModel Model)> AddUser(HttpContext context,
-        TvSubscriptionViewModel viewModel)
-    {
-        var user = context.GetCurrentUser();
-        return user switch
-        {
-            AuthenticatedUser au => (au, viewModel),
-            _ => Error.Create("User can not be anonymous")
-        };
-    }
 }

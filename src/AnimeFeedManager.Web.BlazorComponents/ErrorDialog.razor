@@ -1,0 +1,58 @@
+@* Modal for unexpected (5xx) failures: opens itself on insert and carries the trace ID for log lookup. *@
+<dialog class="modal" hx-boost:inherited="false" _="init call my showModal()">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg text-error flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                 stroke="currentColor" class="size-6 shrink-0" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            @Title
+        </h3>
+        <p class="py-3">@Message</p>
+
+        <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+            <dt class="opacity-60">Status</dt>
+            <dd>@StatusCode</dd>
+            <dt class="opacity-60">Trace ID</dt>
+            <dd class="font-mono break-all">@TraceId</dd>
+            <dt class="opacity-60">Time (UTC)</dt>
+            <dd>@OccurredAt.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+        </dl>
+
+        @if (Details is not null)
+        {
+            <details class="mt-3">
+                <summary class="cursor-pointer text-xs opacity-70">Details (development only)</summary>
+                <pre class="mt-2 max-h-64 overflow-auto rounded-box bg-base-200 p-2 text-xs whitespace-pre-wrap">@Details</pre>
+            </details>
+        }
+
+        <div class="modal-action">
+            <button type="button" class="btn btn-sm" data-trace-id="@TraceId"
+                    _="on click
+                         call navigator.clipboard.writeText(my @@data-trace-id)
+                         put 'Copied' into me
+                         wait 2s
+                         put 'Copy ID' into me">Copy ID</button>
+            <button type="button" class="btn btn-sm" _="on click call location.reload()">Reload page</button>
+            <form method="dialog">
+                <button class="btn btn-sm btn-primary">Close</button>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public RenderFragment Message { get; set; } = _ => { };
+    [Parameter, EditorRequired] public int StatusCode { get; set; }
+    [Parameter, EditorRequired] public string TraceId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public DateTimeOffset OccurredAt { get; set; }
+
+    // Null hides the section; callers only pass it in Development.
+    [Parameter] public string? Details { get; set; }
+}

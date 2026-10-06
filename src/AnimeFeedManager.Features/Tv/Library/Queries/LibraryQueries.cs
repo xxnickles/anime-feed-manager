@@ -30,7 +30,9 @@ public static class LibraryQueries
         if (user is AuthenticatedUser au)
         {
             return subscriptionsGetter(au.UserId, cancellationToken)
-                .Map(subscriptions => libraryData.Select(s => MapForUser(s, subscriptions, user)).ToImmutableArray());
+                .Map(subscriptions => libraryData
+                    .Select(s => s.ForUser(user, GetSubscriptionType(subscriptions, s.Id)))
+                    .ToImmutableArray());
         }
 
         return Task.FromResult(
@@ -43,37 +45,27 @@ public static class LibraryQueries
         return series.Status.ToString() switch
         {
             SeriesStatus.OngoingValue => new Available(user, series),
-            SeriesStatus.CompletedValue => new Completed(user, series),
+            SeriesStatus.CompletedValue => new Completed(user, series, false),
             _ => new NotAvailable(user, series)
         };
     }
 
-    // Subscription state is independent of airing state — a completed series can still be
-    // subscribed, and stays so for when it returns. Only an unsubscribed series falls back
-    // to whatever its status offers.
-    private static UserTvSeries MapForUser(
-        TvSeries series,
-        ImmutableArray<SubscriptionStorage> subscriptions,
-        AppUser user) =>
-        GetSubscriptionType(subscriptions, series.Id) switch
+    // A completed series wins over any subscription state (it takes no user actions); the
+    // subscription survives only as a flag. Otherwise subscription state wins over airing state.
+    public static UserTvSeries ForUser(this TvSeries series, AppUser user, SubscriptionType subscription) =>
+        (series.Status.ToString(), subscription) switch
         {
-            nameof(SubscriptionType.Subscribed) => new Subscribed(user, series),
-            nameof(SubscriptionType.Interested) => new Interested(user, series),
-            _ => MapUnsubscribed(series, user)
-        };
-
-    private static UserTvSeries MapUnsubscribed(TvSeries series, AppUser user) =>
-        series.Status.ToString() switch
-        {
-            SeriesStatus.CompletedValue => new Completed(user, series),
-            SeriesStatus.OngoingValue => new AvailableForSubscription(user, series),
+            (SeriesStatus.CompletedValue, var type) => new Completed(user, series, type == SubscriptionType.Subscribed),
+            (_, SubscriptionType.Subscribed) => new Subscribed(user, series),
+            (_, SubscriptionType.Interested) => new Interested(user, series),
+            (SeriesStatus.OngoingValue, _) => new AvailableForSubscription(user, series),
             _ => new AvailableForFuture(user, series)
         };
 
 
-    private static string GetSubscriptionType(ImmutableArray<SubscriptionStorage> subscriptions,
-        string seriesId)
-    {
-        return subscriptions.FirstOrDefault(s => s.RowKey == seriesId)?.Type ?? nameof(SubscriptionType.None);
-    }
+    private static SubscriptionType GetSubscriptionType(ImmutableArray<SubscriptionStorage> subscriptions,
+        string seriesId) =>
+        Enum.TryParse<SubscriptionType>(subscriptions.FirstOrDefault(s => s.RowKey == seriesId)?.Type, out var type)
+            ? type
+            : SubscriptionType.None;
 }

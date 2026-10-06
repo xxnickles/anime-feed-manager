@@ -8,7 +8,7 @@ var signalR = builder.AddAzureSignalR("signalr", AzureSignalRServiceMode.Serverl
     );
 
 var storage = builder.AddAzureStorage("storage")
-    .RunAsEmulator(emulator => emulator.WithImageTag("latest")
+    .RunAsEmulator(emulator => emulator.WithImageTag("3.37.0")
             .WithImagePullPolicy(ImagePullPolicy.Missing)
             .WithBindMount(builder.Configuration["AzuriteDataPath"] ?? "../../../azurite-data", "/data")
             .WithLifetime(ContainerLifetime.Persistent)
@@ -24,7 +24,7 @@ builder.AddJavaScriptApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 // Token for local development - production uses GitHub secret
 const string chromeDevToken = "local-dev-token";
 
-var chrome = builder.AddContainer("chrome", "ghcr.io/browserless/chromium", "latest")
+var chrome = builder.AddContainer("chrome", "ghcr.io/browserless/chromium", "v2.57.0")
     .WithImagePullPolicy(ImagePullPolicy.Missing)
     .WithHttpEndpoint(port: 3000, targetPort: 3000, name: "http")
     .WithEnvironment("TOKEN", chromeDevToken)

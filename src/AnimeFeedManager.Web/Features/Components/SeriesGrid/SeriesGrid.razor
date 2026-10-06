@@ -9,7 +9,9 @@
      _="on filterChanged(filter) from body set @@data-filter to filter">
     @* min() clamps the track floor to the container: a bare 420px minimum exceeds a phone
        viewport and pushes the grid into horizontal overflow, eating the gutter. *@
-    <section class="grid grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))] justify-center auto-rows-min gap-4 px-4 md:px-10 py-2 md:py-4">
+    @* Cards are direct children: a swapped or removed card is a childList change, so GridFilter recounts. *@
+    <section class="grid grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))] justify-center auto-rows-min gap-4 px-4 md:px-10 py-2 md:py-4"
+             _="on mutation of childList send cardsChanged to me">
         <div class="col-span-full justify-self-start min-w-0 max-w-full mb-2">
             <GridFilter IsAuthenticated="IsAuthenticated" FilterCounters="FilterCounters" />
         </div>

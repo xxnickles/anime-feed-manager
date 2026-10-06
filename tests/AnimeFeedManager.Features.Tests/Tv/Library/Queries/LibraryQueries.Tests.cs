@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Tv.Library.Queries;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
@@ -18,8 +19,8 @@ public class LibraryQueriesTests
         {SeriesStatus.OngoingValue, nameof(SubscriptionType.Subscribed), typeof(Subscribed)},
         {SeriesStatus.OngoingValue, nameof(SubscriptionType.Interested), typeof(Interested)},
         {SeriesStatus.OngoingValue, nameof(SubscriptionType.None), typeof(AvailableForSubscription)},
-        {SeriesStatus.CompletedValue, nameof(SubscriptionType.Subscribed), typeof(Subscribed)},
-        {SeriesStatus.CompletedValue, nameof(SubscriptionType.Interested), typeof(Interested)},
+        {SeriesStatus.CompletedValue, nameof(SubscriptionType.Subscribed), typeof(Completed)},
+        {SeriesStatus.CompletedValue, nameof(SubscriptionType.Interested), typeof(Completed)},
         {SeriesStatus.CompletedValue, nameof(SubscriptionType.None), typeof(Completed)},
         {SeriesStatus.NotAvailableValue, nameof(SubscriptionType.Subscribed), typeof(Subscribed)},
         {SeriesStatus.NotAvailableValue, nameof(SubscriptionType.Interested), typeof(Interested)},
@@ -38,13 +39,23 @@ public class LibraryQueriesTests
         result.AssertOnSuccess(series => Assert.IsType(expected, Assert.Single(series)));
     }
 
-    [Fact]
-    public async Task Should_Keep_Subscription_State_When_Series_Is_No_Longer_Ongoing()
+    public static TheoryData<string, bool> CompletedSubscriptionFlag => new()
     {
-        var result = await MapSingle(SeriesStatus.CompletedValue,
-            MakeSubscription(SeriesId, nameof(SubscriptionType.Subscribed)));
+        {nameof(SubscriptionType.Subscribed), true},
+        {nameof(SubscriptionType.Interested), false},
+        {nameof(SubscriptionType.None), false}
+    };
 
-        result.AssertOnSuccess(series => Assert.IsType<Subscribed>(Assert.Single(series)));
+    [Theory]
+    [MemberData(nameof(CompletedSubscriptionFlag))]
+    public async Task Should_Carry_Subscription_As_Flag_When_Series_Is_Completed(
+        string subscriptionType,
+        bool expectedSubscribed)
+    {
+        var result = await MapSingle(SeriesStatus.CompletedValue, MakeSubscription(SeriesId, subscriptionType));
+
+        result.AssertOnSuccess(series =>
+            Assert.Equal(expectedSubscribed, Assert.IsType<Completed>(Assert.Single(series)).IsSubscribed));
     }
 
     [Fact]
@@ -86,6 +97,15 @@ public class LibraryQueriesTests
 
         result.AssertOnSuccess(series => Assert.IsType(expected, Assert.Single(series)));
         await getter.DidNotReceive().Invoke(Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Should_Not_Flag_Completed_As_Subscribed_When_User_Is_Anonymous()
+    {
+        var result = await Library([MakeSeries(SeriesStatus.CompletedValue)])
+            .GetTvLibraryForUser(new Anonymous(), Subscriptions(), CancellationToken.None);
+
+        result.AssertOnSuccess(series => Assert.False(Assert.IsType<Completed>(Assert.Single(series)).IsSubscribed));
     }
 
     #endregion
@@ -140,7 +160,7 @@ public class LibraryQueriesTests
 
     private static TvSeries MakeSeries(string status) => new(
         SeriesId,
-        "2026-summer",
+        new SeriesSeason(Season.Summer(), Year.FromNumber(2026)),
         "BLACK TORCH",
         "synopsis",
         "Black Torch",

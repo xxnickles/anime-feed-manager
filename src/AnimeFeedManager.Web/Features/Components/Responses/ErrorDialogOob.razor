@@ -1,0 +1,29 @@
+@using System.Diagnostics
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IWebHostEnvironment Environment
+
+@* "innerHTML" is a non-outer swap: htmx strips this wrapper and replaces any previous dialog in the host. *@
+<div hx-swap-oob="innerHTML:#error-dialog-host">
+    <ErrorDialog Title="@Title"
+                 Message="@Message"
+                 StatusCode="@StatusCode"
+                 TraceId="@_traceId"
+                 OccurredAt="@DateTimeOffset.UtcNow"
+                 Details="@(Environment.IsDevelopment() ? Details : null)" />
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public RenderFragment Message { get; set; } = _ => { };
+    [Parameter, EditorRequired] public int StatusCode { get; set; }
+
+    // Rendered in Development only.
+    [Parameter] public string? Details { get; set; }
+
+    private string _traceId = string.Empty;
+
+    protected override void OnInitialized() =>
+        _traceId = Activity.Current?.TraceId.ToString()
+                   ?? HttpContextAccessor.HttpContext?.TraceIdentifier
+                   ?? string.Empty;
+}

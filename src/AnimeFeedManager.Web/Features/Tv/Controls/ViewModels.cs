@@ -13,39 +13,19 @@ public class TvSeriesCardViewModel
    
 }
 
-public class TvInterestedViewModel : TvSeriesCardViewModel
+// Subscribe/interested forms. Feed data comes from storage; LoaderSelector is render-only (not posted).
+public class TvSeriesActionViewModel : TvSeriesCardViewModel
 {
-    [Required(AllowEmptyStrings = false)]
     public string LoaderSelector { get; set; } = string.Empty;
-    
-    [Required(AllowEmptyStrings = false)]
-    public string CardBadgeId { get; set; } = string.Empty;
-
-}
-
-public class TvSubscriptionViewModel : TvInterestedViewModel
-{
-    [Required(AllowEmptyStrings = false)]
-    public string SeriesFeedTitle { get; set; } = string.Empty;
-    
-    [Required(AllowEmptyStrings = false)]
-    public string SeriesLink { get; set; } = string.Empty;
 }
 
 public class AlternativeTitlesViewModel : TvSeriesCardViewModel
 {
     public string[]? AlternativeTitles { get; set; }
-    
-    [Required(AllowEmptyStrings = false)]
-    public string Season { get; set; } = string.Empty;
 }
 
 public class RemoveSeriesViewModel : TvSeriesCardViewModel
 {
-    [Required(AllowEmptyStrings = false)]
-    public string Season { get; set; } = string.Empty;
-    
-   
     public string LoaderSelector { get; set; } = string.Empty;
     
     [Required(AllowEmptyStrings = false)]

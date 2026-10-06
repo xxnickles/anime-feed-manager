@@ -73,7 +73,7 @@ internal static class SecurityHandlers
                 new AuthenticationProperties { IsPersistent = true }))
             .MatchToValue<ClaimsPrincipal, IResult>(
                 _ => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
-                error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents());
+                error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents(error.ToStatusCode()));
     }
 
     // The CancellationToken keeps the signature off the (HttpContext) => Task RequestDelegate shape,
