@@ -1,5 +1,6 @@
 ﻿@using AnimeFeedManager.Features.Tv.Library.Queries
 @using AnimeFeedManager.Web.Features.Tv.Controls
+@implements IRenderableComponent<UserTvSeries>
 
 @if (Series is not null)
 {
@@ -10,19 +11,19 @@
                 {
                     case Available:
                     case AvailableForSubscription:
-                        <Badge Id="@_cardBadgeId" Text="Available" Type="StatusType.Success"></Badge>
+                        <Badge Text="Available" Type="StatusType.Success"></Badge>
                         break;
                     case Subscribed:
-                        <Badge Id="@_cardBadgeId" Text="Subscribed" Type="StatusType.Primary"></Badge>
+                        <Badge Text="Subscribed" Type="StatusType.Primary"></Badge>
                         break;
                     case Interested:
-                        <Badge Id="@_cardBadgeId" Text="Interested" Type="StatusType.Secondary"></Badge>
+                        <Badge Text="Interested" Type="StatusType.Secondary"></Badge>
                         break;
                     case Completed:
-                        <Badge Id="@_cardBadgeId" Text="Completed" Type="StatusType.Info"></Badge>
+                        <Badge Text="Completed" Type="StatusType.Info"></Badge>
                         break;
                     default:
-                        <Badge Id="@_cardBadgeId" Text="Not Available" Type="StatusType.Warning"></Badge>
+                        <Badge Text="Not Available" Type="StatusType.Warning"></Badge>
                         break;
                 }
             </CardBadge>
@@ -33,16 +34,16 @@
                     @switch (Series)
                     {
                         case AvailableForSubscription:
-                            <ForSubscription Model="@GetSubscriptionModel(Series)"></ForSubscription>
+                            <ForSubscription Model="@GetActionModel(Series)"></ForSubscription>
                             break;
                         case Subscribed:
-                            <ForSubscriptionRemoval Model="@GetSubscriptionModel(Series)"></ForSubscriptionRemoval>
+                            <ForSubscriptionRemoval Model="@GetActionModel(Series)"></ForSubscriptionRemoval>
                             break;
                         case AvailableForFuture:
-                            <ForInterested Model="@GetInterestedModel(Series)"></ForInterested>
+                            <ForInterested Model="@GetActionModel(Series)"></ForInterested>
                             break;
                         case Interested:
-                            <ForInterestedRemoval Model="@GetInterestedModel(Series)"></ForInterestedRemoval>
+                            <ForInterestedRemoval Model="@GetActionModel(Series)"></ForInterestedRemoval>
                             break;
                     }
 
@@ -65,41 +66,29 @@
 @code {
     [Parameter, EditorRequired] public UserTvSeries? Series { get; set; }
     private string _loaderId = string.Empty;
-    private string _cardBadgeId = string.Empty;
     private string _loaderSelector = string.Empty;
     private string _cardId = string.Empty;
 
     protected override void OnInitialized()
     {
         _loaderId = IdHelpers.GetUniqueName("card-loader");
-        _cardBadgeId = IdHelpers.GetUniqueName("card-badge");
         _cardId = IdHelpers.GetUniqueName("card");
         _loaderSelector = $"#{_loaderId}";
     }
 
-    private TvInterestedViewModel GetInterestedModel(UserTvSeries series)
+    public static RenderFragment AsRenderFragment(UserTvSeries series) => builder =>
     {
-        return new TvInterestedViewModel
-        {
-            SeriesTitle = series.TvSeries.Title,
-            LoaderSelector = _loaderSelector,
-            CardBadgeId = _cardBadgeId,
-            SeriesId = series.TvSeries.Id,
-        };
-    }
+        builder.OpenComponent<TvCard>(0);
+        builder.AddAttribute(1, nameof(Series), series);
+        builder.CloseComponent();
+    };
 
-    private TvSubscriptionViewModel GetSubscriptionModel(UserTvSeries series)
+    private TvSeriesActionViewModel GetActionModel(UserTvSeries series) => new()
     {
-        return new TvSubscriptionViewModel
-        {
-            SeriesTitle = series.TvSeries.Title,
-            LoaderSelector = _loaderSelector,
-            CardBadgeId = _cardBadgeId,
-            SeriesId = series.TvSeries.Id,
-            SeriesFeedTitle = series.TvSeries.FeedTitle ?? string.Empty,
-            SeriesLink = series.TvSeries.FeedUrl ?? string.Empty
-        };
-    }
+        SeriesId = series.TvSeries.Id,
+        SeriesTitle = series.TvSeries.Title,
+        LoaderSelector = _loaderSelector
+    };
 
     private static AlternativeTitlesViewModel GetAlternativeTitlesModel(UserTvSeries series)
     {

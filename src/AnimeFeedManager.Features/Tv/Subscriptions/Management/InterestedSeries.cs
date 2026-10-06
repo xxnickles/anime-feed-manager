@@ -20,7 +20,8 @@ public static class InterestedSeries
         .Bind(subscription => VerifyCurrentSubscription(subscription, user.UserId, seriesId, seriesTitle, user.Email));
 
 
-    public static Task<Result<Unit>> UpdateInterested(this Task<Result<SubscriptionStorage>> storage,
+    // Toggles the stored state and returns the resulting one.
+    public static Task<Result<SubscriptionType>> UpdateInterested(this Task<Result<SubscriptionStorage>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) =>
@@ -50,15 +51,17 @@ public static class InterestedSeries
     }
 
 
-    private static Task<Result<Unit>> ToggleSubscription(
+    private static Task<Result<SubscriptionType>> ToggleSubscription(
         SubscriptionStorage storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) => storage.Type switch
     {
-        nameof(SubscriptionType.None) => subscriptionUpdater(AddInterestedValue(storage), token),
+        nameof(SubscriptionType.None) => subscriptionUpdater(AddInterestedValue(storage), token)
+            .Map(_ => SubscriptionType.Interested),
         nameof(SubscriptionType.Interested) => subscriptionsRemover(storage.PartitionKey ?? string.Empty,
-            storage.RowKey ?? string.Empty, token),
+                storage.RowKey ?? string.Empty, token)
+            .Map(_ => SubscriptionType.None),
         _ => throw new ArgumentOutOfRangeException() // SubscriptionType.Subscribed should not be possible here
     };
 

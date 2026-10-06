@@ -1,15 +1,14 @@
-﻿@implements IRenderableComponent<TvInterestedViewModel>
+﻿@implements IRenderableComponent<TvSeriesActionViewModel>
 @if (Model is not null)
 {
     <EditForm Model="@Model"
               hx-post="tv/remove-interested"
+              hx-target="closest .card-filter-wrapper"
               hx-swap="outerHTML"
               hx-indicator="@Model.LoaderSelector"
               hx-confirm="@($"Do you want remove {Model.SeriesTitle} from your interested list?")">
         <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
         <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>
-        <input type="hidden" name="@nameof(Model.LoaderSelector)" value="@Model.LoaderSelector"/>
-        <input type="hidden" name="@nameof(Model.CardBadgeId)" value="@Model.CardBadgeId"/>
 
         <button type="submit" class="btn btn-sm btn-ghost gap-1.5"
                 aria-label="Remove from Interested @Model.SeriesTitle">
@@ -24,9 +23,9 @@
 }
 
 @code {
-    [Parameter, EditorRequired] public TvInterestedViewModel? Model { get; set; }
+    [Parameter, EditorRequired] public TvSeriesActionViewModel? Model { get; set; }
 
-    public static RenderFragment AsRenderFragment(TvInterestedViewModel viewModel) => builder =>
+    public static RenderFragment AsRenderFragment(TvSeriesActionViewModel viewModel) => builder =>
     {
         builder.OpenComponent<ForInterestedRemoval>(0);
         builder.AddAttribute(1, nameof(Model), viewModel);

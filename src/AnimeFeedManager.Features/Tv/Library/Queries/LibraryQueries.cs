@@ -30,7 +30,9 @@ public static class LibraryQueries
         if (user is AuthenticatedUser au)
         {
             return subscriptionsGetter(au.UserId, cancellationToken)
-                .Map(subscriptions => libraryData.Select(s => MapForUser(s, subscriptions, user)).ToImmutableArray());
+                .Map(subscriptions => libraryData
+                    .Select(s => s.ForUser(user, GetSubscriptionType(subscriptions, s.Id)))
+                    .ToImmutableArray());
         }
 
         return Task.FromResult(
@@ -50,24 +52,20 @@ public static class LibraryQueries
 
     // A completed series wins over any subscription state (it takes no user actions); the
     // subscription survives only as a flag. Otherwise subscription state wins over airing state.
-    private static UserTvSeries MapForUser(
-        TvSeries series,
-        ImmutableArray<SubscriptionStorage> subscriptions,
-        AppUser user) =>
-        (series.Status.ToString(), GetSubscriptionType(subscriptions, series.Id)) switch
+    public static UserTvSeries ForUser(this TvSeries series, AppUser user, SubscriptionType subscription) =>
+        (series.Status.ToString(), subscription) switch
         {
-            (SeriesStatus.CompletedValue, var type) =>
-                new Completed(user, series, type == nameof(SubscriptionType.Subscribed)),
-            (_, nameof(SubscriptionType.Subscribed)) => new Subscribed(user, series),
-            (_, nameof(SubscriptionType.Interested)) => new Interested(user, series),
+            (SeriesStatus.CompletedValue, var type) => new Completed(user, series, type == SubscriptionType.Subscribed),
+            (_, SubscriptionType.Subscribed) => new Subscribed(user, series),
+            (_, SubscriptionType.Interested) => new Interested(user, series),
             (SeriesStatus.OngoingValue, _) => new AvailableForSubscription(user, series),
             _ => new AvailableForFuture(user, series)
         };
 
 
-    private static string GetSubscriptionType(ImmutableArray<SubscriptionStorage> subscriptions,
-        string seriesId)
-    {
-        return subscriptions.FirstOrDefault(s => s.RowKey == seriesId)?.Type ?? nameof(SubscriptionType.None);
-    }
+    private static SubscriptionType GetSubscriptionType(ImmutableArray<SubscriptionStorage> subscriptions,
+        string seriesId) =>
+        Enum.TryParse<SubscriptionType>(subscriptions.FirstOrDefault(s => s.RowKey == seriesId)?.Type, out var type)
+            ? type
+            : SubscriptionType.None;
 }

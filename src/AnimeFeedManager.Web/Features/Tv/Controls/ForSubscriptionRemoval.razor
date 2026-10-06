@@ -1,18 +1,15 @@
-﻿@implements IRenderableComponent<TvSubscriptionViewModel>
+﻿@implements IRenderableComponent<TvSeriesActionViewModel>
 @if (Model is not null)
 {
     <EditForm Model="@Model"
               hx-post="tv/unsubscribe"
+              hx-target="closest .card-filter-wrapper"
               hx-swap="outerHTML"
               hx-indicator="@Model.LoaderSelector"
               hx-confirm="@($"Do you want remove {Model.SeriesTitle} to your subscriptions?")">
         
         <input type="hidden" name="@nameof(Model.SeriesId)" value="@Model.SeriesId"/>
         <input type="hidden" name="@nameof(Model.SeriesTitle)" value="@Model.SeriesTitle"/>
-        <input type="hidden" name="@nameof(Model.LoaderSelector)" value="@Model.LoaderSelector"/>
-        <input type="hidden" name="@nameof(Model.SeriesFeedTitle)" value="@Model.SeriesFeedTitle"/>
-        <input type="hidden" name="@nameof(Model.SeriesLink)" value="@Model.SeriesLink"/>
-        <input type="hidden" name="@nameof(Model.CardBadgeId)" value="@Model.CardBadgeId"/>
         
         <button type="submit" class="btn btn-sm btn-error gap-1.5"
                 aria-label="Unsubscribe to @Model.SeriesTitle">
@@ -27,8 +24,8 @@
 }
 
 @code {
-    [Parameter, EditorRequired] public TvSubscriptionViewModel? Model { get; set; }
-    public static RenderFragment AsRenderFragment(TvSubscriptionViewModel viewModel) => builder =>
+    [Parameter, EditorRequired] public TvSeriesActionViewModel? Model { get; set; }
+    public static RenderFragment AsRenderFragment(TvSeriesActionViewModel viewModel) => builder =>
     {
         builder.OpenComponent<ForSubscriptionRemoval>(0);
         builder.AddAttribute(1, nameof(Model), viewModel);
