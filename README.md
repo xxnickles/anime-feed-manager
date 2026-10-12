@@ -7,74 +7,77 @@
 Anime Feed Manager
 =================
 
-Simple Personal Feed Manager / Anime Season Library. TV series metadata comes from the [Jikan v4](https://jikan.moe/) public API; episode feed titles come from [SubsPlease](https://subsplease.org/schedule/), scraped via a headless Chrome container. Backend powered by [Azure Functions (isolated worker)](https://docs.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide) and Azure Storage (Tables/Queues).
+Personal anime season library and episode-feed notifier. Series metadata comes from the [AnimeSchedule](https://animeschedule.net/) API; episode feed titles are scraped from [SubsPlease](https://subsplease.org/schedule/) through a headless Chrome container. Subscribers get an email when new episodes of their series land.
 
-**Blazor SSR (AnimeFeedManager.Web):** The web application uses Blazor SSR with [HTMX](https://htmx.org/) and [hyperscript](https://hyperscript.org/) for client interaction.
+| Layer | Stack |
+|---|---|
+| Web | Blazor SSR (no `blazor.web.js`), [htmx 4](https://four.htmx.org), [hyperscript](https://hyperscript.org/), Tailwind CSS 4 + DaisyUI 5, Passwordless.dev passkeys |
+| Backend | [Azure Functions](https://learn.microsoft.com/azure/azure-functions/dotnet-isolated-process-guide) (isolated worker, .NET 10), Azure Storage tables/queues/blobs, Azure SignalR |
+| Telemetry | OpenTelemetry: Aspire dashboard locally, Application Insights in Azure |
+| Local orchestration | [Aspire](https://aspire.dev) |
 
-## Dev Requirements
+## Prerequisites
 
-- [.NET 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-- [.NET Aspire workload](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling)
-- [Docker](https://www.docker.com/) (for Aspire emulators)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Aspire CLI](https://aspire.dev): `curl -sSL https://aspire.dev/install.sh | bash` (PowerShell: `Invoke-RestMethod -Uri "https://aspire.dev/install.ps1" | Invoke-Expression`)
+- [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local)
+- Docker (Aspire runs the emulators and Chrome as containers)
 
-## Quick Start
+## Quick start
 
-1. Clone the repository
-2. Restore .NET tools: `dotnet tool restore`
-3. Configure secrets (see Configuration below)
-4. Run the Aspire host: `dotnet run --project src/AnimeFeedmanager.AspireHost`
+1. Add the [local configuration](#local-configuration)
+2. `aspire run` from the repository root
 
-The Aspire host will automatically:
-- Start Azurite (Azure Storage emulator) with persistent data
-- Start Azure SignalR emulator
-- Start browserless Chrome container (for web scraping)
-- Build and watch frontend assets (JS/CSS)
-- Launch the Functions backend
-- Launch the Blazor SSR web application
+Aspire starts Azurite (persistent data), the Azure SignalR emulator, browserless Chrome, the JS/CSS watch, Functions and the Web app; its dashboard shows logs and traces from both hosts.
 
-## Configuration
+## Local configuration
 
-The application requires certain configuration values to run. Aspire automatically configures Azure Storage, SignalR, and Chrome connections, but you need to provide:
-
-### Web Application (User Secrets)
+**Web** (user secrets):
 
 ```bash
 cd src/AnimeFeedManager.Web
-dotnet user-secrets set "Passwordless:ApiKey" "[your-api-key]"
-dotnet user-secrets set "Passwordless:ApiSecret" "[your-api-secret]"
+dotnet user-secrets set "Passwordless:ApiKey" "<api-key>"
+dotnet user-secrets set "Passwordless:ApiSecret" "<api-secret>"
 ```
 
-| Setting | Description |
-|---------|-------------|
-| `Passwordless:ApiKey` | [Passwordless.dev](https://bitwarden.com/products/passwordless/) API key |
-| `Passwordless:ApiSecret` | Passwordless.dev API secret |
+**Functions**: create `src/AnimeFeedManager.Functions/local.settings.json` (gitignored). The timer triggers read their schedules from it, so Functions won't index them without this file:
 
-### Functions (User Secrets - Optional for Email)
-
-```bash
-cd src/AnimeFeedManager.Functions
-dotnet user-secrets set "Gmail:FromEmail" "[your-gmail]"
-dotnet user-secrets set "Gmail:FromName" "[sender-name]"
-dotnet user-secrets set "Gmail:AppPassword" "[app-password]"
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "DOTNET_SYSTEM_NET_DISABLEIPV6": "1",
+    "FeedNotificationSchedule": "0 0 * * * *",
+    "ScrapingSchedule": "0 0 0 1 1 *",
+    "FeedTitlesUpdateSchedule": "0 0 0 1 1 *",
+    "AzureWebJobs.ScheduledTvLibraryUpdate.Disabled": "true",
+    "Gmail:FromEmail": "<gmail-address>",
+    "Gmail:FromName": "Anime Feed Manager",
+    "Gmail:AppPassword": "<gmail-app-password>"
+  },
+  "Host": {
+    "CORS": "http://localhost:5020,https://localhost:7132",
+    "CORSCredentials": true
+  }
+}
 ```
 
-| Setting | Description |
-|---------|-------------|
-| `Gmail:FromEmail` | Gmail address for sending notifications |
-| `Gmail:FromName` | Display name for email sender |
-| `Gmail:AppPassword` | Gmail [App Password](https://support.google.com/accounts/answer/185833) (not regular password) |
+> **Go easy on AnimeSchedule.** It answers request bursts with a `429` that bans the caller's whole IP range for days. Keep the scheduled library update disabled locally and trigger imports from the admin UI when needed. `DOTNET_SYSTEM_NET_DISABLEIPV6` forces IPv4, so a ban on your IPv6 range doesn't block development.
 
-## Projects
+Gmail settings are only needed to send notification emails; use a Gmail [app password](https://support.google.com/accounts/answer/185833), not the account password. Full settings reference: [src/README.md](src/README.md#configuration).
 
-See [src/README.md](src/README.md) for detailed project structure and configuration.
+## Documentation
+
+| Document | Contents |
+|---|---|
+| [src/README.md](src/README.md) | Project map, configuration reference, build and test commands |
+| [docs/telemetry.md](docs/telemetry.md) | Telemetry conventions and key dictionary |
+| [docs/telemetry-queries.md](docs/telemetry-queries.md) | App Insights KQL for ad-hoc investigation |
+| [deployment/README.md](deployment/README.md) | Azure resources, GitHub secrets, workflows, schedules |
+| [src/AnimeFeedManager.SourceGenerators/README.md](src/AnimeFeedManager.SourceGenerators/README.md) | Source generators |
+| [src/AnimeFeedManager.Web/docs/CUSTOM-EVENTS.md](src/AnimeFeedManager.Web/docs/CUSTOM-EVENTS.md) | Custom client-side events |
 
 ## Deployment
 
-Deployment uses GitHub Actions with Bicep templates:
-- `.github/workflows/amf-infrastructure.yml` - Infrastructure
-- `.github/workflows/amf-functions.yml` - Functions
-- `.github/workflows/amf-blazor.yml` - Web app
-- `.github/workflows/amf-chrome-refresh.yml` - Chrome container image refresh (manual)
-- `deployment/` - Bicep templates for Azure resources
-
-See [deployment/README.md](deployment/README.md) for full deployment configuration guide.
+GitHub Actions deploy Bicep infrastructure, Functions and the Web app to Azure on push to `main`; see [deployment/README.md](deployment/README.md).
