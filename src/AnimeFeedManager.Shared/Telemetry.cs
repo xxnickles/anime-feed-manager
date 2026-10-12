@@ -59,7 +59,7 @@ public static class Telemetry
     /// <summary>Opaque user id; never the email.</summary>
     public const string UserIdTag = "user.id";
 
-    /// <summary>String array, per semconv.</summary>
+    /// <summary>Comma-joined role names; semconv's string[] would log as its type name.</summary>
     public const string UserRolesTag = "user.roles";
 
     /// <summary>Log-only: carries the operation to backends that never see the span name.</summary>
