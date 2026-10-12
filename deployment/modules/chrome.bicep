@@ -12,7 +12,7 @@ param chromeToken string
 var config = loadJsonContent('shared-variables.json')
 
 // Chrome Web App (browserless container)
-resource chromeApp 'Microsoft.Web/sites@2023-12-01' = {
+resource chromeApp 'Microsoft.Web/sites@2025-03-01' = {
   name: config.chromeName
   location: location
   kind: 'app,linux,container'

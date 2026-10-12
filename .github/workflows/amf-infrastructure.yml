@@ -21,39 +21,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Azure Login (OIDC)
-        uses: azure/login@v2.2.0
+        uses: azure/login@v3.1.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Create Resource Group
-        uses: azure/cli@v2
+        uses: azure/cli@v3.0.0
         with:
           inlineScript: |
             az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
 
       - name: Deploy Bicep
-        uses: azure/arm-deploy@v2
+        uses: azure/bicep-deploy@v2.4.0
         with:
-          resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./deployment/main.bicep
-          parameters: >
-            gmailFromEmail="${{ secrets.GMAIL_FROM_EMAIL }}"
-            gmailAppPassword="${{ secrets.GMAIL_APP_PASSWORD }}"
-            passwordlessApiKey="${{ secrets.PASSWORDLESS_API_KEY }}"
-            passwordlessApiSecret="${{ secrets.PASSWORDLESS_API_SECRET }}"
-            chromeToken="${{ secrets.CHROME_TOKEN }}"
-            gmailFromName="Anime Feed Manager"
-            feedNotificationSchedule="0 0 * * * *"
-            scrapingSchedule="0 0 4 * * 6"
-            feedTitlesUpdateSchedule="0 0 0 1 1 *"
+          type: deployment
+          operation: create
+          scope: resourceGroup
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resource-group-name: ${{ env.RESOURCE_GROUP }}
+          template-file: ./deployment/main.bicep
+          parameters: |
+            gmailFromEmail: ${{ toJSON(secrets.GMAIL_FROM_EMAIL) }}
+            gmailAppPassword: ${{ toJSON(secrets.GMAIL_APP_PASSWORD) }}
+            passwordlessApiKey: ${{ toJSON(secrets.PASSWORDLESS_API_KEY) }}
+            passwordlessApiSecret: ${{ toJSON(secrets.PASSWORDLESS_API_SECRET) }}
+            chromeToken: ${{ toJSON(secrets.CHROME_TOKEN) }}
+            gmailFromName: "Anime Feed Manager"
+            feedNotificationSchedule: "0 0 * * * *"
+            scrapingSchedule: "0 0 4 * * 6"
+            feedTitlesUpdateSchedule: "0 0 0 1 1 *"
 
       - name: Seed Admin User
-        uses: azure/cli@v2
+        uses: azure/cli@v3.0.0
         env:
           ADMIN_USER_ID: ${{ secrets.ADMIN_USER_ID }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
@@ -76,6 +82,3 @@ jobs:
               az storage entity insert --table-name Users --account-name amfstorage --auth-mode login \
                 --entity PartitionKey=user-group RowKey="$ADMIN_USER_ID" Email="$ADMIN_EMAIL" Role=Admin
             fi
-
-      - name: Logout
-        run: az logout

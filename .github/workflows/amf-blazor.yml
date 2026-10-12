@@ -28,21 +28,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4.2.0
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: 'lts/*'
+          cache: npm
+          cache-dependency-path: src/AnimeFeedManager.Web/package-lock.json
 
       - name: Build CSS
         working-directory: ${{ env.APP_PATH }}
         run: |
-          npm install
+          npm ci
           npm run build:css
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6.0.0
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -61,7 +65,7 @@ jobs:
         run: dotnet publish ${{ env.APP_PATH }} -c Release -o ./output
 
       - name: Azure Login (OIDC)
-        uses: azure/login@v2.2.0
+        uses: azure/login@v3.1.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -69,10 +73,14 @@ jobs:
 
       - name: Get Web App Name
         id: getname
-        uses: azure/arm-deploy@v2
+        uses: azure/bicep-deploy@v2.4.0
         with:
-          resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./deployment/main-blazor.bicep
+          type: deployment
+          operation: create
+          scope: resourceGroup
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resource-group-name: ${{ env.RESOURCE_GROUP }}
+          template-file: ./deployment/main-blazor.bicep
 
       - name: Compute version info
         id: version
@@ -81,28 +89,18 @@ jobs:
           echo "commit_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v3.0.8
         with:
           app-name: ${{ steps.getname.outputs.webAppName }}
           package: ./output
 
       - name: Set App Version Settings
-        uses: azure/appservice-settings@v1
+        uses: azure/cli@v3.0.0
+        env:
+          WEB_APP_NAME: ${{ steps.getname.outputs.webAppName }}
+          BUILD_VERSION: ${{ steps.version.outputs.build_version }}
+          COMMIT_SHA: ${{ steps.version.outputs.commit_sha }}
         with:
-          app-name: ${{ steps.getname.outputs.webAppName }}
-          app-settings-json: |
-            [
-              {
-                "name": "AppVersion__Version",
-                "value": "${{ steps.version.outputs.build_version }}",
-                "slotSetting": false
-              },
-              {
-                "name": "AppVersion__CommitSha",
-                "value": "${{ steps.version.outputs.commit_sha }}",
-                "slotSetting": false
-              }
-            ]
-
-      - name: Logout
-        run: az logout
+          inlineScript: |
+            az webapp config appsettings set --resource-group ${{ env.RESOURCE_GROUP }} --name "$WEB_APP_NAME" \
+              --settings AppVersion__Version="$BUILD_VERSION" AppVersion__CommitSha="$COMMIT_SHA" --output none

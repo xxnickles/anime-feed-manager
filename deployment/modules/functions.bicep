@@ -47,12 +47,12 @@ var storageTableDataContributorRole = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
 var storageAccountContributorRole = '17d1049b-9a84-46fb-8f53-869881c3d3ab'
 
 // Reference to existing storage account
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' existing = {
   name: storageAccountName
 }
 
 // App Service Plan for Functions (Flex Consumption)
-resource functionsPlan 'Microsoft.Web/serverfarms@2024-04-01' = {
+resource functionsPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: config.functionsPlanName
   location: location
   kind: 'functionapp'
@@ -66,7 +66,7 @@ resource functionsPlan 'Microsoft.Web/serverfarms@2024-04-01' = {
 }
 
 // Function App (Flex Consumption)
-resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
+resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
   name: config.functionAppName
   location: location
   kind: 'functionapp,linux'
@@ -96,7 +96,6 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
       }
     }
     siteConfig: {
-      ftpsState: 'Disabled'
       minTlsVersion: '1.2'
       http20Enabled: true
       cors: {
@@ -110,7 +109,7 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
 }
 
 // App Settings (separate resource for Flex Consumption)
-resource functionAppSettings 'Microsoft.Web/sites/config@2024-04-01' = {
+resource functionAppSettings 'Microsoft.Web/sites/config@2025-03-01' = {
   parent: functionApp
   name: 'appsettings'
   properties: {

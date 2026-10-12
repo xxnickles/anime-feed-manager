@@ -26,10 +26,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6.0.0
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -48,7 +50,7 @@ jobs:
         run: dotnet publish src/AnimeFeedManager.Functions -c Release -o ./output
 
       - name: Azure Login (OIDC)
-        uses: azure/login@v2.2.0
+        uses: azure/login@v3.1.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -56,17 +58,18 @@ jobs:
 
       - name: Get Function App Name
         id: getname
-        uses: azure/arm-deploy@v2
+        uses: azure/bicep-deploy@v2.4.0
         with:
-          resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./deployment/main-functions.bicep
+          type: deployment
+          operation: create
+          scope: resourceGroup
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resource-group-name: ${{ env.RESOURCE_GROUP }}
+          template-file: ./deployment/main-functions.bicep
 
       - name: Deploy to Azure Functions (Flex Consumption)
-        uses: azure/functions-action@v1.5.2
+        uses: azure/functions-action@v1.5.7
         with:
           app-name: ${{ steps.getname.outputs.functionAppName }}
           package: ./output
           remote-build: false
-
-      - name: Logout
-        run: az logout
