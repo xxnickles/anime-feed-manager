@@ -6,16 +6,15 @@ using AnimeFeedManager.Web.Features;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
 using AnimeFeedManager.Web.Features.Security.Endpoints;
 using AnimeFeedManager.Web.Features.Tv.Endpoints;
-using AnimeFeedManager.Web.Htmx;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults(
+builder.AddWebAppDefaults(
     Telemetry.TvLibraryQueriesSource,
-    Telemetry.UserAuthenticationSource,
     Telemetry.WebAdminSource,
     Telemetry.WebSecuritySource,
-    Telemetry.WebTvSource);
+    Telemetry.WebTvSource,
+    Telemetry.MessagingSource);
 builder.RegisterStorageServices();
 
 // Add services to the container.

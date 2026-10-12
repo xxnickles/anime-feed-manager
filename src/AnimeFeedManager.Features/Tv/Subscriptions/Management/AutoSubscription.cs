@@ -15,7 +15,7 @@ public static class AutoSubscription
     {
         return StartProcess(seriesId, feedTitle, clientFactory.TableStorageTvInterestedBySeries, token)
             .WithOperationName(nameof(TryToSubscribe))
-            .WithLogProperty("SeriesId", seriesId)
+            .WithLogProperty(Telemetry.SeriesIdTag, seriesId)
             .StoreChanges(clientFactory.TableStorageTvSubscriptionsUpdater, token)
             .SendEvents(seriesId, domainPostman, token);
     }
@@ -46,9 +46,7 @@ public static class AutoSubscription
                     data => domainPostman([GetEvent(data)], token).Map(_ => data),
                     data => new Summary(data.InterestedSeries.Length),
                     data => data.InterestedSeries.Length > 0)
-                .MapError(error =>
-                    domainPostman([GetErrorEvent(seriesId)], token)
-                        .MatchToValue(_ => error, e => e));
+                .SendOnError(domainPostman, [GetErrorEvent(seriesId)], token);
         }
     }
 

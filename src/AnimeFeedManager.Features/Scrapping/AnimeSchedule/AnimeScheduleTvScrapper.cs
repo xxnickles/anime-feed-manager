@@ -27,10 +27,10 @@ internal static partial class AnimeScheduleTvScrapper
         client.GetSeason(season.Year, season.Season, token)
             .Map(series => BuildResult(series, season, feedData))
             .WithOperationName(nameof(GetInitialProcessData))
-            .WithLogProperty("Season", season)
+            .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season))
             .AddLogOnSuccess(data => logger => logger.LogInformation(
-                "{Count} TV series scraped from AnimeSchedule for {Season}",
-                data.SeriesData.Count(), data.Season));
+                "{series.count} TV series scraped from AnimeSchedule for {series.season}",
+                data.SeriesData.Count(), IdHelpers.GenerateAnimePartitionKey(data.Season)));
 
     private static ScrapTvLibraryData BuildResult(
         ImmutableArray<AnimeScheduleAnime> series,

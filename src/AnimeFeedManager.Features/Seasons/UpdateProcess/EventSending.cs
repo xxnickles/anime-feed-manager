@@ -18,8 +18,7 @@ public static class EventSending
             })
             .Bind(r => domainPostman(GetOnCompletedEvents(r), cancellationToken)
                 .Map(_ => r))
-            .MapError(e => domainPostman([GetOnErrorEvent(seriesSeason)], cancellationToken)
-                .MatchToValue(_ => e, error => error));
+            .SendOnError(domainPostman, [GetOnErrorEvent(seriesSeason)], cancellationToken);
 
 
     // Only a real creation reaches the browser; every outcome is kept in the admin event history.

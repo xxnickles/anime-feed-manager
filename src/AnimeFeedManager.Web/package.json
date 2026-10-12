@@ -10,20 +10,20 @@
     "watch:css": "npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/app.css --watch",
     "build": "npm run build:css && npm run build:js",
     "watch": "concurrently \"npm run watch:css\" \"npm run watch:js\"",
-    "update:libs": "ncu -u && npm install",    
+    "update:libs": "ncu -u && npm install",
     "update:libman": "node libman-update.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@swc/core": "^1.16.13",
-    "@tailwindcss/cli": "^4.3.3",
-    "@tailwindcss/typography": "^0.5.20",
+    "@swc/core": "^1.16.18",
+    "@tailwindcss/cli": "^4.3.0",
+    "@tailwindcss/typography": "^0.5.4",
     "chokidar": "^5.0.0",
-    "concurrently": "^10.0.5",
+    "concurrently": "^10.0.6",
     "daisyui": "^5.7.47",
     "glob": "^13.0.6",
-    "npm-check-updates": "^23.1.0",
+    "npm-check-updates": "^23.1.1",
     "tailwindcss": "^4.3.3"
   }
 }

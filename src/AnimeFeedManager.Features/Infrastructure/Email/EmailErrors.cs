@@ -15,7 +15,7 @@ public sealed record EmailSendError : DomainError
 
 
     public override Action<ILogger> LogAction() =>
-        logger => logger.LogError("Failed to send email: {Message}", Message);
+        logger => logger.LogError("Failed to send email: {domain_error.message}", Message);
 }
 
 /// <summary>
@@ -34,5 +34,5 @@ public sealed record EmailRenderError : DomainError
 
 
     public override Action<ILogger> LogAction() => logger =>
-        logger.LogError("Failed to render email template: {Message}", Message);
+        logger.LogError("Failed to render email template: {domain_error.message}", Message);
 }

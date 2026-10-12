@@ -31,7 +31,10 @@ public static class TvSubscriptionsStore
             tableClient.TryExecute<SubscriptionStorage>(client =>
                     client.UpsertEntityAsync(subscription, cancellationToken: token))
                 .WithOperationName(nameof(TvSubscriptionsStore))
-                .WithLogProperty("Subscription", subscription)
+                .WithLogProperties([
+                    new KeyValuePair<string, object>(Telemetry.UserIdTag, subscription.PartitionKey ?? string.Empty),
+                    new KeyValuePair<string, object>(Telemetry.SeriesIdTag, subscription.RowKey ?? string.Empty)
+                ])
                 .WithDefaultMap();
 
         private Task<Result<Unit>> RemoveSubscription(string user,
@@ -41,8 +44,8 @@ public static class TvSubscriptionsStore
                     client.DeleteEntityAsync(user, seriesId, cancellationToken: token))
                 .WithOperationName(nameof(RemoveSubscription))
                 .WithLogProperties([
-                    new KeyValuePair<string, object>("User", user),
-                    new KeyValuePair<string, object>("SeriesId", seriesId)
+                    new KeyValuePair<string, object>(Telemetry.UserIdTag, user),
+                    new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId)
                 ])
                 .WithDefaultMap();
     }

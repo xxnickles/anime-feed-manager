@@ -241,13 +241,13 @@ public static class ResultTaskExtensionMembers
             => (await resultTask).AddLogOnFailure(logAction);
 
         /// <summary>
-        /// Adds an "OperationName" property to the trace context.
+        /// Adds an <see cref="Telemetry.OperationNameTag"/> property to the trace context.
         /// Async wrapper for <see cref="ResultExtensionMembers.WithOperationName{T}(Result{T}, string)"/>.
         /// </summary>
         /// <param name="value">The operation name.</param>
         /// <returns>The result with the operation name property.</returns>
         public async Task<Result<T>> WithOperationName(string value)
-            => (await resultTask).WithLogProperty("OperationName", value);
+            => (await resultTask).WithLogProperty(Telemetry.OperationNameTag, value);
 
         /// <summary>
         /// Adds a property to the trace context that will be included in the logging scope.
@@ -313,7 +313,7 @@ public static class ResultTaskExtensionMembers
         /// <code>
         /// await GetLease(name)
         ///     .Bind(_ => ProcessDataAsync(...))
-        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {Stats}", stats))
+        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {series.count}", stats.Count))
         ///     .Complete(logger);  // Terminal - writes all logs
         /// </code>
         /// </example>

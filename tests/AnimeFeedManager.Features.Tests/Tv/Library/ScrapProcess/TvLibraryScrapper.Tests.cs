@@ -1,4 +1,3 @@
-using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;

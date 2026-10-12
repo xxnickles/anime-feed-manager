@@ -1,4 +1,6 @@
-﻿using AnimeFeedManager.Features.Scrapping.SubsPlease;
+﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+using AnimeFeedManager.Features.Tv.Library;
+using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
@@ -31,13 +33,14 @@ public class OnLatestFeedTitlesUpdate
     public async Task Run(
         [QueueTrigger(UpdateLatestFeedTitlesEvent.TargetQueue,
             Connection = StorageRegistrationConstants.QueueConnection)]
-        UpdateLatestFeedTitlesEvent message, CancellationToken token)
+        UpdateLatestFeedTitlesEvent message, FunctionContext functionContext, CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
+        using var processActivity = message.StartProcessActivity(functionContext);
+        using var activity = Source.StartActivity(TvLibraryTelemetry.ScrapFeedTitlesSpan);
         await RunProcess(token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
-                "(OnDemand) Season {Year}-{Season} tv series titles has been updated. {UpdatedSeries} has been updated",
-                results.Season.Year, results.Season.Season, results.UpdatedSeries))
+                "(OnDemand) Season {series.season} tv series titles has been updated. {series.updated_count} has been updated",
+                IdHelpers.GenerateAnimePartitionKey(results.Season), results.UpdatedSeries))
             .Complete(_logger);
     }
 
@@ -45,17 +48,17 @@ public class OnLatestFeedTitlesUpdate
     public async Task RunScheduled([TimerTrigger("%FeedTitlesUpdateSchedule%")] TimerInfo myTimer,
         CancellationToken token)
     {
+        using var activity = Source.StartActivity(TvLibraryTelemetry.ScrapFeedTitlesSpan);
         await RunProcess(token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
-                "(Scheduled) Feed titles updated for {Year}-{Season}. {UpdatedSeries} series updated. Next run: {Time}",
-                results.Season.Year, results.Season.Season, results.UpdatedSeries,
+                "(Scheduled) Feed titles updated for {series.season}. {series.updated_count} series updated. Next run: {schedule.next_run}",
+                IdHelpers.GenerateAnimePartitionKey(results.Season), results.UpdatedSeries,
                 myTimer.ScheduleStatus?.Next))
             .Complete(_logger);
     }
 
     private async Task<Result<ScrapTvLibraryResult>> RunProcess(CancellationToken token)
     {
-        using var activity = Source.StartActivity("Tv.Library.FeedTitles");
         return await FeedTitlesScrap.StartFeedUpdateProcess(_tableClientFactory.TableStorageLatestSeason, token)
             .GetFeedTitles(_seasonFeedDataProvider)
             .UpdateSeries(_tableClientFactory.TableStorageRawExistentStoredSeries(),

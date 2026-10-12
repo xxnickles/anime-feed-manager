@@ -15,7 +15,7 @@ public sealed record PasswordlessError : DomainError
 
     public override Action<ILogger> LogAction() => logger =>
     {
-        logger.LogError(Exception, "{Error}", Exception.Message);
+        logger.LogError(Exception, "{domain_error.message}", Exception.Message);
     };
 
     public static PasswordlessError FromException(PasswordlessApiException exception) => new(exception);

@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Events;
+﻿using AnimeFeedManager.Features.Tv.Subscriptions;
+using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 
 namespace AnimeFeedManager.Functions.Tv.Subcriptions;
@@ -24,13 +25,13 @@ public class OnSeriesUpdatedToOnGoing
     [Function(nameof(OnSeriesUpdatedToOnGoing))]
     public async Task Run(
         [QueueTrigger(UpdatedToOngoing.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
-        UpdatedToOngoing message, CancellationToken token)
+        UpdatedToOngoing message, FunctionContext functionContext, CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnSeriesUpdatedToOnGoing));
-        using var activity = Source.StartActivity("Tv.Subscriptions.Management");
+        using var processActivity = message.StartProcessActivity(functionContext);
+        using var activity = Source.StartActivity(TvSubscriptionsTelemetry.AutoSubscribeSpan);
         await AutoSubscription.TryToSubscribe(message.Series, message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()
-            .AddLogOnSuccess(summary => logger => logger.LogInformation("{Count} Automatic Subscriptions for {Series} has been created", summary.Changes, message.Series))
+            .AddLogOnSuccess(summary => logger => logger.LogInformation("{subscription.count} Automatic Subscriptions for {series.id} has been created", summary.Changes, message.Series))
             .Complete(_logger);
     }
 }

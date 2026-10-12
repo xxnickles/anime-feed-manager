@@ -12,14 +12,16 @@ internal static class SeasonAdminHandlers
     internal static async Task<RazorComponentResult> SetFeatured(
         [FromForm] FeaturedSeasonViewModel viewModel,
         [FromServices] IDomainPostman domainPostman,
+        [FromServices] ILogger<FeaturedSeasonUpdate> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.SetFeaturedSeasonSpan);
         return await Validate(viewModel)
             .Bind(vm => vm.Season.ParseAsSeriesSeason())
             .Map(season => season with {IsLatest = true})
             .Bind(season => domainPostman.SendMessages([new SeasonUpdated(season)], cancellationToken))
             .MarkActivityErroredOnError()
+            .FlushLogs(logger)
             .ToComponentNotification<Unit, FeaturedSeasonViewModel, FeaturedSeasonUpdate>(viewModel);
     }
 }

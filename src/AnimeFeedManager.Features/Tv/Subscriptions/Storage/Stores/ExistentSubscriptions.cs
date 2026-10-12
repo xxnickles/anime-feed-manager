@@ -22,7 +22,7 @@ public static class ExistentSubscriptions
         public TvSubscriptions TableStorageTvSubscriptions =>
             (userId, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .WithOperationName("TableStorageTvSubscriptions")
-                .WithLogProperty("UserId", userId)
+                .WithLogProperty(Telemetry.UserIdTag, userId)
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
                         storage => storage.PartitionKey == userId, token));
@@ -31,8 +31,8 @@ public static class ExistentSubscriptions
             (userId, seriesId, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .WithOperationName("TableStorageTvSubscription")
                 .WithLogProperties([
-                    new KeyValuePair<string, object>("UserId", userId),
-                    new KeyValuePair<string, object>("SeriesId", seriesId)
+                    new KeyValuePair<string, object>(Telemetry.UserIdTag, userId),
+                    new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId)
                 ])
                 .Bind(client => client.ExecuteQuery<SubscriptionStorage>(storage => storage.PartitionKey == userId &&
                     storage.RowKey == seriesId, token).SingleItemOrNull());
@@ -40,7 +40,7 @@ public static class ExistentSubscriptions
         public TvInterestedBySeries TableStorageTvInterestedBySeries =>
             (id, token) => clientFactory.GetClient<SubscriptionStorage>()
                 .WithOperationName("TableStorageTvInterestedBySeries")
-                .WithLogProperty("SeriesId", id)
+                .WithLogProperty(Telemetry.SeriesIdTag, id)
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
                         storage => storage.RowKey == id && storage.Type == nameof(SubscriptionType.Interested),

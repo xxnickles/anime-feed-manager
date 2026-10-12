@@ -7,6 +7,6 @@ public sealed record TypeMismatch(
 {
     public override Action<ILogger> LogAction() => logger =>
         logger.LogError(
-            "{Message}. Expected an object of type {TargetType}, but got {Type}", Message,
+            "{domain_error.message}. Expected an object of type {domain_error.subject}, but got {domain_error.actual_type}", Message,
             TargetType.FullName, Received.GetType().FullName);
 }

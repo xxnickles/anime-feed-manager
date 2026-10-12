@@ -1,32 +1,30 @@
+using AnimeFeedManager.Shared.Results.Errors;
+
 namespace AnimeFeedManager.Shared.Results.Static;
 
-/// <summary>
-/// Bridges <see cref="Result{T}"/> failure into the active <see cref="Activity"/>'s OTel status,
-/// so trace-view dashboards (Aspire, Grafana, App Insights) render failed orchestrators as
-/// errored rather than neutral. Layered on top of the generic <c>TapError</c> combinators in
-/// <see cref="ResultExtensionMembers"/> / <see cref="ResultTaskExtensionMembers"/>.
-/// </summary>
+/// <summary>Bridges <see cref="Result{T}"/> failure into the active <see cref="Activity"/>'s OTel error status.</summary>
 public static class ResultActivityExtensions
 {
     extension<T>(Result<T> result)
     {
         /// <summary>
-        /// On failure, sets <see cref="Activity.Current"/>'s status to
-        /// <see cref="ActivityStatusCode.Error"/> with the <see cref="DomainError"/>'s message as
-        /// description. No-op when no activity is current or the result is successful. Returns
-        /// the result unchanged.
+        /// On failure, sets <see cref="Activity.Current"/>'s status to <see cref="ActivityStatusCode.Error"/> and tags
+        /// <see cref="Telemetry.ErrorTypeTag"/> with the error's class name. Skips <see cref="Warning"/> and validation
+        /// errors (client input, like HTTP 4xx); call after any recovery so recovered failures stay unmarked.
         /// </summary>
         /// <remarks>
-        /// Relies on <see cref="Activity.Current"/> resolving to the orchestrator's
-        /// <c>using var activity</c> scope. <see cref="Activity.Current"/> is <c>AsyncLocal</c>
-        /// and flows across awaits, so the right span is in scope as long as the chain
-        /// composition stays inside the orchestrator method.
+        /// <see cref="Activity.Current"/> is <c>AsyncLocal</c>, so it resolves to the caller's
+        /// <c>using var activity</c> as long as the chain stays inside that method.
         /// </remarks>
         public Result<T> MarkActivityErroredOnError() =>
             result.TapError(error =>
             {
-                if (Activity.Current is { } activity)
-                    activity.SetStatus(ActivityStatusCode.Error, error.Message);
+                if (Activity.Current is not { } activity || !IsSpanError(error))
+                    return;
+
+                activity.SetStatus(ActivityStatusCode.Error,
+                    string.IsNullOrEmpty(error.Message) ? null : error.Message);
+                activity.SetTag(Telemetry.ErrorTypeTag, error.GetType().Name);
             });
     }
 
@@ -36,4 +34,7 @@ public static class ResultActivityExtensions
         public async Task<Result<T>> MarkActivityErroredOnError() =>
             (await resultTask).MarkActivityErroredOnError();
     }
+
+    private static bool IsSpanError(DomainError error) =>
+        error is not (Warning or DomainValidationErrors or FormDataValidationError);
 }

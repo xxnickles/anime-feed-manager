@@ -33,7 +33,7 @@ public static class SeasonStore
             return tableClient
                 .TryExecute<SeasonStorage>(client => client.UpsertEntityAsync(seasonStorage, cancellationToken: token))
                 .WithOperationName(nameof(UpsertSeason))
-                .WithLogProperty("Season", seasonStorage)
+                .WithLogProperty(Telemetry.SeriesSeasonTag, seasonStorage.RowKey ?? string.Empty)
                 .WithDefaultMap();
         }
 
@@ -44,7 +44,6 @@ public static class SeasonStore
                 .TryExecute<LatestSeasonsStorage>(client =>
                     client.UpsertEntityAsync(latestSeasonsStorage, cancellationToken: token))
                 .WithOperationName(nameof(LatestSeasonsStorage))
-                .WithLogProperty(nameof(LatestSeasonsStorage), latestSeasonsStorage)
                 .WithDefaultMap();
         }
 
@@ -54,10 +53,7 @@ public static class SeasonStore
                 .TryExecute<SeasonStorage>(client =>
                     client.DeleteEntityAsync(partitionKey, rowKey, cancellationToken: token))
                 .WithOperationName(nameof(RemoveSeason))
-                .WithLogProperties([
-                    new KeyValuePair<string, object>(nameof(SeasonStorage.PartitionKey), partitionKey),
-                    new KeyValuePair<string, object>(nameof(SeasonStorage.RowKey), rowKey)
-                ])
+                .WithLogProperty(Telemetry.SeriesSeasonTag, rowKey)
                 .WithDefaultMap();
         }
     }

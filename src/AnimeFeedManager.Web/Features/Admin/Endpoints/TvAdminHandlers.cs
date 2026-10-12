@@ -13,13 +13,15 @@ internal static class TvAdminHandlers
     internal static async Task<RazorComponentResult> BySeason(
         [FromForm] BySeasonViewModel viewModel,
         [FromServices] IDomainPostman domainPostman,
+        [FromServices] ILogger<TvSeasonalUpdate> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.UpdateTvSeasonSpan);
         return await Validate(viewModel)
             .Bind(vm => domainPostman.SendMessages([new UpdateTvSeriesEvent(new SeasonParameters(vm.Season, vm.Year))],
                 cancellationToken))
             .MarkActivityErroredOnError()
+            .FlushLogs(logger)
             .ToComponentNotification<Unit, BySeasonViewModel, TvSeasonalUpdate>(viewModel);
     }
 
@@ -27,33 +29,39 @@ internal static class TvAdminHandlers
     internal static async Task<RazorComponentResult> Latest(
         [FromForm] Noop noop,
         [FromServices] IDomainPostman domainPostman,
+        [FromServices] ILogger<TvLatestSeasonUpdate> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.UpdateLatestTvSeasonSpan);
         return await domainPostman.SendMessages([new UpdateTvSeriesEvent()], cancellationToken)
             .MarkActivityErroredOnError()
+            .FlushLogs(logger)
             .ToComponentNotification<Unit, Noop, TvLatestSeasonUpdate>(new Noop());
     }
 
     internal static async Task<RazorComponentResult> Titles(
         [FromForm] Noop noop,
         [FromServices] IDomainPostman domainPostman,
+        [FromServices] ILogger<TvTitlesUpdate> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.UpdateFeedTitlesSpan);
         return await domainPostman.SendMessages([new UpdateLatestFeedTitlesEvent()], cancellationToken)
             .MarkActivityErroredOnError()
+            .FlushLogs(logger)
             .ToComponentNotification<Unit, Noop, TvTitlesUpdate>(new Noop());
     }
 
     internal static async Task<RazorComponentResult> TriggerNotificationProcess(
         [FromForm] Noop noop,
         [FromServices] IDomainPostman domainPostman,
+        [FromServices] ILogger<TvNotificationsTrigger> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.TriggerFeedNotificationsSpan);
         return await domainPostman.SendMessages([new RunFeedNotification()], cancellationToken)
             .MarkActivityErroredOnError()
+            .FlushLogs(logger)
             .ToComponentNotification<Unit, Noop, TvNotificationsTrigger>(new Noop());
     }
 }

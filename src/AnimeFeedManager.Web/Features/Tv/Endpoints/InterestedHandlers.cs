@@ -38,7 +38,7 @@ internal static class InterestedHandlers
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Tv");
+        using var activity = Source.StartActivity(TvTelemetry.ToggleInterestedSpan);
         return await Validate(viewModel)
             .Bind(model => Data.GetSeriesForUser(context, model.SeriesId,
                 clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken))

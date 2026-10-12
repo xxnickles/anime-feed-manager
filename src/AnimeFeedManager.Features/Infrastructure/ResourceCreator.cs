@@ -28,14 +28,14 @@ public class ResourceCreator(
     {
         try
         {
-            logger.LogInformation("Creating container {ContainerName}", ImageProvider.Container);
+            logger.LogInformation("Creating container {blob.container}", ImageProvider.Container);
         
             var containerClient = blobServiceClient.GetBlobContainerClient(ImageProvider.Container);
             var response = await containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         
             if (response is null || !response.HasValue)
             {
-                logger.LogInformation("Container {ContainerName} already exists", ImageProvider.Container);
+                logger.LogInformation("Container {blob.container} already exists", ImageProvider.Container);
                 return;
             }
 
@@ -45,12 +45,12 @@ public class ResourceCreator(
                 await containerClient.SetAccessPolicyAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
             }
 
-            logger.LogInformation("Container {ContainerName} created", ImageProvider.Container);
+            logger.LogInformation("Container {blob.container} created", ImageProvider.Container);
 
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            logger.LogError(e, "An error occurred when creating container {ContainerName}", ImageProvider.Container);
+            logger.LogError(e, "An error occurred when creating container {blob.container}", ImageProvider.Container);
         }
     }
     
@@ -75,12 +75,12 @@ public class ResourceCreator(
             var response = await serviceClient.CreateQueueAsync(queueName, cancellationToken: cancellationToken);
             if (response.HasValue)
             {
-                logger.LogInformation("Queue {QueueName} created", response.Value.Name);
+                logger.LogInformation("Queue {messaging.destination.name} created", response.Value.Name);
             }
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            logger.LogError(e, "An error occurred when creating queue {QueueName}", queueName);
+            logger.LogError(e, "An error occurred when creating queue {messaging.destination.name}", queueName);
         }
     }
 
@@ -106,12 +106,12 @@ public class ResourceCreator(
                 await serviceClient.CreateTableIfNotExistsAsync(tableName, cancellationToken: cancellationToken);
             if (response.HasValue)
             {
-                logger.LogInformation("Table {TableName} created", response.Value.Name);
+                logger.LogInformation("Table {table.name} created", response.Value.Name);
             }
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            logger.LogError(e, "An error occurred when creating table {TableName}", tableName);
+            logger.LogError(e, "An error occurred when creating table {table.name}", tableName);
         }
     }
 }

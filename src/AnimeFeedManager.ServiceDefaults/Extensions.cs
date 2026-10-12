@@ -1,12 +1,15 @@
-using Azure.Monitor.OpenTelemetry.AspNetCore;
+using System.Diagnostics;
+using System.Reflection;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace AnimeFeedManager.ServiceDefaults;
@@ -18,30 +21,41 @@ public static class Extensions
 {
     private const string HealthEndpointPath = "/health";
     private const string AlivenessEndpointPath = "/alive";
+    private const string AzureSdkHttpSource = "Azure.Core.Http";
 
+    /// <summary>Telemetry shared by every host; safe for Functions, whose HttpClients own their resilience.</summary>
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder, params string[] additionalTraceSources)
         where TBuilder : IHostApplicationBuilder
     {
         builder.ConfigureOpenTelemetry(additionalTraceSources);
+        return builder;
+    }
+
+    /// <summary>Service defaults plus the web-only pieces: HttpClient resilience, service discovery, health checks, ASP.NET Core instrumentation.</summary>
+    public static TBuilder AddWebAppDefaults<TBuilder>(this TBuilder builder, params string[] additionalTraceSources)
+        where TBuilder : IHostApplicationBuilder
+    {
+        builder.AddServiceDefaults(additionalTraceSources);
+
+        builder.Services.AddOpenTelemetry()
+            .WithMetrics(metrics => metrics.AddAspNetCoreInstrumentation())
+            .WithTracing(tracing => tracing.AddAspNetCoreInstrumentation(options =>
+                // Exclude health check requests from tracing
+                options.Filter = context =>
+                    !context.Request.Path.StartsWithSegments(HealthEndpointPath)
+                    && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)));
 
         builder.AddDefaultHealthChecks();
 
         builder.Services.AddServiceDiscovery();
 
+        // Every client gets a standard resilience handler on top of its own, so this must stay off hosts
+        // with rate-limited clients (AnimeSchedule retries exclude 429; a stacked default would not).
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
-            // Turn on resilience by default
             http.AddStandardResilienceHandler();
-
-            // Turn on service discovery by default
             http.AddServiceDiscovery();
         });
-
-        // Uncomment the following to restrict the allowed schemes for service discovery.
-        // builder.Services.Configure<ServiceDiscoveryOptions>(options =>
-        // {
-        //     options.AllowedSchemes = ["https"];
-        // });
 
         return builder;
     }
@@ -56,24 +70,29 @@ public static class Extensions
         });
 
         builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics =>
-            {
-                metrics.AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation();
-            })
+            .ConfigureResource(resource => resource
+                .AddService(
+                    // Same precedence as the Functions resource detector, so both hosts resolve alike
+                    serviceName: builder.Configuration["OTEL_SERVICE_NAME"]
+                                 ?? builder.Configuration["WEBSITE_SITE_NAME"]
+                                 ?? builder.Environment.ApplicationName,
+                    serviceVersion: Assembly.GetEntryAssembly()
+                        ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion,
+                    // Keeps the instance id Aspire passes through OTEL_RESOURCE_ATTRIBUTES
+                    autoGenerateServiceInstanceId: false)
+                .AddAttributes([
+                    new KeyValuePair<string, object>("deployment.environment.name", builder.Environment.EnvironmentName)
+                ]))
+            .WithMetrics(metrics => metrics
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation())
             .WithTracing(tracing =>
             {
-                tracing.AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation(tracing =>
-                        // Exclude health check requests from tracing
-                        tracing.Filter = context =>
-                            !context.Request.Path.StartsWithSegments(HealthEndpointPath)
-                            && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
-                    )
-                    // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
-                    //.AddGrpcClientInstrumentation()
-                    .AddHttpClientInstrumentation();
+                tracing
+                    .AddSource("Azure.*")
+                    // The Azure SDK span already describes its HTTP call
+                    .AddHttpClientInstrumentation(options => options.FilterHttpRequestMessage = _ =>
+                        Activity.Current?.Parent?.Source.Name != AzureSdkHttpSource);
 
                 foreach (var source in additionalTraceSources)
                     tracing.AddSource(source);
@@ -87,18 +106,20 @@ public static class Extensions
     private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder)
         where TBuilder : IHostApplicationBuilder
     {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
-
-        if (useOtlpExporter)
+        if (!string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
         {
-            builder.Services.AddOpenTelemetry().UseOtlpExporter();
+            // Per-signal exporters: the cross-cutting UseOtlpExporter cannot be combined with Azure Monitor's
+            builder.Services.AddOpenTelemetry()
+                .WithTracing(tracing => tracing.AddOtlpExporter())
+                .WithMetrics(metrics => metrics.AddOtlpExporter());
+
+            builder.Logging.AddOpenTelemetry(logging => logging.AddOtlpExporter());
         }
 
-        // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-        if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+        if (!string.IsNullOrWhiteSpace(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
         {
             builder.Services.AddOpenTelemetry()
-               .UseAzureMonitor();
+                .UseAzureMonitorExporter();
         }
 
         return builder;

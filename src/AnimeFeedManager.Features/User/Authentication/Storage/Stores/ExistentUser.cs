@@ -30,7 +30,7 @@ public static class ExistentUser
             (id, cancellationToken) =>
                 clientFactory.GetClient<UserStorage>()
                     .WithOperationName(nameof(TableStorageExistentUserGetterById))
-                    .WithLogProperty(nameof(id), id)
+                    .WithLogProperty(Telemetry.UserIdTag, id)
                     .Bind(client =>
                         client.ExecuteQuery<UserStorage>(
                             storage => storage.PartitionKey == Constants.UserPartitionKey && storage.RowKey == id,

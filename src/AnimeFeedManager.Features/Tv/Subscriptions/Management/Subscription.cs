@@ -16,8 +16,8 @@ public static class Subscription
         subscriptionGetterGetter(user.UserId, seriesId, token)
             .WithOperationName(nameof(VerifyStorage))
             .WithLogProperties([
-                new KeyValuePair<string, object>(nameof(seriesId), seriesId),
-                new KeyValuePair<string, object>(nameof(user), user.UserId)
+                new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId),
+                new KeyValuePair<string, object>(Telemetry.UserIdTag, user.UserId)
             ])
             .Map(subscription =>
                 VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle, seriesLink));

@@ -1,4 +1,6 @@
-﻿using AnimeFeedManager.Features.Seasons.Events;
+﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+using AnimeFeedManager.Features.Seasons;
+using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.Storage.Stores;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
@@ -27,10 +29,11 @@ public class OnSeasonUpdated
     public async Task Run(
         [QueueTrigger(SeasonUpdated.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         SeasonUpdated message,
+        FunctionContext functionContext,
         CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnSeasonUpdated));
-        using var activity = Source.StartActivity("Seasons.Update");
+        using var processActivity = message.StartProcessActivity(functionContext);
+        using var activity = Source.StartActivity(SeasonsTelemetry.UpdateSpan);
         await SeasonUpdate.CheckSeasonExist(_tableClientFactory.TableStorageSeason, message.Season, token)
             .CreateNewSeason()
             .AddLatestSeasonData(_tableClientFactory.TableStorageLatestSeason, token)
@@ -50,20 +53,20 @@ public class OnSeasonUpdated
         switch (data.SeasonUpdateStatus, data.Season.IsLatest)
         {
             case (SeasonUpdateStatus.NoChanges, _):
-                logger.LogInformation("{Year}-{Season} already exist in the system. No actions have been taken",
-                    data.Season.Year, data.Season.Season);
+                logger.LogInformation("{series.season} already exist in the system. No actions have been taken",
+                    IdHelpers.GenerateAnimePartitionKey(data.Season));
                 break;
             case (SeasonUpdateStatus.New, true):
-                logger.LogInformation("{Year}-{Season} has been added to the system as latest season",
-                    data.Season.Year, data.Season.Season);
+                logger.LogInformation("{series.season} has been added to the system as latest season",
+                    IdHelpers.GenerateAnimePartitionKey(data.Season));
                 break;
             case (SeasonUpdateStatus.New, false):
-                logger.LogInformation("{Year}-{Season} has been added to the system as new season",
-                    data.Season.Year, data.Season.Season);
+                logger.LogInformation("{series.season} has been added to the system as new season",
+                    IdHelpers.GenerateAnimePartitionKey(data.Season));
                 break;
             default:
-                logger.LogInformation("{Year}-{Season} has been updated",
-                    data.Season.Year, data.Season.Season);
+                logger.LogInformation("{series.season} has been updated",
+                    IdHelpers.GenerateAnimePartitionKey(data.Season));
                 break;
         }
     };

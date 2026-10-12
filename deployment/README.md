@@ -204,7 +204,8 @@ The Bicep templates create the following Azure resources:
 | Web App | Blazor SSR frontend | - |
 | Chrome Web App | Browserless Chrome container | (shared plan) |
 | SignalR Service | Real-time notifications | Free_F1 |
-| Application Insights | Monitoring and diagnostics | - |
+| Application Insights | Telemetry from both hosts; workspace-based on an Azure-managed Log Analytics workspace | - |
+| AFM Operations workbook | Dashboards over App Insights (see [Monitoring](#monitoring)) | - |
 
 **Notes:**
 - The Web App Plan uses Basic B2 (2 cores, 3.5 GB RAM) to support Chrome container concurrency needs. Both the web app and Chrome container share the same plan.
@@ -224,13 +225,19 @@ az storage account update --name <STORAGE_ACCOUNT> --resource-group <RESOURCE_GR
 az storage container set-permission --name images --account-name <STORAGE_ACCOUNT> --public-access blob --account-key $(az storage account keys list --account-name <STORAGE_ACCOUNT> --resource-group <RESOURCE_GROUP> --query "[0].value" -o tsv)
 ```
 
+## Monitoring
+
+Both apps export OpenTelemetry to Application Insights (`APPLICATIONINSIGHTS_CONNECTION_STRING`). Classic Application Insights is retired, so Azure attaches a managed Log Analytics workspace (`managed-<appInsightsName>-ws`, in its own resource group) to the component; the Bicep doesn't declare one.
+
+The **AFM Operations** workbook (`workbooks/afm-operations.workbook.json`, deployed by `modules/common.bicep`) appears under the App Insights resource's Workbooks. Tabs: errors by feature, flows (notifications, library refresh, seasons and system events), providers (AnimeSchedule, scrape completeness, images), messaging (queue latency, send failures). Edit the JSON and push to `main`; the infrastructure workflow redeploys the same workbook. Ad-hoc queries: [docs/telemetry-queries.md](../docs/telemetry-queries.md).
+
 ## Workflows
 
 | Workflow | Trigger | Description |
 |----------|---------|-------------|
 | `amf-infrastructure.yml` | `deployment/**` changes | Deploys Bicep templates and seeds admin user |
-| `amf-functions.yml` | Functions/Features code changes | Builds and deploys Azure Functions |
-| `amf-blazor.yml` | Web/Features code changes | Builds CSS, deploys Blazor Web App, and sets version info |
+| `amf-functions.yml` | Changes in Functions, Features, Shared, Services.Shared or Web.BlazorComponents | Builds and deploys Azure Functions |
+| `amf-blazor.yml` | Changes in Web, Web.BlazorComponents, Features, Shared or Services.Shared | Builds CSS, deploys Blazor Web App, and sets version info |
 | `amf-chrome-refresh.yml` | Manual only | Restarts Chrome App Service to pull latest container image |
 
 All workflows:
@@ -266,35 +273,13 @@ These are automatically assigned by the Bicep templates.
 
 ## Storage Authentication
 
-The deployment uses Managed Identity with URI-based connections (no storage keys):
+Both apps reach storage through Managed Identity with service-URI settings; no storage keys are stored.
 
-```bicep
-{
-  name: 'AzureWebJobsStorage__accountName'
-  value: storageAccountName
-}
-{
-  name: 'ConnectionStrings__BlobConnection'
-  value: 'https://${storageAccountName}.blob.${environment().suffixes.storage}'
-}
-```
+| App | Settings |
+|---|---|
+| Function App | `AzureWebJobsStorage__accountName`; `Aspire__Azure__Storage__Blobs__BlobConnection__ServiceUri` (and the Queues/Tables equivalents) for the storage clients; `QueueConnection__queueServiceUri` for queue triggers |
+| Web App | `ConnectionStrings__BlobConnection`, `ConnectionStrings__QueueConnection`, `ConnectionStrings__TablesConnection` (service URIs) |
 
-Benefits:
-- No keys stored in app settings (more secure)
-- Managed Identity handles authentication automatically
+The Function App must not get `ConnectionStrings__QueueConnection`: queue triggers read it first and fail parsing a URI as a connection string.
 
 The `azure/functions-action` detects RBAC mode when it sees `AzureWebJobsStorage__accountName` and uses the workflow's OIDC credentials to upload deployment packages.
-
----
-
-## Legacy Secrets (Can Be Deleted)
-
-These secrets were used by previous deployments and are no longer needed:
-
-| Secret | Reason No Longer Needed |
-|--------|------------------------|
-| `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` | Uses OIDC authentication instead of publish profiles |
-| `AZURE_RG` | Resource group name is hardcoded in workflow |
-| `AZURE_STATIC_WEB_APPS_API_TOKEN_*` | Uses App Service instead of Static Web Apps |
-| `REPO_URL` | Legacy deployment configuration |
-| `SENDER_EMAIL` | Replaced by `GMAIL_FROM_EMAIL` |

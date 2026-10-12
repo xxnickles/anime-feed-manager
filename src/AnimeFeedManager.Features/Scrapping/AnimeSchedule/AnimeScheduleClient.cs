@@ -31,7 +31,7 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
     private Task<Result<ImmutableArray<AnimeScheduleAnime>>> FetchAllPages(string query, CancellationToken token) =>
         FetchPage(query, 1, token)
             .WithOperationName(nameof(FetchAllPages))
-            .WithLogProperty("Query", query)
+            .WithLogProperty(ScrappingTelemetry.QueryTag, query)
             .Bind(firstPage => FetchRemainingPages(query, firstPage, token));
 
     /// <summary>Pages gathered so far, alongside the ones that failed and were skipped.</summary>
@@ -56,8 +56,8 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
 
         return walk
             .AddLogOnSuccess(state => LogPageOutcome(query, state))
-            .WithLogProperty("PagesExpected", lastPage)
-            .WithLogProperty("PagesFetched", walk.MatchToValue(state => state.Pages.Length, _ => 0))
+            .WithLogProperty(ScrappingTelemetry.PagesExpectedTag, lastPage)
+            .WithLogProperty(ScrappingTelemetry.PagesFetchedTag, walk.MatchToValue(state => state.Pages.Length, _ => 0))
             .Map(state => Deduplicate(state.Pages));
     }
 
@@ -82,10 +82,10 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
         var entries = Deduplicate(state.Pages).Length;
 
         if (state.Skipped.IsEmpty)
-            logger.LogInformation("Retrieved {Count} entries from AnimeSchedule {Query}", entries, query);
+            logger.LogInformation("Retrieved {scrape.entry_count} entries from AnimeSchedule {scrape.query}", entries, query);
         else
             logger.LogWarning(
-                "Retrieved {Count} entries from AnimeSchedule {Query}, skipping {FailedPages} failed page(s): {Errors}",
+                "Retrieved {scrape.entry_count} entries from AnimeSchedule {scrape.query}, skipping {scrape.pages_failed} failed page(s): {domain_error.message}",
                 entries, query, state.Skipped.Length,
                 string.Join("; ", state.Skipped.Select(e => e.Message)));
     };

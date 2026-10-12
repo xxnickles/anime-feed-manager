@@ -16,7 +16,7 @@ internal static class LibraryManagement
         [FromServices] ILogger<AlternativeTitlesEditor> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Tv");
+        using var activity = Source.StartActivity(TvTelemetry.UpdateAlternativeTitlesSpan);
         return await Validate(viewModel)
                 .Bind(model => IdHelpers.SeriesSeasonFromId(model.SeriesId)
                     .Map(season => (Model: model, Season: season)))
@@ -46,7 +46,7 @@ internal static class LibraryManagement
         HttpContext context,
         CancellationToken token)
     {
-        using var activity = Source.StartActivity("Web.Tv");
+        using var activity = Source.StartActivity(TvTelemetry.RemoveSeriesSpan);
         return await Validate(viewModel)
             .Bind(model => IdHelpers.SeriesSeasonFromId(model.SeriesId)
                 .Map(season => (Model: model, Season: season)))

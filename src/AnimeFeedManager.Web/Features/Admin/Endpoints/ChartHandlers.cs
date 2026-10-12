@@ -16,7 +16,7 @@ internal static class ChartHandlers
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.LibraryScrapSummarySpan);
         var range = ChartDateRange.FromPeriod(period);
         return await ScrapLibraryChart.Get(
                 clientFactory.TableStorageEvents<ScrapTvLibraryResult>(),
@@ -38,7 +38,7 @@ internal static class ChartHandlers
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.NotificationSummarySpan);
         var range = ChartDateRange.FromPeriod(period);
         return await NotificationSentChart.Get(
                 clientFactory.TableStorageBroadEvents<NotificationSent>(),
@@ -58,7 +58,7 @@ internal static class ChartHandlers
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.FeedUpdatesSummarySpan);
         var range = ChartDateRange.FromPeriod(period);
         return await FeedUpdatesChart.Get(
                 clientFactory.TableStorageEvents<FeedTitlesUpdateResult>(),

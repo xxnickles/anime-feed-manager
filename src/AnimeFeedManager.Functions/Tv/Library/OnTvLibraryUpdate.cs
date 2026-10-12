@@ -1,4 +1,6 @@
-﻿using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
+﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+using AnimeFeedManager.Features.Tv.Library;
+using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Storage;
@@ -40,14 +42,15 @@ public class OnTvLibraryUpdate
     public async Task Run(
         [QueueTrigger(UpdateTvSeriesEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         UpdateTvSeriesEvent message,
+        FunctionContext functionContext,
         CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnTvLibraryUpdate));
+        using var processActivity = message.StartProcessActivity(functionContext);
+        using var activity = Source.StartActivity(TvLibraryTelemetry.ImportSpan);
         await RunScraper(message.SeasonParameters, token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
-                "(OnDemand) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
-                results.Season.Year,
-                results.Season.Season,
+                "(OnDemand) Season {series.season} tv series has been updated. {series.updated_count} has been updated and {series.new_count} has been added",
+                IdHelpers.GenerateAnimePartitionKey(results.Season),
                 results.UpdatedSeries,
                 results.NewSeries))
             .Complete(_logger);
@@ -57,11 +60,11 @@ public class OnTvLibraryUpdate
     public async Task RunScheduled([TimerTrigger("%ScrapingSchedule%")] TimerInfo myTimer,
         CancellationToken token)
     {
+        using var activity = Source.StartActivity(TvLibraryTelemetry.ImportSpan);
         await RunScraper(null, token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
-                "(Scheduled) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added. Next run will happen at {Time}",
-                results.Season.Year,
-                results.Season.Season,
+                "(Scheduled) Season {series.season} tv series has been updated. {series.updated_count} has been updated and {series.new_count} has been added. Next run will happen at {schedule.next_run}",
+                IdHelpers.GenerateAnimePartitionKey(results.Season),
                 results.UpdatedSeries,
                 results.NewSeries,
                 myTimer.ScheduleStatus?.Next))
@@ -72,7 +75,6 @@ public class OnTvLibraryUpdate
         SeasonParameters? seasonParameters,
         CancellationToken token)
     {
-        using var activity = Source.StartActivity("Tv.Library.Import");
         return await ScrapTvSeries(
                 seasonParameters,
                 TvLibraryScrapper.Scrapper(

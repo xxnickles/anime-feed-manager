@@ -348,12 +348,12 @@ public static class ResultExtensionMembers
                 : result with {TraceContext = result.TraceContext.WithProperty(key, valueSelector(result.ResultValue!))};
 
         /// <summary>
-        /// Adds an "OperationName" property to the trace context.
+        /// Adds an <see cref="Telemetry.OperationNameTag"/> property to the trace context.
         /// Convenience method for <see cref="WithLogProperty"/> with a standard key.
         /// </summary>
         /// <param name="value">The operation name.</param>
         /// <returns>The result with the operation name property.</returns>
-        public Result<T> WithOperationName(string value) => result.WithLogProperty("OperationName", value);
+        public Result<T> WithOperationName(string value) => result.WithLogProperty(Telemetry.OperationNameTag, value);
 
         /// <summary>
         /// Adds multiple properties to the trace context that will be included in the logging scope.
@@ -399,7 +399,7 @@ public static class ResultExtensionMembers
         /// <code>
         /// await GetLease(name)
         ///     .Bind(_ => ProcessData(...))
-        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {Stats}", stats))
+        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {series.count}", stats.Count))
         ///     .Complete(logger);  // Terminal - writes all logs, returns void
         /// </code>
         /// </example>

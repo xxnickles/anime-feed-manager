@@ -1,10 +1,9 @@
 using AnimeFeedManager.Functions.Bootstraping;
-using Azure.Monitor.OpenTelemetry.Exporter;
+using AnimeFeedManager.ServiceDefaults;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Azure.Functions.Worker.OpenTelemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using OpenTelemetry;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -16,39 +15,20 @@ builder.Services.Configure<ServiceProviderOptions>(options =>
     options.ValidateScopes = true;
 });
 
-// Configure OpenTelemetry logging to include formatted messages
-builder.Logging.AddOpenTelemetry(logging =>
-{
-    logging.IncludeFormattedMessage = true;
-    logging.IncludeScopes = true;
-});
+// OpenTelemetry (telemetryMode is set in host.json)
+builder.AddServiceDefaults(
+    Telemetry.SeasonsUpdateSource,
+    Telemetry.SystemEventsUpdateSource,
+    Telemetry.TvLibraryImportSource,
+    Telemetry.TvLibraryFeedTitlesSource,
+    Telemetry.TvLibraryCompletionSource,
+    Telemetry.ImagesSource,
+    Telemetry.TvSubscriptionsFeedSource,
+    Telemetry.TvSubscriptionsManagementSource,
+    Telemetry.MessagingSource);
 
-// OpenTelemetry configuration (telemetryMode is set in host.json)
-var otelBuilder = builder.Services.AddOpenTelemetry()
+builder.Services.AddOpenTelemetry()
     .UseFunctionsWorkerDefaults();
-
-otelBuilder.WithTracing(tracing => tracing
-    .AddSource(Telemetry.SeasonsUpdateSource)
-    .AddSource(Telemetry.SystemEventsUpdateSource)
-    .AddSource(Telemetry.TvLibraryImportSource)
-    .AddSource(Telemetry.TvLibraryFeedTitlesSource)
-    .AddSource(Telemetry.TvLibraryCompletionSource)
-    .AddSource(Telemetry.ImagesSource)
-    .AddSource(Telemetry.TvSubscriptionsFeedSource)
-    .AddSource(Telemetry.TvSubscriptionsManagementSource)
-    .AddSource(Telemetry.FunctionsMessageProcessingSource));
-
-// Export to Azure Monitor when connection string is available (production)
-if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
-{
-    otelBuilder.UseAzureMonitorExporter();
-}
-
-// Export to OTLP when endpoint is available (local dev with Aspire)
-if (!string.IsNullOrEmpty(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
-{
-    otelBuilder.UseOtlpExporter();
-}
 
 // App dependencies
 builder.RegisterStorageServices()

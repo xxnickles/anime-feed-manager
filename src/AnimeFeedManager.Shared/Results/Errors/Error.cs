@@ -10,5 +10,5 @@ public sealed record Error : DomainError
     public static Error Create(string message) =>
         new(message);
 
-    public override Action<ILogger> LogAction() => logger => logger.LogError("{Message}", Message);
+    public override Action<ILogger> LogAction() => logger => logger.LogError("{domain_error.message}", Message);
 }

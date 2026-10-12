@@ -28,10 +28,11 @@ public class OnSystemEvent
     public async Task<SignalRMessageAction?> Run(
         [QueueTrigger(SystemEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         SystemEvent message,
+        FunctionContext functionContext,
         CancellationToken cancellationToken)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnSystemEvent));
-        using var activity = Source.StartActivity("SystemEvents.Update");
+        using var processActivity = message.StartProcessActivity(functionContext);
+        using var activity = Source.StartActivity(SystemEventsTelemetry.UpdateSpan);
         return await SystemEventUpdate.StartProcess(message)
             .StoreEvent(_tableClientFactory.TableStorageEventUpdater(), cancellationToken)
             .PrepareUiNotification()

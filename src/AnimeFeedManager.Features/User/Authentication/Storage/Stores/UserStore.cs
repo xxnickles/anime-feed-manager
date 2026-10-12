@@ -26,8 +26,9 @@ public static class UserStore
             }, cancellationToken: cancellationToken))
             .WithOperationName(nameof(UpsertUser))
             .WithLogProperties([
-                new KeyValuePair<string, object>(nameof(userId), userId),
-                new KeyValuePair<string, object>(nameof(role), role)
+                new KeyValuePair<string, object>(Telemetry.UserIdTag, userId),
+                // Comma-joined in logs; a role array would stringify as its type name
+                new KeyValuePair<string, object>(Telemetry.UserRolesTag, role.ToString())
             ])
             .WithDefaultMap();
     }

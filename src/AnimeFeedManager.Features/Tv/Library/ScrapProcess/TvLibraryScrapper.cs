@@ -1,7 +1,6 @@
 ﻿using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
-using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 

@@ -10,5 +10,5 @@ public sealed record Warning : DomainError
     public static Warning Create(string message) =>
         new(message);
 
-    public override Action<ILogger> LogAction() => logger => logger.LogWarning("{Message}", Message);
+    public override Action<ILogger> LogAction() => logger => logger.LogWarning("{domain_error.message}", Message);
 }

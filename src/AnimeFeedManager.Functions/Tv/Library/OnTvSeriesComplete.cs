@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Events;
+﻿using AnimeFeedManager.Features.Tv.Library;
+using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.SeriesCompletion;
 
 namespace AnimeFeedManager.Functions.Tv.Library;
@@ -23,13 +24,15 @@ public class OnTvSeriesComplete
 
     [Function(nameof(OnTvSeriesComplete))]
     public async Task Run([QueueTrigger(CompleteOngoingSeries.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)] CompleteOngoingSeries message,
+    FunctionContext functionContext,
     CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnTvSeriesComplete));
-        using var activity = Source.StartActivity("Tv.Library.Completion");
+        using var processActivity = message.StartProcessActivity(functionContext);
+        using var activity = Source.StartActivity(TvLibraryTelemetry.CompleteOngoingSpan);
         await CompleteOngoing.CompleteOngoingSeries(message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()
-            .AddLogOnSuccess(r => logger => logger.LogInformation("TV Series have been completed {@Series}", r.CompletedSeries))
+            .AddLogOnSuccess(r => logger => logger.LogInformation("{series.count} TV series have been completed: {series.ids}",
+                r.CompletedSeries.Length, string.Join(", ", r.CompletedSeries.Select(s => s.RowKey))))
             .Complete(_logger);
     }
 }
