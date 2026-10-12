@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
+﻿using AnimeFeedManager.Features.Tv.Library;
+using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Storage;
@@ -43,6 +44,7 @@ public class OnTvLibraryUpdate
         CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnTvLibraryUpdate));
+        using var activity = Source.StartActivity(TvLibraryTelemetry.ImportSpan);
         await RunScraper(message.SeasonParameters, token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
                 "(OnDemand) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
@@ -57,6 +59,7 @@ public class OnTvLibraryUpdate
     public async Task RunScheduled([TimerTrigger("%ScrapingSchedule%")] TimerInfo myTimer,
         CancellationToken token)
     {
+        using var activity = Source.StartActivity(TvLibraryTelemetry.ImportSpan);
         await RunScraper(null, token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
                 "(Scheduled) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added. Next run will happen at {Time}",
@@ -72,7 +75,6 @@ public class OnTvLibraryUpdate
         SeasonParameters? seasonParameters,
         CancellationToken token)
     {
-        using var activity = Source.StartActivity("Tv.Library.Import");
         return await ScrapTvSeries(
                 seasonParameters,
                 TvLibraryScrapper.Scrapper(

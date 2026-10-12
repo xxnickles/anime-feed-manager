@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Events;
+﻿using AnimeFeedManager.Features.Tv.Library;
+using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.FeedTitlesUpdateProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
@@ -28,7 +29,7 @@ public class OnFeedTitlesUpdate
         FeedTitlesUpdated message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnFeedTitlesUpdate));
-        using var activity = Source.StartActivity("Tv.Library.FeedTitles");
+        using var activity = Source.StartActivity(TvLibraryTelemetry.FeedTitlesSpan);
 
         if(message.FeedTitles is null or [])
             _logger.LogError("No titles where sent with the update for season {Year}-{Season}", message.Season.Year, message.Season.Season);

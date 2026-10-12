@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Tv.Subscriptions;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed;
@@ -31,6 +32,7 @@ public class TriggerFeedNotifications
     public async Task Run([TimerTrigger("%FeedNotificationSchedule%")] TimerInfo myTimer,
         CancellationToken cancellationToken)
     {
+        using var activity = Source.StartActivity(TvSubscriptionsTelemetry.FeedSpan);
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
                 "{UserCount} users will be notified about new releases. Next run will occur at {Time}",
@@ -44,6 +46,7 @@ public class TriggerFeedNotifications
         RunFeedNotification message, CancellationToken cancellationToken)
     {
         using var tracedActivity = message.StartTracedActivity("ManualTriggerFeedNotifications");
+        using var activity = Source.StartActivity(TvSubscriptionsTelemetry.FeedSpan);
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
                 "{UserCount} users will be notified about new releases. This is a manually triggered run",
@@ -53,7 +56,6 @@ public class TriggerFeedNotifications
 
     private async Task<Result<FeedProcessSummary>> RunProcess(Result<DailySeriesFeed[]> feed, CancellationToken token)
     {
-        using var activity = Source.StartActivity("Tv.Subscriptions.Feed");
         return await feed.RunProcess(
             _tableClientFactory.TableStorageTvUserActiveSubscriptions,
             _domainPostman.SendMessages,
