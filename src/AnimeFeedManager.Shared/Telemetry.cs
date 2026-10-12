@@ -49,4 +49,45 @@ public static class Telemetry
 
     /// <summary>Web TV library/subscription endpoint handlers.</summary>
     public const string WebTvSource = "AnimeFeedManager.Web.Tv";
+
+    // Cross-feature keys, shared by span tags and log properties. Feature keys live in that feature's *Telemetry class.
+
+    public const string SeriesIdTag = "series.id";
+
+    /// <summary>Partition-key format, e.g. <c>2026-fall</c>.</summary>
+    public const string SeriesSeasonTag = "series.season";
+
+    public const string SeriesTitleTag = "series.title";
+
+    /// <summary>Opaque user id; never the email.</summary>
+    public const string UserIdTag = "user.id";
+
+    /// <summary>String array, per semconv.</summary>
+    public const string UserRolesTag = "user.roles";
+
+    /// <summary>Log-only: carries the operation to backends that never see the span name.</summary>
+    public const string OperationNameTag = "operation.name";
+
+    public const string DomainErrorMessageTag = "domain_error.message";
+    public const string DomainErrorSubjectTag = "domain_error.subject";
+
+    public const string ValidationTypeNameTag = "validation.type_name";
+    public const string ValidationErrorCountTag = "validation.error_count";
+    public const string ValidationFieldCountTag = "validation.field_count";
+    public const string ValidationFieldTag = "validation.field";
+    public const string ValidationMessagesTag = "validation.messages";
+
+    // OpenTelemetry semantic conventions
+
+    /// <summary>DomainError class name, set on failure only.</summary>
+    public const string ErrorTypeTag = "error.type";
+
+    public const string MessagingSystemTag = "messaging.system";
+    public const string MessagingOperationNameTag = "messaging.operation.name";
+    public const string MessagingOperationTypeTag = "messaging.operation.type";
+    public const string MessagingDestinationNameTag = "messaging.destination.name";
+    public const string MessagingMessageIdTag = "messaging.message.id";
+
+    /// <summary>Custom value: semconv registers none for Azure Storage Queues.</summary>
+    public const string MessagingSystemValue = "azure_storage_queue";
 }
