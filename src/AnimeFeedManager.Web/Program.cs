@@ -10,7 +10,7 @@ using AnimeFeedManager.Web.Htmx;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults(
+builder.AddWebAppDefaults(
     Telemetry.TvLibraryQueriesSource,
     Telemetry.UserAuthenticationSource,
     Telemetry.WebAdminSource,

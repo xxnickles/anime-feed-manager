@@ -2,10 +2,9 @@ namespace AnimeFeedManager.Shared;
 
 /// <summary>
 /// Custom <see cref="System.Diagnostics.ActivitySource"/> names for OpenTelemetry tracing.
-/// Sources must be registered via <c>tracing.AddSource(...)</c> at each host's composition root
-/// (<c>AddServiceDefaults(...)</c> in the Web host, the <c>WithTracing</c> block in the Functions
-/// host). Add new names here AND to that call — an unregistered source has no listener, so
-/// <c>StartActivity</c> silently returns null and the spans never exist.
+/// Sources must be passed to each host's defaults call (<c>AddWebAppDefaults(...)</c> in Web,
+/// <c>AddServiceDefaults(...)</c> in Functions). Add new names here AND to that call — an unregistered
+/// source has no listener, so <c>StartActivity</c> silently returns null and the spans never exist.
 /// </summary>
 public static class Telemetry
 {
