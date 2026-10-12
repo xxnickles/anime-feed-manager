@@ -55,6 +55,20 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
+// Operations workbook; queries run against App Insights (classic tables)
+resource operationsWorkbook 'Microsoft.Insights/workbooks@2023-06-01' = {
+  name: guid(resourceGroup().id, 'afm-operations-workbook')
+  location: location
+  kind: 'shared'
+  properties: {
+    displayName: 'AFM Operations'
+    category: 'workbook'
+    version: 'Notebook/1.0'
+    sourceId: appInsights.id
+    serializedData: replace(loadTextContent('../workbooks/afm-operations.workbook.json'), '__APP_INSIGHTS_ID__', appInsights.id)
+  }
+}
+
 // Outputs
 output storageAccountName string = storageAccount.name
 output appInsightsConnectionString string = appInsights.properties.ConnectionString

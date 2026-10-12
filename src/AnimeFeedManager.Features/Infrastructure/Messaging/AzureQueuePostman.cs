@@ -117,6 +117,7 @@ public class AzureQueuePostman : IDomainPostman
         activity?.SetTag(Telemetry.MessagingOperationNameTag, Telemetry.MessagingSendOperation);
         activity?.SetTag(Telemetry.MessagingOperationTypeTag, Telemetry.MessagingSendOperation);
         activity?.SetTag(Telemetry.MessagingDestinationNameTag, destiny);
+        activity?.SetTag(Telemetry.ServerAddressTag, _queueServiceClient.Uri.Host);
 
         // Consumers link to this context: the send span's own, or the caller's when the span isn't sampled
         if ((activity ?? Activity.Current) is { } context)

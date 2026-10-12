@@ -84,6 +84,8 @@ public static class Telemetry
     public const string MessagingOperationTypeTag = "messaging.operation.type";
     public const string MessagingDestinationNameTag = "messaging.destination.name";
     public const string MessagingMessageIdTag = "messaging.message.id";
+    /// <summary>Queue endpoint host; App Insights fills <c>target</c> only when it is set.</summary>
+    public const string ServerAddressTag = "server.address";
 
     /// <summary>Custom value: semconv registers none for Azure Storage Queues.</summary>
     public const string MessagingSystemValue = "azure_storage_queue";

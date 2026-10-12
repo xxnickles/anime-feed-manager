@@ -1,6 +1,6 @@
 # Telemetry Conventions and Key Dictionary
 
-Applies to both hosts: Web (Blazor SSR) and Functions (isolated worker). Signals flow through OpenTelemetry to Azure Monitor (App Insights) in production and to the Aspire dashboard locally.
+Applies to both hosts: Web (Blazor SSR) and Functions (isolated worker). Signals flow through OpenTelemetry to Azure Monitor (App Insights) in production and to the Aspire dashboard locally. Querying it: [telemetry-queries.md](telemetry-queries.md) and the **AFM Operations** workbook.
 
 ## 1. Pipeline
 
@@ -74,6 +74,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `messaging.operation.name` / `.type` | `send` | `process` |
 | `messaging.destination.name` | Queue name | Queue name |
 | `messaging.message.id` | Queue message id from the send receipt (successful sends only) | Queue trigger `Id` binding |
+| `server.address` | Queue endpoint host | not set: the consumer has no queue client |
 
 - The producer stamps its span context (or the caller's, when the send span is unsampled) into the message's trace information; the consumer reads it to build the link.
 - `messaging.message.id` is the join key across hops.
@@ -197,6 +198,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `messaging.operation.name`, `messaging.operation.type` | Send/process spans | `send` or `process`. |
 | `messaging.destination.name` | Send/process spans; resource-creation log templates | Queue name. |
 | `messaging.message.id` | Send/process spans | Queue message id. |
+| `server.address` | Send spans | Queue endpoint host; App Insights fills `target` only when it is set. |
 | `url.full` | Log templates | Request or page URL. |
 | `service.name`, `service.version`, `deployment.environment.name` | Resource | See section 1. |
 

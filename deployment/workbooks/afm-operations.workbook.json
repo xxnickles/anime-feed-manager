@@ -1,0 +1,689 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "f46a8e09-e1b8-5d7f-bd3a-214e0285e47c",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Time range",
+            "type": 4,
+            "isRequired": true,
+            "value": {
+              "durationMs": 86400000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2592000000
+                }
+              ],
+              "allowCustom": true
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "parameters"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "1e1b9388-3f70-5027-b443-fbea476230e8",
+            "cellValue": "Tab",
+            "linkTarget": "parameter",
+            "linkLabel": "Errors",
+            "subTarget": "Errors",
+            "style": "link"
+          },
+          {
+            "id": "af955b01-e821-5a67-8ac8-21c50aad0dbc",
+            "cellValue": "Tab",
+            "linkTarget": "parameter",
+            "linkLabel": "Flows",
+            "subTarget": "Flows",
+            "style": "link"
+          },
+          {
+            "id": "bf8908ed-cca2-56e4-a033-51486750008b",
+            "cellValue": "Tab",
+            "linkTarget": "parameter",
+            "linkLabel": "Providers",
+            "subTarget": "Providers",
+            "style": "link"
+          },
+          {
+            "id": "6c9d499a-ed91-53ac-a8f4-5d92494c767a",
+            "cellValue": "Tab",
+            "linkTarget": "parameter",
+            "linkLabel": "Messaging",
+            "subTarget": "Messaging",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "tabs"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "Failures grouped by **feature**: the span-name prefix (`Tv.Library.Import` → `Tv.Library`). `Warning` and validation failures never mark a span, so they are not counted here."
+            },
+            "name": "errors-intro"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where type == \"InProc\" and success == false\n| extend Feature = extract(@\"^(.+)\\.[^.]+$\", 1, name)\n| where isnotempty(Feature)\n| summarize Failures = count() by Feature, bin(timestamp, {TimeRange:grain})",
+              "size": 0,
+              "title": "Failed domain spans over time",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "errors-over-time"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where type == \"InProc\" and success == false\n| extend Feature = extract(@\"^(.+)\\.[^.]+$\", 1, name), ErrorType = tostring(customDimensions[\"error.type\"])\n| where isnotempty(Feature)\n| summarize Failures = count(), LastSeen = max(timestamp), SampleOperation = take_any(operation_Id) by Feature, Span = name, ErrorType\n| order by Failures desc",
+              "size": 0,
+              "title": "Failed domain spans by feature and error type",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Failures",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "errors-spans"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let spans = dependencies\n    | where timestamp {TimeRange}\n    | where type == \"InProc\"\n    | extend Feature = extract(@\"^(.+)\\.[^.]+$\", 1, name)\n    | where isnotempty(Feature)\n    | project SpanId = id, Feature;\nunion\n    (traces\n        | where timestamp {TimeRange}\n        | where severityLevel >= 3\n        | project timestamp, operation_Id, operation_ParentId, severityLevel, Kind = \"log\",\n            Source = tostring(customDimensions[\"CategoryName\"]), Message = message),\n    (exceptions\n        | where timestamp {TimeRange}\n        | project timestamp, operation_Id, operation_ParentId, severityLevel, Kind = \"exception\",\n            Source = type, Message = outerMessage)\n| join kind=leftouter spans on $left.operation_ParentId == $right.SpanId\n| extend Feature = iff(isempty(Feature), \"(outside a domain span)\", Feature),\n    Severity = case(severityLevel == 4, \"Critical\", severityLevel == 3, \"Error\", severityLevel == 2, \"Warning\", \"Information\")\n| summarize Count = count(), LastSeen = max(timestamp), SampleMessage = take_any(Message), SampleOperation = take_any(operation_Id)\n    by Feature, Kind, Severity, Source\n| order by Count desc",
+              "size": 0,
+              "title": "Error logs and exceptions by feature",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Count",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "errors-logs"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "Tab",
+        "comparison": "isEqualTo",
+        "value": "Errors"
+      },
+      "name": "errors-tab"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Notifications\n`Tv.Subscriptions.ProcessFeed` fans out one `tv-feed-notification` message per user; each hop is its own operation, linked to the run."
+            },
+            "name": "notifications-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let runs = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"Tv.Subscriptions.ProcessFeed\"\n    | project RunStart = timestamp, RunOperation = operation_Id, RunSpan = id, Duration = duration, Succeeded = success;\nlet manual = requests\n    | where timestamp {TimeRange}\n    | where name == \"process tv-feed-notification-process-trigger\"\n    | distinct RunOperation = operation_Id\n    | extend Manual = true;\nlet users = traces\n    | where timestamp {TimeRange}\n    | where isnotempty(customDimensions[\"notification.user_count\"])\n    | summarize UsersToNotify = max(toint(customDimensions[\"notification.user_count\"])) by RunSpan = operation_ParentId;\nlet sent = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"send tv-feed-notification\"\n    | summarize Sent = count(), SendFailures = countif(success == false) by RunOperation = operation_Id;\nlet hops = requests\n    | where timestamp {TimeRange}\n    | where name == \"process tv-feed-notification\"\n    | mv-expand link = todynamic(tostring(customDimensions[\"_MS.links\"]))\n    | project HopOperation = operation_Id, RunOperation = tostring(link.operation_Id);\nlet outcomes = hops\n    | join kind=inner (dependencies\n        | where timestamp {TimeRange}\n        | where name == \"Tv.Subscriptions.NotifyUser\"\n        | project HopOperation = operation_Id, NotifySucceeded = success) on HopOperation\n    | summarize Processed = count(), Failed = countif(NotifySucceeded == false) by RunOperation;\nruns\n| join kind=leftouter manual on RunOperation\n| join kind=leftouter users on RunSpan\n| join kind=leftouter sent on RunOperation\n| join kind=leftouter outcomes on RunOperation\n| project RunStart, Trigger = iff(Manual == true, \"manual\", \"timer\"), Duration, Succeeded, UsersToNotify,\n    Sent = coalesce(Sent, 0), SendFailures = coalesce(SendFailures, 0),\n    Processed = coalesce(Processed, 0), Failed = coalesce(Failed, 0), RunOperation\n| order by RunStart desc",
+              "size": 0,
+              "title": "Notification runs (select a run for its per-user hops)",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "exportFieldName": "RunOperation",
+              "exportParameterName": "NotificationRun",
+              "exportDefaultValue": "",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Failed",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "notification-runs"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let run = \"{NotificationRun}\";\nlet hops = requests\n    | where timestamp {TimeRange}\n    | where name == \"process tv-feed-notification\"\n    | mv-expand link = todynamic(tostring(customDimensions[\"_MS.links\"]))\n    | where tostring(link.operation_Id) == run\n    | distinct operation_Id;\nlet users = traces\n    | where timestamp {TimeRange}\n    | where operation_Id in (hops) and isnotempty(customDimensions[\"user.id\"])\n    | summarize UserId = take_any(tostring(customDimensions[\"user.id\"])),\n        Notifications = max(toint(customDimensions[\"notification.count\"])) by SpanId = operation_ParentId;\ndependencies\n| where timestamp {TimeRange}\n| where name == \"Tv.Subscriptions.NotifyUser\" and operation_Id in (hops)\n| join kind=leftouter users on $left.id == $right.SpanId\n| project timestamp, UserId, Notifications, Duration = duration, Succeeded = success,\n    ErrorType = tostring(customDimensions[\"error.type\"]), HopOperation = operation_Id\n| order by timestamp asc",
+              "size": 0,
+              "title": "Per-user notifications for the selected run",
+              "noDataMessage": "Select a run above.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "notification-hops"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Library refresh\n`Tv.Library.Import` per season. Downstream counts follow one hop of linked messages."
+            },
+            "name": "library-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let runs = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"Tv.Library.Import\"\n    | project RunStart = timestamp, RunOperation = operation_Id, Duration = duration, Succeeded = success,\n        ErrorType = tostring(customDimensions[\"error.type\"]);\nlet manual = requests\n    | where timestamp {TimeRange}\n    | where name == \"process update-tv-series\"\n    | distinct RunOperation = operation_Id\n    | extend Manual = true;\nlet facts = traces\n    | where timestamp {TimeRange}\n    | where operation_Id in ((runs | project RunOperation))\n    | summarize\n        Season = take_anyif(tostring(customDimensions[\"series.season\"]), isnotempty(customDimensions[\"series.season\"])),\n        New = max(toint(customDimensions[\"series.new_count\"])),\n        Updated = max(toint(customDimensions[\"series.updated_count\"])),\n        ImagesDownloaded = max(toint(customDimensions[\"image.downloaded_count\"])),\n        ImagesFailed = max(toint(customDimensions[\"image.failed_count\"])),\n        PagesExpected = max(toint(customDimensions[\"scrape.pages_expected\"])),\n        PagesFetched = max(toint(customDimensions[\"scrape.pages_fetched\"]))\n        by RunOperation = operation_Id;\nlet downstream = requests\n    | where timestamp {TimeRange}\n    | where name startswith \"process \"\n    | mv-expand link = todynamic(tostring(customDimensions[\"_MS.links\"]))\n    | summarize Downstream = dcount(operation_Id) by RunOperation = tostring(link.operation_Id);\nruns\n| join kind=leftouter manual on RunOperation\n| join kind=leftouter facts on RunOperation\n| join kind=leftouter downstream on RunOperation\n| project RunStart, Trigger = iff(Manual == true, \"manual\", \"timer\"), Season, Duration, Succeeded, ErrorType,\n    New, Updated, ImagesDownloaded, ImagesFailed, PagesExpected, PagesFetched,\n    Downstream = coalesce(Downstream, 0), RunOperation\n| order by RunStart desc",
+              "size": 0,
+              "title": "Library refresh runs (select a run for its downstream messages)",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "exportFieldName": "RunOperation",
+              "exportParameterName": "LibraryRun",
+              "exportDefaultValue": ""
+            },
+            "name": "library-runs"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let run = \"{LibraryRun}\";\nlet hops = requests\n    | where timestamp {TimeRange}\n    | where name startswith \"process \"\n    | mv-expand link = todynamic(tostring(customDimensions[\"_MS.links\"]))\n    | where tostring(link.operation_Id) == run\n    | project HopOperation = operation_Id, Queue = substring(name, 8);\nlet failures = dependencies\n    | where timestamp {TimeRange}\n    | where type == \"InProc\" and success == false\n    | summarize ErrorTypes = strcat_array(make_set(tostring(customDimensions[\"error.type\"])), \", \") by HopOperation = operation_Id;\nhops\n| join kind=leftouter failures on HopOperation\n| summarize Messages = count(), Failed = countif(isnotempty(ErrorTypes)), ErrorTypes = make_set_if(ErrorTypes, isnotempty(ErrorTypes)) by Queue\n| order by Messages desc",
+              "size": 0,
+              "title": "Downstream messages of the selected run, by queue",
+              "noDataMessage": "Select a run above.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Failed",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "library-hops"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Seasons and system events"
+            },
+            "name": "maintenance-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where name in (\"Seasons.Update\", \"SystemEvents.Update\")\n| summarize Runs = count(), Failed = countif(success == false), LastRun = max(timestamp),\n    LastFailure = maxif(timestamp, success == false),\n    ErrorTypes = make_set_if(tostring(customDimensions[\"error.type\"]), success == false) by Span = name",
+              "size": 0,
+              "title": "Season updates and system events",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Failed",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "maintenance-spans"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let spans = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"Seasons.Update\"\n    | project id;\ntraces\n| where timestamp {TimeRange}\n| where operation_ParentId in (spans) and isnotempty(customDimensions[\"series.season\"])\n| project timestamp, Season = tostring(customDimensions[\"series.season\"]), Outcome = message, Operation = operation_Id\n| order by timestamp desc",
+              "size": 0,
+              "title": "Season update outcomes",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "season-updates"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "Tab",
+        "comparison": "isEqualTo",
+        "value": "Flows"
+      },
+      "name": "flows-tab"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## AnimeSchedule\nA `429` bans the caller's whole IP range for days: any non-zero **RateLimited** needs attention."
+            },
+            "name": "animeschedule-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where type == \"Http\" and target has \"animeschedule.net\"\n| summarize Calls = count(), RateLimited = countif(resultCode == \"429\"), ServerErrors = countif(resultCode startswith \"5\"),\n    Failed = countif(success == false), P50 = percentile(duration, 50), P95 = percentile(duration, 95) by Host = target",
+              "size": 0,
+              "title": "Calls by host",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "RateLimited",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "ServerErrors",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "orange",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "animeschedule-summary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where type == \"Http\" and target has \"animeschedule.net\"\n| summarize Calls = count() by Status = strcat(target, \" \", resultCode), bin(timestamp, {TimeRange:grain})",
+              "size": 0,
+              "title": "Calls by status over time",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "animeschedule-status"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Scrape completeness\nOne row per AnimeSchedule fetch: pages the provider reported vs pages actually read."
+            },
+            "name": "scrape-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "traces\n| where timestamp {TimeRange}\n| where isnotempty(customDimensions[\"scrape.query\"]) and isnotempty(customDimensions[\"scrape.entry_count\"])\n| project timestamp, Query = tostring(customDimensions[\"scrape.query\"]), Entries = toint(customDimensions[\"scrape.entry_count\"]),\n    PagesExpected = toint(customDimensions[\"scrape.pages_expected\"]), PagesFetched = toint(customDimensions[\"scrape.pages_fetched\"]),\n    PagesFailed = coalesce(toint(customDimensions[\"scrape.pages_failed\"]), 0), Operation = operation_Id\n| order by timestamp desc",
+              "size": 0,
+              "title": "AnimeSchedule fetches",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "PagesFailed",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "scrape-completeness"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Images"
+            },
+            "name": "images-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "traces\n| where timestamp {TimeRange}\n| where isnotempty(customDimensions[\"image.candidate_count\"])\n| project timestamp, Candidates = toint(customDimensions[\"image.candidate_count\"]),\n    Downloaded = toint(customDimensions[\"image.downloaded_count\"]), Failed = toint(customDimensions[\"image.failed_count\"]),\n    Skipped = toint(customDimensions[\"image.skipped_count\"]), Operation = operation_Id\n| order by timestamp desc",
+              "size": 0,
+              "title": "Image outcomes per import",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Failed",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "images-runs"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where name == \"Images.Download\"\n| summarize P50 = percentile(duration, 50), P95 = percentile(duration, 95) by bin(timestamp, {TimeRange:grain})",
+              "size": 0,
+              "title": "Image download latency (ms)",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "timechart"
+            },
+            "name": "images-latency"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let imports = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"Tv.Library.Import\"\n    | distinct operation_Id;\ntraces\n| where timestamp {TimeRange}\n| where operation_Id in (imports) and severityLevel == 2 and message has \"without an image\"\n| project timestamp, Series = tostring(customDimensions[\"series.title\"]), Reason = tostring(customDimensions[\"domain_error.message\"]),\n    Operation = operation_Id\n| order by timestamp desc",
+              "size": 0,
+              "title": "Series stored without an image",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "images-missing"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "Tab",
+        "comparison": "isEqualTo",
+        "value": "Providers"
+      },
+      "name": "providers-tab"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "Send and process spans join on `messaging.message.id`. Latency is first processing minus send, so it includes the Functions queue-polling delay."
+            },
+            "name": "messaging-intro"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let sends = dependencies\n    | where timestamp {TimeRange}\n    | where name startswith \"send \" and success == true\n    | project SentAt = timestamp, MessageId = tostring(customDimensions[\"messaging.message.id\"]), Queue = substring(name, 5);\nrequests\n| where timestamp {TimeRange}\n| where name startswith \"process \"\n| extend MessageId = trim('\"', tostring(customDimensions[\"messaging.message.id\"]))\n| summarize ProcessedAt = min(timestamp) by MessageId\n| join kind=inner sends on MessageId\n| extend LatencySeconds = (ProcessedAt - SentAt) / 1s\n| summarize Messages = count(), P50 = percentile(LatencySeconds, 50), P95 = percentile(LatencySeconds, 95),\n    Max = max(LatencySeconds) by Queue\n| order by P95 desc",
+              "size": 0,
+              "title": "Queue latency by queue (seconds)",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "P95",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "orange",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "messaging-latency"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where name startswith \"send \"\n| summarize Sends = count(), Failed = countif(success == false), LastFailure = maxif(timestamp, success == false),\n    ErrorTypes = make_set_if(tostring(customDimensions[\"error.type\"]), success == false),\n    Roles = make_set(cloud_RoleName) by Queue = substring(name, 5)\n| extend FailureRate = round(100.0 * Failed / Sends, 2)\n| order by Failed desc, Sends desc",
+              "size": 0,
+              "title": "Sends by queue",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Failed",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "messaging-sends"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where name startswith \"send \" and success == false\n| project timestamp, Queue = substring(name, 5), ErrorType = tostring(customDimensions[\"error.type\"]), Role = cloud_RoleName,\n    Operation = operation_Id\n| order by timestamp desc",
+              "size": 0,
+              "title": "Failed sends",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "messaging-failures"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "Tab",
+        "comparison": "isEqualTo",
+        "value": "Messaging"
+      },
+      "name": "messaging-tab"
+    }
+  ],
+  "isLocked": false,
+  "fallbackResourceIds": [
+    "__APP_INSIGHTS_ID__"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
