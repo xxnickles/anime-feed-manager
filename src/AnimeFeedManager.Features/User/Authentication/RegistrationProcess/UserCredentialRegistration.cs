@@ -22,7 +22,7 @@ public static class UserCredentialRegistration
        return id.ParseAsNonEmpty("Display Name")
             .AsResult()
             .WithOperationName(nameof(UserCredentialRegistration))
-            .AddLog((logger) => logger.LogInformation("Trying to add credential for user {id}", id))
+            .AddLog((logger) => logger.LogInformation("Trying to add credential for user {user.id}", id))
             .Bind(safeId => userGetter(safeId, cancellationToken))
             .Bind(user => TryToCreate(user, passwordlessClient, cancellationToken));
     }

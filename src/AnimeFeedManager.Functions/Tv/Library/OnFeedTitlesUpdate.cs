@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library;
+﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+using AnimeFeedManager.Features.Tv.Library;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.FeedTitlesUpdateProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
@@ -32,7 +33,7 @@ public class OnFeedTitlesUpdate
         using var activity = Source.StartActivity(TvLibraryTelemetry.UpdateFeedTitlesSpan);
 
         if(message.FeedTitles is null or [])
-            _logger.LogError("No titles where sent with the update for season {Year}-{Season}", message.Season.Year, message.Season.Season);
+            _logger.LogError("No titles where sent with the update for season {series.season}", IdHelpers.GenerateAnimePartitionKey(message.Season));
 
         await FeedTitlesUpdate.StoreTitles(new FeedTitleUpdateData(message.Season, message.FeedTitles ?? []),
                 _tableClientFactory.TableStorageFeedTitlesUpdater, token)

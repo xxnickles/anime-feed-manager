@@ -15,5 +15,5 @@ internal sealed record RateLimitedError : DomainError
         new($"AnimeSchedule rate-limited {query} at page {page}");
 
     public override Action<ILogger> LogAction() =>
-        logger => logger.LogError("{Message}. Further requests will be refused for hours", Message);
+        logger => logger.LogError("{domain_error.message}. Further requests will be refused for hours", Message);
 }

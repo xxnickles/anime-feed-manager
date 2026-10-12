@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library;
+﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+using AnimeFeedManager.Features.Tv.Library;
 using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
@@ -47,9 +48,8 @@ public class OnTvLibraryUpdate
         using var activity = Source.StartActivity(TvLibraryTelemetry.ImportSpan);
         await RunScraper(message.SeasonParameters, token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
-                "(OnDemand) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added",
-                results.Season.Year,
-                results.Season.Season,
+                "(OnDemand) Season {series.season} tv series has been updated. {series.updated_count} has been updated and {series.new_count} has been added",
+                IdHelpers.GenerateAnimePartitionKey(results.Season),
                 results.UpdatedSeries,
                 results.NewSeries))
             .Complete(_logger);
@@ -62,9 +62,8 @@ public class OnTvLibraryUpdate
         using var activity = Source.StartActivity(TvLibraryTelemetry.ImportSpan);
         await RunScraper(null, token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
-                "(Scheduled) Season {Year}-{Season} tv series has been updated. {UpdatedSeries} has been updated and {NewSeries} has been added. Next run will happen at {Time}",
-                results.Season.Year,
-                results.Season.Season,
+                "(Scheduled) Season {series.season} tv series has been updated. {series.updated_count} has been updated and {series.new_count} has been added. Next run will happen at {schedule.next_run}",
+                IdHelpers.GenerateAnimePartitionKey(results.Season),
                 results.UpdatedSeries,
                 results.NewSeries,
                 myTimer.ScheduleStatus?.Next))

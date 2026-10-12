@@ -31,7 +31,7 @@ public class OnSeriesUpdatedToOnGoing
         using var activity = Source.StartActivity(TvSubscriptionsTelemetry.AutoSubscribeSpan);
         await AutoSubscription.TryToSubscribe(message.Series, message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()
-            .AddLogOnSuccess(summary => logger => logger.LogInformation("{Count} Automatic Subscriptions for {Series} has been created", summary.Changes, message.Series))
+            .AddLogOnSuccess(summary => logger => logger.LogInformation("{subscription.count} Automatic Subscriptions for {series.id} has been created", summary.Changes, message.Series))
             .Complete(_logger);
     }
 }

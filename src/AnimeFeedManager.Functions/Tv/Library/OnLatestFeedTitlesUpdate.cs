@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library;
+﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+using AnimeFeedManager.Features.Tv.Library;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Tv.Library.Events;
@@ -38,8 +39,8 @@ public class OnLatestFeedTitlesUpdate
         using var activity = Source.StartActivity(TvLibraryTelemetry.ScrapFeedTitlesSpan);
         await RunProcess(token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
-                "(OnDemand) Season {Year}-{Season} tv series titles has been updated. {UpdatedSeries} has been updated",
-                results.Season.Year, results.Season.Season, results.UpdatedSeries))
+                "(OnDemand) Season {series.season} tv series titles has been updated. {series.updated_count} has been updated",
+                IdHelpers.GenerateAnimePartitionKey(results.Season), results.UpdatedSeries))
             .Complete(_logger);
     }
 
@@ -50,8 +51,8 @@ public class OnLatestFeedTitlesUpdate
         using var activity = Source.StartActivity(TvLibraryTelemetry.ScrapFeedTitlesSpan);
         await RunProcess(token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
-                "(Scheduled) Feed titles updated for {Year}-{Season}. {UpdatedSeries} series updated. Next run: {Time}",
-                results.Season.Year, results.Season.Season, results.UpdatedSeries,
+                "(Scheduled) Feed titles updated for {series.season}. {series.updated_count} series updated. Next run: {schedule.next_run}",
+                IdHelpers.GenerateAnimePartitionKey(results.Season), results.UpdatedSeries,
                 myTimer.ScheduleStatus?.Next))
             .Complete(_logger);
     }

@@ -28,7 +28,7 @@ public abstract record FormDataValidationError(
 
         // Log with structured properties for easy searching
         logger.LogWarning(
-            "Form validation failed for {ValidatedTypeName} with {ValidationErrorCount} error(s) on {AffectedFieldCount} field(s)",
+            "Form validation failed for {validation.type_name} with {validation.error_count} error(s) on {validation.field_count} field(s)",
             typeName,
             validationErrors.Length,
             affectedFields.Length);
@@ -37,7 +37,7 @@ public abstract record FormDataValidationError(
         foreach (var error in validationErrors)
         {
             logger.LogWarning(
-                "Validation error on {ValidatedTypeName}: {ValidationErrorMessage} for field(s): {AffectedFields}",
+                "Validation error on {validation.type_name}: {validation.messages} for field(s): {validation.field}",
                 typeName,
                 error.ErrorMessage,
                 error.MemberNamesText);

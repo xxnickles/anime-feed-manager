@@ -82,10 +82,10 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
         var entries = Deduplicate(state.Pages).Length;
 
         if (state.Skipped.IsEmpty)
-            logger.LogInformation("Retrieved {Count} entries from AnimeSchedule {Query}", entries, query);
+            logger.LogInformation("Retrieved {scrape.entry_count} entries from AnimeSchedule {scrape.query}", entries, query);
         else
             logger.LogWarning(
-                "Retrieved {Count} entries from AnimeSchedule {Query}, skipping {FailedPages} failed page(s): {Errors}",
+                "Retrieved {scrape.entry_count} entries from AnimeSchedule {scrape.query}, skipping {scrape.pages_failed} failed page(s): {domain_error.message}",
                 entries, query, state.Skipped.Length,
                 string.Join("; ", state.Skipped.Select(e => e.Message)));
     };

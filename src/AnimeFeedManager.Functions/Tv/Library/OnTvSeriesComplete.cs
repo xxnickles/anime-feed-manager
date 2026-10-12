@@ -30,7 +30,8 @@ public class OnTvSeriesComplete
         using var activity = Source.StartActivity(TvLibraryTelemetry.CompleteOngoingSpan);
         await CompleteOngoing.CompleteOngoingSeries(message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()
-            .AddLogOnSuccess(r => logger => logger.LogInformation("TV Series have been completed {@Series}", r.CompletedSeries))
+            .AddLogOnSuccess(r => logger => logger.LogInformation("{series.count} TV series have been completed: {series.ids}",
+                r.CompletedSeries.Length, string.Join(", ", r.CompletedSeries.Select(s => s.RowKey))))
             .Complete(_logger);
     }
 }

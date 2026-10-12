@@ -313,7 +313,7 @@ public static class ResultTaskExtensionMembers
         /// <code>
         /// await GetLease(name)
         ///     .Bind(_ => ProcessDataAsync(...))
-        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {Stats}", stats))
+        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {series.count}", stats.Count))
         ///     .Complete(logger);  // Terminal - writes all logs
         /// </code>
         /// </example>

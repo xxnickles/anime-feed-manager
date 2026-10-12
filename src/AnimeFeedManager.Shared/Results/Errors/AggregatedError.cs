@@ -12,7 +12,7 @@ public sealed record AggregatedError(
 
     public override Action<ILogger> LogAction() => logger =>
     {
-        logger.LogError("{Message}", Message);
+        logger.LogError("{domain_error.message}", Message);
         foreach (var domainError in Errors)
         {
             // Writes each error's trace context separately'

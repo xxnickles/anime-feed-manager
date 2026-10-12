@@ -69,7 +69,7 @@ internal static class TvImagesCollector
         var downloaded = bulk.Value.Count(outcome => outcome.Downloaded);
 
         logger.LogInformation(
-            "{Downloaded} of {Candidates} images downloaded, {Failed} series kept without one; {Skipped} of {Total} series had no image to fetch",
+            "{image.downloaded_count} of {image.candidate_count} images downloaded, {image.failed_count} series kept without one; {image.skipped_count} of {series.count} series had no image to fetch",
             downloaded, candidates, candidates - downloaded, total - candidates, total);
     };
 
@@ -88,7 +88,7 @@ internal static class TvImagesCollector
             .Map(uri => new ImageOutcome(AddUrl(pending.Data, uri), true))
             // A cover that will not download must not cost the series its row in the library.
             .AddLogOnFailure(error => logger => logger.LogWarning(
-                "Storing {Series} without an image: {Reason}", pending.Data.Series.Title, error.Message))
+                "Storing {series.title} without an image: {domain_error.message}", pending.Data.Series.Title, error.Message))
             .BindOnError(_ => new ImageOutcome(pending.Data, false));
     }
 

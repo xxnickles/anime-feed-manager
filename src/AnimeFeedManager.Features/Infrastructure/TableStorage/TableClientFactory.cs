@@ -26,7 +26,7 @@ public sealed class TableClientFactory : ITableClientFactory
         }
         catch (KeyNotFoundException ex)
         {
-            _logger.LogError(ex, "Table name not found for entity type {EntityType}", typeof(T).FullName);
+            _logger.LogError(ex, "Table name not found for entity type {table.entity_type}", typeof(T).FullName);
             return HandledErrorResult<TableClient>();
         }
         catch (Exception e)

@@ -35,7 +35,7 @@ public class TriggerFeedNotifications
         using var activity = Source.StartActivity(TvSubscriptionsTelemetry.ProcessFeedSpan);
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
-                "{UserCount} users will be notified about new releases. Next run will occur at {Time}",
+                "{notification.user_count} users will be notified about new releases. Next run will occur at {schedule.next_run}",
                 summary.UsersToNotify, myTimer.ScheduleStatus?.Next))
             .Complete(_logger);
     }
@@ -49,7 +49,7 @@ public class TriggerFeedNotifications
         using var activity = Source.StartActivity(TvSubscriptionsTelemetry.ProcessFeedSpan);
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
-                "{UserCount} users will be notified about new releases. This is a manually triggered run",
+                "{notification.user_count} users will be notified about new releases. This is a manually triggered run",
                 summary.UsersToNotify))
             .Complete(_logger);
     }

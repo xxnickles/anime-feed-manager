@@ -42,7 +42,7 @@ public class OnTvFeedNotification
                 _tableClientFactory.TableStorageTvSubscriptionsUpdater,
                 _domainPostman.SendMessages,
                 cancellationToken))
-            .AddLogOnSuccess(summary => logger => logger.LogInformation("{NotificationCount} have been sent to {User}", summary.NotificationsSent, summary.UserId))
+            .AddLogOnSuccess(summary => logger => logger.LogInformation("{notification.count} have been sent to {user.id}", summary.NotificationsSent, summary.UserId))
             .Complete(_logger);
     }
 }

@@ -39,10 +39,10 @@ public sealed record DomainValidationErrors : DomainError
 
     public override Action<ILogger> LogAction() => logger =>
     {
-        logger.LogWarning("{Error}", Message);
+        logger.LogWarning("{domain_error.message}", Message);
 
         foreach (var validationError in Errors)
-            logger.LogWarning("Field: {Field} Messages: {Messages}", validationError.Field,
+            logger.LogWarning("Field: {validation.field} Messages: {validation.messages}", validationError.Field,
                 string.Join(". ", validationError.Errors));
     };
 

@@ -39,7 +39,7 @@ public class ImageProvider : IImageProvider
     {
         try
         {
-            _logger.LogDebug("Downloading image for {Name} from {RemoteUrl}", data.FileName, data.Url);
+            _logger.LogDebug("Downloading image for {image.name} from {url.full}", data.FileName, data.Url);
             var response = await _httpClient.GetAsync(data.Url, cancellationToken);
             response.EnsureSuccessStatusCode();
 
@@ -51,7 +51,7 @@ public class ImageProvider : IImageProvider
                 cancellationToken);
 
             _logger.LogInformation(
-                "Stored {Bytes} bytes at {BlobPath} for {Name}, served from {RemoteUrl} as {SourceContentType}",
+                "Stored {image.size} bytes at {blob.uri} for {image.name}, served from {url.full} as {image.content_type}",
                 payload.Length, blobUri, data.FileName, data.Url,
                 response.Content.Headers.ContentType?.MediaType ?? "an undeclared type");
 
@@ -59,7 +59,7 @@ public class ImageProvider : IImageProvider
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred when processing image {ImageName}", data.FileName);
+            _logger.LogError(e, "An error occurred when processing image {image.name}", data.FileName);
             return HandledError.Create();
         }
     }

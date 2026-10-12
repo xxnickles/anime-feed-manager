@@ -399,7 +399,7 @@ public static class ResultExtensionMembers
         /// <code>
         /// await GetLease(name)
         ///     .Bind(_ => ProcessData(...))
-        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {Stats}", stats))
+        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {series.count}", stats.Count))
         ///     .Complete(logger);  // Terminal - writes all logs, returns void
         /// </code>
         /// </example>

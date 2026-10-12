@@ -5,7 +5,7 @@ internal sealed record MessagesNotDelivered(string Reason, IEnumerable<DomainMes
 {
     public override Action<ILogger> LogAction() => logger =>
     {
-        logger.LogError(Exception, "Domain messages could not be delivered because of {Reason}. Messages missed (Types): {Types}",
+        logger.LogError(Exception, "Domain messages could not be delivered because of {domain_error.message}. Messages missed (Types): {domain_error.subject}",
             Reason, string.Join(", ", Messages.Select(m => m.GetType().Name)));
     };
 

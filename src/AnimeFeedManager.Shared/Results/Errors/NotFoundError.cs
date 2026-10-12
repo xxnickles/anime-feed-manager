@@ -11,5 +11,5 @@ public sealed record NotFoundError : DomainError
         new(message);
 
 
-    public override Action<ILogger> LogAction() => logger => logger.LogError("{Message}", Message);
+    public override Action<ILogger> LogAction() => logger => logger.LogError("{domain_error.message}", Message);
 }

@@ -29,8 +29,8 @@ internal static partial class AnimeScheduleTvScrapper
             .WithOperationName(nameof(GetInitialProcessData))
             .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season))
             .AddLogOnSuccess(data => logger => logger.LogInformation(
-                "{Count} TV series scraped from AnimeSchedule for {Season}",
-                data.SeriesData.Count(), data.Season));
+                "{series.count} TV series scraped from AnimeSchedule for {series.season}",
+                data.SeriesData.Count(), IdHelpers.GenerateAnimePartitionKey(data.Season)));
 
     private static ScrapTvLibraryData BuildResult(
         ImmutableArray<AnimeScheduleAnime> series,

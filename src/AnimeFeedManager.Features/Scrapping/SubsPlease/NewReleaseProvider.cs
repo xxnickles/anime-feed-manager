@@ -9,7 +9,7 @@ public interface INewReleaseProvider
     Task<Result<DailySeriesFeed[]>> Get();
 }
 
-public sealed partial class NewReleaseProvider : INewReleaseProvider
+public sealed class NewReleaseProvider : INewReleaseProvider
 {
     private readonly PuppeteerOptions _puppeteerOptions;
     private readonly ILogger<NewReleaseProvider> _logger;
@@ -224,18 +224,19 @@ public sealed partial class NewReleaseProvider : INewReleaseProvider
         }
         """;
 
-    [LoggerMessage(LogLevel.Warning, "Failed to fetch episodes for {title}: {error}")]
-    partial void LogGettingEpisodeError(string title, DomainError error);
+    // Plain calls, not [LoggerMessage]: its placeholders must match parameter names, so they can't be dotted keys
+    private void LogGettingEpisodeError(string title, DomainError error) =>
+        _logger.LogWarning("Failed to fetch episodes for {feed.title}: {domain_error.message}", title, error.Message);
 
-    [LoggerMessage(LogLevel.Information, "Fetching episodes for {title} from {url}")]
-    partial void LogFetchingEpisodesForTitleFromUrl(string title, string url);
+    private void LogFetchingEpisodesForTitleFromUrl(string title, string url) =>
+        _logger.LogInformation("Fetching episodes for {feed.title} from {url.full}", title, url);
 
-    [LoggerMessage(LogLevel.Error, "An error occurred when scrapping new releases from SubsPlease")]
-    partial void LogAnErrorOccurredWhenScrappingNewReleasesFromSubsplease(Exception ex);
+    private void LogAnErrorOccurredWhenScrappingNewReleasesFromSubsplease(Exception ex) =>
+        _logger.LogError(ex, "An error occurred when scrapping new releases from SubsPlease");
 
-    [LoggerMessage(LogLevel.Error, "An error occurred when scrapping new releases from SubsPlease homepage")]
-    partial void LogHomePageScrappingException(Exception ex);
+    private void LogHomePageScrappingException(Exception ex) =>
+        _logger.LogError(ex, "An error occurred when scrapping new releases from SubsPlease homepage");
 
-    [LoggerMessage(LogLevel.Error, "An error occurred when scrapping episodes from SubsPlease for URL: {series}")]
-    partial void LogExceptionProcessingSeries(Exception ex, string series);
+    private void LogExceptionProcessingSeries(Exception ex, string url) =>
+        _logger.LogError(ex, "An error occurred when scrapping episodes from SubsPlease for URL: {url.full}", url);
 }

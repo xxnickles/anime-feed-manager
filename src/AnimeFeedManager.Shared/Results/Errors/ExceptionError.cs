@@ -42,7 +42,7 @@ public sealed record ExceptionError : DomainError
     }
 
     public override Action<ILogger> LogAction() => logger =>
-        logger.LogError(Exception, "{Error} {Additional}", Exception.Message, AdditionalMessage);
+        logger.LogError(Exception, "{domain_error.message} {domain_error.detail}", Exception.Message, AdditionalMessage);
 
     [Pure]
     private static ImmutableArray<string> ExtractErrors(Exception exn)

@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Seasons;
+﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
+using AnimeFeedManager.Features.Seasons;
 using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.Storage.Stores;
@@ -51,20 +52,20 @@ public class OnSeasonUpdated
         switch (data.SeasonUpdateStatus, data.Season.IsLatest)
         {
             case (SeasonUpdateStatus.NoChanges, _):
-                logger.LogInformation("{Year}-{Season} already exist in the system. No actions have been taken",
-                    data.Season.Year, data.Season.Season);
+                logger.LogInformation("{series.season} already exist in the system. No actions have been taken",
+                    IdHelpers.GenerateAnimePartitionKey(data.Season));
                 break;
             case (SeasonUpdateStatus.New, true):
-                logger.LogInformation("{Year}-{Season} has been added to the system as latest season",
-                    data.Season.Year, data.Season.Season);
+                logger.LogInformation("{series.season} has been added to the system as latest season",
+                    IdHelpers.GenerateAnimePartitionKey(data.Season));
                 break;
             case (SeasonUpdateStatus.New, false):
-                logger.LogInformation("{Year}-{Season} has been added to the system as new season",
-                    data.Season.Year, data.Season.Season);
+                logger.LogInformation("{series.season} has been added to the system as new season",
+                    IdHelpers.GenerateAnimePartitionKey(data.Season));
                 break;
             default:
-                logger.LogInformation("{Year}-{Season} has been updated",
-                    data.Season.Year, data.Season.Season);
+                logger.LogInformation("{series.season} has been updated",
+                    IdHelpers.GenerateAnimePartitionKey(data.Season));
                 break;
         }
     };
