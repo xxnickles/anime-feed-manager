@@ -1,4 +1,3 @@
-using AnimeFeedManager.Web.Features.Security;
 using System.Security.Claims;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.User.Authentication.LoginProcess;

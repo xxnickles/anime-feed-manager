@@ -1,4 +1,3 @@
-using AnimeFeedManager.Web.Features.Admin;
 using AnimeFeedManager.Features.SystemEvents.Charting;
 using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Library.Events;

@@ -84,7 +84,6 @@ internal static class TvImagesCollector
                 IdHelpers.CleanAndFormatAnimeTitle(pending.RowKey),
                 targetDirectory,
                 pending.Url), cancellationToken)
-            .MarkActivityErroredOnError()
             .Map(uri => new ImageOutcome(AddUrl(pending.Data, uri), true))
             // A cover that will not download must not cost the series its row in the library.
             .AddLogOnFailure(error => logger => logger.LogWarning(

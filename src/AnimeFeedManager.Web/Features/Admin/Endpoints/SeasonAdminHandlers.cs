@@ -1,5 +1,4 @@
-﻿using AnimeFeedManager.Web.Features.Admin;
-using AnimeFeedManager.Features.Common;
+﻿using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Web.Features.Admin.SeasonCards;

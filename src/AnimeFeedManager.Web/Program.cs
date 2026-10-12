@@ -6,7 +6,6 @@ using AnimeFeedManager.Web.Features;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
 using AnimeFeedManager.Web.Features.Security.Endpoints;
 using AnimeFeedManager.Web.Features.Tv.Endpoints;
-using AnimeFeedManager.Web.Htmx;
 
 var builder = WebApplication.CreateBuilder(args);
 
