@@ -13,7 +13,8 @@ builder.AddWebAppDefaults(
     Telemetry.TvLibraryQueriesSource,
     Telemetry.WebAdminSource,
     Telemetry.WebSecuritySource,
-    Telemetry.WebTvSource);
+    Telemetry.WebTvSource,
+    Telemetry.MessagingSource);
 builder.RegisterStorageServices();
 
 // Add services to the container.

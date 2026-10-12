@@ -35,6 +35,9 @@ public static class Telemetry
     /// <summary>Queue-message processing in the Functions host: links a handler span to the producer's trace.</summary>
     public const string FunctionsMessageProcessingSource = "AnimeFeedManager.Functions.MessageProcessing";
 
+    /// <summary>Queue send spans; both hosts produce messages.</summary>
+    public const string MessagingSource = "AnimeFeedManager.Messaging";
+
     /// <summary>Series image provisioning.</summary>
     public const string ImagesSource = "AnimeFeedManager.Images";
 
@@ -87,4 +90,7 @@ public static class Telemetry
 
     /// <summary>Custom value: semconv registers none for Azure Storage Queues.</summary>
     public const string MessagingSystemValue = "azure_storage_queue";
+
+    /// <summary>Both <c>messaging.operation.name</c> and <c>.type</c>; the send span is named <c>send {queue}</c>.</summary>
+    public const string MessagingSendOperation = "send";
 }

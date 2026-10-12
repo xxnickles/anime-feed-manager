@@ -33,6 +33,8 @@ public interface IDomainPostman{
 
 public class AzureQueuePostman : IDomainPostman
 {
+    private static readonly ActivitySource Source = new(Telemetry.MessagingSource);
+
     private readonly QueueServiceClient _queueServiceClient;
 
     public AzureQueuePostman(QueueServiceClient queueServiceClient)
@@ -110,13 +112,18 @@ public class AzureQueuePostman : IDomainPostman
     private async Task SendMessage<T>(T message, string destiny, TimeSpan? delay = default,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
-        // Capture current activity and add the info to the message. It can be useful for tracing in the consumer functions
-        var currentActivity = Activity.Current;
-        if (currentActivity != null)
+        using var activity = Source.StartActivity($"{Telemetry.MessagingSendOperation} {destiny}", ActivityKind.Producer);
+        activity?.SetTag(Telemetry.MessagingSystemTag, Telemetry.MessagingSystemValue);
+        activity?.SetTag(Telemetry.MessagingOperationNameTag, Telemetry.MessagingSendOperation);
+        activity?.SetTag(Telemetry.MessagingOperationTypeTag, Telemetry.MessagingSendOperation);
+        activity?.SetTag(Telemetry.MessagingDestinationNameTag, destiny);
+
+        // Consumers link to this context: the send span's own, or the caller's when the span isn't sampled
+        if ((activity ?? Activity.Current) is { } context)
         {
             message = message with
             {
-                TraceInformation = new TraceInformation(currentActivity.Id, currentActivity.TraceStateString)
+                TraceInformation = new TraceInformation(context.Id, context.TraceStateString)
             };
         }
 
@@ -125,6 +132,18 @@ public class AzureQueuePostman : IDomainPostman
         // Convert to base64 string explicitly
         string base64Message = Convert.ToBase64String(message.ToBinaryData());
 
-        await queue.SendMessageAsync(base64Message, cancellationToken: cancellationToken, visibilityTimeout: delay);
+        try
+        {
+            var receipt = await queue.SendMessageAsync(base64Message, cancellationToken: cancellationToken,
+                visibilityTimeout: delay);
+            activity?.SetTag(Telemetry.MessagingMessageIdTag, receipt.Value.MessageId);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            // Logged once by the caller's MessagesNotDelivered; the span only records the failure
+            activity?.SetStatus(ActivityStatusCode.Error, e.Message);
+            activity?.SetTag(Telemetry.ErrorTypeTag, e.GetType().FullName);
+            throw;
+        }
     }
 }
