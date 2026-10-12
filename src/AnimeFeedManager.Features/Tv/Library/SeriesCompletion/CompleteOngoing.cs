@@ -45,13 +45,12 @@ public static class CompleteOngoing
             .BindWhen(
                 data => domainPostman([GetEvent(data)], token).Map(_ => data),
                 data => data.SeriesToComplete.Length > 0)
-            .MapError(e => domainPostman(
-                    [
-                        new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
-                            new CompletedTvSeriesResult([], ResultType.Failed).AsEventPayload())
-                    ],
-                    token)
-                .MatchToValue(_ => e, error => error));
+            .SendOnError(domainPostman,
+                [
+                    new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
+                        new CompletedTvSeriesResult([], ResultType.Failed).AsEventPayload())
+                ],
+                token);
     }
 
 

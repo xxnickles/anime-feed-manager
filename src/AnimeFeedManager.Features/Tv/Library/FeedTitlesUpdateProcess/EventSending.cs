@@ -10,15 +10,12 @@ public static class EventSending
         SeriesSeason defaultSeriesSeason,
         CancellationToken token) => processData
         .Bind(data => domainPostman(GetEvents(data), token).Map(_ => data))
-        .MapError(e => domainPostman(
-                [
-                    new SystemEvent(TargetConsumer.Admin(), EventTarget.LocalStorage, EventType.Error,
-                        GetErrorPayload(defaultSeriesSeason))
-                ],
-                token
-            )
-            .MatchToValue(_ => e, error => error)
-        );
+        .SendOnError(domainPostman,
+            [
+                new SystemEvent(TargetConsumer.Admin(), EventTarget.LocalStorage, EventType.Error,
+                    GetErrorPayload(defaultSeriesSeason))
+            ],
+            token);
 
 
     private static DomainMessage[] GetEvents(FeedTitlesUpdateResult processResult) =>

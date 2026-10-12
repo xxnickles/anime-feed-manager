@@ -11,14 +11,12 @@ public static class EventSending
         .Map(data => (processData: data, Summary: ExtractResults(data)))
         .Bind(data => domainPostman(GetEvents(data), token)
             .Map(_ => data.Summary)
-        ).MapError(e => domainPostman(
-                [
-                    new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
-                        GetErrorPayload())
-                ],
-                token)
-            .MatchToValue(_ => e, error => error)
-        );
+        ).SendOnError(domainPostman,
+            [
+                new SystemEvent(TargetConsumer.Everybody(), EventTarget.Both, EventType.Error,
+                    GetErrorPayload())
+            ],
+            token);
 
 
     private static ScrapTvLibraryResult ExtractResults(FeedTitleUpdateData data) =>
