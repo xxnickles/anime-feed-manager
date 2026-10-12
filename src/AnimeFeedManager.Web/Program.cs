@@ -12,7 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddWebAppDefaults(
     Telemetry.TvLibraryQueriesSource,
-    Telemetry.UserAuthenticationSource,
     Telemetry.WebAdminSource,
     Telemetry.WebSecuritySource,
     Telemetry.WebTvSource);

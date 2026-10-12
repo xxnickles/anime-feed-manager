@@ -38,7 +38,7 @@ internal static class SubscriptionHandlers
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Tv");
+        using var activity = Source.StartActivity(TvTelemetry.ToggleSubscriptionSpan);
         return await Validate(viewModel)
             .Bind(model => Data.GetSeriesForUser(context, model.SeriesId,
                 clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken))

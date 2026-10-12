@@ -29,7 +29,7 @@ public class OnFeedTitlesUpdate
         FeedTitlesUpdated message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnFeedTitlesUpdate));
-        using var activity = Source.StartActivity(TvLibraryTelemetry.FeedTitlesSpan);
+        using var activity = Source.StartActivity(TvLibraryTelemetry.UpdateFeedTitlesSpan);
 
         if(message.FeedTitles is null or [])
             _logger.LogError("No titles where sent with the update for season {Year}-{Season}", message.Season.Year, message.Season.Season);

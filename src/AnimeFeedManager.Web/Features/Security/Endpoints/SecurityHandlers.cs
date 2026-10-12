@@ -1,3 +1,4 @@
+using AnimeFeedManager.Web.Features.Security;
 using System.Security.Claims;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.User.Authentication.LoginProcess;
@@ -14,8 +15,7 @@ namespace AnimeFeedManager.Web.Features.Security.Endpoints;
 
 internal static class SecurityHandlers
 {
-    private static readonly ActivitySource WebSource = new(Telemetry.WebSecuritySource);
-    private static readonly ActivitySource AuthSource = new(Telemetry.UserAuthenticationSource);
+    private static readonly ActivitySource Source = new(Telemetry.WebSecuritySource);
 
     internal static async Task<RazorComponentResult> CreateToken(
         [FromForm] RegisterViewModel viewModel,
@@ -25,8 +25,7 @@ internal static class SecurityHandlers
         ILogger<RegisterPage> logger,
         CancellationToken cancellationToken)
     {
-        using var webActivity = WebSource.StartActivity("Web.Security");
-        using var authActivity = AuthSource.StartActivity("User.Authentication");
+        using var activity = Source.StartActivity(SecurityTelemetry.RegisterSpan);
         return await UserRegistration.TryToRegister(
                 viewModel.DisplayName,
                 viewModel.Email,
@@ -57,8 +56,7 @@ internal static class SecurityHandlers
         ILogger<LoginPage> logger,
         CancellationToken cancellationToken)
     {
-        using var webActivity = WebSource.StartActivity("Web.Security");
-        using var authActivity = AuthSource.StartActivity("User.Authentication");
+        using var activity = Source.StartActivity(SecurityTelemetry.LoginSpan);
         return await LoginVerification.VerifyUser(passwordlessClient, viewModel.Token, cancellationToken)
             .Bind(verified => verified.UserId.ParseAsNonEmpty("UserId").AsResult())
             .Bind(id => Users.GetById(
@@ -133,8 +131,7 @@ internal static class SecurityHandlers
         ILogger<AddCredentialPage> logger,
         CancellationToken cancellationToken)
     {
-        using var webActivity = WebSource.StartActivity("Web.Security");
-        using var authActivity = AuthSource.StartActivity("User.Authentication");
+        using var activity = Source.StartActivity(SecurityTelemetry.AddCredentialSpan);
         return await UserCredentialRegistration.TryAddCredential(
                 viewModel.Id,
                 tableClientFactory.TableStorageExistentUserGetterById(),

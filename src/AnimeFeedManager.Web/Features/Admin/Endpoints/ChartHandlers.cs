@@ -1,3 +1,4 @@
+using AnimeFeedManager.Web.Features.Admin;
 using AnimeFeedManager.Features.SystemEvents.Charting;
 using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Library.Events;
@@ -16,7 +17,7 @@ internal static class ChartHandlers
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.LibraryScrapSummarySpan);
         var range = ChartDateRange.FromPeriod(period);
         return await ScrapLibraryChart.Get(
                 clientFactory.TableStorageEvents<ScrapTvLibraryResult>(),
@@ -38,7 +39,7 @@ internal static class ChartHandlers
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.NotificationSummarySpan);
         var range = ChartDateRange.FromPeriod(period);
         return await NotificationSentChart.Get(
                 clientFactory.TableStorageBroadEvents<NotificationSent>(),
@@ -58,7 +59,7 @@ internal static class ChartHandlers
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.FeedUpdatesSummarySpan);
         var range = ChartDateRange.FromPeriod(period);
         return await FeedUpdatesChart.Get(
                 clientFactory.TableStorageEvents<FeedTitlesUpdateResult>(),

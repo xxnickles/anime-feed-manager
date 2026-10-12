@@ -35,7 +35,7 @@ public class OnLatestFeedTitlesUpdate
         UpdateLatestFeedTitlesEvent message, CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
-        using var activity = Source.StartActivity(TvLibraryTelemetry.FeedTitlesSpan);
+        using var activity = Source.StartActivity(TvLibraryTelemetry.ScrapFeedTitlesSpan);
         await RunProcess(token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
                 "(OnDemand) Season {Year}-{Season} tv series titles has been updated. {UpdatedSeries} has been updated",
@@ -47,7 +47,7 @@ public class OnLatestFeedTitlesUpdate
     public async Task RunScheduled([TimerTrigger("%FeedTitlesUpdateSchedule%")] TimerInfo myTimer,
         CancellationToken token)
     {
-        using var activity = Source.StartActivity(TvLibraryTelemetry.FeedTitlesSpan);
+        using var activity = Source.StartActivity(TvLibraryTelemetry.ScrapFeedTitlesSpan);
         await RunProcess(token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(
                 "(Scheduled) Feed titles updated for {Year}-{Season}. {UpdatedSeries} series updated. Next run: {Time}",

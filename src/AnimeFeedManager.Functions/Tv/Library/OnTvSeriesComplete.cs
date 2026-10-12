@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Tv.Library.Events;
+﻿using AnimeFeedManager.Features.Tv.Library;
+using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.SeriesCompletion;
 
 namespace AnimeFeedManager.Functions.Tv.Library;
@@ -26,7 +27,7 @@ public class OnTvSeriesComplete
     CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnTvSeriesComplete));
-        using var activity = Source.StartActivity("Tv.Library.Completion");
+        using var activity = Source.StartActivity(TvLibraryTelemetry.CompleteOngoingSpan);
         await CompleteOngoing.CompleteOngoingSeries(message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()
             .AddLogOnSuccess(r => logger => logger.LogInformation("TV Series have been completed {@Series}", r.CompletedSeries))

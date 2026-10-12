@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Common;
+﻿using AnimeFeedManager.Web.Features.Admin;
+using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Web.Features.Admin.SeasonCards;
@@ -15,7 +16,7 @@ internal static class SeasonAdminHandlers
         [FromServices] ILogger<FeaturedSeasonUpdate> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.SetFeaturedSeasonSpan);
         return await Validate(viewModel)
             .Bind(vm => vm.Season.ParseAsSeriesSeason())
             .Map(season => season with {IsLatest = true})

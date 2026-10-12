@@ -1,4 +1,5 @@
-﻿@using AnimeFeedManager.Features.Tv.Library.Queries
+﻿@using AnimeFeedManager.Features.Tv.Library
+@using AnimeFeedManager.Features.Tv.Library.Queries
 @using AnimeFeedManager.Features.Tv.Library.Storage.Stores
 @using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores
 @using Azure.Storage.Blobs
@@ -34,7 +35,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        using var activity = Source.StartActivity("Tv.Library.Queries");
+        using var activity = Source.StartActivity(TvLibraryTelemetry.QuerySeasonSpan);
         _user = HttpContextAccessor.HttpContext?.GetCurrentUser() ?? new Anonymous();
         await TableClientFactory.TableStorageTvLibraryGetter
             .GetTvLibrarySeries(Season, BlobServiceClient.Uri, CancellationToken.None)

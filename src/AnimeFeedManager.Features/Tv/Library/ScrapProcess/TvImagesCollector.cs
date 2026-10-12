@@ -79,7 +79,7 @@ internal static class TvImagesCollector
         string targetDirectory,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Images");
+        using var activity = Source.StartActivity(ImagesTelemetry.DownloadSpan);
         return await imageProvider(new ImageProcessData(
                 IdHelpers.CleanAndFormatAnimeTitle(pending.RowKey),
                 targetDirectory,

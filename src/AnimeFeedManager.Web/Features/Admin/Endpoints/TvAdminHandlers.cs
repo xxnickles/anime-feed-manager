@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
+﻿using AnimeFeedManager.Web.Features.Admin;
+using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
@@ -16,7 +17,7 @@ internal static class TvAdminHandlers
         [FromServices] ILogger<TvSeasonalUpdate> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.UpdateTvSeasonSpan);
         return await Validate(viewModel)
             .Bind(vm => domainPostman.SendMessages([new UpdateTvSeriesEvent(new SeasonParameters(vm.Season, vm.Year))],
                 cancellationToken))
@@ -32,7 +33,7 @@ internal static class TvAdminHandlers
         [FromServices] ILogger<TvLatestSeasonUpdate> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.UpdateLatestTvSeasonSpan);
         return await domainPostman.SendMessages([new UpdateTvSeriesEvent()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
@@ -45,7 +46,7 @@ internal static class TvAdminHandlers
         [FromServices] ILogger<TvTitlesUpdate> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.UpdateFeedTitlesSpan);
         return await domainPostman.SendMessages([new UpdateLatestFeedTitlesEvent()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
@@ -58,7 +59,7 @@ internal static class TvAdminHandlers
         [FromServices] ILogger<TvNotificationsTrigger> logger,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity("Web.Admin");
+        using var activity = Source.StartActivity(AdminTelemetry.TriggerFeedNotificationsSpan);
         return await domainPostman.SendMessages([new RunFeedNotification()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)

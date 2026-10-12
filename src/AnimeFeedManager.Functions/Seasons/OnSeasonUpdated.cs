@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Seasons.Events;
+﻿using AnimeFeedManager.Features.Seasons;
+using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.Storage.Stores;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
@@ -30,7 +31,7 @@ public class OnSeasonUpdated
         CancellationToken token)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnSeasonUpdated));
-        using var activity = Source.StartActivity("Seasons.Update");
+        using var activity = Source.StartActivity(SeasonsTelemetry.UpdateSpan);
         await SeasonUpdate.CheckSeasonExist(_tableClientFactory.TableStorageSeason, message.Season, token)
             .CreateNewSeason()
             .AddLatestSeasonData(_tableClientFactory.TableStorageLatestSeason, token)

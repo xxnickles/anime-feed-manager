@@ -35,9 +35,6 @@ public static class Telemetry
     /// <summary>Queue-message processing in the Functions host: links a handler span to the producer's trace.</summary>
     public const string FunctionsMessageProcessingSource = "AnimeFeedManager.Functions.MessageProcessing";
 
-    /// <summary>User authentication: credential/user registration and login verification.</summary>
-    public const string UserAuthenticationSource = "AnimeFeedManager.User.Authentication";
-
     /// <summary>Series image provisioning.</summary>
     public const string ImagesSource = "AnimeFeedManager.Images";
 

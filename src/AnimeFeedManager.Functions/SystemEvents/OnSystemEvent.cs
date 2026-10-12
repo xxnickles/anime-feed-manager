@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
+﻿using AnimeFeedManager.Features.SystemEvents;
+using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 using AnimeFeedManager.Features.SystemEvents.UpdateProcess;
 using AnimeFeedManager.Web.BlazorComponents;
 using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
@@ -31,7 +32,7 @@ public class OnSystemEvent
         CancellationToken cancellationToken)
     {
         using var tracedActivity = message.StartTracedActivity(nameof(OnSystemEvent));
-        using var activity = Source.StartActivity("SystemEvents.Update");
+        using var activity = Source.StartActivity(SystemEventsTelemetry.UpdateSpan);
         return await SystemEventUpdate.StartProcess(message)
             .StoreEvent(_tableClientFactory.TableStorageEventUpdater(), cancellationToken)
             .PrepareUiNotification()

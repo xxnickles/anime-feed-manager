@@ -32,7 +32,7 @@ public class TriggerFeedNotifications
     public async Task Run([TimerTrigger("%FeedNotificationSchedule%")] TimerInfo myTimer,
         CancellationToken cancellationToken)
     {
-        using var activity = Source.StartActivity(TvSubscriptionsTelemetry.FeedSpan);
+        using var activity = Source.StartActivity(TvSubscriptionsTelemetry.ProcessFeedSpan);
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
                 "{UserCount} users will be notified about new releases. Next run will occur at {Time}",
@@ -46,7 +46,7 @@ public class TriggerFeedNotifications
         RunFeedNotification message, CancellationToken cancellationToken)
     {
         using var tracedActivity = message.StartTracedActivity("ManualTriggerFeedNotifications");
-        using var activity = Source.StartActivity(TvSubscriptionsTelemetry.FeedSpan);
+        using var activity = Source.StartActivity(TvSubscriptionsTelemetry.ProcessFeedSpan);
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
                 "{UserCount} users will be notified about new releases. This is a manually triggered run",

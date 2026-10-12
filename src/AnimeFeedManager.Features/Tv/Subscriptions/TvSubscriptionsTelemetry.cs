@@ -2,5 +2,6 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions;
 
 public static class TvSubscriptionsTelemetry
 {
-    public const string FeedSpan = "Tv.Subscriptions.Feed";
+    public const string AutoSubscribeSpan = "Tv.Subscriptions.AutoSubscribe";
+    public const string ProcessFeedSpan = "Tv.Subscriptions.ProcessFeed";
 }
