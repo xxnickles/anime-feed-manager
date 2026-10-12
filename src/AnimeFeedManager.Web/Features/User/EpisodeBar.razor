@@ -1,0 +1,23 @@
+@using AnimeFeedManager.Features.SystemEvents.Notifications
+
+@* Fixed-width track over 01..latest; each piece's flex-grow is its episode count. *@
+<div class="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-sm" role="img" aria-label="@AriaLabel">
+    @foreach (var segment in Episodes.Segments)
+    {
+        <span class="@PieceClass(segment)" style="flex: @segment.Length 1 0" title="@PieceTitle(segment)"></span>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public EpisodeCoverage Episodes { get; set; } = EpisodeCoverage.Empty;
+
+    private string AriaLabel => $"{Episodes.Count} episodes notified, latest {Episodes.Latest:00}";
+
+    private static string PieceClass(EpisodeSegment segment) => segment is EpisodeGap
+        ? "min-w-0.5 rounded-xs ring-1 ring-inset ring-base-content/25"
+        : "min-w-0.5 rounded-xs bg-base-content/80";
+
+    private static string PieceTitle(EpisodeSegment segment) => segment is EpisodeGap
+        ? $"{segment.Label} — not notified"
+        : segment.Label;
+}

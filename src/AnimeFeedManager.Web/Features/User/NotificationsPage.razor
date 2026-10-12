@@ -22,27 +22,12 @@
                 @foreach (var season in _seasons.Where(s => s.Season.StartsWith($"{year}-")))
                 {
                     <h2 class="text-2xl font-bold pt-6 pb-2">@FormatSeason(season.Season)</h2>
-                    <section class="grid grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-6 py-4">
-                        @foreach (var notification in season.Series)
+                    <ul class="list bg-base-100 rounded-box shadow-sm my-4">
+                        @foreach (var series in season.Series)
                         {
-                            <article class="card bg-base-100 shadow-sm row-span-2 grid grid-rows-subgrid">
-                                <div class="card-body row-span-2 grid grid-rows-subgrid">
-                                    <h2 class="card-title text-primary self-start">
-                                        <a href="@notification.Url" target="_blank" rel="noopener noreferrer"
-                                           class="link link-hover">
-                                            @notification.Title
-                                        </a>
-                                    </h2>
-                                    <div class="flex flex-wrap gap-2">
-                                        @foreach (var episode in notification.Episodes)
-                                        {
-                                            <span class="badge badge-outline badge-sm">@episode</span>
-                                        }
-                                    </div>
-                                </div>
-                            </article>
+                            <NotificationRow Series="@series"/>
                         }
-                    </section>
+                    </ul>
                 }
             </div>
             isFirst = false;

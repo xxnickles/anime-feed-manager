@@ -3,7 +3,9 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 
 namespace AnimeFeedManager.Features.SystemEvents.Notifications;
 
-public record SeasonNotifications(string Season, ImmutableArray<NotificationSent> Series);
+public record SeriesNotifications(string Title, string Url, string Season, EpisodeCoverage Episodes);
+
+public record SeasonNotifications(string Season, ImmutableArray<SeriesNotifications> Series);
 
 public static class UserNotifications
 {
@@ -23,21 +25,11 @@ public static class UserNotifications
     {
         var byTitle = events.Select(e => e.Data)
             .GroupBy(e => e.Title)
-            .Select(g =>
-            {
-                var mergedEpisodes = g
-                    .SelectMany(x => x.Episodes)
-                    .Where(ep => !string.IsNullOrWhiteSpace(ep))
-                    .Distinct()
-                    .Order()
-                    .ToArray();
-
-                return new NotificationSent(
-                    Title: g.Key,
-                    Url: g.Last().Url,
-                    Season: g.Last().Season,
-                    Episodes: mergedEpisodes);
-            });
+            .Select(g => new SeriesNotifications(
+                Title: g.Key,
+                Url: g.Last().Url,
+                Season: g.Last().Season,
+                Episodes: EpisodeSegments.From(g.SelectMany(x => x.Episodes))));
 
         return
         [
