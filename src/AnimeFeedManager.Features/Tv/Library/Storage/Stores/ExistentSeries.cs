@@ -71,10 +71,7 @@ public static class ExistentSeries
             (season, blobUri, token) =>
                 clientFactory.GetClient<AnimeInfoStorage>()
                     .WithOperationName("TableStorageTvLibraryGetter")
-                    .WithLogProperties([
-                        new KeyValuePair<string, object>("Season", season),
-                        new KeyValuePair<string, object>("PublicBlobUri", blobUri)
-                    ])
+                    .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season))
                     .Bind(client => client
                         .ExecuteQuery<AnimeInfoStorage>(
                             series => series.PartitionKey ==
@@ -84,7 +81,10 @@ public static class ExistentSeries
         public TvLibrarySeries TableStorageTvLibrarySeries =>
             (id, season, blobUri, token) => clientFactory.GetClient<AnimeInfoStorage>()
                 .WithOperationName("TableStorageTvLibrarySeries")
-                .WithLogProperty("PublicBlobUri", blobUri)
+                .WithLogProperties([
+                    new KeyValuePair<string, object>(Telemetry.SeriesIdTag, id),
+                    new KeyValuePair<string, object>(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season))
+                ])
                 .Bind(client => client.GetAnimeInfo(id, season, token))
                 .Map(series => LibraryMapper(series, season, blobUri));
 
@@ -119,7 +119,7 @@ public static class ExistentSeries
                     nameof(AnimeInfoStorage.ImagePath)
                 ])
             .WithOperationName("GetStoredSeries")
-            .WithLogProperty("Season", season);
+            .WithLogProperty(Telemetry.SeriesSeasonTag, partitionKey);
     }
 
 
@@ -170,8 +170,8 @@ public static class ExistentSeries
                 client.GetEntityAsync<AnimeInfoStorage>(partitionKey, id, cancellationToken: cancellationToken))
             .WithOperationName(nameof(GetAnimeInfo))
             .WithLogProperties([
-                new KeyValuePair<string, object>("Id", id),
-                new KeyValuePair<string, object>("Season", partitionKey)
+                new KeyValuePair<string, object>(Telemetry.SeriesIdTag, id),
+                new KeyValuePair<string, object>(Telemetry.SeriesSeasonTag, partitionKey)
             ])
             .Map(clientResult => clientResult.Value);
     }

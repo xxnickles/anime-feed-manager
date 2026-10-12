@@ -7,6 +7,7 @@ public static class FeedTitlesUpdate
     public static Task<Result<FeedTitlesUpdateResult>> StoreTitles(FeedTitleUpdateData data, FeedTitlesUpdater updater,
         CancellationToken token) =>
         updater(data.FeedTitles.MapToStorage(), token)
+            .WithLogProperty(TvLibraryTelemetry.FeedTitleCountTag, data.FeedTitles.Length)
             .Map(_ => new FeedTitlesUpdateResult(data.Season, data.FeedTitles.Length));
 
     private static FeedTitlesStorage MapToStorage(this string[] feedTitles) => new()

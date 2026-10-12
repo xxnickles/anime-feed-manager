@@ -15,7 +15,7 @@ public static class AutoSubscription
     {
         return StartProcess(seriesId, feedTitle, clientFactory.TableStorageTvInterestedBySeries, token)
             .WithOperationName(nameof(TryToSubscribe))
-            .WithLogProperty("SeriesId", seriesId)
+            .WithLogProperty(Telemetry.SeriesIdTag, seriesId)
             .StoreChanges(clientFactory.TableStorageTvSubscriptionsUpdater, token)
             .SendEvents(seriesId, domainPostman, token);
     }

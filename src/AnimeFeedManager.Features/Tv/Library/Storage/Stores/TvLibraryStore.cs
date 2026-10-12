@@ -34,7 +34,7 @@ public static class TvLibraryStore
         {
             return tableClient.AddBatch(series, cancellationToken)
                 .WithOperationName(nameof(UpsertSeries))
-                .WithLogProperty("Count", series.Count());
+                .WithLogProperty(TvLibraryTelemetry.SeriesCountTag, series.Count());
         }
 
         private Task<Result<Unit>> UpdateSeries(AnimeInfoStorage series,
@@ -43,7 +43,10 @@ public static class TvLibraryStore
                     client.UpdateEntityAsync(series, series.ETag, cancellationToken: token))
                 .WithDefaultMap()
                 .WithOperationName(nameof(UpdateSeries))
-                .WithLogProperty("Series", series);
+                .WithLogProperties([
+                    new KeyValuePair<string, object>(Telemetry.SeriesIdTag, series.RowKey ?? string.Empty),
+                    new KeyValuePair<string, object>(Telemetry.SeriesSeasonTag, series.PartitionKey ?? string.Empty)
+                ]);
 
         private Task<Result<Unit>> RemoveSeries(string id,
             SeriesSeason season,
@@ -55,8 +58,8 @@ public static class TvLibraryStore
                 .WithDefaultMap()
                 .WithOperationName(nameof(RemoveSeries))
                 .WithLogProperties([
-                    new KeyValuePair<string, object>("Id", id),
-                    new KeyValuePair<string, object>("Season", partitionKey)
+                    new KeyValuePair<string, object>(Telemetry.SeriesIdTag, id),
+                    new KeyValuePair<string, object>(Telemetry.SeriesSeasonTag, partitionKey)
                 ]);
         }
     }

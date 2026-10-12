@@ -10,7 +10,6 @@ public static class FeedTitlesStore
         public FeedTitlesUpdater TableStorageFeedTitlesUpdater => (titles, token) =>
             clientFactory.GetClient<FeedTitlesStorage>()
                 .WithOperationName(nameof(FeedTitlesStore))
-                .WithLogProperty("Titles", titles)
                 .Bind(client => client.UpsertFeedTitles(titles, token));
     }
 

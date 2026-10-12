@@ -35,7 +35,7 @@ public static class CompleteOngoing
         {
             return process.Bind(p => updater(p.SeriesToComplete, token)
                 .WithOperationName(nameof(StoreChanges))
-                .WithLogProperty("Series", p.SeriesToComplete)
+                .WithLogProperty(TvLibraryTelemetry.SeriesCountTag, p.SeriesToComplete.Length)
                 .Map(_ => p)
             );
         }

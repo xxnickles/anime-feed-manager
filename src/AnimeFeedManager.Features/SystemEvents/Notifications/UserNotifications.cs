@@ -14,10 +14,7 @@ public static class UserNotifications
     {
         var baseDate = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.FromSeconds(0));
         return eventGetter(TargetConsumer.User(userId), baseDate, token)
-            .WithLogProperties([
-                new KeyValuePair<string, object>("UserId", userId),
-                new KeyValuePair<string, object>("BaseDate", baseDate)
-            ])
+            .WithLogProperty(Telemetry.UserIdTag, userId)
             .Map(Aggregate);
     }
 

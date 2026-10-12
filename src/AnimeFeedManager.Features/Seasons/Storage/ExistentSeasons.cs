@@ -37,7 +37,7 @@ public static class ExistentSeasons
         public SeasonGetter TableStorageSeason =>
             (season, cancellationToken) => clientFactory.GetClient<SeasonStorage>()
                 .WithOperationName("TableStorageSeason")
-                .WithLogProperty(nameof(SeriesSeason), season)
+                .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season))
                 .Bind(client => client.ExecuteQuery<SeasonStorage>(storage =>
                         storage.PartitionKey == SeasonStorage.SeasonPartition &&
                         storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
@@ -71,11 +71,6 @@ public static class ExistentSeasons
         public Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(ILogger logger) =>
             cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
                 .WithOperationName(nameof(TableStorageLatest4SeasonsGetter))
-                .WithLogProperties([
-                    new KeyValuePair<string, object>(nameof(LatestSeasonsStorage.Partition),
-                        LatestSeasonsStorage.Partition),
-                    new KeyValuePair<string, object>(nameof(LatestSeasonsStorage.RowKey), LatestSeasonsStorage.Key)
-                ])
                 .Bind(client => client.ExecuteQuery<LatestSeasonsStorage>(storage =>
                         storage.PartitionKey == LatestSeasonsStorage.Partition &&
                         storage.RowKey == LatestSeasonsStorage.Key, cancellationToken)

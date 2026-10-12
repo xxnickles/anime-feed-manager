@@ -13,9 +13,9 @@ public static class InterestedSeries
         CancellationToken token) => subscriptionGetterGetter(user.UserId, seriesId, token)
         .WithOperationName(nameof(VerifyStorage))
         .WithLogProperties([
-            new KeyValuePair<string, object>("UserId", user.UserId),
-            new KeyValuePair<string, object>("SeriesId", seriesId),
-            new KeyValuePair<string, object>("SeriesTitle", seriesTitle)
+            new KeyValuePair<string, object>(Telemetry.UserIdTag, user.UserId),
+            new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId),
+            new KeyValuePair<string, object>(Telemetry.SeriesTitleTag, seriesTitle)
         ])
         .Bind(subscription => VerifyCurrentSubscription(subscription, user.UserId, seriesId, seriesTitle, user.Email));
 
