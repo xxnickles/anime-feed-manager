@@ -8,7 +8,7 @@ These custom events are dispatched from the server via HTMX trigger headers.
 
 | Event | Description | Payload | Dispatched From | Listened By |
 |-------|-------------|---------|-----------------|-------------|
-| `removeSeries` | Triggered after a series is successfully removed from the library | `{ owner: "{cardId}" }` | `LibraryManagement.cs:48-50` (HX-Trigger-After-Swap header) | `SeriesDeleter.razor:11` - Animates and removes the series card from DOM |
+| `removeSeries` | Triggered after a series is successfully removed from the library | `{ owner: "{cardId}" }` | `LibraryManagement.cs:57-59` (`HX-Trigger` header) | `SeriesDeleter.razor:10` - Animates and removes the series card from DOM; `SeriesSummary.razor:12` - Decrements the title total |
 
 ## Hyperscript Application Events
 
@@ -81,18 +81,13 @@ sequenceDiagram
     participant SeriesDeleter as SeriesDeleter.razor
     participant HTMX
     participant Server as LibraryManagement.cs
-    participant FormLocker as HyperscriptBehaviors.razor (FormSubmitLocker)
 
     User->>SeriesDeleter: Click remove button
-    SeriesDeleter->>HTMX: POST request
-    HTMX->>FormLocker: htmx:beforeRequest
-    FormLocker->>FormLocker: Disable submit button
-    HTMX->>Server: DELETE series
-    Server->>HTMX: Response + HX-Trigger-After-Swap: removeSeries
-    HTMX->>SeriesDeleter: removeSeries event
+    SeriesDeleter->>HTMX: Submit form
+    HTMX->>Server: POST tv/remove-series
+    Server->>HTMX: Response + HX-Trigger: removeSeries
+    HTMX->>SeriesDeleter: removeSeries event (from body)
     SeriesDeleter->>SeriesDeleter: Animate card removal
-    HTMX->>FormLocker: htmx:afterRequest
-    FormLocker->>FormLocker: Reset button state
 ```
 
 ### Chart Period Selection Flow

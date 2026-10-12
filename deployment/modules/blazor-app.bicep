@@ -22,7 +22,7 @@ param passwordlessApiSecret string
 var config = loadJsonContent('shared-variables.json')
 
 // Reference to existing storage account
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' existing = {
   name: storageAccountName
 }
 
@@ -32,7 +32,7 @@ var storageQueueDataContributorRole = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 var storageTableDataContributorRole = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
 
 // App Service Plan for Web App and Chrome (B2 for Chrome concurrency needs)
-resource webPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
+resource webPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: config.webPlanName
   location: location
   kind: 'linux'
@@ -46,7 +46,7 @@ resource webPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
 }
 
 // Web App (Blazor SSR)
-resource webApp 'Microsoft.Web/sites@2023-12-01' = {
+resource webApp 'Microsoft.Web/sites@2025-03-01' = {
   name: config.webAppName
   location: location
   kind: 'app,linux'

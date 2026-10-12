@@ -5,7 +5,7 @@ param location string = resourceGroup().location
 var config = loadJsonContent('shared-variables.json')
 
 // Storage Account
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' = {
   name: config.storageAccountName
   location: location
   sku: {
@@ -21,13 +21,13 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
 }
 
 // Blob Services (needed for deployment container)
-resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2026-06-01' = {
   parent: storageAccount
   name: 'default'
 }
 
 // Deployment container for Flex Consumption Function App
-resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2026-06-01' = {
   parent: blobServices
   name: 'deployments'
   properties: {
@@ -36,7 +36,7 @@ resource deploymentContainer 'Microsoft.Storage/storageAccounts/blobServices/con
 }
 
 // Images container (public read access for serving images)
-resource imagesContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+resource imagesContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2026-06-01' = {
   parent: blobServices
   name: 'images'
   properties: {
