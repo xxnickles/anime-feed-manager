@@ -32,10 +32,7 @@ public static class Telemetry
     /// <summary>System event update/dispatch orchestration.</summary>
     public const string SystemEventsUpdateSource = "AnimeFeedManager.SystemEvents.Update";
 
-    /// <summary>Queue-message processing in the Functions host: links a handler span to the producer's trace.</summary>
-    public const string FunctionsMessageProcessingSource = "AnimeFeedManager.Functions.MessageProcessing";
-
-    /// <summary>Queue send spans; both hosts produce messages.</summary>
+    /// <summary>Queue send and process spans; both hosts produce messages, Functions consumes them.</summary>
     public const string MessagingSource = "AnimeFeedManager.Messaging";
 
     /// <summary>Series image provisioning.</summary>
@@ -93,4 +90,7 @@ public static class Telemetry
 
     /// <summary>Both <c>messaging.operation.name</c> and <c>.type</c>; the send span is named <c>send {queue}</c>.</summary>
     public const string MessagingSendOperation = "send";
+
+    /// <summary>Both <c>messaging.operation.name</c> and <c>.type</c>; the consumer span is named <c>process {queue}</c>.</summary>
+    public const string MessagingProcessOperation = "process";
 }

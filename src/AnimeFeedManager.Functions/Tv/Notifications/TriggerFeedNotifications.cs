@@ -43,9 +43,9 @@ public class TriggerFeedNotifications
     [Function("ManualTriggerFeedNotifications")]
     public async Task RunManual(
         [QueueTrigger(RunFeedNotification.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
-        RunFeedNotification message, CancellationToken cancellationToken)
+        RunFeedNotification message, FunctionContext functionContext, CancellationToken cancellationToken)
     {
-        using var tracedActivity = message.StartTracedActivity("ManualTriggerFeedNotifications");
+        using var processActivity = message.StartProcessActivity(functionContext);
         using var activity = Source.StartActivity(TvSubscriptionsTelemetry.ProcessFeedSpan);
         await RunProcess(await _newReleaseProvider.Get(), cancellationToken)
             .AddLogOnSuccess(summary => logger => logger.LogInformation(

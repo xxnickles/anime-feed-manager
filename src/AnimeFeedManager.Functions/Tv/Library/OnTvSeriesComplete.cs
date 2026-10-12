@@ -24,9 +24,10 @@ public class OnTvSeriesComplete
 
     [Function(nameof(OnTvSeriesComplete))]
     public async Task Run([QueueTrigger(CompleteOngoingSeries.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)] CompleteOngoingSeries message,
+    FunctionContext functionContext,
     CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnTvSeriesComplete));
+        using var processActivity = message.StartProcessActivity(functionContext);
         using var activity = Source.StartActivity(TvLibraryTelemetry.CompleteOngoingSpan);
         await CompleteOngoing.CompleteOngoingSeries(message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()

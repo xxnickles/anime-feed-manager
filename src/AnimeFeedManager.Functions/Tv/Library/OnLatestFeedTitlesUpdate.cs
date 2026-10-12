@@ -33,9 +33,9 @@ public class OnLatestFeedTitlesUpdate
     public async Task Run(
         [QueueTrigger(UpdateLatestFeedTitlesEvent.TargetQueue,
             Connection = StorageRegistrationConstants.QueueConnection)]
-        UpdateLatestFeedTitlesEvent message, CancellationToken token)
+        UpdateLatestFeedTitlesEvent message, FunctionContext functionContext, CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnLatestFeedTitlesUpdate));
+        using var processActivity = message.StartProcessActivity(functionContext);
         using var activity = Source.StartActivity(TvLibraryTelemetry.ScrapFeedTitlesSpan);
         await RunProcess(token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(

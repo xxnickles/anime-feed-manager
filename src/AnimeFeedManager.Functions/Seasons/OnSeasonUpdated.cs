@@ -29,9 +29,10 @@ public class OnSeasonUpdated
     public async Task Run(
         [QueueTrigger(SeasonUpdated.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         SeasonUpdated message,
+        FunctionContext functionContext,
         CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnSeasonUpdated));
+        using var processActivity = message.StartProcessActivity(functionContext);
         using var activity = Source.StartActivity(SeasonsTelemetry.UpdateSpan);
         await SeasonUpdate.CheckSeasonExist(_tableClientFactory.TableStorageSeason, message.Season, token)
             .CreateNewSeason()

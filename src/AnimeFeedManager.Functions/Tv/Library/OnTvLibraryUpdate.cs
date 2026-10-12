@@ -42,9 +42,10 @@ public class OnTvLibraryUpdate
     public async Task Run(
         [QueueTrigger(UpdateTvSeriesEvent.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         UpdateTvSeriesEvent message,
+        FunctionContext functionContext,
         CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnTvLibraryUpdate));
+        using var processActivity = message.StartProcessActivity(functionContext);
         using var activity = Source.StartActivity(TvLibraryTelemetry.ImportSpan);
         await RunScraper(message.SeasonParameters, token)
             .AddLogOnSuccess(results => logger => logger.LogInformation(

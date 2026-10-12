@@ -1,4 +1,5 @@
 using AnimeFeedManager.Features.Infrastructure.Email;
+using AnimeFeedManager.Features.Tv.Subscriptions;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
@@ -8,6 +9,8 @@ namespace AnimeFeedManager.Functions.Tv.Notifications;
 
 public class OnTvFeedNotification
 {
+    private static readonly ActivitySource Source = new(Telemetry.TvSubscriptionsFeedSource);
+
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IDomainPostman _domainPostman;
     private readonly IEmailNotificationSender _emailSender;
@@ -29,8 +32,11 @@ public class OnTvFeedNotification
     public async Task Run(
         [QueueTrigger(FeedNotification.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
         FeedNotification notification,
+        FunctionContext functionContext,
         CancellationToken cancellationToken)
     {
+        using var processActivity = notification.StartProcessActivity(functionContext);
+        using var activity = Source.StartActivity(TvSubscriptionsTelemetry.NotifyUserSpan);
         await _emailSender.Send(
                 notification.Subscriptions.UserEmail,
                 $"Subscriptions Available for Download ({DateTime.Today.ToShortDateString()})",
@@ -42,6 +48,7 @@ public class OnTvFeedNotification
                 _tableClientFactory.TableStorageTvSubscriptionsUpdater,
                 _domainPostman.SendMessages,
                 cancellationToken))
+            .MarkActivityErroredOnError()
             .AddLogOnSuccess(summary => logger => logger.LogInformation("{notification.count} have been sent to {user.id}", summary.NotificationsSent, summary.UserId))
             .Complete(_logger);
     }

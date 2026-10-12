@@ -27,9 +27,9 @@ public class OnFeedTitlesUpdate
     [Function(nameof(OnFeedTitlesUpdate))]
     public async Task Run(
         [QueueTrigger(FeedTitlesUpdated.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
-        FeedTitlesUpdated message, CancellationToken token)
+        FeedTitlesUpdated message, FunctionContext functionContext, CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnFeedTitlesUpdate));
+        using var processActivity = message.StartProcessActivity(functionContext);
         using var activity = Source.StartActivity(TvLibraryTelemetry.UpdateFeedTitlesSpan);
 
         if(message.FeedTitles is null or [])

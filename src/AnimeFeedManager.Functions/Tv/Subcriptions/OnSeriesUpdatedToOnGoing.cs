@@ -25,9 +25,9 @@ public class OnSeriesUpdatedToOnGoing
     [Function(nameof(OnSeriesUpdatedToOnGoing))]
     public async Task Run(
         [QueueTrigger(UpdatedToOngoing.TargetQueue, Connection = StorageRegistrationConstants.QueueConnection)]
-        UpdatedToOngoing message, CancellationToken token)
+        UpdatedToOngoing message, FunctionContext functionContext, CancellationToken token)
     {
-        using var tracedActivity = message.StartTracedActivity(nameof(OnSeriesUpdatedToOnGoing));
+        using var processActivity = message.StartProcessActivity(functionContext);
         using var activity = Source.StartActivity(TvSubscriptionsTelemetry.AutoSubscribeSpan);
         await AutoSubscription.TryToSubscribe(message.Series, message.Feed, _tableClientFactory, _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()

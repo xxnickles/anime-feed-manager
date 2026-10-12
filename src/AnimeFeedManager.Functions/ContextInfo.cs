@@ -1,25 +1,32 @@
-﻿namespace AnimeFeedManager.Functions;
+namespace AnimeFeedManager.Functions;
 
 public static class ContextInfo
 {
-    private static readonly ActivitySource ActivitySourceInstance = new(Telemetry.FunctionsMessageProcessingSource);
-    
-    public static Activity? StartTracedActivity(this DomainMessage message, string operationName)
+    // Queue-trigger metadata key for the queue's own message id
+    private const string MessageIdBindingKey = "Id";
+
+    private static readonly ActivitySource Source = new(Telemetry.MessagingSource);
+
+    /// <summary>Starts the <c>process {queue}</c> span: a child of the invocation span, linked to the producer's send span.</summary>
+    public static Activity? StartProcessActivity(this DomainMessage message, FunctionContext functionContext)
     {
-        if (message.TraceInformation?.TraceParent is null)
-            return null;
+        string queue = message.MessageBox;
+        ActivityLink[]? links = message.TraceInformation?.TraceParent is { } traceParent
+                                && ActivityContext.TryParse(traceParent, message.TraceInformation.TraceState,
+                                    out var producerContext)
+            ? [new ActivityLink(producerContext)]
+            : null;
 
-        // Parse the parent trace context properly
-        if (!ActivityContext.TryParse(message.TraceInformation.TraceParent, message.TraceInformation.TraceState, out var parentContext))
-            return null;
+        var activity = Source.StartActivity($"{Telemetry.MessagingProcessOperation} {queue}", ActivityKind.Consumer,
+            parentContext: default, links: links);
 
-        // Create activity with proper parent context
-        var activity = ActivitySourceInstance.StartActivity(operationName, ActivityKind.Internal, parentContext);
-        
-        // Add some useful tags
-        activity?.SetTag("messaging.system", "azure-queue");
-        activity?.SetTag("messaging.operation", "process");
-        
+        activity?.SetTag(Telemetry.MessagingSystemTag, Telemetry.MessagingSystemValue);
+        activity?.SetTag(Telemetry.MessagingOperationNameTag, Telemetry.MessagingProcessOperation);
+        activity?.SetTag(Telemetry.MessagingOperationTypeTag, Telemetry.MessagingProcessOperation);
+        activity?.SetTag(Telemetry.MessagingDestinationNameTag, queue);
+        if (functionContext.BindingContext.BindingData.TryGetValue(MessageIdBindingKey, out var messageId))
+            activity?.SetTag(Telemetry.MessagingMessageIdTag, messageId?.ToString());
+
         return activity;
     }
 }
