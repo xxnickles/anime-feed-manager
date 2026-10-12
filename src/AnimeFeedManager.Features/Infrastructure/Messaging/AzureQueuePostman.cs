@@ -34,14 +34,10 @@ public interface IDomainPostman{
 public class AzureQueuePostman : IDomainPostman
 {
     private readonly QueueServiceClient _queueServiceClient;
-    private readonly ILogger<AzureQueuePostman> _logger;
 
-    public AzureQueuePostman(
-        QueueServiceClient queueServiceClient,
-        ILogger<AzureQueuePostman> logger)
+    public AzureQueuePostman(QueueServiceClient queueServiceClient)
     {
         _queueServiceClient = queueServiceClient;
-        _logger = logger;
     }
    
 
@@ -60,10 +56,12 @@ public class AzureQueuePostman : IDomainPostman
                 return Error.Create("One of the messages has no target box");
             }
 
+            // Dequeue only after a successful send, so the failed message is reported as undelivered
             while (processMessages.Count > 0)
             {
-                var message = processMessages.Dequeue();
+                var message = processMessages.Peek();
                 await SendMessage(message, message.MessageBox, null, cancellationToken);
+                processMessages.Dequeue();
             }
 
 
@@ -71,9 +69,7 @@ public class AzureQueuePostman : IDomainPostman
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            _logger.LogError(e, "An occurred when trying to send multiple messages to {Queues}",
-                string.Join(", ", processMessages.Select(m => m.MessageBox)));
-            return MessagesNotDelivered.Create(e.Message, processMessages);
+            return MessagesNotDelivered.Create(e, processMessages);
         }
     }
 
@@ -90,8 +86,7 @@ public class AzureQueuePostman : IDomainPostman
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            _logger.LogError(e, "Error sending message {Message}", message);
-            return MessagesNotDelivered.Create(e.Message, message);
+            return MessagesNotDelivered.Create(e, message);
         }
     }
     
@@ -108,8 +103,7 @@ public class AzureQueuePostman : IDomainPostman
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            _logger.LogError(e, "Error sending message {Message}", message);
-            return MessagesNotDelivered.Create(e.Message, message);
+            return MessagesNotDelivered.Create(e, message);
         }
     }
 
