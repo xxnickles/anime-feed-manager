@@ -94,6 +94,9 @@ resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
         name: 'dotnet-isolated'
         version: '10.0'
       }
+      siteUpdateStrategy: {
+        type: 'RollingUpdate'
+      }
     }
     siteConfig: {
       minTlsVersion: '1.2'

@@ -20,7 +20,7 @@ resource chromeApp 'Microsoft.Web/sites@2025-03-01' = {
     serverFarmId: appServicePlanId
     reserved: true
     siteConfig: {
-      linuxFxVersion: 'DOCKER|ghcr.io/browserless/chromium:latest'
+      linuxFxVersion: 'DOCKER|ghcr.io/browserless/chromium:v2.57.0'
       ftpsState: 'Disabled'
       minTlsVersion: '1.2'
       http20Enabled: true
