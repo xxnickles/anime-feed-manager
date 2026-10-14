@@ -88,8 +88,8 @@ public sealed class NewReleaseProvider : INewReleaseProvider
         {
             await page.GoToAsync(showUrl);
 
-            // Wait for the episode list to load
-            await page.WaitForSelectorAsync("td.show-release-item", new WaitForSelectorOptions
+            // Wait for the episode list to load; batches render the same cell class in #show-batch-table
+            await page.WaitForSelectorAsync("#show-release-table td.show-release-item", new WaitForSelectorOptions
             {
                 Timeout = 10000
             });
@@ -148,8 +148,8 @@ public sealed class NewReleaseProvider : INewReleaseProvider
         () => {
             const episodes = [];
 
-            // Find all TD elements with class show-release-item, limited to 10 matches per serie
-            const episodeCells = Array.from(document.querySelectorAll('td.show-release-item')).slice(0, 10);
+            // Episode table only (batches excluded), limited to 10 matches per serie
+            const episodeCells = Array.from(document.querySelectorAll('#show-release-table td.show-release-item')).slice(0, 10);
 
             episodeCells.forEach(td => {
                 // Find the episode-title element
