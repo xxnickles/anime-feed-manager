@@ -25,6 +25,10 @@ public sealed class AnimeInfoStorage : ITableEntity
     public string Status { get; set; } = SeriesStatus.NotAvailable();
     
     public string? AlternativeTitles { get; set; }
+    public int? Episodes { get; set; }
+    public DateTime? JpnTime { get; set; }
+    public DateTime? SubTime { get; set; }
+    public string? Streams { get; set; }
     public string? PartitionKey { get; set; }
     public string? ImagePath { get; set; }
     public string? RowKey { get; set; }

@@ -10,6 +10,7 @@ public sealed record AlternativeTitlesData(
     string? English = null,
     string? Native = null,
     string[]? Synonyms = null,
+    string? Abbreviation = null,
     string[]? User = null)
 {
     public static readonly AlternativeTitlesData Empty = new();
@@ -51,7 +52,7 @@ internal static class StoredAlternativeTitles
     {
         /// <summary>
         /// Titles worth matching a feed against, most specific first. Romaji repeats the canonical
-        /// title and native never appears in a feed, so neither is offered here.
+        /// title, native never appears in a feed and abbreviations are too loose, so none is offered here.
         /// </summary>
         internal string[] ForMatching
         {
@@ -71,6 +72,7 @@ internal static class StoredAlternativeTitles
             && string.IsNullOrWhiteSpace(titles.English)
             && string.IsNullOrWhiteSpace(titles.Native)
             && titles.Synonyms is null or []
+            && string.IsNullOrWhiteSpace(titles.Abbreviation)
             && titles.User is null or [];
 
         internal string ToStoredString() =>

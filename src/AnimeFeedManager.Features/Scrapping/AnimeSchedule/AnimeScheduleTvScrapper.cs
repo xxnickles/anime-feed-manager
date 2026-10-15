@@ -57,9 +57,15 @@ internal static partial class AnimeScheduleTvScrapper
                 Synopsis = Synopsis(anime.Description),
                 FeedTitle = null,
                 FeedLink = null,
-                Date = PremierDate(anime.Premier),
+                Date = ProviderDate(anime.Premier),
                 Status = SeriesStatus.NotAvailableValue,
-                AlternativeTitles = ProviderTitles(anime.Names).ToStoredString()
+                AlternativeTitles = ProviderTitles(anime.Names).ToStoredString(),
+                Episodes = anime.Episodes,
+                JpnTime = ProviderDate(anime.JpnTime),
+                SubTime = ProviderDate(anime.SubTime),
+                Streams = StoredStreams.ToStoredString(anime.Websites?.Streams?
+                    .Select(stream => new StoredStream(stream.Platform, stream.Name, stream.Url))
+                    .ToArray())
             },
             Image(anime.ImageVersionRoute),
             Status.NewSeries,
@@ -81,7 +87,7 @@ internal static partial class AnimeScheduleTvScrapper
     private static AlternativeTitlesData ProviderTitles(AnimeScheduleNames? names) =>
         names is null
             ? AlternativeTitlesData.Empty
-            : new AlternativeTitlesData(names.Romaji, names.English, names.Native, names.Synonyms);
+            : new AlternativeTitlesData(names.Romaji, names.English, names.Native, names.Synonyms, names.Abbreviation);
 
     // Descriptions carry inline markup, and sequels routinely have none at all.
     private static string Synopsis(string? description)
@@ -97,8 +103,8 @@ internal static partial class AnimeScheduleTvScrapper
     }
 
     /// <summary>Every date field uses <c>0001-01-01T00:00:00Z</c> to mean "no value".</summary>
-    private static DateTime? PremierDate(DateTime? premier) =>
-        premier is null || premier == DateTime.MinValue ? null : premier.Value.ToUniversalTime();
+    private static DateTime? ProviderDate(DateTime? date) =>
+        date is null || date == DateTime.MinValue ? null : date.Value.ToUniversalTime();
 
     private static ImageInformation Image(string? imageVersionRoute) =>
         !string.IsNullOrWhiteSpace(imageVersionRoute)

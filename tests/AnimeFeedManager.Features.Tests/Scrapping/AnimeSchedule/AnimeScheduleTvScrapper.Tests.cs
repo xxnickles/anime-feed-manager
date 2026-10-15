@@ -306,7 +306,11 @@ public class AnimeScheduleTvScrapperTests
             new AnimeScheduleSeason("Summer 2026", "2026", "Summer", "summer-2026"),
             Names: null,
             mediaTypes ?? [new AnimeScheduleMediaType(mediaTypeRoute.ToUpperInvariant(), mediaTypeRoute)],
-            status);
+            status,
+            Episodes: null,
+            JpnTime: null,
+            SubTime: null,
+            Websites: null);
 
     #endregion
 }
