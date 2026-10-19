@@ -13,6 +13,21 @@ internal partial class StoredStreamsJsonContext : JsonSerializerContext;
 
 internal static class StoredStreams
 {
+    internal static StoredStream[] Parse(string? stored)
+    {
+        if (string.IsNullOrWhiteSpace(stored))
+            return [];
+
+        try
+        {
+            return JsonSerializer.Deserialize(stored, StoredStreamsJsonContext.Default.StoredStreamArray) ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+    }
+
     /// <summary>Null when there is nothing to store, so a merge keeps the previous value.</summary>
     internal static string? ToStoredString(StoredStream[]? streams) =>
         streams is null or []

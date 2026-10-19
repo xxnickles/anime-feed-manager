@@ -27,7 +27,9 @@ public sealed record TvSeries(
     AlternativeTitlesData AlternativeTitles,
     SeriesStatus Status,
     Uri? Image,
-    DateTimeOffset? LastUpdated);
+    DateTimeOffset? LastUpdated,
+    ExpectedEpisodes Episodes,
+    BroadcastHint Broadcast);
 
 public delegate Task<Result<ImmutableArray<TvSeriesInfo>>> StoredSeriesGetter(SeriesSeason season,
     CancellationToken cancellationToken = default);
@@ -133,7 +135,9 @@ public static class ExistentSeries
         StoredAlternativeTitles.Parse(entity.AlternativeTitles),
         (SeriesStatus) entity.Status,
         entity.ImagePath is not null ? GetUri(publicBlobUri, entity.ImagePath) : null,
-        entity.Timestamp);
+        entity.Timestamp,
+        SeriesBroadcast.ToExpectedEpisodes(entity.Episodes),
+        SeriesBroadcast.ToBroadcastHint(entity.SubTime, entity.Date, entity.Streams));
 
     private static Uri GetUri(Uri publicBlobUri, string imagePath)
     {

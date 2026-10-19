@@ -168,7 +168,9 @@ public class LibraryQueriesTests
         AlternativeTitlesData.Empty,
         (SeriesStatus) status,
         null,
-        null);
+        null,
+        new UnknownEpisodes(),
+        new BroadcastHint(new UnknownRelease(), []));
 
     private static SubscriptionStorage MakeSubscription(string seriesId, string type) => new()
     {
