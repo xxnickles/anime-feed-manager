@@ -12,6 +12,21 @@ public static class Series
         .Map(series => UpdateAlternativeTitles(series, alternativeTitles))
         .Bind(series => storageUpdater(series, token));
 
+    /// <summary>Sets the episode count until the next import that carries one from the provider.</summary>
+    public static Task<Result<Unit>> UpdateExpectedEpisodes(
+        string seriesId,
+        SeriesSeason seriesSeason,
+        int episodes,
+        TvSeriesGetter seriesGetter,
+        TvSeriesStorageUpdater storageUpdater,
+        CancellationToken token = default) => seriesGetter(seriesId, seriesSeason, token)
+        .Map(series =>
+        {
+            series.Episodes = episodes;
+            return series;
+        })
+        .Bind(series => storageUpdater(series, token));
+
 
     public static Task<Result<Unit>> DeleteSeries(
         string seriesId,
