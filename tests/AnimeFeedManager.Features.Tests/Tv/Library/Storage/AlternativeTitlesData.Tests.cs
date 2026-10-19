@@ -89,6 +89,14 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
         }
 
         [Fact]
+        public void Should_Exclude_Abbreviation()
+        {
+            var titles = new AlternativeTitlesData(English: "English Title", Abbreviation: "ET");
+
+            Assert.Equal(["English Title"], titles.ForMatching);
+        }
+
+        [Fact]
         public void Should_Drop_Duplicates_Ignoring_Case_Keeping_User_First()
         {
             var titles = new AlternativeTitlesData(
@@ -130,6 +138,15 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
         }
 
         [Fact]
+        public void Should_Store_Abbreviation_When_It_Is_The_Only_Slot()
+        {
+            var titles = new AlternativeTitlesData(Abbreviation: "ET");
+
+            Assert.False(titles.IsEmpty);
+            Assert.Equal("ET", StoredAlternativeTitles.Parse(titles.ToStoredString()).Abbreviation);
+        }
+
+        [Fact]
         public void Should_Omit_Absent_Slots_From_Stored_Value()
         {
             var stored = new AlternativeTitlesData(User: ["Only User"]).ToStoredString();
@@ -147,6 +164,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
                 English: "English Title",
                 Native: "ネイティブ",
                 Synonyms: ["Synonym A"],
+                Abbreviation: "RT",
                 User: ["User Title"]);
 
             var result = StoredAlternativeTitles.Parse(original.ToStoredString());
@@ -155,6 +173,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
             Assert.Equal(original.English, result.English);
             Assert.Equal(original.Native, result.Native);
             Assert.Equal(original.Synonyms, result.Synonyms);
+            Assert.Equal(original.Abbreviation, result.Abbreviation);
             Assert.Equal(original.User, result.User);
         }
 

@@ -6,7 +6,7 @@ using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 namespace AnimeFeedManager.Features.Tests.Scrapping.AnimeSchedule;
 
-public class AnimeScheduleTvScrapperTests
+public partial class AnimeScheduleTvScrapperTests
 {
     private const string NoSynopsis = "No synopsis available.";
 
