@@ -1,6 +1,7 @@
 using System.Net;
 using System.Threading.RateLimiting;
 using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
+using AnimeFeedManager.Features.Scrapping.Nyaa;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using Microsoft.Extensions.DependencyInjection;
@@ -102,4 +103,12 @@ public static class Registration
             });
         return serviceCollection;
     }
+
+    /// <summary>Registers the nyaa client with no resilience handler: Web supplies its default one, Functions adds its own.</summary>
+    public static IHttpClientBuilder RegisterNyaaServices(this IServiceCollection serviceCollection) =>
+        serviceCollection.AddHttpClient<INyaaClient, NyaaClient>(client =>
+        {
+            client.BaseAddress = new Uri("https://nyaa.si/");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("AnimeFeedManager/1.0");
+        });
 }

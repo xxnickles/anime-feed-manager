@@ -160,7 +160,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 |---|---|---|
 | `series.count` | `TvLibraryTelemetry` | Number of series processed/affected. |
 | `feed.title_count` | `TvLibraryTelemetry` | Number of feed titles. |
-| `scrape.query` | `ScrappingTelemetry` | AnimeSchedule request query string. |
+| `scrape.query` | `ScrappingTelemetry` | Provider request query string (AnimeSchedule, Nyaa). |
 | `scrape.pages_expected` | `ScrappingTelemetry` | Pages the provider reported. |
 | `scrape.pages_fetched` | `ScrappingTelemetry` | Pages actually fetched. |
 

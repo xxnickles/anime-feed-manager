@@ -1,4 +1,5 @@
 using AnimeFeedManager.Features.Infrastructure;
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.ServiceDefaults;
 using AnimeFeedManager.Services.Shared;
 using AnimeFeedManager.Web.Bootstrapping;
@@ -23,6 +24,7 @@ builder.Services.AddRazorComponents();
 builder.Services.AddHttpContextAccessor();
 builder.RegisterSecurityServices();
 builder.Services.RegisterStorageBasedServices();
+builder.Services.RegisterNyaaServices();
 
 
 var app = builder.Build();

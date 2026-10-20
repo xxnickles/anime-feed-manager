@@ -30,6 +30,9 @@ internal static class Registration
 
         builder.Services.RegisterAnimeScheduleServices();
 
+        // This host has no HttpClient defaults (they would stack on AnimeSchedule's handler).
+        builder.Services.RegisterNyaaServices().AddStandardResilienceHandler();
+
         builder.Services.AddScoped<HtmlRenderer>();
         builder.Services.AddScoped<BlazorRenderer>();
 
