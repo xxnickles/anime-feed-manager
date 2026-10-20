@@ -6,13 +6,14 @@ namespace AnimeFeedManager.SourceGenerators.Validation;
 
 /// <summary>
 /// Generates extension methods for chaining Validation&lt;T&gt;.And() calls
-/// with flat tuple accumulation up to 7 elements.
+/// with flat tuple accumulation up to <see cref="MaxTupleSize"/> elements.
 /// Only emits code when compiling AnimeFeedManager.Shared to access internal members.
 /// </summary>
 [Generator]
 public class ValidationAndExtensionsGenerator : IIncrementalGenerator
 {
-    private const int MaxTupleSize = 7;
+    // Type parameters are named TA..TZ, so 26 is the hard ceiling.
+    private const int MaxTupleSize = 12;
     private const string TargetAssemblyName = "AnimeFeedManager.Shared";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
