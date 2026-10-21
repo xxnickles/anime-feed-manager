@@ -8,9 +8,12 @@ public static class Series
         string[] alternativeTitles,
         TvSeriesGetter seriesGetter,
         TvSeriesStorageUpdater storageUpdater,
-        CancellationToken token = default) => seriesGetter(seriesId, seriesSeason, token)
-        .Map(series => UpdateAlternativeTitles(series, alternativeTitles))
-        .Bind(series => storageUpdater(series, token));
+        CancellationToken token = default) => OptimisticConcurrency.UntilWritten(
+        attemptToken => seriesGetter(seriesId, seriesSeason, attemptToken)
+            .Map(series => UpdateAlternativeTitles(series, alternativeTitles))
+            .Bind(series => storageUpdater(series, attemptToken)),
+        token,
+        error => error is PreconditionFailedError);
 
     /// <summary>Sets the episode count until the next import that carries one from the provider.</summary>
     public static Task<Result<Unit>> UpdateExpectedEpisodes(
@@ -19,13 +22,16 @@ public static class Series
         int episodes,
         TvSeriesGetter seriesGetter,
         TvSeriesStorageUpdater storageUpdater,
-        CancellationToken token = default) => seriesGetter(seriesId, seriesSeason, token)
-        .Map(series =>
-        {
-            series.Episodes = episodes;
-            return series;
-        })
-        .Bind(series => storageUpdater(series, token));
+        CancellationToken token = default) => OptimisticConcurrency.UntilWritten(
+        attemptToken => seriesGetter(seriesId, seriesSeason, attemptToken)
+            .Map(series =>
+            {
+                series.Episodes = episodes;
+                return series;
+            })
+            .Bind(series => storageUpdater(series, attemptToken)),
+        token,
+        error => error is PreconditionFailedError);
 
 
     public static Task<Result<Unit>> DeleteSeries(

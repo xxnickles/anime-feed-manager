@@ -146,6 +146,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `user.id` | Opaque user id; never the email. |
 | `user.roles` | Comma-joined role names. |
 | `operation.name` | Operation identifier; log-only. |
+| `table.write_retries` | Attempts `OptimisticConcurrency.UntilWritten` retried before the write landed; log-only, set only when above 0. |
 | `domain_error.message` | Domain error message. |
 | `domain_error.subject` | What the error concerns: expected type (type mismatch) or message type names, comma-joined (undelivered messages). |
 | `validation.type_name` | Validated form/type name. |

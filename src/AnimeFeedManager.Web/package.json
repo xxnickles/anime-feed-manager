@@ -19,7 +19,7 @@
     "@swc/core": "^1.16.18",
     "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/typography": "^0.5.20",
-    "chokidar": "^5.0.0",
+    "chokidar": "^6.0.0",
     "concurrently": "^10.0.6",
     "daisyui": "^5.7.50",
     "glob": "^13.0.6",

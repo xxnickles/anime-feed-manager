@@ -39,6 +39,8 @@ internal static class StorageClientExtensions
                 NotFoundError.Create($"The entity of type {typeof(TEntity).Name} was not found."),
             { Message: "Not Found" } =>
                 NotFoundError.Create($"The entity of type {typeof(TEntity).Name} was not found."),
+            RequestFailedException { Status: 412 } =>
+                PreconditionFailedError.Create($"The entity of type {typeof(TEntity).Name} changed since it was read."),
             RequestFailedException =>
                 ExceptionError.FromExceptionWithMessage(e,
                     "An error occurred when executing a request to table storage service"),

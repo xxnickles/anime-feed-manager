@@ -65,6 +65,9 @@ public static class Telemetry
     /// <summary>Log-only: carries the operation to backends that never see the span name.</summary>
     public const string OperationNameTag = "operation.name";
 
+    /// <summary>Retried attempts before a read-modify-write landed; present only when above 0.</summary>
+    public const string WriteRetriesTag = "table.write_retries";
+
     public const string DomainErrorMessageTag = "domain_error.message";
     public const string DomainErrorSubjectTag = "domain_error.subject";
 
