@@ -110,6 +110,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `TvLibraryTelemetry.UpdateFeedTitlesSpan` | `Tv.Library.UpdateFeedTitles` | Tv.Library.FeedTitles | Functions |
 | `TvLibraryTelemetry.ScrapFeedTitlesSpan` | `Tv.Library.ScrapFeedTitles` | Tv.Library.FeedTitles | Functions |
 | `TvLibraryTelemetry.CompleteOngoingSpan` | `Tv.Library.CompleteOngoing` | Tv.Library.Completion | Functions |
+| `TvLibraryTelemetry.CompleteFeedSeriesSpan` | `Tv.Library.CompleteFeedSeries` | Tv.Library.Completion | Functions |
 | `TvLibraryTelemetry.QuerySeasonSpan` | `Tv.Library.QuerySeason` | Tv.Library.Queries | Web |
 | `TvSubscriptionsTelemetry.AutoSubscribeSpan` | `Tv.Subscriptions.AutoSubscribe` | Tv.Subscriptions.Management | Functions |
 | `TvSubscriptionsTelemetry.ProcessFeedSpan` | `Tv.Subscriptions.ProcessFeed` | Tv.Subscriptions.Feed | Functions |

@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 
@@ -12,6 +13,7 @@ namespace AnimeFeedManager.Features.Tv;
 [JsonSerializable(typeof(UpdateLatestFeedTitlesEvent))]
 [JsonSerializable(typeof(FeedNotification))]
 [JsonSerializable(typeof(RunFeedNotification))]
+[JsonSerializable(typeof(NyaaFeedCompleted))]
 // Event Payloads
 [JsonSerializable(typeof(ScrapTvLibraryResult))]
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryResult))]

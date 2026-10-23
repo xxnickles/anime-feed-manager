@@ -6,6 +6,7 @@ public static class TvLibraryTelemetry
     public const string UpdateFeedTitlesSpan = "Tv.Library.UpdateFeedTitles";
     public const string ScrapFeedTitlesSpan = "Tv.Library.ScrapFeedTitles";
     public const string CompleteOngoingSpan = "Tv.Library.CompleteOngoing";
+    public const string CompleteFeedSeriesSpan = "Tv.Library.CompleteFeedSeries";
     public const string QuerySeasonSpan = "Tv.Library.QuerySeason";
 
     public const string SeriesCountTag = "series.count";
