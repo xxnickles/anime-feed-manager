@@ -25,6 +25,7 @@ builder.AddServiceDefaults(
     Telemetry.ImagesSource,
     Telemetry.TvSubscriptionsFeedSource,
     Telemetry.TvSubscriptionsManagementSource,
+    Telemetry.TvFeedManagerSource,
     Telemetry.MessagingSource);
 
 builder.Services.AddOpenTelemetry()

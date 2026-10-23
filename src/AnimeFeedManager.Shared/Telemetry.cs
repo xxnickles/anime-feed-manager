@@ -29,6 +29,9 @@ public static class Telemetry
     /// <summary>Auto-subscription management for interested users on a series.</summary>
     public const string TvSubscriptionsManagementSource = "AnimeFeedManager.Tv.Subscriptions.Management";
 
+    /// <summary>Nyaa feed bindings: bind, backfill, completion.</summary>
+    public const string TvFeedManagerSource = "AnimeFeedManager.Tv.FeedManager";
+
     /// <summary>System event update/dispatch orchestration.</summary>
     public const string SystemEventsUpdateSource = "AnimeFeedManager.SystemEvents.Update";
 

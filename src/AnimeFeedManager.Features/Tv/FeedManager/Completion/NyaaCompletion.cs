@@ -1,7 +1,6 @@
 using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
-using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.Completion;
 

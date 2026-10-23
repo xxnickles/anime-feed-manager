@@ -95,6 +95,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AnimeFeedManager.Tv.Subscriptions.Feed` | Daily feed processing, per-user notification | Functions |
 | `AnimeFeedManager.Tv.Subscriptions.Management` | Auto-subscription for interested users | Functions |
 | `AnimeFeedManager.SystemEvents.Update` | System event update/dispatch | Functions |
+| `AnimeFeedManager.Tv.FeedManager` | Nyaa feed bindings: bind, backfill, completion | Functions |
 | `AnimeFeedManager.Messaging` | Queue send and process spans | Web, Functions |
 | `AnimeFeedManager.Images` | Series image provisioning | Functions |
 | `AnimeFeedManager.Web.Admin` | Admin endpoint handlers | Web |
@@ -117,6 +118,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `TvSubscriptionsTelemetry.NotifyUserSpan` | `Tv.Subscriptions.NotifyUser` | Tv.Subscriptions.Feed | Functions |
 | `ImagesTelemetry.DownloadSpan` | `Images.Download` (child of `Tv.Library.Import`) | Images | Functions |
 | `SystemEventsTelemetry.UpdateSpan` | `SystemEvents.Update` | SystemEvents.Update | Functions |
+| `FeedManagerTelemetry.BindSeriesSpan` | `Tv.FeedManager.BindSeries` | Tv.FeedManager | Functions |
 | `AdminTelemetry.UpdateTvSeasonSpan` | `Admin.UpdateTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateFeedTitlesSpan` | `Admin.UpdateFeedTitles` | Web.Admin | Web |
@@ -180,6 +182,8 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `notification.user_count` | Users to be notified. |
 | `schedule.next_run` | Next timer fire time. |
 | `feed.title` | Feed title of a show. |
+| `nyaa.group` | Fansub group of a nyaa binding. |
+| `nyaa.release_title` | Group's release title of a nyaa binding. |
 | `image.name` | Image file name. |
 | `image.size` | Stored payload size in bytes. |
 | `image.content_type` | Served media type. |

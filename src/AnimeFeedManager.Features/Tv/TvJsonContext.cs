@@ -14,6 +14,8 @@ namespace AnimeFeedManager.Features.Tv;
 [JsonSerializable(typeof(FeedNotification))]
 [JsonSerializable(typeof(RunFeedNotification))]
 [JsonSerializable(typeof(NyaaFeedCompleted))]
+[JsonSerializable(typeof(BindNyaaSeries))]
+[JsonSerializable(typeof(BackfillNyaaSeries))]
 // Event Payloads
 [JsonSerializable(typeof(ScrapTvLibraryResult))]
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryResult))]
@@ -29,5 +31,9 @@ namespace AnimeFeedManager.Features.Tv;
 [EventPayloadSerializerContext(typeof(AutoSubscriptionResult))]
 [JsonSerializable(typeof(NotificationSent))]
 [EventPayloadSerializerContext(typeof(NotificationSent))]
+[JsonSerializable(typeof(NyaaSeriesBound))]
+[EventPayloadSerializerContext(typeof(NyaaSeriesBound))]
+[JsonSerializable(typeof(NyaaBindFailed))]
+[EventPayloadSerializerContext(typeof(NyaaBindFailed))]
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 internal partial class TvJsonContext : JsonSerializerContext;
