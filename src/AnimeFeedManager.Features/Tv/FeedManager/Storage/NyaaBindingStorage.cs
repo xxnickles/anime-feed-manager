@@ -14,8 +14,6 @@ public sealed class NyaaBindingStorage : ITableEntity
     public bool Tracking { get; set; }
     public int? Episodes { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
-    public string? DriftVariant { get; set; }
-    public DateTimeOffset? DriftSeenAt { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
 }

@@ -10,10 +10,7 @@ public sealed record BoundSeries(string Title, bool WasOngoing);
 
 public static class BindSeries
 {
-    /// <summary>
-    /// Replaces the binding, wipes the catalog, feeds the library series from it, then queues the backfill.
-    /// The binding is written before the wipe so an hourly run in between can only add rows the backfill restores.
-    /// </summary>
+    /// <summary>Replaces the binding, feeds the library series from it, then queues the backfill; the catalog is kept.</summary>
     public static Task<Result<BoundSeries>> Bind(
         BindNyaaSeries request,
         ITableClientFactory clientFactory,
@@ -23,7 +20,6 @@ public static class BindSeries
             .Bind(season => Bindable(request.SeriesId, season,
                     clientFactory.TableStorageTvSeriesGetter, clientFactory.TableStorageNyaaBindingGetter, token)
                 .Bind(series => clientFactory.TableStorageNyaaBindingReplacer(NewBinding(request, season, series), token))
-                .Bind(_ => clientFactory.TableStorageNyaaCatalogWiper(request.SeriesId, token))
                 .Bind(_ => FeedLibrarySeries(request.SeriesId, season,
                     clientFactory.TableStorageTvSeriesGetter, clientFactory.TableStorageTvSeriesUpdater, token)))
             .Bind(bound => domainPostman(Events(request, bound), token).Map(_ => bound))
