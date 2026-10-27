@@ -119,6 +119,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `ImagesTelemetry.DownloadSpan` | `Images.Download` (child of `Tv.Library.Import`) | Images | Functions |
 | `SystemEventsTelemetry.UpdateSpan` | `SystemEvents.Update` | SystemEvents.Update | Functions |
 | `FeedManagerTelemetry.BindSeriesSpan` | `Tv.FeedManager.BindSeries` | Tv.FeedManager | Functions |
+| `FeedManagerTelemetry.BackfillSeriesSpan` | `Tv.FeedManager.BackfillSeries` | Tv.FeedManager | Functions |
 | `AdminTelemetry.UpdateTvSeasonSpan` | `Admin.UpdateTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateFeedTitlesSpan` | `Admin.UpdateFeedTitles` | Web.Admin | Web |
@@ -184,6 +185,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `feed.title` | Feed title of a show. |
 | `nyaa.group` | Fansub group of a nyaa binding. |
 | `nyaa.release_title` | Group's release title of a nyaa binding. |
+| `nyaa.catalogued_count` | Catalog rows written by a nyaa backfill. |
 | `image.name` | Image file name. |
 | `image.size` | Stored payload size in bytes. |
 | `image.content_type` | Served media type. |

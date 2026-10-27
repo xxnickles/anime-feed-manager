@@ -35,5 +35,9 @@ namespace AnimeFeedManager.Features.Tv;
 [EventPayloadSerializerContext(typeof(NyaaSeriesBound))]
 [JsonSerializable(typeof(NyaaBindFailed))]
 [EventPayloadSerializerContext(typeof(NyaaBindFailed))]
+[JsonSerializable(typeof(NyaaSeriesBackfilled))]
+[EventPayloadSerializerContext(typeof(NyaaSeriesBackfilled))]
+[JsonSerializable(typeof(NyaaBackfillFailed))]
+[EventPayloadSerializerContext(typeof(NyaaBackfillFailed))]
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 internal partial class TvJsonContext : JsonSerializerContext;

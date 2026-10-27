@@ -22,6 +22,13 @@ public static class NyaaFeed
     private static readonly XNamespace Nyaa = "https://nyaa.si/xmlns/nyaa";
     private const string PubDateFormat = "ddd, dd MMM yyyy HH:mm:ss zzz";
 
+    // Nyaa answers at most 75 items, newest first, and ignores paging.
+    private const int MaxItems = 75;
+
+    /// <summary>Whether the feed hit nyaa's 75-item cap, so older releases may be missing.</summary>
+    public static bool IsFull(XDocument document) =>
+        document.Root?.Element("channel")?.Elements("item").Count() >= MaxItems;
+
     /// <summary>Parses an RSS feed requested with <c>m=true</c>; an item with any field missing or invalid is skipped.</summary>
     public static Result<BulkResult<ImmutableArray<NyaaItem>>> Parse(XDocument document) =>
         document.Root?.Element("channel") is { } channel
