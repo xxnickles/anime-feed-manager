@@ -20,7 +20,9 @@ public sealed class AnimeInfoStorage : ITableEntity
     public string? FeedTitle { get; set; }
     
     public string? FeedLink { get; set; }
-    
+
+    public string? FeedSource { get; set; } // SeriesFeeds source values; null on legacy rows
+
     public DateTime? Date { get; set; }
     public string Status { get; set; } = SeriesStatus.NotAvailable();
     

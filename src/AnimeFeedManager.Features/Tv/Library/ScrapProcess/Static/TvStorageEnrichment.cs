@@ -46,6 +46,7 @@ internal static class TvStorageEnrichment
         {
             baseSeries.FeedTitle = feedDataInProcess.Title;
             baseSeries.FeedLink = feedDataInProcess.Url;
+            baseSeries.FeedSource = SeriesFeeds.SubsPleaseSource;
         }
 
         // Nothing stored, so no transition to guard against.
@@ -71,6 +72,7 @@ internal static class TvStorageEnrichment
         {
             baseSeries.FeedTitle = feedDataInProcess?.Title;
             baseSeries.FeedLink = feedDataInProcess?.Url;
+            baseSeries.FeedSource = SeriesFeeds.SubsPleaseSource;
         }
 
         baseSeries.Status = ResolveStatus(storageSeries.Airing, feedDataInProcess is not null, currentInfo.Status);

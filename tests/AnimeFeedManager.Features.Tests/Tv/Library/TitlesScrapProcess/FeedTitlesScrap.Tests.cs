@@ -1,4 +1,5 @@
-﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
+﻿using AnimeFeedManager.Features.Common;
+using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
@@ -102,6 +103,39 @@ public class FeedTitlesScrapTests
     }
 
     [Fact]
+    public async Task Should_Mark_Source_As_SubsPlease_When_Feed_Is_Matched()
+    {
+        var season = TestSeasons.Default;
+        var feedTitles = ImmutableArray.Create(new FeedData("Sword Warriors", "https://example.com/sword-warriors"));
+        var series = MakeSeries("1", "Sword Warriors", string.Empty, SeriesStatus.NotAvailable());
+
+        var result = await Task
+            .FromResult(Result<FeedTitleUpdateData>.Success(new FeedTitleUpdateData(season, feedTitles, [])))
+            .UpdateSeries(Getter(season, series), SucceedingUpdater(), CancellationToken.None);
+
+        result.AssertSuccess();
+        Assert.Equal(SeriesFeeds.SubsPleaseSource, series.FeedSource);
+    }
+
+    [Fact]
+    public async Task Should_Not_Replace_Local_Feed_When_SubsPlease_Title_Matches()
+    {
+        var season = TestSeasons.Default;
+        var feedTitles = ImmutableArray.Create(new FeedData("Psyren", "https://example.com/psyren"));
+        var bound = MakeSeries("1", "Psyren", "Psyren", SeriesStatus.Completed(),
+            feedLink: "/tv/releases/1", feedSource: SeriesFeeds.LocalSource);
+
+        var result = await Task
+            .FromResult(Result<FeedTitleUpdateData>.Success(new FeedTitleUpdateData(season, feedTitles, [])))
+            .UpdateSeries(Getter(season, bound), SucceedingUpdater(), CancellationToken.None);
+
+        result.AssertOnSuccess(d =>
+            Assert.All(d.FeedTitleUpdateInformation, x => Assert.Equal(UpdateStatus.NoChanges, x.UpdateStatus)));
+        Assert.Equal(new LocalFeed("Psyren", "/tv/releases/1"), bound.Feed);
+        Assert.Equal(SeriesStatus.CompletedValue, bound.Status);
+    }
+
+    [Fact]
     public async Task Should_Create_Events_Only_For_Updated_Series()
     {
         var season = TestSeasons.Default;
@@ -151,7 +185,7 @@ public class FeedTitlesScrapTests
     }
 
     private static AnimeInfoStorage MakeSeries(string id, string? title, string? feedTitle, string status,
-        string? altTitles = null)
+        string? altTitles = null, string? feedLink = null, string? feedSource = null)
     {
         return new AnimeInfoStorage
         {
@@ -159,9 +193,27 @@ public class FeedTitlesScrapTests
             PartitionKey = "p",
             Title = title ?? string.Empty,
             FeedTitle = feedTitle ?? string.Empty,
+            FeedLink = feedLink,
+            FeedSource = feedSource,
             Status = status,
             AlternativeTitles = altTitles ?? string.Empty
         };
+    }
+
+    private static RawStoredSeries Getter(SeriesSeason season, params AnimeInfoStorage[] series)
+    {
+        var getter = Substitute.For<RawStoredSeries>();
+        getter(season, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result<ImmutableArray<AnimeInfoStorage>>.Success([..series])));
+        return getter;
+    }
+
+    private static TvLibraryStorageUpdater SucceedingUpdater()
+    {
+        var updater = Substitute.For<TvLibraryStorageUpdater>();
+        updater(Arg.Any<IEnumerable<AnimeInfoStorage>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+        return updater;
     }
 
     private sealed class TestDomainPostman

@@ -17,8 +17,7 @@ public static class BindSeries
         DomainCollectionSender domainPostman,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(request.SeriesId)
-            .Bind(season => Bindable(request.SeriesId, season,
-                    clientFactory.TableStorageTvSeriesGetter, clientFactory.TableStorageNyaaBindingGetter, token)
+            .Bind(season => Bindable(request.SeriesId, season, clientFactory.TableStorageTvSeriesGetter, token)
                 .Bind(series => clientFactory.TableStorageNyaaBindingReplacer(NewBinding(request, season, series), token))
                 .Bind(_ => FeedLibrarySeries(request.SeriesId, season,
                     clientFactory.TableStorageTvSeriesGetter, clientFactory.TableStorageTvSeriesUpdater, token)))
@@ -32,20 +31,15 @@ public static class BindSeries
             .WithOperationName(nameof(Bind))
             .WithLogProperty(Telemetry.SeriesIdTag, request.SeriesId);
 
-    // A series with a feed title and no binding is fed by SubsPlease.
     private static Task<Result<AnimeInfoStorage>> Bindable(
         string seriesId,
         SeriesSeason season,
         TvSeriesGetter seriesGetter,
-        NyaaBindingGetter bindingGetter,
         CancellationToken token) =>
         seriesGetter(seriesId, season, token)
-            .Bind(series => bindingGetter(seriesId, season, token)
-                .Map(_ => true)
-                .BindOnError(error => error is NotFoundError ? Result<bool>.Success(false) : error)
-                .Bind(bound => bound || string.IsNullOrWhiteSpace(series.FeedTitle)
-                    ? Result<AnimeInfoStorage>.Success(series)
-                    : Error.Create($"{series.Title} is fed by SubsPlease and cannot be bound")));
+            .Bind(series => series.Feed is SubsPleaseFeed
+                ? Error.Create($"{series.Title} is fed by SubsPlease and cannot be bound")
+                : Result<AnimeInfoStorage>.Success(series));
 
     private static NyaaBindingStorage NewBinding(BindNyaaSeries request, SeriesSeason season, AnimeInfoStorage series) =>
         new()
@@ -79,6 +73,7 @@ public static class BindSeries
         var bound = new BoundSeries(series.Title ?? string.Empty, series.Status == SeriesStatus.OngoingValue);
         series.FeedTitle = series.Title;
         series.FeedLink = FeedManagerRoutes.Releases(seriesId);
+        series.FeedSource = SeriesFeeds.LocalSource;
         series.Status = SeriesStatus.Ongoing();
         return (series, bound);
     }

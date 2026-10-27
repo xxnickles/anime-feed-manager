@@ -28,16 +28,15 @@ public static class FeedTitlesScrap
         .ParseAsSeriesSeason()
         .Map(parsed => new FeedTitleUpdateData(parsed, [], []));
 
-    public static Task<Result<FeedTitleUpdateData>> GetFeedTitles(this Task<Result<FeedTitleUpdateData>> data,
-        ISeasonFeedDataProvider seasonFeedDataProvider) =>
-        data.Bind(d => seasonFeedDataProvider.Get()
-            .Map(titles => d with {FeedData = titles}));
+    extension(Task<Result<FeedTitleUpdateData>> data)
+    {
+        public Task<Result<FeedTitleUpdateData>> GetFeedTitles(ISeasonFeedDataProvider seasonFeedDataProvider) =>
+            data.Bind(d => seasonFeedDataProvider.Get()
+                .Map(titles => d with {FeedData = titles}));
 
-
-    public static Task<Result<FeedTitleUpdateData>> UpdateSeries(
-        this Task<Result<FeedTitleUpdateData>> data,
-        RawStoredSeries seriesGetter, TvLibraryStorageUpdater seriesUpdater, CancellationToken token) =>
-        data.Bind(d => UpdateSeries(d, seriesGetter, seriesUpdater, token));
+        public Task<Result<FeedTitleUpdateData>> UpdateSeries(RawStoredSeries seriesGetter, TvLibraryStorageUpdater seriesUpdater, CancellationToken token) =>
+            data.Bind(d => UpdateSeries(d, seriesGetter, seriesUpdater, token));
+    }
 
 
     private static Task<Result<FeedTitleUpdateData>> UpdateSeries(
@@ -56,8 +55,8 @@ public static class FeedTitlesScrap
 
     private static FeedTitleUpdateInformation Transform(AnimeInfoStorage entity, ImmutableArray<FeedData> feedTitles)
     {
-        // Pass on series that already are ongoing
-        if (entity.Status == SeriesStatus.Ongoing())
+        // Pass on series that already are ongoing; a manual binding is never replaced by SubsPlease
+        if (entity.Status == SeriesStatus.Ongoing() || entity.Feed is LocalFeed)
             return new FeedTitleUpdateInformation(entity, UpdateStatus.NoChanges);
 
         var feedMatch = feedTitles.TryGetFeedMatch(
@@ -68,6 +67,7 @@ public static class FeedTitlesScrap
 
         entity.FeedTitle = feedMatch.Title;
         entity.FeedLink = feedMatch.Url;
+        entity.FeedSource = SeriesFeeds.SubsPleaseSource;
         entity.Status = SeriesStatus.Ongoing();
         return new FeedTitleUpdateInformation(entity, UpdateStatus.Updated);
     }

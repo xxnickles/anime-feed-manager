@@ -23,7 +23,7 @@ public static class CompleteOngoing
         return seriesGetter(token)
             .WithOperationName(nameof(StartProcess))
             .Map(ongoingSeries => ongoingSeries
-                .Where(s => !updatedFeed.Contains(s.FeedTitle))
+                .Where(s => s.Feed is not LocalFeed && !updatedFeed.Contains(s.FeedTitle))
                 .Select(Complete))
             .Map(series => new CompleteOnGoingTvSeriesProcess(series.ToImmutableArray()));
     }
