@@ -3,7 +3,7 @@
   "defaultProvider": "jsdelivr",
   "libraries": [
     {
-      "library": "chart.js@4.5.1",
+      "library": "chart.js@4.6.1",
       "destination": "wwwroot/lib/chartjs/",
       "files": [
         "dist/chart.umd.min.js",
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "library": "hyperscript.org@0.9.93",
+      "library": "hyperscript.org@0.9.94",
       "destination": "wwwroot/lib/hyperscript/",
       "files": [
         "dist/_hyperscript.min.js",

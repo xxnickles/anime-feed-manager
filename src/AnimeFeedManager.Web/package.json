@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@swc/core": "^1.16.18",
+    "@swc/core": "^1.16.20",
     "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/typography": "^0.5.20",
     "chokidar": "^6.0.0",
