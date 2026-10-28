@@ -122,6 +122,8 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `FeedManagerTelemetry.BindSeriesSpan` | `Tv.FeedManager.BindSeries` | Tv.FeedManager | Functions |
 | `FeedManagerTelemetry.BackfillSeriesSpan` | `Tv.FeedManager.BackfillSeries` | Tv.FeedManager | Functions |
 | `FeedManagerTelemetry.QuerySeasonSpan` | `Tv.FeedManager.QuerySeason` | Tv.FeedManager.Queries | Web |
+| `FeedManagerTelemetry.QuerySeriesSpan` | `Tv.FeedManager.QuerySeries` | Tv.FeedManager.Queries | Web |
+| `FeedManagerTelemetry.SearchReleasesSpan` | `Tv.FeedManager.SearchReleases` | Tv.FeedManager.Queries | Web |
 | `AdminTelemetry.UpdateTvSeasonSpan` | `Admin.UpdateTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateFeedTitlesSpan` | `Admin.UpdateFeedTitles` | Web.Admin | Web |
@@ -130,6 +132,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AdminTelemetry.LibraryScrapSummarySpan` | `Admin.LibraryScrapSummary` | Web.Admin | Web |
 | `AdminTelemetry.NotificationSummarySpan` | `Admin.NotificationSummary` | Web.Admin | Web |
 | `AdminTelemetry.FeedUpdatesSummarySpan` | `Admin.FeedUpdatesSummary` | Web.Admin | Web |
+| `AdminTelemetry.BindNyaaSeriesSpan` | `Admin.BindNyaaSeries` | Web.Admin | Web |
 | `TvTelemetry.ToggleInterestedSpan` | `Tv.ToggleInterested` | Web.Tv | Web |
 | `TvTelemetry.ToggleSubscriptionSpan` | `Tv.ToggleSubscription` | Web.Tv | Web |
 | `TvTelemetry.UpdateAlternativeTitlesSpan` | `Tv.UpdateAlternativeTitles` | Web.Tv | Web |

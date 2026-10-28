@@ -10,4 +10,5 @@ internal static class AdminTelemetry
     public const string LibraryScrapSummarySpan = "Admin.LibraryScrapSummary";
     public const string NotificationSummarySpan = "Admin.NotificationSummary";
     public const string FeedUpdatesSummarySpan = "Admin.FeedUpdatesSummary";
+    public const string BindNyaaSeriesSpan = "Admin.BindNyaaSeries";
 }

@@ -1,0 +1,67 @@
+@using System.Globalization
+@using AnimeFeedManager.Features.Tv.FeedManager.Search
+
+<li class="list-row items-center">
+    <div class="list-col-grow flex min-w-0 flex-col gap-1">
+        <span class="text-sm"><strong>[@Candidate.Group]</strong> @Candidate.ReleaseTitle</span>
+        <code class="self-start rounded bg-base-300 px-2 py-0.5 text-xs">@Candidate.Variant</code>
+        <span class="text-xs text-base-content/70">@_summary</span>
+    </div>
+    @if (Candidate.Current)
+    {
+        <span class="badge badge-sm badge-success">Bound</span>
+    }
+    else
+    {
+        <EditForm Model="@_model"
+                  hx-post="/admin/feeds/bind"
+                  hx-swap="none"
+                  hx-confirm="@($"Bind {SeriesTitle} to [{Candidate.Group}] {Candidate.ReleaseTitle}?")">
+            <input type="hidden" name="@nameof(_model.SeriesId)" value="@_model.SeriesId"/>
+            <input type="hidden" name="@nameof(_model.SeriesTitle)" value="@_model.SeriesTitle"/>
+            <input type="hidden" name="@nameof(_model.Group)" value="@_model.Group"/>
+            <input type="hidden" name="@nameof(_model.ReleaseTitle)" value="@_model.ReleaseTitle"/>
+            <input type="hidden" name="@nameof(_model.Variant)" value="@_model.Variant"/>
+            <input type="hidden" name="@nameof(_model.Trusted)" value="@_model.Trusted.ToString()"/>
+            <button type="submit" class="btn btn-sm btn-primary">@(Rebind ? "Rebind" : "Bind")</button>
+        </EditForm>
+    }
+</li>
+
+@code {
+    [Parameter, EditorRequired] public ReleaseCandidate Candidate { get; set; } = null!;
+    [Parameter, EditorRequired] public string SeriesId { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string SeriesTitle { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public bool Rebind { get; set; }
+
+    private BindReleaseViewModel _model = new();
+    private string _summary = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        _model = new BindReleaseViewModel
+        {
+            SeriesId = SeriesId,
+            SeriesTitle = SeriesTitle,
+            Group = Candidate.Group,
+            ReleaseTitle = Candidate.ReleaseTitle,
+            Variant = Candidate.Variant,
+            Trusted = Candidate.Trusted
+        };
+
+        var episodes = Candidate.Episodes switch
+        {
+            [var only] => $"Episode {only}",
+            [var first, .., var last] => $"{Candidate.Episodes.Length} episodes, {first}–{last}",
+            _ => "No episodes"
+        };
+        _summary = string.Join(" · ",
+            new[]
+            {
+                episodes,
+                Candidate.Trusted ? "trusted" : null,
+                $"newest {Candidate.Newest.UtcDateTime.ToString("ddd d MMM HH:mm 'UTC'", CultureInfo.InvariantCulture)}"
+            }.OfType<string>());
+    }
+
+}

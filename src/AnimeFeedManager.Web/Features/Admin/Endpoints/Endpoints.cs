@@ -16,6 +16,9 @@ internal static class Endpoints
         var seasonsGroup = adminGroup.MapGroup("/seasons");
         seasonsGroup.MapPut("/featured", SeasonAdminHandlers.SetFeatured);
 
+        var feedsGroup = adminGroup.MapGroup("/feeds");
+        feedsGroup.MapPost("/bind", FeedManagerHandlers.Bind);
+
         var chartsGroup = adminGroup.MapGroup("/charts");
         chartsGroup.MapGet("/scrap-library", ChartHandlers.ScrapLibrarySummary);
         chartsGroup.MapGet("/notifications", ChartHandlers.NotificationSummary);

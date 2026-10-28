@@ -1,0 +1,65 @@
+@using System.Globalization
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Features.Tv.Library.Storage.Stores
+
+<section class="card bg-base-200 shadow-sm" aria-labelledby="current-feed-heading">
+    <div class="card-body gap-3">
+        <h3 id="current-feed-heading" class="card-title m-0">Current feed</h3>
+        @if (Series.Binding is ActiveBinding binding)
+        {
+            <div class="flex flex-wrap items-center gap-2 text-sm">
+                <span><strong>[@binding.Group]</strong> @binding.ReleaseTitle</span>
+                @if (binding.Trusted)
+                {
+                    <span class="badge badge-sm badge-info">Trusted</span>
+                }
+                <span class="badge badge-sm @_state.Css">@_state.Text</span>
+            </div>
+            <code class="self-start rounded bg-base-300 px-2 py-0.5 text-xs">@binding.Variant</code>
+            <p class="m-0 text-sm">@_indexed</p>
+            @if (binding.Stale)
+            {
+                <div role="status" class="alert alert-warning">
+                    <div>
+                        <h4 class="font-bold">No release for @_staleDays days</h4>
+                        <p class="text-xs">Rebind below if the group changed its release; ignore it for a break or a calendar change.</p>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="m-0 text-sm">Not bound. Find a release below.</p>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public FeedManagerSeries Series { get; set; } = null!;
+
+    private (string Text, string Css) _state = (string.Empty, string.Empty);
+    private string _indexed = string.Empty;
+    private int _staleDays;
+
+    protected override void OnParametersSet()
+    {
+        if (Series.Binding is not ActiveBinding binding) return;
+
+        _state = binding switch
+        {
+            {CompletedAt: not null, Tracking: false} => ("Retired", "badge-ghost"),
+            {CompletedAt: not null} => ("Complete", "badge-neutral"),
+            {Stale: true} => ("Stale", "badge-warning"),
+            _ => ("Tracking", "badge-success")
+        };
+
+        var total = binding.Episodes is KnownEpisodes known ? known.Count.ToString() : "?";
+        _indexed = binding.Latest is { } latest
+            ? $"{binding.Indexed} of {total} episodes indexed · last {latest.Episode}, {Format(latest.Published)}"
+            : $"0 of {total} episodes indexed · no releases yet";
+        _staleDays = binding.Latest is { } newest ? (int) (DateTimeOffset.UtcNow - newest.Published).TotalDays : 0;
+    }
+
+    private static string Format(DateTimeOffset at) =>
+        at.UtcDateTime.ToString("ddd d MMM HH:mm 'UTC'", CultureInfo.InvariantCulture);
+}

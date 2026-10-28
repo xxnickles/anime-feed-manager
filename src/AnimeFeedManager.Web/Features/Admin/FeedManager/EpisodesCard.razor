@@ -1,0 +1,23 @@
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Features.Tv.Library.Storage.Stores
+
+<section class="card bg-base-200 shadow-sm" aria-labelledby="episodes-heading">
+    <div class="card-body gap-3">
+        <h3 id="episodes-heading" class="card-title m-0">Episodes</h3>
+        <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            @if (Series.Binding is ActiveBinding binding)
+            {
+                <span>Feed <strong>@Count(binding.Episodes)</strong></span>
+            }
+            <span>Library <strong>@Count(Series.LibraryEpisodes)</strong></span>
+        </div>
+        <p class="m-0 text-xs text-base-content/70">Completion uses the feed count, snapshotted from the library at bind.</p>
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public FeedManagerSeries Series { get; set; } = null!;
+
+    private static string Count(ExpectedEpisodes episodes) =>
+        episodes is KnownEpisodes known ? known.Count.ToString() : "?";
+}
