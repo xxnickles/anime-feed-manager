@@ -96,6 +96,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AnimeFeedManager.Tv.Subscriptions.Management` | Auto-subscription for interested users | Functions |
 | `AnimeFeedManager.SystemEvents.Update` | System event update/dispatch | Functions |
 | `AnimeFeedManager.Tv.FeedManager` | Nyaa feed bindings: bind, backfill, completion | Functions |
+| `AnimeFeedManager.Tv.FeedManager.Queries` | Feed manager admin queries | Web |
 | `AnimeFeedManager.Messaging` | Queue send and process spans | Web, Functions |
 | `AnimeFeedManager.Images` | Series image provisioning | Functions |
 | `AnimeFeedManager.Web.Admin` | Admin endpoint handlers | Web |
@@ -120,6 +121,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `SystemEventsTelemetry.UpdateSpan` | `SystemEvents.Update` | SystemEvents.Update | Functions |
 | `FeedManagerTelemetry.BindSeriesSpan` | `Tv.FeedManager.BindSeries` | Tv.FeedManager | Functions |
 | `FeedManagerTelemetry.BackfillSeriesSpan` | `Tv.FeedManager.BackfillSeries` | Tv.FeedManager | Functions |
+| `FeedManagerTelemetry.QuerySeasonSpan` | `Tv.FeedManager.QuerySeason` | Tv.FeedManager.Queries | Web |
 | `AdminTelemetry.UpdateTvSeasonSpan` | `Admin.UpdateTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateFeedTitlesSpan` | `Admin.UpdateFeedTitles` | Web.Admin | Web |

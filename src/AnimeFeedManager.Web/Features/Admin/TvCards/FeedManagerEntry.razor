@@ -1,0 +1,15 @@
+@using AnimeFeedManager.Features.Tv.FeedManager
+<div class="card bg-base-200 shadow-sm h-full">
+    <div class="card-body flex flex-col">
+        <h3 class="card-title m-0">Feed manager</h3>
+        <p class="flex-1">Bind series SubsPlease doesn't carry to a nyaa release.</p>
+        <div class="card-actions justify-end mt-auto">
+            <a href="@_link" class="btn btn-primary mt-4">Open</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private readonly string _link =
+        FeedManagerRoutes.AdminSeason(new SeriesSeason(Shared.Types.Season.Current, Year.Current));
+}

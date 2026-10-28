@@ -18,7 +18,7 @@ public static class NyaaCompletion
         DateTimeOffset? completedAt,
         IEnumerable<NyaaCatalogStorage> catalog,
         DateTimeOffset now) =>
-        (expected, completedAt) is (KnownEpisodes known, null) && LatestRegular(catalog) >= known.Count
+        (expected, completedAt) is (KnownEpisodes known, null) && catalog.LatestRegular() >= known.Count
             ? new FeedCompleted(now)
             : new FeedOpen();
 
@@ -49,9 +49,6 @@ public static class NyaaCompletion
                 outcome => outcome is FeedCompleted)
             .WithOperationName(nameof(CompleteWhenReached))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
-
-    private static int LatestRegular(IEnumerable<NyaaCatalogStorage> catalog) =>
-        catalog.Where(row => !row.Special).Select(row => (int) row.EpisodeNumber).DefaultIfEmpty(0).Max();
 
     private static NyaaBindingStorage Stamp(NyaaBindingStorage binding, DateTimeOffset at)
     {

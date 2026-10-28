@@ -32,6 +32,9 @@ public static class Telemetry
     /// <summary>Nyaa feed bindings: bind, backfill, completion.</summary>
     public const string TvFeedManagerSource = "AnimeFeedManager.Tv.FeedManager";
 
+    /// <summary>Feed manager admin queries (season feed list).</summary>
+    public const string TvFeedManagerQueriesSource = "AnimeFeedManager.Tv.FeedManager.Queries";
+
     /// <summary>System event update/dispatch orchestration.</summary>
     public const string SystemEventsUpdateSource = "AnimeFeedManager.SystemEvents.Update";
 

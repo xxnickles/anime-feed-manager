@@ -1,0 +1,54 @@
+@using AnimeFeedManager.Features.Tv.FeedManager
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores
+@using AnimeFeedManager.Features.Tv.Library.Storage.Stores
+@using Azure.Storage.Blobs
+@inject ITableClientFactory TableClientFactory
+@inject BlobServiceClient BlobServiceClient
+@inject ILogger<SeasonFeedList> Logger
+
+@if (_failed)
+{
+    <WarnBanner Title="Feed manager" Description="The season's feeds could not be loaded"></WarnBanner>
+}
+else if (_feeds.Length == 0)
+{
+    <WarnBanner Title="Feed manager" Description="No series in this season need a feed"></WarnBanner>
+}
+else
+{
+    <ul class="list bg-base-200 rounded-box shadow-sm">
+        @foreach (var feed in _feeds)
+        {
+            <SeasonFeedRow Feed="feed"/>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter, EditorRequired] public SeriesSeason Season { get; set; } = new(Shared.Types.Season.Current, Year.Current);
+    ImmutableArray<SeasonFeed> _feeds = [];
+    bool _failed;
+
+    private static readonly ActivitySource Source = new(Telemetry.TvFeedManagerQueriesSource);
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var activity = Source.StartActivity(FeedManagerTelemetry.QuerySeasonSpan);
+        await SeasonFeeds
+            .GetSeasonFeeds(
+                Season,
+                BlobServiceClient.Uri,
+                TableClientFactory.TableStorageTvLibraryGetter,
+                TableClientFactory.TableStorageSeasonNyaaBindings,
+                TableClientFactory.TableStorageNyaaCatalogGetter,
+                DateTimeOffset.UtcNow,
+                CancellationToken.None)
+            .MarkActivityErroredOnError()
+            .FlushLogs(Logger)
+            .Match(
+                feeds => { _feeds = feeds; },
+                _ => { _failed = true; });
+    }
+
+}

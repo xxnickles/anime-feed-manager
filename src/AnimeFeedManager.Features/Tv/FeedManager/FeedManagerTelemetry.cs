@@ -4,4 +4,5 @@ public static class FeedManagerTelemetry
 {
     public const string BindSeriesSpan = "Tv.FeedManager.BindSeries";
     public const string BackfillSeriesSpan = "Tv.FeedManager.BackfillSeries";
+    public const string QuerySeasonSpan = "Tv.FeedManager.QuerySeason";
 }

@@ -48,6 +48,10 @@ public static class NyaaCatalogRows
             Special = release.Episode is SpecialEpisode
         };
 
+    /// <summary>Highest regular episode catalogued; 0 when there is none.</summary>
+    public static int LatestRegular(this IEnumerable<NyaaCatalogStorage> catalog) =>
+        catalog.Where(row => !row.Special).Select(row => (int) row.EpisodeNumber).DefaultIfEmpty(0).Max();
+
     /// <summary>Sorts by episode: <c>0012-</c> &lt; <c>0012.5-</c> &lt; <c>0013-</c>, since '-' precedes '.'.</summary>
     public static string RowKey(NyaaEpisode episode, string infoHash) =>
         $"{EpisodeKey(episode)}-{infoHash}";

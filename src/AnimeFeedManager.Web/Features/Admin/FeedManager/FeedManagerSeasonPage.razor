@@ -1,0 +1,49 @@
+@page "/admin/feeds/{Season}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = UserRole.AdminValue)]
+
+<AppPageTitle Title="@PageTitle("Feed manager")" />
+
+<div class="breadcrumbs text-sm">
+    <ul>
+        <li><a href="/admin">Admin</a></li>
+        <li>Feed manager</li>
+    </ul>
+</div>
+
+<header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+        <h2 class="m-0">Feed manager</h2>
+        <p class="m-0 text-sm text-base-content/70">Series SubsPlease doesn't carry.</p>
+    </div>
+    <FeedManagerSeasonLinks Current="_season"/>
+</header>
+
+@if (!_seasonError)
+{
+    <SeasonFeedList Season="_season"/>
+}
+else
+{
+    <WarnBanner Title="Invalid Season" Description="@($"Season string '{Season}' is invalid.")"></WarnBanner>
+}
+
+@code {
+    [Parameter] public string Season { get; set; } = string.Empty;
+    private SeriesSeason _season = new(Shared.Types.Season.Current, Year.Current);
+    bool _seasonError;
+
+    protected override void OnInitialized()
+    {
+        Season
+            .ParseAsSeriesSeason()
+            .Match(
+                season =>
+                {
+                    _season = season;
+                    _seasonError = false;
+                },
+                _ => { _seasonError = true; });
+    }
+
+}
