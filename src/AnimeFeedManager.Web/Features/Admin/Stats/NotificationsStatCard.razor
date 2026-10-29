@@ -1,0 +1,27 @@
+@using AnimeFeedManager.Features.SystemEvents.Stats
+<div class="card-body gap-2 p-5">
+    <span class="text-xs text-base-content/70">Notifications</span>
+    <span class="text-3xl font-bold leading-none">@Stat.Sent</span>
+    @if (Stat.Sent == 0)
+    {
+        <span class="text-xs text-base-content/70">None sent in period</span>
+    }
+    else
+    {
+        <span class="text-xs text-base-content/70">@Stat.Episodes episodes · @Stat.Series series</span>
+    }
+</div>
+
+@code {
+    /// <summary>Placeholder id; the notifications chart response fills it out of band.</summary>
+    public const string CardId = "stat-notifications";
+
+    [Parameter, EditorRequired] public required NotificationStats Stat { get; set; }
+
+    public static RenderFragment AsRenderFragment(NotificationStats stat) => builder =>
+    {
+        builder.OpenComponent<NotificationsStatCard>(0);
+        builder.AddAttribute(1, nameof(Stat), stat);
+        builder.CloseComponent();
+    };
+}

@@ -3,6 +3,7 @@ using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using AnimeFeedManager.Web.BlazorComponents.Charts;
+using AnimeFeedManager.Web.Features.Admin.Stats;
 
 namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 
@@ -48,8 +49,18 @@ internal static class ChartHandlers
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
-                data => [ChartContent.AsRenderFragment("Notifications Sent", data, ChartJsOptions.IntegerScale)],
-                error => [ChartError.AsRenderFragment(error.Message)]);
+                data =>
+                [
+                    ChartContent.AsRenderFragment("Notifications Sent", data.Chart, ChartJsOptions.IntegerScale),
+                    StatCardOob.AsRenderFragment(NotificationsStatCard.CardId,
+                        NotificationsStatCard.AsRenderFragment(data.Stats))
+                ],
+                error =>
+                [
+                    ChartError.AsRenderFragment(error.Message),
+                    StatCardOob.AsRenderFragment(NotificationsStatCard.CardId,
+                        StatCardError.AsRenderFragment("Notifications"))
+                ]);
     }
 
     internal static async Task<RazorComponentResult> FeedUpdatesSummary(

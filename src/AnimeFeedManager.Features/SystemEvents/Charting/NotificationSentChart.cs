@@ -1,19 +1,25 @@
+using AnimeFeedManager.Features.SystemEvents.Stats;
 using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using static AnimeFeedManager.Features.SystemEvents.Charting.Utils;
 
 namespace AnimeFeedManager.Features.SystemEvents.Charting;
 
+public sealed record NotificationActivity(BarChart Chart, NotificationStats Stats);
+
 public static class NotificationSentChart
 {
-    public static Task<Result<BarChart>> Get(
+    // The chart and its period totals share one query: notifications span every user partition.
+    public static Task<Result<NotificationActivity>> Get(
         SystemEventsBroadGetter<NotificationSent> eventGetter,
         DateTimeOffset from,
         DateTimeOffset to,
         CancellationToken cancellationToken)
     {
         return eventGetter(from, cancellationToken)
-            .Map(events => MapToBarChart(events, from, to));
+            .Map(events => new NotificationActivity(
+                MapToBarChart(events, from, to),
+                NotificationStat.Summarize(events)));
     }
 
     private static BarChart MapToBarChart(

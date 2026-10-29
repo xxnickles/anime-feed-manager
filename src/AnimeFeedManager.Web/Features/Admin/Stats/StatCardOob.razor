@@ -1,0 +1,16 @@
+<div hx-swap-oob="innerHTML:#@TargetId">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required string TargetId { get; set; }
+    [Parameter, EditorRequired] public required RenderFragment ChildContent { get; set; }
+
+    public static RenderFragment AsRenderFragment(string targetId, RenderFragment content) => builder =>
+    {
+        builder.OpenComponent<StatCardOob>(0);
+        builder.AddAttribute(1, nameof(TargetId), targetId);
+        builder.AddAttribute(2, nameof(ChildContent), content);
+        builder.CloseComponent();
+    };
+}

@@ -30,6 +30,13 @@
          class="mb-10 grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
     <StatCardSkeleton CardId="last-scrape" Endpoint="/admin/stats/last-scrape" UpdateTriggerEvent="periodChanged"/>
     <StatCardSkeleton CardId="errors" Endpoint="/admin/stats/errors" UpdateTriggerEvent="periodChanged"/>
+    <article id="@NotificationsStatCard.CardId" class="card bg-base-200 shadow-sm min-w-0">
+        <div class="card-body gap-3 p-5" role="status" aria-label="Loading">
+            <div class="skeleton h-4 w-24" aria-hidden="true"></div>
+            <div class="skeleton h-8 w-16" aria-hidden="true"></div>
+            <div class="skeleton h-3 w-32" aria-hidden="true"></div>
+        </div>
+    </article>
     <StatCardSkeleton CardId="nyaa" Endpoint="/admin/stats/nyaa" UpdateTriggerEvent="periodChanged"/>
 </section>
 
