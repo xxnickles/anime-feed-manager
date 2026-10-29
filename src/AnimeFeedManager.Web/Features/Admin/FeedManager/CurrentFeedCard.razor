@@ -26,6 +26,19 @@
                     </div>
                 </div>
             }
+            <div class="flex flex-wrap gap-2">
+                <EditForm Model="@_series" hx-post="/admin/feeds/backfill" hx-swap="none">
+                    <input type="hidden" name="@nameof(_series.SeriesId)" value="@_series.SeriesId"/>
+                    <input type="hidden" name="@nameof(_series.SeriesTitle)" value="@_series.SeriesTitle"/>
+                    <button type="submit" class="btn btn-sm">Backfill</button>
+                </EditForm>
+                <EditForm Model="@_series" hx-post="/admin/feeds/clear-catalog" hx-swap="none"
+                          hx-confirm="@($"Clear every catalogued release of {Series.Title}?")">
+                    <input type="hidden" name="@nameof(_series.SeriesId)" value="@_series.SeriesId"/>
+                    <input type="hidden" name="@nameof(_series.SeriesTitle)" value="@_series.SeriesTitle"/>
+                    <button type="submit" class="btn btn-sm btn-error btn-outline">Clear catalog</button>
+                </EditForm>
+            </div>
         }
         else
         {
@@ -40,10 +53,13 @@
     private (string Text, string Css) _state = (string.Empty, string.Empty);
     private string _indexed = string.Empty;
     private int _staleDays;
+    private FeedSeriesViewModel _series = new();
 
     protected override void OnParametersSet()
     {
         if (Series.Binding is not ActiveBinding binding) return;
+
+        _series = new FeedSeriesViewModel {SeriesId = Series.SeriesId, SeriesTitle = Series.Title};
 
         _state = binding switch
         {

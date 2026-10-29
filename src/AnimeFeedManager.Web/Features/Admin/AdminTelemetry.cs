@@ -11,4 +11,8 @@ internal static class AdminTelemetry
     public const string NotificationSummarySpan = "Admin.NotificationSummary";
     public const string FeedUpdatesSummarySpan = "Admin.FeedUpdatesSummary";
     public const string BindNyaaSeriesSpan = "Admin.BindNyaaSeries";
+    public const string BackfillNyaaSeriesSpan = "Admin.BackfillNyaaSeries";
+    public const string ClearNyaaCatalogSpan = "Admin.ClearNyaaCatalog";
+    public const string UpdateFeedEpisodesSpan = "Admin.UpdateFeedEpisodes";
+    public const string OverrideEpisodesSpan = "Admin.OverrideEpisodes";
 }

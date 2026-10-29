@@ -11,12 +11,48 @@
             }
             <span>Library <strong>@Count(Series.LibraryEpisodes)</strong></span>
         </div>
-        <p class="m-0 text-xs text-base-content/70">Completion uses the feed count, snapshotted from the library at bind.</p>
+        <div class="flex flex-wrap items-end gap-3">
+            @if (Series.Binding is ActiveBinding)
+            {
+                <EditForm Model="@_series" hx-post="/admin/feeds/episodes/from-library" hx-swap="none">
+                    <input type="hidden" name="@nameof(_series.SeriesId)" value="@_series.SeriesId"/>
+                    <input type="hidden" name="@nameof(_series.SeriesTitle)" value="@_series.SeriesTitle"/>
+                    <button type="submit" class="btn btn-sm btn-primary">Update from library</button>
+                </EditForm>
+            }
+            <EditForm Model="@_override" hx-post="/admin/feeds/episodes/override" hx-swap="none"
+                      class="flex flex-wrap items-end gap-2">
+                <input type="hidden" name="@nameof(_override.SeriesId)" value="@_override.SeriesId"/>
+                <input type="hidden" name="@nameof(_override.SeriesTitle)" value="@_override.SeriesTitle"/>
+                <label class="flex flex-col gap-1 text-xs font-semibold">
+                    Override
+                    <input type="number" name="@nameof(_override.Episodes)" value="@_overrideValue" min="1" required
+                           class="input input-sm input-bordered w-28"/>
+                </label>
+                <button type="submit" class="btn btn-sm">Save</button>
+            </EditForm>
+        </div>
+        <p class="m-0 text-xs text-base-content/70">@_note</p>
     </div>
 </section>
 
 @code {
     [Parameter, EditorRequired] public FeedManagerSeries Series { get; set; } = null!;
+
+    private FeedSeriesViewModel _series = new();
+    private EpisodesOverrideViewModel _override = new();
+    private string? _overrideValue;
+    private string _note = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        _series = new FeedSeriesViewModel {SeriesId = Series.SeriesId, SeriesTitle = Series.Title};
+        _override = new EpisodesOverrideViewModel {SeriesId = Series.SeriesId, SeriesTitle = Series.Title};
+        _overrideValue = Series.LibraryEpisodes is KnownEpisodes known ? known.Count.ToString() : null;
+        _note = Series.Binding is ActiveBinding
+            ? "Completion uses the feed count. Override saves to the library and the feed."
+            : "Binding snapshots the library count. Override saves to the library.";
+    }
 
     private static string Count(ExpectedEpisodes episodes) =>
         episodes is KnownEpisodes known ? known.Count.ToString() : "?";

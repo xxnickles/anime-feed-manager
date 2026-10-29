@@ -1,0 +1,20 @@
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+
+@* Card actions post with hx-swap="none"; a success response carries this block out of band, so a failure leaves it as it was. *@
+<div id="binding-cards" class="flex flex-col gap-6" hx-swap-oob="@(Oob ? "true" : null)">
+    <EpisodesCard Series="Series"/>
+    <CurrentFeedCard Series="Series"/>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public FeedManagerSeries Series { get; set; } = null!;
+    [Parameter] public bool Oob { get; set; }
+
+    public static RenderFragment AsOobFragment(FeedManagerSeries series) => builder =>
+    {
+        builder.OpenComponent<BindingCards>(0);
+        builder.AddAttribute(1, nameof(Series), series);
+        builder.AddAttribute(2, nameof(Oob), true);
+        builder.CloseComponent();
+    };
+}

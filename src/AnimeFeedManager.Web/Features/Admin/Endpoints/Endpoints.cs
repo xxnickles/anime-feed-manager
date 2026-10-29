@@ -18,6 +18,10 @@ internal static class Endpoints
 
         var feedsGroup = adminGroup.MapGroup("/feeds");
         feedsGroup.MapPost("/bind", FeedManagerHandlers.Bind);
+        feedsGroup.MapPost("/backfill", FeedManagerHandlers.Backfill);
+        feedsGroup.MapPost("/clear-catalog", FeedManagerHandlers.ClearCatalog);
+        feedsGroup.MapPost("/episodes/from-library", FeedManagerHandlers.UpdateEpisodesFromLibrary);
+        feedsGroup.MapPost("/episodes/override", FeedManagerHandlers.OverrideEpisodes);
 
         var chartsGroup = adminGroup.MapGroup("/charts");
         chartsGroup.MapGet("/scrap-library", ChartHandlers.ScrapLibrarySummary);

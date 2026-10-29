@@ -4,7 +4,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var signalR = builder.AddAzureSignalR("signalr", AzureSignalRServiceMode.Serverless)
     .RunAsEmulator(emulator => emulator.WithImageTag("latest")
-        .WithImagePullPolicy(ImagePullPolicy.Missing)
+        .WithImagePullPolicy(ImagePullPolicy.Always)
     );
 
 var storage = builder.AddAzureStorage("storage")
@@ -24,7 +24,7 @@ builder.AddJavaScriptApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 // Token for local development - production uses GitHub secret
 const string chromeDevToken = "local-dev-token";
 
-var chrome = builder.AddContainer("chrome", "ghcr.io/browserless/chromium", "v2.57.0")
+var chrome = builder.AddContainer("chrome", "ghcr.io/browserless/chromium", "v2.57.3")
     .WithImagePullPolicy(ImagePullPolicy.Missing)
     .WithHttpEndpoint(port: 3000, targetPort: 3000, name: "http")
     .WithEnvironment("TOKEN", chromeDevToken)

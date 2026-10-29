@@ -133,6 +133,10 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AdminTelemetry.NotificationSummarySpan` | `Admin.NotificationSummary` | Web.Admin | Web |
 | `AdminTelemetry.FeedUpdatesSummarySpan` | `Admin.FeedUpdatesSummary` | Web.Admin | Web |
 | `AdminTelemetry.BindNyaaSeriesSpan` | `Admin.BindNyaaSeries` | Web.Admin | Web |
+| `AdminTelemetry.BackfillNyaaSeriesSpan` | `Admin.BackfillNyaaSeries` | Web.Admin | Web |
+| `AdminTelemetry.ClearNyaaCatalogSpan` | `Admin.ClearNyaaCatalog` | Web.Admin | Web |
+| `AdminTelemetry.UpdateFeedEpisodesSpan` | `Admin.UpdateFeedEpisodes` | Web.Admin | Web |
+| `AdminTelemetry.OverrideEpisodesSpan` | `Admin.OverrideEpisodes` | Web.Admin | Web |
 | `TvTelemetry.ToggleInterestedSpan` | `Tv.ToggleInterested` | Web.Tv | Web |
 | `TvTelemetry.ToggleSubscriptionSpan` | `Tv.ToggleSubscription` | Web.Tv | Web |
 | `TvTelemetry.UpdateAlternativeTitlesSpan` | `Tv.UpdateAlternativeTitles` | Web.Tv | Web |

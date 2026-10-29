@@ -44,8 +44,7 @@
         }
         else
         {
-            <EpisodesCard Series="_series"/>
-            <CurrentFeedCard Series="_series"/>
+            <BindingCards Series="_series"/>
             <FindReleaseCard Series="_series" Query="@(Query ?? _series.Title)" TrustedOnly="@TrustedOnly" Outcome="_search"/>
         }
     </div>
