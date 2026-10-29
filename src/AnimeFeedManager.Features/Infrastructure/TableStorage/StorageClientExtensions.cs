@@ -48,12 +48,24 @@ internal static class StorageClientExtensions
                 "An error occurred when executing a Table Client action")
         };
 
-        public async Task<Result<ImmutableArray<T>>> ExecuteQuery<T>(Expression<Func<T, bool>> filter,
-            CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity
+        public Task<Result<ImmutableArray<T>>> ExecuteQuery<T>(Expression<Func<T, bool>> filter,
+            CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity =>
+            TableClient.CollectQuery(() => client.QueryAsync(filter, select: select, cancellationToken: token));
+
+        /// <summary>
+        /// Runs an OData filter built with <see cref="TableClient.CreateQueryFilter(FormattableString)"/>.
+        /// Required for enum properties: they are stored as names, but a LINQ filter compares their numeric value.
+        /// </summary>
+        public Task<Result<ImmutableArray<T>>> ExecuteQuery<T>(string filter,
+            CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity =>
+            TableClient.CollectQuery(() => client.QueryAsync<T>(filter, select: select, cancellationToken: token));
+
+        private static async Task<Result<ImmutableArray<T>>> CollectQuery<T>(Func<AsyncPageable<T>> query)
+            where T : class, ITableEntity
         {
             try
             {
-                var queryResults = client.QueryAsync(filter, select: select, cancellationToken: token);
+                var queryResults = query();
                 var builder = ImmutableArray.CreateBuilder<T>();
                 await foreach (var qEntity in queryResults)
                 {

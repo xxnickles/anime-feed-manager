@@ -1,5 +1,6 @@
 ﻿@page "/admin"
 @using AnimeFeedManager.Web.Features.Admin.SeasonCards
+@using AnimeFeedManager.Web.Features.Admin.Stats
 @using AnimeFeedManager.Web.Features.Admin.TvCards
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = UserRole.AdminValue)]
@@ -24,6 +25,13 @@
         </select>
     </label>
 </header>
+
+<section aria-label="Period summary"
+         class="mb-10 grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
+    <StatCardSkeleton CardId="last-scrape" Endpoint="/admin/stats/last-scrape" UpdateTriggerEvent="periodChanged"/>
+    <StatCardSkeleton CardId="errors" Endpoint="/admin/stats/errors" UpdateTriggerEvent="periodChanged"/>
+    <StatCardSkeleton CardId="nyaa" Endpoint="/admin/stats/nyaa" UpdateTriggerEvent="periodChanged"/>
+</section>
 
 <h2 class="mb-8">Charts</h2>
 <Charts/>

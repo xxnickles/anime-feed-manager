@@ -1,0 +1,42 @@
+@using AnimeFeedManager.Features.SystemEvents.Stats
+@using AnimeFeedManager.Features.Tv.FeedManager
+<div class="card-body gap-2 p-5">
+    <span class="text-xs text-base-content/70">Nyaa</span>
+    <span class="flex items-baseline gap-2">
+        <span class="text-3xl font-bold leading-none">@Stat.Bound</span>
+        <span class="text-xs text-base-content/70">bound · @Stat.Backfilled backfilled</span>
+    </span>
+    @if (Stat.PossiblyTruncated.IsEmpty)
+    {
+        <span class="text-xs text-base-content/70">No truncated catalogs</span>
+    }
+    else
+    {
+        <span class="text-xs text-warning">Possibly truncated</span>
+        <ul class="flex flex-col gap-1 text-xs">
+            @foreach (var backfill in Stat.PossiblyTruncated.Take(MaxListed))
+            {
+                <li class="truncate">
+                    <a href="@FeedManagerRoutes.AdminSeries(backfill.SeriesId)" class="link link-hover">@backfill.Title</a>
+                </li>
+            }
+            @if (Stat.PossiblyTruncated.Length > MaxListed)
+            {
+                <li class="text-base-content/70">+@(Stat.PossiblyTruncated.Length - MaxListed) more</li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required NyaaStats Stat { get; set; }
+
+    private const int MaxListed = 3;
+
+    public static RenderFragment AsRenderFragment(NyaaStats stat) => builder =>
+    {
+        builder.OpenComponent<NyaaStatCard>(0);
+        builder.AddAttribute(1, nameof(Stat), stat);
+        builder.CloseComponent();
+    };
+}

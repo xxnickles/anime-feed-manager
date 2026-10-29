@@ -1,0 +1,18 @@
+<article id="stat-@CardId"
+         class="card bg-base-200 shadow-sm min-w-0"
+         hx-get="@Endpoint"
+         hx-trigger="load, @UpdateTriggerEvent from:body"
+         hx-swap="innerHTML"
+         data-param-name="period">
+    <div class="card-body gap-3 p-5" role="status" aria-label="Loading">
+        <div class="skeleton h-4 w-24" aria-hidden="true"></div>
+        <div class="skeleton h-8 w-16" aria-hidden="true"></div>
+        <div class="skeleton h-3 w-32" aria-hidden="true"></div>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public required string CardId { get; set; }
+    [Parameter, EditorRequired] public required string Endpoint { get; set; }
+    [Parameter, EditorRequired] public required string UpdateTriggerEvent { get; set; }
+}

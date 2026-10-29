@@ -1,0 +1,47 @@
+@using AnimeFeedManager.Features.Seasons.Events
+@using AnimeFeedManager.Features.SystemEvents.Stats
+@using AnimeFeedManager.Features.Tv.FeedManager.Events
+@using AnimeFeedManager.Features.Tv.Library.Events
+<div class="card-body gap-2 p-5">
+    <span class="text-xs text-base-content/70">Errors</span>
+    <span class="text-3xl font-bold leading-none @(Stat.Total > 0 ? "text-error" : null)">@Stat.Total</span>
+    @if (Stat.Total == 0)
+    {
+        <span class="text-xs text-success">All clear</span>
+    }
+    else
+    {
+        <ul class="flex flex-col gap-1 text-xs">
+            @foreach (var source in Stat.BySource)
+            {
+                <li class="flex justify-between gap-3">
+                    <span class="text-base-content/70">@Label(source.PayloadTypeName)</span>
+                    <span class="font-semibold">@source.Count</span>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required ErrorStats Stat { get; set; }
+
+    private static string Label(string payloadTypeName) => payloadTypeName switch
+    {
+        nameof(ScrapTvLibraryFailedResult) => "Library scrape",
+        nameof(CompletedTvSeriesResult) => "Series completion",
+        nameof(FeedTitlesUpdateError) => "Feed titles",
+        nameof(AutoSubscriptionResult) => "Auto-subscription",
+        nameof(SeasonUpdateResult) => "Season update",
+        nameof(NyaaBindFailed) => "Nyaa bind",
+        nameof(NyaaBackfillFailed) => "Nyaa backfill",
+        _ => payloadTypeName
+    };
+
+    public static RenderFragment AsRenderFragment(ErrorStats stat) => builder =>
+    {
+        builder.OpenComponent<ErrorsStatCard>(0);
+        builder.AddAttribute(1, nameof(Stat), stat);
+        builder.CloseComponent();
+    };
+}
