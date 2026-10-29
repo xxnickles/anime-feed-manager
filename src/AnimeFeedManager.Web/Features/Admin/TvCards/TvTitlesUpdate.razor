@@ -1,12 +1,13 @@
 @using AnimeFeedManager.Web.Features.Admin.Base
 @implements INotifiableComponent<Noop>
-<AdminCardForm ViewModel="@ViewModel"
-               FormName="@FormName"
-               Title="Update TV titles"
-               SubmitText="Update"
-               hx-swap="outerHTML"
-               hx-put="/admin/tv/titles"
-               hx-confirm="Do you want to updated the TV titles?"></AdminCardForm>
+<AdminActionRow ViewModel="@ViewModel"
+                FormName="@FormName"
+                Title="Feed titles"
+                Description="Refresh SubsPlease feed titles for the latest season."
+                SubmitText="Update"
+                hx-swap="outerHTML"
+                hx-put="/admin/tv/titles"
+                hx-confirm="Do you want to updated the TV titles?"></AdminActionRow>
 
 @code {
 

@@ -6,21 +6,52 @@
 
 <AppPageTitle Title="@PageTitle("Admin")" />
 
+<header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div class="flex flex-col gap-1">
+        <AdminBreadcrumbs/>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-primary">Operations</h1>
+        <p class="text-sm text-base-content/70">Pipeline activity and maintenance tasks.</p>
+    </div>
+    <label for="period-selector" class="select select-sm w-auto">
+        <span class="label">Period</span>
+        <select id="period-selector"
+                _="on change send periodChanged(value: my value) to body">
+            <option value="7d">Last Week</option>
+            <option value="14d">Last 2 Weeks</option>
+            <option value="30d" selected>Last Month</option>
+            <option value="60d">Last 2 Months</option>
+            <option value="90d">Last 90 days</option>
+        </select>
+    </label>
+</header>
+
 <h2 class="mb-8">Charts</h2>
 <Charts/>
 
-<h2 class="mb-8">Seasons</h2>
-<section
-    class="grid items-stretch grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-10">
-    <FeaturedSeasonUpdate/>
-</section>
+<section class="mt-10 flex flex-col gap-4">
+    <div class="flex flex-wrap items-baseline justify-between gap-4">
+        <h2 class="m-0">Maintenance</h2>
+        <span class="text-xs text-base-content/70">Every action asks for confirmation before it runs</span>
+    </div>
 
-<h2 class="mb-8 mt-10">Tv Series</h2>
-<section
-    class="grid items-stretch grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-10">
-    <TvLatestSeasonUpdate/>
-    <TvSeasonalUpdate/>
-    <TvTitlesUpdate/>
-    <TvNotificationsTrigger/>
-    <FeedManagerEntry/>
+    @* Action forms swap themselves (outerHTML); rows must stay direct children of divide-y. *@
+    <div class="grid items-start grid-cols-[repeat(auto-fit,minmax(min(480px,100%),1fr))] gap-4">
+        <div class="card bg-base-200 shadow-sm">
+            <h3 class="m-0 px-5 py-3 border-b border-base-300 text-xs font-semibold uppercase tracking-wide text-base-content/70">Seasons</h3>
+            <div class="divide-y divide-base-300">
+                <FeaturedSeasonUpdate/>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow-sm">
+            <h3 class="m-0 px-5 py-3 border-b border-base-300 text-xs font-semibold uppercase tracking-wide text-base-content/70">TV series</h3>
+            <div class="divide-y divide-base-300">
+                <TvLatestSeasonUpdate/>
+                <TvSeasonalUpdate/>
+                <TvTitlesUpdate/>
+                <TvNotificationsTrigger/>
+                <FeedManagerEntry/>
+            </div>
+        </div>
+    </div>
 </section>

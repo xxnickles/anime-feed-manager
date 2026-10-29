@@ -5097,6 +5097,9 @@
   .w-\[min\(92vw\,32rem\)\] {
     width: min(92vw, 32rem);
   }
+  .w-auto {
+    width: auto;
+  }
   .w-fit {
     width: fit-content;
   }
@@ -5132,6 +5135,9 @@
   }
   .flex-\[1_1_20rem\] {
     flex: 1 1 20rem;
+  }
+  .flex-\[1_1_200px\] {
+    flex: 1 1 200px;
   }
   .flex-none {
     flex: none;
@@ -5258,6 +5264,9 @@
   .grid-cols-\[auto_1fr\] {
     grid-template-columns: auto 1fr;
   }
+  .grid-cols-\[auto_11rem\] {
+    grid-template-columns: auto 11rem;
+  }
   .grid-cols-\[minmax\(0\,1fr\)_auto\] {
     grid-template-columns: minmax(0,1fr) auto;
   }
@@ -5269,6 +5278,9 @@
   }
   .grid-cols-\[repeat\(auto-fit\,minmax\(min\(420px\,100\%\)\,1fr\)\)\] {
     grid-template-columns: repeat(auto-fit,minmax(min(420px, 100%),1fr));
+  }
+  .grid-cols-\[repeat\(auto-fit\,minmax\(min\(480px\,100\%\)\,1fr\)\)\] {
+    grid-template-columns: repeat(auto-fit,minmax(min(480px, 100%),1fr));
   }
   .grid-rows-1 {
     grid-template-rows: repeat(1, minmax(0, 1fr));
@@ -5297,8 +5309,8 @@
   .items-end {
     align-items: flex-end;
   }
-  .items-stretch {
-    align-items: stretch;
+  .items-start {
+    align-items: flex-start;
   }
   .justify-between {
     justify-content: space-between;
@@ -5345,6 +5357,9 @@
   .gap-x-4 {
     column-gap: calc(var(--spacing) * 4);
   }
+  .gap-x-5 {
+    column-gap: calc(var(--spacing) * 5);
+  }
   .gap-x-6 {
     column-gap: calc(var(--spacing) * 6);
   }
@@ -5353,6 +5368,19 @@
   }
   .gap-y-2 {
     row-gap: calc(var(--spacing) * 2);
+  }
+  .gap-y-3 {
+    row-gap: calc(var(--spacing) * 3);
+  }
+  :where(.divide-y > :not(:last-child)) {
+    --tw-divide-y-reverse: 0;
+    border-bottom-style: var(--tw-border-style);
+    border-top-style: var(--tw-border-style);
+    border-top-width: calc(1px * var(--tw-divide-y-reverse));
+    border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+  }
+  :where(.divide-base-300 > :not(:last-child)) {
+    border-color: var(--color-base-300);
   }
   .self-start {
     align-self: flex-start;
@@ -5634,6 +5662,12 @@
   }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
+  }
+  .px-5 {
+    padding-inline: calc(var(--spacing) * 5);
+  }
+  .py-0 {
+    padding-block: 0px;
   }
   .py-0\.5 {
     padding-block: calc(var(--spacing) * 0.5);
@@ -6068,6 +6102,15 @@
       --top-mul: 4;
       --font-size: 0.75rem;
     }
+    .select-sm {
+      --sl-size-mul: 8;
+      --font-size-min: 0.75rem;
+      --option-px: 2.5;
+    }
+    .floating-label:has(.select-sm) {
+      --top-mul: 4;
+      --font-size: 0.75rem;
+    }
     .btn-neutral {
       --btn-color: var(--color-neutral);
       --btn-fg: var(--color-neutral-content);
@@ -6369,6 +6412,9 @@
     .lg\:border-base-300 {
       border-color: var(--color-base-300);
     }
+  }
+  .\[\&\>p\]\:col-span-2 > p {
+    grid-column: span 2 / span 2;
   }
   .nav-open .\[\.nav-open_\&\]\:translate-x-0 {
     --tw-translate-x: 0px;
@@ -6861,6 +6907,11 @@ daisy-htmx-alerts {
   syntax: "*";
   inherits: false;
 }
+@property --tw-divide-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
 @property --tw-border-style {
   syntax: "*";
   inherits: false;
@@ -7127,6 +7178,7 @@ daisy-htmx-alerts {
       --tw-rotate-z: initial;
       --tw-skew-x: initial;
       --tw-skew-y: initial;
+      --tw-divide-y-reverse: 0;
       --tw-border-style: solid;
       --tw-gradient-position: initial;
       --tw-gradient-from: #0000;

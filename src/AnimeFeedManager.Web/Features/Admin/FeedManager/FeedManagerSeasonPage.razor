@@ -4,16 +4,10 @@
 
 <AppPageTitle Title="@PageTitle("Feed manager")" />
 
-<div class="breadcrumbs text-sm">
-    <ul>
-        <li><a href="/admin">Admin</a></li>
-        <li>Feed manager</li>
-    </ul>
-</div>
-
 <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div class="flex flex-col gap-1">
-        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Feed manager</h1>
+        <AdminBreadcrumbs Trail="@([new Crumb("Feed manager")])"/>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-primary">Feed manager</h1>
         <p class="text-sm text-base-content/70">Series SubsPlease doesn't carry.</p>
     </div>
     <FeedManagerSeasonLinks Current="_season"/>

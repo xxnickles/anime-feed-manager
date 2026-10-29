@@ -1,10 +1,12 @@
-﻿<AdminCardForm Title="@Title"
-               SubmitText="Update Season"
-               ViewModel="@ViewModel"
-               AdditionalAttributes="@AdditionalAttributes"
-               FormName="@FormName">
-    <fieldset class="fieldset w-full">
-        <label class="select mt-4 w-full">
+﻿<AdminActionRow Title="@Title"
+                Description="@Description"
+                SubmitText="Update"
+                ViewModel="@ViewModel"
+                AdditionalAttributes="@AdditionalAttributes"
+                FormName="@FormName">
+    @* The hint must stay a sibling after the validator label for daisyUI's ~ selector. *@
+    <fieldset class="fieldset p-0 grid grid-cols-[auto_11rem] gap-2 [&>p]:col-span-2">
+        <label class="select">
             <span class="label">Season</span>
             <InputSelect class="validator-no-success"
                          title="Season Selection"
@@ -17,7 +19,7 @@
             </InputSelect>
         </label>
 
-        <label class="input validator mt-4 w-full">
+        <label class="input validator">
             <span class="label">Year</span>
             <InputNumber @bind-Value="ViewModel.Year"
                          name="@nameof(ViewModel.Year)"
@@ -28,10 +30,12 @@
         </label>
         <Hint For="() => ViewModel.Year"></Hint>
     </fieldset>
-</AdminCardForm>
+</AdminActionRow>
 
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Description { get; set; } = string.Empty;
 
     [Parameter, EditorRequired] public string FormName { get; set; } = string.Empty;
 

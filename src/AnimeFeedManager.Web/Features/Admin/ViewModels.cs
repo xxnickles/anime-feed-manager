@@ -23,6 +23,8 @@ public class FeaturedSeasonViewModel
     public string Season { get; set; } = string.Empty;
 }
 
+public sealed record Crumb(string Label, string? Href = null);
+
 /// <summary>
 /// Marker class just for the sake of satisfy the compiler. Used for empty forms
 /// </summary>

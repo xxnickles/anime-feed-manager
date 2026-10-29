@@ -5,19 +5,18 @@
     AdditionalAttributes="AggregatedAttributes">
     <DataAnnotationsValidator/>
     <HtmxRequestValidator/>
-    <div class="card bg-base-200 shadow-sm h-full">
-        <div class="card-body flex flex-col">
-            <div class="flex items-center justify-between">
-                <h3 class="card-title m-0">@Title</h3>
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-3 px-5 py-4">
+        <div class="flex flex-col gap-1 flex-[1_1_200px] min-w-0">
+            <h3 class="m-0 flex items-center gap-2 text-sm font-semibold">
+                @Title
                 <span id="@_loaderId"
                       class="loading loading-spinner loading-xs htmx-indicator"></span>
-            </div>
-            <div class="flex-1 flex flex-col">
-                @ChildContent
-            </div>
-            <div class="card-actions justify-end mt-auto">
-                <button type="submit" class="btn btn-primary mt-4">@SubmitText</button>
-            </div>
+            </h3>
+            <p class="text-xs text-base-content/70">@Description</p>
+        </div>
+        <div class="flex flex-wrap items-start gap-2">
+            @ChildContent
+            <button type="submit" class="btn btn-primary">@SubmitText</button>
         </div>
     </div>
 </EditForm>
@@ -25,30 +24,29 @@
 @code {
 
     /// <summary>
-    /// Reusable admin form card. Additional attributes passed will be applied to the form, which makes it practical for HMTX request 
+    /// Admin action as a compact row: title and description on the left, inputs and submit on the right.
+    /// Additional attributes go to the form, so it carries the htmx request.
     /// </summary>
-    /// <remarks>
-    /// This component renders a card-based form with season dropdown and year input controls.
-    /// It supports both EditForm and regular form submissions with DaisyUI styling.
-    /// </remarks>
 
     [Parameter, EditorRequired]
     public required TModel ViewModel { get; set; }
 
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
 
+    [Parameter, EditorRequired] public string Description { get; set; } = string.Empty;
+
     [Parameter, EditorRequired] public string FormName { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Meant to be form inputs
-    /// </summary>
     [Parameter, EditorRequired]
     public string SubmitText { get; set; } = string.Empty;
 
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
-    [Parameter] public RenderFragment ChildContent { get; set; } = @<br/>;
+    /// <summary>
+    /// Form inputs, rendered before the submit button.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
 
     private string _loaderId = string.Empty;
 
