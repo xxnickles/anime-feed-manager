@@ -5,11 +5,11 @@ public readonly struct TargetConsumer
 {
     private readonly string _value;
 
-    private const string AdminValue = "Admin";
-    private const string EverybodyValue = "All";
+    internal const string AdminValue = "Admin";
+    internal const string EverybodyValue = "All";
 
     // Used as default for serialization
-    private const string NoneValue = "None";
+    internal const string NoneValue = "None";
 
 
     private TargetConsumer(string value)

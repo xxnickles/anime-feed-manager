@@ -38,21 +38,16 @@ public class OnSystemEvent
             .PrepareUiNotification()
             .Bind(result =>
             {
-                if (!result.NotifyUi)
+                var audience = LiveAudience.From(result.Event.Consumer);
+                if (!result.NotifyUi || audience is NoAudience)
                     return Task.FromResult(Result<SignalRMessageAction?>.Success(null));
 
                 return NotificationFactory.GenerateNotificationContent(result.Event,
                         EventPayloadDeserializer.Deserialize, _blazorRenderer)
-                    .Map<string, SignalRMessageAction?>(CreateSignalRMessage);
+                    .Map(content => LiveMessages.For(audience, ServerNotifications.AlertNotifications, content));
             })
             .MarkActivityErroredOnError()
             .FlushLogs(_logger)
             .MatchToValue(r => r, _ => null);
     }
-
-    private static SignalRMessageAction CreateSignalRMessage(string content) =>
-        new(ServerNotifications.AlertNotifications)
-        {
-            Arguments = [content]
-        };
 }

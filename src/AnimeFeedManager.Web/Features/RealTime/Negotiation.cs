@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.SystemEvents;
 using AnimeFeedManager.Shared.Types;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.Azure.SignalR.Management;
@@ -6,8 +7,6 @@ namespace AnimeFeedManager.Web.Features.RealTime;
 
 internal static class Negotiation
 {
-    internal const string AdminGroup = "admin";
-
     // Admin membership is renewed on every negotiate and lapses with the client token, so a demoted admin drops out within it.
     private static readonly TimeSpan TokenLifetime = TimeSpan.FromHours(1);
 
@@ -28,10 +27,10 @@ internal static class Negotiation
             switch (user)
             {
                 case AdminUser admin:
-                    await hub.UserGroups.AddToGroupAsync(admin.UserId, AdminGroup, TokenLifetime, cancellationToken);
+                    await hub.UserGroups.AddToGroupAsync(admin.UserId, LiveAudience.AdminGroup, TokenLifetime, cancellationToken);
                     break;
                 case AuthenticatedUser authenticated:
-                    await hub.UserGroups.RemoveFromGroupAsync(authenticated.UserId, AdminGroup, cancellationToken);
+                    await hub.UserGroups.RemoveFromGroupAsync(authenticated.UserId, LiveAudience.AdminGroup, cancellationToken);
                     break;
             }
 
