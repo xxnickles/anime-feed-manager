@@ -102,6 +102,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AnimeFeedManager.Web.Admin` | Admin endpoint handlers | Web |
 | `AnimeFeedManager.Web.Security` | Auth/credential endpoint handlers | Web |
 | `AnimeFeedManager.Web.Tv` | TV library/subscription endpoint handlers | Web |
+| `AnimeFeedManager.Web.RealTime` | SignalR negotiation | Web |
 
 ### 6.2 Spans
 
@@ -124,6 +125,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `FeedManagerTelemetry.QuerySeasonSpan` | `Tv.FeedManager.QuerySeason` | Tv.FeedManager.Queries | Web |
 | `FeedManagerTelemetry.QuerySeriesSpan` | `Tv.FeedManager.QuerySeries` | Tv.FeedManager.Queries | Web |
 | `FeedManagerTelemetry.SearchReleasesSpan` | `Tv.FeedManager.SearchReleases` | Tv.FeedManager.Queries | Web |
+| `RealTimeTelemetry.NegotiateSpan` | `RealTime.Negotiate` | Web.RealTime | Web |
 | `AdminTelemetry.UpdateTvSeasonSpan` | `Admin.UpdateTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateFeedTitlesSpan` | `Admin.UpdateFeedTitles` | Web.Admin | Web |

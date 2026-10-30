@@ -60,7 +60,7 @@ Storage uses the `Aspire:` sections, not `ConnectionStrings:*`: a `ConnectionStr
 |---|---|---|
 | `ConnectionStrings:BlobConnection`, `ConnectionStrings:QueueConnection`, `ConnectionStrings:TablesConnection` | Storage clients | Yes |
 | `Passwordless:ApiKey`, `Passwordless:ApiSecret` | [Passwordless.dev](https://bitwarden.com/products/passwordless/) passkeys | Yes |
-| `SignalR:Endpoint` | Functions SignalR negotiation endpoint | Yes |
+| `ConnectionStrings:signalr` | SignalR negotiation and admin group membership (`AuthType=azure.msi` in Azure) | Yes |
 | `AppVersion:Version`, `AppVersion:CommitSha` | Navbar build info (default `local`) | No |
 | `APPLICATIONINSIGHTS_CONNECTION_STRING` | Azure Monitor exporter | In Azure |
 

@@ -28,6 +28,7 @@
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.OpenTelemetry" Version="1.2.0" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.1" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.SignalRService" Version="2.1.0" />
+    <PackageVersion Include="Microsoft.Azure.SignalR.Management" Version="1.33.1" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.5.5" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0" />
@@ -51,7 +52,7 @@
     <PackageVersion Include="Passwordless.AspNetCore" Version="2.0.0" />
     <PackageVersion Include="PuppeteerSharp" Version="25.15.0" />
     <PackageVersion Include="Raffinert.FuzzySharp" Version="6.0.1" />
-    <PackageVersion Include="WireMock.Net" Version="2.20.0" />
+    <PackageVersion Include="WireMock.Net" Version="2.21.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.2" />
   </ItemGroup>
 </Project>

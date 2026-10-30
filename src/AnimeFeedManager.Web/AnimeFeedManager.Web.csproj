@@ -16,6 +16,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.Azure.SignalR.Management" />
+    </ItemGroup>
+
+    <ItemGroup>
       <AdditionalFiles Include="**\*.razor.hs" />
     </ItemGroup>
 

@@ -3,9 +3,7 @@ using Aspire.Hosting.Azure;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var signalR = builder.AddAzureSignalR("signalr", AzureSignalRServiceMode.Serverless)
-    .RunAsEmulator(emulator => emulator.WithImageTag("latest")
-        .WithImagePullPolicy(ImagePullPolicy.Always)
-    );
+    .RunAsEmulator(emulator => emulator.WithImageTag("1.7.0"));
 
 var storage = builder.AddAzureStorage("storage")
     .RunAsEmulator(emulator => emulator.WithImageTag("3.37.0")
@@ -52,6 +50,7 @@ var commitSha = GetLocalCommitSha();
 
 builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(functions)
+    .WithReference(signalR)
     .WaitFor(signalR)
     .WithReference(blobs)
     .WaitFor(blobs)
@@ -59,7 +58,6 @@ builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(queues)
     .WithReference(tables)
     .WaitFor(tables)
-    .WithEnvironment("SignalR__Endpoint", "http://localhost:7071/api")
     .WithEnvironment("AppVersion__CommitSha", commitSha);
 
 

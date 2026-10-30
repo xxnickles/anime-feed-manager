@@ -1,9 +1,7 @@
 ﻿@using AnimeFeedManager.Services.Shared
-@using AnimeFeedManager.Web.Bootstrapping
 @using Microsoft.Extensions.Options
 @using Passwordless
 @inject IOptions<PasswordlessOptions> PasswordlessOptions
-@inject IOptions<SignalROptions> SignalROptions
 @inject IHttpContextAccessor HttpContextAccessor
 
 @if (_isPartialRequest)
@@ -100,7 +98,7 @@ else
 
 <body class="bg-base-100 min-h-screen min-w-[380px] max-lg:has-[#app-shell.nav-open]:overflow-hidden"
       hx-boost:inherited="transition:true"
-      signalr-connect="@SignalROptions.Value.Endpoint"
+      signalr-connect="@RealTime.Endpoints.Hub"
 >
 
 <Routes/>

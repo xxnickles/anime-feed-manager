@@ -53,6 +53,9 @@ public static class Telemetry
     /// <summary>Web TV library/subscription endpoint handlers.</summary>
     public const string WebTvSource = "AnimeFeedManager.Web.Tv";
 
+    /// <summary>Web SignalR negotiation.</summary>
+    public const string WebRealTimeSource = "AnimeFeedManager.Web.RealTime";
+
     // Cross-feature keys, shared by span tags and log properties. Feature keys live in that feature's *Telemetry class.
 
     public const string SeriesIdTag = "series.id";
