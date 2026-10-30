@@ -1,4 +1,5 @@
 ﻿global using System.Diagnostics;
+global using AnimeFeedManager.Features.AppEvents;
 global using AnimeFeedManager.Features.Images;
 global using AnimeFeedManager.Features.Infrastructure;
 global using AnimeFeedManager.Features.Infrastructure.Messaging;

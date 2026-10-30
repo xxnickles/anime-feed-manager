@@ -20,6 +20,7 @@ public static class HubNames
 public static class ServerNotifications
 {
     public const string AlertNotifications = "alertnotifications";
+    public const string AppEvents = "appevents";
 }
 
 
