@@ -20,6 +20,8 @@ filterValues/withExtensions surface, none of which exist in htmx 4.
     var signalRConnect = "signalr-connect";
     var signalRSubscribe = "signalr-subscribe";
     var signalRSend = "signalr-send";
+    // Hub methods carrying a JSON {type, subject} string, re-raised as a bubbling DOM event on <body>
+    var signalRDispatch = "signalr-dispatch";
 
     htmx.registerExtension("signalr", {
 
@@ -47,6 +49,7 @@ filterValues/withExtensions surface, none of which exist in htmx 4.
             forEach(queryAttributeOnThisOrChildren(elt, signalRConnect), ensureHubConnection);
             forEach(queryAttributeOnThisOrChildren(elt, signalRSubscribe), ensureSubscription);
             forEach(queryAttributeOnThisOrChildren(elt, signalRSend), ensureSending);
+            forEach(queryAttributeOnThisOrChildren(elt, signalRDispatch), ensureDispatch);
         },
 
         /**
@@ -182,7 +185,7 @@ filterValues/withExtensions surface, none of which exist in htmx 4.
                     return;
                 }
 
-                if (maybeUnsubscribe(hubElement, method, elt, handler)) {
+                if (maybeUnsubscribe(hubElement, method, elt, handler, signalRSubscribe)) {
                     return;
                 }
 
@@ -208,6 +211,81 @@ filterValues/withExtensions surface, none of which exist in htmx 4.
                     fragment: template.content
                 });
             });
+        }
+    }
+
+    /**
+     * ensureDispatch listens to the hub methods in the element's "signalr-dispatch" attribute and
+     * dispatches each {type, subject} message as CustomEvent(type, {detail: {subject}}) on <body>.
+     * @param {HTMLElement} elt
+     * @returns
+     */
+    function ensureDispatch(elt) {
+
+        if (!document.body.contains(elt)) {
+            return;
+        }
+        if (typeof signalR === 'undefined') {
+            console.error('SignalR object not found. Make sure to include SignalR script in the page scripts before this extension.');
+            return;
+        }
+
+        var hubElement = findParentWithHubConnection(elt);
+
+        if (!hubElement) {
+            return;
+        }
+
+        var hubConnection = api.htmxProp(hubElement).HubConnection;
+        var signalrMethodNames = api.attributeValue(elt, signalRDispatch).split(",");
+
+        for (let i = 0; i < signalrMethodNames.length; i++) {
+            let method = signalrMethodNames[i].trim();
+
+            hubConnection.on(method, function handler(message) {
+                if (maybeCloseHubConnectionSource(hubElement)) {
+                    hubConnection.off(method, handler);
+                    return;
+                }
+
+                if (maybeUnsubscribe(hubElement, method, elt, handler, signalRDispatch)) {
+                    return;
+                }
+
+                if (!api.triggerHtmxEvent(elt, 'htmx:signalr:message', { message: message, method: method })) {
+                    return;
+                }
+
+                var appEvent = parseAppEvent(message);
+                if (!appEvent) {
+                    api.triggerHtmxEvent(elt, 'htmx:signalr:dispatch-error', { message: message, method: method });
+                    return;
+                }
+
+                document.body.dispatchEvent(new CustomEvent(appEvent.type, {
+                    bubbles: true,
+                    detail: { subject: appEvent.subject }
+                }));
+            });
+        }
+    }
+
+    /**
+     * parseAppEvent reads a {type, subject} JSON string; null when it is not one.
+     * @param {unknown} message
+     * @returns {{type: string, subject: string} | null}
+     */
+    function parseAppEvent(message) {
+        if (typeof message !== "string") {
+            return null;
+        }
+        try {
+            var parsed = JSON.parse(message);
+            return typeof parsed?.type === "string" && parsed.type !== "" && typeof parsed.subject === "string"
+                ? { type: parsed.type, subject: parsed.subject }
+                : null;
+        } catch {
+            return null;
         }
     }
 
@@ -289,7 +367,7 @@ filterValues/withExtensions surface, none of which exist in htmx 4.
 
     /**
      * maybeUnsubscribe checks if the element that created the subscription to method
-     * still has matching subscription attribute. If NOT, then the subscription is removed and this function
+     * still has a matching method in its attributeName attribute. If NOT, then the subscription is removed and this function
      * returns TRUE. If the element DOES EXIST, then no action is taken, and this function
      * returns FALSE.
      *
@@ -297,14 +375,15 @@ filterValues/withExtensions surface, none of which exist in htmx 4.
      * @param {string} subscription
      * @param {HTMLElement} elt
      * @param {Function} handler
+     * @param {string} attributeName
      * @returns
      */
-    function maybeUnsubscribe(hubElement, subscription, elt, handler) {
+    function maybeUnsubscribe(hubElement, subscription, elt, handler, attributeName) {
         if (!document.body.contains(elt)) {
             api.htmxProp(hubElement).HubConnection.off(subscription, handler);
             return true;
         }
-        if (api.attributeValue(elt, signalRSubscribe).split(",").indexOf(subscription) === -1) {
+        if (api.attributeValue(elt, attributeName).split(",").map(function (name) { return name.trim(); }).indexOf(subscription) === -1) {
             api.htmxProp(hubElement).HubConnection.off(subscription, handler);
             return true;
         }
