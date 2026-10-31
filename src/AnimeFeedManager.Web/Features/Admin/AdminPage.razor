@@ -51,13 +51,7 @@
 
     @* Action forms swap themselves (outerHTML); rows must stay direct children of divide-y. *@
     <div class="grid items-start grid-cols-[repeat(auto-fit,minmax(min(480px,100%),1fr))] gap-4">
-        <div class="card bg-base-200 shadow-sm">
-            <h3 class="m-0 px-5 py-3 border-b border-base-300 text-xs font-semibold uppercase tracking-wide text-base-content/70">Seasons</h3>
-            <div class="divide-y divide-base-300">
-                <FeaturedSeasonUpdate/>
-            </div>
-        </div>
-
+        
         <div class="card bg-base-200 shadow-sm">
             <h3 class="m-0 px-5 py-3 border-b border-base-300 text-xs font-semibold uppercase tracking-wide text-base-content/70">TV series</h3>
             <div class="divide-y divide-base-300">
@@ -68,5 +62,13 @@
                 <FeedManagerEntry/>
             </div>
         </div>
+        
+        <div class="card bg-base-200 shadow-sm">
+            <h3 class="m-0 px-5 py-3 border-b border-base-300 text-xs font-semibold uppercase tracking-wide text-base-content/70">Seasons</h3>
+            <div class="divide-y divide-base-300">
+                <FeaturedSeasonUpdate/>
+            </div>
+        </div>
+        
     </div>
 </section>

@@ -74,7 +74,7 @@ public static class BackfillSeries
             string seriesId,
             DomainCollectionSender domainPostman,
             CancellationToken token) =>
-            process.Bind(p => domainPostman([Backfilled(p)], token).Map(_ => p))
+            process.Bind(p => domainPostman([Backfilled(p), new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBackfilled, p.SeriesId)], token).Map(_ => p))
                 .SendOnError(domainPostman,
                     [
                         new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Error,

@@ -83,6 +83,7 @@ public static class BindSeries
         new BackfillNyaaSeries(request.SeriesId),
         .. bound.WasOngoing ? Array.Empty<DomainMessage>() : [new UpdatedToOngoing(request.SeriesId, bound.Title)],
         new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Completed,
-            new NyaaSeriesBound(request.SeriesId, bound.Title, request.Group, request.Variant).AsEventPayload())
+            new NyaaSeriesBound(request.SeriesId, bound.Title, request.Group, request.Variant).AsEventPayload()),
+        new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBound, request.SeriesId)
     ];
 }

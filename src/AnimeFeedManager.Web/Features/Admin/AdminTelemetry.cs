@@ -18,4 +18,5 @@ internal static class AdminTelemetry
     public const string ClearNyaaCatalogSpan = "Admin.ClearNyaaCatalog";
     public const string UpdateFeedEpisodesSpan = "Admin.UpdateFeedEpisodes";
     public const string OverrideEpisodesSpan = "Admin.OverrideEpisodes";
+    public const string RefreshBindingCardsSpan = "Admin.RefreshBindingCards";
 }

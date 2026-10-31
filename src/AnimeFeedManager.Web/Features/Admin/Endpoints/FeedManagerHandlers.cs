@@ -127,6 +127,21 @@ internal static class FeedManagerHandlers
                 error => [Notifications.CreateErrorNotification("Episodes override", error)]);
     }
 
+    internal static async Task<RazorComponentResult> Cards(
+        string seriesId,
+        [FromServices] ITableClientFactory clientFactory,
+        [FromServices] ILogger<BindingCards> logger,
+        CancellationToken token)
+    {
+        using var activity = Source.StartActivity(AdminTelemetry.RefreshBindingCardsSpan);
+        return await Reload(seriesId, clientFactory, token)
+            .MarkActivityErroredOnError()
+            .FlushLogs(logger)
+            .ToComponentResult(
+                series => [BindingCards.AsOobFragment(series)],
+                error => [Notifications.CreateErrorNotification("Feed cards", error)]);
+    }
+
     private static Task<Result<FeedManagerSeries>> Reload(
         string seriesId,
         ITableClientFactory clientFactory,
