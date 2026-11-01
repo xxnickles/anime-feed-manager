@@ -71,7 +71,7 @@ module blazorApp 'modules/blazor-app.bicep' = {
     location: location
     storageAccountName: common.outputs.storageAccountName
     appInsightsConnectionString: common.outputs.appInsightsConnectionString
-    signalREndpoint: functions.outputs.signalREndpoint
+    signalRName: functions.outputs.signalRName
     passwordlessApiKey: passwordlessApiKey
     passwordlessApiSecret: passwordlessApiSecret
   }
@@ -92,5 +92,5 @@ output storageAccountName string = common.outputs.storageAccountName
 output functionAppName string = functions.outputs.functionAppName
 output webAppName string = blazorApp.outputs.webAppName
 output webAppUrl string = blazorApp.outputs.webAppUrl
-output signalREndpoint string = functions.outputs.signalREndpoint
+output signalRName string = functions.outputs.signalRName
 output chromeEndpoint string = chrome.outputs.chromeEndpoint
