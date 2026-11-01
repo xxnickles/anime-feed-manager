@@ -39,7 +39,7 @@ jobs:
             az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.LOCATION }}
 
       - name: Deploy Bicep
-        uses: azure/bicep-deploy@v2.4.0
+        uses: azure/bicep-deploy@v2.5.0
         with:
           type: deployment
           operation: create
