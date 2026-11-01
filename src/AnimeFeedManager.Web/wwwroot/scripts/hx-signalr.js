@@ -177,7 +177,7 @@ filterValues/withExtensions surface, none of which exist in htmx 4.
         var signalrMethodNames = signalrSubscribeAttribute.split(",");
 
         for (let i = 0; i < signalrMethodNames.length; i++) {
-            var method = signalrMethodNames[i].trim();
+            let method = signalrMethodNames[i].trim();
 
             hubConnection.on(method, function handler(message) {
                 if (maybeCloseHubConnectionSource(hubElement)) {
