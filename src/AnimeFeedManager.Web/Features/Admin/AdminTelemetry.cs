@@ -19,4 +19,5 @@ internal static class AdminTelemetry
     public const string UpdateFeedEpisodesSpan = "Admin.UpdateFeedEpisodes";
     public const string OverrideEpisodesSpan = "Admin.OverrideEpisodes";
     public const string RefreshBindingCardsSpan = "Admin.RefreshBindingCards";
+    public const string RefreshReleaseCandidatesSpan = "Admin.RefreshReleaseCandidates";
 }

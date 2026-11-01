@@ -25,31 +25,9 @@
         </form>
         <p class="m-0 text-xs text-base-content/70">Suggestions come from the library title and alternative titles.</p>
 
-        @switch (Outcome)
+        @if (Outcome is not NotSearched)
         {
-            case SearchFailed failed:
-                <div role="alert" class="alert alert-error">
-                    <span>@failed.Message</span>
-                </div>
-                break;
-            case Searched {Results.Candidates.Length: 0}:
-                <p class="m-0 text-sm">No single-episode releases found.</p>
-                break;
-            case Searched searched:
-                @if (searched.Results.Full)
-                {
-                    <p class="m-0 text-xs text-warning">The search filled nyaa's 75-item window; narrow it to see older releases.</p>
-                }
-                <ul class="list rounded-box bg-base-100">
-                    @foreach (var candidate in searched.Results.Candidates)
-                    {
-                        <ReleaseCandidateRow Candidate="candidate"
-                                             SeriesId="@Series.SeriesId"
-                                             SeriesTitle="@Series.Title"
-                                             Rebind="@(Series.Binding is ActiveBinding)"/>
-                    }
-                </ul>
-                break;
+            <ReleaseCandidates Series="Series" Query="@Query" TrustedOnly="@TrustedOnly" Outcome="Outcome"/>
         }
     </div>
 </section>

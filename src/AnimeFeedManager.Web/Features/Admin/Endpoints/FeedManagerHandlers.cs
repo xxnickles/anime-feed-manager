@@ -1,8 +1,10 @@
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.Scrapping.Nyaa;
 using AnimeFeedManager.Features.Tv.FeedManager.Completion;
 using AnimeFeedManager.Features.Tv.FeedManager.Episodes;
 using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.FeedManager.Queries;
+using AnimeFeedManager.Features.Tv.FeedManager.Search;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 using AnimeFeedManager.Web.BlazorComponents.Toast;
@@ -140,6 +142,26 @@ internal static class FeedManagerHandlers
             .ToComponentResult(
                 series => [BindingCards.AsOobFragment(series)],
                 error => [Notifications.CreateErrorNotification("Feed cards", error)]);
+    }
+
+    internal static async Task<RazorComponentResult> Candidates(
+        string seriesId,
+        [FromQuery] string q,
+        [FromQuery] bool trusted,
+        [FromServices] ITableClientFactory clientFactory,
+        [FromServices] INyaaClient nyaaClient,
+        [FromServices] ILogger<ReleaseCandidates> logger,
+        CancellationToken token)
+    {
+        using var activity = Source.StartActivity(AdminTelemetry.RefreshReleaseCandidatesSpan);
+        return await Reload(seriesId, clientFactory, token)
+            .Bind(series => ReleaseSearch.Search(q, trusted, series.Binding, nyaaClient, token)
+                .Map(results => (Series: series, Results: results)))
+            .MarkActivityErroredOnError()
+            .FlushLogs(logger)
+            .ToComponentResult(
+                result => [ReleaseCandidates.AsOobFragment(result.Series, q, trusted, result.Results)],
+                error => [Notifications.CreateErrorNotification("Release search", error)]);
     }
 
     private static Task<Result<FeedManagerSeries>> Reload(

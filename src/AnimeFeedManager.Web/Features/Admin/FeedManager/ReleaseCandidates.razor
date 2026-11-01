@@ -1,0 +1,58 @@
+@using AnimeFeedManager.Features.AppEvents
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Features.Tv.FeedManager.Search
+
+@* Which row is current depends on the binding, so a bind re-runs the search; same swap contract as BindingCards. *@
+<div id="release-candidates" class="flex flex-col gap-3" hx-swap-oob="@(Oob ? "true" : null)"
+     hx-get="@CandidatesEndpoint"
+     hx-trigger="@AppEventTrigger.On(AppEventNames.NyaaBound, Series.SeriesId)"
+     hx-swap="none">
+    @switch (Outcome)
+    {
+        case SearchFailed failed:
+            <div role="alert" class="alert alert-error">
+                <span>@failed.Message</span>
+            </div>
+            break;
+        case Searched {Results.Candidates.Length: 0}:
+            <p class="m-0 text-sm">No single-episode releases found.</p>
+            break;
+        case Searched searched:
+            @if (searched.Results.Full)
+            {
+                <p class="m-0 text-xs text-warning">The search filled nyaa's 75-item window; narrow it to see older releases.</p>
+            }
+            <ul class="list rounded-box bg-base-100">
+                @foreach (var candidate in searched.Results.Candidates)
+                {
+                    <ReleaseCandidateRow Candidate="candidate"
+                                         SeriesId="@Series.SeriesId"
+                                         SeriesTitle="@Series.Title"
+                                         Rebind="@(Series.Binding is ActiveBinding)"/>
+                }
+            </ul>
+            break;
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public FeedManagerSeries Series { get; set; } = null!;
+    [Parameter, EditorRequired] public string Query { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public bool TrustedOnly { get; set; }
+    [Parameter, EditorRequired] public SearchOutcome Outcome { get; set; } = null!;
+    [Parameter] public bool Oob { get; set; }
+
+    private string CandidatesEndpoint =>
+        $"/admin/feeds/series/{Series.SeriesId}/candidates?q={Uri.EscapeDataString(Query)}&trusted={(TrustedOnly ? "true" : "false")}";
+
+    public static RenderFragment AsOobFragment(FeedManagerSeries series, string query, bool trustedOnly, ReleaseSearchResults results) => builder =>
+    {
+        builder.OpenComponent<ReleaseCandidates>(0);
+        builder.AddAttribute(1, nameof(Series), series);
+        builder.AddAttribute(2, nameof(Query), query);
+        builder.AddAttribute(3, nameof(TrustedOnly), trustedOnly);
+        builder.AddAttribute(4, nameof(Outcome), new Searched(results));
+        builder.AddAttribute(5, nameof(Oob), true);
+        builder.CloseComponent();
+    };
+}

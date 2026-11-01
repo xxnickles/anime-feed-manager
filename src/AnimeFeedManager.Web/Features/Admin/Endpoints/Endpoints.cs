@@ -23,6 +23,7 @@ internal static class Endpoints
         feedsGroup.MapPost("/episodes/from-library", FeedManagerHandlers.UpdateEpisodesFromLibrary);
         feedsGroup.MapPost("/episodes/override", FeedManagerHandlers.OverrideEpisodes);
         feedsGroup.MapGet("/series/{seriesId}/cards", FeedManagerHandlers.Cards);
+        feedsGroup.MapGet("/series/{seriesId}/candidates", FeedManagerHandlers.Candidates);
 
         var chartsGroup = adminGroup.MapGroup("/charts");
         chartsGroup.MapGet("/scrap-library", ChartHandlers.ScrapLibrarySummary);
