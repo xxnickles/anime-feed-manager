@@ -27,7 +27,7 @@ param scrapingSchedule string = '0 0 0 * * *'
 @description('Cron schedule for feed titles update (NCrontab 6-field format)')
 param feedTitlesUpdateSchedule string = '0 0 0 1 1 *'
 
-@description('Web app URL for CORS')
+@description('Public web app URL: SignalR CORS and email links')
 param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
 
 @description('Chrome remote endpoint URL')
@@ -136,6 +136,7 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2025-03-01' = {
     // Prefix matches the SignalROutput ConnectionStringSetting
     SignalRConnectionString__serviceUri: 'https://${signalR.properties.hostName}'
     SignalRConnectionString__credential: 'managedidentity'
+    WebApp__BaseUrl: webAppUrl
     Gmail__FromEmail: gmailFromEmail
     Gmail__FromName: gmailFromName
     Gmail__AppPassword: gmailAppPassword

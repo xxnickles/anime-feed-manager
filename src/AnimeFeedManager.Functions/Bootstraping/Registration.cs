@@ -1,6 +1,8 @@
 ﻿using AnimeFeedManager.Web.BlazorComponents;
 using AnimeFeedManager.Web.BlazorComponents.Email;
+using AnimeFeedManager.Features.Common;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -11,6 +13,7 @@ internal static class Registration
     internal static IHostApplicationBuilder RegisterAppDependencies(this IHostApplicationBuilder builder)
     {
         builder.Services.RegisterResourceCreator();
+        builder.Services.AddSingleton(WebAppHostFrom(builder.Configuration));
 
         // Puppeteer - prefer remote Chrome endpoint if available, fallback to local
         var chromeEndpoint = builder.Configuration["Chrome:RemoteEndpoint"];
@@ -44,4 +47,9 @@ internal static class Registration
 
         return builder;
     }
+
+    private static WebAppHost WebAppHostFrom(IConfiguration configuration) =>
+        Uri.TryCreate(configuration["WebApp:BaseUrl"], UriKind.Absolute, out var baseUrl)
+            ? new WebAppHost(baseUrl)
+            : throw new InvalidOperationException("WebApp:BaseUrl must be an absolute URL");
 }

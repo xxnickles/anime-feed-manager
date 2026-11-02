@@ -48,7 +48,7 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
 
 var commitSha = GetLocalCommitSha();
 
-builder.AddProject<Projects.AnimeFeedManager_Web>("web")
+var web = builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(functions)
     .WithReference(signalR)
     .WaitFor(signalR)
@@ -59,6 +59,9 @@ builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WithReference(tables)
     .WaitFor(tables)
     .WithEnvironment("AppVersion__CommitSha", commitSha);
+
+// Endpoint reference only; a WaitFor here would cycle with web's WaitFor(functions)
+functions.WithEnvironment("WebApp__BaseUrl", web.GetEndpoint("https"));
 
 
 builder.Build().Run();
