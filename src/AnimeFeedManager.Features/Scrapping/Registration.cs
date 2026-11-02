@@ -111,4 +111,12 @@ public static class Registration
             client.BaseAddress = new Uri("https://nyaa.si/");
             client.DefaultRequestHeaders.UserAgent.ParseAdd("AnimeFeedManager/1.0");
         });
+
+    /// <summary>Registers the SubsPlease schedule client with no resilience handler; the caller adds one.</summary>
+    public static IHttpClientBuilder RegisterSubsPleaseServices(this IServiceCollection serviceCollection) =>
+        serviceCollection.AddHttpClient<ISubsPleaseSchedule, SubsPleaseSchedule>(client =>
+        {
+            client.BaseAddress = new Uri("https://subsplease.org/");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("AnimeFeedManager/1.0");
+        });
 }
