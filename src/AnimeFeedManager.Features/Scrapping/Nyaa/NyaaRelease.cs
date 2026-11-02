@@ -11,9 +11,13 @@ public sealed record RegularEpisode(int Number, string Label) : NyaaEpisode(Labe
 public sealed record SpecialEpisode(decimal Number, string Label) : NyaaEpisode(Label);
 
 /// <param name="Title">The group's release title, which drives matching.</param>
-/// <param name="Revised">A <c>v2+</c> or <c>REPACK</c> of an episode already released.</param>
+/// <param name="Version">1 for the first release; <c>vN</c> as given, a bare <c>REPACK</c> counts as 2.</param>
 /// <param name="Variant">Tags with the per-episode tokens removed; the exact-match signature.</param>
-public sealed record NyaaRelease(string Group, string Title, NyaaEpisode Episode, bool Revised, string Variant);
+public sealed record NyaaRelease(string Group, string Title, NyaaEpisode Episode, int Version, string Variant)
+{
+    /// <summary>A <c>v2+</c> or <c>REPACK</c> of an episode already released.</summary>
+    public bool Revised => Version > 1;
+}
 
 public static partial class NyaaReleaseTitle
 {
@@ -34,7 +38,7 @@ public static partial class NyaaReleaseTitle
             Group: match.Groups["group"].Value.Trim(),
             Title: match.Groups["title"].Value.Trim(),
             Episode: Episode(match.Groups["episode"].Value, match.Groups["label"].Value.ToUpperInvariant()),
-            Revised: version > 1 || Repack().IsMatch(tags),
+            Version: Repack().IsMatch(tags) ? Math.Max(version, 2) : version,
             Variant: Variant(tags));
     }
 

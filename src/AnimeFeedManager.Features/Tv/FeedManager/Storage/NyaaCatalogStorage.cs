@@ -16,6 +16,7 @@ public sealed class NyaaCatalogStorage : ITableEntity
     public string Size { get; set; } = string.Empty;
     public bool Trusted { get; set; }
     public bool Revised { get; set; }
+    public int? Version { get; set; } // null reads as 2 when Revised, else 1
     public double EpisodeNumber { get; set; } // Tables has no decimal; specials like 12.5 are exact in a double
     public string EpisodeLabel { get; set; } = string.Empty;
     public bool Special { get; set; }
@@ -38,6 +39,7 @@ public static class NyaaCatalogRows
             Size = item.Size,
             Trusted = item.Trusted,
             Revised = release.Revised,
+            Version = release.Version,
             EpisodeNumber = release.Episode switch
             {
                 RegularEpisode regular => regular.Number,
@@ -51,6 +53,14 @@ public static class NyaaCatalogRows
     /// <summary>Highest regular episode catalogued; 0 when there is none.</summary>
     public static int LatestRegular(this IEnumerable<NyaaCatalogStorage> catalog) =>
         catalog.Where(row => !row.Special).Select(row => (int) row.EpisodeNumber).DefaultIfEmpty(0).Max();
+
+    /// <summary>Notified-episode identity in the SubsPlease shape: <c>05</c>, <c>05v2</c>, <c>1150</c>, <c>12.5</c>.</summary>
+    public static string NotificationEpisode(this NyaaCatalogStorage row)
+    {
+        var number = row.EpisodeNumber.ToString("00.####", CultureInfo.InvariantCulture);
+        var version = row.Version ?? (row.Revised ? 2 : 1);
+        return version > 1 ? $"{number}v{version}" : number;
+    }
 
     /// <summary>Sorts by episode: <c>0012-</c> &lt; <c>0012.5-</c> &lt; <c>0013-</c>, since '-' precedes '.'.</summary>
     public static string RowKey(NyaaEpisode episode, string infoHash) =>
