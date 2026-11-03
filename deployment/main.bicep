@@ -33,6 +33,9 @@ param scrapingSchedule string = '0 0 0 * * *'
 @description('Cron schedule for feed titles update (NCrontab 6-field format)')
 param feedTitlesUpdateSchedule string = '0 0 0 1 1 *'
 
+@description('Cron schedule for automated series binding (NCrontab 6-field format)')
+param automatedBindingSchedule string = '0 0 5 * * *'
+
 // Load shared variables for computed values
 var config = loadJsonContent('modules/shared-variables.json')
 
@@ -57,6 +60,7 @@ module functions 'modules/functions.bicep' = {
     feedNotificationSchedule: feedNotificationSchedule
     scrapingSchedule: scrapingSchedule
     feedTitlesUpdateSchedule: feedTitlesUpdateSchedule
+    automatedBindingSchedule: automatedBindingSchedule
     // Chrome WebSocket endpoint (computed to avoid circular dependency)
     chromeEndpoint: 'wss://${config.chromeName}.azurewebsites.net/chromium'
     chromeToken: chromeToken

@@ -27,6 +27,9 @@ param scrapingSchedule string = '0 0 0 * * *'
 @description('Cron schedule for feed titles update (NCrontab 6-field format)')
 param feedTitlesUpdateSchedule string = '0 0 0 1 1 *'
 
+@description('Cron schedule for automated series binding (NCrontab 6-field format)')
+param automatedBindingSchedule string = '0 0 5 * * *'
+
 @description('Public web app URL: SignalR CORS and email links')
 param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
 
@@ -146,6 +149,7 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2025-03-01' = {
     FeedNotificationSchedule: feedNotificationSchedule
     ScrapingSchedule: scrapingSchedule
     FeedTitlesUpdateSchedule: feedTitlesUpdateSchedule
+    AutomatedBindingSchedule: automatedBindingSchedule
 
     // Remote Chrome (browserless) configuration
     Chrome__RemoteEndpoint: chromeEndpoint

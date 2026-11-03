@@ -44,7 +44,9 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
     .WaitFor(tables)
     .WithEnvironment("SignalRConnectionString", signalR)
     .WithEnvironment("Chrome__RemoteEndpoint", chrome.GetEndpoint("http"))
-    .WithEnvironment("Chrome__Token", chromeDevToken);
+    .WithEnvironment("Chrome__Token", chromeDevToken)
+    // Here, not local.settings.json (gitignored): an unresolved timer setting stops the host
+    .WithEnvironment("AutomatedBindingSchedule", "0 0 5 * * *");
 
 var commitSha = GetLocalCommitSha();
 

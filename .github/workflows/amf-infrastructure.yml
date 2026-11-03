@@ -57,6 +57,7 @@ jobs:
             feedNotificationSchedule: "0 0 * * * *"
             scrapingSchedule: "0 0 4 * * 6"
             feedTitlesUpdateSchedule: "0 0 0 1 1 *"
+            automatedBindingSchedule: "0 0 5 * * *"
 
       - name: Seed Admin User
         uses: azure/cli@v3.0.0

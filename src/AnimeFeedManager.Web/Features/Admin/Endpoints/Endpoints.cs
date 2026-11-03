@@ -12,6 +12,7 @@ internal static class Endpoints
         tvGroup.MapPut("/latest", TvAdminHandlers.Latest);
         tvGroup.MapPut("/titles", TvAdminHandlers.Titles);
         tvGroup.MapPost("/run-notifications", TvAdminHandlers.TriggerNotificationProcess);
+        tvGroup.MapPost("/run-automated-binding", TvAdminHandlers.TriggerAutomatedBinding);
 
         var seasonsGroup = adminGroup.MapGroup("/seasons");
         seasonsGroup.MapPut("/featured", SeasonAdminHandlers.SetFeatured);

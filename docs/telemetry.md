@@ -95,7 +95,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AnimeFeedManager.Tv.Subscriptions.Feed` | Daily feed processing, per-user notification | Functions |
 | `AnimeFeedManager.Tv.Subscriptions.Management` | Auto-subscription for interested users | Functions |
 | `AnimeFeedManager.SystemEvents.Update` | System event update/dispatch | Functions |
-| `AnimeFeedManager.Tv.FeedManager` | Nyaa feed bindings: bind, backfill, completion | Functions |
+| `AnimeFeedManager.Tv.FeedManager` | Nyaa feed bindings: bind, backfill, automated binding, completion | Functions |
 | `AnimeFeedManager.Tv.FeedManager.Queries` | Feed manager admin queries | Web |
 | `AnimeFeedManager.Messaging` | Queue send and process spans | Web, Functions |
 | `AnimeFeedManager.Images` | Series image provisioning | Functions |
@@ -122,6 +122,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `SystemEventsTelemetry.UpdateSpan` | `SystemEvents.Update` | SystemEvents.Update | Functions |
 | `FeedManagerTelemetry.BindSeriesSpan` | `Tv.FeedManager.BindSeries` | Tv.FeedManager | Functions |
 | `FeedManagerTelemetry.BackfillSeriesSpan` | `Tv.FeedManager.BackfillSeries` | Tv.FeedManager | Functions |
+| `FeedManagerTelemetry.AutomatedBindingSpan` | `Tv.FeedManager.AutomatedBinding` | Tv.FeedManager | Functions |
 | `FeedManagerTelemetry.QuerySeasonSpan` | `Tv.FeedManager.QuerySeason` | Tv.FeedManager.Queries | Web |
 | `FeedManagerTelemetry.QuerySeriesSpan` | `Tv.FeedManager.QuerySeries` | Tv.FeedManager.Queries | Web |
 | `FeedManagerTelemetry.SearchReleasesSpan` | `Tv.FeedManager.SearchReleases` | Tv.FeedManager.Queries | Web |
@@ -130,6 +131,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateFeedTitlesSpan` | `Admin.UpdateFeedTitles` | Web.Admin | Web |
 | `AdminTelemetry.TriggerFeedNotificationsSpan` | `Admin.TriggerFeedNotifications` | Web.Admin | Web |
+| `AdminTelemetry.TriggerAutomatedBindingSpan` | `Admin.TriggerAutomatedBinding` | Web.Admin | Web |
 | `AdminTelemetry.SetFeaturedSeasonSpan` | `Admin.SetFeaturedSeason` | Web.Admin | Web |
 | `AdminTelemetry.LibraryScrapSummarySpan` | `Admin.LibraryScrapSummary` | Web.Admin | Web |
 | `AdminTelemetry.NotificationSummarySpan` | `Admin.NotificationSummary` | Web.Admin | Web |
@@ -202,6 +204,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `nyaa.group` | Fansub group of a nyaa binding. |
 | `nyaa.release_title` | Group's release title of a nyaa binding. |
 | `nyaa.catalogued_count` | Catalog rows written by a nyaa backfill. |
+| `nyaa.scheduled_count` | Shows on the SubsPlease schedule read by automated binding. |
 | `image.name` | Image file name. |
 | `image.size` | Stored payload size in bytes. |
 | `image.content_type` | Served media type. |
