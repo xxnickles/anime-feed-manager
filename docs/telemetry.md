@@ -205,6 +205,8 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `nyaa.release_title` | Group's release title of a nyaa binding. |
 | `nyaa.catalogued_count` | Catalog rows written by a nyaa backfill. |
 | `nyaa.scheduled_count` | Shows on the SubsPlease schedule read by automated binding. |
+| `nyaa.bound_count` | Binds sent by automated binding. |
+| `nyaa.tie_count` | Schedule shows automated binding left unbound on a tie. |
 | `image.name` | Image file name. |
 | `image.size` | Stored payload size in bytes. |
 | `image.content_type` | Served media type. |
