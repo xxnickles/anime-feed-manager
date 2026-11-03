@@ -1,11 +1,15 @@
 using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 using AnimeFeedManager.Features.Tv.FeedManager.Events;
+using AnimeFeedManager.Features.Tv.FeedManager.Storage;
 
 namespace AnimeFeedManager.Features.SystemEvents.Stats;
 
 public sealed record TruncatedBackfill(string SeriesId, string Title, DateTimeOffset At);
 
-public sealed record NyaaStats(int Bound, int Backfilled, ImmutableArray<TruncatedBackfill> PossiblyTruncated);
+public sealed record NyaaStats(int Automatic, int Manual, ImmutableArray<TruncatedBackfill> PossiblyTruncated)
+{
+    public int Bound => Automatic + Manual;
+}
 
 public static class NyaaStat
 {
@@ -25,8 +29,8 @@ public static class NyaaStat
     internal static NyaaStats Summarize(
         ImmutableArray<EventData<NyaaSeriesBound>> bound,
         ImmutableArray<EventData<NyaaSeriesBackfilled>> backfilled) =>
-        new(bound.Length,
-            backfilled.Length,
+        new(bound.Count(e => e.Data.Origin == BindingOrigin.Schedule),
+            bound.Count(e => e.Data.Origin != BindingOrigin.Schedule),
             [
                 .. backfilled
                     .GroupBy(e => e.Data.SeriesId)

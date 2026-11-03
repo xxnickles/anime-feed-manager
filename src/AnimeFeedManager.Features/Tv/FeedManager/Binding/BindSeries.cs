@@ -6,7 +6,7 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.Binding;
 
-public sealed record BoundSeries(string Title, bool WasOngoing);
+public sealed record BoundSeries(string Title, string FeedTitle, bool WasOngoing);
 
 public static class BindSeries
 {
@@ -17,9 +17,9 @@ public static class BindSeries
         DomainCollectionSender domainPostman,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(request.SeriesId)
-            .Bind(season => Bindable(request.SeriesId, season, clientFactory.TableStorageTvSeriesGetter, token)
+            .Bind(season => clientFactory.TableStorageTvSeriesGetter(request.SeriesId, season, token)
                 .Bind(series => clientFactory.TableStorageNyaaBindingReplacer(NewBinding(request, season, series), token))
-                .Bind(_ => FeedLibrarySeries(request.SeriesId, season,
+                .Bind(_ => FeedLibrarySeries(request, season,
                     clientFactory.TableStorageTvSeriesGetter, clientFactory.TableStorageTvSeriesUpdater, token)))
             .Bind(bound => domainPostman(Events(request, bound), token).Map(_ => bound))
             .SendOnError(domainPostman,
@@ -31,15 +31,11 @@ public static class BindSeries
             .WithOperationName(nameof(Bind))
             .WithLogProperty(Telemetry.SeriesIdTag, request.SeriesId);
 
-    private static Task<Result<AnimeInfoStorage>> Bindable(
-        string seriesId,
-        SeriesSeason season,
-        TvSeriesGetter seriesGetter,
-        CancellationToken token) =>
-        seriesGetter(seriesId, season, token)
-            .Bind(series => series.Feed is SubsPleaseFeed
-                ? Error.Create($"{series.Title} is fed by SubsPlease and cannot be bound")
-                : Result<AnimeInfoStorage>.Success(series));
+    /// <summary>An existing feed title is kept: it is the subscription key across seasons and rebinds.</summary>
+    internal static string FeedTitle(AnimeInfoStorage series, BindNyaaSeries request) =>
+        !string.IsNullOrWhiteSpace(series.FeedTitle) ? series.FeedTitle
+        : request.Origin == BindingOrigin.Schedule ? request.ReleaseTitle
+        : series.Title ?? string.Empty;
 
     private static NyaaBindingStorage NewBinding(BindNyaaSeries request, SeriesSeason season, AnimeInfoStorage series) =>
         new()
@@ -49,42 +45,52 @@ public static class BindSeries
             Group = request.Group,
             ReleaseTitle = request.ReleaseTitle,
             Variant = request.Variant,
-            FeedTitle = series.Title ?? string.Empty,
+            FeedTitle = FeedTitle(series, request),
             Trusted = request.Trusted,
             Tracking = true,
             Episodes = series.Episodes,
+            Origin = request.Origin,
             Premiere = series.Date is { } date ? new DateTimeOffset(DateTime.SpecifyKind(date, DateTimeKind.Utc)) : null
         };
 
     private static Task<Result<BoundSeries>> FeedLibrarySeries(
-        string seriesId,
+        BindNyaaSeries request,
         SeriesSeason season,
         TvSeriesGetter seriesGetter,
         TvSeriesStorageUpdater seriesUpdater,
         CancellationToken token) =>
         OptimisticConcurrency.UntilWritten(
-            attemptToken => seriesGetter(seriesId, season, attemptToken)
-                .Map(series => FeedFromBinding(series, seriesId))
+            attemptToken => seriesGetter(request.SeriesId, season, attemptToken)
+                .Map(series => FeedFromBinding(series, request))
                 .Bind(fed => seriesUpdater(fed.Series, attemptToken).Map(_ => fed.Bound)),
             token,
             error => error is PreconditionFailedError);
 
-    private static (AnimeInfoStorage Series, BoundSeries Bound) FeedFromBinding(AnimeInfoStorage series, string seriesId)
+    private static (AnimeInfoStorage Series, BoundSeries Bound) FeedFromBinding(AnimeInfoStorage series,
+        BindNyaaSeries request)
     {
-        var bound = new BoundSeries(series.Title ?? string.Empty, series.Status == SeriesStatus.OngoingValue);
-        series.FeedTitle = series.Title;
-        series.FeedLink = FeedManagerRoutes.Releases(seriesId);
+        var bound = new BoundSeries(series.Title ?? string.Empty, FeedTitle(series, request),
+            series.Status == SeriesStatus.OngoingValue);
+        series.FeedTitle = bound.FeedTitle;
+        series.FeedLink = FeedManagerRoutes.Releases(request.SeriesId);
         series.FeedSource = SeriesFeeds.LocalSource;
         series.Status = SeriesStatus.Ongoing();
         return (series, bound);
     }
 
-    private static DomainMessage[] Events(BindNyaaSeries request, BoundSeries bound) =>
-    [
-        new BackfillNyaaSeries(request.SeriesId),
-        .. bound.WasOngoing ? Array.Empty<DomainMessage>() : [new UpdatedToOngoing(request.SeriesId, bound.Title)],
-        new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Completed,
-            new NyaaSeriesBound(request.SeriesId, bound.Title, request.Group, request.Variant).AsEventPayload()),
-        new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBound, request.SeriesId)
-    ];
+    // Schedule binds are announced by the feed job summary: stored for stats, no toast or page refresh.
+    private static DomainMessage[] Events(BindNyaaSeries request, BoundSeries bound)
+    {
+        var automatic = request.Origin == BindingOrigin.Schedule;
+        return
+        [
+            new BackfillNyaaSeries(request.SeriesId, Quiet: automatic),
+            .. bound.WasOngoing ? Array.Empty<DomainMessage>() : [new UpdatedToOngoing(request.SeriesId, bound.FeedTitle)],
+            new SystemEvent(TargetConsumer.Admin(), automatic ? EventTarget.LocalStorage : EventTarget.Both,
+                EventType.Completed,
+                new NyaaSeriesBound(request.SeriesId, bound.Title, request.Group, request.Variant, request.Origin)
+                    .AsEventPayload()),
+            .. automatic ? Array.Empty<DomainMessage>() : [new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBound, request.SeriesId)]
+        ];
+    }
 }

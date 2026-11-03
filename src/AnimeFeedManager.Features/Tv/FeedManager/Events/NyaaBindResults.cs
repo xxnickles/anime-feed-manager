@@ -1,6 +1,6 @@
 namespace AnimeFeedManager.Features.Tv.FeedManager.Events;
 
-public sealed record NyaaSeriesBound(string SeriesId, string Title, string Group, string Variant)
+public sealed record NyaaSeriesBound(string SeriesId, string Title, string Group, string Variant, string Origin)
     : SystemNotificationPayload
 {
     public override string AsJson()

@@ -32,7 +32,7 @@ public static class BackfillSeries
             .Search(nyaaClient, token)
             .StoreReleases(clientFactory.TableStorageNyaaCatalogUpdater, token)
             .EvaluateCompletion(clientFactory, domainPostman, token)
-            .SendEvents(request.SeriesId, domainPostman, token)
+            .SendEvents(request, domainPostman, token)
             .Map(process => new BackfilledSeries(process.Binding.FeedTitle, process.Rows.Length))
             .WithOperationName(nameof(Backfill))
             .WithLogProperty(Telemetry.SeriesIdTag, request.SeriesId);
@@ -71,14 +71,14 @@ public static class BackfillSeries
                 .Map(outcome => p with {Completion = outcome}));
 
         private Task<Result<BackfillProcess>> SendEvents(
-            string seriesId,
+            BackfillNyaaSeries request,
             DomainCollectionSender domainPostman,
             CancellationToken token) =>
-            process.Bind(p => domainPostman([Backfilled(p), new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBackfilled, p.SeriesId)], token).Map(_ => p))
+            process.Bind(p => domainPostman(SuccessEvents(p, request.Quiet), token).Map(_ => p))
                 .SendOnError(domainPostman,
                     [
                         new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Error,
-                            new NyaaBackfillFailed(seriesId).AsEventPayload())
+                            new NyaaBackfillFailed(request.SeriesId).AsEventPayload())
                     ],
                     token);
     }
@@ -104,8 +104,13 @@ public static class BackfillSeries
             "{feed.title} backfill filled nyaa's 75-item window; older releases may be missing",
             binding.FeedTitle);
 
-    private static SystemEvent Backfilled(BackfillProcess process) =>
-        new(TargetConsumer.Admin(), EventTarget.Both, EventType.Completed,
+    // Stored even when quiet: the truncation stat reads it.
+    private static DomainMessage[] SuccessEvents(BackfillProcess process, bool quiet) =>
+    [
+        new SystemEvent(TargetConsumer.Admin(), quiet ? EventTarget.LocalStorage : EventTarget.Both,
+            EventType.Completed,
             new NyaaSeriesBackfilled(process.SeriesId, process.Binding.FeedTitle, process.Rows.Length,
-                process.FullFeed, process.Completion is FeedCompleted).AsEventPayload());
+                process.FullFeed, process.Completion is FeedCompleted).AsEventPayload()),
+        .. quiet ? Array.Empty<DomainMessage>() : [new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBackfilled, process.SeriesId)]
+    ];
 }
