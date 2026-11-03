@@ -52,7 +52,8 @@ public static class BindSeries
             FeedTitle = series.Title ?? string.Empty,
             Trusted = request.Trusted,
             Tracking = true,
-            Episodes = series.Episodes
+            Episodes = series.Episodes,
+            Premiere = series.Date is { } date ? new DateTimeOffset(DateTime.SpecifyKind(date, DateTimeKind.Utc)) : null
         };
 
     private static Task<Result<BoundSeries>> FeedLibrarySeries(
