@@ -91,7 +91,8 @@ public class ScheduleMatchingTests
 
         Assert.Empty(result.Matches);
         Assert.Equal("Kusuriya no Hitorigoto", Assert.Single(result.Ties).ShowTitle);
-        Assert.Equal(["a", "b"], result.Ties[0].SeriesIds);
+        Assert.Equal(["a", "b"], result.Ties[0].Series.Select(series => series.SeriesId));
+        Assert.Equal(["Title a", "Title b"], result.Ties[0].Series.Select(series => series.Title));
     }
 
     [Fact]
@@ -143,7 +144,7 @@ public class ScheduleMatchingTests
     private static ScheduledShow Show(string title) => new(title);
 
     private static BindingCandidate Candidate(string seriesId, string feedTitle, params string[] titles) =>
-        new(seriesId, feedTitle, [.. titles]);
+        new(seriesId, $"Title {seriesId}", feedTitle, [.. titles]);
 
     #endregion
 }

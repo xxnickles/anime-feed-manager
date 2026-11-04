@@ -25,7 +25,8 @@ public static class BindSeries
             .SendOnError(domainPostman,
                 [
                     new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Error,
-                        new NyaaBindFailed(request.SeriesId, request.Group, request.ReleaseTitle).AsEventPayload())
+                        new NyaaBindFailed(request.SeriesId, request.Group, request.ReleaseTitle, request.RunId)
+                            .AsEventPayload())
                 ],
                 token)
             .WithOperationName(nameof(Bind))
@@ -88,7 +89,8 @@ public static class BindSeries
             .. bound.WasOngoing ? Array.Empty<DomainMessage>() : [new UpdatedToOngoing(request.SeriesId, bound.FeedTitle)],
             new SystemEvent(TargetConsumer.Admin(), automatic ? EventTarget.LocalStorage : EventTarget.Both,
                 EventType.Completed,
-                new NyaaSeriesBound(request.SeriesId, bound.Title, request.Group, request.Variant, request.Origin)
+                new NyaaSeriesBound(request.SeriesId, bound.Title, request.Group, request.Variant, request.Origin,
+                        request.RunId)
                     .AsEventPayload()),
             .. automatic ? Array.Empty<DomainMessage>() : [new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBound, request.SeriesId)]
         ];

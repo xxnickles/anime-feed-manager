@@ -94,7 +94,7 @@ public class NyaaStatTests
 
     private static EventData<NyaaSeriesBound> Bound(string seriesId, DateTimeOffset at,
         string origin = BindingOrigin.Manual) =>
-        new(EventType.Completed, at, new NyaaSeriesBound(seriesId, $"Title {seriesId}", "group", "1080p", origin));
+        new(EventType.Completed, at, new NyaaSeriesBound(seriesId, $"Title {seriesId}", "group", "1080p", origin, Guid.NewGuid()));
 
     private static EventData<NyaaSeriesBackfilled> Backfill(string seriesId, DateTimeOffset at, bool truncated = false) =>
         new(EventType.Completed, at,

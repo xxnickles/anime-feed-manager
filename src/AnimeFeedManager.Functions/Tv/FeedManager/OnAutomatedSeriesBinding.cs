@@ -33,11 +33,12 @@ public class OnAutomatedSeriesBinding
     {
         using var processActivity = message.StartProcessActivity(functionContext);
         using var activity = Source.StartActivity(FeedManagerTelemetry.AutomatedBindingSpan);
-        await AutomatedSeriesBinding.Run(_schedule, _tableClientFactory, _domainPostman.SendDelayedMessage, token)
+        await AutomatedSeriesBinding.Run(_schedule, _tableClientFactory, _domainPostman.SendDelayedMessage,
+                _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
-                "(Manual) Automated binding bound {nyaa.bound_count} of {nyaa.scheduled_count} scheduled shows, {nyaa.tie_count} ties",
-                summary.Bound, summary.Scheduled, summary.Ties.Length))
+                "(Manual) Automated binding queued {nyaa.queued_count} of {nyaa.scheduled_count} scheduled shows, {nyaa.tie_count} ties",
+                summary.Queued, summary.Scheduled, summary.Ties.Length))
             .Complete(_logger);
     }
 
@@ -46,11 +47,12 @@ public class OnAutomatedSeriesBinding
         CancellationToken token)
     {
         using var activity = Source.StartActivity(FeedManagerTelemetry.AutomatedBindingSpan);
-        await AutomatedSeriesBinding.Run(_schedule, _tableClientFactory, _domainPostman.SendDelayedMessage, token)
+        await AutomatedSeriesBinding.Run(_schedule, _tableClientFactory, _domainPostman.SendDelayedMessage,
+                _domainPostman.SendMessages, token)
             .MarkActivityErroredOnError()
             .AddLogOnSuccess(summary => logger => logger.LogInformation(
-                "(Scheduled) Automated binding bound {nyaa.bound_count} of {nyaa.scheduled_count} scheduled shows, {nyaa.tie_count} ties. Next run: {schedule.next_run}",
-                summary.Bound, summary.Scheduled, summary.Ties.Length, timer.ScheduleStatus?.Next))
+                "(Scheduled) Automated binding queued {nyaa.queued_count} of {nyaa.scheduled_count} scheduled shows, {nyaa.tie_count} ties. Next run: {schedule.next_run}",
+                summary.Queued, summary.Scheduled, summary.Ties.Length, timer.ScheduleStatus?.Next))
             .Complete(_logger);
     }
 }

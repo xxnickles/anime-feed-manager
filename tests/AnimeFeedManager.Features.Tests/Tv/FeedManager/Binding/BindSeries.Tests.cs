@@ -59,7 +59,7 @@ public class BindSeriesTests
         new() {Title = title, FeedTitle = feedTitle};
 
     private static BindNyaaSeries Request(string origin, string releaseTitle) =>
-        new("2026-fall-series", "SubsPlease", releaseTitle, "1080p", Trusted: true, origin);
+        new("2026-fall-series", "SubsPlease", releaseTitle, "1080p", Trusted: true, Guid.NewGuid(), origin);
 
     #endregion
 }

@@ -64,4 +64,24 @@ internal static class StatHandlers
                 stat => [NyaaStatCard.AsRenderFragment(stat)],
                 _ => [StatCardError.AsRenderFragment("Nyaa")]);
     }
+
+    internal static async Task<RazorComponentResult> AutomatedBinding(
+        [FromQuery] string? period,
+        [FromServices] ITableClientFactory clientFactory,
+        [FromServices] ILogger<AdminPage> logger,
+        CancellationToken cancellationToken)
+    {
+        using var activity = Source.StartActivity(AdminTelemetry.AutomatedBindingStatSpan);
+        return await AutomatedBindingStat.Get(
+                clientFactory.TableStorageEvents<AutomatedBindingCompleted>(),
+                clientFactory.TableStorageEvents<NyaaSeriesBound>(),
+                clientFactory.TableStorageEvents<NyaaBindFailed>(),
+                ChartDateRange.FromPeriod(period).From,
+                cancellationToken)
+            .MarkActivityErroredOnError()
+            .FlushLogs(logger)
+            .ToComponentResult(
+                stat => [AutomatedBindingStatCard.AsRenderFragment(stat)],
+                _ => [StatCardError.AsRenderFragment("Automated binding")]);
+    }
 }

@@ -139,6 +139,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AdminTelemetry.LastScrapeStatSpan` | `Admin.LastScrapeStat` | Web.Admin | Web |
 | `AdminTelemetry.ErrorStatSpan` | `Admin.ErrorStat` | Web.Admin | Web |
 | `AdminTelemetry.NyaaStatSpan` | `Admin.NyaaStat` | Web.Admin | Web |
+| `AdminTelemetry.AutomatedBindingStatSpan` | `Admin.AutomatedBindingStat` | Web.Admin | Web |
 | `AdminTelemetry.BindNyaaSeriesSpan` | `Admin.BindNyaaSeries` | Web.Admin | Web |
 | `AdminTelemetry.BackfillNyaaSeriesSpan` | `Admin.BackfillNyaaSeries` | Web.Admin | Web |
 | `AdminTelemetry.ClearNyaaCatalogSpan` | `Admin.ClearNyaaCatalog` | Web.Admin | Web |
@@ -205,7 +206,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `nyaa.release_title` | Group's release title of a nyaa binding. |
 | `nyaa.catalogued_count` | Catalog rows written by a nyaa backfill. |
 | `nyaa.scheduled_count` | Shows on the SubsPlease schedule read by automated binding. |
-| `nyaa.bound_count` | Binds sent by automated binding. |
+| `nyaa.queued_count` | Binds queued by automated binding. |
 | `nyaa.tie_count` | Schedule shows automated binding left unbound on a tie. |
 | `image.name` | Image file name. |
 | `image.size` | Stored payload size in bytes. |

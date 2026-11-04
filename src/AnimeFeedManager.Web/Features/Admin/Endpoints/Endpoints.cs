@@ -35,5 +35,6 @@ internal static class Endpoints
         statsGroup.MapGet("/last-scrape", StatHandlers.LastScrape);
         statsGroup.MapGet("/errors", StatHandlers.Errors);
         statsGroup.MapGet("/nyaa", StatHandlers.Nyaa);
+        statsGroup.MapGet("/automated-binding", StatHandlers.AutomatedBinding);
     }
 }

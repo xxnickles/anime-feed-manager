@@ -1,0 +1,98 @@
+@using AnimeFeedManager.Features.SystemEvents.Stats
+@using AnimeFeedManager.Features.Tv.FeedManager
+<div class="card-body gap-2 p-5">
+    <span class="text-xs text-base-content/70">Automated binding</span>
+    @switch (Stat)
+    {
+        case LatestAutomatedBinding latest:
+            <time class="text-3xl font-bold leading-none @(IsStale(latest) ? "text-warning" : null)"
+                  datetime="@latest.At.ToString("O")"
+                  title="@latest.At.ToString("u")">@Ago(latest.At)</time>
+            @if (latest.ScheduleSkipped)
+            {
+                <span class="text-xs text-warning">Skipped: SubsPlease schedule unavailable</span>
+            }
+            else
+            {
+                <span class="text-xs text-base-content/70">
+                    @latest.Bound of @latest.Queued bound · @latest.Failed.Length failed · @latest.Pending pending
+                </span>
+                <span class="text-xs text-base-content/70">@latest.Scheduled on the schedule</span>
+            }
+            @if (!latest.Failed.IsEmpty)
+            {
+                <span class="text-xs text-error">Failed</span>
+                <ul class="flex flex-col gap-1 text-xs">
+                    @foreach (var failed in latest.Failed.Take(MaxListed))
+                    {
+                        <li class="truncate">
+                            <a href="@FeedManagerRoutes.AdminSeries(failed.SeriesId)" class="link link-hover">@failed.ReleaseTitle</a>
+                        </li>
+                    }
+                    @if (latest.Failed.Length > MaxListed)
+                    {
+                        <li class="text-base-content/70">+@(latest.Failed.Length - MaxListed) more</li>
+                    }
+                </ul>
+            }
+            @if (!latest.Ties.IsEmpty)
+            {
+                <span class="text-xs text-warning">Ties</span>
+                <ul class="flex flex-col gap-1 text-xs">
+                    @foreach (var tie in latest.Ties.Take(MaxListed))
+                    {
+                        <li class="truncate" title="@tie.ShowTitle">
+                            <span class="text-base-content/70">@tie.ShowTitle →</span>
+                            @for (var i = 0; i < tie.Series.Length; i++)
+                            {
+                                var series = tie.Series[i];
+                                @if (i > 0)
+                                {
+                                    <span class="text-base-content/70"> · </span>
+                                }
+                                <a href="@FeedManagerRoutes.AdminSeries(series.SeriesId)" class="link link-hover">@series.Title</a>
+                            }
+                        </li>
+                    }
+                    @if (latest.Ties.Length > MaxListed)
+                    {
+                        <li class="text-base-content/70">+@(latest.Ties.Length - MaxListed) more</li>
+                    }
+                </ul>
+            }
+            break;
+        default:
+            <span class="text-3xl font-bold leading-none text-warning">None</span>
+            <span class="text-xs text-base-content/70">No automated binding run in period</span>
+            break;
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required LastAutomatedBinding Stat { get; set; }
+
+    private const int MaxListed = 3;
+
+    // Automated binding runs daily; two days without one means it stopped.
+    private static readonly TimeSpan StaleAfter = TimeSpan.FromDays(2);
+
+    private static bool IsStale(LatestAutomatedBinding latest) => DateTimeOffset.UtcNow - latest.At > StaleAfter;
+
+    private static string Ago(DateTimeOffset at)
+    {
+        var elapsed = DateTimeOffset.UtcNow - at;
+        return elapsed switch
+        {
+            { TotalMinutes: < 60 } => $"{Math.Max(1, (int)elapsed.TotalMinutes)}m ago",
+            { TotalHours: < 24 } => $"{(int)elapsed.TotalHours}h ago",
+            _ => $"{(int)elapsed.TotalDays}d ago"
+        };
+    }
+
+    public static RenderFragment AsRenderFragment(LastAutomatedBinding stat) => builder =>
+    {
+        builder.OpenComponent<AutomatedBindingStatCard>(0);
+        builder.AddAttribute(1, nameof(Stat), stat);
+        builder.CloseComponent();
+    };
+}
