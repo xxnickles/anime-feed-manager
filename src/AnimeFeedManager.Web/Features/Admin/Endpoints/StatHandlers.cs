@@ -55,7 +55,6 @@ internal static class StatHandlers
         using var activity = Source.StartActivity(AdminTelemetry.NyaaStatSpan);
         return await NyaaStat.Get(
                 clientFactory.TableStorageEvents<NyaaSeriesBound>(),
-                clientFactory.TableStorageEvents<NyaaSeriesBackfilled>(),
                 ChartDateRange.FromPeriod(period).From,
                 cancellationToken)
             .MarkActivityErroredOnError()

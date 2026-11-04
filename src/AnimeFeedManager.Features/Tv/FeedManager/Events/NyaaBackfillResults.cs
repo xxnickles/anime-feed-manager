@@ -4,7 +4,6 @@ public sealed record NyaaSeriesBackfilled(
     string SeriesId,
     string Title,
     int Catalogued,
-    bool PossiblyTruncated,
     bool Completed) : SystemNotificationPayload
 {
     public override string AsJson()
@@ -18,8 +17,6 @@ public sealed record NyaaSeriesBackfilled(
             builder =>
             {
                 builder.AddContent(1, $"{Catalogued} releases catalogued.");
-                if (PossiblyTruncated)
-                    builder.AddContent(2, " The search filled nyaa's 75-item window, so older releases may be missing.");
                 if (Completed)
                     builder.AddContent(3, " The feed reached its episode count; the series is completed.");
             })

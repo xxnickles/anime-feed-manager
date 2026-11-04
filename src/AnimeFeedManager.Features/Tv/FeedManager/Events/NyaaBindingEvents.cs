@@ -22,7 +22,7 @@ public sealed record BindNyaaSeries(
 }
 
 /// <summary>Fills a bound series' catalog from one nyaa search; never notifies.</summary>
-/// <param name="Quiet">Stores the success event without a toast or app event.</param>
+/// <param name="Quiet">Sends no success event or app event; a failure still toasts.</param>
 public sealed record BackfillNyaaSeries(string SeriesId, bool Quiet = false) : DomainMessage(new Box(TargetQueue))
 {
     public const string TargetQueue = "backfill-nyaa-series";

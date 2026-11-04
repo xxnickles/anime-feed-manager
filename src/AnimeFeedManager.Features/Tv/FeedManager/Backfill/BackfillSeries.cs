@@ -16,7 +16,6 @@ internal sealed record BackfillProcess(
     SeriesSeason Season,
     NyaaBindingStorage Binding,
     ImmutableArray<NyaaCatalogStorage> Rows,
-    bool FullFeed,
     CompletionOutcome Completion);
 
 public static class BackfillSeries
@@ -43,14 +42,13 @@ public static class BackfillSeries
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
             .Bind(season => bindingGetter(seriesId, season, token)
-                .Map(binding => new BackfillProcess(seriesId, season, binding, [], false, new FeedOpen())));
+                .Map(binding => new BackfillProcess(seriesId, season, binding, [], new FeedOpen())));
 
     extension(Task<Result<BackfillProcess>> process)
     {
         private Task<Result<BackfillProcess>> Search(INyaaClient nyaaClient, CancellationToken token) =>
             process.Bind(p => nyaaClient.Fetch(Query(p.Binding), token)
-                    .Bind(document => Match(p, document)))
-                .AddLogOnSuccess(p => p.FullFeed ? FullFeedWarning(p.Binding) : _ => { });
+                .Bind(document => Match(p, document)));
 
         private Task<Result<BackfillProcess>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
             CancellationToken token) =>
@@ -93,24 +91,16 @@ public static class BackfillSeries
     private static Result<BackfillProcess> Match(BackfillProcess process, XDocument document) =>
         NyaaFeed.Parse(document)
             .AddLogOnSuccess(feed => feed.LogErrors)
-            .Map(feed => process with
-            {
-                Rows = NyaaMatch.CatalogRows(process.Binding, process.SeriesId, feed.Value),
-                FullFeed = NyaaFeed.IsFull(document)
-            });
+            .Map(feed => process with {Rows = NyaaMatch.CatalogRows(process.Binding, process.SeriesId, feed.Value)});
 
-    private static Action<ILogger> FullFeedWarning(NyaaBindingStorage binding) =>
-        logger => logger.LogWarning(
-            "{feed.title} backfill filled nyaa's 75-item window; older releases may be missing",
-            binding.FeedTitle);
-
-    // Stored even when quiet: the truncation stat reads it.
     private static DomainMessage[] SuccessEvents(BackfillProcess process, bool quiet) =>
-    [
-        new SystemEvent(TargetConsumer.Admin(), quiet ? EventTarget.LocalStorage : EventTarget.Both,
-            EventType.Completed,
-            new NyaaSeriesBackfilled(process.SeriesId, process.Binding.FeedTitle, process.Rows.Length,
-                process.FullFeed, process.Completion is FeedCompleted).AsEventPayload()),
-        .. quiet ? Array.Empty<DomainMessage>() : [new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBackfilled, process.SeriesId)]
-    ];
+        quiet
+            ? []
+            :
+            [
+                new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Completed,
+                    new NyaaSeriesBackfilled(process.SeriesId, process.Binding.FeedTitle, process.Rows.Length,
+                        process.Completion is FeedCompleted).AsEventPayload()),
+                new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBackfilled, process.SeriesId)
+            ];
 }
