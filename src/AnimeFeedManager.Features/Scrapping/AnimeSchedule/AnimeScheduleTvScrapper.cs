@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using AnimeFeedManager.Features.Common.Scrapping;
-using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
@@ -13,34 +12,22 @@ internal static partial class AnimeScheduleTvScrapper
     private const string ImageBaseUrl = "https://img.animeschedule.net/production/assets/public/img/";
 
     internal static Task<Result<ScrapTvLibraryData>> ScrapSeries(
-        this Task<Result<ImmutableArray<FeedData>>> feedTitles,
-        IAnimeScheduleClient client,
-        SeriesSeason season,
-        CancellationToken token) =>
-        feedTitles.Bind(feedData => GetInitialProcessData(feedData, client, season, token));
-
-    private static Task<Result<ScrapTvLibraryData>> GetInitialProcessData(
-        ImmutableArray<FeedData> feedData,
         IAnimeScheduleClient client,
         SeriesSeason season,
         CancellationToken token) =>
         client.GetSeason(season.Year, season.Season, token)
-            .Map(series => BuildResult(series, season, feedData))
-            .WithOperationName(nameof(GetInitialProcessData))
+            .Map(series => BuildResult(series, season))
+            .WithOperationName(nameof(ScrapSeries))
             .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season))
             .AddLogOnSuccess(data => logger => logger.LogInformation(
                 "{series.count} TV series scraped from AnimeSchedule for {series.season}",
                 data.SeriesData.Count(), IdHelpers.GenerateAnimePartitionKey(data.Season)));
 
-    private static ScrapTvLibraryData BuildResult(
-        ImmutableArray<AnimeScheduleAnime> series,
-        SeriesSeason season,
-        ImmutableArray<FeedData> feedData) =>
+    private static ScrapTvLibraryData BuildResult(ImmutableArray<AnimeScheduleAnime> series, SeriesSeason season) =>
         new(series
                 .Where(IsTvSeries)
                 .Select(anime => ToStorageData(anime, season.Season, season.Year))
                 .ToArray(),
-            feedData,
             season);
 
     // Shorts are a media type of their own here, and are part of the library. Untyped entries
@@ -72,7 +59,7 @@ internal static partial class AnimeScheduleTvScrapper
             ToAiringStatus(anime.Status));
 
     // The provider's value set is open and its documentation omits values it actually sends, so
-    // anything unrecognised imports as Unknown and lets the feed decide.
+    // anything unrecognised imports as Unknown.
     private static AiringStatus ToAiringStatus(string status) => status.ToLowerInvariant() switch
     {
         "upcoming" => AiringStatus.Upcoming,

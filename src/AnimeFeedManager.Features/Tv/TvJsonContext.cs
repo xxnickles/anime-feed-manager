@@ -10,7 +10,6 @@ namespace AnimeFeedManager.Features.Tv;
 [JsonSerializable(typeof(CompleteOngoingSeries))]
 [JsonSerializable(typeof(UpdatedToOngoing))]
 [JsonSerializable(typeof(UpdateTvSeriesEvent))]
-[JsonSerializable(typeof(UpdateLatestFeedTitlesEvent))]
 [JsonSerializable(typeof(FeedNotification))]
 [JsonSerializable(typeof(RunFeedNotification))]
 [JsonSerializable(typeof(NyaaFeedCompleted))]

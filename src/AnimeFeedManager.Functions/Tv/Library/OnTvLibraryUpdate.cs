@@ -1,7 +1,6 @@
 ﻿using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 using AnimeFeedManager.Features.Tv.Library;
 using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Storage;
 using AnimeFeedManager.Features.Tv.Library.Events;
@@ -16,7 +15,6 @@ public class OnTvLibraryUpdate
     private static readonly ActivitySource Source = new(Telemetry.TvLibraryImportSource);
 
     private readonly IAnimeScheduleClient _animeScheduleClient;
-    private readonly ISeasonFeedDataProvider _seasonFeedDataProvider;
     private readonly IImageProvider _imageProvider;
     private readonly ITableClientFactory _tableClientFactory;
     private readonly IDomainPostman _domainPostman;
@@ -24,14 +22,12 @@ public class OnTvLibraryUpdate
 
     public OnTvLibraryUpdate(
         IAnimeScheduleClient animeScheduleClient,
-        ISeasonFeedDataProvider seasonFeedDataProvider,
         IImageProvider imageProvider,
         ITableClientFactory tableClientFactory,
         IDomainPostman domainPostman,
         ILogger<OnTvLibraryUpdate> logger)
     {
         _animeScheduleClient = animeScheduleClient;
-        _seasonFeedDataProvider = seasonFeedDataProvider;
         _imageProvider = imageProvider;
         _tableClientFactory = tableClientFactory;
         _domainPostman = domainPostman;
@@ -79,7 +75,6 @@ public class OnTvLibraryUpdate
                 seasonParameters,
                 TvLibraryScrapper.Scrapper(
                     _animeScheduleClient,
-                    _seasonFeedDataProvider,
                     _tableClientFactory.TableStorageLatestSeason,
                     _tableClientFactory.TableStorageExistentStoredSeriesGetter),
                 _imageProvider.Process,

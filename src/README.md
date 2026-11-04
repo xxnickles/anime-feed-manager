@@ -48,7 +48,6 @@ Aspire injects storage, SignalR, Chrome and telemetry settings locally. In Azure
 | `Chrome:RemoteEndpoint`, `Chrome:Token` | Browserless Chrome for SubsPlease scraping | Yes |
 | `FeedNotificationSchedule` | Notification timer (NCrontab, 6 fields) | Yes |
 | `ScrapingSchedule` | Library import timer | Yes |
-| `FeedTitlesUpdateSchedule` | Feed titles timer | Yes |
 | `Gmail:FromEmail`, `Gmail:FromName`, `Gmail:AppPassword` | Notification email sender | For email |
 | `APPLICATIONINSIGHTS_CONNECTION_STRING` | Azure Monitor exporter | In Azure |
 

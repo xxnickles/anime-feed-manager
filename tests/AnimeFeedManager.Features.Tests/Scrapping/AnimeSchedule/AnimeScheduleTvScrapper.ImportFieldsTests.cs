@@ -12,7 +12,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime() with { Episodes = 12 });
 
-        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+        var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Equal(12, Single(data).Series.Episodes));
     }
@@ -22,7 +22,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime() with { Episodes = null });
 
-        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+        var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Null(Single(data).Series.Episodes));
     }
@@ -36,7 +36,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime() with { JpnTime = DateTime.MinValue, SubTime = DateTime.MinValue });
 
-        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+        var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data =>
         {
@@ -52,7 +52,7 @@ public partial class AnimeScheduleTvScrapperTests
         var subTime = new DateTime(2026, 10, 3, 15, 30, 0, DateTimeKind.Utc);
         var client = ClientReturning(CreateAnime() with { JpnTime = jpnTime, SubTime = subTime });
 
-        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+        var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data =>
         {
@@ -77,7 +77,7 @@ public partial class AnimeScheduleTvScrapperTests
             ])
         });
 
-        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+        var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Equal(
             [
@@ -92,7 +92,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime() with { Websites = null });
 
-        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+        var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Null(Single(data).Series.Streams));
     }
@@ -102,7 +102,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = ClientReturning(CreateAnime() with { Websites = new AnimeScheduleWebsites([]) });
 
-        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+        var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data => Assert.Null(Single(data).Series.Streams));
     }
@@ -119,7 +119,7 @@ public partial class AnimeScheduleTvScrapperTests
             Names = new AnimeScheduleNames("Romaji", "English", null, null, "PC2")
         });
 
-        var result = await EmptyFeed().ScrapSeries(client, Spring2026, CancellationToken.None);
+        var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data =>
         {

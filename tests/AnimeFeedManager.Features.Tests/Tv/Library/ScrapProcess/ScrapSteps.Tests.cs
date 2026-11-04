@@ -1,304 +1,128 @@
 ﻿using AnimeFeedManager.Features.Common.Scrapping;
-using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
-namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess
+namespace AnimeFeedManager.Features.Tests.Tv.Library.ScrapProcess;
+
+public class ScrapStepsTests
 {
-    public class ScrapStepsTests
+    private const string New = "";
+
+    #region Stored Data Tests
+
+    [Fact]
+    public async Task Should_Carry_Stored_User_Titles_When_Series_Exists()
     {
-        [Fact]
-        public async Task Should_Enrich_Data_With_StoredSeries()
-        {
-            // Create initial ScrapTvLibraryData
-            var seriesSeason = TestSeasons.Default;
+        var stored = Stored(SeriesStatus.NotAvailable(), new AlternativeTitlesData(User: ["Alt Title 1", "Alt Title 2"]));
 
-            var feedTitles = ImmutableArray.Create(
-                new FeedData("Series 1", "https://example.com/series-1"),
-                new FeedData("Test Anime", "https://example.com/test-anime"));
+        var result = await Enrich([stored], AiringStatus.Unknown);
 
-            var storageData = new StorageData(
-                new AnimeInfoStorage
-                {
-                    RowKey = "1",
-                    PartitionKey = "season-2025",
-                    Title = "Test Anime",
-                    Synopsis = "Test synopsis",
-                    FeedTitle = string.Empty,
-                    Status = SeriesStatus.NotAvailableValue
-                },
-                new NoImage(),
-                Status.NewSeries,
-                AiringStatus.Unknown);
-
-            var seriesDataList = ImmutableArray.Create(storageData);
-            var scrapData = new ScrapTvLibraryData(seriesDataList, feedTitles, seriesSeason);
-            var resultScrapData = Result<ScrapTvLibraryData>.Success(scrapData);
-            var initialData = Task.FromResult(resultScrapData);
-
-            // Create stored series
-            var storedSeries = ImmutableArray.Create(
-                new TvSeriesInfo(
-                    "Test Anime",
-                    "Test Anime Feed",
-                    "https://example.com/test-anime-feed",
-                    new AlternativeTitlesData(User: ["Alt Title 1", "Alt Title 2"]),
-                    SeriesStatus.Ongoing()));
-            
-            // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
-            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
-
-            var result = await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
-
-            result.AssertOnSuccess(r =>
-            {
-                var updatedSeries = r.SeriesData.First().Series;
-                Assert.Equal("Test Anime Feed", updatedSeries.FeedTitle);
-                Assert.Equal("https://example.com/test-anime-feed", updatedSeries.FeedLink);
-                Assert.Equal(SeriesStatus.OngoingValue, updatedSeries.Status);
-                Assert.Equal(["Alt Title 1", "Alt Title 2"],
-                    StoredAlternativeTitles.Parse(updatedSeries.AlternativeTitles).User!);
-            });
-        }
-
-        [Fact]
-        public async Task Should_Set_Status_To_Ongoing_When_NewSeries_Have_Matching_Feed()
-        {
-            // Create initial ScrapTvLibraryData
-            var seriesSeason = TestSeasons.Default;
-            var feedTitles = ImmutableArray.Create(
-                new FeedData("Test Anime", "https://example.com/test-anime"),
-                new FeedData("Series 2", "https://example.com/series-2")); // Matching feed title
-
-            var storageData = new StorageData(
-                new AnimeInfoStorage
-                {
-                    RowKey = "1",
-                    PartitionKey = "season-2025",
-                    Title = "Test Anime",
-                    Synopsis = "Test synopsis",
-                    FeedTitle = string.Empty,
-                    Status = SeriesStatus.NotAvailableValue
-                },
-                new NoImage(),
-                Status.NewSeries,
-                AiringStatus.Unknown);
-
-            var seriesDataList = ImmutableArray.Create(storageData);
-            var scrapData = new ScrapTvLibraryData(seriesDataList, feedTitles, seriesSeason);
-            var resultScrapData = Result<ScrapTvLibraryData>.Success(scrapData);
-            var initialData = Task.FromResult(resultScrapData);
-
-            // Empty stored series (no existing series)
-            var storedSeries = ImmutableArray<TvSeriesInfo>.Empty;
-
-            // Setup StoredSeriesGetter fake
-            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
-            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(storedSeries)));
-
-            var result = await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
-
-            result.AssertOnSuccess(r =>
-            {
-                var updatedSeries = r.SeriesData.First().Series;
-                Assert.Equal("Test Anime", updatedSeries.FeedTitle);
-                Assert.Equal("https://example.com/test-anime", updatedSeries.FeedLink);
-                Assert.Equal(SeriesStatus.OngoingValue, updatedSeries.Status);
-            });
-        }
-
-        [Theory]
-        [InlineData(AiringStatus.Ongoing)]
-        [InlineData(AiringStatus.Upcoming)]
-        [InlineData(AiringStatus.Finished)]
-        [InlineData(AiringStatus.Delayed)]
-        [InlineData(AiringStatus.Unknown)]
-        public async Task Should_Set_Status_Ongoing_When_Feed_Matches_Whatever_The_Provider_Says(AiringStatus airing)
-        {
-            await FeedMatchVerification(ImmutableArray<TvSeriesInfo>.Empty, airing, SeriesStatus.OngoingValue);
-        }
-
-        [Fact]
-        public async Task Should_Reopen_A_Completed_Series_When_It_Returns_To_The_Feed()
-        {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
-                SeriesStatus.Completed());
-            await FeedMatchVerification([storedSeries], AiringStatus.Finished, SeriesStatus.OngoingValue);
-        }
-
-        private async Task FeedMatchVerification(
-            ImmutableArray<TvSeriesInfo> dbSeries,
-            AiringStatus airing,
-            string expectedStatus)
-        {
-            var seriesSeason = TestSeasons.Default;
-            var feedTitles = ImmutableArray.Create(
-                new FeedData("Test Anime", "https://example.com/test-anime"));
-
-            var processSeries = new StorageData(new AnimeInfoStorage
-            {
-                RowKey = "1",
-                PartitionKey = "2024-summer",
-                Title = "Test Anime",
-                Synopsis = "Test synopsis",
-                FeedTitle = string.Empty,
-                Status = SeriesStatus.NotAvailableValue
-            }, new NoImage(), Status.NewSeries, airing);
-
-            var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
-            var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
-
-            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
-            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
-
-            var result = await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
-
-            result.AssertOnSuccess(r =>
-            {
-                var updatedSeries = r.SeriesData.First().Series;
-                Assert.Equal("Test Anime", updatedSeries.FeedTitle);
-                Assert.Equal(expectedStatus, updatedSeries.Status);
-            });
-        }
-
-        [Fact]
-        internal async Task Should_Set_Status_Completed_When_New_And_Provider_Says_Finished_And_NoMatchingFeed()
-        {
-            await NoFeedMatchVerification(ImmutableArray<TvSeriesInfo>.Empty, AiringStatus.Finished,
-                SeriesStatus.CompletedValue);
-        }
-
-        [Fact]
-        internal async Task Should_Set_Status_Completed_When_Exist_And_Provider_Says_Finished_And_NoMatchingFeed()
-        {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
-                SeriesStatus.NotAvailable());
-            await NoFeedMatchVerification([storedSeries], AiringStatus.Finished, SeriesStatus.CompletedValue);
-        }
-
-        [Fact]
-        internal async Task Should_Set_Status_NotAvailable_When_New_And_Provider_Status_Is_Not_Finished()
-        {
-            await NoFeedMatchVerification(ImmutableArray<TvSeriesInfo>.Empty, AiringStatus.Upcoming,
-                SeriesStatus.NotAvailableValue);
-        }
-
-        [Fact]
-        internal async Task Should_Hold_Ongoing_When_Series_Leaves_The_Feed_And_Provider_Has_Not_Finished_It()
-        {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
-                SeriesStatus.Ongoing());
-            await NoFeedMatchVerification([storedSeries], AiringStatus.Delayed, SeriesStatus.OngoingValue);
-        }
-
-        [Fact]
-        internal async Task Should_Hold_Completed_When_A_Completed_Series_Is_Reimported()
-        {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null, AlternativeTitlesData.Empty,
-                SeriesStatus.Completed());
-            await NoFeedMatchVerification([storedSeries], AiringStatus.Unknown, SeriesStatus.CompletedValue);
-        }
-
-        private async Task NoFeedMatchVerification(
-            ImmutableArray<TvSeriesInfo> dbSeries,
-            AiringStatus airing,
-            string expectedStatus)
-        {
-            var seriesSeason = TestSeasons.Default;
-            var feedTitles = ImmutableArray.Create(
-                new FeedData("Other Series", "https://example.com/other-series")); // No matching feed title
-
-            var processSeries = new StorageData(new AnimeInfoStorage
-            {
-                RowKey = "1",
-                PartitionKey = "2024-summer",
-                Title = "Test Anime",
-                Synopsis = "Test synopsis",
-                FeedTitle = string.Empty,
-                Status = SeriesStatus.NotAvailableValue
-            }, new NoImage(), Status.NewSeries, airing);
-
-            var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
-            var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
-
-            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
-            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
-
-            var result = await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
-
-            result.AssertOnSuccess(r =>
-            {
-                var updatedSeries = r.SeriesData.First().Series;
-                Assert.Equal(string.Empty, updatedSeries.FeedTitle);
-                Assert.Equal(expectedStatus, updatedSeries.Status);
-            });
-        }
-
-        [Fact]
-        public async Task Should_Match_Feed_By_Stored_User_Title_When_Main_Title_Does_Not_Match()
-        {
-            var storedSeries = new TvSeriesInfo("Test Anime", string.Empty, null,
-                new AlternativeTitlesData(User: ["Magic Academy"]), SeriesStatus.NotAvailable());
-
-            var result = await AltTitleMatchVerification([storedSeries], providerTitles: null);
-
-            result.AssertOnSuccess(r =>
-            {
-                var processed = r.SeriesData.First();
-                Assert.Equal("Magic Academy", processed.Series.FeedTitle);
-                Assert.Equal("https://example.com/magic-academy", processed.Series.FeedLink);
-                Assert.Equal(SeriesStatus.OngoingValue, processed.Series.Status);
-                Assert.Equal(Status.UpdatedSeries, processed.Status);
-            });
-        }
-
-        [Fact]
-        public async Task Should_Match_Feed_By_Provider_Synonym_When_New_Series_Main_Title_Does_Not_Match()
-        {
-            var result = await AltTitleMatchVerification(ImmutableArray<TvSeriesInfo>.Empty,
-                new AlternativeTitlesData(Synonyms: ["Magic Academy"]));
-
-            result.AssertOnSuccess(r =>
-            {
-                var updatedSeries = r.SeriesData.First().Series;
-                Assert.Equal("Magic Academy", updatedSeries.FeedTitle);
-                Assert.Equal(SeriesStatus.OngoingValue, updatedSeries.Status);
-            });
-        }
-
-        private static async Task<Result<ScrapTvLibraryData>> AltTitleMatchVerification(
-            ImmutableArray<TvSeriesInfo> dbSeries,
-            AlternativeTitlesData? providerTitles)
-        {
-            var seriesSeason = TestSeasons.Default;
-            var feedTitles = ImmutableArray.Create(
-                new FeedData("Magic Academy", "https://example.com/magic-academy"));
-
-            var processSeries = new StorageData(new AnimeInfoStorage
-            {
-                RowKey = "1",
-                PartitionKey = "2024-summer",
-                Title = "Test Anime",
-                FeedTitle = string.Empty,
-                Status = SeriesStatus.NotAvailableValue,
-                AlternativeTitles = providerTitles?.ToStoredString()
-            }, new NoImage(), Status.NewSeries, AiringStatus.Ongoing);
-
-            var scrapData = new ScrapTvLibraryData([processSeries], feedTitles, seriesSeason);
-            var initialData = Task.FromResult(Result<ScrapTvLibraryData>.Success(scrapData));
-
-            var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
-            storedSeriesGetter(seriesSeason, Arg.Any<CancellationToken>())
-                .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(dbSeries)));
-
-            return await initialData.AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
-        }
+        result.AssertOnSuccess(r => Assert.Equal(["Alt Title 1", "Alt Title 2"],
+            StoredAlternativeTitles.Parse(r.SeriesData.Single().Series.AlternativeTitles).User!));
     }
+
+    [Fact]
+    public async Task Should_Leave_Feed_Fields_Unset_When_Stored_Series_Has_A_Feed()
+    {
+        var stored = new TvSeriesInfo("Test Anime", "Test Anime Feed", "https://example.com/feed",
+            AlternativeTitlesData.Empty, SeriesStatus.Ongoing());
+
+        var result = await Enrich([stored], AiringStatus.Ongoing);
+
+        result.AssertOnSuccess(r =>
+        {
+            var series = r.SeriesData.Single().Series;
+            Assert.Null(series.FeedTitle);
+            Assert.Null(series.FeedLink);
+            Assert.Null(series.FeedSource);
+        });
+    }
+
+    #endregion
+
+    #region Status Tests
+
+    [Theory]
+    [InlineData(New, AiringStatus.Finished, SeriesStatus.CompletedValue)]
+    [InlineData(New, AiringStatus.Ongoing, SeriesStatus.NotAvailableValue)]
+    [InlineData(New, AiringStatus.Upcoming, SeriesStatus.NotAvailableValue)]
+    [InlineData(New, AiringStatus.Unknown, SeriesStatus.NotAvailableValue)]
+    [InlineData(SeriesStatus.NotAvailableValue, AiringStatus.Finished, SeriesStatus.CompletedValue)]
+    [InlineData(SeriesStatus.NotAvailableValue, AiringStatus.Ongoing, SeriesStatus.NotAvailableValue)]
+    [InlineData(SeriesStatus.OngoingValue, AiringStatus.Finished, SeriesStatus.OngoingValue)]
+    [InlineData(SeriesStatus.OngoingValue, AiringStatus.Delayed, SeriesStatus.OngoingValue)]
+    [InlineData(SeriesStatus.CompletedValue, AiringStatus.Unknown, SeriesStatus.CompletedValue)]
+    [InlineData(SeriesStatus.CompletedValue, AiringStatus.Ongoing, SeriesStatus.CompletedValue)]
+    public async Task Should_Resolve_Status_From_Stored_Status_And_Airing_When_Imported(
+        string storedStatus, AiringStatus airing, string expected)
+    {
+        ImmutableArray<TvSeriesInfo> stored = storedStatus == New ? [] : [Stored(ToStatus(storedStatus))];
+
+        var result = await Enrich(stored, airing);
+
+        result.AssertOnSuccess(r => Assert.Equal(expected, r.SeriesData.Single().Series.Status));
+    }
+
+    [Fact]
+    public async Task Should_Mark_Updated_When_Stored_Series_Status_Changes()
+    {
+        var result = await Enrich([Stored(SeriesStatus.NotAvailable())], AiringStatus.Finished);
+
+        result.AssertOnSuccess(r => Assert.Equal(Status.UpdatedSeries, r.SeriesData.Single().Status));
+    }
+
+    [Fact]
+    public async Task Should_Mark_No_Changes_When_Stored_Series_Status_Holds()
+    {
+        var result = await Enrich([Stored(SeriesStatus.Ongoing())], AiringStatus.Ongoing);
+
+        result.AssertOnSuccess(r => Assert.Equal(Status.NoChanges, r.SeriesData.Single().Status));
+    }
+
+    [Fact]
+    public async Task Should_Mark_New_When_Series_Is_Not_Stored()
+    {
+        var result = await Enrich([], AiringStatus.Ongoing);
+
+        result.AssertOnSuccess(r => Assert.Equal(Status.NewSeries, r.SeriesData.Single().Status));
+    }
+
+    #endregion
+
+    #region Test Helpers
+
+    private static TvSeriesInfo Stored(SeriesStatus status, AlternativeTitlesData? titles = null) =>
+        new("Test Anime", string.Empty, null, titles ?? AlternativeTitlesData.Empty, status);
+
+    private static SeriesStatus ToStatus(string status) => status switch
+    {
+        SeriesStatus.OngoingValue => SeriesStatus.Ongoing(),
+        SeriesStatus.CompletedValue => SeriesStatus.Completed(),
+        _ => SeriesStatus.NotAvailable()
+    };
+
+    // Mirrors what the provider scrape hands to enrichment: feed fields unset, status NotAvailable.
+    private static Task<Result<ScrapTvLibraryData>> Enrich(ImmutableArray<TvSeriesInfo> stored, AiringStatus airing)
+    {
+        var season = TestSeasons.Default;
+        var imported = new StorageData(new AnimeInfoStorage
+        {
+            RowKey = "1",
+            PartitionKey = "2024-summer",
+            Title = "Test Anime",
+            Synopsis = "Test synopsis",
+            Status = SeriesStatus.NotAvailableValue
+        }, new NoImage(), Status.NewSeries, airing);
+
+        var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
+        storedSeriesGetter(season, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(stored)));
+
+        return Task.FromResult(Result<ScrapTvLibraryData>.Success(new ScrapTvLibraryData([imported], season)))
+            .AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
+    }
+
+    #endregion
 }

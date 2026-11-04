@@ -62,7 +62,6 @@ public static class Registration
             serviceCollection.RegisterPuppeteerWithLocalChrome(downloadToProjectFolder, runHeadless);
         }
 
-        serviceCollection.TryAddScoped<ISeasonFeedDataProvider, SeasonFeedDataProvider>();
         serviceCollection.TryAddScoped<INewReleaseProvider, NewReleaseProvider>();
         return serviceCollection;
     }

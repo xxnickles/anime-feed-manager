@@ -90,7 +90,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AnimeFeedManager.Seasons.Update` | Season creation/update orchestration | Functions |
 | `AnimeFeedManager.Tv.Library.Import` | TV library scrape/import for a season | Functions |
 | `AnimeFeedManager.Tv.Library.Completion` | Marking ongoing series completed | Functions |
-| `AnimeFeedManager.Tv.Library.FeedTitles` | Feed-titles scrape, match, persist | Functions |
+| `AnimeFeedManager.Tv.Library.FeedTitles` | Feed-titles persist | Functions |
 | `AnimeFeedManager.Tv.Library.Queries` | Library catalog queries | Web |
 | `AnimeFeedManager.Tv.Subscriptions.Feed` | Daily feed processing, per-user notification | Functions |
 | `AnimeFeedManager.Tv.Subscriptions.Management` | Auto-subscription for interested users | Functions |
@@ -111,7 +111,6 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `SeasonsTelemetry.UpdateSpan` | `Seasons.Update` | Seasons.Update | Functions |
 | `TvLibraryTelemetry.ImportSpan` | `Tv.Library.Import` | Tv.Library.Import | Functions |
 | `TvLibraryTelemetry.UpdateFeedTitlesSpan` | `Tv.Library.UpdateFeedTitles` | Tv.Library.FeedTitles | Functions |
-| `TvLibraryTelemetry.ScrapFeedTitlesSpan` | `Tv.Library.ScrapFeedTitles` | Tv.Library.FeedTitles | Functions |
 | `TvLibraryTelemetry.CompleteOngoingSpan` | `Tv.Library.CompleteOngoing` | Tv.Library.Completion | Functions |
 | `TvLibraryTelemetry.CompleteFeedSeriesSpan` | `Tv.Library.CompleteFeedSeries` | Tv.Library.Completion | Functions |
 | `TvLibraryTelemetry.QuerySeasonSpan` | `Tv.Library.QuerySeason` | Tv.Library.Queries | Web |
@@ -129,7 +128,6 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `RealTimeTelemetry.NegotiateSpan` | `RealTime.Negotiate` | Web.RealTime | Web |
 | `AdminTelemetry.UpdateTvSeasonSpan` | `Admin.UpdateTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
-| `AdminTelemetry.UpdateFeedTitlesSpan` | `Admin.UpdateFeedTitles` | Web.Admin | Web |
 | `AdminTelemetry.TriggerFeedNotificationsSpan` | `Admin.TriggerFeedNotifications` | Web.Admin | Web |
 | `AdminTelemetry.TriggerAutomatedBindingSpan` | `Admin.TriggerAutomatedBinding` | Web.Admin | Web |
 | `AdminTelemetry.SetFeaturedSeasonSpan` | `Admin.SetFeaturedSeason` | Web.Admin | Web |

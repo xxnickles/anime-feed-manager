@@ -4,7 +4,6 @@ internal static class AdminTelemetry
 {
     public const string UpdateTvSeasonSpan = "Admin.UpdateTvSeason";
     public const string UpdateLatestTvSeasonSpan = "Admin.UpdateLatestTvSeason";
-    public const string UpdateFeedTitlesSpan = "Admin.UpdateFeedTitles";
     public const string TriggerFeedNotificationsSpan = "Admin.TriggerFeedNotifications";
     public const string TriggerAutomatedBindingSpan = "Admin.TriggerAutomatedBinding";
     public const string SetFeaturedSeasonSpan = "Admin.SetFeaturedSeason";

@@ -50,7 +50,6 @@ dotnet user-secrets set "Passwordless:ApiSecret" "<api-secret>"
     "DOTNET_SYSTEM_NET_DISABLEIPV6": "1",
     "FeedNotificationSchedule": "0 0 * * * *",
     "ScrapingSchedule": "0 0 0 1 1 *",
-    "FeedTitlesUpdateSchedule": "0 0 0 1 1 *",
     "AzureWebJobs.ScheduledTvLibraryUpdate.Disabled": "true",
     "Gmail:FromEmail": "<gmail-address>",
     "Gmail:FromName": "Anime Feed Manager",

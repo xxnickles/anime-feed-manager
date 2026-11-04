@@ -40,19 +40,6 @@ internal static class TvAdminHandlers
             .ToComponentNotification<Unit, Noop, TvLatestSeasonUpdate>(new Noop());
     }
 
-    internal static async Task<RazorComponentResult> Titles(
-        [FromForm] Noop noop,
-        [FromServices] IDomainPostman domainPostman,
-        [FromServices] ILogger<TvTitlesUpdate> logger,
-        CancellationToken cancellationToken)
-    {
-        using var activity = Source.StartActivity(AdminTelemetry.UpdateFeedTitlesSpan);
-        return await domainPostman.SendMessages([new UpdateLatestFeedTitlesEvent()], cancellationToken)
-            .MarkActivityErroredOnError()
-            .FlushLogs(logger)
-            .ToComponentNotification<Unit, Noop, TvTitlesUpdate>(new Noop());
-    }
-
     internal static async Task<RazorComponentResult> TriggerNotificationProcess(
         [FromForm] Noop noop,
         [FromServices] IDomainPostman domainPostman,

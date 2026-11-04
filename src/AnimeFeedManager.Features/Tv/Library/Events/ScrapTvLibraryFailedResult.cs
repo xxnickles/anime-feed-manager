@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Library.Events;
 
-public sealed record ScrapTvLibraryFailedResult(string Season, UpdateType UpdateType = UpdateType.FullLibrary)
+public sealed record ScrapTvLibraryFailedResult(string Season)
     : SystemNotificationPayload
 {
     public override string AsJson()

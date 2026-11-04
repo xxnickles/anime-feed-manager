@@ -24,9 +24,6 @@ param feedNotificationSchedule string = '0 0 * * * *'
 @description('Cron schedule for library scraping (NCrontab 6-field format)')
 param scrapingSchedule string = '0 0 0 * * *'
 
-@description('Cron schedule for feed titles update (NCrontab 6-field format)')
-param feedTitlesUpdateSchedule string = '0 0 0 1 1 *'
-
 @description('Cron schedule for automated series binding (NCrontab 6-field format)')
 param automatedBindingSchedule string = '0 0 5 * * *'
 
@@ -148,7 +145,6 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2025-03-01' = {
     RunHeadless: 'true'
     FeedNotificationSchedule: feedNotificationSchedule
     ScrapingSchedule: scrapingSchedule
-    FeedTitlesUpdateSchedule: feedTitlesUpdateSchedule
     AutomatedBindingSchedule: automatedBindingSchedule
 
     // Remote Chrome (browserless) configuration

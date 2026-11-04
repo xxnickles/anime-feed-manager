@@ -22,14 +22,12 @@ public static class LastScrapeStat
         CancellationToken cancellationToken) =>
         eventGetter(TargetConsumer.Everybody(), from, cancellationToken).Map(Summarize);
 
-    // Titles scrapes share the payload type but don't touch the library.
     internal static LastScrape Summarize(ImmutableArray<EventData<ScrapTvLibraryResult>> events)
     {
-        var runs = events.Where(e => e.Data.UpdateType == UpdateType.FullLibrary).ToImmutableArray();
-        if (runs.IsEmpty) return new NoScrape();
+        if (events.IsEmpty) return new NoScrape();
 
-        var latest = runs.MaxBy(e => e.Timestamp)!;
+        var latest = events.MaxBy(e => e.Timestamp)!;
         return new LatestScrape(latest.Timestamp, latest.Data.Season, latest.Data.NewSeries,
-            latest.Data.UpdatedSeries, runs.Length);
+            latest.Data.UpdatedSeries, events.Length);
     }
 }

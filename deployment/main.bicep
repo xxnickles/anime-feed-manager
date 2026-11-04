@@ -30,9 +30,6 @@ param feedNotificationSchedule string = '0 0 * * * *'
 @description('Cron schedule for library scraping (NCrontab 6-field format)')
 param scrapingSchedule string = '0 0 0 * * *'
 
-@description('Cron schedule for feed titles update (NCrontab 6-field format)')
-param feedTitlesUpdateSchedule string = '0 0 0 1 1 *'
-
 @description('Cron schedule for automated series binding (NCrontab 6-field format)')
 param automatedBindingSchedule string = '0 0 5 * * *'
 
@@ -59,7 +56,6 @@ module functions 'modules/functions.bicep' = {
     gmailFromName: gmailFromName
     feedNotificationSchedule: feedNotificationSchedule
     scrapingSchedule: scrapingSchedule
-    feedTitlesUpdateSchedule: feedTitlesUpdateSchedule
     automatedBindingSchedule: automatedBindingSchedule
     // Chrome WebSocket endpoint (computed to avoid circular dependency)
     chromeEndpoint: 'wss://${config.chromeName}.azurewebsites.net/chromium'

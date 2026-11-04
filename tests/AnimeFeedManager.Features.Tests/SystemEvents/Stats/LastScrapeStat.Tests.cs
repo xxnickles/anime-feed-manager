@@ -20,14 +20,6 @@ public class LastScrapeStatTests
     }
 
     [Fact]
-    public void Should_Return_NoScrape_When_Only_Titles_Scrapes_Ran()
-    {
-        var result = LastScrapeStat.Summarize([Scrape(Now, UpdateType.Titles)]);
-
-        Assert.IsType<NoScrape>(result);
-    }
-
-    [Fact]
     public void Should_Report_The_Latest_Library_Scrape_When_Several_Ran()
     {
         var events = ImmutableArray.Create(
@@ -44,27 +36,13 @@ public class LastScrapeStatTests
         Assert.Equal(3, result.Runs);
     }
 
-    [Fact]
-    public void Should_Ignore_Titles_Scrapes_When_Library_Scrapes_Also_Ran()
-    {
-        var events = ImmutableArray.Create(
-            Scrape(Now.AddDays(-1), newSeries: 2),
-            Scrape(Now, UpdateType.Titles));
-
-        var result = Assert.IsType<LatestScrape>(LastScrapeStat.Summarize(events));
-
-        Assert.Equal(Now.AddDays(-1), result.At);
-        Assert.Equal(1, result.Runs);
-    }
-
     #region Test Helpers
 
     private static EventData<ScrapTvLibraryResult> Scrape(
         DateTimeOffset at,
-        UpdateType updateType = UpdateType.FullLibrary,
         int newSeries = 0,
         int updatedSeries = 0) =>
-        new(EventType.Completed, at, new ScrapTvLibraryResult(Fall, updatedSeries, newSeries, updateType));
+        new(EventType.Completed, at, new ScrapTvLibraryResult(Fall, updatedSeries, newSeries));
 
     #endregion
 }

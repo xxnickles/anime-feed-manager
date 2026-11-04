@@ -62,7 +62,6 @@ These values are hardcoded in the infrastructure workflow (`.github/workflows/am
 | `gmailFromName` | `Anime Feed Manager` | Email sender display name |
 | `feedNotificationSchedule` | `0 0 * * * *` | Cron schedule for feed notifications (hourly) |
 | `scrapingSchedule` | `0 0 4 * * 6` | Cron schedule for full library scraping (weekly Saturday 4 AM UTC) |
-| `feedTitlesUpdateSchedule` | `0 0 0 1 1 *` | Cron schedule for feed titles update (disabled - once per year) |
 
 ### Cron Schedule Format
 
@@ -94,10 +93,10 @@ During anime season transitions (~1 day before to ~20 days after season start), 
 
 #### Schedule Presets
 
-| Mode | `scrapingSchedule` | `feedTitlesUpdateSchedule` | Description |
-|------|-------------------|---------------------------|-------------|
-| **Normal** | `0 0 4 * * 6` | `0 0 0 1 1 *` | Weekly scraping, titles update disabled |
-| **Rush** | `0 0 4 * * *` | `0 0 */4 * * *` | Daily scraping (4 AM UTC), titles every 4 hours |
+| Mode | `scrapingSchedule` | Description |
+|------|-------------------|-------------|
+| **Normal** | `0 0 4 * * 6` | Weekly scraping |
+| **Rush** | `0 0 4 * * *` | Daily scraping (4 AM UTC) |
 
 #### CLI Commands
 
@@ -107,9 +106,7 @@ During anime season transitions (~1 day before to ~20 days after season start), 
 az functionapp config appsettings set \
   --name <FUNCTION_APP_NAME> \
   --resource-group <RESOURCE_GROUP> \
-  --settings \
-    "ScrapingSchedule=0 0 4 * * *" \
-    "FeedTitlesUpdateSchedule=0 0 */4 * * *"
+  --settings "ScrapingSchedule=0 0 4 * * *"
 ```
 
 **Switch to Normal Mode:**
@@ -118,9 +115,7 @@ az functionapp config appsettings set \
 az functionapp config appsettings set \
   --name <FUNCTION_APP_NAME> \
   --resource-group <RESOURCE_GROUP> \
-  --settings \
-    "ScrapingSchedule=0 0 4 * * 6" \
-    "FeedTitlesUpdateSchedule=0 0 0 1 1 *"
+  --settings "ScrapingSchedule=0 0 4 * * 6"
 ```
 
 **Check Current Settings:**
@@ -129,13 +124,11 @@ az functionapp config appsettings set \
 az functionapp config appsettings list \
   --name <FUNCTION_APP_NAME> \
   --resource-group <RESOURCE_GROUP> \
-  --query "[?name=='ScrapingSchedule' || name=='FeedTitlesUpdateSchedule' || name=='FeedNotificationSchedule'].{name:name, value:value}" \
+  --query "[?name=='ScrapingSchedule' || name=='FeedNotificationSchedule'].{name:name, value:value}" \
   --output table
 ```
 
 **Notes:**
-- Feed titles update is lighter than full scraping (only hits SubsPlease schedule page)
-- Both still use Chrome container - avoid overlapping schedules too closely
 - App settings changes trigger automatic Function App restart (~30 seconds)
 - Schedule changes take effect immediately after restart
 

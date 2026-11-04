@@ -1,11 +1,5 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Library.Events;
 
-public enum UpdateType
-{
-    FullLibrary,
-    Titles
-}
-
 public enum ResultType
 {
     Success,
@@ -15,8 +9,7 @@ public enum ResultType
 public sealed record ScrapTvLibraryResult(
     SeriesSeason Season,
     int UpdatedSeries,
-    int NewSeries,
-    UpdateType UpdateType = UpdateType.FullLibrary)
+    int NewSeries)
     : SystemNotificationPayload
 {
     public override string AsJson()

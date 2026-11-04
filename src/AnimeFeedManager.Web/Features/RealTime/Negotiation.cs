@@ -1,4 +1,3 @@
-using AnimeFeedManager.Features.SystemEvents;
 using AnimeFeedManager.Shared.Types;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.Azure.SignalR.Management;

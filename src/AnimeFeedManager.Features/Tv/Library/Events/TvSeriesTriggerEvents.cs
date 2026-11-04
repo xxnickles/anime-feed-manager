@@ -12,12 +12,3 @@ public sealed record UpdateTvSeriesEvent(SeasonParameters? SeasonParameters = nu
     }
 }
 
-public sealed record UpdateLatestFeedTitlesEvent(bool Update = true) : DomainMessage(new Box(TargetQueue))
-{
-    public const string TargetQueue = "update-latest-feed-titles";
-
-    public override BinaryData ToBinaryData()
-    {
-        return BinaryData.FromObjectAsJson(this, TvJsonContext.Default.UpdateLatestFeedTitlesEvent);
-    }
-}
