@@ -12,13 +12,19 @@ public sealed record FeedOpen : CompletionOutcome;
 
 public static class NyaaCompletion
 {
-    /// <summary>Completes once, when the latest regular episode reaches a known count; only a rebind clears the stamp.</summary>
+    /// <summary>Completes once, when the distinct regular episodes reach a known count; only a rebind clears the stamp.</summary>
+    /// <remarks>
+    /// Counted, not the highest number: groups can number a sequel on from earlier seasons. Without a premiere the
+    /// catalog can hold earlier seasons too, so it never completes.
+    /// </remarks>
     public static CompletionOutcome Evaluate(
         ExpectedEpisodes expected,
+        DateTimeOffset? premiere,
         DateTimeOffset? completedAt,
         IEnumerable<NyaaCatalogStorage> catalog,
         DateTimeOffset now) =>
-        (expected, completedAt) is (KnownEpisodes known, null) && catalog.LatestRegular() >= known.Count
+        (expected, premiere, completedAt) is (KnownEpisodes known, not null, null)
+        && catalog.DistinctRegular() >= known.Count
             ? new FeedCompleted(now)
             : new FeedOpen();
 
@@ -36,6 +42,7 @@ public static class NyaaCompletion
                     .Bind(binding => catalogGetter(seriesId, attemptToken)
                         .Map(catalog => (Binding: binding, Outcome: Evaluate(
                             SeriesBroadcast.ToExpectedEpisodes(binding.Episodes),
+                            binding.Premiere,
                             binding.CompletedAt,
                             catalog,
                             DateTimeOffset.UtcNow))))

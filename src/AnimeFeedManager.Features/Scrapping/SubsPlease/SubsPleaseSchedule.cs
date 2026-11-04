@@ -30,24 +30,34 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
         try
         {
             using var response = await _httpClient.GetAsync(Request, token);
+            return await Parse(response, token);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            return ExceptionError.FromExceptionWithMessage(e, $"Request failed for {Request}");
+        }
+    }
 
-            // Checked before the status: a challenge page can arrive as a 200 or as an error.
-            if (response.Content.Headers.ContentType?.MediaType is "text/html")
-                return ScheduleUnavailableError.Create(Request, response.StatusCode);
-
-            response.EnsureSuccessStatusCode();
-
+    // The body decides, not Content-Type (the JSON is served as text/html) or the status
+    // (a challenge page can arrive as a 200 or as an error).
+    private static async Task<Result<SubsPleaseScheduleResponse>> Parse(HttpResponseMessage response,
+        CancellationToken token)
+    {
+        try
+        {
             await using var stream = await response.Content.ReadAsStreamAsync(token);
             var payload = await JsonSerializer.DeserializeAsync(
                 stream, SubsPleaseJsonContext.Default.SubsPleaseScheduleResponse, token);
+
+            response.EnsureSuccessStatusCode();
 
             return payload is not null
                 ? payload
                 : Error.Create($"No usable payload for {Request}");
         }
-        catch (Exception e) when (e is not OperationCanceledException)
+        catch (JsonException)
         {
-            return ExceptionError.FromExceptionWithMessage(e, $"Request failed for {Request}");
+            return ScheduleUnavailableError.Create(Request, response.StatusCode);
         }
     }
 

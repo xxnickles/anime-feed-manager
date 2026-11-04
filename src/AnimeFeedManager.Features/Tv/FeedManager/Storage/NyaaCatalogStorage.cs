@@ -54,6 +54,10 @@ public static class NyaaCatalogRows
     public static int LatestRegular(this IEnumerable<NyaaCatalogStorage> catalog) =>
         catalog.Where(row => !row.Special).Select(row => (int) row.EpisodeNumber).DefaultIfEmpty(0).Max();
 
+    /// <summary>Number of distinct regular episodes catalogued; revisions and variants of one episode count once.</summary>
+    public static int DistinctRegular(this IEnumerable<NyaaCatalogStorage> catalog) =>
+        catalog.Where(row => !row.Special).Select(row => (int) row.EpisodeNumber).Distinct().Count();
+
     /// <summary>Notified-episode identity in the SubsPlease shape: <c>05</c>, <c>05v2</c>, <c>1150</c>, <c>12.5</c>.</summary>
     public static string NotificationEpisode(this NyaaCatalogStorage row)
     {
