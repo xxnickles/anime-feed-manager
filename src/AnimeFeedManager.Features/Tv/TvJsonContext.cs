@@ -35,8 +35,6 @@ namespace AnimeFeedManager.Features.Tv;
 [EventPayloadSerializerContext(typeof(NyaaSeriesBound))]
 [JsonSerializable(typeof(NyaaBindFailed))]
 [EventPayloadSerializerContext(typeof(NyaaBindFailed))]
-[JsonSerializable(typeof(NyaaSeriesBackfilled))]
-[EventPayloadSerializerContext(typeof(NyaaSeriesBackfilled))]
 [JsonSerializable(typeof(AutomatedBindingCompleted))]
 [EventPayloadSerializerContext(typeof(AutomatedBindingCompleted))]
 [JsonSerializable(typeof(AutomatedBindingFailed))]

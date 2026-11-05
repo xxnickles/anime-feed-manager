@@ -1,6 +1,6 @@
 using AnimeFeedManager.Features.SystemEvents.Stats;
 using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
-using AnimeFeedManager.Features.Tv.FeedManager.Events;
+using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Web.Features.Admin.Stats;
 
@@ -47,16 +47,12 @@ internal static class StatHandlers
     }
 
     internal static async Task<RazorComponentResult> Nyaa(
-        [FromQuery] string? period,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
         using var activity = Source.StartActivity(AdminTelemetry.NyaaStatSpan);
-        return await NyaaStat.Get(
-                clientFactory.TableStorageEvents<NyaaSeriesBound>(),
-                ChartDateRange.FromPeriod(period).From,
-                cancellationToken)
+        return await NyaaStat.Get(clientFactory.TableStorageTrackedNyaaBindings, cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
@@ -65,18 +61,12 @@ internal static class StatHandlers
     }
 
     internal static async Task<RazorComponentResult> AutomatedBinding(
-        [FromQuery] string? period,
         [FromServices] ITableClientFactory clientFactory,
         [FromServices] ILogger<AdminPage> logger,
         CancellationToken cancellationToken)
     {
         using var activity = Source.StartActivity(AdminTelemetry.AutomatedBindingStatSpan);
-        return await AutomatedBindingStat.Get(
-                clientFactory.TableStorageEvents<AutomatedBindingCompleted>(),
-                clientFactory.TableStorageEvents<NyaaSeriesBound>(),
-                clientFactory.TableStorageEvents<NyaaBindFailed>(),
-                ChartDateRange.FromPeriod(period).From,
-                cancellationToken)
+        return await AutomatedBindingStat.Get(clientFactory.TableStorageLatestAutomatedBindingRun, cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(

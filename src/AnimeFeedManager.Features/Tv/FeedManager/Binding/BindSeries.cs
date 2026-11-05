@@ -22,13 +22,7 @@ public static class BindSeries
                 .Bind(_ => FeedLibrarySeries(request, season,
                     clientFactory.TableStorageTvSeriesGetter, clientFactory.TableStorageTvSeriesUpdater, token)))
             .Bind(bound => domainPostman(Events(request, bound), token).Map(_ => bound))
-            .SendOnError(domainPostman,
-                [
-                    new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Error,
-                        new NyaaBindFailed(request.SeriesId, request.Group, request.ReleaseTitle, request.RunId)
-                            .AsEventPayload())
-                ],
-                token)
+            .SendOnError(domainPostman, [FailureEvent(request)], token)
             .WithOperationName(nameof(Bind))
             .WithLogProperty(Telemetry.SeriesIdTag, request.SeriesId);
 
@@ -79,20 +73,25 @@ public static class BindSeries
         return (series, bound);
     }
 
-    // Schedule binds are announced by the feed job summary: stored for stats, no toast or page refresh.
-    private static DomainMessage[] Events(BindNyaaSeries request, BoundSeries bound)
-    {
-        var automatic = request.Origin == BindingOrigin.Schedule;
-        return
-        [
-            new BackfillNyaaSeries(request.SeriesId, Quiet: automatic),
-            .. bound.WasOngoing ? Array.Empty<DomainMessage>() : [new UpdatedToOngoing(request.SeriesId, bound.FeedTitle)],
-            new SystemEvent(TargetConsumer.Admin(), automatic ? EventTarget.LocalStorage : EventTarget.Both,
-                EventType.Completed,
-                new NyaaSeriesBound(request.SeriesId, bound.Title, request.Group, request.Variant, request.Origin,
-                        request.RunId)
-                    .AsEventPayload()),
-            .. automatic ? Array.Empty<DomainMessage>() : [new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBound, request.SeriesId)]
-        ];
-    }
+    // Schedule binds are covered by the run's summary toast: no toast or page refresh of their own.
+    internal static DomainMessage[] Events(BindNyaaSeries request, BoundSeries bound) =>
+    [
+        new BackfillNyaaSeries(request.SeriesId),
+        .. bound.WasOngoing ? Array.Empty<DomainMessage>() : [new UpdatedToOngoing(request.SeriesId, bound.FeedTitle)],
+        .. request.Origin == BindingOrigin.Schedule
+            ? Array.Empty<DomainMessage>()
+            :
+            [
+                new SystemEvent(TargetConsumer.Admin(), EventTarget.Browser, EventType.Completed,
+                    new NyaaSeriesBound(request.SeriesId, bound.Title, request.Group, request.Variant).AsEventPayload()),
+                new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBound, request.SeriesId)
+            ]
+    ];
+
+    // Stored for the errors card either way; only a manual bind toasts.
+    internal static SystemEvent FailureEvent(BindNyaaSeries request) =>
+        new(TargetConsumer.Admin(),
+            request.Origin == BindingOrigin.Schedule ? EventTarget.LocalStorage : EventTarget.Both,
+            EventType.Error,
+            new NyaaBindFailed(request.SeriesId, request.Group, request.ReleaseTitle).AsEventPayload());
 }

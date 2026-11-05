@@ -1,6 +1,5 @@
-using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
-using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage;
+using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
 namespace AnimeFeedManager.Features.SystemEvents.Stats;
 
@@ -11,13 +10,11 @@ public sealed record NyaaStats(int Automatic, int Manual)
 
 public static class NyaaStat
 {
-    public static Task<Result<NyaaStats>> Get(
-        SystemEventsGetter<NyaaSeriesBound> boundGetter,
-        DateTimeOffset from,
-        CancellationToken cancellationToken) =>
-        boundGetter(TargetConsumer.Admin(), from, cancellationToken).Map(Summarize);
+    /// <summary>Tracked bindings now, split by origin.</summary>
+    public static Task<Result<NyaaStats>> Get(TrackedNyaaBindings trackedBindings, CancellationToken cancellationToken) =>
+        trackedBindings(cancellationToken).Map(Summarize);
 
-    internal static NyaaStats Summarize(ImmutableArray<EventData<NyaaSeriesBound>> bound) =>
-        new(bound.Count(e => e.Data.Origin == BindingOrigin.Schedule),
-            bound.Count(e => e.Data.Origin != BindingOrigin.Schedule));
+    internal static NyaaStats Summarize(ImmutableArray<NyaaBindingStorage> tracked) =>
+        new(tracked.Count(binding => binding.Origin == BindingOrigin.Schedule),
+            tracked.Count(binding => binding.Origin != BindingOrigin.Schedule));
 }

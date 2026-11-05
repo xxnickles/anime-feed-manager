@@ -1,17 +1,12 @@
-using AnimeFeedManager.Features.SystemEvents;
 using AnimeFeedManager.Features.SystemEvents.Stats;
-using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
-using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage;
 
 namespace AnimeFeedManager.Features.Tests.SystemEvents.Stats;
 
 public class NyaaStatTests
 {
-    private static readonly DateTimeOffset Now = new(2026, 10, 28, 12, 0, 0, TimeSpan.Zero);
-
     [Fact]
-    public void Should_Return_Zeroes_When_There_Are_No_Events()
+    public void Should_Return_Zeroes_When_Nothing_Is_Tracked()
     {
         var result = NyaaStat.Summarize([]);
 
@@ -19,35 +14,20 @@ public class NyaaStatTests
     }
 
     [Fact]
-    public void Should_Count_Every_Bind_When_Series_Repeat()
+    public void Should_Split_Tracked_Bindings_By_Origin()
     {
-        var bound = ImmutableArray.Create(Bound("a", Now.AddDays(-1)), Bound("a", Now));
-
-        var result = NyaaStat.Summarize(bound);
-
-        Assert.Equal(2, result.Bound);
-    }
-
-    [Fact]
-    public void Should_Split_Binds_By_Origin_When_Both_Origins_Are_Present()
-    {
-        var bound = ImmutableArray.Create(
-            Bound("a", Now, BindingOrigin.Schedule),
-            Bound("b", Now, BindingOrigin.Schedule),
-            Bound("c", Now));
-
-        var result = NyaaStat.Summarize(bound);
+        var result = NyaaStat.Summarize(
+            [Binding(BindingOrigin.Schedule), Binding(BindingOrigin.Schedule), Binding(BindingOrigin.Manual)]);
 
         Assert.Equal(2, result.Automatic);
         Assert.Equal(1, result.Manual);
+        Assert.Equal(3, result.Bound);
     }
 
     [Fact]
-    public void Should_Count_Bind_As_Manual_When_Origin_Is_Missing()
+    public void Should_Count_Binding_As_Manual_When_Origin_Is_Unknown()
     {
-        var bound = ImmutableArray.Create(Bound("a", Now, origin: null!));
-
-        var result = NyaaStat.Summarize(bound);
+        var result = NyaaStat.Summarize([Binding("legacy")]);
 
         Assert.Equal(0, result.Automatic);
         Assert.Equal(1, result.Manual);
@@ -55,9 +35,7 @@ public class NyaaStatTests
 
     #region Test Helpers
 
-    private static EventData<NyaaSeriesBound> Bound(string seriesId, DateTimeOffset at,
-        string origin = BindingOrigin.Manual) =>
-        new(EventType.Completed, at, new NyaaSeriesBound(seriesId, $"Title {seriesId}", "group", "1080p", origin, Guid.NewGuid()));
+    private static NyaaBindingStorage Binding(string origin) => new() {Origin = origin, Tracking = true};
 
     #endregion
 }

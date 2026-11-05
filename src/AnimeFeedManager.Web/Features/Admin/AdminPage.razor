@@ -1,4 +1,6 @@
 ﻿@page "/admin"
+@using AnimeFeedManager.Features.AppEvents
+@using AnimeFeedManager.Features.Tv.FeedManager.AutomatedBinding
 @using AnimeFeedManager.Web.Features.Admin.SeasonCards
 @using AnimeFeedManager.Web.Features.Admin.Stats
 @using AnimeFeedManager.Web.Features.Admin.TvCards
@@ -28,8 +30,8 @@
 
 <section aria-label="Period summary"
          class="mb-10 grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
-    <StatCardSkeleton CardId="last-scrape" Endpoint="/admin/stats/last-scrape" UpdateTriggerEvent="periodChanged"/>
-    <StatCardSkeleton CardId="errors" Endpoint="/admin/stats/errors" UpdateTriggerEvent="periodChanged"/>
+    <StatCardSkeleton CardId="last-scrape" Endpoint="/admin/stats/last-scrape" Trigger="periodChanged from:body"/>
+    <StatCardSkeleton CardId="errors" Endpoint="/admin/stats/errors" Trigger="periodChanged from:body"/>
     <article id="@NotificationsStatCard.CardId" class="card bg-base-200 shadow-sm min-w-0">
         <div class="card-body gap-3 p-5" role="status" aria-label="Loading">
             <div class="skeleton h-4 w-24" aria-hidden="true"></div>
@@ -37,8 +39,9 @@
             <div class="skeleton h-3 w-32" aria-hidden="true"></div>
         </div>
     </article>
-    <StatCardSkeleton CardId="nyaa" Endpoint="/admin/stats/nyaa" UpdateTriggerEvent="periodChanged"/>
-    <StatCardSkeleton CardId="automated-binding" Endpoint="/admin/stats/automated-binding" UpdateTriggerEvent="periodChanged"/>
+    <StatCardSkeleton CardId="nyaa" Endpoint="/admin/stats/nyaa" Trigger="periodChanged from:body"/>
+    <StatCardSkeleton CardId="automated-binding" Endpoint="/admin/stats/automated-binding"
+                      Trigger="@AppEventTrigger.On(AppEventNames.AutomatedBindingFinished, AutomatedSeriesBinding.RunSubject)"/>
 </section>
 
 <h2 class="mb-8">Charts</h2>

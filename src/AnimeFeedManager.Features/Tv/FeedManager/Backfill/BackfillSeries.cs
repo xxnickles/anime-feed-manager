@@ -20,7 +20,7 @@ internal sealed record BackfillProcess(
 
 public static class BackfillSeries
 {
-    /// <summary>Catalogs the bound variant's releases from one nyaa search, then runs the completion rule; never notifies.</summary>
+    /// <summary>Catalogs the bound variant's releases from one nyaa search, then runs the completion rule; never notifies, and a failure is stored without a toast.</summary>
     public static Task<Result<BackfilledSeries>> Backfill(
         BackfillNyaaSeries request,
         INyaaClient nyaaClient,
@@ -72,10 +72,12 @@ public static class BackfillSeries
             BackfillNyaaSeries request,
             DomainCollectionSender domainPostman,
             CancellationToken token) =>
-            process.Bind(p => domainPostman(SuccessEvents(p, request.Quiet), token).Map(_ => p))
+            process.Bind(p => domainPostman(
+                        [new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBackfilled, p.SeriesId)], token)
+                    .Map(_ => p))
                 .SendOnError(domainPostman,
                     [
-                        new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Error,
+                        new SystemEvent(TargetConsumer.Admin(), EventTarget.LocalStorage, EventType.Error,
                             new NyaaBackfillFailed(request.SeriesId).AsEventPayload())
                     ],
                     token);
@@ -92,15 +94,4 @@ public static class BackfillSeries
         NyaaFeed.Parse(document)
             .AddLogOnSuccess(feed => feed.LogErrors)
             .Map(feed => process with {Rows = NyaaMatch.CatalogRows(process.Binding, process.SeriesId, feed.Value)});
-
-    private static DomainMessage[] SuccessEvents(BackfillProcess process, bool quiet) =>
-        quiet
-            ? []
-            :
-            [
-                new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Completed,
-                    new NyaaSeriesBackfilled(process.SeriesId, process.Binding.FeedTitle, process.Rows.Length,
-                        process.Completion is FeedCompleted).AsEventPayload()),
-                new AppEvent(TargetConsumer.Admin(), AppEventNames.NyaaBackfilled, process.SeriesId)
-            ];
 }

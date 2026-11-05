@@ -25,7 +25,7 @@ internal static class FeedManagerHandlers
         using var activity = Source.StartActivity(AdminTelemetry.BindNyaaSeriesSpan);
         return await Validate(viewModel)
             .Bind(vm => domainPostman.SendMessages(
-                [new BindNyaaSeries(vm.SeriesId, vm.Group, vm.ReleaseTitle, vm.Variant ?? string.Empty, vm.Trusted, Guid.NewGuid())],
+                [new BindNyaaSeries(vm.SeriesId, vm.Group, vm.ReleaseTitle, vm.Variant ?? string.Empty, vm.Trusted)],
                 token))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)

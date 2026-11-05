@@ -7,7 +7,7 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.AutomatedBinding;
 
-internal sealed record AutomatedBindingProcess(Guid RunId, ImmutableArray<ScheduledShow> Schedule, bool ScheduleSkipped)
+internal sealed record AutomatedBindingProcess(ImmutableArray<ScheduledShow> Schedule, bool ScheduleSkipped)
 {
     public ImmutableArray<BindingCandidate> Candidates { get; init; } = [];
     public ScheduleMatches Matches { get; init; } = ScheduleMatches.None;
@@ -21,35 +21,36 @@ public static class AutomatedSeriesBinding
     private const int GroupSize = 5;
     private static readonly TimeSpan GroupInterval = TimeSpan.FromSeconds(10);
 
-    /// <summary>Binds unbound, unfinished series from the SubsPlease schedule and stores the run summary; a failed or empty schedule skips binding with a warning.</summary>
+    /// <summary>App event subject the Automated binding card listens for.</summary>
+    public const string RunSubject = "latest";
+
+    /// <summary>Binds unbound, unfinished series from the SubsPlease schedule, stores the run and toasts it; a failed or empty schedule skips binding with a warning.</summary>
     public static Task<Result<AutomatedBindingCompleted>> Run(
         ISubsPleaseSchedule schedule,
         ITableClientFactory clientFactory,
         DelayedMessageSender delayedSender,
         DomainCollectionSender domainPostman,
-        CancellationToken token)
-    {
-        var runId = Guid.NewGuid();
-        return StartProcess(runId, schedule, token)
+        CancellationToken token) =>
+        StartProcess(schedule, token)
             .LoadCandidates(clientFactory, token)
             .MatchSchedule()
             .SendBinds(delayedSender, token)
+            .StoreRun(clientFactory.TableStorageAutomatedBindingRunUpdater, token)
             .SendSummary(domainPostman, token)
             .SendOnError(domainPostman,
                 [
                     new SystemEvent(TargetConsumer.Admin(), EventTarget.Both, EventType.Error,
-                        new AutomatedBindingFailed(runId).AsEventPayload())
+                        new AutomatedBindingFailed().AsEventPayload())
                 ],
                 token)
             .WithOperationName(nameof(Run));
-    }
 
-    private static Task<Result<AutomatedBindingProcess>> StartProcess(Guid runId, ISubsPleaseSchedule schedule,
+    private static Task<Result<AutomatedBindingProcess>> StartProcess(ISubsPleaseSchedule schedule,
         CancellationToken token) =>
         schedule.Fetch(token)
-            .Map(shows => new AutomatedBindingProcess(runId, shows, ScheduleSkipped: false))
+            .Map(shows => new AutomatedBindingProcess(shows, ScheduleSkipped: false))
             .BindOnError(error => Result<AutomatedBindingProcess>
-                .Success(new AutomatedBindingProcess(runId, [], ScheduleSkipped: true))
+                .Success(new AutomatedBindingProcess([], ScheduleSkipped: true))
                 .AddLog(ScheduleSkipped(error)));
 
     extension(Task<Result<AutomatedBindingProcess>> process)
@@ -68,23 +69,28 @@ public static class AutomatedSeriesBinding
             CancellationToken token) =>
             process.Bind(p => p.Matches.Matches.IsEmpty
                 ? Task.FromResult(Result<AutomatedBindingProcess>.Success(p))
-                : Send(p.RunId, p.Matches.Matches, delayedSender, token).Map(sent => p with {Sent = sent}));
+                : Send(p.Matches.Matches, delayedSender, token).Map(sent => p with {Sent = sent}));
 
-        private Task<Result<AutomatedBindingCompleted>> SendSummary(DomainCollectionSender domainPostman,
+        private Task<Result<AutomatedBindingCompleted>> StoreRun(AutomatedBindingRunUpdater runUpdater,
             CancellationToken token) =>
-            process.Map(p => new AutomatedBindingCompleted(p.RunId, p.Schedule.Length, p.Sent, p.Matches.Ties,
-                    p.ScheduleSkipped))
-                .Bind(summary => domainPostman([SummaryEvent(summary)], token).Map(_ => summary));
+            process.Map(p => new AutomatedBindingCompleted(DateTimeOffset.UtcNow, p.Schedule.Length, p.Sent,
+                    p.Matches.Ties, p.ScheduleSkipped))
+                .Bind(run => runUpdater(run, token).Map(_ => run));
     }
 
-    // A run with nothing to act on is stored for the stat card without a toast.
-    internal static SystemEvent SummaryEvent(AutomatedBindingCompleted summary) =>
-        new(TargetConsumer.Admin(),
-            summary.Queued > 0 || !summary.Ties.IsEmpty || summary.ScheduleSkipped
-                ? EventTarget.Both
-                : EventTarget.LocalStorage,
-            EventType.Completed,
-            summary.AsEventPayload());
+    extension(Task<Result<AutomatedBindingCompleted>> run)
+    {
+        private Task<Result<AutomatedBindingCompleted>> SendSummary(DomainCollectionSender domainPostman,
+            CancellationToken token) =>
+            run.Bind(summary => domainPostman(SummaryEvents(summary), token).Map(_ => summary));
+    }
+
+    // The run itself is the stored record, so the toast isn't stored again.
+    internal static DomainMessage[] SummaryEvents(AutomatedBindingCompleted summary) =>
+    [
+        new SystemEvent(TargetConsumer.Admin(), EventTarget.Browser, EventType.Completed, summary.AsEventPayload()),
+        new AppEvent(TargetConsumer.Admin(), AppEventNames.AutomatedBindingFinished, RunSubject)
+    ];
 
     // Latest season plus carry-overs; a season whose bindings can't be read fails the run, since its
     // series would read as unbound and a manual binding could be replaced.
@@ -153,13 +159,12 @@ public static class AutomatedSeriesBinding
             ]);
 
     private static async Task<Result<int>> Send(
-        Guid runId,
         ImmutableArray<ScheduleMatch> matches,
         DelayedMessageSender delayedSender,
         CancellationToken token)
     {
         var sends = await Task.WhenAll(matches.Select((match, index) =>
-            delayedSender(BindRequest(runId, match), Paced(index), token)));
+            delayedSender(BindRequest(match), Paced(index), token)));
 
         return sends
             .Flatten(sent => sent.Count())
@@ -169,9 +174,8 @@ public static class AutomatedSeriesBinding
 
     internal static Delay Paced(int index) => new(GroupInterval * (index / GroupSize));
 
-    private static BindNyaaSeries BindRequest(Guid runId, ScheduleMatch match) =>
-        new(match.SeriesId, SubsPleaseGroup, match.ShowTitle, SubsPleaseVariant, Trusted: true, runId,
-            BindingOrigin.Schedule);
+    private static BindNyaaSeries BindRequest(ScheduleMatch match) =>
+        new(match.SeriesId, SubsPleaseGroup, match.ShowTitle, SubsPleaseVariant, Trusted: true, BindingOrigin.Schedule);
 
     private static Action<ILogger> LogTies(ImmutableArray<ScheduleTie> ties) => logger =>
     {

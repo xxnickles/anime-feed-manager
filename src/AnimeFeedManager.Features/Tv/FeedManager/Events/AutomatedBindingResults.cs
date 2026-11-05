@@ -2,9 +2,10 @@ using AnimeFeedManager.Features.Tv.FeedManager.AutomatedBinding;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.Events;
 
-/// <param name="Queued">Binds sent; their outcomes arrive as bind events carrying <paramref name="RunId"/>.</param>
+/// <summary>A finished run: toasted, and stored as the latest run for the stat card.</summary>
+/// <param name="Queued">Binds sent; each bind's outcome arrives later on its own.</param>
 public sealed record AutomatedBindingCompleted(
-    Guid RunId,
+    DateTimeOffset At,
     int Scheduled,
     int Queued,
     ImmutableArray<ScheduleTie> Ties,
@@ -21,22 +22,19 @@ public sealed record AutomatedBindingCompleted(
             return new NotificationComponent("Automated binding skipped",
                 builder => builder.AddContent(1, "The SubsPlease schedule was unavailable."));
 
-        return new NotificationComponent("Automated binding",
+        return new NotificationComponent("Automated binding finished",
             builder =>
             {
-                builder.OpenElement(1, "strong");
-                builder.AddContent(2, Queued);
-                builder.CloseElement();
-                builder.AddContent(3, $" queued of {Scheduled} scheduled · ");
-                builder.OpenElement(4, "strong");
-                builder.AddContent(5, Ties.Length);
-                builder.CloseElement();
-                builder.AddContent(6, Ties.Length == 1 ? " tie" : " ties");
+                builder.AddContent(1, Queued == 0
+                    ? $"Nothing to bind from {Scheduled} scheduled."
+                    : $"{Queued} queued of {Scheduled} scheduled.");
+                if (!Ties.IsEmpty)
+                    builder.AddContent(2, $" Tied, left unbound: {string.Join(", ", Ties.Select(tie => tie.ShowTitle))}.");
             });
     }
 }
 
-public sealed record AutomatedBindingFailed(Guid RunId) : SystemNotificationPayload
+public sealed record AutomatedBindingFailed : SystemNotificationPayload
 {
     public override string AsJson()
     {
@@ -46,6 +44,6 @@ public sealed record AutomatedBindingFailed(Guid RunId) : SystemNotificationPayl
     public override NotificationComponent AsNotificationComponent()
     {
         return new NotificationComponent("Automated binding failed",
-            builder => builder.AddContent(1, "No series were bound. Check the logs."));
+            builder => builder.AddContent(1, "The run did not finish. Check the logs."));
     }
 }

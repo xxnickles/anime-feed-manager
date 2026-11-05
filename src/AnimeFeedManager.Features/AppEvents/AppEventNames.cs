@@ -5,4 +5,5 @@ public static class AppEventNames
 {
     public const string NyaaBound = "nyaa:bound";
     public const string NyaaBackfilled = "nyaa:backfilled";
+    public const string AutomatedBindingFinished = "nyaa:automated-binding";
 }

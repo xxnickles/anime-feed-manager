@@ -1,69 +1,26 @@
 @using AnimeFeedManager.Features.SystemEvents.Stats
-@using AnimeFeedManager.Features.Tv.FeedManager
 <div class="card-body gap-2 p-5">
     <span class="text-xs text-base-content/70">Automated binding</span>
     @switch (Stat)
     {
-        case LatestAutomatedBinding latest:
-            <time class="text-3xl font-bold leading-none @(IsStale(latest) ? "text-warning" : null)"
-                  datetime="@latest.At.ToString("O")"
-                  title="@latest.At.ToString("u")">@Ago(latest.At)</time>
-            @if (latest.ScheduleSkipped)
+        case LatestAutomatedBinding {Run: var run}:
+            <time class="text-3xl font-bold leading-none @(IsStale(run.At) ? "text-warning" : null)"
+                  datetime="@run.At.ToString("O")"
+                  title="@run.At.ToString("u")">@Ago(run.At)</time>
+            @if (run.ScheduleSkipped)
             {
                 <span class="text-xs text-warning">Skipped: SubsPlease schedule unavailable</span>
             }
             else
             {
                 <span class="text-xs text-base-content/70">
-                    @latest.Bound of @latest.Queued bound · @latest.Failed.Length failed · @latest.Pending pending
+                    @run.Queued queued of @run.Scheduled scheduled · @run.Ties.Length @(run.Ties.Length == 1 ? "tie" : "ties")
                 </span>
-                <span class="text-xs text-base-content/70">@latest.Scheduled on the schedule</span>
-            }
-            @if (!latest.Failed.IsEmpty)
-            {
-                <span class="text-xs text-error">Failed</span>
-                <ul class="flex flex-col gap-1 text-xs">
-                    @foreach (var failed in latest.Failed.Take(MaxListed))
-                    {
-                        <li class="truncate">
-                            <a href="@FeedManagerRoutes.AdminSeries(failed.SeriesId)" class="link link-hover">@failed.ReleaseTitle</a>
-                        </li>
-                    }
-                    @if (latest.Failed.Length > MaxListed)
-                    {
-                        <li class="text-base-content/70">+@(latest.Failed.Length - MaxListed) more</li>
-                    }
-                </ul>
-            }
-            @if (!latest.Ties.IsEmpty)
-            {
-                <span class="text-xs text-warning">Ties</span>
-                <ul class="flex flex-col gap-1 text-xs">
-                    @foreach (var tie in latest.Ties.Take(MaxListed))
-                    {
-                        <li class="truncate" title="@tie.ShowTitle">
-                            <span class="text-base-content/70">@tie.ShowTitle →</span>
-                            @for (var i = 0; i < tie.Series.Length; i++)
-                            {
-                                var series = tie.Series[i];
-                                @if (i > 0)
-                                {
-                                    <span class="text-base-content/70"> · </span>
-                                }
-                                <a href="@FeedManagerRoutes.AdminSeries(series.SeriesId)" class="link link-hover">@series.Title</a>
-                            }
-                        </li>
-                    }
-                    @if (latest.Ties.Length > MaxListed)
-                    {
-                        <li class="text-base-content/70">+@(latest.Ties.Length - MaxListed) more</li>
-                    }
-                </ul>
             }
             break;
         default:
             <span class="text-3xl font-bold leading-none text-warning">None</span>
-            <span class="text-xs text-base-content/70">No automated binding run in period</span>
+            <span class="text-xs text-base-content/70">No automated binding run yet</span>
             break;
     }
 </div>
@@ -71,12 +28,10 @@
 @code {
     [Parameter, EditorRequired] public required LastAutomatedBinding Stat { get; set; }
 
-    private const int MaxListed = 3;
-
     // Automated binding runs daily; two days without one means it stopped.
     private static readonly TimeSpan StaleAfter = TimeSpan.FromDays(2);
 
-    private static bool IsStale(LatestAutomatedBinding latest) => DateTimeOffset.UtcNow - latest.At > StaleAfter;
+    private static bool IsStale(DateTimeOffset at) => DateTimeOffset.UtcNow - at > StaleAfter;
 
     private static string Ago(DateTimeOffset at)
     {
