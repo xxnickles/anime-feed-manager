@@ -65,7 +65,9 @@ public class TriggerFeedNotifications
     private async Task<Result<(NyaaCollected Collected, FeedProcessSummary Summary)>> RunProcess(
         CancellationToken token)
     {
-        return await NyaaCollection.Collect(_nyaaClient, _tableClientFactory, _webAppHost, token)
+        return await NyaaWindow.LastPoll(_tableClientFactory.TableStorageLastNyaaPoll, token)
+            .Bind(lastPoll => NyaaCollection.Collect(_nyaaClient, _tableClientFactory, _webAppHost, token)
+                .BackfillOnGap(lastPoll, _domainPostman.SendDelayedMessage, token))
             .Bind(collected => Result<DailySeriesFeed[]>.Success([.. collected.Feeds])
                 .RunProcess(_tableClientFactory.TableStorageTvUserActiveSubscriptions, _domainPostman.SendMessages,
                     token)

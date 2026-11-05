@@ -18,8 +18,6 @@ public static class AutomatedSeriesBinding
 {
     private const string SubsPleaseGroup = "SubsPlease";
     private const string SubsPleaseVariant = "(1080p)";
-    private const int GroupSize = 5;
-    private static readonly TimeSpan GroupInterval = TimeSpan.FromSeconds(10);
 
     /// <summary>App event subject the Automated binding card listens for.</summary>
     public const string RunSubject = "latest";
@@ -159,15 +157,13 @@ public static class AutomatedSeriesBinding
         CancellationToken token)
     {
         var sends = await Task.WhenAll(matches.Select((match, index) =>
-            delayedSender(BindRequest(match), Paced(index), token)));
+            delayedSender(BindRequest(match), NyaaPacing.For(index), token)));
 
         return sends
             .Flatten(sent => sent.Count())
             .AddLogOnSuccess(bulk => bulk.LogErrors)
             .Map(bulk => bulk.Value);
     }
-
-    internal static Delay Paced(int index) => new(GroupInterval * (index / GroupSize));
 
     private static BindNyaaSeries BindRequest(ScheduleMatch match) =>
         new(match.SeriesId, SubsPleaseGroup, match.ShowTitle, SubsPleaseVariant, Trusted: true, BindingOrigin.Schedule);

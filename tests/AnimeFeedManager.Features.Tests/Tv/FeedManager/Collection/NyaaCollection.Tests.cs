@@ -9,6 +9,7 @@ public class NyaaCollectionTests
 {
     private static readonly DateTimeOffset Premiere = new(2026, 10, 2, 15, 0, 0, TimeSpan.Zero);
     private static readonly WebAppHost Host = new(new Uri("https://afm.example/"));
+    private static readonly DateTimeOffset Anytime = DateTimeOffset.MinValue;
 
     #region Match Tests
 
@@ -59,13 +60,57 @@ public class NyaaCollectionTests
     [Fact]
     public void Should_Return_No_Feeds_When_Nothing_Was_Collected()
     {
-        Assert.Empty(NyaaCollection.Feeds([], Host));
+        Assert.Empty(NyaaCollection.Feeds([], Host, Anytime));
+    }
+
+    [Fact]
+    public void Should_Include_Series_When_A_Release_Is_Within_The_Window()
+    {
+        var since = Premiere.AddDays(20);
+
+        var feed = Assert.Single(NyaaCollection.Feeds(
+            [Collected("2026_fall_show", "Show", [Row(1), Row(2), Row(3)])], Host, since));
+
+        Assert.Equal(["03", "02", "01"], feed.Episodes.Select(episode => episode.EpisodeNumber));
+    }
+
+    [Fact]
+    public void Should_Skip_Series_When_No_Release_Is_Within_The_Window()
+    {
+        var since = Premiere.AddDays(30);
+
+        Assert.Empty(NyaaCollection.Feeds([Collected("2026_fall_show", "Show", [Row(1), Row(2), Row(3)])], Host, since));
+    }
+
+    [Fact]
+    public void Should_Include_Series_When_Its_Release_Was_Not_Matched_This_Run()
+    {
+        var since = Premiere.AddDays(20);
+
+        var feed = Assert.Single(NyaaCollection.Feeds(
+            [Collected("2026_fall_show", "Show", [Row(3, infoHash: "recovered")], matched: [])], Host, since));
+
+        Assert.False(Assert.Single(feed.Episodes).IsNew);
+    }
+
+    [Fact]
+    public void Should_Keep_The_Newest_Season_With_A_Recent_Release_When_Series_Share_A_Feed_Title()
+    {
+        var since = Premiere.AddDays(20);
+
+        var feeds = NyaaCollection.Feeds(
+            [
+                Collected("2026_summer_show", "Show", [Row(3, infoHash: "summer")]),
+                Collected("2026_fall_show-s2", "Show", [Row(1, infoHash: "fall")])
+            ], Host, since);
+
+        Assert.Equal("https://afm.example/tv/releases/2026_summer_show", Assert.Single(feeds).Url);
     }
 
     [Fact]
     public void Should_Link_Feed_To_The_Series_Releases_Page()
     {
-        var feed = Assert.Single(NyaaCollection.Feeds([Collected("2026_fall_show", "Show", [Row(1)])], Host));
+        var feed = Assert.Single(NyaaCollection.Feeds([Collected("2026_fall_show", "Show", [Row(1)])], Host, Anytime));
 
         Assert.Equal("Show", feed.Title);
         Assert.Equal("https://afm.example/tv/releases/2026_fall_show", feed.Url);
@@ -75,7 +120,7 @@ public class NyaaCollectionTests
     public void Should_Order_Episodes_Newest_First()
     {
         var feed = Assert.Single(NyaaCollection.Feeds(
-            [Collected("2026_fall_show", "Show", [Row(1), Row(3), Row(2)])], Host));
+            [Collected("2026_fall_show", "Show", [Row(1), Row(3), Row(2)])], Host, Anytime));
 
         Assert.Equal(["03", "02", "01"], feed.Episodes.Select(episode => episode.EpisodeNumber));
     }
@@ -84,7 +129,7 @@ public class NyaaCollectionTests
     public void Should_Keep_A_Revision_As_Its_Own_Episode()
     {
         var feed = Assert.Single(NyaaCollection.Feeds(
-            [Collected("2026_fall_show", "Show", [Row(5), Row(5, version: 2)])], Host));
+            [Collected("2026_fall_show", "Show", [Row(5), Row(5, version: 2)])], Host, Anytime));
 
         Assert.Equal(["05v2", "05"], feed.Episodes.Select(episode => episode.EpisodeNumber));
     }
@@ -99,7 +144,7 @@ public class NyaaCollectionTests
                     Row(5, infoHash: "older", published: Premiere),
                     Row(5, infoHash: "newer", published: Premiere.AddHours(1))
                 ])
-            ], Host));
+            ], Host, Anytime));
 
         Assert.Equal("magnet:newer", Assert.Single(feed.Episodes).MagnetLink);
     }
@@ -108,7 +153,7 @@ public class NyaaCollectionTests
     public void Should_Cap_Feed_At_The_Ten_Latest_Episodes()
     {
         var feed = Assert.Single(NyaaCollection.Feeds(
-            [Collected("2026_fall_show", "Show", [.. Enumerable.Range(1, 12).Select(episode => Row(episode))])], Host));
+            [Collected("2026_fall_show", "Show", [.. Enumerable.Range(1, 12).Select(episode => Row(episode))])], Host, Anytime));
 
         Assert.Equal(NyaaCollection.FeedEpisodes, feed.Episodes.Length);
         Assert.Equal("12", feed.Episodes[0].EpisodeNumber);
@@ -120,7 +165,7 @@ public class NyaaCollectionTests
     {
         var feed = Assert.Single(NyaaCollection.Feeds(
             [Collected("2026_fall_show", "Show", [Row(1, infoHash: "old"), Row(2, infoHash: "new")], matched: ["new"])],
-            Host));
+            Host, Anytime));
 
         Assert.Equal([("02", true), ("01", false)],
             feed.Episodes.Select(episode => (episode.EpisodeNumber, episode.IsNew)));
@@ -133,7 +178,7 @@ public class NyaaCollectionTests
             [
                 Collected("2026_summer_show", "Show", [Row(13, infoHash: "summer")]),
                 Collected("2026_fall_show-s2", "Show", [Row(1, infoHash: "fall")])
-            ], Host);
+            ], Host, Anytime);
 
         Assert.Equal("https://afm.example/tv/releases/2026_fall_show-s2", Assert.Single(feeds).Url);
     }
@@ -141,13 +186,13 @@ public class NyaaCollectionTests
     [Fact]
     public void Should_Skip_Series_Without_A_Feed_Title()
     {
-        Assert.Empty(NyaaCollection.Feeds([Collected("2026_fall_show", "", [Row(1)])], Host));
+        Assert.Empty(NyaaCollection.Feeds([Collected("2026_fall_show", "", [Row(1)])], Host, Anytime));
     }
 
     [Fact]
     public void Should_Skip_Series_With_An_Empty_Catalog()
     {
-        Assert.Empty(NyaaCollection.Feeds([Collected("2026_fall_show", "Show", [])], Host));
+        Assert.Empty(NyaaCollection.Feeds([Collected("2026_fall_show", "Show", [])], Host, Anytime));
     }
 
     #endregion

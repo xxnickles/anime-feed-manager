@@ -203,6 +203,9 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `nyaa.group` | Fansub group of a nyaa binding. |
 | `nyaa.release_title` | Group's release title of a nyaa binding. |
 | `nyaa.catalogued_count` | Catalog rows written by a nyaa backfill or hourly feed run. |
+| `nyaa.last_poll` | Last stamped hourly poll time. |
+| `nyaa.oldest_published` | Oldest `Published` in an hourly poll. |
+| `nyaa.backfill_count` | Backfills queued by the hourly run's window guard. |
 | `nyaa.scheduled_count` | Shows on the SubsPlease schedule read by automated binding. |
 | `nyaa.queued_count` | Binds queued by automated binding. |
 | `nyaa.tie_count` | Schedule shows automated binding left unbound on a tie. |
