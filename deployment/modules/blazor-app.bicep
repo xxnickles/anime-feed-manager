@@ -36,7 +36,7 @@ var storageQueueDataContributorRole = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 var storageTableDataContributorRole = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
 var signalRRestApiOwnerRole = 'fd53cd77-2268-407a-8f46-7e7863d0f521'
 
-// App Service Plan for Web App and Chrome (B2 for Chrome concurrency needs)
+// App Service Plan for the Web App
 resource webPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: config.webPlanName
   location: location

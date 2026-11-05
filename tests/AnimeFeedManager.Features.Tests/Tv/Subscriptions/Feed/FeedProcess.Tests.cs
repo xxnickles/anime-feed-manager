@@ -652,14 +652,6 @@ public class FeedProcessTests
         return new UserActiveSubscriptions(userId, email, subscriptions);
     }
 
-    private static INewReleaseProvider CreateReleaseProvider(DailySeriesFeed[] feeds)
-    {
-        var provider = Substitute.For<INewReleaseProvider>();
-        provider.Get()
-            .Returns(Task.FromResult(Result<DailySeriesFeed[]>.Success(feeds)));
-        return provider;
-    }
-
     private static TvUserActiveSubscriptions CreateSubscriptionsGetter(UserActiveSubscriptions[] users)
     {
         return (_, _) => Task.FromResult(Result<UserActiveSubscriptions[]>.Success(users));

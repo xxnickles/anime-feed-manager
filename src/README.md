@@ -6,7 +6,7 @@ Setup and the local quick start are in the [root README](../README.md).
 
 | Project | Role |
 |---|---|
-| `AnimeFeedManager.AspireHost` | Local orchestration: Azurite, SignalR emulator, Chrome, Functions, Web, JS/CSS watch |
+| `AnimeFeedManager.AspireHost` | Local orchestration: Azurite, SignalR emulator, Functions, Web, JS/CSS watch |
 | `AnimeFeedManager.ServiceDefaults` | OpenTelemetry and exporters for both hosts; HTTP resilience and health checks for Web |
 | `AnimeFeedManager.Functions` | Azure Functions backend (isolated worker): scraping, imports, notifications, queue consumers |
 | `AnimeFeedManager.Web` | Blazor SSR web app (htmx 4 + hyperscript) |
@@ -35,7 +35,7 @@ Client libraries (htmx, hyperscript, …) are committed under `Web/wwwroot/lib` 
 
 ## Configuration
 
-Aspire injects storage, SignalR, Chrome and telemetry settings locally. In Azure, Bicep sets them (see [deployment/README.md](../deployment/README.md)).
+Aspire injects storage, SignalR, timer and telemetry settings locally. In Azure, Bicep sets them (see [deployment/README.md](../deployment/README.md)).
 
 ### Functions
 
@@ -45,9 +45,10 @@ Aspire injects storage, SignalR, Chrome and telemetry settings locally. In Azure
 | `Aspire:Azure:Storage:Blobs:BlobConnection:ServiceUri`, `Aspire:Azure:Storage:Queues:QueueConnection:ServiceUri`, `Aspire:Azure:Data:Tables:TablesConnection:ServiceUri` | Storage clients | Yes |
 | `QueueConnection:queueServiceUri` | Queue triggers | Yes |
 | `SignalRConnectionString` | Azure SignalR | Yes |
-| `Chrome:RemoteEndpoint`, `Chrome:Token` | Browserless Chrome for SubsPlease scraping | Yes |
+| `WebApp:BaseUrl` | Public web app URL, for email links | Yes |
 | `FeedNotificationSchedule` | Notification timer (NCrontab, 6 fields) | Yes |
 | `ScrapingSchedule` | Library import timer | Yes |
+| `AutomatedBindingSchedule` | Automated binding timer | Yes |
 | `Gmail:FromEmail`, `Gmail:FromName`, `Gmail:AppPassword` | Notification email sender | For email |
 | `APPLICATIONINSIGHTS_CONNECTION_STRING` | Azure Monitor exporter | In Azure |
 

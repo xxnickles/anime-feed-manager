@@ -15,22 +15,6 @@ internal static class Registration
         builder.Services.RegisterResourceCreator();
         builder.Services.AddSingleton(WebAppHostFrom(builder.Configuration));
 
-        // Puppeteer - prefer remote Chrome endpoint if available, fallback to local
-        var chromeEndpoint = builder.Configuration["Chrome:RemoteEndpoint"];
-        var chromeToken = builder.Configuration["Chrome:Token"];
-
-        _ = bool.TryParse(Environment.GetEnvironmentVariable("DownloadChromiumToProjectFolder"),
-            out var downloadChromiumToProjectFolder);
-
-        _ = bool.TryParse(Environment.GetEnvironmentVariable("RunHeadless"),
-            out var runHeadless);
-
-        builder.Services.RegisterScrappingServices(
-            remoteEndpoint: chromeEndpoint,
-            remoteToken: chromeToken,
-            downloadToProjectFolder: downloadChromiumToProjectFolder,
-            runHeadless: runHeadless);
-
         builder.Services.RegisterAnimeScheduleServices();
 
         // This host has no HttpClient defaults (they would stack on AnimeSchedule's handler).

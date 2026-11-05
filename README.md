@@ -7,7 +7,7 @@
 Anime Feed Manager
 =================
 
-Personal anime season library and episode-feed notifier. Series metadata comes from the [AnimeSchedule](https://animeschedule.net/) API; episode feed titles are scraped from [SubsPlease](https://subsplease.org/schedule/) through a headless Chrome container. Subscribers get an email when new episodes of their series land.
+Personal anime season library and episode-feed notifier. Series metadata comes from the [AnimeSchedule](https://animeschedule.net/) API; episode releases come from [nyaa](https://nyaa.si/) RSS, and the [SubsPlease](https://subsplease.org/schedule/) schedule binds the series it carries. Subscribers get an email when new episodes of their series land.
 
 | Layer | Stack |
 |---|---|
@@ -21,14 +21,14 @@ Personal anime season library and episode-feed notifier. Series metadata comes f
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Aspire CLI](https://aspire.dev): `curl -sSL https://aspire.dev/install.sh | bash` (PowerShell: `Invoke-RestMethod -Uri "https://aspire.dev/install.ps1" | Invoke-Expression`)
 - [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local)
-- Docker (Aspire runs the emulators and Chrome as containers)
+- Docker (Aspire runs the emulators as containers)
 
 ## Quick start
 
 1. Add the [local configuration](#local-configuration)
 2. `aspire run` from the repository root
 
-Aspire starts Azurite (persistent data), the Azure SignalR emulator, browserless Chrome, the JS/CSS watch, Functions and the Web app; its dashboard shows logs and traces from both hosts.
+Aspire starts Azurite (persistent data), the Azure SignalR emulator, the JS/CSS watch, Functions and the Web app; its dashboard shows logs and traces from both hosts.
 
 ## Local configuration
 

@@ -42,17 +42,6 @@ To create a Gmail app password:
 | `ADMIN_USER_ID` | Passwordless user ID for the admin user |
 | `ADMIN_EMAIL` | Admin user email address |
 
-### Chrome (Browserless)
-
-| Secret | Description |
-|--------|-------------|
-| `CHROME_TOKEN` | Authentication token for browserless Chrome container |
-
-To generate a secure token:
-```bash
-openssl rand -base64 32
-```
-
 ## Optional Parameters (Hardcoded Defaults)
 
 These values are hardcoded in the infrastructure workflow (`.github/workflows/amf-infrastructure.yml`). Edit the workflow file to change them.
@@ -195,15 +184,13 @@ The Bicep templates create the following Azure resources:
 | Function App | Backend processing | - |
 | Web App Plan | Hosting plan for Web App | Basic (B2) |
 | Web App | Blazor SSR frontend | - |
-| Chrome Web App | Browserless Chrome container | (shared plan) |
 | SignalR Service | Real-time notifications | Free_F1 |
 | Application Insights | Telemetry from both hosts; workspace-based on an Azure-managed Log Analytics workspace | - |
 | AFM Operations workbook | Dashboards over App Insights (see [Monitoring](#monitoring)) | - |
 
 **Notes:**
-- The Web App Plan uses Basic B2 (2 cores, 3.5 GB RAM) to support Chrome container concurrency needs. Both the web app and Chrome container share the same plan.
+- The Web App Plan uses Basic B2 (2 cores, 3.5 GB RAM).
 - Web App has health checks enabled at `/health` endpoint for Azure monitoring.
-- Chrome container is configured with `CONCURRENT=3`, `QUEUED=5`, and health checks (`HEALTH=true`, `MAX_MEMORY_PERCENT=80`, `MAX_CPU_PERCENT=80`).
 - Storage account has `allowBlobPublicAccess: true` to serve images publicly. The `images` container is set to `Blob` access (anonymous read, no listing).
 
 ### Manual: Enable Public Blob Access
@@ -231,7 +218,6 @@ The **AFM Operations** workbook (`workbooks/afm-operations.workbook.json`, deplo
 | `amf-infrastructure.yml` | `deployment/**` changes | Deploys Bicep templates and seeds admin user |
 | `amf-functions.yml` | Changes in Functions, Features, Shared, Services.Shared or Web.BlazorComponents | Builds and deploys Azure Functions |
 | `amf-blazor.yml` | Changes in Web, Web.BlazorComponents, Features, Shared or Services.Shared | Builds CSS, deploys Blazor Web App, and sets version info |
-| `amf-chrome-refresh.yml` | Manual only | Restarts Chrome App Service to pull latest container image |
 
 All workflows:
 - Support `workflow_dispatch` for manual triggering via GitHub Actions UI

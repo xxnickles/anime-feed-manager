@@ -30,13 +30,6 @@ param automatedBindingSchedule string = '0 0 5 * * *'
 @description('Public web app URL: SignalR CORS and email links')
 param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
 
-@description('Chrome remote endpoint URL')
-param chromeEndpoint string
-
-@secure()
-@description('Chrome authentication token')
-param chromeToken string
-
 // Load shared variables
 var config = loadJsonContent('shared-variables.json')
 
@@ -142,14 +135,9 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2025-03-01' = {
     Gmail__AppPassword: gmailAppPassword
     APPLICATIONINSIGHTS_CONNECTION_STRING: appInsightsConnectionString
     Sandbox: 'false'
-    RunHeadless: 'true'
     FeedNotificationSchedule: feedNotificationSchedule
     ScrapingSchedule: scrapingSchedule
     AutomatedBindingSchedule: automatedBindingSchedule
-
-    // Remote Chrome (browserless) configuration
-    Chrome__RemoteEndpoint: chromeEndpoint
-    Chrome__Token: chromeToken
   }
 }
 

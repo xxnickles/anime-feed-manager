@@ -17,10 +17,6 @@ param passwordlessApiKey string
 @description('Passwordless API secret')
 param passwordlessApiSecret string
 
-@secure()
-@description('Chrome authentication token for browserless')
-param chromeToken string
-
 @description('Gmail sender display name')
 param gmailFromName string = 'Anime Feed Manager'
 
@@ -32,9 +28,6 @@ param scrapingSchedule string = '0 0 0 * * *'
 
 @description('Cron schedule for automated series binding (NCrontab 6-field format)')
 param automatedBindingSchedule string = '0 0 5 * * *'
-
-// Load shared variables for computed values
-var config = loadJsonContent('modules/shared-variables.json')
 
 // Deploy common resources (Storage Account, Application Insights)
 module common 'modules/common.bicep' = {
@@ -57,14 +50,10 @@ module functions 'modules/functions.bicep' = {
     feedNotificationSchedule: feedNotificationSchedule
     scrapingSchedule: scrapingSchedule
     automatedBindingSchedule: automatedBindingSchedule
-    // Chrome WebSocket endpoint (computed to avoid circular dependency)
-    chromeEndpoint: 'wss://${config.chromeName}.azurewebsites.net/chromium'
-    chromeToken: chromeToken
   }
 }
 
-// Deploy Blazor Web App (App Service, RBAC)
-// Note: This creates the shared App Service Plan used by both Web and Chrome
+// Deploy Blazor Web App (App Service Plan, App Service, RBAC)
 module blazorApp 'modules/blazor-app.bicep' = {
   name: 'blazor-app'
   params: {
@@ -77,20 +66,9 @@ module blazorApp 'modules/blazor-app.bicep' = {
   }
 }
 
-// Deploy Chrome Web App (browserless container for scraping)
-module chrome 'modules/chrome.bicep' = {
-  name: 'chrome'
-  params: {
-    location: location
-    appServicePlanId: blazorApp.outputs.webPlanId
-    chromeToken: chromeToken
-  }
-}
-
 // Outputs
 output storageAccountName string = common.outputs.storageAccountName
 output functionAppName string = functions.outputs.functionAppName
 output webAppName string = blazorApp.outputs.webAppName
 output webAppUrl string = blazorApp.outputs.webAppUrl
 output signalRName string = functions.outputs.signalRName
-output chromeEndpoint string = chrome.outputs.chromeEndpoint

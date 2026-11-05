@@ -1,7 +1,5 @@
 namespace AnimeFeedManager.Features.Scrapping.Types;
 
-public record FeedData(string Title, string Url);
-
 public record EpisodeData(
     string EpisodeNumber,
     string MagnetLink,

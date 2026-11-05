@@ -52,7 +52,6 @@ jobs:
             gmailAppPassword: ${{ toJSON(secrets.GMAIL_APP_PASSWORD) }}
             passwordlessApiKey: ${{ toJSON(secrets.PASSWORDLESS_API_KEY) }}
             passwordlessApiSecret: ${{ toJSON(secrets.PASSWORDLESS_API_SECRET) }}
-            chromeToken: ${{ toJSON(secrets.CHROME_TOKEN) }}
             gmailFromName: "Anime Feed Manager"
             feedNotificationSchedule: "0 0 * * * *"
             scrapingSchedule: "0 0 4 * * 6"

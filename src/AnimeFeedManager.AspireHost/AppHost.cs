@@ -18,24 +18,10 @@ var tables = storage.AddTables("TablesConnection");
 
 builder.AddJavaScriptApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 
-// Chrome container for web scraping (browserless)
-// Token for local development - production uses GitHub secret
-const string chromeDevToken = "local-dev-token";
-
-var chrome = builder.AddContainer("chrome", "ghcr.io/browserless/chromium", "v2.57.3")
-    .WithImagePullPolicy(ImagePullPolicy.Missing)
-    .WithHttpEndpoint(port: 3000, targetPort: 3000, name: "http")
-    .WithEnvironment("TOKEN", chromeDevToken)
-    .WithEnvironment("TIMEOUT", "120000")
-    .WithEnvironment("CONCURRENT", "3")
-    .WithEnvironment("QUEUED", "5")
-    .WithEnvironment("HEALTH", "true");
-
 var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Functions>("functions")
     .WithExternalHttpEndpoints()
     .WithHostStorage(storage)
     .WaitFor(signalR)
-    .WaitFor(chrome)
     .WithReference(blobs)
     .WaitFor(blobs)
     .WithReference(queues)
@@ -43,8 +29,6 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
     .WithReference(tables)
     .WaitFor(tables)
     .WithEnvironment("SignalRConnectionString", signalR)
-    .WithEnvironment("Chrome__RemoteEndpoint", chrome.GetEndpoint("http"))
-    .WithEnvironment("Chrome__Token", chromeDevToken)
     // Here, not local.settings.json (gitignored): an unresolved timer setting stops the host
     .WithEnvironment("AutomatedBindingSchedule", "0 0 5 * * *");
 
