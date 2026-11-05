@@ -52,14 +52,10 @@ public static class SeasonFeeds
         var reads = await Task.WhenAll(bindings.Select(binding =>
             catalogGetter(binding.RowKey ?? string.Empty, token).Map(catalog => ToBound(binding, catalog, now))));
 
-        return reads.Flatten(rows => rows.ToImmutableArray()).Bind(AllRead);
+        // A bound series missing from the list would read as never bound.
+        return reads.Flatten(rows => rows.ToImmutableArray())
+            .Bind(bulk => bulk.RequireAll("Some binding catalogs could not be read"));
     }
-
-    // A bound series missing from the list would read as never bound.
-    private static Result<ImmutableArray<BoundSeries>> AllRead(BulkResult<ImmutableArray<BoundSeries>> bulk) =>
-        bulk is PartialSuccessBulkResult<ImmutableArray<BoundSeries>> partial
-            ? new AggregatedError("Some binding catalogs could not be read", partial.Errors)
-            : bulk.Value;
 
     private static BoundSeries ToBound(
         NyaaBindingStorage binding,

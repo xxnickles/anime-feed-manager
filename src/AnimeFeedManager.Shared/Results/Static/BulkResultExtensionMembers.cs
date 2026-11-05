@@ -1,3 +1,5 @@
+using AnimeFeedManager.Shared.Results.Errors;
+
 namespace AnimeFeedManager.Shared.Results.Static;
 
 public static class BulkResultExtensionMembers
@@ -5,6 +7,12 @@ public static class BulkResultExtensionMembers
     
     extension<T>(BulkResult<T> bulkResult)
     {
+        /// <summary>Fails a partial success with an <see cref="AggregatedError"/> of its errors; for callers that can't act on a subset.</summary>
+        public Result<T> RequireAll(string message) =>
+            bulkResult is PartialSuccessBulkResult<T> partial
+                ? new AggregatedError(message, partial.Errors)
+                : bulkResult.Value;
+
         public void LogResults(
             ILogger logger,
             Action<T, ILogger> onCompleted)

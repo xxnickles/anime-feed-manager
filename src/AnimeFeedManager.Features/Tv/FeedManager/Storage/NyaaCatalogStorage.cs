@@ -62,9 +62,11 @@ public static class NyaaCatalogRows
     public static string NotificationEpisode(this NyaaCatalogStorage row)
     {
         var number = row.EpisodeNumber.ToString("00.####", CultureInfo.InvariantCulture);
-        var version = row.Version ?? (row.Revised ? 2 : 1);
+        var version = row.ReleaseVersion();
         return version > 1 ? $"{number}v{version}" : number;
     }
+
+    public static int ReleaseVersion(this NyaaCatalogStorage row) => row.Version ?? (row.Revised ? 2 : 1);
 
     /// <summary>Sorts by episode: <c>0012-</c> &lt; <c>0012.5-</c> &lt; <c>0013-</c>, since '-' precedes '.'.</summary>
     public static string RowKey(NyaaEpisode episode, string infoHash) =>

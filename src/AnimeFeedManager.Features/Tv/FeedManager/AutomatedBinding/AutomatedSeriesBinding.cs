@@ -134,18 +134,13 @@ public static class AutomatedSeriesBinding
             .Flatten(parsed => parsed
                 .DistinctBy(season => IdHelpers.GenerateAnimePartitionKey(season))
                 .ToImmutableArray())
-            .Bind(Complete);
+            .Bind(bulk => bulk.RequireAll("Some series' seasons could not be read"));
 
         return await seasons.Bind(async distinct =>
             (await Task.WhenAll(distinct.Select(season => bindingsGetter(season, token))))
             .Flatten(bindings => bindings.SelectMany(rows => rows).Select(row => row.RowKey ?? string.Empty).ToHashSet())
-            .Bind(Complete));
+            .Bind(bulk => bulk.RequireAll("Some series' bindings could not be read")));
     }
-
-    private static Result<T> Complete<T>(BulkResult<T> bulk) =>
-        bulk is PartialSuccessBulkResult<T> partial
-            ? new AggregatedError("Some series' bindings could not be read", partial.Errors)
-            : bulk.Value;
 
     private static BindingCandidate ToCandidate(AnimeInfoStorage series) =>
         new(series.RowKey ?? string.Empty,
