@@ -1,4 +1,5 @@
 using AnimeFeedManager.Features.Tv.FeedManager.Events;
+using AnimeFeedManager.Features.Tv.FeedManager.Storage;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 
@@ -41,5 +42,7 @@ namespace AnimeFeedManager.Features.Tv;
 [EventPayloadSerializerContext(typeof(AutomatedBindingFailed))]
 [JsonSerializable(typeof(NyaaBackfillFailed))]
 [EventPayloadSerializerContext(typeof(NyaaBackfillFailed))]
+// Stored records
+[JsonSerializable(typeof(NyaaPoll))]
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
 internal partial class TvJsonContext : JsonSerializerContext;

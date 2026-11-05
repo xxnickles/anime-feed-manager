@@ -10,7 +10,8 @@ namespace AnimeFeedManager.Features.Tv.FeedManager.Collection;
 
 /// <param name="Feeds">One feed per series matched this run.</param>
 /// <param name="Catalogued">Rows matched this run, including re-polled ones.</param>
-public sealed record NyaaCollected(ImmutableArray<DailySeriesFeed> Feeds, int Catalogued);
+/// <param name="PolledAt">When the poll was requested; null when nothing was tracked, so nyaa wasn't polled.</param>
+public sealed record NyaaCollected(ImmutableArray<DailySeriesFeed> Feeds, int Catalogued, DateTimeOffset? PolledAt);
 
 internal sealed record SeriesMatch(NyaaBindingStorage Binding, ImmutableArray<NyaaCatalogStorage> Rows);
 
@@ -22,6 +23,7 @@ internal sealed record CollectedSeries(
 
 internal sealed record CollectionProcess(ImmutableArray<NyaaBindingStorage> Tracked)
 {
+    public DateTimeOffset? PolledAt { get; init; }
     public ImmutableArray<SeriesMatch> Matches { get; init; } = [];
     public ImmutableArray<CollectedSeries> Collected { get; init; } = [];
 }
@@ -31,7 +33,7 @@ public static class NyaaCollection
     internal const int FeedEpisodes = 10;
 
     // Unfiltered so one request covers every tracked binding; matching applies each binding's rules.
-    private static readonly NyaaQuery Poll = NyaaQuery.Create().Search("1080");
+    private static readonly NyaaQuery PollQuery = NyaaQuery.Create().Search("1080");
 
     /// <summary>Polls nyaa once, catalogs every tracked binding's matches, and builds a feed per matched series from its catalog; any failure fails the run.</summary>
     public static Task<Result<NyaaCollected>> Collect(
@@ -44,7 +46,7 @@ public static class NyaaCollection
             .PollReleases(nyaaClient, token)
             .StoreReleases(clientFactory.TableStorageNyaaCatalogUpdater, token)
             .ReadCatalogs(clientFactory.TableStorageNyaaCatalogGetter, token)
-            .Map(p => new NyaaCollected(Feeds(p.Collected, host), p.Matches.Sum(match => match.Rows.Length)))
+            .Map(p => new NyaaCollected(Feeds(p.Collected, host), p.Matches.Sum(match => match.Rows.Length), p.PolledAt))
             .WithOperationName(nameof(Collect));
 
     extension(Task<Result<CollectionProcess>> process)
@@ -52,7 +54,7 @@ public static class NyaaCollection
         private Task<Result<CollectionProcess>> PollReleases(INyaaClient nyaaClient, CancellationToken token) =>
             process.Bind(p => p.Tracked.IsEmpty
                 ? Task.FromResult(Result<CollectionProcess>.Success(p))
-                : nyaaClient.Fetch(Poll, token).Bind(document => MatchReleases(p, document)));
+                : Poll(p with {PolledAt = DateTimeOffset.UtcNow}, nyaaClient, token));
 
         private Task<Result<CollectionProcess>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
             CancellationToken token) =>
@@ -66,6 +68,10 @@ public static class NyaaCollection
                 .Bind(bulk => bulk.RequireAll("Some matched series' catalogs could not be read"))
                 .Map(collected => p with {Collected = collected}));
     }
+
+    private static Task<Result<CollectionProcess>> Poll(CollectionProcess process, INyaaClient nyaaClient,
+        CancellationToken token) =>
+        nyaaClient.Fetch(PollQuery, token).Bind(document => MatchReleases(process, document));
 
     private static Result<CollectionProcess> MatchReleases(CollectionProcess process, XDocument document) =>
         NyaaFeed.Parse(document)
