@@ -48,7 +48,7 @@ public static partial class NyaaReleaseTitle
             : new SpecialEpisode(decimal.Parse(number, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture), label);
 
     private static string Variant(string tags) =>
-        Whitespace().Replace(PerEpisodeToken().Replace(tags, " "), " ").Trim();
+        Whitespace().Replace(EmptyGroup().Replace(PerEpisodeToken().Replace(tags, " "), " "), " ").Trim();
 
     // A bare NN needs the " - " separator ("Season 2 - 03" is episode 3); SxxEyy is unambiguous without it.
     // The episode must end at a boundary so "2nd Season" or "01-12" never reads as an episode.
@@ -65,6 +65,10 @@ public static partial class NyaaReleaseTitle
     // CRC, an (SxxEyy) restating the episode, REPACK, and the file extension.
     [GeneratedRegex(@"\[[0-9A-Fa-f]{8}\]|\(?\b[Ss]\d{1,3}[Ee]\d{1,4}\b\)?|\bREPACK\d*\b|\.mkv$", RegexOptions.IgnoreCase)]
     private static partial Regex PerEpisodeToken();
+
+    // A bracket that held only a per-episode token, e.g. "[REPACK]".
+    [GeneratedRegex(@"\[\s*\]|\(\s*\)")]
+    private static partial Regex EmptyGroup();
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex Whitespace();

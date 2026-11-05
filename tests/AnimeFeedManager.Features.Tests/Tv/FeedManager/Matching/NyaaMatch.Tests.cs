@@ -71,6 +71,69 @@ public class NyaaMatchTests
 
     #endregion
 
+    #region Identity Tests
+
+    [Theory]
+    [InlineData("Erai-raws", "Show", "(1080p)")]
+    [InlineData("SubsPlease", "Show S2", "(1080p)")]
+    [InlineData("SubsPlease", "show", "(1080p)")]
+    [InlineData("SubsPlease", "Show", "(720p)")]
+    public void Should_Not_Match_When_Group_Title_Or_Variant_Differ(string group, string title, string variant)
+    {
+        var release = new NyaaRelease(group, title, new RegularEpisode(1, "01"), 1, variant);
+
+        Assert.False(NyaaMatch.Matches(Binding(premiere: null), Item(Premiere), release));
+    }
+
+    [Fact]
+    public void Should_Reject_An_Untrusted_Item_When_Binding_Is_Trusted()
+    {
+        var binding = Binding(premiere: null);
+        binding.Trusted = true;
+
+        Assert.False(NyaaMatch.Matches(binding, Item(Premiere) with {Trusted = false}, Release));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Should_Accept_Any_Item_When_Binding_Is_Not_Trusted(bool trustedItem)
+    {
+        Assert.True(NyaaMatch.Matches(Binding(premiere: null), Item(Premiere) with {Trusted = trustedItem}, Release));
+    }
+
+    #endregion
+
+    #region CatalogRows Tests
+
+    [Fact]
+    public void Should_Skip_Items_Whose_Title_Is_Not_A_Single_Release()
+    {
+        var batch = Item(Premiere) with {Title = "[SubsPlease] Show (01-12) (1080p) [Batch]"};
+
+        Assert.Empty(NyaaMatch.CatalogRows(Binding(premiere: null), "2026-fall-show", [batch]));
+    }
+
+    [Fact]
+    public void Should_Catalog_One_Row_Per_Upload_When_The_Same_Item_Repeats()
+    {
+        var item = Item(Premiere, infoHash: "same");
+
+        var rows = NyaaMatch.CatalogRows(Binding(premiere: null), "2026-fall-show", [item, item]);
+
+        Assert.Equal("same", Assert.Single(rows).InfoHash);
+    }
+
+    [Fact]
+    public void Should_Key_Rows_By_Series_Id()
+    {
+        var rows = NyaaMatch.CatalogRows(Binding(premiere: null), "2026-fall-show", [Item(Premiere)]);
+
+        Assert.Equal("2026-fall-show", Assert.Single(rows).PartitionKey);
+    }
+
+    #endregion
+
     #region Test Helpers
 
     private static NyaaBindingStorage Binding(DateTimeOffset? premiere) =>
