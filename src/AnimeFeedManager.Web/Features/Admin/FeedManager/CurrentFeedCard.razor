@@ -30,7 +30,7 @@
                 <EditForm Model="@_series" hx-post="/admin/feeds/backfill" hx-swap="none">
                     <input type="hidden" name="@nameof(_series.SeriesId)" value="@_series.SeriesId"/>
                     <input type="hidden" name="@nameof(_series.SeriesTitle)" value="@_series.SeriesTitle"/>
-                    <button type="submit" class="btn btn-sm">Backfill</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Backfill</button>
                 </EditForm>
                 <EditForm Model="@_series" hx-post="/admin/feeds/clear-catalog" hx-swap="none"
                           hx-confirm="@($"Clear every catalogued release of {Series.Title}?")">

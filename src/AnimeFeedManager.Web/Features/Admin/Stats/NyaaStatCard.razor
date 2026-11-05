@@ -1,10 +1,8 @@
 @using AnimeFeedManager.Features.SystemEvents.Stats
 <div class="card-body gap-2 p-5">
     <span class="text-xs text-base-content/70">Nyaa</span>
-    <span class="flex items-baseline gap-2">
-        <span class="text-3xl font-bold leading-none">@Stat.Bound</span>
-        <span class="text-xs text-base-content/70">bound · @Stat.Automatic automatic · @Stat.Manual manual</span>
-    </span>
+    <span class="text-3xl font-bold leading-none">@Stat.Bound</span>
+    <span class="text-xs text-base-content/70">bound · @Stat.Automatic automatic · @Stat.Manual manual</span>
 </div>
 
 @code {
