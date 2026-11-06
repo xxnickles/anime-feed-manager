@@ -18,7 +18,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
         }
 
         [Fact]
-        public void Should_Read_Both_Blocks_When_Stored_Value_Is_Json()
+        public void Should_Read_Provider_Titles_When_Stored_Value_Is_Json()
         {
             var stored = """
                          {"romaji":"Ranma ½","english":"Ranma 1/2","native":"らんま1/2",
@@ -31,33 +31,17 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
             Assert.Equal("Ranma 1/2", result.English);
             Assert.Equal("らんま1/2", result.Native);
             Assert.Equal(["Ranma One Half"], result.Synonyms!);
-            Assert.Equal(["Ranma"], result.User!);
         }
 
-        [Fact]
-        public void Should_Read_Titles_Into_User_When_Stored_Value_Is_Legacy_List()
+        [Theory]
+        [InlineData("Alt Title 1|Alt Title 2")]
+        [InlineData("Sole Title")]
+        [InlineData("{ this never closes")]
+        public void Should_Return_Empty_When_Stored_Value_Is_Not_A_Json_Object(string stored)
         {
-            var result = StoredAlternativeTitles.Parse("Alt Title 1|Alt Title 2");
+            var result = StoredAlternativeTitles.Parse(stored);
 
-            Assert.Equal(["Alt Title 1", "Alt Title 2"], result.User!);
-            Assert.Null(result.English);
-            Assert.Null(result.Synonyms);
-        }
-
-        [Fact]
-        public void Should_Read_Title_Into_User_When_Legacy_Value_Has_No_Separator()
-        {
-            var result = StoredAlternativeTitles.Parse("Sole Title");
-
-            Assert.Equal(["Sole Title"], result.User!);
-        }
-
-        [Fact]
-        public void Should_Fall_Back_To_Legacy_When_Json_Is_Malformed()
-        {
-            var result = StoredAlternativeTitles.Parse("{ this never closes");
-
-            Assert.Equal(["{ this never closes"], result.User!);
+            Assert.True(result.IsEmpty);
         }
 
         #endregion
@@ -65,16 +49,13 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
         #region ForMatching Tests
 
         [Fact]
-        public void Should_Order_User_Then_English_Then_Synonyms()
+        public void Should_Order_English_Then_Synonyms()
         {
             var titles = new AlternativeTitlesData(
                 English: "English Title",
-                Synonyms: ["Synonym A", "Synonym B"],
-                User: ["User Title"]);
+                Synonyms: ["Synonym A", "Synonym B"]);
 
-            Assert.Equal(
-                ["User Title", "English Title", "Synonym A", "Synonym B"],
-                titles.ForMatching);
+            Assert.Equal(["English Title", "Synonym A", "Synonym B"], titles.ForMatching);
         }
 
         [Fact]
@@ -97,14 +78,13 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
         }
 
         [Fact]
-        public void Should_Drop_Duplicates_Ignoring_Case_Keeping_User_First()
+        public void Should_Drop_Duplicates_Ignoring_Case_Keeping_English_First()
         {
             var titles = new AlternativeTitlesData(
                 English: "SPY x FAMILY",
-                Synonyms: ["spy x family", "Spy Family"],
-                User: ["Spy X Family"]);
+                Synonyms: ["spy x family", "Spy Family"]);
 
-            Assert.Equal(["Spy X Family", "Spy Family"], titles.ForMatching);
+            Assert.Equal(["SPY x FAMILY", "Spy Family"], titles.ForMatching);
         }
 
         [Fact]
@@ -112,8 +92,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
         {
             var titles = new AlternativeTitlesData(
                 English: "  ",
-                Synonyms: ["", "Real Synonym"],
-                User: ["   "]);
+                Synonyms: ["", "   ", "Real Synonym"]);
 
             Assert.Equal(["Real Synonym"], titles.ForMatching);
         }
@@ -134,7 +113,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
         public void Should_Store_Nothing_When_Every_Slot_Is_Empty()
         {
             Assert.Equal(string.Empty, AlternativeTitlesData.Empty.ToStoredString());
-            Assert.Equal(string.Empty, new AlternativeTitlesData(Synonyms: [], User: []).ToStoredString());
+            Assert.Equal(string.Empty, new AlternativeTitlesData(Synonyms: []).ToStoredString());
         }
 
         [Fact]
@@ -149,11 +128,11 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
         [Fact]
         public void Should_Omit_Absent_Slots_From_Stored_Value()
         {
-            var stored = new AlternativeTitlesData(User: ["Only User"]).ToStoredString();
+            var stored = new AlternativeTitlesData(English: "Only English").ToStoredString();
 
             Assert.DoesNotContain("romaji", stored);
             Assert.DoesNotContain("null", stored);
-            Assert.Contains("Only User", stored);
+            Assert.Contains("Only English", stored);
         }
 
         [Fact]
@@ -164,8 +143,7 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
                 English: "English Title",
                 Native: "ネイティブ",
                 Synonyms: ["Synonym A"],
-                Abbreviation: "RT",
-                User: ["User Title"]);
+                Abbreviation: "RT");
 
             var result = StoredAlternativeTitles.Parse(original.ToStoredString());
 
@@ -174,22 +152,6 @@ namespace AnimeFeedManager.Features.Tests.Tv.Library.Storage
             Assert.Equal(original.Native, result.Native);
             Assert.Equal(original.Synonyms, result.Synonyms);
             Assert.Equal(original.Abbreviation, result.Abbreviation);
-            Assert.Equal(original.User, result.User);
-        }
-
-        [Fact]
-        public void Should_Keep_The_Provider_Block_When_Only_User_Titles_Are_Rewritten()
-        {
-            var scrapped = new AlternativeTitlesData(
-                English: "English Title",
-                Synonyms: ["Synonym A"]).ToStoredString();
-
-            var edited = (StoredAlternativeTitles.Parse(scrapped) with { User = ["Curated"] }).ToStoredString();
-            var result = StoredAlternativeTitles.Parse(edited);
-
-            Assert.Equal("English Title", result.English);
-            Assert.Equal(["Synonym A"], result.Synonyms!);
-            Assert.Equal(["Curated"], result.User!);
         }
 
         #endregion

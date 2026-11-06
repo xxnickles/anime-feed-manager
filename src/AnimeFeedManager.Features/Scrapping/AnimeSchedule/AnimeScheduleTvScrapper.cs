@@ -68,8 +68,6 @@ internal static partial class AnimeScheduleTvScrapper
         _ => AiringStatus.Unknown
     };
 
-    // Only the provider block is filled here; the user block belongs to the editor and is merged
-    // back in by TvStorageEnrichment for series already in storage.
     private static AlternativeTitlesData ProviderTitles(AnimeScheduleNames? names) =>
         names is null
             ? AlternativeTitlesData.Empty

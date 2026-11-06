@@ -19,11 +19,6 @@ public class TvSeriesActionViewModel : TvSeriesCardViewModel
     public string LoaderSelector { get; set; } = string.Empty;
 }
 
-public class AlternativeTitlesViewModel : TvSeriesCardViewModel
-{
-    public string[]? AlternativeTitles { get; set; }
-}
-
 public class RemoveSeriesViewModel : TvSeriesCardViewModel
 {
     public string LoaderSelector { get; set; } = string.Empty;

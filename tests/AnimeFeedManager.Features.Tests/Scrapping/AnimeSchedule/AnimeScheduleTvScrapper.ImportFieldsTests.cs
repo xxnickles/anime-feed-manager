@@ -112,7 +112,7 @@ public partial class AnimeScheduleTvScrapperTests
     #region Abbreviation
 
     [Fact]
-    public async Task Abbreviation_Is_Stored_In_The_Provider_Block()
+    public async Task Abbreviation_Is_Stored_In_Alternative_Titles()
     {
         var client = ClientReturning(CreateAnime() with
         {
@@ -122,11 +122,7 @@ public partial class AnimeScheduleTvScrapperTests
         var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
         result.AssertOnSuccess(data =>
-        {
-            var titles = StoredAlternativeTitles.Parse(Single(data).Series.AlternativeTitles);
-            Assert.Equal("PC2", titles.Abbreviation);
-            Assert.Null(titles.User);
-        });
+            Assert.Equal("PC2", StoredAlternativeTitles.Parse(Single(data).Series.AlternativeTitles).Abbreviation));
     }
 
     #endregion

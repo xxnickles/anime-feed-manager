@@ -51,8 +51,6 @@
                     {
                         <AdminActionsMenu>
                             <Buttons>
-                                <AlternativeTitlesEditorModal
-                                    Model="GetAlternativeTitlesModel(Series)"></AlternativeTitlesEditorModal>
                                 <SeriesDeleter Model="GetRemoveSeries(Series)"></SeriesDeleter>
                             </Buttons>
                         </AdminActionsMenu>
@@ -89,16 +87,6 @@
         SeriesTitle = series.TvSeries.Title,
         LoaderSelector = _loaderSelector
     };
-
-    private static AlternativeTitlesViewModel GetAlternativeTitlesModel(UserTvSeries series)
-    {
-        return new AlternativeTitlesViewModel
-        {
-            AlternativeTitles = series.TvSeries.AlternativeTitles.User ?? [],
-            SeriesTitle = series.TvSeries.Title,
-            SeriesId = series.TvSeries.Id
-        };
-    }
 
     private RemoveSeriesViewModel GetRemoveSeries(UserTvSeries series)
     {

@@ -13,14 +13,14 @@ public class ScrapStepsTests
     #region Stored Data Tests
 
     [Fact]
-    public async Task Should_Carry_Stored_User_Titles_When_Series_Exists()
+    public async Task Should_Keep_Imported_Titles_When_Stored_Series_Has_Other_Titles()
     {
-        var stored = Stored(SeriesStatus.NotAvailable(), new AlternativeTitlesData(User: ["Alt Title 1", "Alt Title 2"]));
+        var stored = Stored(SeriesStatus.NotAvailable(), new AlternativeTitlesData(English: "Stored Title"));
 
         var result = await Enrich([stored], AiringStatus.Unknown);
 
-        result.AssertOnSuccess(r => Assert.Equal(["Alt Title 1", "Alt Title 2"],
-            StoredAlternativeTitles.Parse(r.SeriesData.Single().Series.AlternativeTitles).User!));
+        result.AssertOnSuccess(r =>
+            Assert.True(StoredAlternativeTitles.Parse(r.SeriesData.Single().Series.AlternativeTitles).IsEmpty));
     }
 
     [Fact]

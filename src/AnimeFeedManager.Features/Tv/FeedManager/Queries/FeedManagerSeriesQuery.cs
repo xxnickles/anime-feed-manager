@@ -99,7 +99,6 @@ public static class FeedManagerSeriesQuery
         [
             ..new[] {series.Title, titles.English, titles.Romaji}
                 .Concat(titles.Synonyms ?? [])
-                .Concat(titles.User ?? [])
                 .Concat([titles.Abbreviation, titles.Native])
                 .OfType<string>()
                 .Where(title => !string.IsNullOrWhiteSpace(title))

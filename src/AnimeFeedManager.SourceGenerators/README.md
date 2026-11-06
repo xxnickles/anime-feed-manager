@@ -55,7 +55,7 @@ Compiles colocated `.razor.hs` files into Blazor partial classes, each exposing 
 
 **No build-time validation:** the generator emits file content verbatim into a raw-string literal. Hyperscript parse errors surface at element initialisation in DevTools, not at build time.
 
-**Example:** `Features/Tv/Controls/AlternativeTitlesEditor.razor.hs` in `AnimeFeedManager.Web` produces `partial class AlternativeTitlesEditor` in namespace `AnimeFeedManager.Web.Features.Tv.Controls`.
+**Example:** `Features/Components/ThemeSelector.razor.hs` in `AnimeFeedManager.Web` produces `partial class ThemeSelector` in namespace `AnimeFeedManager.Web.Features.Components`.
 
 **Consumer wiring required** in addition to the project reference:
 

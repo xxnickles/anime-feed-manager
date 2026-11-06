@@ -38,11 +38,6 @@ internal static class TvStorageEnrichment
         AnimeInfoStorage baseSeries,
         TvSeriesInfo currentInfo)
     {
-        // This scrap owns the provider block; the stored user block survives it untouched.
-        baseSeries.AlternativeTitles = (StoredAlternativeTitles.Parse(baseSeries.AlternativeTitles) with
-        {
-            User = currentInfo.AlternativeTitles.User
-        }).ToStoredString();
         baseSeries.Status = ResolveStatus(storageSeries.Airing, currentInfo.Status);
 
         if (currentInfo is not TvSeriesInfoWithImage withImage)
