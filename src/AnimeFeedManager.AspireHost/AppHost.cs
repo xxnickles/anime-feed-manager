@@ -29,8 +29,10 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
     .WithReference(tables)
     .WaitFor(tables)
     .WithEnvironment("SignalRConnectionString", signalR)
-    // Here, not local.settings.json (gitignored): an unresolved timer setting stops the host
-    .WithEnvironment("AutomatedBindingSchedule", "0 0 5 * * *");
+    // Here, not local.settings.json (gitignored): an unresolved timer setting stops the host.
+    // Hourly locally (daily in Azure), offset from the hourly feed run at :00.
+    .WithEnvironment("AutomatedBindingSchedule", "0 20 * * * *")
+    .WithEnvironment("FeedSettlementSchedule", "0 40 * * * *");
 
 var commitSha = GetLocalCommitSha();
 

@@ -27,6 +27,9 @@ param scrapingSchedule string = '0 0 0 * * *'
 @description('Cron schedule for automated series binding (NCrontab 6-field format)')
 param automatedBindingSchedule string = '0 0 5 * * *'
 
+@description('Cron schedule for nyaa feed settlement (NCrontab 6-field format)')
+param feedSettlementSchedule string = '0 0 6 * * *'
+
 @description('Public web app URL: SignalR CORS and email links')
 param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
 
@@ -138,6 +141,7 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2025-03-01' = {
     FeedNotificationSchedule: feedNotificationSchedule
     ScrapingSchedule: scrapingSchedule
     AutomatedBindingSchedule: automatedBindingSchedule
+    FeedSettlementSchedule: feedSettlementSchedule
   }
 }
 

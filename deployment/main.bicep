@@ -29,6 +29,9 @@ param scrapingSchedule string = '0 0 0 * * *'
 @description('Cron schedule for automated series binding (NCrontab 6-field format)')
 param automatedBindingSchedule string = '0 0 5 * * *'
 
+@description('Cron schedule for nyaa feed settlement (NCrontab 6-field format)')
+param feedSettlementSchedule string = '0 0 6 * * *'
+
 // Deploy common resources (Storage Account, Application Insights)
 module common 'modules/common.bicep' = {
   name: 'common'
@@ -50,6 +53,7 @@ module functions 'modules/functions.bicep' = {
     feedNotificationSchedule: feedNotificationSchedule
     scrapingSchedule: scrapingSchedule
     automatedBindingSchedule: automatedBindingSchedule
+    feedSettlementSchedule: feedSettlementSchedule
   }
 }
 

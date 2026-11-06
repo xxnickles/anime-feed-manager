@@ -49,6 +49,7 @@ Aspire injects storage, SignalR, timer and telemetry settings locally. In Azure,
 | `FeedNotificationSchedule` | Notification timer (NCrontab, 6 fields) | Yes |
 | `ScrapingSchedule` | Library import timer | Yes |
 | `AutomatedBindingSchedule` | Automated binding timer | Yes |
+| `FeedSettlementSchedule` | Feed settlement timer | Yes |
 | `Gmail:FromEmail`, `Gmail:FromName`, `Gmail:AppPassword` | Notification email sender | For email |
 | `APPLICATIONINSIGHTS_CONNECTION_STRING` | Azure Monitor exporter | In Azure |
 

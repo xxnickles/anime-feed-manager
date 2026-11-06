@@ -17,6 +17,7 @@ namespace AnimeFeedManager.Features.Tv;
 [JsonSerializable(typeof(BindNyaaSeries))]
 [JsonSerializable(typeof(BackfillNyaaSeries))]
 [JsonSerializable(typeof(RunAutomatedBinding))]
+[JsonSerializable(typeof(RunFeedSettlement))]
 // Event Payloads
 [JsonSerializable(typeof(ScrapTvLibraryResult))]
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryResult))]

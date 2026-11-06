@@ -65,4 +65,17 @@ internal static class TvAdminHandlers
             .FlushLogs(logger)
             .ToComponentNotification<Unit, Noop, AutomatedBindingTrigger>(new Noop());
     }
+
+    internal static async Task<RazorComponentResult> TriggerFeedSettlement(
+        [FromForm] Noop noop,
+        [FromServices] IDomainPostman domainPostman,
+        [FromServices] ILogger<FeedSettlementTrigger> logger,
+        CancellationToken cancellationToken)
+    {
+        using var activity = Source.StartActivity(AdminTelemetry.TriggerFeedSettlementSpan);
+        return await domainPostman.SendMessages([new RunFeedSettlement()], cancellationToken)
+            .MarkActivityErroredOnError()
+            .FlushLogs(logger)
+            .ToComponentNotification<Unit, Noop, FeedSettlementTrigger>(new Noop());
+    }
 }
