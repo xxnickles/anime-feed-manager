@@ -22,12 +22,11 @@ public static class FeedEpisodes
     public static Task<Result<EpisodesUpdated>> UpdateFromLibrary(
         string seriesId,
         ITableClientFactory clientFactory,
-        DomainCollectionSender domainPostman,
         CancellationToken token) =>
         StartProcess(seriesId)
             .ReadLibrary(clientFactory.TableStorageTvSeriesGetter, token)
             .UpdateBinding(clientFactory, token)
-            .EvaluateCompletion(clientFactory, domainPostman, token)
+            .EvaluateCompletion(clientFactory, token)
             .Map(ToUpdated)
             .WithOperationName(nameof(UpdateFromLibrary))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
@@ -37,13 +36,12 @@ public static class FeedEpisodes
         string seriesId,
         int episodes,
         ITableClientFactory clientFactory,
-        DomainCollectionSender domainPostman,
         CancellationToken token) =>
         StartProcess(seriesId)
             .Map(p => p with {Episodes = episodes})
             .UpdateLibrary(episodes, clientFactory, token)
             .UpdateBinding(clientFactory, token)
-            .EvaluateCompletion(clientFactory, domainPostman, token)
+            .EvaluateCompletion(clientFactory, token)
             .Map(ToUpdated)
             .WithOperationName(nameof(Override))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
@@ -83,7 +81,6 @@ public static class FeedEpisodes
 
         private Task<Result<EpisodesProcess>> EvaluateCompletion(
             ITableClientFactory clientFactory,
-            DomainCollectionSender domainPostman,
             CancellationToken token) =>
             process.BindWhen(p => NyaaCompletion.CompleteWhenReached(
                         p.SeriesId,
@@ -91,7 +88,6 @@ public static class FeedEpisodes
                         clientFactory.TableStorageNyaaBindingGetter,
                         clientFactory.TableStorageNyaaCatalogGetter,
                         clientFactory.TableStorageNyaaBindingUpdater,
-                        domainPostman,
                         token)
                     .Map(outcome => p with {Completion = outcome}),
                 p => p.Bound);

@@ -1,4 +1,3 @@
-using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
@@ -12,7 +11,7 @@ public sealed record FeedOpen : CompletionOutcome;
 
 public static class NyaaCompletion
 {
-    /// <summary>Completes once, when the distinct regular episodes reach a known count; only a rebind clears the stamp.</summary>
+    /// <summary>Completes once, when the distinct regular episodes reach a known count, at the latest regular release; only a rebind clears the stamp.</summary>
     /// <remarks>
     /// Counted, not the highest number: groups can number a sequel on from earlier seasons. Without a premiere the
     /// catalog can hold earlier seasons too, so it never completes.
@@ -21,21 +20,19 @@ public static class NyaaCompletion
         ExpectedEpisodes expected,
         DateTimeOffset? premiere,
         DateTimeOffset? completedAt,
-        IEnumerable<NyaaCatalogStorage> catalog,
-        DateTimeOffset now) =>
-        (expected, premiere, completedAt) is (KnownEpisodes known, not null, null)
+        IReadOnlyCollection<NyaaCatalogStorage> catalog) =>
+        (expected, premiere, completedAt) is (KnownEpisodes {Count: > 0} known, not null, null)
         && catalog.DistinctRegular() >= known.Count
-            ? new FeedCompleted(now)
+            ? new FeedCompleted(catalog.Where(row => !row.Special).Max(row => row.Published))
             : new FeedOpen();
 
-    /// <summary>Stamps a completed binding, then emits <see cref="NyaaFeedCompleted"/> once the stamp has landed.</summary>
+    /// <summary>Stamps a completed binding; the library completes when the binding retires.</summary>
     public static Task<Result<CompletionOutcome>> CompleteWhenReached(
         string seriesId,
         SeriesSeason season,
         NyaaBindingGetter bindingGetter,
         NyaaCatalogGetter catalogGetter,
         NyaaBindingUpdater bindingUpdater,
-        DomainCollectionSender sender,
         CancellationToken token) =>
         OptimisticConcurrency.UntilWritten(
                 attemptToken => bindingGetter(seriesId, season, attemptToken)
@@ -44,16 +41,12 @@ public static class NyaaCompletion
                             SeriesBroadcast.ToExpectedEpisodes(binding.Episodes),
                             binding.Premiere,
                             binding.CompletedAt,
-                            catalog,
-                            DateTimeOffset.UtcNow))))
+                            catalog))))
                     .Bind(state => state.Outcome is FeedCompleted completed
                         ? bindingUpdater(Stamp(state.Binding, completed.At), attemptToken).Map(_ => state.Outcome)
                         : Task.FromResult(Result<CompletionOutcome>.Success(state.Outcome))),
                 token,
                 error => error is PreconditionFailedError)
-            .BindWhen(
-                outcome => sender([new NyaaFeedCompleted(seriesId)], token).Map(_ => outcome),
-                outcome => outcome is FeedCompleted)
             .WithOperationName(nameof(CompleteWhenReached))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 

@@ -86,13 +86,12 @@ internal static class FeedManagerHandlers
     internal static async Task<RazorComponentResult> UpdateEpisodesFromLibrary(
         [FromForm] FeedSeriesViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
-        [FromServices] IDomainPostman domainPostman,
         [FromServices] ILogger<EpisodesCard> logger,
         CancellationToken token)
     {
         using var activity = Source.StartActivity(AdminTelemetry.UpdateFeedEpisodesSpan);
         return await Validate(viewModel)
-            .Bind(vm => FeedEpisodes.UpdateFromLibrary(vm.SeriesId, clientFactory, domainPostman.SendMessages, token))
+            .Bind(vm => FeedEpisodes.UpdateFromLibrary(vm.SeriesId, clientFactory, token))
             .Bind(updated => Reload(viewModel.SeriesId, clientFactory, token).Map(series => (Updated: updated, Series: series)))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
@@ -109,13 +108,12 @@ internal static class FeedManagerHandlers
     internal static async Task<RazorComponentResult> OverrideEpisodes(
         [FromForm] EpisodesOverrideViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,
-        [FromServices] IDomainPostman domainPostman,
         [FromServices] ILogger<EpisodesCard> logger,
         CancellationToken token)
     {
         using var activity = Source.StartActivity(AdminTelemetry.OverrideEpisodesSpan);
         return await Validate(viewModel)
-            .Bind(vm => FeedEpisodes.Override(vm.SeriesId, vm.Episodes, clientFactory, domainPostman.SendMessages, token))
+            .Bind(vm => FeedEpisodes.Override(vm.SeriesId, vm.Episodes, clientFactory, token))
             .Bind(updated => Reload(viewModel.SeriesId, clientFactory, token).Map(series => (Updated: updated, Series: series)))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
@@ -183,5 +181,5 @@ internal static class FeedManagerHandlers
         $"{title}: {updated.Episodes} episodes saved to {(updated.Bound ? "the library and the feed" : "the library")}.{CompletionNote(updated)}";
 
     private static string CompletionNote(EpisodesUpdated updated) =>
-        updated.Completion is FeedCompleted ? " The feed reached its count; the series is being completed." : string.Empty;
+        updated.Completion is FeedCompleted ? " The feed reached its count; the series completes when the feed retires." : string.Empty;
 }

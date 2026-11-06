@@ -30,7 +30,7 @@ public static class BackfillSeries
         StartProcess(request.SeriesId, clientFactory.TableStorageNyaaBindingGetter, token)
             .Search(nyaaClient, token)
             .StoreReleases(clientFactory.TableStorageNyaaCatalogUpdater, token)
-            .EvaluateCompletion(clientFactory, domainPostman, token)
+            .EvaluateCompletion(clientFactory, token)
             .SendEvents(request, domainPostman, token)
             .Map(process => new BackfilledSeries(process.Binding.FeedTitle, process.Rows.Length))
             .WithOperationName(nameof(Backfill))
@@ -56,7 +56,6 @@ public static class BackfillSeries
 
         private Task<Result<BackfillProcess>> EvaluateCompletion(
             ITableClientFactory clientFactory,
-            DomainCollectionSender domainPostman,
             CancellationToken token) =>
             process.Bind(p => NyaaCompletion.CompleteWhenReached(
                     p.SeriesId,
@@ -64,7 +63,6 @@ public static class BackfillSeries
                     clientFactory.TableStorageNyaaBindingGetter,
                     clientFactory.TableStorageNyaaCatalogGetter,
                     clientFactory.TableStorageNyaaBindingUpdater,
-                    domainPostman,
                     token)
                 .Map(outcome => p with {Completion = outcome}));
 
