@@ -47,6 +47,31 @@ public class SubscriptionTests
         result.AssertError();
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Should_Return_Error_When_Subscribing_To_A_Series_Without_Feed_Title(string feedTitle)
+    {
+        var updater = Updater();
+
+        var result = await Toggle(stored: null, updater, Remover(), feedTitle);
+
+        result.AssertError();
+        await updater.DidNotReceive().Invoke(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Should_Remove_Stored_Subscription_When_Series_Has_No_Feed_Title()
+    {
+        var remover = Remover();
+
+        var result = await Toggle(MakeSubscription(nameof(SubscriptionType.Subscribed)), Updater(), remover,
+            feedTitle: string.Empty);
+
+        result.AssertOnSuccess(state => Assert.Equal(SubscriptionType.None, state));
+        await remover.Received(1).Invoke(UserId, SeriesId, Arg.Any<CancellationToken>());
+    }
+
     #endregion
 
     #region Test Helpers
@@ -54,8 +79,9 @@ public class SubscriptionTests
     private static Task<Result<SubscriptionType>> Toggle(
         SubscriptionStorage? stored,
         TvSubscriptionUpdater updater,
-        TvSubscriptionsRemover remover) =>
-        Subscription.VerifyStorage(MakeUser(), SeriesId, "Black Torch", "Black Torch",
+        TvSubscriptionsRemover remover,
+        string feedTitle = "Black Torch") =>
+        Subscription.VerifyStorage(MakeUser(), SeriesId, "Black Torch", feedTitle,
                 Getter(stored), CancellationToken.None)
             .UpdateSubscription(updater, remover, CancellationToken.None);
 

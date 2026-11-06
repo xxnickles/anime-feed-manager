@@ -58,7 +58,7 @@ public static class NyaaCatalogRows
     public static int DistinctRegular(this IEnumerable<NyaaCatalogStorage> catalog) =>
         catalog.Where(row => !row.Special).Select(row => (int) row.EpisodeNumber).Distinct().Count();
 
-    /// <summary>Notified-episode identity in the SubsPlease shape: <c>05</c>, <c>05v2</c>, <c>1150</c>, <c>12.5</c>.</summary>
+    /// <summary>Notified-episode identity: <c>05</c>, <c>05v2</c>, <c>1150</c>, <c>12.5</c>.</summary>
     public static string NotificationEpisode(this NyaaCatalogStorage row)
     {
         var number = row.EpisodeNumber.ToString("00.####", CultureInfo.InvariantCulture);

@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace AnimeFeedManager.Features.SystemEvents.Notifications;
 
 public abstract record EpisodeSegment(int From, int To)
@@ -10,47 +12,65 @@ public sealed record EpisodeRange(int From, int To) : EpisodeSegment(From, To);
 
 public sealed record EpisodeGap(int From, int To) : EpisodeSegment(From, To);
 
-/// <summary>Notified episodes collapsed into ordered runs and holes over 01..Latest; a re-release covers its episode number.</summary>
+/// <summary>Notified episodes collapsed into ordered runs and holes over 01..Latest; a re-release covers its episode number, specials sit outside the runs.</summary>
 public sealed record EpisodeCoverage(
     int Count,
     int Latest,
     ImmutableArray<EpisodeSegment> Segments,
-    ImmutableArray<string> Rereleases)
+    ImmutableArray<string> Rereleases,
+    ImmutableArray<string> Specials)
 {
-    public static readonly EpisodeCoverage Empty = new(0, 0, [], []);
+    public static readonly EpisodeCoverage Empty = new(0, 0, [], [], []);
 }
 
 public static class EpisodeSegments
 {
-    /// <summary>Episodes follow the scraper's <c>\d+(v\d+)?</c> format; anything else is skipped.</summary>
+    /// <summary>Reads <c>05</c>, <c>05v2</c> and specials like <c>12.5</c> or <c>12.5v2</c>; anything else is skipped.</summary>
     public static EpisodeCoverage From(IEnumerable<string> episodes)
     {
-        var parsed = episodes
-            .Select(Parse)
-            .OfType<ParsedEpisode>()
-            .ToArray();
+        var parsed = episodes.Select(Parse).OfType<ParsedEpisode>().ToArray();
+        if (parsed.Length == 0) return EpisodeCoverage.Empty;
 
-        var numbers = parsed.Select(p => p.Number).Distinct().Order().ToArray();
-        if (numbers.Length == 0) return EpisodeCoverage.Empty;
+        var regular = parsed.OfType<RegularEpisode>().ToArray();
 
-        var rereleases = parsed
+        var numbers = regular.Select(p => p.Number).Distinct().Order().ToArray();
+        var rereleases = regular
             .Where(p => p.IsRerelease)
             .OrderBy(p => p.Number)
             .ThenBy(p => p.Raw, StringComparer.Ordinal)
             .Select(p => p.Raw)
             .Distinct();
+        ImmutableArray<string> specials =
+        [
+            ..parsed.OfType<SpecialEpisode>()
+                .OrderBy(p => p.Number)
+                .ThenBy(p => p.Raw, StringComparer.Ordinal)
+                .Select(p => p.Raw)
+                .Distinct()
+        ];
 
-        return new EpisodeCoverage(numbers.Length, numbers[^1], [..Collapse(numbers)], [..rereleases]);
+        return numbers.Length == 0
+            ? EpisodeCoverage.Empty with {Specials = specials}
+            : new EpisodeCoverage(numbers.Length, numbers[^1], [..Collapse(numbers)], [..rereleases], specials);
     }
 
-    private sealed record ParsedEpisode(int Number, string Raw, bool IsRerelease);
+    private abstract record ParsedEpisode(string Raw);
+
+    private sealed record RegularEpisode(int Number, string Raw, bool IsRerelease) : ParsedEpisode(Raw);
+
+    private sealed record SpecialEpisode(decimal Number, string Raw) : ParsedEpisode(Raw);
 
     private static ParsedEpisode? Parse(string episode)
     {
         var version = episode.IndexOf('v');
-        var digits = version < 0 ? episode : episode[..version];
-        return int.TryParse(digits, out var number) && number >= 0
-            ? new ParsedEpisode(number, episode, version >= 0)
+        var number = version < 0 ? episode : episode[..version];
+
+        if (int.TryParse(number, NumberStyles.None, CultureInfo.InvariantCulture, out var regular))
+            return new RegularEpisode(regular, episode, version >= 0);
+
+        return number.Contains('.')
+               && decimal.TryParse(number, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var special)
+            ? new SpecialEpisode(special, episode)
             : null;
     }
 
