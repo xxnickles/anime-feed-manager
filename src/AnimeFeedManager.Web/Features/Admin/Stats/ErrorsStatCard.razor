@@ -29,8 +29,9 @@
     private static string Label(string payloadTypeName) => payloadTypeName switch
     {
         nameof(ScrapTvLibraryFailedResult) => "Library scrape",
-        nameof(CompletedTvSeriesResult) => "Series completion",
-        nameof(FeedTitlesUpdateError) => "Feed titles",
+        // Retired payloads: kept as literals while their stored errors age out
+        "CompletedTvSeriesResult" => "Series completion",
+        "FeedTitlesUpdateError" => "Feed titles",
         nameof(AutoSubscriptionResult) => "Auto-subscription",
         nameof(SeasonUpdateResult) => "Season update",
         nameof(NyaaBindFailed) => "Nyaa bind",

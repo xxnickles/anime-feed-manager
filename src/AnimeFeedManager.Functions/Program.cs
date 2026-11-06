@@ -20,7 +20,6 @@ builder.AddServiceDefaults(
     Telemetry.SeasonsUpdateSource,
     Telemetry.SystemEventsUpdateSource,
     Telemetry.TvLibraryImportSource,
-    Telemetry.TvLibraryFeedTitlesSource,
     Telemetry.TvLibraryCompletionSource,
     Telemetry.ImagesSource,
     Telemetry.TvSubscriptionsFeedSource,

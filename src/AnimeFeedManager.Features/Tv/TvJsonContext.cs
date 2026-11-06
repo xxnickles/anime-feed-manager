@@ -6,9 +6,6 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 namespace AnimeFeedManager.Features.Tv;
 
 // Domain Messages
-[JsonSerializable(typeof(FeedTitlesUpdated))]
-[JsonSerializable(typeof(SeriesFeedUpdated))]
-[JsonSerializable(typeof(CompleteOngoingSeries))]
 [JsonSerializable(typeof(UpdatedToOngoing))]
 [JsonSerializable(typeof(UpdateTvSeriesEvent))]
 [JsonSerializable(typeof(FeedNotification))]
@@ -23,12 +20,6 @@ namespace AnimeFeedManager.Features.Tv;
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryResult))]
 [JsonSerializable(typeof(ScrapTvLibraryFailedResult))]
 [EventPayloadSerializerContext(typeof(ScrapTvLibraryFailedResult))]
-[JsonSerializable(typeof(FeedTitlesUpdateResult))]
-[EventPayloadSerializerContext(typeof(FeedTitlesUpdateResult))]
-[JsonSerializable(typeof(FeedTitlesUpdateError))]
-[EventPayloadSerializerContext(typeof(FeedTitlesUpdateError))]
-[JsonSerializable(typeof(CompletedTvSeriesResult))]
-[EventPayloadSerializerContext(typeof(CompletedTvSeriesResult))]
 [JsonSerializable(typeof(AutoSubscriptionResult))]
 [EventPayloadSerializerContext(typeof(AutoSubscriptionResult))]
 [JsonSerializable(typeof(NotificationSent))]

@@ -89,8 +89,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 |---|---|---|
 | `AnimeFeedManager.Seasons.Update` | Season creation/update orchestration | Functions |
 | `AnimeFeedManager.Tv.Library.Import` | TV library scrape/import for a season | Functions |
-| `AnimeFeedManager.Tv.Library.Completion` | Marking ongoing series completed | Functions |
-| `AnimeFeedManager.Tv.Library.FeedTitles` | Feed-titles persist | Functions |
+| `AnimeFeedManager.Tv.Library.Completion` | Marking feed-completed series completed | Functions |
 | `AnimeFeedManager.Tv.Library.Queries` | Library catalog queries | Web |
 | `AnimeFeedManager.Tv.Subscriptions.Feed` | Daily feed processing, per-user notification | Functions |
 | `AnimeFeedManager.Tv.Subscriptions.Management` | Auto-subscription for interested users | Functions |
@@ -110,8 +109,6 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 |---|---|---|---|
 | `SeasonsTelemetry.UpdateSpan` | `Seasons.Update` | Seasons.Update | Functions |
 | `TvLibraryTelemetry.ImportSpan` | `Tv.Library.Import` | Tv.Library.Import | Functions |
-| `TvLibraryTelemetry.UpdateFeedTitlesSpan` | `Tv.Library.UpdateFeedTitles` | Tv.Library.FeedTitles | Functions |
-| `TvLibraryTelemetry.CompleteOngoingSpan` | `Tv.Library.CompleteOngoing` | Tv.Library.Completion | Functions |
 | `TvLibraryTelemetry.CompleteFeedSeriesSpan` | `Tv.Library.CompleteFeedSeries` | Tv.Library.Completion | Functions |
 | `TvLibraryTelemetry.QuerySeasonSpan` | `Tv.Library.QuerySeason` | Tv.Library.Queries | Web |
 | `TvSubscriptionsTelemetry.AutoSubscribeSpan` | `Tv.Subscriptions.AutoSubscribe` | Tv.Subscriptions.Management | Functions |
@@ -135,7 +132,6 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AdminTelemetry.SetFeaturedSeasonSpan` | `Admin.SetFeaturedSeason` | Web.Admin | Web |
 | `AdminTelemetry.LibraryScrapSummarySpan` | `Admin.LibraryScrapSummary` | Web.Admin | Web |
 | `AdminTelemetry.NotificationSummarySpan` | `Admin.NotificationSummary` | Web.Admin | Web |
-| `AdminTelemetry.FeedUpdatesSummarySpan` | `Admin.FeedUpdatesSummary` | Web.Admin | Web |
 | `AdminTelemetry.LastScrapeStatSpan` | `Admin.LastScrapeStat` | Web.Admin | Web |
 | `AdminTelemetry.ErrorStatSpan` | `Admin.ErrorStat` | Web.Admin | Web |
 | `AdminTelemetry.NyaaStatSpan` | `Admin.NyaaStat` | Web.Admin | Web |
@@ -183,7 +179,6 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | Key | Class | Meaning / value format |
 |---|---|---|
 | `series.count` | `TvLibraryTelemetry` | Number of series processed/affected. |
-| `feed.title_count` | `TvLibraryTelemetry` | Number of feed titles. |
 | `scrape.query` | `ScrappingTelemetry` | Provider request query string (AnimeSchedule, Nyaa). |
 | `scrape.pages_expected` | `ScrappingTelemetry` | Pages the provider reported. |
 | `scrape.pages_fetched` | `ScrappingTelemetry` | Pages actually fetched. |

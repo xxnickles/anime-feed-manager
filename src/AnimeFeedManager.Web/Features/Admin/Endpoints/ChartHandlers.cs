@@ -62,24 +62,4 @@ internal static class ChartHandlers
                         StatCardError.AsRenderFragment("Notifications"))
                 ]);
     }
-
-    internal static async Task<RazorComponentResult> FeedUpdatesSummary(
-        [FromQuery] string? period,
-        [FromServices] ITableClientFactory clientFactory,
-        [FromServices] ILogger<AdminPage> logger,
-        CancellationToken cancellationToken)
-    {
-        using var activity = Source.StartActivity(AdminTelemetry.FeedUpdatesSummarySpan);
-        var range = ChartDateRange.FromPeriod(period);
-        return await FeedUpdatesChart.Get(
-                clientFactory.TableStorageEvents<FeedTitlesUpdateResult>(),
-                range.From,
-                range.To,
-                cancellationToken)
-            .MarkActivityErroredOnError()
-            .FlushLogs(logger)
-            .ToComponentResult(
-                data => [ChartContent.AsRenderFragment("Feed Updates", data, ChartJsOptions.IntegerScale)],
-                error => [ChartError.AsRenderFragment(error.Message)]);
-    }
 }

@@ -18,7 +18,6 @@ public static class Telemetry
     public const string TvLibraryCompletionSource = "AnimeFeedManager.Tv.Library.Completion";
 
     /// <summary>Feed-titles scrape-and-store pipeline: fetch feed titles, match against the library, persist.</summary>
-    public const string TvLibraryFeedTitlesSource = "AnimeFeedManager.Tv.Library.FeedTitles";
 
     /// <summary>Library catalog queries (series lookups, season indexes).</summary>
     public const string TvLibraryQueriesSource = "AnimeFeedManager.Tv.Library.Queries";
