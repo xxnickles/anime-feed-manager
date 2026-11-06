@@ -39,7 +39,7 @@ public static class NotificationEmailText
         var lines = new[]
         {
             anime.Title,
-            $"  {anime.Episodes.Length} {Pluralize("episode", anime.Episodes.Length)} - view on SubsPlease:",
+            $"  {anime.Episodes.Length} {Pluralize("episode", anime.Episodes.Length)} - all releases:",
             $"  {anime.Url}",
             string.Empty
         };

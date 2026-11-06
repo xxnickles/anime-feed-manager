@@ -18,6 +18,10 @@
     @if (_series is not null)
     {
         <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-primary">@_series.Title</h1>
+        @if (OtherTitles.Length > 0)
+        {
+            <p class="text-sm text-base-content/60">@string.Join(" · ", OtherTitles)</p>
+        }
         <p class="text-sm text-base-content/70">
             <span class="capitalize">@_series.Season.Season.ToString() @_series.Season.Year.ToString()</span>
             @foreach (var stream in _series.Streams)
@@ -54,6 +58,10 @@ else
     // An unchecked box submits nothing, so only a page opened without a search defaults to trusted.
     private bool TrustedOnly => Query is null || Trusted == true;
     private string _seasonLink = FeedManagerRoutes.AdminSeason(new SeriesSeason(Shared.Types.Season.Current, Year.Current));
+
+    private string[] OtherTitles => _series is null
+        ? []
+        : [.._series.TitlePresets.Where(title => !string.Equals(title, _series.Title, StringComparison.OrdinalIgnoreCase))];
 
     private IReadOnlyList<Crumb> Trail => _series is null
         ? [new Crumb("Feed manager", _seasonLink)]
