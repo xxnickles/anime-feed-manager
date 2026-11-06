@@ -47,7 +47,6 @@ internal static class SubscriptionHandlers
                     data.Series.Id,
                     data.Series.Title,
                     data.Series.FeedTitle ?? string.Empty,
-                    data.Series.FeedUrl ?? string.Empty,
                     clientFactory.TableStorageTvSubscription, cancellationToken)
                 .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
                     clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)

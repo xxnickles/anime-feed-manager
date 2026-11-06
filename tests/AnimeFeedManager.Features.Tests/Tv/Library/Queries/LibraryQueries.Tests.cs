@@ -164,7 +164,6 @@ public class LibraryQueriesTests
         "BLACK TORCH",
         "synopsis",
         "Black Torch",
-        "https://example.com/black-torch",
         AlternativeTitlesData.Empty,
         (SeriesStatus) status,
         null,

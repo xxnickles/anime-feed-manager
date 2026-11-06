@@ -24,20 +24,14 @@ public class ScrapStepsTests
     }
 
     [Fact]
-    public async Task Should_Leave_Feed_Fields_Unset_When_Stored_Series_Has_A_Feed()
+    public async Task Should_Leave_Feed_Title_Unset_When_Stored_Series_Has_A_Feed()
     {
-        var stored = new TvSeriesInfo("Test Anime", "Test Anime Feed", "https://example.com/feed",
+        var stored = new TvSeriesInfo("Test Anime", "Test Anime Feed",
             AlternativeTitlesData.Empty, SeriesStatus.Ongoing());
 
         var result = await Enrich([stored], AiringStatus.Ongoing);
 
-        result.AssertOnSuccess(r =>
-        {
-            var series = r.SeriesData.Single().Series;
-            Assert.Null(series.FeedTitle);
-            Assert.Null(series.FeedLink);
-            Assert.Null(series.FeedSource);
-        });
+        result.AssertOnSuccess(r => Assert.Null(r.SeriesData.Single().Series.FeedTitle));
     }
 
     #endregion
@@ -94,7 +88,7 @@ public class ScrapStepsTests
     #region Test Helpers
 
     private static TvSeriesInfo Stored(SeriesStatus status, AlternativeTitlesData? titles = null) =>
-        new("Test Anime", string.Empty, null, titles ?? AlternativeTitlesData.Empty, status);
+        new("Test Anime", string.Empty, titles ?? AlternativeTitlesData.Empty, status);
 
     private static SeriesStatus ToStatus(string status) => status switch
     {

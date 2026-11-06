@@ -10,7 +10,6 @@ public static class Subscription
         string seriesId,
         string seriesTitle,
         string feedTitle,
-        string seriesLink,
         TvSubscriptionGetter subscriptionGetterGetter,
         CancellationToken token) =>
         subscriptionGetterGetter(user.UserId, seriesId, token)
@@ -20,7 +19,7 @@ public static class Subscription
                 new KeyValuePair<string, object>(Telemetry.UserIdTag, user.UserId)
             ])
             .Map(subscription =>
-                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle, seriesLink));
+                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle));
 
     // Toggles the stored state and returns the resulting one.
     public static Task<Result<SubscriptionType>> UpdateSubscription(this Task<Result<SubscriptionStorage>> storage,
@@ -34,8 +33,7 @@ public static class Subscription
         AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
-        string feedTitle,
-        string seriesLink)
+        string feedTitle)
     {
         if (subscription is null)
             return new SubscriptionStorage
@@ -45,8 +43,7 @@ public static class Subscription
                 Type = nameof(SubscriptionType.None),
                 SeriesFeedTitle = feedTitle,
                 SeriesTitle = seriesTitle,
-                UserEmail = user.Email,
-                SeriesLink = seriesLink
+                UserEmail = user.Email
             };
 
         return subscription;

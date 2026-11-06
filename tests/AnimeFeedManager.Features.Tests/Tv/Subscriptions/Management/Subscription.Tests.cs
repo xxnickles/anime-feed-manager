@@ -55,7 +55,7 @@ public class SubscriptionTests
         SubscriptionStorage? stored,
         TvSubscriptionUpdater updater,
         TvSubscriptionsRemover remover) =>
-        Subscription.VerifyStorage(MakeUser(), SeriesId, "Black Torch", "Black Torch", "https://example.com",
+        Subscription.VerifyStorage(MakeUser(), SeriesId, "Black Torch", "Black Torch",
                 Getter(stored), CancellationToken.None)
             .UpdateSubscription(updater, remover, CancellationToken.None);
 

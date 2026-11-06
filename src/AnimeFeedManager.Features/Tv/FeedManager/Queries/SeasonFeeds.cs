@@ -75,8 +75,7 @@ public static class SeasonFeeds
 
     private static IEnumerable<UnfedSeries> Unfed(ImmutableArray<TvSeries> library, ImmutableArray<BoundSeries> bound) =>
         library
-            .Where(series => string.IsNullOrWhiteSpace(series.FeedTitle)
-                             && series.Status != SeriesStatus.Completed()
+            .Where(series => series.Status != SeriesStatus.Completed()
                              && bound.All(b => b.SeriesId != series.Id))
             .Select(series => new UnfedSeries(series.Id, series.Title, series.Episodes));
 

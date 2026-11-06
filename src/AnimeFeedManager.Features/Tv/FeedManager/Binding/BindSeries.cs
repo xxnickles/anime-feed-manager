@@ -67,8 +67,6 @@ public static class BindSeries
         var bound = new BoundSeries(series.Title ?? string.Empty, FeedTitle(series, request),
             series.Status == SeriesStatus.OngoingValue);
         series.FeedTitle = bound.FeedTitle;
-        series.FeedLink = FeedManagerRoutes.Releases(request.SeriesId);
-        series.FeedSource = SeriesFeeds.LocalSource;
         series.Status = SeriesStatus.Ongoing();
         return (series, bound);
     }

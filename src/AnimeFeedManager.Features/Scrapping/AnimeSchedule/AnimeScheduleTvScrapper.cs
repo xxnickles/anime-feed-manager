@@ -43,7 +43,6 @@ internal static partial class AnimeScheduleTvScrapper
                 Title = anime.Title,
                 Synopsis = Synopsis(anime.Description),
                 FeedTitle = null,
-                FeedLink = null,
                 Date = ProviderDate(anime.Premier),
                 Status = SeriesStatus.NotAvailableValue,
                 AlternativeTitles = ProviderTitles(anime.Names).ToStoredString(),
