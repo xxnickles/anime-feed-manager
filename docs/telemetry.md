@@ -137,6 +137,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AdminTelemetry.ErrorStatSpan` | `Admin.ErrorStat` | Web.Admin | Web |
 | `AdminTelemetry.NyaaStatSpan` | `Admin.NyaaStat` | Web.Admin | Web |
 | `AdminTelemetry.AutomatedBindingStatSpan` | `Admin.AutomatedBindingStat` | Web.Admin | Web |
+| `AdminTelemetry.RecentReleasesSpan` | `Admin.RecentReleases` | Web.Admin | Web |
 | `AdminTelemetry.BindNyaaSeriesSpan` | `Admin.BindNyaaSeries` | Web.Admin | Web |
 | `AdminTelemetry.BackfillNyaaSeriesSpan` | `Admin.BackfillNyaaSeries` | Web.Admin | Web |
 | `AdminTelemetry.ClearNyaaCatalogSpan` | `Admin.ClearNyaaCatalog` | Web.Admin | Web |
