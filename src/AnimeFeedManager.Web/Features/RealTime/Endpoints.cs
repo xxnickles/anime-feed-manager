@@ -11,7 +11,9 @@ internal static class Endpoints
 
     internal static void MapRealTimeEndpoints(this RouteGroupBuilder group)
     {
-        group.MapPost($"{Hub}/negotiate", Negotiate);
+        // The SignalR client can't use an HTML status page, and re-executing the token-less POST fails antiforgery as 400.
+        group.MapPost($"{Hub}/negotiate", Negotiate)
+            .WithMetadata(new SkipStatusCodePagesAttribute());
     }
 
     private static async Task<IResult> Negotiate(

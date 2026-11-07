@@ -7,13 +7,6 @@ using Passwordless;
 
 namespace AnimeFeedManager.Web.Bootstrapping;
 
-internal class AppVersionOptions
-{
-    public const string SectionName = "AppVersion";
-    public string Version { get; set; } = "local";
-    public string CommitSha { get; set; } = string.Empty;
-}
-
 internal static class Registration
 {
     internal static void RegisterSecurityServices(this WebApplicationBuilder builder)
@@ -99,7 +92,6 @@ internal static class Registration
 
         const string passwordlessSection = "Passwordless";
         builder.Services.Configure<PasswordlessOptions>(builder.Configuration.GetSection(passwordlessSection));
-        builder.Services.Configure<AppVersionOptions>(builder.Configuration.GetSection(AppVersionOptions.SectionName));
 
         // Add Passwordless
         builder.Services.AddPasswordlessSdk(options =>

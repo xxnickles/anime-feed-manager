@@ -6362,11 +6362,6 @@
       overflow: hidden;
     }
   }
-  @media (width < 48rem) {
-    .max-md\:justify-center {
-      justify-content: center;
-    }
-  }
   @media (width < 40rem) {
     @layer daisyui.l1 {
       .max-sm\:list-col-wrap {
