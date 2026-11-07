@@ -1,0 +1,76 @@
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Features.Tv.FeedManager.SeriesReleases
+@using AnimeFeedManager.Features.Tv.Library.Storage.Stores
+
+<header class="flex flex-col gap-3 border-b-2 border-base-300 pb-6">
+    <h1 class="text-2xl font-bold leading-tight md:text-3xl">@Listing.Title</h1>
+    <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <Badge Text="@StatusText" Type="@StatusBadge"/>
+        <span>@InfoLine</span>
+    </p>
+
+    @if (Listing.Feed is NyaaReleaseFeed feed)
+    {
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="badge badge-outline">@feed.Group · @feed.Variant</span>
+            @if (feed.Trusted)
+            {
+                <span class="badge badge-success">
+                    <svg aria-hidden="true" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+                    Trusted
+                </span>
+            }
+            <a href="@feed.Browse" target="_blank" rel="noopener noreferrer" class="btn btn-outline sm:ml-auto">
+                All releases on nyaa
+                <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M10 14 20 4"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+            </a>
+        </div>
+    }
+</header>
+
+@code {
+    [Parameter, EditorRequired] public ReleaseListing Listing { get; set; } = null!;
+
+    private string Status => Listing.Status.ToString();
+
+    // Same wording and colors as the season grid's anonymous badge.
+    private string StatusText => Status switch
+    {
+        SeriesStatus.OngoingValue => "Available",
+        SeriesStatus.CompletedValue => "Completed",
+        _ => "Not Available"
+    };
+
+    private StatusType StatusBadge => Status switch
+    {
+        SeriesStatus.OngoingValue => StatusType.Success,
+        SeriesStatus.CompletedValue => StatusType.Info,
+        _ => StatusType.Warning
+    };
+
+    private string Count(NyaaReleaseFeed feed) => Listing.Episodes switch
+    {
+        KnownEpisodes known => $"{feed.Indexed} / {known.Count} episodes",
+        _ => $"{feed.Indexed} / ? episodes"
+    };
+
+    private string InfoLine => Listing.Feed switch
+    {
+        NyaaReleaseFeed {Cadence: NoReleases} feed when Status == SeriesStatus.CompletedValue => Count(feed),
+        NyaaReleaseFeed {Cadence: NoReleases} => Listing.Broadcast.When switch
+        {
+            FirstRelease first => $"First episode expected {ReleaseTimes.Format(first.At)} UTC",
+            _ => "Release time not announced yet"
+        },
+        NyaaReleaseFeed {Cadence: WeeklyCadence weekly} feed when Status != SeriesStatus.CompletedValue =>
+            $"Weekly · {weekly.Day}s ~{weekly.Time:HH:mm} UTC · {Count(feed)}",
+        NyaaReleaseFeed feed => $"{Count(feed)} · last release {ReleaseTimes.Date(LastPublished(feed))}",
+        _ => "Not tracked on nyaa"
+    };
+
+    private static DateTimeOffset LastPublished(NyaaReleaseFeed feed) => feed.Cadence switch
+    {
+        LastRelease last => last.Published,
+        _ => feed.Episodes.SelectMany(e => e.Earlier.Prepend(e.Latest)).Max(r => r.Published)
+    };
+}

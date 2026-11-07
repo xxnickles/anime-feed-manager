@@ -1,0 +1,59 @@
+@using AnimeFeedManager.Features.Tv.FeedManager.SeriesReleases
+
+<li class="list-row items-center">
+    <div class="min-w-12 text-xl font-bold tabular-nums">@Episode.Label</div>
+
+    <div class="flex min-w-0 flex-col gap-1">
+        <ReleaseTitle Release="Episode.Latest" Class="link link-hover wrap-break-word"/>
+        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-base-content/70">
+            <span>@ReleaseTimes.Format(Episode.Latest.Published)</span>
+            <span aria-hidden="true">·</span>
+            <span>@Episode.Latest.Size</span>
+            @if (Episode.Latest.Version > 1)
+            {
+                <Badge Text="@($"v{Episode.Latest.Version}")" Type="StatusType.Accent"/>
+            }
+            @if (Episode.Special)
+            {
+                <Badge Text="Special" Type="StatusType.Info"/>
+            }
+        </div>
+    </div>
+
+    <div class="flex gap-2 max-sm:list-col-wrap">
+        <a href="@Episode.Latest.Magnet" class="btn btn-primary">
+            <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15"/><path d="m5 8 4 4"/><path d="m12 15 4 4"/></svg>
+            Magnet
+        </a>
+        <a href="@Episode.Latest.Torrent" class="btn btn-outline">
+            <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+            Torrent
+        </a>
+    </div>
+
+    @if (Episode.Earlier.Length > 0)
+    {
+        <details class="list-col-wrap text-xs text-base-content/70">
+            <summary class="cursor-pointer">@EarlierLabel</summary>
+            <ul class="mt-2 flex flex-col gap-2">
+                @foreach (var release in Episode.Earlier)
+                {
+                    <li class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <ReleaseTitle Release="release" Class="link link-hover min-w-0 grow basis-64 wrap-break-word"/>
+                        <span>@ReleaseTimes.Format(release.Published)</span>
+                        <a href="@release.Magnet" class="link link-secondary">Magnet</a>
+                        <a href="@release.Torrent" class="link link-secondary">Torrent</a>
+                    </li>
+                }
+            </ul>
+        </details>
+    }
+</li>
+
+@code {
+    [Parameter, EditorRequired] public EpisodeReleases Episode { get; set; } = null!;
+
+    private string EarlierLabel => Episode.Earlier.Length == 1
+        ? "1 earlier version"
+        : $"{Episode.Earlier.Length} earlier versions";
+}
