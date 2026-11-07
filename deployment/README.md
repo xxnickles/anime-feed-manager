@@ -51,6 +51,10 @@ These values are hardcoded in the infrastructure workflow (`.github/workflows/am
 | `gmailFromName` | `Anime Feed Manager` | Email sender display name |
 | `feedNotificationSchedule` | `0 0 * * * *` | Cron schedule for feed notifications (hourly) |
 | `scrapingSchedule` | `0 0 4 * * 6` | Cron schedule for full library scraping (weekly Saturday 4 AM UTC) |
+| `automatedBindingSchedule` | `0 20 5 * * *` | Cron schedule for automated SubsPlease bindings (daily 5:20 AM UTC) |
+| `feedSettlementSchedule` | `0 40 6 * * *` | Cron schedule for nyaa feed settlement (daily 6:40 AM UTC) |
+
+Binding and settlement run off the hour so they never start alongside the hourly nyaa run.
 
 ### Cron Schedule Format
 
@@ -113,7 +117,7 @@ az functionapp config appsettings set \
 az functionapp config appsettings list \
   --name <FUNCTION_APP_NAME> \
   --resource-group <RESOURCE_GROUP> \
-  --query "[?name=='ScrapingSchedule' || name=='FeedNotificationSchedule'].{name:name, value:value}" \
+  --query "[?ends_with(name, 'Schedule')].{name:name, value:value}" \
   --output table
 ```
 

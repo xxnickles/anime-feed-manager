@@ -60,6 +60,7 @@ jobs:
         run: |
           dotnet test tests/AnimeFeedManager.Features.Tests -c Release --verbosity normal
           dotnet test tests/AnimeFeedManager.Shared.Tests -c Release --verbosity normal
+          dotnet test tests/AnimeFeedManager.Web.BlazorComponents.Tests -c Release --verbosity normal
 
       - name: Publish
         run: dotnet publish ${{ env.APP_PATH }} -c Release -o ./output

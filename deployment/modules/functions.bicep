@@ -25,10 +25,10 @@ param feedNotificationSchedule string = '0 0 * * * *'
 param scrapingSchedule string = '0 0 0 * * *'
 
 @description('Cron schedule for automated series binding (NCrontab 6-field format)')
-param automatedBindingSchedule string = '0 0 5 * * *'
+param automatedBindingSchedule string = '0 20 5 * * *'
 
 @description('Cron schedule for nyaa feed settlement (NCrontab 6-field format)')
-param feedSettlementSchedule string = '0 0 6 * * *'
+param feedSettlementSchedule string = '0 40 6 * * *'
 
 @description('Public web app URL: SignalR CORS and email links')
 param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
@@ -137,7 +137,6 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2025-03-01' = {
     Gmail__FromName: gmailFromName
     Gmail__AppPassword: gmailAppPassword
     APPLICATIONINSIGHTS_CONNECTION_STRING: appInsightsConnectionString
-    Sandbox: 'false'
     FeedNotificationSchedule: feedNotificationSchedule
     ScrapingSchedule: scrapingSchedule
     AutomatedBindingSchedule: automatedBindingSchedule

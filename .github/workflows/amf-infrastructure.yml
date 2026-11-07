@@ -55,8 +55,8 @@ jobs:
             gmailFromName: "Anime Feed Manager"
             feedNotificationSchedule: "0 0 * * * *"
             scrapingSchedule: "0 0 4 * * 6"
-            automatedBindingSchedule: "0 0 5 * * *"
-            feedSettlementSchedule: "0 0 6 * * *"
+            automatedBindingSchedule: "0 20 5 * * *"
+            feedSettlementSchedule: "0 40 6 * * *"
 
       - name: Seed Admin User
         uses: azure/cli@v3.0.0
