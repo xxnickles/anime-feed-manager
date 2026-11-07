@@ -7,8 +7,8 @@ param storageAccountName string
 @description('Application Insights connection string')
 param appInsightsConnectionString string
 
-@description('SignalR endpoint URL')
-param signalREndpoint string
+@description('SignalR Service name')
+param signalRName string
 
 @secure()
 @description('Passwordless API key')
@@ -26,12 +26,17 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' existing 
   name: storageAccountName
 }
 
+resource signalR 'Microsoft.SignalRService/signalR@2024-03-01' existing = {
+  name: signalRName
+}
+
 // RBAC Role Definition IDs
 var storageBlobDataContributorRole = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageQueueDataContributorRole = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 var storageTableDataContributorRole = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
+var signalRRestApiOwnerRole = 'fd53cd77-2268-407a-8f46-7e7863d0f521'
 
-// App Service Plan for Web App and Chrome (B2 for Chrome concurrency needs)
+// App Service Plan for the Web App
 resource webPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
   name: config.webPlanName
   location: location
@@ -85,8 +90,8 @@ resource webApp 'Microsoft.Web/sites@2025-03-01' = {
           value: passwordlessApiSecret
         }
         {
-          name: 'SignalR__Endpoint'
-          value: signalREndpoint
+          name: 'ConnectionStrings__signalr'
+          value: 'Endpoint=https://${signalR.properties.hostName};AuthType=azure.msi;Version=1.0;'
         }
         {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
@@ -126,6 +131,17 @@ resource tableRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01
   scope: storageAccount
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageTableDataContributorRole)
+    principalId: webApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// RBAC: SignalR REST API Owner for Web App (negotiate tokens, group sync)
+resource signalRRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(signalR.id, webApp.id, signalRRestApiOwnerRole)
+  scope: signalR
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', signalRRestApiOwnerRole)
     principalId: webApp.identity.principalId
     principalType: 'ServicePrincipal'
   }

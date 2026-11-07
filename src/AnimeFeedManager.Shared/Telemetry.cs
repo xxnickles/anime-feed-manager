@@ -18,7 +18,6 @@ public static class Telemetry
     public const string TvLibraryCompletionSource = "AnimeFeedManager.Tv.Library.Completion";
 
     /// <summary>Feed-titles scrape-and-store pipeline: fetch feed titles, match against the library, persist.</summary>
-    public const string TvLibraryFeedTitlesSource = "AnimeFeedManager.Tv.Library.FeedTitles";
 
     /// <summary>Library catalog queries (series lookups, season indexes).</summary>
     public const string TvLibraryQueriesSource = "AnimeFeedManager.Tv.Library.Queries";
@@ -28,6 +27,12 @@ public static class Telemetry
 
     /// <summary>Auto-subscription management for interested users on a series.</summary>
     public const string TvSubscriptionsManagementSource = "AnimeFeedManager.Tv.Subscriptions.Management";
+
+    /// <summary>Nyaa feed bindings: bind, backfill, completion.</summary>
+    public const string TvFeedManagerSource = "AnimeFeedManager.Tv.FeedManager";
+
+    /// <summary>Feed manager admin queries (season feed list).</summary>
+    public const string TvFeedManagerQueriesSource = "AnimeFeedManager.Tv.FeedManager.Queries";
 
     /// <summary>System event update/dispatch orchestration.</summary>
     public const string SystemEventsUpdateSource = "AnimeFeedManager.SystemEvents.Update";
@@ -47,6 +52,9 @@ public static class Telemetry
     /// <summary>Web TV library/subscription endpoint handlers.</summary>
     public const string WebTvSource = "AnimeFeedManager.Web.Tv";
 
+    /// <summary>Web SignalR negotiation.</summary>
+    public const string WebRealTimeSource = "AnimeFeedManager.Web.RealTime";
+
     // Cross-feature keys, shared by span tags and log properties. Feature keys live in that feature's *Telemetry class.
 
     public const string SeriesIdTag = "series.id";
@@ -64,6 +72,9 @@ public static class Telemetry
 
     /// <summary>Log-only: carries the operation to backends that never see the span name.</summary>
     public const string OperationNameTag = "operation.name";
+
+    /// <summary>Retried attempts before a read-modify-write landed; present only when above 0.</summary>
+    public const string WriteRetriesTag = "table.write_retries";
 
     public const string DomainErrorMessageTag = "domain_error.message";
     public const string DomainErrorSubjectTag = "domain_error.subject";

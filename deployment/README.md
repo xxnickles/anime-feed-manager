@@ -42,17 +42,6 @@ To create a Gmail app password:
 | `ADMIN_USER_ID` | Passwordless user ID for the admin user |
 | `ADMIN_EMAIL` | Admin user email address |
 
-### Chrome (Browserless)
-
-| Secret | Description |
-|--------|-------------|
-| `CHROME_TOKEN` | Authentication token for browserless Chrome container |
-
-To generate a secure token:
-```bash
-openssl rand -base64 32
-```
-
 ## Optional Parameters (Hardcoded Defaults)
 
 These values are hardcoded in the infrastructure workflow (`.github/workflows/amf-infrastructure.yml`). Edit the workflow file to change them.
@@ -62,7 +51,10 @@ These values are hardcoded in the infrastructure workflow (`.github/workflows/am
 | `gmailFromName` | `Anime Feed Manager` | Email sender display name |
 | `feedNotificationSchedule` | `0 0 * * * *` | Cron schedule for feed notifications (hourly) |
 | `scrapingSchedule` | `0 0 4 * * 6` | Cron schedule for full library scraping (weekly Saturday 4 AM UTC) |
-| `feedTitlesUpdateSchedule` | `0 0 0 1 1 *` | Cron schedule for feed titles update (disabled - once per year) |
+| `automatedBindingSchedule` | `0 20 5 * * *` | Cron schedule for automated SubsPlease bindings (daily 5:20 AM UTC) |
+| `feedSettlementSchedule` | `0 40 6 * * *` | Cron schedule for nyaa feed settlement (daily 6:40 AM UTC) |
+
+Binding and settlement run off the hour so they never start alongside the hourly nyaa run.
 
 ### Cron Schedule Format
 
@@ -94,10 +86,10 @@ During anime season transitions (~1 day before to ~20 days after season start), 
 
 #### Schedule Presets
 
-| Mode | `scrapingSchedule` | `feedTitlesUpdateSchedule` | Description |
-|------|-------------------|---------------------------|-------------|
-| **Normal** | `0 0 4 * * 6` | `0 0 0 1 1 *` | Weekly scraping, titles update disabled |
-| **Rush** | `0 0 4 * * *` | `0 0 */4 * * *` | Daily scraping (4 AM UTC), titles every 4 hours |
+| Mode | `scrapingSchedule` | Description |
+|------|-------------------|-------------|
+| **Normal** | `0 0 4 * * 6` | Weekly scraping |
+| **Rush** | `0 0 4 * * *` | Daily scraping (4 AM UTC) |
 
 #### CLI Commands
 
@@ -107,9 +99,7 @@ During anime season transitions (~1 day before to ~20 days after season start), 
 az functionapp config appsettings set \
   --name <FUNCTION_APP_NAME> \
   --resource-group <RESOURCE_GROUP> \
-  --settings \
-    "ScrapingSchedule=0 0 4 * * *" \
-    "FeedTitlesUpdateSchedule=0 0 */4 * * *"
+  --settings "ScrapingSchedule=0 0 4 * * *"
 ```
 
 **Switch to Normal Mode:**
@@ -118,9 +108,7 @@ az functionapp config appsettings set \
 az functionapp config appsettings set \
   --name <FUNCTION_APP_NAME> \
   --resource-group <RESOURCE_GROUP> \
-  --settings \
-    "ScrapingSchedule=0 0 4 * * 6" \
-    "FeedTitlesUpdateSchedule=0 0 0 1 1 *"
+  --settings "ScrapingSchedule=0 0 4 * * 6"
 ```
 
 **Check Current Settings:**
@@ -129,13 +117,11 @@ az functionapp config appsettings set \
 az functionapp config appsettings list \
   --name <FUNCTION_APP_NAME> \
   --resource-group <RESOURCE_GROUP> \
-  --query "[?name=='ScrapingSchedule' || name=='FeedTitlesUpdateSchedule' || name=='FeedNotificationSchedule'].{name:name, value:value}" \
+  --query "[?ends_with(name, 'Schedule')].{name:name, value:value}" \
   --output table
 ```
 
 **Notes:**
-- Feed titles update is lighter than full scraping (only hits SubsPlease schedule page)
-- Both still use Chrome container - avoid overlapping schedules too closely
 - App settings changes trigger automatic Function App restart (~30 seconds)
 - Schedule changes take effect immediately after restart
 
@@ -202,15 +188,13 @@ The Bicep templates create the following Azure resources:
 | Function App | Backend processing | - |
 | Web App Plan | Hosting plan for Web App | Basic (B2) |
 | Web App | Blazor SSR frontend | - |
-| Chrome Web App | Browserless Chrome container | (shared plan) |
 | SignalR Service | Real-time notifications | Free_F1 |
 | Application Insights | Telemetry from both hosts; workspace-based on an Azure-managed Log Analytics workspace | - |
 | AFM Operations workbook | Dashboards over App Insights (see [Monitoring](#monitoring)) | - |
 
 **Notes:**
-- The Web App Plan uses Basic B2 (2 cores, 3.5 GB RAM) to support Chrome container concurrency needs. Both the web app and Chrome container share the same plan.
+- The Web App Plan uses Basic B2 (2 cores, 3.5 GB RAM).
 - Web App has health checks enabled at `/health` endpoint for Azure monitoring.
-- Chrome container is configured with `CONCURRENT=3`, `QUEUED=5`, and health checks (`HEALTH=true`, `MAX_MEMORY_PERCENT=80`, `MAX_CPU_PERCENT=80`).
 - Storage account has `allowBlobPublicAccess: true` to serve images publicly. The `images` container is set to `Blob` access (anonymous read, no listing).
 
 ### Manual: Enable Public Blob Access
@@ -238,7 +222,6 @@ The **AFM Operations** workbook (`workbooks/afm-operations.workbook.json`, deplo
 | `amf-infrastructure.yml` | `deployment/**` changes | Deploys Bicep templates and seeds admin user |
 | `amf-functions.yml` | Changes in Functions, Features, Shared, Services.Shared or Web.BlazorComponents | Builds and deploys Azure Functions |
 | `amf-blazor.yml` | Changes in Web, Web.BlazorComponents, Features, Shared or Services.Shared | Builds CSS, deploys Blazor Web App, and sets version info |
-| `amf-chrome-refresh.yml` | Manual only | Restarts Chrome App Service to pull latest container image |
 
 All workflows:
 - Support `workflow_dispatch` for manual triggering via GitHub Actions UI

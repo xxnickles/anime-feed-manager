@@ -1,4 +1,5 @@
 ﻿global using System.Diagnostics;
+global using AnimeFeedManager.Features.AppEvents;
 global using AnimeFeedManager.Features.Images;
 global using AnimeFeedManager.Features.Infrastructure;
 global using AnimeFeedManager.Features.Infrastructure.Messaging;
@@ -6,6 +7,7 @@ global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Features.Scrapping;
 global using AnimeFeedManager.Features.SystemEvents;
 global using AnimeFeedManager.Features.Tv;
+global using AnimeFeedManager.Functions.RealTime;
 global using AnimeFeedManager.Services.Shared;
 global using AnimeFeedManager.Shared;
 global using AnimeFeedManager.Shared.Results;

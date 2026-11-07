@@ -1,12 +1,13 @@
 @using AnimeFeedManager.Web.Features.Admin.Base
 @implements INotifiableComponent<Noop>
-<AdminCardForm ViewModel="@ViewModel"
-               FormName="@FormName"
-               Title="Run TV Feed Notification Process"
-               SubmitText="Run"
-               hx-swap="outerHTML"
-               hx-post="admin/tv/run-notifications"
-               hx-confirm="Do you want to run the the TV feed notification process?"></AdminCardForm>
+<AdminActionRow ViewModel="@ViewModel"
+                FormName="@FormName"
+                Title="Hourly nyaa run"
+                Description="Poll nyaa, catalogue new releases and email subscribers, as the hourly run does."
+                SubmitText="Run"
+                hx-swap="outerHTML"
+                hx-post="admin/tv/run-notifications"
+                hx-confirm="Run the hourly nyaa process now?"></AdminActionRow>
 
 @code {
 
@@ -23,8 +24,8 @@
         };
 
     public static RenderFragment OkNotificationContent(Noop viewModel) =>
-        builder => { builder.AddContent(0, "TV feed notification process will run in the background"); };
+        builder => { builder.AddContent(0, "The hourly nyaa run will start in the background"); };
 
-    public static string SuccessNotificationTitle { get; } = "TV feed notification process has been scheduled";
-    public static string ErrorNotificationTitle { get; } = "TV feed notification process has failed";
+    public static string SuccessNotificationTitle { get; } = "Hourly nyaa run has been scheduled";
+    public static string ErrorNotificationTitle { get; } = "Hourly nyaa run has failed";
 }

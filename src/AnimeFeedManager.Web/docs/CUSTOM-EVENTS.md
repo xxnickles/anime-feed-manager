@@ -8,7 +8,7 @@ These custom events are dispatched from the server via HTMX trigger headers.
 
 | Event | Description | Payload | Dispatched From | Listened By |
 |-------|-------------|---------|-----------------|-------------|
-| `removeSeries` | Triggered after a series is successfully removed from the library | `{ owner: "{cardId}" }` | `LibraryManagement.cs:57-59` (`HX-Trigger` header) | `SeriesDeleter.razor:10` - Animates and removes the series card from DOM; `SeriesSummary.razor:12` - Decrements the title total |
+| `removeSeries` | Triggered after a series is successfully removed from the library | `{ owner: "{cardId}" }` | `LibraryManagement.cs:28-30` (`HX-Trigger` header) | `SeriesDeleter.razor:10` - Animates and removes the series card from DOM; `SeriesSummary.razor:12` - Decrements the title total |
 
 ## Hyperscript Application Events
 
@@ -56,7 +56,7 @@ Standard HTMX events used by the application.
 
 | Event | Description | Listened By | Purpose |
 |-------|-------------|-------------|---------|
-| `htmx:confirm` | Fired when HTMX needs user confirmation | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior), `HtmxConfirm.razor` (shared dialog), `AlternativeTitlesEditor.razor.hs` | Tracks form submission confirmation flow; the shared HtmxConfirm dialog handles `event.detail.question` prompts |
+| `htmx:confirm` | Fired when HTMX needs user confirmation | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior), `HtmxConfirm.razor` (shared dialog) | Tracks form submission confirmation flow; the shared HtmxConfirm dialog handles `event.detail.question` prompts |
 | `htmx:beforeRequest` | Fired before an HTMX request is sent | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior) | Disables submit button, sets aria-busy state |
 | `htmx:afterRequest` | Fired after an HTMX request completes | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior) | Resets submit button state |
 | `htmx:responseError` | Fired on HTTP error responses (4xx, 5xx) | `HyperscriptBehaviors.razor` (FormSubmitLocker behavior), `htmx-error-alert.js:164` | Resets form state, displays error alerts |

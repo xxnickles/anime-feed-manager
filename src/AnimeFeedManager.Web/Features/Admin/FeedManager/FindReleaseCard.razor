@@ -1,0 +1,40 @@
+@using AnimeFeedManager.Features.Tv.FeedManager
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+
+<section class="card bg-base-200 shadow-sm" aria-labelledby="find-release-heading">
+    <div class="card-body gap-3">
+        <h3 id="find-release-heading" class="card-title m-0">Find a release</h3>
+        <form role="search" method="get" action="@FeedManagerRoutes.AdminSeries(Series.SeriesId)"
+              class="flex flex-wrap items-end gap-3">
+            <label class="flex min-w-0 flex-[1_1_20rem] flex-col gap-1 text-xs font-semibold">
+                Search nyaa
+                <input type="search" name="q" value="@Query" list="title-presets" required
+                       class="input input-bordered w-full"/>
+            </label>
+            <datalist id="title-presets">
+                @foreach (var title in Series.TitlePresets)
+                {
+                    <option value="@title"></option>
+                }
+            </datalist>
+            <label class="flex min-h-10 items-center gap-2 text-sm font-semibold">
+                <input type="checkbox" name="trusted" value="true" checked="@TrustedOnly" class="checkbox checkbox-sm"/>
+                Trusted only
+            </label>
+            <button type="submit" class="btn btn-neutral">Search</button>
+        </form>
+        <p class="m-0 text-xs text-base-content/70">Suggestions come from the library title and alternative titles.</p>
+
+        @if (Outcome is not NotSearched)
+        {
+            <ReleaseCandidates Series="Series" Query="@Query" TrustedOnly="@TrustedOnly" Outcome="Outcome"/>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public FeedManagerSeries Series { get; set; } = null!;
+    [Parameter, EditorRequired] public string Query { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public bool TrustedOnly { get; set; }
+    [Parameter, EditorRequired] public SearchOutcome Outcome { get; set; } = new NotSearched();
+}

@@ -1,0 +1,115 @@
+@page "/tv/releases/{SeriesId}"
+@using AnimeFeedManager.Features.Tv.FeedManager
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores
+@using AnimeFeedManager.Features.Tv.Library.Storage.Stores
+@using Azure.Storage.Blobs
+@inject ITableClientFactory TableClientFactory
+@inject BlobServiceClient BlobServiceClient
+@inject IHttpContextAccessor HttpContextAccessor
+@inject ILogger<ReleasesPage> Logger
+
+<AppPageTitle Title="@PageTitle(_listing?.Title ?? "Releases")" />
+
+@if (_listing is not null)
+{
+    <div class="mx-auto flex max-w-6xl flex-wrap items-start gap-8">
+        <ReleasesAside Listing="_listing" />
+
+        <article class="card card-border border-base-300 bg-base-100 min-w-0 grow-[999] basis-[35rem]">
+            <div class="card-body gap-7">
+                <ReleasesHeader Listing="_listing" />
+
+                @if (!string.IsNullOrWhiteSpace(_listing.Synopsis))
+                {
+                    <section class="flex flex-col gap-2">
+                        <h2 class="text-lg font-bold">Synopsis</h2>
+                        <p class="max-w-prose text-base-content/80">@_listing.Synopsis</p>
+                    </section>
+                }
+
+                <section class="flex flex-col gap-3">
+                    <div class="flex flex-wrap items-baseline justify-between gap-3">
+                        <h2 class="text-lg font-bold">Episodes</h2>
+                        <span class="text-xs text-base-content/70">Times in UTC · newest first</span>
+                    </div>
+
+                    @if (_listing.Feed is NyaaReleaseFeed { Episodes.Length: > 0 } feed)
+                    {
+                        <ol class="list rounded-box border-2 border-base-300">
+                            @foreach (var episode in feed.Episodes)
+                            {
+                                <EpisodeRow Episode="episode" />
+                            }
+                        </ol>
+                    }
+                    else
+                    {
+                        <div class="flex flex-col gap-1 rounded-box border-2 border-dashed border-base-300 p-6">
+                            <p class="text-lg font-bold">@EmptyTitle</p>
+                            <p class="text-base-content/70">@EmptyText</p>
+                        </div>
+                    }
+                </section>
+            </div>
+        </article>
+    </div>
+}
+else if (_error is not null)
+{
+    <WarnBanner Title="Releases" Description="@_error" />
+}
+
+@code {
+    [Parameter] public string SeriesId { get; set; } = string.Empty;
+
+    private static readonly ActivitySource Source = new(Telemetry.TvFeedManagerQueriesSource);
+
+    private ReleaseListing? _listing;
+    private string? _error;
+
+    private bool Completed => _listing?.Status.ToString() == SeriesStatus.CompletedValue;
+
+    private string EmptyTitle => _listing?.Feed switch
+    {
+        NoReleaseFeed => "No release feed",
+        _ when Completed => "No releases catalogued",
+        _ => "No releases yet"
+    };
+
+    private string EmptyText => _listing switch
+    {
+        {Feed: NoReleaseFeed} => "This series has no nyaa feed, so no releases are listed.",
+        _ when Completed => "No nyaa releases were catalogued for this series.",
+        {Broadcast.When: FirstRelease first} =>
+            $"First episode expected {ReleaseTimes.Format(first.At)} UTC. Episodes appear here as nyaa lists them.",
+        _ => "Episodes appear here as nyaa lists them."
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var activity = Source.StartActivity(FeedManagerTelemetry.QueryReleaseListingSpan);
+        await ReleaseListingQuery
+            .GetReleaseListing(
+                SeriesId,
+                TableClientFactory.TableStorageTvLibrarySeries,
+                BlobServiceClient.Uri,
+                TableClientFactory.TableStorageNyaaBindingGetter,
+                TableClientFactory.TableStorageNyaaCatalogGetter,
+                CancellationToken.None)
+            .MarkActivityErroredOnError()
+            .FlushLogs(Logger)
+            .Match(
+                listing => _listing = listing,
+                error =>
+                {
+                    var notFound = error is NotFoundError;
+                    if (notFound && HttpContextAccessor.HttpContext is { } context)
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    _error = notFound
+                        ? "This series is not in the library."
+                        : "The releases could not be loaded.";
+                });
+    }
+
+}

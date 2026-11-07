@@ -1,0 +1,31 @@
+@using AnimeFeedManager.Web.Features.Admin.Base
+@implements INotifiableComponent<Noop>
+<AdminActionRow ViewModel="@ViewModel"
+                FormName="@FormName"
+                Title="Feed settlement"
+                Description="Complete feeds that reached their count and retire feeds completed 6 days ago."
+                SubmitText="Run"
+                hx-swap="outerHTML"
+                hx-post="admin/tv/run-feed-settlement"
+                hx-confirm="Do you want to run the feed settlement process?"></AdminActionRow>
+
+@code {
+
+    private const string FormName = "feed-settlement-trigger-form";
+
+    [Parameter] public Noop ViewModel { get; set; } = new();
+
+    public static RenderFragment AsRenderFragment(Noop viewModel) =>
+        builder =>
+        {
+            builder.OpenComponent<FeedSettlementTrigger>(0);
+            builder.AddAttribute(1, nameof(ViewModel), viewModel);
+            builder.CloseComponent();
+        };
+
+    public static RenderFragment OkNotificationContent(Noop viewModel) =>
+        builder => { builder.AddContent(0, "Feed settlement will run in the background"); };
+
+    public static string SuccessNotificationTitle { get; } = "Feed settlement has been scheduled";
+    public static string ErrorNotificationTitle { get; } = "Feed settlement has failed";
+}

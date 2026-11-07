@@ -1,0 +1,39 @@
+@using AnimeFeedManager.Features.Tv.FeedManager
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Features.Tv.Library.Storage.Stores
+
+<li class="list-row items-center">
+    <a href="@FeedManagerRoutes.AdminSeries(Feed.SeriesId)"
+       class="list-col-grow link link-hover font-semibold">@Feed.Title</a>
+    <span class="text-xs text-base-content/70">@_progress</span>
+    <span class="badge badge-sm @_badge.Css">@_badge.Text</span>
+</li>
+
+@code {
+    [Parameter, EditorRequired] public SeasonFeed Feed { get; set; } = null!;
+
+    private string _progress = string.Empty;
+    private (string Text, string Css) _badge = (string.Empty, string.Empty);
+
+    protected override void OnParametersSet()
+    {
+        _progress = Feed switch
+        {
+            UnfedSeries unfed => $"{Count(unfed.Episodes)} episodes",
+            BoundSeries bound => $"{bound.LatestEpisode} / {Count(bound.Episodes)}",
+            _ => string.Empty
+        };
+
+        _badge = Feed switch
+        {
+            BoundSeries {State: BindingState.Stale} bound => ($"{bound.Group} · check", "badge-warning"),
+            BoundSeries {State: BindingState.Completed} => ("Complete", "badge-neutral"),
+            BoundSeries bound => (bound.Group, "badge-success"),
+            _ => ("No feed", "badge-dash")
+        };
+    }
+
+    private static string Count(ExpectedEpisodes episodes) =>
+        episodes is KnownEpisodes known ? known.Count.ToString() : "?";
+
+}

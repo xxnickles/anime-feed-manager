@@ -2,15 +2,23 @@
 
 public static class Series
 {
-    public static Task<Result<Unit>> UpdateAlternativeTitles(
+    /// <summary>Sets the episode count until the next import that carries one from the provider.</summary>
+    public static Task<Result<Unit>> UpdateExpectedEpisodes(
         string seriesId,
         SeriesSeason seriesSeason,
-        string[] alternativeTitles,
+        int episodes,
         TvSeriesGetter seriesGetter,
         TvSeriesStorageUpdater storageUpdater,
-        CancellationToken token = default) => seriesGetter(seriesId, seriesSeason, token)
-        .Map(series => UpdateAlternativeTitles(series, alternativeTitles))
-        .Bind(series => storageUpdater(series, token));
+        CancellationToken token = default) => OptimisticConcurrency.UntilWritten(
+        attemptToken => seriesGetter(seriesId, seriesSeason, attemptToken)
+            .Map(series =>
+            {
+                series.Episodes = episodes;
+                return series;
+            })
+            .Bind(series => storageUpdater(series, attemptToken)),
+        token,
+        error => error is PreconditionFailedError);
 
 
     public static Task<Result<Unit>> DeleteSeries(
@@ -18,17 +26,4 @@ public static class Series
         SeriesSeason seriesSeason,
         TvSeriesRemover seriesRemover,
         CancellationToken token) => seriesRemover(seriesId, seriesSeason, token);
-
-
-    // The editor owns the user block only; the provider block is left as the last scrap wrote it.
-    private static AnimeInfoStorage UpdateAlternativeTitles(
-        AnimeInfoStorage storage,
-        string[] alternativeTitles)
-    {
-        storage.AlternativeTitles = (StoredAlternativeTitles.Parse(storage.AlternativeTitles) with
-        {
-            User = alternativeTitles
-        }).ToStoredString();
-        return storage;
-    }
 }

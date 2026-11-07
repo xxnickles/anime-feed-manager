@@ -1,5 +1,6 @@
 ﻿using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.Types;
+using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
 using AnimeFeedManager.Web.Features.Admin.TvCards;
@@ -39,19 +40,6 @@ internal static class TvAdminHandlers
             .ToComponentNotification<Unit, Noop, TvLatestSeasonUpdate>(new Noop());
     }
 
-    internal static async Task<RazorComponentResult> Titles(
-        [FromForm] Noop noop,
-        [FromServices] IDomainPostman domainPostman,
-        [FromServices] ILogger<TvTitlesUpdate> logger,
-        CancellationToken cancellationToken)
-    {
-        using var activity = Source.StartActivity(AdminTelemetry.UpdateFeedTitlesSpan);
-        return await domainPostman.SendMessages([new UpdateLatestFeedTitlesEvent()], cancellationToken)
-            .MarkActivityErroredOnError()
-            .FlushLogs(logger)
-            .ToComponentNotification<Unit, Noop, TvTitlesUpdate>(new Noop());
-    }
-
     internal static async Task<RazorComponentResult> TriggerNotificationProcess(
         [FromForm] Noop noop,
         [FromServices] IDomainPostman domainPostman,
@@ -63,5 +51,31 @@ internal static class TvAdminHandlers
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentNotification<Unit, Noop, TvNotificationsTrigger>(new Noop());
+    }
+
+    internal static async Task<RazorComponentResult> TriggerAutomatedBinding(
+        [FromForm] Noop noop,
+        [FromServices] IDomainPostman domainPostman,
+        [FromServices] ILogger<AutomatedBindingTrigger> logger,
+        CancellationToken cancellationToken)
+    {
+        using var activity = Source.StartActivity(AdminTelemetry.TriggerAutomatedBindingSpan);
+        return await domainPostman.SendMessages([new RunAutomatedBinding()], cancellationToken)
+            .MarkActivityErroredOnError()
+            .FlushLogs(logger)
+            .ToComponentNotification<Unit, Noop, AutomatedBindingTrigger>(new Noop());
+    }
+
+    internal static async Task<RazorComponentResult> TriggerFeedSettlement(
+        [FromForm] Noop noop,
+        [FromServices] IDomainPostman domainPostman,
+        [FromServices] ILogger<FeedSettlementTrigger> logger,
+        CancellationToken cancellationToken)
+    {
+        using var activity = Source.StartActivity(AdminTelemetry.TriggerFeedSettlementSpan);
+        return await domainPostman.SendMessages([new RunFeedSettlement()], cancellationToken)
+            .MarkActivityErroredOnError()
+            .FlushLogs(logger)
+            .ToComponentNotification<Unit, Noop, FeedSettlementTrigger>(new Noop());
     }
 }

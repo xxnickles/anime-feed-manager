@@ -10,35 +10,6 @@ internal static class LibraryManagement
 {
     private static readonly ActivitySource Source = new(Telemetry.WebTvSource);
 
-    internal static async Task<RazorComponentResult> UpdateAlternativeSeries(
-        [FromForm] AlternativeTitlesViewModel viewModel,
-        [FromServices] ITableClientFactory clientFactory,
-        [FromServices] ILogger<AlternativeTitlesEditor> logger,
-        CancellationToken cancellationToken)
-    {
-        using var activity = Source.StartActivity(TvTelemetry.UpdateAlternativeTitlesSpan);
-        return await Validate(viewModel)
-                .Bind(model => IdHelpers.SeriesSeasonFromId(model.SeriesId)
-                    .Map(season => (Model: model, Season: season)))
-                .Bind(data => UpdateAlternativeTitles(
-                    data.Model.SeriesId,
-                    data.Season,
-                    data.Model.AlternativeTitles ?? [],
-                    clientFactory.TableStorageTvSeriesGetter,
-                    clientFactory.TableStorageTvSeriesUpdater,
-                    cancellationToken))
-                .MarkActivityErroredOnError()
-                .FlushLogs(logger)
-                .ToComponentResult(
-                    _ =>
-                    [
-                        AlternativeTitlesEditor.AsRenderFragment(viewModel),
-                        Notifications.CreateNotificationToast("Alternative Titles",
-                            Notifications.TextBody($"Alternative titles for {viewModel.SeriesTitle} has been updated"))
-                    ],
-                    error => [Notifications.CreateErrorNotification("Alternative Titles", error)]);
-    }
-
     internal static async Task<RazorComponentResult> RemoveSeries(
         [FromForm] RemoveSeriesViewModel viewModel,
         [FromServices] ITableClientFactory clientFactory,

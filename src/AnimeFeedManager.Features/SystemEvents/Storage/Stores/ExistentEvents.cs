@@ -11,6 +11,13 @@ public delegate Task<Result<ImmutableArray<EventData<T>>>> SystemEventsBroadGett
     DateTimeOffset from,
     CancellationToken cancellationToken) where T : SystemNotificationPayload;
 
+public record EventOccurrence(string PayloadTypeName, DateTimeOffset Timestamp);
+
+public delegate Task<Result<ImmutableArray<EventOccurrence>>> SystemErrorsGetter(
+    TargetConsumer consumer,
+    DateTimeOffset from,
+    CancellationToken cancellationToken);
+
 public static class ExistentEvents
 {
     extension(ITableClientFactory clientFactory)
@@ -37,6 +44,22 @@ public static class ExistentEvents
                         storage.PayloadTypeName == typeof(T).Name &&
                         storage.Timestamp >= from, cancellationToken))
                 .Bind(Convert<T>);
+        }
+
+        /// <summary>Error events of one partition, without their payloads.</summary>
+        public SystemErrorsGetter TableStorageErrorEvents()
+        {
+            return (consumer, from, cancellationToken) => clientFactory.GetClient<EventStorage>()
+                .WithOperationName(nameof(TableStorageErrorEvents))
+                .Bind(client =>
+                    client.ExecuteQuery<EventStorage>(
+                        TableClient.CreateQueryFilter(
+                            $"PartitionKey eq {consumer.ToString()} and EventType eq {nameof(EventType.Error)} and Timestamp ge {from}"),
+                        cancellationToken,
+                        [nameof(EventStorage.PayloadTypeName), nameof(EventStorage.Timestamp)]))
+                .Map(errors => errors
+                    .Select(e => new EventOccurrence(e.PayloadTypeName, e.Timestamp ?? default))
+                    .ToImmutableArray());
         }
 
         private static Result<ImmutableArray<EventData<T>>> Convert<T>(ImmutableArray<EventStorage> source)

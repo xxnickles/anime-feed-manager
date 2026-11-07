@@ -20,11 +20,11 @@ builder.AddServiceDefaults(
     Telemetry.SeasonsUpdateSource,
     Telemetry.SystemEventsUpdateSource,
     Telemetry.TvLibraryImportSource,
-    Telemetry.TvLibraryFeedTitlesSource,
     Telemetry.TvLibraryCompletionSource,
     Telemetry.ImagesSource,
     Telemetry.TvSubscriptionsFeedSource,
     Telemetry.TvSubscriptionsManagementSource,
+    Telemetry.TvFeedManagerSource,
     Telemetry.MessagingSource);
 
 builder.Services.AddOpenTelemetry()

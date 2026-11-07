@@ -97,6 +97,47 @@ public class EpisodeSegmentsTests
     }
 
     [Fact]
+    public void Should_List_Specials_Outside_The_Runs_When_Mixed_With_Regular_Episodes()
+    {
+        var coverage = EpisodeSegments.From(["11", "12", "12.5", "13"]);
+
+        Assert.Equal([new EpisodeGap(1, 10), new EpisodeRange(11, 13)], coverage.Segments);
+        Assert.Equal(3, coverage.Count);
+        Assert.Equal(["12.5"], coverage.Specials);
+        Assert.Empty(coverage.Rereleases);
+    }
+
+    [Fact]
+    public void Should_Order_Specials_By_Number_When_Several_Exist()
+    {
+        var coverage = EpisodeSegments.From(["24.5", "12.5v2", "12.5", "01"]);
+
+        Assert.Equal(["12.5", "12.5v2", "24.5"], coverage.Specials);
+    }
+
+    [Fact]
+    public void Should_Keep_Specials_When_No_Regular_Episode_Was_Notified()
+    {
+        var coverage = EpisodeSegments.From(["12.5"]);
+
+        Assert.Empty(coverage.Segments);
+        Assert.Equal(0, coverage.Count);
+        Assert.Equal(["12.5"], coverage.Specials);
+    }
+
+    [Theory]
+    [InlineData("-1")]
+    [InlineData("1.2.3")]
+    [InlineData(".")]
+    public void Should_Skip_Entry_When_It_Is_Not_A_Valid_Episode_Number(string episode)
+    {
+        var coverage = EpisodeSegments.From(["01", episode]);
+
+        Assert.Equal([new EpisodeRange(1, 1)], coverage.Segments);
+        Assert.Empty(coverage.Specials);
+    }
+
+    [Fact]
     public void Should_Return_Empty_When_No_Episodes_Are_Given()
     {
         var coverage = EpisodeSegments.From([]);

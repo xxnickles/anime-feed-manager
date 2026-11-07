@@ -1,0 +1,47 @@
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+
+<aside class="flex min-w-0 grow basis-64 flex-col gap-5">
+    @if (Listing.Image is { } image)
+    {
+        <img src="@image" alt="@Listing.Title" class="w-full max-w-72 self-center rounded-box border-2 border-base-300 object-cover"/>
+    }
+
+    @if (Listing.Broadcast.Where.Length > 0)
+    {
+        <section class="card card-border border-base-300 bg-base-100">
+            <div class="card-body gap-2 p-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-base-content/70">Watch</h2>
+                <ul class="flex flex-col gap-1">
+                    @foreach (var stream in Listing.Broadcast.Where)
+                    {
+                        <li>
+                            <a href="@stream.Url" target="_blank" rel="noopener noreferrer" class="link link-hover link-secondary inline-flex items-center gap-2">
+                                @stream.Name
+                                <svg aria-hidden="true" class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M10 14 20 4"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </section>
+    }
+
+    @if (Listing.OtherTitles.Length > 0)
+    {
+        <section class="card card-border border-base-300 bg-base-100">
+            <div class="card-body gap-2 p-4">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-base-content/70">Also known as</h2>
+                <ul class="flex flex-col gap-1 text-sm">
+                    @foreach (var title in Listing.OtherTitles)
+                    {
+                        <li>@title</li>
+                    }
+                </ul>
+            </div>
+        </section>
+    }
+</aside>
+
+@code {
+    [Parameter, EditorRequired] public ReleaseListing Listing { get; set; } = null!;
+}

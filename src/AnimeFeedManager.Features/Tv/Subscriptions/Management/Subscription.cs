@@ -10,7 +10,6 @@ public static class Subscription
         string seriesId,
         string seriesTitle,
         string feedTitle,
-        string seriesLink,
         TvSubscriptionGetter subscriptionGetterGetter,
         CancellationToken token) =>
         subscriptionGetterGetter(user.UserId, seriesId, token)
@@ -19,8 +18,8 @@ public static class Subscription
                 new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId),
                 new KeyValuePair<string, object>(Telemetry.UserIdTag, user.UserId)
             ])
-            .Map(subscription =>
-                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle, seriesLink));
+            .Bind(subscription =>
+                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle));
 
     // Toggles the stored state and returns the resulting one.
     public static Task<Result<SubscriptionType>> UpdateSubscription(this Task<Result<SubscriptionStorage>> storage,
@@ -29,28 +28,26 @@ public static class Subscription
         CancellationToken token) =>
         storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
 
-    private static SubscriptionStorage VerifyCurrentSubscription(
+    // The feed title keys notifications, so a new subscription needs one; a stored one stays removable.
+    private static Result<SubscriptionStorage> VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
         AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
-        string feedTitle,
-        string seriesLink)
+        string feedTitle) => subscription switch
     {
-        if (subscription is null)
-            return new SubscriptionStorage
-            {
-                PartitionKey = user.UserId,
-                RowKey = seriesId,
-                Type = nameof(SubscriptionType.None),
-                SeriesFeedTitle = feedTitle,
-                SeriesTitle = seriesTitle,
-                UserEmail = user.Email,
-                SeriesLink = seriesLink
-            };
-
-        return subscription;
-    }
+        not null => subscription,
+        _ when string.IsNullOrWhiteSpace(feedTitle) => Error.Create($"{seriesTitle} has no feed to subscribe to"),
+        _ => new SubscriptionStorage
+        {
+            PartitionKey = user.UserId,
+            RowKey = seriesId,
+            Type = nameof(SubscriptionType.None),
+            SeriesFeedTitle = feedTitle,
+            SeriesTitle = seriesTitle,
+            UserEmail = user.Email
+        }
+    };
 
     private static Task<Result<SubscriptionType>> ToggleSubscription(
         SubscriptionStorage storage,

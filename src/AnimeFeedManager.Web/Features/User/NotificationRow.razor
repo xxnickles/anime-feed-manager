@@ -35,7 +35,8 @@
             ..Series.Episodes.Segments.Select(s => s is EpisodeGap
                 ? ($"[{s.Label}]", "text-primary")
                 : (s.Label, (string?)null)),
-            ..Series.Episodes.Rereleases.Select(r => (r, (string?)"text-base-content"))
+            ..Series.Episodes.Rereleases.Select(r => (r, (string?)"text-base-content")),
+            ..Series.Episodes.Specials.Select(s => (s, (string?)"text-base-content"))
         ];
         RangesText = string.Join(' ', RangeParts.Select(p => p.Label));
     }

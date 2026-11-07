@@ -8,6 +8,7 @@ internal sealed record AnimeScheduleResponse(
 /// <summary>
 /// <paramref name="Status"/> is the provider's airing state: <c>Upcoming</c>, <c>Ongoing</c>,
 /// <c>Finished</c> or <c>Delayed</c>. The set is not closed — treat anything else as unknown.
+/// <para>Every date field uses <c>0001-01-01T00:00:00Z</c> as "no value".</para>
 /// </summary>
 public sealed record AnimeScheduleAnime(
     string Id,
@@ -18,7 +19,11 @@ public sealed record AnimeScheduleAnime(
     AnimeScheduleSeason? Season,
     AnimeScheduleNames? Names,
     AnimeScheduleMediaType[]? MediaTypes,
-    string Status);
+    string Status,
+    int? Episodes,
+    DateTime? JpnTime,
+    DateTime? SubTime,
+    AnimeScheduleWebsites? Websites);
 
 /// <summary>
 /// <paramref name="Year"/> is a string here, unlike the int <c>year</c> on the anime itself.
@@ -39,7 +44,19 @@ public sealed record AnimeScheduleNames(
     string? Romaji,
     string? English,
     string? Native,
-    string[]? Synonyms);
+    string[]? Synonyms,
+    string? Abbreviation);
+
+public sealed record AnimeScheduleWebsites(AnimeScheduleStream[]? Streams);
+
+/// <summary>
+/// Match on <paramref name="Platform"/> (lowercase key, e.g. <c>crunchyroll</c>) — <paramref name="Name"/> casing is inconsistent.
+/// <paramref name="Url"/> is series-specific and has no scheme.
+/// </summary>
+public sealed record AnimeScheduleStream(
+    string? Platform,
+    string? Url,
+    string? Name);
 
 /// <summary>
 /// Match on <paramref name="Route"/> (<c>tv</c>, <c>tv-short</c>) — display names carry inconsistent casing.

@@ -24,18 +24,14 @@ param feedNotificationSchedule string = '0 0 * * * *'
 @description('Cron schedule for library scraping (NCrontab 6-field format)')
 param scrapingSchedule string = '0 0 0 * * *'
 
-@description('Cron schedule for feed titles update (NCrontab 6-field format)')
-param feedTitlesUpdateSchedule string = '0 0 0 1 1 *'
+@description('Cron schedule for automated series binding (NCrontab 6-field format)')
+param automatedBindingSchedule string = '0 20 5 * * *'
 
-@description('Web app URL for CORS')
+@description('Cron schedule for nyaa feed settlement (NCrontab 6-field format)')
+param feedSettlementSchedule string = '0 40 6 * * *'
+
+@description('Public web app URL: SignalR CORS and email links')
 param webAppUrl string = 'https://${loadJsonContent('shared-variables.json').webAppName}.azurewebsites.net'
-
-@description('Chrome remote endpoint URL')
-param chromeEndpoint string
-
-@secure()
-@description('Chrome authentication token')
-param chromeToken string
 
 // Load shared variables
 var config = loadJsonContent('shared-variables.json')
@@ -45,6 +41,7 @@ var storageBlobDataContributorRole = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageQueueDataContributorRole = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 var storageTableDataContributorRole = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
 var storageAccountContributorRole = '17d1049b-9a84-46fb-8f53-869881c3d3ab'
+var signalRRestApiOwnerRole = 'fd53cd77-2268-407a-8f46-7e7863d0f521'
 
 // Reference to existing storage account
 resource storageAccount 'Microsoft.Storage/storageAccounts@2026-06-01' existing = {
@@ -94,16 +91,13 @@ resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
         name: 'dotnet-isolated'
         version: '10.0'
       }
+      siteUpdateStrategy: {
+        type: 'RollingUpdate'
+      }
     }
     siteConfig: {
       minTlsVersion: '1.2'
       http20Enabled: true
-      cors: {
-        allowedOrigins: [
-          webAppUrl
-        ]
-        supportCredentials: true
-      }
     }
   }
 }
@@ -135,20 +129,18 @@ resource functionAppSettings 'Microsoft.Web/sites/config@2025-03-01' = {
     // Queue triggers use Connection = "QueueConnection" which looks for __queueServiceUri
     QueueConnection__queueServiceUri: 'https://${storageAccountName}.queue.${environment().suffixes.storage}'
 
-    SignalRConnectionString: signalR.listKeys().primaryConnectionString
+    // Prefix matches the SignalROutput ConnectionStringSetting
+    SignalRConnectionString__serviceUri: 'https://${signalR.properties.hostName}'
+    SignalRConnectionString__credential: 'managedidentity'
+    WebApp__BaseUrl: webAppUrl
     Gmail__FromEmail: gmailFromEmail
     Gmail__FromName: gmailFromName
     Gmail__AppPassword: gmailAppPassword
     APPLICATIONINSIGHTS_CONNECTION_STRING: appInsightsConnectionString
-    Sandbox: 'false'
-    RunHeadless: 'true'
     FeedNotificationSchedule: feedNotificationSchedule
     ScrapingSchedule: scrapingSchedule
-    FeedTitlesUpdateSchedule: feedTitlesUpdateSchedule
-
-    // Remote Chrome (browserless) configuration
-    Chrome__RemoteEndpoint: chromeEndpoint
-    Chrome__Token: chromeToken
+    AutomatedBindingSchedule: automatedBindingSchedule
+    FeedSettlementSchedule: feedSettlementSchedule
   }
 }
 
@@ -221,6 +213,17 @@ resource storageAccountRoleAssignment 'Microsoft.Authorization/roleAssignments@2
   }
 }
 
+// RBAC: SignalR REST API Owner for Function App (output binding sends)
+resource signalRRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(signalR.id, functionApp.id, signalRRestApiOwnerRole)
+  scope: signalR
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', signalRRestApiOwnerRole)
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 // Outputs
 output functionAppName string = functionApp.name
-output signalREndpoint string = 'https://${functionApp.properties.defaultHostName}/api'
+output signalRName string = signalR.name

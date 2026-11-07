@@ -5,15 +5,16 @@
 @inject ITableClientFactory TableClientFactory
 @inject ILogger<FeaturedSeasonUpdate> Logger
 
-<AdminCardForm Title="Set Featured Season"
-               SubmitText="Set Featured"
-               ViewModel="@ViewModel"
-               FormName="@FormName"
-               hx-swap="outerHTML"
-               hx-put="/admin/seasons/featured"
-               hx-confirm="Do you want to make the selected season the featured one?">
-    <fieldset class="fieldset w-full">
-        <label class="select mt-4 w-full">
+<AdminActionRow Title="Featured season"
+                Description="Season highlighted across the site."
+                SubmitText="Set featured"
+                ViewModel="@ViewModel"
+                FormName="@FormName"
+                hx-swap="outerHTML"
+                hx-put="/admin/seasons/featured"
+                hx-confirm="Do you want to make the selected season the featured one?">
+    <fieldset class="fieldset p-0 gap-2">
+        <label class="select">
             <span class="label">Season</span>
             <InputSelect class="validator-no-success"
                          title="Featured Season Selection"
@@ -27,7 +28,7 @@
         </label>
         <Hint For="() => ViewModel.Season"></Hint>
     </fieldset>
-</AdminCardForm>
+</AdminActionRow>
 
 @code {
 

@@ -17,10 +17,6 @@ param passwordlessApiKey string
 @description('Passwordless API secret')
 param passwordlessApiSecret string
 
-@secure()
-@description('Chrome authentication token for browserless')
-param chromeToken string
-
 @description('Gmail sender display name')
 param gmailFromName string = 'Anime Feed Manager'
 
@@ -30,11 +26,11 @@ param feedNotificationSchedule string = '0 0 * * * *'
 @description('Cron schedule for library scraping (NCrontab 6-field format)')
 param scrapingSchedule string = '0 0 0 * * *'
 
-@description('Cron schedule for feed titles update (NCrontab 6-field format)')
-param feedTitlesUpdateSchedule string = '0 0 0 1 1 *'
+@description('Cron schedule for automated series binding (NCrontab 6-field format)')
+param automatedBindingSchedule string = '0 20 5 * * *'
 
-// Load shared variables for computed values
-var config = loadJsonContent('modules/shared-variables.json')
+@description('Cron schedule for nyaa feed settlement (NCrontab 6-field format)')
+param feedSettlementSchedule string = '0 40 6 * * *'
 
 // Deploy common resources (Storage Account, Application Insights)
 module common 'modules/common.bicep' = {
@@ -56,34 +52,21 @@ module functions 'modules/functions.bicep' = {
     gmailFromName: gmailFromName
     feedNotificationSchedule: feedNotificationSchedule
     scrapingSchedule: scrapingSchedule
-    feedTitlesUpdateSchedule: feedTitlesUpdateSchedule
-    // Chrome WebSocket endpoint (computed to avoid circular dependency)
-    chromeEndpoint: 'wss://${config.chromeName}.azurewebsites.net/chromium'
-    chromeToken: chromeToken
+    automatedBindingSchedule: automatedBindingSchedule
+    feedSettlementSchedule: feedSettlementSchedule
   }
 }
 
-// Deploy Blazor Web App (App Service, RBAC)
-// Note: This creates the shared App Service Plan used by both Web and Chrome
+// Deploy Blazor Web App (App Service Plan, App Service, RBAC)
 module blazorApp 'modules/blazor-app.bicep' = {
   name: 'blazor-app'
   params: {
     location: location
     storageAccountName: common.outputs.storageAccountName
     appInsightsConnectionString: common.outputs.appInsightsConnectionString
-    signalREndpoint: functions.outputs.signalREndpoint
+    signalRName: functions.outputs.signalRName
     passwordlessApiKey: passwordlessApiKey
     passwordlessApiSecret: passwordlessApiSecret
-  }
-}
-
-// Deploy Chrome Web App (browserless container for scraping)
-module chrome 'modules/chrome.bicep' = {
-  name: 'chrome'
-  params: {
-    location: location
-    appServicePlanId: blazorApp.outputs.webPlanId
-    chromeToken: chromeToken
   }
 }
 
@@ -92,5 +75,4 @@ output storageAccountName string = common.outputs.storageAccountName
 output functionAppName string = functions.outputs.functionAppName
 output webAppName string = blazorApp.outputs.webAppName
 output webAppUrl string = blazorApp.outputs.webAppUrl
-output signalREndpoint string = functions.outputs.signalREndpoint
-output chromeEndpoint string = chrome.outputs.chromeEndpoint
+output signalRName string = functions.outputs.signalRName

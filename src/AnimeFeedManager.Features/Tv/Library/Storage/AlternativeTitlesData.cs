@@ -1,16 +1,12 @@
 namespace AnimeFeedManager.Features.Tv.Library.Storage;
 
-/// <summary>
-/// Alternative titles for a series, with the provider block and <paramref name="User"/> separately
-/// owned: a scrap rewrites the provider slots, the editor rewrites <paramref name="User"/>, and
-/// neither can resurrect titles the other deleted.
-/// </summary>
+/// <summary>Provider alternative titles for a series; every import rewrites them.</summary>
 public sealed record AlternativeTitlesData(
     string? Romaji = null,
     string? English = null,
     string? Native = null,
     string[]? Synonyms = null,
-    string[]? User = null)
+    string? Abbreviation = null)
 {
     public static readonly AlternativeTitlesData Empty = new();
 }
@@ -24,14 +20,11 @@ internal partial class AlternativeTitlesJsonContext : JsonSerializerContext;
 
 internal static class StoredAlternativeTitles
 {
-    /// <summary>Reads either the serialized object or the legacy '|'-separated list.</summary>
+    /// <summary>Reads the serialized object; anything else reads as empty until the next import rewrites it.</summary>
     internal static AlternativeTitlesData Parse(string? stored)
     {
-        if (string.IsNullOrWhiteSpace(stored))
+        if (string.IsNullOrWhiteSpace(stored) || !stored.TrimStart().StartsWith('{'))
             return AlternativeTitlesData.Empty;
-
-        if (!stored.TrimStart().StartsWith('{'))
-            return FromLegacy(stored);
 
         try
         {
@@ -40,24 +33,21 @@ internal static class StoredAlternativeTitles
         }
         catch (JsonException)
         {
-            return FromLegacy(stored);
+            return AlternativeTitlesData.Empty;
         }
     }
-
-    // Everything written before the object format was curated by hand.
-    private static AlternativeTitlesData FromLegacy(string stored) => new(User: stored.StringToAppArray());
 
     extension(AlternativeTitlesData titles)
     {
         /// <summary>
         /// Titles worth matching a feed against, most specific first. Romaji repeats the canonical
-        /// title and native never appears in a feed, so neither is offered here.
+        /// title, native never appears in a feed and abbreviations are too loose, so none is offered here.
         /// </summary>
         internal string[] ForMatching
         {
             get
             {
-                string?[] candidates = [.. titles.User ?? [], titles.English, .. titles.Synonyms ?? []];
+                string?[] candidates = [titles.English, .. titles.Synonyms ?? []];
                 return candidates
                     .Where(title => !string.IsNullOrWhiteSpace(title))
                     .Select(title => title!)
@@ -71,7 +61,7 @@ internal static class StoredAlternativeTitles
             && string.IsNullOrWhiteSpace(titles.English)
             && string.IsNullOrWhiteSpace(titles.Native)
             && titles.Synonyms is null or []
-            && titles.User is null or [];
+            && string.IsNullOrWhiteSpace(titles.Abbreviation);
 
         internal string ToStoredString() =>
             titles.IsEmpty

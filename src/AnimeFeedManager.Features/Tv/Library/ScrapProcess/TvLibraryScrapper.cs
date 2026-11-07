@@ -1,5 +1,4 @@
 ﻿using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
@@ -12,13 +11,11 @@ public static class TvLibraryScrapper
 {
     public static TvScrapper Scrapper(
         IAnimeScheduleClient animeScheduleClient,
-        ISeasonFeedDataProvider seasonFeedDataProvider,
         LatestSeasonGetter latestSeasonGetter,
         StoredSeriesGetter storedSeriesGetter
     ) => (season, token) => {
         return ResolveSeason(season, latestSeasonGetter, token)
-            .Bind(resolved => seasonFeedDataProvider.Get()
-                .ScrapSeries(animeScheduleClient, resolved, token))
+            .Bind(resolved => AnimeScheduleTvScrapper.ScrapSeries(animeScheduleClient, resolved, token))
             .AddDataFromStorage(storedSeriesGetter, token);
     };
 

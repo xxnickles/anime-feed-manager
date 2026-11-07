@@ -1,9 +1,11 @@
 using AnimeFeedManager.Features.Infrastructure;
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.ServiceDefaults;
 using AnimeFeedManager.Services.Shared;
 using AnimeFeedManager.Web.Bootstrapping;
 using AnimeFeedManager.Web.Features;
 using AnimeFeedManager.Web.Features.Admin.Endpoints;
+using AnimeFeedManager.Web.Features.RealTime;
 using AnimeFeedManager.Web.Features.Security.Endpoints;
 using AnimeFeedManager.Web.Features.Tv.Endpoints;
 
@@ -11,9 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddWebAppDefaults(
     Telemetry.TvLibraryQueriesSource,
+    Telemetry.TvFeedManagerQueriesSource,
     Telemetry.WebAdminSource,
     Telemetry.WebSecuritySource,
     Telemetry.WebTvSource,
+    Telemetry.WebRealTimeSource,
     Telemetry.MessagingSource);
 builder.RegisterStorageServices();
 
@@ -23,6 +27,8 @@ builder.Services.AddRazorComponents();
 builder.Services.AddHttpContextAccessor();
 builder.RegisterSecurityServices();
 builder.Services.RegisterStorageBasedServices();
+builder.Services.RegisterNyaaServices();
+builder.RegisterRealTimeServices();
 
 
 var app = builder.Build();
@@ -63,5 +69,6 @@ var endpointsGroup = app
 endpointsGroup.MapSecurityEndpoints();
 endpointsGroup.MapAdminEndpoints();
 endpointsGroup.MapTvSubscriptionsEndpoints();
+endpointsGroup.MapRealTimeEndpoints();
 
 app.Run();

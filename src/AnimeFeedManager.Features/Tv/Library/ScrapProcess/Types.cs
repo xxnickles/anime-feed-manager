@@ -1,5 +1,4 @@
 using AnimeFeedManager.Features.Common.Scrapping;
-using AnimeFeedManager.Features.Scrapping.Types;
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
@@ -14,7 +13,7 @@ public enum Status
 /// The provider's airing state for a series, as reported during import. Separate from the stored
 /// <c>SeriesStatus</c>: providers distinguish states we do not persist, and the value set is open,
 /// so anything unrecognised — including a provider that reports nothing — lands on
-/// <see cref="Unknown"/> and the feed decides.
+/// <see cref="Unknown"/>.
 /// </summary>
 public enum AiringStatus
 {
@@ -31,10 +30,7 @@ public sealed record StorageData(
     Status Status,
     AiringStatus Airing);
 
-public sealed record ScrapTvLibraryData(
-    IEnumerable<StorageData> SeriesData,
-    ImmutableArray<FeedData> FeedData,
-    SeriesSeason Season);
+public sealed record ScrapTvLibraryData(IEnumerable<StorageData> SeriesData, SeriesSeason Season);
 
 
 

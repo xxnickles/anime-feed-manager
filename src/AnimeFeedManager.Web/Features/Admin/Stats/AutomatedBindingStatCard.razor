@@ -1,0 +1,53 @@
+@using AnimeFeedManager.Features.SystemEvents.Stats
+<div class="card-body gap-2 p-5">
+    <span class="text-xs text-base-content/70">Automated binding</span>
+    @switch (Stat)
+    {
+        case LatestAutomatedBinding {Run: var run}:
+            <time class="text-3xl font-bold leading-none @(IsStale(run.At) ? "text-warning" : null)"
+                  datetime="@run.At.ToString("O")"
+                  title="@run.At.ToString("u")">@Ago(run.At)</time>
+            @if (run.ScheduleSkipped)
+            {
+                <span class="text-xs text-warning">Skipped: SubsPlease schedule unavailable</span>
+            }
+            else
+            {
+                <span class="text-xs text-base-content/70">
+                    @run.Queued queued of @run.Scheduled scheduled · @run.Ties.Length @(run.Ties.Length == 1 ? "tie" : "ties")
+                </span>
+            }
+            break;
+        default:
+            <span class="text-3xl font-bold leading-none text-warning">None</span>
+            <span class="text-xs text-base-content/70">No automated binding run yet</span>
+            break;
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required LastAutomatedBinding Stat { get; set; }
+
+    // Automated binding runs daily; two days without one means it stopped.
+    private static readonly TimeSpan StaleAfter = TimeSpan.FromDays(2);
+
+    private static bool IsStale(DateTimeOffset at) => DateTimeOffset.UtcNow - at > StaleAfter;
+
+    private static string Ago(DateTimeOffset at)
+    {
+        var elapsed = DateTimeOffset.UtcNow - at;
+        return elapsed switch
+        {
+            { TotalMinutes: < 60 } => $"{Math.Max(1, (int)elapsed.TotalMinutes)}m ago",
+            { TotalHours: < 24 } => $"{(int)elapsed.TotalHours}h ago",
+            _ => $"{(int)elapsed.TotalDays}d ago"
+        };
+    }
+
+    public static RenderFragment AsRenderFragment(LastAutomatedBinding stat) => builder =>
+    {
+        builder.OpenComponent<AutomatedBindingStatCard>(0);
+        builder.AddAttribute(1, nameof(Stat), stat);
+        builder.CloseComponent();
+    };
+}

@@ -164,11 +164,12 @@ public class LibraryQueriesTests
         "BLACK TORCH",
         "synopsis",
         "Black Torch",
-        "https://example.com/black-torch",
         AlternativeTitlesData.Empty,
         (SeriesStatus) status,
         null,
-        null);
+        null,
+        new UnknownEpisodes(),
+        new BroadcastHint(new UnknownRelease(), []));
 
     private static SubscriptionStorage MakeSubscription(string seriesId, string type) => new()
     {

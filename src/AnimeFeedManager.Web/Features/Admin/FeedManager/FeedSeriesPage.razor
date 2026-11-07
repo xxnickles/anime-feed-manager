@@ -1,0 +1,118 @@
+@page "/admin/feeds/series/{SeriesId}"
+@using AnimeFeedManager.Features.Tv.FeedManager
+@using AnimeFeedManager.Features.Scrapping.Nyaa
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Features.Tv.FeedManager.Search
+@using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores
+@using AnimeFeedManager.Features.Tv.Library.Storage.Stores
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = UserRole.AdminValue)]
+@inject ITableClientFactory TableClientFactory
+@inject INyaaClient NyaaClient
+@inject ILogger<FeedSeriesPage> Logger
+
+<AppPageTitle Title="@PageTitle(_series?.Title ?? "Feed manager")" />
+
+<header class="mb-6 flex flex-col gap-1">
+    <AdminBreadcrumbs Trail="Trail"/>
+    @if (_series is not null)
+    {
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-primary">@_series.Title</h1>
+        @if (OtherTitles.Length > 0)
+        {
+            <p class="text-sm text-base-content/60">@string.Join(" · ", OtherTitles)</p>
+        }
+        <p class="text-sm text-base-content/70">
+            <span class="capitalize">@_series.Season.Season.ToString() @_series.Season.Year.ToString()</span>
+            @foreach (var stream in _series.Streams)
+            {
+                @(" · ")<a href="@stream.Url" target="_blank" rel="noopener noreferrer" class="link link-hover">@stream.Name</a>
+            }
+        </p>
+    }
+</header>
+
+@if (_series is not null)
+{
+    <div class="flex flex-col gap-6">
+        <BindingCards Series="_series"/>
+        <FindReleaseCard Series="_series" Query="@(Query ?? _series.Title)" TrustedOnly="@TrustedOnly" Outcome="_search"/>
+    </div>
+}
+else
+{
+    <WarnBanner Title="Feed manager" Description="@_error"></WarnBanner>
+}
+
+@code {
+    [Parameter] public string SeriesId { get; set; } = string.Empty;
+
+    [SupplyParameterFromQuery(Name = "q")] public string? Query { get; set; }
+
+    [SupplyParameterFromQuery(Name = "trusted")] public bool? Trusted { get; set; }
+
+    private FeedManagerSeries? _series;
+    private string _error = string.Empty;
+    private SearchOutcome _search = new NotSearched();
+
+    // An unchecked box submits nothing, so only a page opened without a search defaults to trusted.
+    private bool TrustedOnly => Query is null || Trusted == true;
+    private string _seasonLink = FeedManagerRoutes.AdminSeason(new SeriesSeason(Shared.Types.Season.Current, Year.Current));
+
+    private string[] OtherTitles => _series is null
+        ? []
+        : [.._series.TitlePresets.Where(title => !string.Equals(title, _series.Title, StringComparison.OrdinalIgnoreCase))];
+
+    private IReadOnlyList<Crumb> Trail => _series is null
+        ? [new Crumb("Feed manager", _seasonLink)]
+        : [new Crumb("Feed manager", _seasonLink), new Crumb(_series.Title)];
+
+    private static readonly ActivitySource Source = new(Telemetry.TvFeedManagerQueriesSource);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSeries();
+        if (_series is not null && !string.IsNullOrWhiteSpace(Query))
+            await SearchReleases(_series, Query);
+    }
+
+    private async Task SearchReleases(FeedManagerSeries series, string query)
+    {
+        using var activity = Source.StartActivity(FeedManagerTelemetry.SearchReleasesSpan);
+        _search = await ReleaseSearch
+            .Search(query, TrustedOnly, series.Binding, NyaaClient, CancellationToken.None)
+            .MarkActivityErroredOnError()
+            .FlushLogs(Logger)
+            .MatchToValue<ReleaseSearchResults, SearchOutcome>(
+                results => new Searched(results),
+                error => new SearchFailed(error.Message));
+    }
+
+    private async Task LoadSeries()
+    {
+        using var activity = Source.StartActivity(FeedManagerTelemetry.QuerySeriesSpan);
+        await FeedManagerSeriesQuery
+            .GetFeedManagerSeries(
+                SeriesId,
+                TableClientFactory.TableStorageTvSeriesGetter,
+                TableClientFactory.TableStorageNyaaBindingGetter,
+                TableClientFactory.TableStorageNyaaCatalogGetter,
+                DateTimeOffset.UtcNow,
+                CancellationToken.None)
+            .MarkActivityErroredOnError()
+            .FlushLogs(Logger)
+            .Match(
+                series =>
+                {
+                    _series = series;
+                    _seasonLink = FeedManagerRoutes.AdminSeason(series.Season);
+                },
+                error =>
+                {
+                    _error = error is NotFoundError
+                        ? $"Series '{SeriesId}' was not found."
+                        : "The series could not be loaded.";
+                });
+    }
+
+}

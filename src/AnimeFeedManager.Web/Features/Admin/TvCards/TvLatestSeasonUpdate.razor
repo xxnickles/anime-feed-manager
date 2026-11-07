@@ -2,7 +2,8 @@
 @implements INotifiableComponent<Noop>
 <LatestUpdate ViewModel="@ViewModel"
               FormName="@FormName"
-              Title="Update Latest Season"
+              Title="Latest season"
+              Description="Re-scrape the most recent TV season."
               hx-swap="outerHTML"
               hx-put="/admin/tv/latest"
               hx-confirm="Do you want to updated the latest TV season?"

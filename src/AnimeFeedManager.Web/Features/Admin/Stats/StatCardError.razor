@@ -1,0 +1,15 @@
+<div class="card-body gap-2 p-5" role="alert">
+    <span class="text-xs text-base-content/70">@Title</span>
+    <span class="text-sm text-error">Couldn't load</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required string Title { get; set; }
+
+    public static RenderFragment AsRenderFragment(string title) => builder =>
+    {
+        builder.OpenComponent<StatCardError>(0);
+        builder.AddAttribute(1, nameof(Title), title);
+        builder.CloseComponent();
+    };
+}

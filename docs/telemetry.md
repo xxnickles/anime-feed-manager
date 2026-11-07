@@ -89,17 +89,19 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 |---|---|---|
 | `AnimeFeedManager.Seasons.Update` | Season creation/update orchestration | Functions |
 | `AnimeFeedManager.Tv.Library.Import` | TV library scrape/import for a season | Functions |
-| `AnimeFeedManager.Tv.Library.Completion` | Marking ongoing series completed | Functions |
-| `AnimeFeedManager.Tv.Library.FeedTitles` | Feed-titles scrape, match, persist | Functions |
+| `AnimeFeedManager.Tv.Library.Completion` | Marking feed-completed series completed | Functions |
 | `AnimeFeedManager.Tv.Library.Queries` | Library catalog queries | Web |
 | `AnimeFeedManager.Tv.Subscriptions.Feed` | Daily feed processing, per-user notification | Functions |
 | `AnimeFeedManager.Tv.Subscriptions.Management` | Auto-subscription for interested users | Functions |
 | `AnimeFeedManager.SystemEvents.Update` | System event update/dispatch | Functions |
+| `AnimeFeedManager.Tv.FeedManager` | Nyaa feed bindings: bind, backfill, automated binding, settlement | Functions |
+| `AnimeFeedManager.Tv.FeedManager.Queries` | Feed manager admin queries and the public release listing | Web |
 | `AnimeFeedManager.Messaging` | Queue send and process spans | Web, Functions |
 | `AnimeFeedManager.Images` | Series image provisioning | Functions |
 | `AnimeFeedManager.Web.Admin` | Admin endpoint handlers | Web |
 | `AnimeFeedManager.Web.Security` | Auth/credential endpoint handlers | Web |
 | `AnimeFeedManager.Web.Tv` | TV library/subscription endpoint handlers | Web |
+| `AnimeFeedManager.Web.RealTime` | SignalR negotiation | Web |
 
 ### 6.2 Spans
 
@@ -107,26 +109,43 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 |---|---|---|---|
 | `SeasonsTelemetry.UpdateSpan` | `Seasons.Update` | Seasons.Update | Functions |
 | `TvLibraryTelemetry.ImportSpan` | `Tv.Library.Import` | Tv.Library.Import | Functions |
-| `TvLibraryTelemetry.UpdateFeedTitlesSpan` | `Tv.Library.UpdateFeedTitles` | Tv.Library.FeedTitles | Functions |
-| `TvLibraryTelemetry.ScrapFeedTitlesSpan` | `Tv.Library.ScrapFeedTitles` | Tv.Library.FeedTitles | Functions |
-| `TvLibraryTelemetry.CompleteOngoingSpan` | `Tv.Library.CompleteOngoing` | Tv.Library.Completion | Functions |
+| `TvLibraryTelemetry.CompleteFeedSeriesSpan` | `Tv.Library.CompleteFeedSeries` | Tv.Library.Completion | Functions |
 | `TvLibraryTelemetry.QuerySeasonSpan` | `Tv.Library.QuerySeason` | Tv.Library.Queries | Web |
 | `TvSubscriptionsTelemetry.AutoSubscribeSpan` | `Tv.Subscriptions.AutoSubscribe` | Tv.Subscriptions.Management | Functions |
 | `TvSubscriptionsTelemetry.ProcessFeedSpan` | `Tv.Subscriptions.ProcessFeed` | Tv.Subscriptions.Feed | Functions |
 | `TvSubscriptionsTelemetry.NotifyUserSpan` | `Tv.Subscriptions.NotifyUser` | Tv.Subscriptions.Feed | Functions |
 | `ImagesTelemetry.DownloadSpan` | `Images.Download` (child of `Tv.Library.Import`) | Images | Functions |
 | `SystemEventsTelemetry.UpdateSpan` | `SystemEvents.Update` | SystemEvents.Update | Functions |
+| `FeedManagerTelemetry.BindSeriesSpan` | `Tv.FeedManager.BindSeries` | Tv.FeedManager | Functions |
+| `FeedManagerTelemetry.BackfillSeriesSpan` | `Tv.FeedManager.BackfillSeries` | Tv.FeedManager | Functions |
+| `FeedManagerTelemetry.AutomatedBindingSpan` | `Tv.FeedManager.AutomatedBinding` | Tv.FeedManager | Functions |
+| `FeedManagerTelemetry.SettleFeedsSpan` | `Tv.FeedManager.SettleFeeds` | Tv.FeedManager | Functions |
+| `FeedManagerTelemetry.QuerySeasonSpan` | `Tv.FeedManager.QuerySeason` | Tv.FeedManager.Queries | Web |
+| `FeedManagerTelemetry.QuerySeriesSpan` | `Tv.FeedManager.QuerySeries` | Tv.FeedManager.Queries | Web |
+| `FeedManagerTelemetry.SearchReleasesSpan` | `Tv.FeedManager.SearchReleases` | Tv.FeedManager.Queries | Web |
+| `FeedManagerTelemetry.QueryReleaseListingSpan` | `Tv.FeedManager.QueryReleaseListing` | Tv.FeedManager.Queries | Web |
+| `RealTimeTelemetry.NegotiateSpan` | `RealTime.Negotiate` | Web.RealTime | Web |
 | `AdminTelemetry.UpdateTvSeasonSpan` | `Admin.UpdateTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
-| `AdminTelemetry.UpdateFeedTitlesSpan` | `Admin.UpdateFeedTitles` | Web.Admin | Web |
 | `AdminTelemetry.TriggerFeedNotificationsSpan` | `Admin.TriggerFeedNotifications` | Web.Admin | Web |
+| `AdminTelemetry.TriggerAutomatedBindingSpan` | `Admin.TriggerAutomatedBinding` | Web.Admin | Web |
+| `AdminTelemetry.TriggerFeedSettlementSpan` | `Admin.TriggerFeedSettlement` | Web.Admin | Web |
 | `AdminTelemetry.SetFeaturedSeasonSpan` | `Admin.SetFeaturedSeason` | Web.Admin | Web |
 | `AdminTelemetry.LibraryScrapSummarySpan` | `Admin.LibraryScrapSummary` | Web.Admin | Web |
 | `AdminTelemetry.NotificationSummarySpan` | `Admin.NotificationSummary` | Web.Admin | Web |
-| `AdminTelemetry.FeedUpdatesSummarySpan` | `Admin.FeedUpdatesSummary` | Web.Admin | Web |
+| `AdminTelemetry.LastScrapeStatSpan` | `Admin.LastScrapeStat` | Web.Admin | Web |
+| `AdminTelemetry.ErrorStatSpan` | `Admin.ErrorStat` | Web.Admin | Web |
+| `AdminTelemetry.NyaaStatSpan` | `Admin.NyaaStat` | Web.Admin | Web |
+| `AdminTelemetry.AutomatedBindingStatSpan` | `Admin.AutomatedBindingStat` | Web.Admin | Web |
+| `AdminTelemetry.BindNyaaSeriesSpan` | `Admin.BindNyaaSeries` | Web.Admin | Web |
+| `AdminTelemetry.BackfillNyaaSeriesSpan` | `Admin.BackfillNyaaSeries` | Web.Admin | Web |
+| `AdminTelemetry.ClearNyaaCatalogSpan` | `Admin.ClearNyaaCatalog` | Web.Admin | Web |
+| `AdminTelemetry.UpdateFeedEpisodesSpan` | `Admin.UpdateFeedEpisodes` | Web.Admin | Web |
+| `AdminTelemetry.OverrideEpisodesSpan` | `Admin.OverrideEpisodes` | Web.Admin | Web |
+| `AdminTelemetry.RefreshBindingCardsSpan` | `Admin.RefreshBindingCards` | Web.Admin | Web |
+| `AdminTelemetry.RefreshReleaseCandidatesSpan` | `Admin.RefreshReleaseCandidates` | Web.Admin | Web |
 | `TvTelemetry.ToggleInterestedSpan` | `Tv.ToggleInterested` | Web.Tv | Web |
 | `TvTelemetry.ToggleSubscriptionSpan` | `Tv.ToggleSubscription` | Web.Tv | Web |
-| `TvTelemetry.UpdateAlternativeTitlesSpan` | `Tv.UpdateAlternativeTitles` | Web.Tv | Web |
 | `TvTelemetry.RemoveSeriesSpan` | `Tv.RemoveSeries` | Web.Tv | Web |
 | `SecurityTelemetry.RegisterSpan` | `Security.Register` | Web.Security | Web |
 | `SecurityTelemetry.LoginSpan` | `Security.Login` | Web.Security | Web |
@@ -146,6 +165,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `user.id` | Opaque user id; never the email. |
 | `user.roles` | Comma-joined role names. |
 | `operation.name` | Operation identifier; log-only. |
+| `table.write_retries` | Attempts `OptimisticConcurrency.UntilWritten` retried before the write landed; log-only, set only when above 0. |
 | `domain_error.message` | Domain error message. |
 | `domain_error.subject` | What the error concerns: expected type (type mismatch) or message type names, comma-joined (undelivered messages). |
 | `validation.type_name` | Validated form/type name. |
@@ -159,8 +179,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | Key | Class | Meaning / value format |
 |---|---|---|
 | `series.count` | `TvLibraryTelemetry` | Number of series processed/affected. |
-| `feed.title_count` | `TvLibraryTelemetry` | Number of feed titles. |
-| `scrape.query` | `ScrappingTelemetry` | AnimeSchedule request query string. |
+| `scrape.query` | `ScrappingTelemetry` | Provider request query string (AnimeSchedule, Nyaa). |
 | `scrape.pages_expected` | `ScrappingTelemetry` | Pages the provider reported. |
 | `scrape.pages_fetched` | `ScrappingTelemetry` | Pages actually fetched. |
 
@@ -178,6 +197,17 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `notification.user_count` | Users to be notified. |
 | `schedule.next_run` | Next timer fire time. |
 | `feed.title` | Feed title of a show. |
+| `nyaa.group` | Fansub group of a nyaa binding. |
+| `nyaa.release_title` | Group's release title of a nyaa binding. |
+| `nyaa.catalogued_count` | Catalog rows written by a nyaa backfill or hourly feed run. |
+| `nyaa.last_poll` | Last stamped hourly poll time. |
+| `nyaa.oldest_published` | Oldest `Published` in an hourly poll. |
+| `nyaa.backfill_count` | Backfills queued by the hourly run's window guard. |
+| `nyaa.scheduled_count` | Shows on the SubsPlease schedule read by automated binding. |
+| `nyaa.queued_count` | Binds queued by automated binding. |
+| `nyaa.tie_count` | Schedule shows automated binding left unbound on a tie. |
+| `nyaa.stamped_count` | Feeds stamped complete by feed settlement. |
+| `nyaa.retired_count` | Feeds retired (untracked, library completed) by feed settlement. |
 | `image.name` | Image file name. |
 | `image.size` | Stored payload size in bytes. |
 | `image.content_type` | Served media type. |

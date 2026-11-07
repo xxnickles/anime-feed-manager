@@ -1,0 +1,28 @@
+<nav aria-label="Breadcrumb" class="breadcrumbs text-sm py-0 text-base-content/70">
+    <ul>
+        @if (Trail.Count == 0)
+        {
+            <li aria-current="page">Admin</li>
+        }
+        else
+        {
+            <li><a href="/admin">Admin</a></li>
+            @foreach (var crumb in Trail)
+            {
+                if (crumb.Href is null)
+                {
+                    <li aria-current="page">@crumb.Label</li>
+                }
+                else
+                {
+                    <li><a href="@crumb.Href">@crumb.Label</a></li>
+                }
+            }
+        }
+    </ul>
+</nav>
+
+@code {
+    /// <summary>Crumbs after the Admin root; a crumb without a link is the current page.</summary>
+    [Parameter] public IReadOnlyList<Crumb> Trail { get; set; } = [];
+}

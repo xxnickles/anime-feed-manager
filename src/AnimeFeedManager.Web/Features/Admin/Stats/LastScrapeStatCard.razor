@@ -1,0 +1,50 @@
+@using AnimeFeedManager.Features.SystemEvents.Stats
+<div class="card-body gap-2 p-5">
+    <span class="text-xs text-base-content/70">Last scrape</span>
+    @switch (Stat)
+    {
+        case LatestScrape latest:
+            <time class="text-3xl font-bold leading-none @(IsStale(latest) ? "text-warning" : null)"
+                  datetime="@latest.At.ToString("O")"
+                  title="@latest.At.ToString("u")">@Ago(latest.At)</time>
+            <span class="text-xs text-base-content/70">
+                <span class="capitalize">@latest.Season.Season.ToString() @latest.Season.Year.ToString()</span>
+                · @latest.NewSeries new · @latest.UpdatedSeries updated
+            </span>
+            <span class="text-xs text-base-content/70">@Runs(latest.Runs) in period</span>
+            break;
+        default:
+            <span class="text-3xl font-bold leading-none text-warning">None</span>
+            <span class="text-xs text-base-content/70">No library scrape in period</span>
+            break;
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public required LastScrape Stat { get; set; }
+
+    // The library scrape runs daily; two days without one means it stopped.
+    private static readonly TimeSpan StaleAfter = TimeSpan.FromDays(2);
+
+    private static bool IsStale(LatestScrape latest) => DateTimeOffset.UtcNow - latest.At > StaleAfter;
+
+    private static string Runs(int runs) => runs == 1 ? "1 run" : $"{runs} runs";
+
+    private static string Ago(DateTimeOffset at)
+    {
+        var elapsed = DateTimeOffset.UtcNow - at;
+        return elapsed switch
+        {
+            { TotalMinutes: < 60 } => $"{Math.Max(1, (int)elapsed.TotalMinutes)}m ago",
+            { TotalHours: < 24 } => $"{(int)elapsed.TotalHours}h ago",
+            _ => $"{(int)elapsed.TotalDays}d ago"
+        };
+    }
+
+    public static RenderFragment AsRenderFragment(LastScrape stat) => builder =>
+    {
+        builder.OpenComponent<LastScrapeStatCard>(0);
+        builder.AddAttribute(1, nameof(Stat), stat);
+        builder.CloseComponent();
+    };
+}

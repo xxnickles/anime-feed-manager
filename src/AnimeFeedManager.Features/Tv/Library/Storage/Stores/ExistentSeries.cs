@@ -5,17 +5,15 @@ namespace AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 public record TvSeriesInfo(
     string Title,
     string? FeedTitle,
-    string? FeedUrl,
     AlternativeTitlesData AlternativeTitles,
     SeriesStatus Status);
 
 public sealed record TvSeriesInfoWithImage(
     string Title,
     string? FeedTitle,
-    string? FeedUrl,
     AlternativeTitlesData AlternativeTitles,
     SeriesStatus Status,
-    string ImageUrl) : TvSeriesInfo(Title, FeedTitle, FeedUrl, AlternativeTitles, Status);
+    string ImageUrl) : TvSeriesInfo(Title, FeedTitle, AlternativeTitles, Status);
 
 public sealed record TvSeries(
     string Id,
@@ -23,11 +21,12 @@ public sealed record TvSeries(
     string Title,
     string Synopsis,
     string? FeedTitle,
-    string? FeedUrl,
     AlternativeTitlesData AlternativeTitles,
     SeriesStatus Status,
     Uri? Image,
-    DateTimeOffset? LastUpdated);
+    DateTimeOffset? LastUpdated,
+    ExpectedEpisodes Episodes,
+    BroadcastHint Broadcast);
 
 public delegate Task<Result<ImmutableArray<TvSeriesInfo>>> StoredSeriesGetter(SeriesSeason season,
     CancellationToken cancellationToken = default);
@@ -129,11 +128,12 @@ public static class ExistentSeries
         entity.Title ?? string.Empty,
         entity.Synopsis ?? string.Empty,
         entity.FeedTitle,
-        entity.FeedLink,
         StoredAlternativeTitles.Parse(entity.AlternativeTitles),
         (SeriesStatus) entity.Status,
         entity.ImagePath is not null ? GetUri(publicBlobUri, entity.ImagePath) : null,
-        entity.Timestamp);
+        entity.Timestamp,
+        SeriesBroadcast.ToExpectedEpisodes(entity.Episodes),
+        SeriesBroadcast.ToBroadcastHint(entity.SubTime, entity.Date, entity.Streams));
 
     private static Uri GetUri(Uri publicBlobUri, string imagePath)
     {
@@ -149,12 +149,10 @@ public static class ExistentSeries
             ? new TvSeriesInfo(
                 entity.Title ?? string.Empty,
                 entity.FeedTitle,
-                entity.FeedLink,
                 StoredAlternativeTitles.Parse(entity.AlternativeTitles),
                 (SeriesStatus) entity.Status)
             : new TvSeriesInfoWithImage(entity.Title ?? string.Empty,
                 entity.FeedTitle,
-                entity.FeedLink,
                 StoredAlternativeTitles.Parse(entity.AlternativeTitles),
                 (SeriesStatus) entity.Status,
                 entity.ImagePath ?? string.Empty);

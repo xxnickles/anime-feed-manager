@@ -3,9 +3,7 @@ using Aspire.Hosting.Azure;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var signalR = builder.AddAzureSignalR("signalr", AzureSignalRServiceMode.Serverless)
-    .RunAsEmulator(emulator => emulator.WithImageTag("latest")
-        .WithImagePullPolicy(ImagePullPolicy.Missing)
-    );
+    .RunAsEmulator(emulator => emulator.WithImageTag("1.7.0"));
 
 var storage = builder.AddAzureStorage("storage")
     .RunAsEmulator(emulator => emulator.WithImageTag("3.37.0")
@@ -20,24 +18,10 @@ var tables = storage.AddTables("TablesConnection");
 
 builder.AddJavaScriptApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 
-// Chrome container for web scraping (browserless)
-// Token for local development - production uses GitHub secret
-const string chromeDevToken = "local-dev-token";
-
-var chrome = builder.AddContainer("chrome", "ghcr.io/browserless/chromium", "v2.57.0")
-    .WithImagePullPolicy(ImagePullPolicy.Missing)
-    .WithHttpEndpoint(port: 3000, targetPort: 3000, name: "http")
-    .WithEnvironment("TOKEN", chromeDevToken)
-    .WithEnvironment("TIMEOUT", "120000")
-    .WithEnvironment("CONCURRENT", "3")
-    .WithEnvironment("QUEUED", "5")
-    .WithEnvironment("HEALTH", "true");
-
 var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Functions>("functions")
     .WithExternalHttpEndpoints()
     .WithHostStorage(storage)
     .WaitFor(signalR)
-    .WaitFor(chrome)
     .WithReference(blobs)
     .WaitFor(blobs)
     .WithReference(queues)
@@ -45,13 +29,16 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
     .WithReference(tables)
     .WaitFor(tables)
     .WithEnvironment("SignalRConnectionString", signalR)
-    .WithEnvironment("Chrome__RemoteEndpoint", chrome.GetEndpoint("http"))
-    .WithEnvironment("Chrome__Token", chromeDevToken);
+    // Here, not local.settings.json (gitignored): an unresolved timer setting stops the host.
+    // Hourly locally (daily in Azure), offset from the hourly feed run at :00.
+    .WithEnvironment("AutomatedBindingSchedule", "0 20 * * * *")
+    .WithEnvironment("FeedSettlementSchedule", "0 40 * * * *");
 
 var commitSha = GetLocalCommitSha();
 
-builder.AddProject<Projects.AnimeFeedManager_Web>("web")
+var web = builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(functions)
+    .WithReference(signalR)
     .WaitFor(signalR)
     .WithReference(blobs)
     .WaitFor(blobs)
@@ -59,8 +46,10 @@ builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(queues)
     .WithReference(tables)
     .WaitFor(tables)
-    .WithEnvironment("SignalR__Endpoint", "http://localhost:7071/api")
     .WithEnvironment("AppVersion__CommitSha", commitSha);
+
+// Endpoint reference only; a WaitFor here would cycle with web's WaitFor(functions)
+functions.WithEnvironment("WebApp__BaseUrl", web.GetEndpoint("https"));
 
 
 builder.Build().Run();

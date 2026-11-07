@@ -52,11 +52,11 @@ jobs:
             gmailAppPassword: ${{ toJSON(secrets.GMAIL_APP_PASSWORD) }}
             passwordlessApiKey: ${{ toJSON(secrets.PASSWORDLESS_API_KEY) }}
             passwordlessApiSecret: ${{ toJSON(secrets.PASSWORDLESS_API_SECRET) }}
-            chromeToken: ${{ toJSON(secrets.CHROME_TOKEN) }}
             gmailFromName: "Anime Feed Manager"
             feedNotificationSchedule: "0 0 * * * *"
             scrapingSchedule: "0 0 4 * * 6"
-            feedTitlesUpdateSchedule: "0 0 0 1 1 *"
+            automatedBindingSchedule: "0 20 5 * * *"
+            feedSettlementSchedule: "0 40 6 * * *"
 
       - name: Seed Admin User
         uses: azure/cli@v3.0.0

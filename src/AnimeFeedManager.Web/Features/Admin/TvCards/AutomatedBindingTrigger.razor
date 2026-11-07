@@ -1,0 +1,31 @@
+@using AnimeFeedManager.Web.Features.Admin.Base
+@implements INotifiableComponent<Noop>
+<AdminActionRow ViewModel="@ViewModel"
+                FormName="@FormName"
+                Title="Automated binding"
+                Description="Bind series from the SubsPlease schedule now."
+                SubmitText="Run"
+                hx-swap="outerHTML"
+                hx-post="admin/tv/run-automated-binding"
+                hx-confirm="Do you want to run the automated binding process?"></AdminActionRow>
+
+@code {
+
+    private const string FormName = "automated-binding-trigger-form";
+
+    [Parameter] public Noop ViewModel { get; set; } = new();
+
+    public static RenderFragment AsRenderFragment(Noop viewModel) =>
+        builder =>
+        {
+            builder.OpenComponent<AutomatedBindingTrigger>(0);
+            builder.AddAttribute(1, nameof(ViewModel), viewModel);
+            builder.CloseComponent();
+        };
+
+    public static RenderFragment OkNotificationContent(Noop viewModel) =>
+        builder => { builder.AddContent(0, "Automated binding will run in the background"); };
+
+    public static string SuccessNotificationTitle { get; } = "Automated binding has been scheduled";
+    public static string ErrorNotificationTitle { get; } = "Automated binding has failed";
+}

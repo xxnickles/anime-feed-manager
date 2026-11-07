@@ -3,6 +3,7 @@ global using System.Diagnostics;
 global using System.Runtime.CompilerServices;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
+global using AnimeFeedManager.Features.AppEvents;
 global using AnimeFeedManager.Features.Common;
 global using AnimeFeedManager.Features.Infrastructure.Messaging;
 global using AnimeFeedManager.Features.Infrastructure.TableStorage;

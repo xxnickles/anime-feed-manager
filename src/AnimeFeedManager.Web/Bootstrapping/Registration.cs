@@ -7,12 +7,6 @@ using Passwordless;
 
 namespace AnimeFeedManager.Web.Bootstrapping;
 
-internal class SignalROptions
-{
-    public const string SectionName = "SignalR";
-    public string Endpoint { get; set; } = string.Empty;
-}
-
 internal class AppVersionOptions
 {
     public const string SectionName = "AppVersion";
@@ -105,7 +99,6 @@ internal static class Registration
 
         const string passwordlessSection = "Passwordless";
         builder.Services.Configure<PasswordlessOptions>(builder.Configuration.GetSection(passwordlessSection));
-        builder.Services.Configure<SignalROptions>(builder.Configuration.GetSection(SignalROptions.SectionName));
         builder.Services.Configure<AppVersionOptions>(builder.Configuration.GetSection(AppVersionOptions.SectionName));
 
         // Add Passwordless

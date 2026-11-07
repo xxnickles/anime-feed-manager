@@ -49,7 +49,6 @@ public static class NotificationProcess
                     Type = nameof(SubscriptionType.Subscribed),
                     SeriesTitle = feed.Title,
                     SeriesFeedTitle = feed.Title,
-                    SeriesLink = feed.Url,
                     NotifiedEpisodes = aggregatedEpisodes.AppArrayToString(),
                     UserEmail = updateNotification.Subscriptions.UserEmail
                 };

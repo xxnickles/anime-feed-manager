@@ -1,0 +1,15 @@
+@using AnimeFeedManager.Features.Tv.FeedManager.SeriesReleases
+
+@if (Release.View is { } view)
+{
+    <a href="@view" target="_blank" rel="noopener noreferrer" class="@Class">@Release.Title</a>
+}
+else
+{
+    <span class="wrap-break-word">@Release.Title</span>
+}
+
+@code {
+    [Parameter, EditorRequired] public SeriesRelease Release { get; set; } = null!;
+    [Parameter] public string Class { get; set; } = string.Empty;
+}
