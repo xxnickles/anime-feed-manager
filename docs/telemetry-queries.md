@@ -9,7 +9,8 @@ Ad-hoc KQL for App Insights (resource scope, classic tables). Dashboards live in
 | Domain span (`Tv.Library.Import`, …) | `dependencies`, `type == "InProc"` | `operation_Name` is empty; use `name` |
 | `send {queue}` | `dependencies`, `type == "azure_storage_queue"` | `target` = queue host + queue |
 | `process {queue}` | `requests` | Producer link in `customDimensions["_MS.links"]` |
-| AnimeSchedule / other HTTP calls | `dependencies`, `type == "Http"` | |
+| AnimeSchedule, nyaa / other HTTP calls | `dependencies`, `type == "HTTP"` | Case-sensitive: `"Http"` matches nothing; `=~` is safe |
+| Web request | `requests`, `cloud_RoleName == "amf-web-manager"` | A failure re-executed to the error page is named `{method} /status-code/{StatusCode:int}`; `parse_url(url).Path` keeps the original route |
 | Log | `traces` | Template args and scope properties in `customDimensions` under their dotted key |
 | Log with an exception | `exceptions` | `outerMessage` is the exception message, not the log text |
 
