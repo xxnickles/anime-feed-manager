@@ -9,4 +9,5 @@ public static class FeedManagerTelemetry
     public const string QuerySeasonSpan = "Tv.FeedManager.QuerySeason";
     public const string QuerySeriesSpan = "Tv.FeedManager.QuerySeries";
     public const string SearchReleasesSpan = "Tv.FeedManager.SearchReleases";
+    public const string QueryReleaseListingSpan = "Tv.FeedManager.QueryReleaseListing";
 }

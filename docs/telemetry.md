@@ -95,7 +95,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AnimeFeedManager.Tv.Subscriptions.Management` | Auto-subscription for interested users | Functions |
 | `AnimeFeedManager.SystemEvents.Update` | System event update/dispatch | Functions |
 | `AnimeFeedManager.Tv.FeedManager` | Nyaa feed bindings: bind, backfill, automated binding, settlement | Functions |
-| `AnimeFeedManager.Tv.FeedManager.Queries` | Feed manager admin queries | Web |
+| `AnimeFeedManager.Tv.FeedManager.Queries` | Feed manager admin queries and the public release listing | Web |
 | `AnimeFeedManager.Messaging` | Queue send and process spans | Web, Functions |
 | `AnimeFeedManager.Images` | Series image provisioning | Functions |
 | `AnimeFeedManager.Web.Admin` | Admin endpoint handlers | Web |
@@ -123,6 +123,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `FeedManagerTelemetry.QuerySeasonSpan` | `Tv.FeedManager.QuerySeason` | Tv.FeedManager.Queries | Web |
 | `FeedManagerTelemetry.QuerySeriesSpan` | `Tv.FeedManager.QuerySeries` | Tv.FeedManager.Queries | Web |
 | `FeedManagerTelemetry.SearchReleasesSpan` | `Tv.FeedManager.SearchReleases` | Tv.FeedManager.Queries | Web |
+| `FeedManagerTelemetry.QueryReleaseListingSpan` | `Tv.FeedManager.QueryReleaseListing` | Tv.FeedManager.Queries | Web |
 | `RealTimeTelemetry.NegotiateSpan` | `RealTime.Negotiate` | Web.RealTime | Web |
 | `AdminTelemetry.UpdateTvSeasonSpan` | `Admin.UpdateTvSeason` | Web.Admin | Web |
 | `AdminTelemetry.UpdateLatestTvSeasonSpan` | `Admin.UpdateLatestTvSeason` | Web.Admin | Web |
