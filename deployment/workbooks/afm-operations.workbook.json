@@ -54,6 +54,43 @@
       "name": "parameters"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "## Job health\nLast 14 days, independent of the time range. **Overdue** means no run within the job's expected interval: 2h hourly feed, 26h daily jobs, 8d weekly library import (deployed schedules in `amf-infrastructure.yml`)."
+      },
+      "name": "job-health-intro"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let jobs = datatable(Job: string, Span: string, ExpectedEvery: timespan) [\n    \"Hourly feed\", \"Tv.Subscriptions.ProcessFeed\", 2h,\n    \"Library import\", \"Tv.Library.Import\", 8d,\n    \"Automated binding\", \"Tv.FeedManager.AutomatedBinding\", 26h,\n    \"Feed settlement\", \"Tv.FeedManager.SettleFeeds\", 26h\n];\nlet runs = dependencies\n    | where timestamp > ago(14d)\n    | where type == \"InProc\" and name in ((jobs | project Span))\n    | summarize LastRun = max(timestamp), LastSuccess = maxif(timestamp, success == true),\n        Runs = count(), Failures = countif(success == false) by Span = name;\njobs\n| join kind=leftouter runs on Span\n| extend Status = case(\n    isnull(LastRun) or now() - LastRun > ExpectedEvery, \"🔴 Overdue\",\n    isnull(LastSuccess) or LastSuccess < LastRun, \"🟠 Last run failed\",\n    \"🟢 OK\")\n| project Job, Status, LastRun, LastSuccess, Runs = coalesce(Runs, 0), Failures = coalesce(Failures, 0), ExpectedEvery",
+        "size": 0,
+        "title": "Scheduled jobs",
+        "noDataMessage": "No data in the selected time range.",
+        "timeContext": {
+          "durationMs": 1209600000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Failures",
+              "formatter": 8,
+              "formatOptions": {
+                "min": 0,
+                "palette": "red",
+                "showIcon": true
+              }
+            }
+          ]
+        }
+      },
+      "name": "job-health"
+    },
+    {
       "type": 11,
       "content": {
         "version": "LinkItem/1.0",
@@ -187,6 +224,31 @@
               }
             },
             "name": "errors-logs"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Web request failures\nFailed requests on the web app, by route. Error-page re-executions (`/status-code/{n}`) are reported under their original path; App Service probes are excluded."
+            },
+            "name": "web-failures-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "requests\n| where timestamp {TimeRange}\n| where cloud_RoleName == \"amf-web-manager\" and success == false\n| extend Path = tostring(parse_url(url).Path)\n| where Path !in (\"/robots933456.txt\", \"/robots.txt\")\n| extend Route = iff(name has \"/status-code/\", strcat(tostring(split(name, \" \")[0]), \" \", Path), name)\n| summarize Count = count(), LastSeen = max(timestamp), SampleOperation = take_any(operation_Id) by Route, Status = resultCode\n| order by Count desc",
+              "size": 0,
+              "title": "Failed web requests by route and status",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "web-failures"
           }
         ]
       },
@@ -206,7 +268,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Notifications\n`Tv.Subscriptions.ProcessFeed` fans out one `tv-feed-notification` message per user; each hop is its own operation, linked to the run."
+              "json": "## Notifications\n`Tv.Subscriptions.ProcessFeed` polls nyaa once, catalogs tracked bindings' releases, queues backfills when the poll window has a gap, then fans out one `tv-feed-notification` message per user; each hop is its own operation, linked to the run."
             },
             "name": "notifications-header"
           },
@@ -214,7 +276,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "let runs = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"Tv.Subscriptions.ProcessFeed\"\n    | project RunStart = timestamp, RunOperation = operation_Id, RunSpan = id, Duration = duration, Succeeded = success;\nlet manual = requests\n    | where timestamp {TimeRange}\n    | where name == \"process tv-feed-notification-process-trigger\"\n    | distinct RunOperation = operation_Id\n    | extend Manual = true;\nlet users = traces\n    | where timestamp {TimeRange}\n    | where isnotempty(customDimensions[\"notification.user_count\"])\n    | summarize UsersToNotify = max(toint(customDimensions[\"notification.user_count\"])) by RunSpan = operation_ParentId;\nlet sent = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"send tv-feed-notification\"\n    | summarize Sent = count(), SendFailures = countif(success == false) by RunOperation = operation_Id;\nlet hops = requests\n    | where timestamp {TimeRange}\n    | where name == \"process tv-feed-notification\"\n    | mv-expand link = todynamic(tostring(customDimensions[\"_MS.links\"]))\n    | project HopOperation = operation_Id, RunOperation = tostring(link.operation_Id);\nlet outcomes = hops\n    | join kind=inner (dependencies\n        | where timestamp {TimeRange}\n        | where name == \"Tv.Subscriptions.NotifyUser\"\n        | project HopOperation = operation_Id, NotifySucceeded = success) on HopOperation\n    | summarize Processed = count(), Failed = countif(NotifySucceeded == false) by RunOperation;\nruns\n| join kind=leftouter manual on RunOperation\n| join kind=leftouter users on RunSpan\n| join kind=leftouter sent on RunOperation\n| join kind=leftouter outcomes on RunOperation\n| project RunStart, Trigger = iff(Manual == true, \"manual\", \"timer\"), Duration, Succeeded, UsersToNotify,\n    Sent = coalesce(Sent, 0), SendFailures = coalesce(SendFailures, 0),\n    Processed = coalesce(Processed, 0), Failed = coalesce(Failed, 0), RunOperation\n| order by RunStart desc",
+              "query": "let runs = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"Tv.Subscriptions.ProcessFeed\"\n    | project RunStart = timestamp, RunOperation = operation_Id, RunSpan = id, Duration = duration, Succeeded = success;\nlet manual = requests\n    | where timestamp {TimeRange}\n    | where name == \"process tv-feed-notification-process-trigger\"\n    | distinct RunOperation = operation_Id\n    | extend Manual = true;\nlet users = traces\n    | where timestamp {TimeRange}\n    | where isnotempty(customDimensions[\"notification.user_count\"])\n    | summarize UsersToNotify = max(toint(customDimensions[\"notification.user_count\"])),\n        Catalogued = max(toint(customDimensions[\"nyaa.catalogued_count\"])) by RunSpan = operation_ParentId;\nlet gaps = traces\n    | where timestamp {TimeRange}\n    | where isnotempty(customDimensions[\"nyaa.backfill_count\"])\n    | summarize BackfillsQueued = max(toint(customDimensions[\"nyaa.backfill_count\"])) by RunSpan = operation_ParentId;\nlet sent = dependencies\n    | where timestamp {TimeRange}\n    | where name == \"send tv-feed-notification\"\n    | summarize Sent = count(), SendFailures = countif(success == false) by RunOperation = operation_Id;\nlet hops = requests\n    | where timestamp {TimeRange}\n    | where name == \"process tv-feed-notification\"\n    | mv-expand link = todynamic(tostring(customDimensions[\"_MS.links\"]))\n    | project HopOperation = operation_Id, RunOperation = tostring(link.operation_Id);\nlet outcomes = hops\n    | join kind=inner (dependencies\n        | where timestamp {TimeRange}\n        | where name == \"Tv.Subscriptions.NotifyUser\"\n        | project HopOperation = operation_Id, NotifySucceeded = success) on HopOperation\n    | summarize Processed = count(), Failed = countif(NotifySucceeded == false) by RunOperation;\nruns\n| join kind=leftouter manual on RunOperation\n| join kind=leftouter users on RunSpan\n| join kind=leftouter gaps on RunSpan\n| join kind=leftouter sent on RunOperation\n| join kind=leftouter outcomes on RunOperation\n| project RunStart, Trigger = iff(Manual == true, \"manual\", \"timer\"), Duration, Succeeded, Catalogued,\n    BackfillsQueued = coalesce(BackfillsQueued, 0), UsersToNotify,\n    Sent = coalesce(Sent, 0), SendFailures = coalesce(SendFailures, 0),\n    Processed = coalesce(Processed, 0), Failed = coalesce(Failed, 0), RunOperation\n| order by RunStart desc",
               "size": 0,
               "title": "Notification runs (select a run for its per-user hops)",
               "noDataMessage": "No data in the selected time range.",
@@ -261,6 +323,49 @@
               "visualization": "table"
             },
             "name": "notification-hops"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Nyaa jobs\nAutomated binding and feed settlement run daily. Each backfill shows what requested it: a bind, an hourly poll-window gap, or an admin action."
+            },
+            "name": "nyaa-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let runs = dependencies\n    | where timestamp {TimeRange}\n    | where type == \"InProc\" and name in (\"Tv.FeedManager.AutomatedBinding\", \"Tv.FeedManager.SettleFeeds\")\n    | project RunStart = timestamp, Job = substring(name, 15), RunSpan = id, RunOperation = operation_Id, Duration = duration,\n        Succeeded = success, ErrorType = tostring(customDimensions[\"error.type\"]);\nlet manual = requests\n    | where timestamp {TimeRange}\n    | where name in (\"process run-automated-binding\", \"process run-feed-settlement\")\n    | distinct RunOperation = operation_Id\n    | extend Manual = true;\nlet outcomes = traces\n    | where timestamp {TimeRange}\n    | where isnotempty(customDimensions[\"nyaa.queued_count\"]) or isnotempty(customDimensions[\"nyaa.stamped_count\"])\n    | summarize Outcome = take_any(replace_regex(message, @\"^\\((Scheduled|Manual)\\) |\\. Next run: .*$\", \"\")) by RunSpan = operation_ParentId;\nruns\n| join kind=leftouter manual on RunOperation\n| join kind=leftouter outcomes on RunSpan\n| project RunStart, Job, Trigger = iff(Manual == true, \"manual\", \"timer\"), Duration, Succeeded, ErrorType, Outcome, RunOperation\n| order by RunStart desc",
+              "size": 0,
+              "title": "Automated binding and feed settlement runs",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "nyaa-runs"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let backfills = dependencies\n    | where timestamp {TimeRange}\n    | where type == \"InProc\" and name == \"Tv.FeedManager.BackfillSeries\"\n    | project timestamp, SpanId = id, BackfillOperation = operation_Id, Duration = duration, Succeeded = success,\n        ErrorType = tostring(customDimensions[\"error.type\"]);\nlet facts = traces\n    | where timestamp {TimeRange}\n    | where isnotempty(customDimensions[\"nyaa.catalogued_count\"]) and isnotempty(customDimensions[\"series.title\"])\n    | summarize Series = take_any(tostring(customDimensions[\"series.title\"])),\n        Catalogued = max(toint(customDimensions[\"nyaa.catalogued_count\"])) by SpanId = operation_ParentId;\nlet producers = requests\n    | where timestamp {TimeRange}\n    | where name == \"process backfill-nyaa-series\"\n    | mv-expand link = todynamic(tostring(customDimensions[\"_MS.links\"]))\n    | project BackfillOperation = operation_Id, ProducerOperation = tostring(link.operation_Id);\nlet roots = dependencies\n    | where timestamp {TimeRange}\n    | where type == \"InProc\" and name in (\"Tv.FeedManager.BindSeries\", \"Tv.Subscriptions.ProcessFeed\", \"Admin.BackfillNyaaSeries\")\n    | summarize RequestedBy = take_any(name) by ProducerOperation = operation_Id;\nbackfills\n| join kind=leftouter facts on SpanId\n| join kind=leftouter producers on BackfillOperation\n| join kind=leftouter roots on ProducerOperation\n| project timestamp, Series, Catalogued, Duration, Succeeded, ErrorType,\n    RequestedBy = case(RequestedBy == \"Tv.FeedManager.BindSeries\", \"bind\", RequestedBy == \"Tv.Subscriptions.ProcessFeed\", \"hourly gap\",\n        RequestedBy == \"Admin.BackfillNyaaSeries\", \"admin\", \"unknown\"),\n    BackfillOperation\n| order by timestamp desc",
+              "size": 0,
+              "title": "Backfills",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "nyaa-backfills"
           },
           {
             "type": 1,
@@ -403,7 +508,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "dependencies\n| where timestamp {TimeRange}\n| where type == \"Http\" and target has \"animeschedule.net\"\n| summarize Calls = count(), RateLimited = countif(resultCode == \"429\"), ServerErrors = countif(resultCode startswith \"5\"),\n    Failed = countif(success == false), P50 = percentile(duration, 50), P95 = percentile(duration, 95) by Host = target",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where type =~ \"HTTP\" and target has \"animeschedule.net\"\n| summarize Calls = count(), RateLimited = countif(resultCode == \"429\"), ServerErrors = countif(resultCode startswith \"5\"),\n    Failed = countif(success == false), P50 = percentile(duration, 50), P95 = percentile(duration, 95) by Host = target",
               "size": 0,
               "title": "Calls by host",
               "noDataMessage": "No data in the selected time range.",
@@ -443,7 +548,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "dependencies\n| where timestamp {TimeRange}\n| where type == \"Http\" and target has \"animeschedule.net\"\n| summarize Calls = count() by Status = strcat(target, \" \", resultCode), bin(timestamp, {TimeRange:grain})",
+              "query": "dependencies\n| where timestamp {TimeRange}\n| where type =~ \"HTTP\" and target has \"animeschedule.net\"\n| summarize Calls = count() by Status = strcat(target, \" \", resultCode), bin(timestamp, {TimeRange:grain})",
               "size": 0,
               "title": "Calls by status over time",
               "noDataMessage": "No data in the selected time range.",
@@ -494,6 +599,71 @@
               }
             },
             "name": "scrape-completeness"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Nyaa\nCalls by the job that made them. A `429` fails the call, not necessarily the job: the HTTP retry may recover it, so check the backfill's outcome in **Flows**."
+            },
+            "name": "nyaa-provider-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let jobs = dependencies\n    | where timestamp {TimeRange}\n    | where type == \"InProc\" and name startswith \"Tv.\"\n    | summarize Job = take_any(name) by operation_Id;\ndependencies\n| where timestamp {TimeRange}\n| where type =~ \"HTTP\" and target == \"nyaa.si\"\n| join kind=leftouter jobs on operation_Id\n| summarize Calls = count(), RateLimited = countif(resultCode == \"429\"), ServerErrors = countif(resultCode startswith \"5\"),\n    Failed = countif(success == false), P50 = percentile(duration, 50), P95 = percentile(duration, 95)\n    by Job = iff(isempty(Job), \"(no domain span)\", Job), Role = cloud_RoleName\n| order by Failed desc, Calls desc",
+              "size": 0,
+              "title": "Calls by job",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "RateLimited",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "red",
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "ServerErrors",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "orange",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "nyaa-summary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let jobs = dependencies\n    | where timestamp {TimeRange}\n    | where type == \"InProc\" and name startswith \"Tv.\"\n    | summarize Job = take_any(name) by operation_Id;\ndependencies\n| where timestamp {TimeRange}\n| where type =~ \"HTTP\" and target == \"nyaa.si\" and success == false\n| join kind=leftouter jobs on operation_Id\n| project timestamp, Job = iff(isempty(Job), \"(no domain span)\", Job), Status = resultCode, Duration = duration, Role = cloud_RoleName,\n    Operation = operation_Id\n| order by timestamp desc",
+              "size": 0,
+              "title": "Failed calls",
+              "noDataMessage": "No data in the selected time range.",
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "visualization": "table"
+            },
+            "name": "nyaa-failures"
           },
           {
             "type": 1,

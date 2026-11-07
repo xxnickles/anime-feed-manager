@@ -1,0 +1,40 @@
+<section aria-labelledby="recent-releases-title" class="card bg-base-200 shadow-sm mb-10">
+    <header class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-base-300">
+        <h2 id="recent-releases-title"
+            class="m-0 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-base-content/70">
+            Releases · last 24 hours
+            <span id="recent-releases-loader" class="loading loading-spinner loading-xs htmx-indicator"></span>
+        </h2>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-base-content/70">Episodes the hourly notifications offer</span>
+            <button type="button" class="btn btn-ghost btn-xs gap-1"
+                    hx-get="@Endpoint"
+                    hx-target="#recent-releases-body"
+                    hx-swap="innerHTML"
+                    hx-indicator="#recent-releases-loader">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="size-4" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                </svg>
+                Refresh
+            </button>
+        </div>
+    </header>
+    @* Capped height: a busy day scrolls inside the card. *@
+    <div id="recent-releases-body"
+         class="max-h-80 overflow-y-auto overscroll-contain"
+         hx-get="@Endpoint"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+        <div class="flex flex-col gap-3 p-5" role="status" aria-label="Loading">
+            <div class="skeleton h-4 w-48" aria-hidden="true"></div>
+            <div class="skeleton h-4 w-40" aria-hidden="true"></div>
+            <div class="skeleton h-4 w-56" aria-hidden="true"></div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private const string Endpoint = "/admin/stats/recent-releases";
+}

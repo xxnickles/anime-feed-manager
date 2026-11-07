@@ -91,7 +91,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AnimeFeedManager.Tv.Library.Import` | TV library scrape/import for a season | Functions |
 | `AnimeFeedManager.Tv.Library.Completion` | Marking feed-completed series completed | Functions |
 | `AnimeFeedManager.Tv.Library.Queries` | Library catalog queries | Web |
-| `AnimeFeedManager.Tv.Subscriptions.Feed` | Daily feed processing, per-user notification | Functions |
+| `AnimeFeedManager.Tv.Subscriptions.Feed` | Hourly nyaa poll and feed processing, per-user notification | Functions |
 | `AnimeFeedManager.Tv.Subscriptions.Management` | Auto-subscription for interested users | Functions |
 | `AnimeFeedManager.SystemEvents.Update` | System event update/dispatch | Functions |
 | `AnimeFeedManager.Tv.FeedManager` | Nyaa feed bindings: bind, backfill, automated binding, settlement | Functions |
@@ -137,6 +137,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 | `AdminTelemetry.ErrorStatSpan` | `Admin.ErrorStat` | Web.Admin | Web |
 | `AdminTelemetry.NyaaStatSpan` | `Admin.NyaaStat` | Web.Admin | Web |
 | `AdminTelemetry.AutomatedBindingStatSpan` | `Admin.AutomatedBindingStat` | Web.Admin | Web |
+| `AdminTelemetry.RecentReleasesSpan` | `Admin.RecentReleases` | Web.Admin | Web |
 | `AdminTelemetry.BindNyaaSeriesSpan` | `Admin.BindNyaaSeries` | Web.Admin | Web |
 | `AdminTelemetry.BackfillNyaaSeriesSpan` | `Admin.BackfillNyaaSeries` | Web.Admin | Web |
 | `AdminTelemetry.ClearNyaaCatalogSpan` | `Admin.ClearNyaaCatalog` | Web.Admin | Web |

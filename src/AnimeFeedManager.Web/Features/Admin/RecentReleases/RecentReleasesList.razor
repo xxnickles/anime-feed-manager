@@ -1,0 +1,41 @@
+@using AnimeFeedManager.Features.Tv.FeedManager
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Web.Features.Admin.Stats
+
+@if (Series.IsEmpty)
+{
+    <p class="m-0 px-5 py-4 text-sm text-base-content/70">No releases in the last 24 hours</p>
+}
+else
+{
+    <ul class="list">
+        @foreach (var series in Series)
+        {
+            <li class="list-row items-center">
+                <div class="list-col-grow flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                    <a href="@FeedManagerRoutes.Releases(series.SeriesId)"
+                       class="link link-hover font-semibold">@series.Title</a>
+                    @foreach (var episode in series.Episodes)
+                    {
+                        <span class="badge badge-sm badge-soft badge-primary"
+                              title="@episode.Published.ToString("u")">@episode.Episode</span>
+                    }
+                </div>
+                <time class="text-xs text-base-content/70 whitespace-nowrap"
+                      datetime="@series.Latest.ToString("O")"
+                      title="@series.Latest.ToString("u")">@RelativeTime.Ago(series.Latest)</time>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter, EditorRequired] public required ImmutableArray<RecentSeries> Series { get; set; }
+
+    public static RenderFragment AsRenderFragment(ImmutableArray<RecentSeries> series) => builder =>
+    {
+        builder.OpenComponent<RecentReleasesList>(0);
+        builder.AddAttribute(1, nameof(Series), series);
+        builder.CloseComponent();
+    };
+}

@@ -31,7 +31,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v6.0.0
+        uses: actions/setup-dotnet@v6.1.0
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -59,7 +59,7 @@ jobs:
 
       - name: Get Function App Name
         id: getname
-        uses: azure/bicep-deploy@v2.4.0
+        uses: azure/bicep-deploy@v2.5.0
         with:
           type: deployment
           operation: create

@@ -1,6 +1,7 @@
 ﻿@page "/admin"
 @using AnimeFeedManager.Features.AppEvents
 @using AnimeFeedManager.Features.Tv.FeedManager.AutomatedBinding
+@using AnimeFeedManager.Web.Features.Admin.RecentReleases
 @using AnimeFeedManager.Web.Features.Admin.SeasonCards
 @using AnimeFeedManager.Web.Features.Admin.Stats
 @using AnimeFeedManager.Web.Features.Admin.TvCards
@@ -43,6 +44,8 @@
     <StatCardSkeleton CardId="automated-binding" Endpoint="/admin/stats/automated-binding"
                       Trigger="@AppEventTrigger.On(AppEventNames.AutomatedBindingFinished, AutomatedSeriesBinding.RunSubject)"/>
 </section>
+
+<RecentReleasesCard/>
 
 <h2 class="mb-8">Charts</h2>
 <Charts/>

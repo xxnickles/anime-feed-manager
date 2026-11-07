@@ -1,7 +1,9 @@
 using AnimeFeedManager.Features.SystemEvents.Stats;
 using AnimeFeedManager.Features.SystemEvents.Storage.Stores;
+using AnimeFeedManager.Features.Tv.FeedManager.Queries;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 using AnimeFeedManager.Features.Tv.Library.Events;
+using AnimeFeedManager.Web.Features.Admin.RecentReleases;
 using AnimeFeedManager.Web.Features.Admin.Stats;
 
 namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
@@ -72,5 +74,23 @@ internal static class StatHandlers
             .ToComponentResult(
                 stat => [AutomatedBindingStatCard.AsRenderFragment(stat)],
                 _ => [StatCardError.AsRenderFragment("Automated binding")]);
+    }
+
+    internal static async Task<RazorComponentResult> RecentReleases(
+        [FromServices] ITableClientFactory clientFactory,
+        [FromServices] ILogger<AdminPage> logger,
+        CancellationToken cancellationToken)
+    {
+        using var activity = Source.StartActivity(AdminTelemetry.RecentReleasesSpan);
+        return await RecentReleasesQuery.GetRecentReleases(
+                clientFactory.TableStorageTrackedNyaaBindings,
+                clientFactory.TableStorageNyaaCatalogGetter,
+                DateTimeOffset.UtcNow,
+                cancellationToken)
+            .MarkActivityErroredOnError()
+            .FlushLogs(logger)
+            .ToComponentResult(
+                series => [RecentReleasesList.AsRenderFragment(series)],
+                _ => [StatCardError.AsRenderFragment("Recent releases")]);
     }
 }
