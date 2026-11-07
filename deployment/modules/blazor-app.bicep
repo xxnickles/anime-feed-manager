@@ -34,7 +34,7 @@ resource signalR 'Microsoft.SignalRService/signalR@2024-03-01' existing = {
 var storageBlobDataContributorRole = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageQueueDataContributorRole = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 var storageTableDataContributorRole = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
-var signalRRestApiOwnerRole = 'fd53cd77-2268-407a-8f46-7e7863d0f521'
+var signalRServiceOwnerRole = '7e4f1700-ea5a-4f59-8f37-079cfe29dce3'
 
 // App Service Plan for the Web App
 resource webPlan 'Microsoft.Web/serverfarms@2025-03-01' = {
@@ -136,12 +136,12 @@ resource tableRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01
   }
 }
 
-// RBAC: SignalR REST API Owner for Web App (negotiate tokens, group sync)
+// RBAC: SignalR Service Owner for Web App (serverless negotiation needs auth/accessKey plus REST group sync)
 resource signalRRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(signalR.id, webApp.id, signalRRestApiOwnerRole)
+  name: guid(signalR.id, webApp.id, signalRServiceOwnerRole)
   scope: signalR
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', signalRRestApiOwnerRole)
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', signalRServiceOwnerRole)
     principalId: webApp.identity.principalId
     principalType: 'ServicePrincipal'
   }
