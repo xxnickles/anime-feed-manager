@@ -5,7 +5,17 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>db32306d-9037-4e40-a635-544e287fa705</UserSecretsId>
+        <!-- The workflow passes -p:Version; the commit is embedded separately as CommitSha metadata -->
+        <InformationalVersion Condition="'$(Version)' == ''">local</InformationalVersion>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     </PropertyGroup>
+
+    <Target Name="AddCommitShaMetadata" BeforeTargets="GetAssemblyAttributes"
+            DependsOnTargets="InitializeSourceControlInformation">
+        <ItemGroup Condition="'$(SourceRevisionId)' != ''">
+            <AssemblyMetadata Include="CommitSha" Value="$(SourceRevisionId)" />
+        </ItemGroup>
+    </Target>
 
     <ItemGroup>
       <ProjectReference Include="..\AnimeFeedManager.ServiceDefaults\AnimeFeedManager.ServiceDefaults.csproj" />

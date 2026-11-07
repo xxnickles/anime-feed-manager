@@ -34,8 +34,6 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
     .WithEnvironment("AutomatedBindingSchedule", "0 20 * * * *")
     .WithEnvironment("FeedSettlementSchedule", "0 40 * * * *");
 
-var commitSha = GetLocalCommitSha();
-
 var web = builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WaitFor(functions)
     .WithReference(signalR)
@@ -45,38 +43,10 @@ var web = builder.AddProject<Projects.AnimeFeedManager_Web>("web")
     .WithReference(queues)
     .WaitFor(queues)
     .WithReference(tables)
-    .WaitFor(tables)
-    .WithEnvironment("AppVersion__CommitSha", commitSha);
+    .WaitFor(tables);
 
 // Endpoint reference only; a WaitFor here would cycle with web's WaitFor(functions)
 functions.WithEnvironment("WebApp__BaseUrl", web.GetEndpoint("https"));
 
 
 builder.Build().Run();
-return;
-
-static string GetLocalCommitSha()
-{
-    try
-    {
-        var process = new System.Diagnostics.Process
-        {
-            StartInfo = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = "git",
-                Arguments = "rev-parse --short HEAD",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            }
-        };
-        process.Start();
-        var sha = process.StandardOutput.ReadToEnd().Trim();
-        process.WaitForExit();
-        return process.ExitCode == 0 ? sha : string.Empty;
-    }
-    catch
-    {
-        return string.Empty;
-    }
-}
