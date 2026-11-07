@@ -51,7 +51,7 @@ public static class Registration
     public static IHttpClientBuilder RegisterNyaaServices(this IServiceCollection serviceCollection) =>
         serviceCollection.AddHttpClient<INyaaClient, NyaaClient>(client =>
         {
-            client.BaseAddress = new Uri("https://nyaa.si/");
+            client.BaseAddress = NyaaQuery.Site;
             client.DefaultRequestHeaders.UserAgent.ParseAdd("AnimeFeedManager/1.0");
         });
 

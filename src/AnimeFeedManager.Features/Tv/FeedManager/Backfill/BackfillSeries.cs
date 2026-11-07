@@ -47,7 +47,7 @@ public static class BackfillSeries
     extension(Task<Result<BackfillProcess>> process)
     {
         private Task<Result<BackfillProcess>> Search(INyaaClient nyaaClient, CancellationToken token) =>
-            process.Bind(p => nyaaClient.Fetch(Query(p.Binding), token)
+            process.Bind(p => nyaaClient.Fetch(NyaaBindingQuery.For(p.Binding), token)
                 .Bind(document => Match(p, document)));
 
         private Task<Result<BackfillProcess>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
@@ -79,13 +79,6 @@ public static class BackfillSeries
                             new NyaaBackfillFailed(request.SeriesId).AsEventPayload())
                     ],
                     token);
-    }
-
-    // Quoted for an exact phrase match; a trusted binding filters server-side to stretch the 75-item window.
-    private static NyaaQuery Query(NyaaBindingStorage binding)
-    {
-        var query = NyaaQuery.Create().Search($"\"[{binding.Group}] {binding.ReleaseTitle}\"");
-        return binding.Trusted ? query.TrustedOnly() : query;
     }
 
     private static Result<BackfillProcess> Match(BackfillProcess process, XDocument document) =>

@@ -45,4 +45,12 @@ public class NyaaQueryTests
     {
         Assert.Contains("&f=1&", NyaaQuery.Create().TrustedOnly().NoRemakes().Build());
     }
+
+    [Fact]
+    public void Should_Point_At_The_Site_Listing_Without_Rss_When_Browsing()
+    {
+        var url = NyaaQuery.Create().Search("\"[SubsPlease] Show\"").TrustedOnly().BrowseUrl();
+
+        Assert.Equal("https://nyaa.si/?c=1_2&f=2&q=%22%5BSubsPlease%5D%20Show%22", url.AbsoluteUri);
+    }
 }

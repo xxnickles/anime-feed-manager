@@ -20,6 +20,8 @@ public sealed record NyaaQuery
     private NyaaCategory Category { get; init; } = NyaaCategory.EnglishTranslated;
     private NyaaFilter Filter { get; init; } = NyaaFilter.None;
 
+    public static readonly Uri Site = new("https://nyaa.si/");
+
     private NyaaQuery()
     {
     }
@@ -37,6 +39,10 @@ public sealed record NyaaQuery
     /// <summary>Request relative to the site root; <c>m=true</c> puts the magnet in each item's link.</summary>
     public string Build() =>
         $"?page=rss&m=true&c={CategoryCode(Category)}&f={(int) Filter}&q={Uri.EscapeDataString(Terms)}";
+
+    /// <summary>The site's listing page for the same search.</summary>
+    public Uri BrowseUrl() =>
+        new(Site, $"?c={CategoryCode(Category)}&f={(int) Filter}&q={Uri.EscapeDataString(Terms)}");
 
     private static string CategoryCode(NyaaCategory category) => category switch
     {
