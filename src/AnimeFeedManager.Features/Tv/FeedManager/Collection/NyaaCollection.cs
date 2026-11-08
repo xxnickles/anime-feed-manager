@@ -44,8 +44,11 @@ public static class NyaaCollection
     // users' notified episodes keep it from going out twice.
     public static readonly TimeSpan FeedWindow = TimeSpan.FromHours(24);
 
+    /// <summary>Only items whose title contains this term are ever polled.</summary>
+    internal const string PollTerm = "1080";
+
     // Unfiltered so one request covers every tracked binding; matching applies each binding's rules.
-    private static readonly NyaaQuery PollQuery = NyaaQuery.Create().Search("1080");
+    private static readonly NyaaQuery PollQuery = NyaaQuery.Create().Search(PollTerm);
 
     /// <summary>Polls nyaa once, catalogs every tracked binding's matches, then builds feeds from the tracked catalogs; any failure fails the run.</summary>
     public static Task<Result<NyaaCollected>> Collect(

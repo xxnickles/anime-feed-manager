@@ -3,7 +3,17 @@
 
 <li class="list-row items-center">
     <div class="list-col-grow flex min-w-0 flex-col gap-1">
-        <span class="text-sm"><strong>[@Candidate.Group]</strong> @Candidate.ReleaseTitle</span>
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+            <span><strong>[@Candidate.Group]</strong> @Candidate.ReleaseTitle</span>
+            @if (Candidate.Trusted)
+            {
+                <span class="badge badge-sm badge-info">Trusted</span>
+            }
+            @if (Candidate.Remake)
+            {
+                <span class="badge badge-sm badge-error">Remake</span>
+            }
+        </div>
         <code class="self-start rounded bg-base-300 px-2 py-0.5 text-xs">@Candidate.Variant</code>
         <span class="text-xs text-base-content/70">@_summary</span>
     </div>
@@ -59,7 +69,6 @@
             new[]
             {
                 episodes,
-                Candidate.Trusted ? "trusted" : null,
                 $"newest {Candidate.Newest.UtcDateTime.ToString("ddd d MMM HH:mm 'UTC'", CultureInfo.InvariantCulture)}"
             }.OfType<string>());
     }
