@@ -20,7 +20,7 @@
     "@tailwindcss/cli": "^4.3.5",
     "@tailwindcss/typography": "^0.5.20",
     "chokidar": "^6.0.0",
-    "concurrently": "^10.0.6",
+    "concurrently": "^10.0.7",
     "daisyui": "^5.7.50",
     "glob": "^14.0.4",
     "npm-check-updates": "^23.1.1",
