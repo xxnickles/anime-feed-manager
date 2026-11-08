@@ -132,6 +132,31 @@ public class NyaaMatchTests
         Assert.Equal("2026-fall-show", Assert.Single(rows).PartitionKey);
     }
 
+    [Fact]
+    public void Should_Catalog_Only_The_Bound_Variant_When_Group_Separates_Title_With_A_Dash()
+    {
+        var binding = new NyaaBindingStorage
+        {
+            Group = "Doomdos",
+            ReleaseTitle = "Kanojo no Tomodachi",
+            Variant = "[Uncensored] [720p OV WEB-DL] [My Girlfriend's Friend]"
+        };
+        NyaaItem[] items =
+        [
+            DoomdosItem("[Doomdos] - Kanojo no Tomodachi - S01E05 [720p OV WEB-DL] [My Girlfriend's Friend]", "a"),
+            DoomdosItem("[Doomdos] - Kanojo no Tomodachi - S01E05 [Uncensored] [720p OV WEB-DL] [My Girlfriend's Friend]", "b"),
+            DoomdosItem("[Doomdos] - Kanojo no Tomodachi - S01E04 [720p OV WEB-DL] [My Girlfriend's Friend]", "c"),
+            DoomdosItem("[Doomdos] - Kanojo no Tomodachi - S01E04 [Uncensored] [720p OV WEB-DL] [My Girlfriend's Friend]", "d"),
+            DoomdosItem("[Doomdos] - Kanojo no Tomodachi - S01E03 [720p OV WEB-DL] [My Girlfriend's Friend]", "e"),
+            DoomdosItem("[Doomdos] - Kanojo no Tomodachi - S01E03 [Uncensored] [720p OV WEB-DL] [My Girlfriend's Friend]", "f")
+        ];
+
+        var rows = NyaaMatch.CatalogRows(binding, "2026-fall-kanojo", items);
+
+        Assert.Equal(["b", "d", "f"], rows.Select(row => row.InfoHash));
+        Assert.Equal(["S01E05", "S01E04", "S01E03"], rows.Select(row => row.EpisodeLabel));
+    }
+
     #endregion
 
     #region Test Helpers
@@ -148,6 +173,10 @@ public class NyaaMatchTests
     private static NyaaItem Item(DateTimeOffset published, string infoHash = "hash") =>
         new("[SubsPlease] Show - 01 (1080p)", "magnet:?", "https://nyaa.si/download/1.torrent", infoHash,
             published, "1.4 GiB", Trusted: true, Remake: false, Category: "1_2");
+
+    private static NyaaItem DoomdosItem(string title, string infoHash) =>
+        new(title, "magnet:?", "https://nyaa.si/download/1.torrent", infoHash,
+            Premiere, "700 MiB", Trusted: false, Remake: false, Category: "1_2");
 
     #endregion
 }

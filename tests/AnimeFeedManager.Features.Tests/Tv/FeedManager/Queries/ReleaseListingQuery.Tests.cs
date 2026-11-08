@@ -50,7 +50,7 @@ public class ReleaseListingQueryTests
             Assert.Equal("SubsPlease", feed.Group);
             Assert.Equal("(1080p)", feed.Variant);
             Assert.True(feed.Trusted);
-            Assert.Equal("https://nyaa.si/?c=1_2&f=2&q=%22%5BSubsPlease%5D%20Psyren%22", feed.Browse.AbsoluteUri);
+            Assert.Equal("https://nyaa.si/?c=1_2&f=2&q=%22SubsPlease%22%20%22Psyren%22", feed.Browse.AbsoluteUri);
             Assert.Equal(2, feed.Indexed);
             Assert.Equal(["02", "01"], feed.Episodes.Select(e => e.Label));
             Assert.Equal(new LastRelease(Published), feed.Cadence);

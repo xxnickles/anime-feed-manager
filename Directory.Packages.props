@@ -51,7 +51,7 @@
     <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="Passwordless.AspNetCore" Version="2.0.0" />
     <PackageVersion Include="Raffinert.FuzzySharp" Version="6.0.1" />
-    <PackageVersion Include="WireMock.Net" Version="2.21.0" />
+    <PackageVersion Include="WireMock.Net" Version="2.30.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.2" />
   </ItemGroup>
 </Project>
