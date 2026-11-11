@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
+    <PropertyGroup>      
         <UserSecretsId>db32306d-9037-4e40-a635-544e287fa705</UserSecretsId>
         <!-- The workflow passes -p:Version; the commit is embedded separately as CommitSha metadata -->
         <InformationalVersion Condition="'$(Version)' == ''">local</InformationalVersion>
