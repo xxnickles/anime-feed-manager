@@ -1,7 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Azure.Functions.Sdk">
+    
     <PropertyGroup>
-        <AzureFunctionsVersion>V4</AzureFunctionsVersion>
-        <OutputType>Exe</OutputType>
         <UserSecretsId>f8fb5dfb-9abf-41d3-a284-837f90939806</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
@@ -13,7 +12,6 @@
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.SignalRService"  />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues"  />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk"  />
     </ItemGroup>
     <ItemGroup>
         <None Update="host.json">
