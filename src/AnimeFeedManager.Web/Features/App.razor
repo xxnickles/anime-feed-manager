@@ -62,7 +62,7 @@ else
         const API_KEY = "@PasswordlessOptions.Value.ApiKey"; // Replace this value with your API Key
     </script>
 
-    <RenderOnEnviroment Exclude="[Environments.Development]">
+    <EnvironmentView Exclude="@Environments.Development">
         <script defer src="@Assets["webcomponents/afm-logo.min.js"]"></script>
         <script defer src="@Assets["lib/htmx/dist/htmx.min.js"]"></script>
         <script defer src="@Assets["lib/hyperscript/dist/_hyperscript.min.js"]"></script>
@@ -75,9 +75,9 @@ else
         <script defer src="@Assets["lib/signalr/dist/browser/signalr.min.js"]"></script>
         <script defer src="@Assets["lib/chartjs/dist/chart.umd.min.js"]"></script>
         <script defer src="@Assets["scripts/hx-signalr.min.js"]" type="module"></script>
-    </RenderOnEnviroment>
+    </EnvironmentView>
 
-    <RenderOnEnviroment Include="[Environments.Development]">
+    <EnvironmentView Include="@Environments.Development">
         <script defer src="@Assets["webcomponents/afm-logo.js"]"></script>
         <script defer src="@Assets["lib/htmx/dist/htmx.js"]"></script>
         <script defer src="@Assets["lib/hyperscript/dist/_hyperscript.js"]"></script>
@@ -89,7 +89,7 @@ else
         <script defer src="@Assets["lib/signalr/dist/browser/signalr.js"]"></script>
         <script defer src="@Assets["lib/chartjs/dist/chart.umd.min.js"]"></script>
         <script defer src="@Assets["scripts/hx-signalr.js"]" type="module"></script>
-    </RenderOnEnviroment>
+    </EnvironmentView>
 
 
     <HeadOutlet/>
