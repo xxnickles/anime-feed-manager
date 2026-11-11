@@ -139,13 +139,13 @@ public static class Extensions
     {
         // Health check endpoints for Azure App Service and container orchestrators
         // /health - All health checks must pass for app to be considered ready
-        app.MapHealthChecks(HealthEndpointPath);
+        app.MapHealthChecks(HealthEndpointPath).ShortCircuit();
 
         // /alive - Only "live" tagged checks must pass (liveness probe)
         app.MapHealthChecks(AlivenessEndpointPath, new HealthCheckOptions
         {
             Predicate = r => r.Tags.Contains("live")
-        });
+        }).ShortCircuit();
 
         return app;
     }
