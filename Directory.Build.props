@@ -5,5 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <FileVersion>4.0.0.0</FileVersion>
+    <!-- Union/closed exhaustiveness ships as warnings: non-exhaustive switch, unhandled null, impossible type test. -->
+    <WarningsAsErrors>$(WarningsAsErrors);CS8509;CS8655;CS0184</WarningsAsErrors>
   </PropertyGroup>
 </Project>
