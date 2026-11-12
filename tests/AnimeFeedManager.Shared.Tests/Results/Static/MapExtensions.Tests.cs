@@ -45,13 +45,12 @@ public class MapExtensionsTests
     }
 
     [Fact]
-    public void Should_Map_Error_To_New_Error()
+    public void Should_Change_Error_Type_When_MapError_Runs_On_Failure()
     {
-        var originalError = NotFoundError.Create("Original error");
-        var result = Result<int, DomainError>.Failure(originalError)
-            .MapError(_ => Error.Create("Mapped error"));
+        Result<int, Error> result = Result<int, DomainError>.Failure(NotFoundError.Create("Not found"))
+            .MapError(error => Error.Create($"Wrapped: {error.Message}"));
 
-        result.AssertError();
+        result.AssertOnError(error => Assert.Equal("Wrapped: Not found", error.Message));
     }
 
     [Fact]
@@ -70,12 +69,30 @@ public class MapExtensionsTests
     }
 
     [Fact]
-    public void Should_Transform_Error_Type_With_MapError()
+    public void Should_Keep_Trace_Context_When_MapError_Changes_Error_Type()
     {
-        var originalError = NotFoundError.Create("Not found");
-        var result = Result<int, DomainError>.Failure(originalError)
-            .MapError(error => Error.Create($"Wrapped: {error.Message}"));
+        var logger = new RecordingLogger();
 
-        result.AssertError();
+        Result<int, DomainError>.Failure(NotFoundError.Create("Not found"))
+            .AddLog(log => log.LogInformation("staged"))
+            .WithLogProperty("Key", "value")
+            .MapError(error => Error.Create($"Wrapped: {error.Message}"))
+            .FlushLogs(logger);
+
+        Assert.Equal(["staged", "Wrapped: Not found"], logger.Entries);
+        Assert.Contains(new KeyValuePair<string, object>("Key", "value"), logger.ScopeProperties);
+    }
+
+    [Fact]
+    public void Should_Keep_Trace_Context_When_MapError_Runs_On_Success()
+    {
+        var logger = new RecordingLogger();
+
+        Result<int, DomainError>.Success(42)
+            .AddLog(log => log.LogInformation("staged"))
+            .MapError(error => Error.Create(error.Message))
+            .FlushLogs(logger);
+
+        Assert.Equal(["staged"], logger.Entries);
     }
 }
