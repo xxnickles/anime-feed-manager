@@ -41,12 +41,12 @@ public class Validation<T>
             ? Validation<TTarget>.Valid(mapper(ValidValue))
             : Validation<TTarget>.Invalid(ErrorValue);
 
-    private Result<T> ToResult()
+    private Result<T, DomainError> ToResult()
     {
         return IsSuccess ? ValidValue : ErrorValue;
     }
 
-    public Result<T> AsResult() => ToResult();
+    public Result<T, DomainError> AsResult() => ToResult();
 
-    public static implicit operator Result<T>(Validation<T> validation) => validation.ToResult();
+    public static implicit operator Result<T, DomainError>(Validation<T> validation) => validation.ToResult();
 }

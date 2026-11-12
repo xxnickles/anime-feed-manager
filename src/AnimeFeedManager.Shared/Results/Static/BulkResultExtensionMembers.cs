@@ -8,7 +8,7 @@ public static class BulkResultExtensionMembers
     extension<T>(BulkResult<T> bulkResult)
     {
         /// <summary>Fails a partial success with an <see cref="AggregatedError"/> of its errors; for callers that can't act on a subset.</summary>
-        public Result<T> RequireAll(string message) =>
+        public Result<T, DomainError> RequireAll(string message) =>
             bulkResult is PartialSuccessBulkResult<T> partial
                 ? new AggregatedError(message, partial.Errors)
                 : bulkResult.Value;

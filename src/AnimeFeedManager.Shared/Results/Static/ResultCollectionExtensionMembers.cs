@@ -8,7 +8,7 @@ namespace AnimeFeedManager.Shared.Results.Static;
 /// </summary>
 public static class ResultCollectionExtensionMembers
 {
-    extension<T>(IEnumerable<Result<T>> results)
+    extension<T>(IEnumerable<Result<T, DomainError>> results)
     {
         /// <summary>
         /// Aggregates a collection of individual results into a single <see cref="BulkResult{T}"/> result
@@ -26,7 +26,7 @@ public static class ResultCollectionExtensionMembers
         ///   <item><see cref="AggregatedError"/> — all operations failed.</item>
         /// </list>
         /// </returns>
-        public Result<BulkResult<TTarget>> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
+        public Result<BulkResult<TTarget>, DomainError> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
         {
             var successes = new List<T>();
             var errors = new List<DomainError>();
@@ -43,7 +43,7 @@ public static class ResultCollectionExtensionMembers
                     errors.Add(result.ErrorValue!);
             }
 
-            Result<BulkResult<TTarget>> aggregated = (successes.Count, errors.Count) switch
+            Result<BulkResult<TTarget>, DomainError> aggregated = (successes.Count, errors.Count) switch
             {
                 (_, 0) => new CompletedBulkResult<TTarget>(flattenFunc(successes)),
                 (0, _) => new AggregatedError("All the operations in a bulk operation failed", [..errors]),
@@ -54,13 +54,13 @@ public static class ResultCollectionExtensionMembers
         }
     }
 
-    extension<T>(Task<IEnumerable<Result<T>>> results)
+    extension<T>(Task<IEnumerable<Result<T, DomainError>>> results)
     {
         /// <summary>
         /// Async variant of <see cref="Flatten{TTarget}"/>. Awaits the task, then delegates
         /// to the synchronous overload.
         /// </summary>
-        public async Task<Result<BulkResult<TTarget>>> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
+        public async Task<Result<BulkResult<TTarget>, DomainError>> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
         {
             return (await results).Flatten(flattenFunc);
         }
