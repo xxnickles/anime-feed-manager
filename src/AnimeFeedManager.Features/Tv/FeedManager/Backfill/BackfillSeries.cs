@@ -21,7 +21,7 @@ internal sealed record BackfillProcess(
 public static class BackfillSeries
 {
     /// <summary>Catalogs the bound variant's releases from one nyaa search, then runs the completion rule; never notifies, and a failure is stored without a toast.</summary>
-    public static Task<Result<BackfilledSeries>> Backfill(
+    public static Task<Result<BackfilledSeries, DomainError>> Backfill(
         BackfillNyaaSeries request,
         INyaaClient nyaaClient,
         ITableClientFactory clientFactory,
@@ -36,7 +36,7 @@ public static class BackfillSeries
             .WithOperationName(nameof(Backfill))
             .WithLogProperty(Telemetry.SeriesIdTag, request.SeriesId);
 
-    private static Task<Result<BackfillProcess>> StartProcess(
+    private static Task<Result<BackfillProcess, DomainError>> StartProcess(
         string seriesId,
         NyaaBindingGetter bindingGetter,
         CancellationToken token) =>
@@ -44,17 +44,17 @@ public static class BackfillSeries
             .Bind(season => bindingGetter(seriesId, season, token)
                 .Map(binding => new BackfillProcess(seriesId, season, binding, [], new FeedOpen())));
 
-    extension(Task<Result<BackfillProcess>> process)
+    extension(Task<Result<BackfillProcess, DomainError>> process)
     {
-        private Task<Result<BackfillProcess>> Search(INyaaClient nyaaClient, CancellationToken token) =>
+        private Task<Result<BackfillProcess, DomainError>> Search(INyaaClient nyaaClient, CancellationToken token) =>
             process.Bind(p => nyaaClient.Fetch(NyaaBindingQuery.For(p.Binding), token)
                 .Bind(document => Match(p, document)));
 
-        private Task<Result<BackfillProcess>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
+        private Task<Result<BackfillProcess, DomainError>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
             CancellationToken token) =>
             process.Bind(p => catalogUpdater(p.Rows, token).Map(_ => p));
 
-        private Task<Result<BackfillProcess>> EvaluateCompletion(
+        private Task<Result<BackfillProcess, DomainError>> EvaluateCompletion(
             ITableClientFactory clientFactory,
             CancellationToken token) =>
             process.Bind(p => NyaaCompletion.CompleteWhenReached(
@@ -66,7 +66,7 @@ public static class BackfillSeries
                     token)
                 .Map(outcome => p with {Completion = outcome}));
 
-        private Task<Result<BackfillProcess>> SendEvents(
+        private Task<Result<BackfillProcess, DomainError>> SendEvents(
             BackfillNyaaSeries request,
             DomainCollectionSender domainPostman,
             CancellationToken token) =>
@@ -81,7 +81,7 @@ public static class BackfillSeries
                     token);
     }
 
-    private static Result<BackfillProcess> Match(BackfillProcess process, XDocument document) =>
+    private static Result<BackfillProcess, DomainError> Match(BackfillProcess process, XDocument document) =>
         NyaaFeed.Parse(document)
             .AddLogOnSuccess(feed => feed.LogErrors)
             .Map(feed => process with {Rows = NyaaMatch.CatalogRows(process.Binding, process.SeriesId, feed.Value)});

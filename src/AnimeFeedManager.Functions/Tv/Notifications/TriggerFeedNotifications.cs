@@ -62,19 +62,19 @@ public class TriggerFeedNotifications
     }
 
     // The poll is stamped only once notifications are sent, so a failed run leaves the previous stamp.
-    private async Task<Result<(NyaaCollected Collected, FeedProcessSummary Summary)>> RunProcess(
+    private async Task<Result<(NyaaCollected Collected, FeedProcessSummary Summary), DomainError>> RunProcess(
         CancellationToken token)
     {
         return await NyaaWindow.LastPoll(_tableClientFactory.TableStorageLastNyaaPoll, token)
             .Bind(lastPoll => NyaaCollection.Collect(_nyaaClient, _tableClientFactory, _webAppHost, token)
                 .BackfillOnGap(lastPoll, _domainPostman.SendDelayedMessage, token))
-            .Bind(collected => Result<DailySeriesFeed[]>.Success([.. collected.Feeds])
+            .Bind(collected => Result<DailySeriesFeed[], DomainError>.Success([.. collected.Feeds])
                 .RunProcess(_tableClientFactory.TableStorageTvUserActiveSubscriptions, _domainPostman.SendMessages,
                     token)
                 .Map(summary => (Collected: collected, Summary: summary)))
             .Bind(run => run.Collected.PolledAt is { } polledAt
                 ? _tableClientFactory.TableStorageNyaaPollUpdater(new NyaaPoll(polledAt), token).Map(_ => run)
-                : Task.FromResult(Result<(NyaaCollected, FeedProcessSummary)>.Success(run)))
+                : Task.FromResult(Result<(NyaaCollected, FeedProcessSummary), DomainError>.Success(run)))
             .MarkActivityErroredOnError();
     }
 }

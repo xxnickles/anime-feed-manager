@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 
 public static class Subscription
 {
-    public static Task<Result<SubscriptionStorage>> VerifyStorage(
+    public static Task<Result<SubscriptionStorage, DomainError>> VerifyStorage(
         AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
@@ -22,14 +22,14 @@ public static class Subscription
                 VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle));
 
     // Toggles the stored state and returns the resulting one.
-    public static Task<Result<SubscriptionType>> UpdateSubscription(this Task<Result<SubscriptionStorage>> storage,
+    public static Task<Result<SubscriptionType, DomainError>> UpdateSubscription(this Task<Result<SubscriptionStorage, DomainError>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) =>
         storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
 
     // The feed title keys notifications, so a new subscription needs one; a stored one stays removable.
-    private static Result<SubscriptionStorage> VerifyCurrentSubscription(
+    private static Result<SubscriptionStorage, DomainError> VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
         AuthenticatedUser user,
         string seriesId,
@@ -49,7 +49,7 @@ public static class Subscription
         }
     };
 
-    private static Task<Result<SubscriptionType>> ToggleSubscription(
+    private static Task<Result<SubscriptionType, DomainError>> ToggleSubscription(
         SubscriptionStorage storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,

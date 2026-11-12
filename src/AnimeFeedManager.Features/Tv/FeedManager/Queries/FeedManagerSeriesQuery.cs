@@ -36,7 +36,7 @@ public sealed record LatestRelease(string Episode, DateTimeOffset Published);
 public static class FeedManagerSeriesQuery
 {
     /// <summary>A library series with its binding and catalog summary; a series never bound reads as <see cref="NoBinding"/>.</summary>
-    public static Task<Result<FeedManagerSeries>> GetFeedManagerSeries(
+    public static Task<Result<FeedManagerSeries, DomainError>> GetFeedManagerSeries(
         string seriesId,
         TvSeriesGetter seriesGetter,
         NyaaBindingGetter bindingGetter,
@@ -50,7 +50,7 @@ public static class FeedManagerSeriesQuery
             .WithOperationName(nameof(GetFeedManagerSeries))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
-    private static Task<Result<CurrentBinding>> Binding(
+    private static Task<Result<CurrentBinding, DomainError>> Binding(
         string seriesId,
         SeriesSeason season,
         NyaaBindingGetter bindingGetter,

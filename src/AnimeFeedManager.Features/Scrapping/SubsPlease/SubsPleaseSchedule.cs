@@ -4,7 +4,7 @@ public sealed record ScheduledShow(string Title);
 
 public interface ISubsPleaseSchedule
 {
-    Task<Result<ImmutableArray<ScheduledShow>>> Fetch(CancellationToken token = default);
+    Task<Result<ImmutableArray<ScheduledShow>, DomainError>> Fetch(CancellationToken token = default);
 }
 
 /// <summary>Reads the unofficial JSON endpoint behind the site's schedule page.</summary>
@@ -19,13 +19,13 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
         _httpClient = httpClient;
     }
 
-    public Task<Result<ImmutableArray<ScheduledShow>>> Fetch(CancellationToken token = default) =>
+    public Task<Result<ImmutableArray<ScheduledShow>, DomainError>> Fetch(CancellationToken token = default) =>
         FetchSchedule(token)
             .Bind(ToShows)
             .WithOperationName(nameof(Fetch))
             .WithLogProperty(ScrappingTelemetry.QueryTag, Request);
 
-    private async Task<Result<SubsPleaseScheduleResponse>> FetchSchedule(CancellationToken token)
+    private async Task<Result<SubsPleaseScheduleResponse, DomainError>> FetchSchedule(CancellationToken token)
     {
         try
         {
@@ -40,7 +40,7 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
 
     // The body decides, not Content-Type (the JSON is served as text/html) or the status
     // (a challenge page can arrive as a 200 or as an error).
-    private static async Task<Result<SubsPleaseScheduleResponse>> Parse(HttpResponseMessage response,
+    private static async Task<Result<SubsPleaseScheduleResponse, DomainError>> Parse(HttpResponseMessage response,
         CancellationToken token)
     {
         try
@@ -61,7 +61,7 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
         }
     }
 
-    private static Result<ImmutableArray<ScheduledShow>> ToShows(SubsPleaseScheduleResponse response)
+    private static Result<ImmutableArray<ScheduledShow>, DomainError> ToShows(SubsPleaseScheduleResponse response)
     {
         var shows = response.Schedule.Values
             .SelectMany(day => day)

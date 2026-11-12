@@ -6,10 +6,10 @@ public record ValidStoredUser(Email Email, NoEmptyString UserId, UserRole Role) 
 
 public record NotAStoredUser : StoredUser;
 
-public delegate Task<Result<StoredUser>>
+public delegate Task<Result<StoredUser, DomainError>>
     ExistentUserGetterByEmail(Email email, CancellationToken cancellationToken = default);
 
-public delegate Task<Result<StoredUser>> ExistentUserGetterById(NoEmptyString id,
+public delegate Task<Result<StoredUser, DomainError>> ExistentUserGetterById(NoEmptyString id,
     CancellationToken cancellationToken = default);
 
 public static class ExistentUser
@@ -37,7 +37,7 @@ public static class ExistentUser
                             cancellationToken).Bind(ParseAsUser));
     }
 
-    private static Result<StoredUser> ParseAsUser(ImmutableArray<UserStorage> storage)
+    private static Result<StoredUser, DomainError> ParseAsUser(ImmutableArray<UserStorage> storage)
     {
         // No match
         if (storage.Length == 0)

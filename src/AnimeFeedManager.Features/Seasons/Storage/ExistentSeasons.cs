@@ -4,15 +4,15 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Seasons.Storage;
 
-public delegate Task<Result<SeasonStorageData>> LatestSeasonGetter(CancellationToken cancellationToken = default);
+public delegate Task<Result<SeasonStorageData, DomainError>> LatestSeasonGetter(CancellationToken cancellationToken = default);
 
-public delegate Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason season,
+public delegate Task<Result<SeasonStorageData, DomainError>> SeasonGetter(SeriesSeason season,
     CancellationToken cancellation = default);
 
-public delegate Task<Result<ImmutableArray<SeriesSeason>>> AllSeasonsGetter(
+public delegate Task<Result<ImmutableArray<SeriesSeason>, DomainError>> AllSeasonsGetter(
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<SeriesSeason>>> Latest4SeasonsGetter(
+public delegate Task<Result<ImmutableArray<SeriesSeason>, DomainError>> Latest4SeasonsGetter(
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeasons
@@ -29,7 +29,7 @@ public static class ExistentSeasons
                     .ExecuteQuery<SeasonStorage>(
                         storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
                         cancellationToken)
-                    .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(seasons =>
+                    .Map<ImmutableArray<SeasonStorage>, DomainError, SeasonStorageData>(seasons =>
                         seasons.FirstOrDefault(season => season.Latest) is { } flagged
                             ? new CurrentLatestSeason(flagged)
                             : NewestSeason(seasons)));
@@ -41,7 +41,7 @@ public static class ExistentSeasons
                 .Bind(client => client.ExecuteQuery<SeasonStorage>(storage =>
                         storage.PartitionKey == SeasonStorage.SeasonPartition &&
                         storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
-                    .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(matches =>
+                    .Map<ImmutableArray<SeasonStorage>, DomainError, SeasonStorageData>(matches =>
                     {
                         if (matches.IsEmpty)
                             return new NoMatch();

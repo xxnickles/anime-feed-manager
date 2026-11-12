@@ -40,7 +40,7 @@ public class OnSystemEvent
             {
                 var audience = LiveAudience.From(result.Event.Consumer);
                 if (!result.NotifyUi || audience is NoAudience)
-                    return Task.FromResult(Result<SignalRMessageAction?>.Success(null));
+                    return Task.FromResult(Result<SignalRMessageAction?, DomainError>.Success(null));
 
                 return NotificationFactory.GenerateNotificationContent(result.Event,
                         EventPayloadDeserializer.Deserialize, _blazorRenderer)

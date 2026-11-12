@@ -1,18 +1,18 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
-public delegate Task<Result<ImmutableArray<SubscriptionStorage>>> TvSubscriptions(string userId,
+public delegate Task<Result<ImmutableArray<SubscriptionStorage>, DomainError>> TvSubscriptions(string userId,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<SubscriptionStorage?>> TvSubscriptionGetter(string userId, string seriesId,
+public delegate Task<Result<SubscriptionStorage?, DomainError>> TvSubscriptionGetter(string userId, string seriesId,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<SubscriptionStorage>>> TvInterestedBySeries(string seriesId,
+public delegate Task<Result<ImmutableArray<SubscriptionStorage>, DomainError>> TvInterestedBySeries(string seriesId,
     CancellationToken cancellationToken = default);
 
 /// <summary>
 /// Subscribed series grouped by user, for the given feed titles.
 /// </summary>
-public delegate Task<Result<UserActiveSubscriptions[]>> TvUserActiveSubscriptions(IEnumerable<string> feedTitles,
+public delegate Task<Result<UserActiveSubscriptions[], DomainError>> TvUserActiveSubscriptions(IEnumerable<string> feedTitles,
     CancellationToken token);
 
 public static class ExistentSubscriptions
@@ -56,7 +56,7 @@ public static class ExistentSubscriptions
                         .Bind(subscriptions => ToUserActiveSubscriptions(subscriptions, titles)));
     }
 
-    internal static Result<UserActiveSubscriptions[]> ToUserActiveSubscriptions(
+    internal static Result<UserActiveSubscriptions[], DomainError> ToUserActiveSubscriptions(
         ImmutableArray<SubscriptionStorage> rows,
         IEnumerable<string> feedTitles) =>
         rows
@@ -67,7 +67,7 @@ public static class ExistentSubscriptions
             .AddLogOnSuccess(bulk => bulk.LogErrors)
             .Map(bulk => bulk.Value);
 
-    private static Result<UserActiveSubscriptions> ToUserSubscriptions(
+    private static Result<UserActiveSubscriptions, DomainError> ToUserSubscriptions(
         IGrouping<string?, SubscriptionStorage> userRows) =>
         userRows
             .GroupBy(s => s.SeriesFeedTitle!)
@@ -82,7 +82,7 @@ public static class ExistentSubscriptions
     /// A series and its later season can share one feed title. The feed's episodes belong to whichever
     /// is airing now, so the newest wins. Fails only when no candidate carries a readable season.
     /// </summary>
-    private static Result<ActiveSubscription> PickAiringSeries(
+    private static Result<ActiveSubscription, DomainError> PickAiringSeries(
         IGrouping<string, SubscriptionStorage> sharingFeedTitle)
     {
         var rows = sharingFeedTitle.ToArray();

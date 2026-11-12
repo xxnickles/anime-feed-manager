@@ -67,7 +67,7 @@ public class OnTvLibraryUpdate
             .Complete(_logger);
     }
 
-    private async Task<Result<ScrapTvLibraryResult>> RunScraper(
+    private async Task<Result<ScrapTvLibraryResult, DomainError>> RunScraper(
         SeasonParameters? seasonParameters,
         CancellationToken token)
     {

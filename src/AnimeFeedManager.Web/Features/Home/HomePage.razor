@@ -20,7 +20,7 @@ else
 @code {
     private SeriesSeason? _season;
 
-    private static Result<SeriesSeason> ParseSeason(SeasonStorage season) =>
+    private static Result<SeriesSeason, DomainError> ParseSeason(SeasonStorage season) =>
         (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason();
 
     protected override async Task OnInitializedAsync()

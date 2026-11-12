@@ -2,18 +2,18 @@
 
 public record EventData<T>(EventType EventType, DateTimeOffset Timestamp, T Data) where T : SystemNotificationPayload;
 
-public delegate Task<Result<ImmutableArray<EventData<T>>>> SystemEventsGetter<T>(
+public delegate Task<Result<ImmutableArray<EventData<T>>, DomainError>> SystemEventsGetter<T>(
     TargetConsumer consumer,
     DateTimeOffset from,
     CancellationToken cancellationToken) where T : SystemNotificationPayload;
 
-public delegate Task<Result<ImmutableArray<EventData<T>>>> SystemEventsBroadGetter<T>(
+public delegate Task<Result<ImmutableArray<EventData<T>>, DomainError>> SystemEventsBroadGetter<T>(
     DateTimeOffset from,
     CancellationToken cancellationToken) where T : SystemNotificationPayload;
 
 public record EventOccurrence(string PayloadTypeName, DateTimeOffset Timestamp);
 
-public delegate Task<Result<ImmutableArray<EventOccurrence>>> SystemErrorsGetter(
+public delegate Task<Result<ImmutableArray<EventOccurrence>, DomainError>> SystemErrorsGetter(
     TargetConsumer consumer,
     DateTimeOffset from,
     CancellationToken cancellationToken);
@@ -62,7 +62,7 @@ public static class ExistentEvents
                     .ToImmutableArray());
         }
 
-        private static Result<ImmutableArray<EventData<T>>> Convert<T>(ImmutableArray<EventStorage> source)
+        private static Result<ImmutableArray<EventData<T>>, DomainError> Convert<T>(ImmutableArray<EventStorage> source)
             where T : SystemNotificationPayload
         {
             try

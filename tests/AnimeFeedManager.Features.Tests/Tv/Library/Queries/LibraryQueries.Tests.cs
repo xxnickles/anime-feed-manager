@@ -125,7 +125,7 @@ public class LibraryQueriesTests
     {
         var getter = Substitute.For<TvSubscriptions>();
         getter(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<ImmutableArray<SubscriptionStorage>>>(
+            .Returns(Task.FromResult<Result<ImmutableArray<SubscriptionStorage>, DomainError>>(
                 Error.Create("subscriptions unavailable")));
 
         var result = await Library([MakeSeries(SeriesStatus.OngoingValue)])
@@ -138,20 +138,20 @@ public class LibraryQueriesTests
 
     #region Test Helpers
 
-    private static Task<Result<ImmutableArray<UserTvSeries>>> MapSingle(
+    private static Task<Result<ImmutableArray<UserTvSeries>, DomainError>> MapSingle(
         string seriesStatus,
         params SubscriptionStorage[] subscriptions) =>
         Library([MakeSeries(seriesStatus)])
             .GetTvLibraryForUser(MakeUser(), Subscriptions(subscriptions), CancellationToken.None);
 
-    private static Task<Result<ImmutableArray<TvSeries>>> Library(TvSeries[] series) =>
-        Task.FromResult(Result<ImmutableArray<TvSeries>>.Success([..series]));
+    private static Task<Result<ImmutableArray<TvSeries>, DomainError>> Library(TvSeries[] series) =>
+        Task.FromResult(Result<ImmutableArray<TvSeries>, DomainError>.Success([..series]));
 
     private static TvSubscriptions Subscriptions(params SubscriptionStorage[] subscriptions)
     {
         var getter = Substitute.For<TvSubscriptions>();
         getter(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success([..subscriptions])));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, DomainError>.Success([..subscriptions])));
         return getter;
     }
 

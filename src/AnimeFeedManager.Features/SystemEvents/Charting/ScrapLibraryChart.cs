@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.SystemEvents.Charting;
 
 public static class ScrapLibraryChart
 {
-    public static Task<Result<LineChart>> Get(
+    public static Task<Result<LineChart, DomainError>> Get(
         SystemEventsGetter<ScrapTvLibraryResult> eventGetter,
         SystemEventsGetter<ScrapTvLibraryFailedResult> failedEventGetter,
         DateTimeOffset from,

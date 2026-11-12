@@ -40,7 +40,7 @@ public class SubscriptionTests
     {
         var updater = Substitute.For<TvSubscriptionUpdater>();
         updater(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<Unit>>(Error.Create("storage unavailable")));
+            .Returns(Task.FromResult<Result<Unit, DomainError>>(Error.Create("storage unavailable")));
 
         var result = await Toggle(stored: null, updater, Remover());
 
@@ -76,7 +76,7 @@ public class SubscriptionTests
 
     #region Test Helpers
 
-    private static Task<Result<SubscriptionType>> Toggle(
+    private static Task<Result<SubscriptionType, DomainError>> Toggle(
         SubscriptionStorage? stored,
         TvSubscriptionUpdater updater,
         TvSubscriptionsRemover remover,
@@ -89,7 +89,7 @@ public class SubscriptionTests
     {
         var getter = Substitute.For<TvSubscriptionGetter>();
         getter(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<SubscriptionStorage?>.Success(stored)));
+            .Returns(Task.FromResult(Result<SubscriptionStorage?, DomainError>.Success(stored)));
         return getter;
     }
 
@@ -97,7 +97,7 @@ public class SubscriptionTests
     {
         var updater = Substitute.For<TvSubscriptionUpdater>();
         updater(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
         return updater;
     }
 
@@ -105,7 +105,7 @@ public class SubscriptionTests
     {
         var remover = Substitute.For<TvSubscriptionsRemover>();
         remover(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
         return remover;
     }
 

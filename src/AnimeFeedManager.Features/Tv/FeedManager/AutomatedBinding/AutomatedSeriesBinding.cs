@@ -23,7 +23,7 @@ public static class AutomatedSeriesBinding
     public const string RunSubject = "latest";
 
     /// <summary>Binds unbound, unfinished series from the SubsPlease schedule, stores the run and toasts it; a failed or empty schedule skips binding with a warning.</summary>
-    public static Task<Result<AutomatedBindingCompleted>> Run(
+    public static Task<Result<AutomatedBindingCompleted, DomainError>> Run(
         ISubsPleaseSchedule schedule,
         ITableClientFactory clientFactory,
         DelayedMessageSender delayedSender,
@@ -43,42 +43,42 @@ public static class AutomatedSeriesBinding
                 token)
             .WithOperationName(nameof(Run));
 
-    private static Task<Result<AutomatedBindingProcess>> StartProcess(ISubsPleaseSchedule schedule,
+    private static Task<Result<AutomatedBindingProcess, DomainError>> StartProcess(ISubsPleaseSchedule schedule,
         CancellationToken token) =>
         schedule.Fetch(token)
             .Map(shows => new AutomatedBindingProcess(shows, ScheduleSkipped: false))
-            .BindOnError(error => Result<AutomatedBindingProcess>
+            .BindOnError(error => Result<AutomatedBindingProcess, DomainError>
                 .Success(new AutomatedBindingProcess([], ScheduleSkipped: true))
                 .AddLog(ScheduleSkipped(error)));
 
-    extension(Task<Result<AutomatedBindingProcess>> process)
+    extension(Task<Result<AutomatedBindingProcess, DomainError>> process)
     {
-        private Task<Result<AutomatedBindingProcess>> LoadCandidates(ITableClientFactory clientFactory,
+        private Task<Result<AutomatedBindingProcess, DomainError>> LoadCandidates(ITableClientFactory clientFactory,
             CancellationToken token) =>
             process.Bind(p => p.Schedule.IsEmpty
-                ? Task.FromResult(Result<AutomatedBindingProcess>.Success(p))
+                ? Task.FromResult(Result<AutomatedBindingProcess, DomainError>.Success(p))
                 : Candidates(clientFactory, token).Map(candidates => p with {Candidates = candidates}));
 
-        private Task<Result<AutomatedBindingProcess>> MatchSchedule() =>
+        private Task<Result<AutomatedBindingProcess, DomainError>> MatchSchedule() =>
             process.Map(p => p with {Matches = ScheduleMatching.Match(p.Schedule, p.Candidates)})
                 .AddLogOnSuccess(p => LogTies(p.Matches.Ties));
 
-        private Task<Result<AutomatedBindingProcess>> SendBinds(DelayedMessageSender delayedSender,
+        private Task<Result<AutomatedBindingProcess, DomainError>> SendBinds(DelayedMessageSender delayedSender,
             CancellationToken token) =>
             process.Bind(p => p.Matches.Matches.IsEmpty
-                ? Task.FromResult(Result<AutomatedBindingProcess>.Success(p))
+                ? Task.FromResult(Result<AutomatedBindingProcess, DomainError>.Success(p))
                 : Send(p.Matches.Matches, delayedSender, token).Map(sent => p with {Sent = sent}));
 
-        private Task<Result<AutomatedBindingCompleted>> StoreRun(AutomatedBindingRunUpdater runUpdater,
+        private Task<Result<AutomatedBindingCompleted, DomainError>> StoreRun(AutomatedBindingRunUpdater runUpdater,
             CancellationToken token) =>
             process.Map(p => new AutomatedBindingCompleted(DateTimeOffset.UtcNow, p.Schedule.Length, p.Sent,
                     p.Matches.Ties, p.ScheduleSkipped))
                 .Bind(run => runUpdater(run, token).Map(_ => run));
     }
 
-    extension(Task<Result<AutomatedBindingCompleted>> run)
+    extension(Task<Result<AutomatedBindingCompleted, DomainError>> run)
     {
-        private Task<Result<AutomatedBindingCompleted>> SendSummary(DomainCollectionSender domainPostman,
+        private Task<Result<AutomatedBindingCompleted, DomainError>> SendSummary(DomainCollectionSender domainPostman,
             CancellationToken token) =>
             run.Bind(summary => domainPostman(SummaryEvents(summary), token).Map(_ => summary));
     }
@@ -92,7 +92,7 @@ public static class AutomatedSeriesBinding
 
     // Latest season plus carry-overs; a season whose bindings can't be read fails the run, since its
     // series would read as unbound and a manual binding could be replaced.
-    private static Task<Result<ImmutableArray<BindingCandidate>>> Candidates(ITableClientFactory clientFactory,
+    private static Task<Result<ImmutableArray<BindingCandidate>, DomainError>> Candidates(ITableClientFactory clientFactory,
         CancellationToken token) =>
         LatestSeason(clientFactory.TableStorageLatestSeason, token)
             .Bind(season => clientFactory.TableStorageRawExistentStoredSeries()(season, token))
@@ -104,7 +104,7 @@ public static class AutomatedSeriesBinding
                     .Select(ToCandidate)
                     .ToImmutableArray()));
 
-    private static Task<Result<SeriesSeason>> LatestSeason(LatestSeasonGetter seasonGetter, CancellationToken token) =>
+    private static Task<Result<SeriesSeason, DomainError>> LatestSeason(LatestSeasonGetter seasonGetter, CancellationToken token) =>
         seasonGetter(token).Bind(season => season switch
         {
             CurrentLatestSeason latest => SeasonOf(latest.Season),
@@ -112,7 +112,7 @@ public static class AutomatedSeriesBinding
             _ => Error.Create("There is no latest season data in storage.")
         });
 
-    private static Result<SeriesSeason> SeasonOf(SeasonStorage season) =>
+    private static Result<SeriesSeason, DomainError> SeasonOf(SeasonStorage season) =>
         (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason();
 
     private static ImmutableArray<AnimeInfoStorage> Unfinished(IEnumerable<AnimeInfoStorage> series) =>
@@ -122,7 +122,7 @@ public static class AutomatedSeriesBinding
             .DistinctBy(entry => entry.RowKey)
     ];
 
-    private static async Task<Result<HashSet<string>>> BoundSeriesIds(
+    private static async Task<Result<HashSet<string>, DomainError>> BoundSeriesIds(
         ImmutableArray<AnimeInfoStorage> series,
         SeasonNyaaBindings bindingsGetter,
         CancellationToken token)
@@ -151,7 +151,7 @@ public static class AutomatedSeriesBinding
                     .Select(title => title!)
             ]);
 
-    private static async Task<Result<int>> Send(
+    private static async Task<Result<int, DomainError>> Send(
         ImmutableArray<ScheduleMatch> matches,
         DelayedMessageSender delayedSender,
         CancellationToken token)

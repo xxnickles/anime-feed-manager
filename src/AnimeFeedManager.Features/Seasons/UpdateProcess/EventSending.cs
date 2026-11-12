@@ -4,8 +4,8 @@ namespace AnimeFeedManager.Features.Seasons.UpdateProcess;
 
 public static class EventSending
 {
-    public static Task<Result<SeasonUpdateResult>> SentEvents(
-        this Task<Result<SeasonUpdateData>> result,
+    public static Task<Result<SeasonUpdateResult, DomainError>> SentEvents(
+        this Task<Result<SeasonUpdateData, DomainError>> result,
         DomainCollectionSender domainPostman,
         SeriesSeason seriesSeason,
         CancellationToken cancellationToken) =>

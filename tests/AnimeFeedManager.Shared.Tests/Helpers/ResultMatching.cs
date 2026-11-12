@@ -7,7 +7,7 @@ internal static class ResultMatching
         /// </summary>
         /// <param name="result">The result to assert on.</param>
         /// <typeparam name="T">The type of the success value.</typeparam>
-        extension<T>(Result<T> result)
+        extension<T, TError>(Result<T, TError> result)
         {
             /// <summary>
             /// Asserts that a result is successful and executes the provided assertion on the success value.
@@ -39,7 +39,7 @@ internal static class ResultMatching
             /// Asserts that a result is an error and executes the provided assertion on the <see cref="DomainError"/>.
             /// </summary>
             /// <param name="errorAssert">The assertion to execute on the error.</param>
-            internal void AssertOnError(Action<DomainError> errorAssert) =>
+            internal void AssertOnError(Action<TError> errorAssert) =>
                 result.Match(_ => Assert.Fail("Result was not an error"), errorAssert);
 
             /// <summary>

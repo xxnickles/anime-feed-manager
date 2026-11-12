@@ -1,10 +1,10 @@
 ﻿namespace AnimeFeedManager.Features.SystemEvents;
 
-public delegate Result<SystemNotificationPayload> PayloadDeserializer(SystemEvent notification);
+public delegate Result<SystemNotificationPayload, DomainError> PayloadDeserializer(SystemEvent notification);
 
 public static class EventPayloadDeserializer
 {
-    public static Result<SystemNotificationPayload> Deserialize(SystemEvent systemEvent)
+    public static Result<SystemNotificationPayload, DomainError> Deserialize(SystemEvent systemEvent)
     {
         var info = EventPayloadContextMap.GetPayloadContextInfo(systemEvent.Payload.PayloadTypeName);
         var typeInfo = info.Context.GetTypeInfo(info.PayloadType);

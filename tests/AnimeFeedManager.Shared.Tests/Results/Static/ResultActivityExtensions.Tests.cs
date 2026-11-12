@@ -25,7 +25,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(Error.Create("storage unavailable")).MarkActivityErroredOnError();
+        Result<int, DomainError>.Failure(Error.Create("storage unavailable")).MarkActivityErroredOnError();
 
         Assert.Equal(ActivityStatusCode.Error, activity.Status);
         Assert.Equal("storage unavailable", activity.StatusDescription);
@@ -37,7 +37,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(HandledError.Create()).MarkActivityErroredOnError();
+        Result<int, DomainError>.Failure(HandledError.Create()).MarkActivityErroredOnError();
 
         Assert.Equal(ActivityStatusCode.Error, activity.Status);
         Assert.Null(activity.StatusDescription);
@@ -49,7 +49,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(NotFoundError.Create("series missing")).MarkActivityErroredOnError();
+        Result<int, DomainError>.Failure(NotFoundError.Create("series missing")).MarkActivityErroredOnError();
 
         Assert.Equal(ActivityStatusCode.Error, activity.Status);
         Assert.Equal(nameof(NotFoundError), activity.GetTagItem(Telemetry.ErrorTypeTag));
@@ -60,7 +60,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Success(42).MarkActivityErroredOnError();
+        Result<int, DomainError>.Success(42).MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
     }
@@ -70,7 +70,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(Warning.Create("nothing to import")).MarkActivityErroredOnError();
+        Result<int, DomainError>.Failure(Warning.Create("nothing to import")).MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
     }
@@ -80,7 +80,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(DomainValidationErrors.Create([DomainValidationError.Create("Email", "required")]))
+        Result<int, DomainError>.Failure(DomainValidationErrors.Create([DomainValidationError.Create("Email", "required")]))
             .MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
@@ -91,7 +91,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(new FormDataValidationError<string>([new ValidationResult("required", ["Email"])]))
+        Result<int, DomainError>.Failure(new FormDataValidationError<string>([new ValidationResult("required", ["Email"])]))
             .MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
@@ -102,7 +102,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        await Task.FromResult(Result<int>.Failure(Error.Create("boom"))).MarkActivityErroredOnError();
+        await Task.FromResult(Result<int, DomainError>.Failure(Error.Create("boom"))).MarkActivityErroredOnError();
 
         Assert.Equal(ActivityStatusCode.Error, activity.Status);
     }
@@ -112,7 +112,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         Assert.Null(Activity.Current);
 
-        var result = Result<int>.Failure(Error.Create("boom")).MarkActivityErroredOnError();
+        var result = Result<int, DomainError>.Failure(Error.Create("boom")).MarkActivityErroredOnError();
 
         result.AssertError();
     }

@@ -98,7 +98,7 @@ public class ScrapStepsTests
     };
 
     // Mirrors what the provider scrape hands to enrichment: feed fields unset, status NotAvailable.
-    private static Task<Result<ScrapTvLibraryData>> Enrich(ImmutableArray<TvSeriesInfo> stored, AiringStatus airing)
+    private static Task<Result<ScrapTvLibraryData, DomainError>> Enrich(ImmutableArray<TvSeriesInfo> stored, AiringStatus airing)
     {
         var season = TestSeasons.Default;
         var imported = new StorageData(new AnimeInfoStorage
@@ -112,9 +112,9 @@ public class ScrapStepsTests
 
         var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
         storedSeriesGetter(season, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>>.Success(stored)));
+            .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>, DomainError>.Success(stored)));
 
-        return Task.FromResult(Result<ScrapTvLibraryData>.Success(new ScrapTvLibraryData([imported], season)))
+        return Task.FromResult(Result<ScrapTvLibraryData, DomainError>.Success(new ScrapTvLibraryData([imported], season)))
             .AddDataFromStorage(storedSeriesGetter, CancellationToken.None);
     }
 

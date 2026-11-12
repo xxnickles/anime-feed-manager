@@ -58,7 +58,7 @@ public class ValidationTests
     [Fact]
     public void Should_Convert_Validation_To_Result_Implicitly()
     {
-        Result<int> result = Validation<int>.Valid(42);
+        Result<int, DomainError> result = Validation<int>.Valid(42);
 
         result.AssertOnSuccess(value => Assert.Equal(42, value));
     }

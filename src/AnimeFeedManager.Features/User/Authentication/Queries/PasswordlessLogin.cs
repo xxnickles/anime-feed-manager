@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Features.User.Authentication.Queries;
 
 public static class PasswordlessLogin
 {
-    public static async Task<Result<VerifiedUser>> GetLoginInformation(
+    public static async Task<Result<VerifiedUser, DomainError>> GetLoginInformation(
         this IPasswordlessClient passwordlessClient,
         string token,
         CancellationToken cancellationToken)

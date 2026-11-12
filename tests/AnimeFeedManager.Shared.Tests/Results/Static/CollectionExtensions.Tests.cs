@@ -7,9 +7,9 @@ public class CollectionExtensionsTests
     {
         var results = new[]
         {
-            Result<int>.Success(1),
-            Result<int>.Success(2),
-            Result<int>.Success(3)
+            Result<int, DomainError>.Success(1),
+            Result<int, DomainError>.Success(2),
+            Result<int, DomainError>.Success(3)
         };
 
         var flattened = results.Flatten(items => items.ToList());
@@ -26,9 +26,9 @@ public class CollectionExtensionsTests
     {
         var results = new[]
         {
-            Result<int>.Failure(NotFoundError.Create("Error 1")),
-            Result<int>.Failure(NotFoundError.Create("Error 2")),
-            Result<int>.Failure(NotFoundError.Create("Error 3"))
+            Result<int, DomainError>.Failure(NotFoundError.Create("Error 1")),
+            Result<int, DomainError>.Failure(NotFoundError.Create("Error 2")),
+            Result<int, DomainError>.Failure(NotFoundError.Create("Error 3"))
         };
 
         var flattened = results.Flatten(items => items.ToList());
@@ -46,9 +46,9 @@ public class CollectionExtensionsTests
         // Partial success is a SUCCESS result, not an error — key semantic of BulkResult
         var results = new[]
         {
-            Result<int>.Success(1),
-            Result<int>.Failure(NotFoundError.Create("Error 1")),
-            Result<int>.Success(3)
+            Result<int, DomainError>.Success(1),
+            Result<int, DomainError>.Failure(NotFoundError.Create("Error 1")),
+            Result<int, DomainError>.Success(3)
         };
 
         var flattened = results.Flatten(items => items.ToList());
@@ -64,7 +64,7 @@ public class CollectionExtensionsTests
     [Fact]
     public void Should_Return_CompletedBulkResult_For_Empty_Collection()
     {
-        var results = Array.Empty<Result<int>>();
+        var results = Array.Empty<Result<int, DomainError>>();
 
         var flattened = results.Flatten(items => items.ToList());
 
@@ -80,9 +80,9 @@ public class CollectionExtensionsTests
     {
         var results = new[]
         {
-            Result<int>.Success(10),
-            Result<int>.Success(20),
-            Result<int>.Success(30)
+            Result<int, DomainError>.Success(10),
+            Result<int, DomainError>.Success(20),
+            Result<int, DomainError>.Success(30)
         };
 
         var flattened = results.Flatten(items => items.Sum());
@@ -99,10 +99,10 @@ public class CollectionExtensionsTests
     {
         var results = new[]
         {
-            Result<int>.Success(2),
-            Result<int>.Failure(NotFoundError.Create("Error")),
-            Result<int>.Success(4),
-            Result<int>.Failure(NotFoundError.Create("Error 2"))
+            Result<int, DomainError>.Success(2),
+            Result<int, DomainError>.Failure(NotFoundError.Create("Error")),
+            Result<int, DomainError>.Success(4),
+            Result<int, DomainError>.Failure(NotFoundError.Create("Error 2"))
         };
 
         var flattened = results.Flatten(items => items.ToList());
@@ -121,7 +121,7 @@ public class CollectionExtensionsTests
         var numbers = new[] { 1, 2, 3, 4, 5 };
 
         var flattened = numbers
-            .Select(n => Result<int>.Success(n))
+            .Select(n => Result<int, DomainError>.Success(n))
             .Select(r => r.Map(x => x * 2))
             .Flatten(items => items.ToList());
 
@@ -135,8 +135,8 @@ public class CollectionExtensionsTests
     [Fact]
     public void Should_Preserve_IsFailure_Property()
     {
-        var success = Result<int>.Success(42);
-        var failure = Result<int>.Failure(NotFoundError.Create("Error"));
+        var success = Result<int, DomainError>.Success(42);
+        var failure = Result<int, DomainError>.Failure(NotFoundError.Create("Error"));
 
         Assert.False(success.IsFailure);
         Assert.True(failure.IsFailure);
@@ -150,8 +150,8 @@ public class CollectionExtensionsTests
         var logger = new RecordingLogger();
         var results = new[]
         {
-            Result<int>.Success(1).AddLogOnSuccess(_ => log => log.LogInformation("first")),
-            Result<int>.Success(2).AddLogOnSuccess(_ => log => log.LogInformation("second"))
+            Result<int, DomainError>.Success(1).AddLogOnSuccess(_ => log => log.LogInformation("first")),
+            Result<int, DomainError>.Success(2).AddLogOnSuccess(_ => log => log.LogInformation("second"))
         };
 
         results.Flatten(items => items.ToList()).FlushLogs(logger);
@@ -165,10 +165,10 @@ public class CollectionExtensionsTests
         var logger = new RecordingLogger();
         var results = new[]
         {
-            Result<int>.Success(1)
+            Result<int, DomainError>.Success(1)
                 .WithLogProperty("First", "a")
                 .AddLogOnSuccess(_ => log => log.LogInformation("first")),
-            Result<int>.Success(2).WithLogProperty("Second", "b")
+            Result<int, DomainError>.Success(2).WithLogProperty("Second", "b")
         };
 
         results.Flatten(items => items.ToList()).FlushLogs(logger);
@@ -183,8 +183,8 @@ public class CollectionExtensionsTests
         var logger = new RecordingLogger();
         var results = new[]
         {
-            Result<int>.Success(1),
-            Result<int>.Failure(NotFoundError.Create("gone"))
+            Result<int, DomainError>.Success(1),
+            Result<int, DomainError>.Failure(NotFoundError.Create("gone"))
                 .AddLogOnFailure(error => log => log.LogWarning("{Message}", error.Message))
         };
 

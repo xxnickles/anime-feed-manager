@@ -30,14 +30,14 @@ public static class NyaaFeed
         document.Root?.Element("channel")?.Elements("item").Count() >= MaxItems;
 
     /// <summary>Parses an RSS feed requested with <c>m=true</c>; an item with any field missing or invalid is skipped.</summary>
-    public static Result<BulkResult<ImmutableArray<NyaaItem>>> Parse(XDocument document) =>
+    public static Result<BulkResult<ImmutableArray<NyaaItem>>, DomainError> Parse(XDocument document) =>
         document.Root?.Element("channel") is { } channel
             ? channel.Elements("item")
                 .Select(ParseItem)
                 .Flatten(items => items.ToImmutableArray())
             : Error.Create("Nyaa response is not an RSS feed");
 
-    private static Result<NyaaItem> ParseItem(XElement item) =>
+    private static Result<NyaaItem, DomainError> ParseItem(XElement item) =>
         Required(item, "title")
             .And(Magnet(item))
             .And(Torrent(item))

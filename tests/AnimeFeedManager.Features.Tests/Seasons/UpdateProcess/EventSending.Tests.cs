@@ -53,7 +53,7 @@ public class EventSendingTests
     {
         var postman = new TestDomainPostman();
 
-        var result = await Task.FromResult<Result<SeasonUpdateData>>(Error.Create("update failed"))
+        var result = await Task.FromResult<Result<SeasonUpdateData, DomainError>>(Error.Create("update failed"))
             .SentEvents(postman, TestSeason, CancellationToken.None);
 
         result.AssertError();
@@ -77,8 +77,8 @@ public class EventSendingTests
 
     #region Test Helpers
 
-    private static Task<Result<SeasonUpdateResult>> Send(SeasonStorageData seasonData, TestDomainPostman postman) =>
-        Task.FromResult(Result<SeasonUpdateData>.Success(new SeasonUpdateData(TestSeason, seasonData, new NoMatch())))
+    private static Task<Result<SeasonUpdateResult, DomainError>> Send(SeasonStorageData seasonData, TestDomainPostman postman) =>
+        Task.FromResult(Result<SeasonUpdateData, DomainError>.Success(new SeasonUpdateData(TestSeason, seasonData, new NoMatch())))
             .SentEvents(postman, TestSeason, CancellationToken.None);
 
     private sealed class TestDomainPostman
@@ -95,11 +95,11 @@ public class EventSendingTests
             if (FailOnFirstSend && !_firstCallDone)
             {
                 _firstCallDone = true;
-                return Task.FromResult<Result<Unit>>(MessagesNotDelivered.Create("forced failure", messages));
+                return Task.FromResult<Result<Unit, DomainError>>(MessagesNotDelivered.Create("forced failure", messages));
             }
 
             _sent.AddRange(messages);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;

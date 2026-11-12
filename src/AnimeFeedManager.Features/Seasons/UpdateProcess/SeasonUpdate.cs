@@ -2,31 +2,31 @@ namespace AnimeFeedManager.Features.Seasons.UpdateProcess;
 
 public static class SeasonUpdate
 {
-    public static Task<Result<SeasonUpdateData>> CheckSeasonExist(SeasonGetter seasonGetter, SeriesSeason season,
+    public static Task<Result<SeasonUpdateData, DomainError>> CheckSeasonExist(SeasonGetter seasonGetter, SeriesSeason season,
         CancellationToken token) =>
         seasonGetter(season, token)
             .Map(s => new SeasonUpdateData(season, s, new NoMatch()));
 
 
-    extension(Task<Result<SeasonUpdateData>> processData)
+    extension(Task<Result<SeasonUpdateData, DomainError>> processData)
     {
-        public Task<Result<SeasonUpdateData>> CreateNewSeason() =>
+        public Task<Result<SeasonUpdateData, DomainError>> CreateNewSeason() =>
             processData.Map(data => data.SeasonData switch
             {
                 NoMatch => CreateNewSeason(data),
                 _ => data
             });
 
-        public Task<Result<SeasonUpdateData>> AddLatestSeasonData(LatestSeasonGetter seasonGetter, CancellationToken token) =>
+        public Task<Result<SeasonUpdateData, DomainError>> AddLatestSeasonData(LatestSeasonGetter seasonGetter, CancellationToken token) =>
             processData.BindWhen(
                 data => seasonGetter(token).Map(latestSeason => data with {CurrentLatestSeasonData = latestSeason}),
                 WhenNeedsUpdate);
 
-        public Task<Result<SeasonUpdateData>> StoreUpdatedSeason(SeasonUpdater seasonUpdater, CancellationToken token) =>
+        public Task<Result<SeasonUpdateData, DomainError>> StoreUpdatedSeason(SeasonUpdater seasonUpdater, CancellationToken token) =>
             processData.BindWhen(data => UpdateSeason(seasonUpdater, data.SeasonData, token).Map(_ => data),
                 WhenNeedsUpdate);
 
-        public Task<Result<SeasonUpdateData>> DemoteCurrentLatest(SeasonUpdater seasonUpdater, CancellationToken token) =>
+        public Task<Result<SeasonUpdateData, DomainError>> DemoteCurrentLatest(SeasonUpdater seasonUpdater, CancellationToken token) =>
             processData.BindWhen(
                 data => UpdateCurrentLatestSeason(seasonUpdater, data.CurrentLatestSeasonData, token).Map(_ => data),
                 WhenLastestIsReplaced);
@@ -50,7 +50,7 @@ public static class SeasonUpdate
         };
     }
 
-    private static Task<Result<Unit>> UpdateSeason(
+    private static Task<Result<Unit, DomainError>> UpdateSeason(
         SeasonUpdater seasonUpdater,
         SeasonStorageData data,
         CancellationToken cancellationToken) => data switch
@@ -59,16 +59,16 @@ public static class SeasonUpdate
         CurrentLatestSeason latest => seasonUpdater(latest.Season, cancellationToken),
         NewSeason newSeason => seasonUpdater(newSeason.Season, cancellationToken),
         ReplaceLatestSeason newLatest => seasonUpdater(newLatest.Season, cancellationToken),
-        _ => Task.FromResult<Result<Unit>>(Error.Create($"Season data is not selectable to be updated. Received {data.GetType().Name}"))
+        _ => Task.FromResult<Result<Unit, DomainError>>(Error.Create($"Season data is not selectable to be updated. Received {data.GetType().Name}"))
     };
 
-    private static Task<Result<Unit>> UpdateCurrentLatestSeason(
+    private static Task<Result<Unit, DomainError>> UpdateCurrentLatestSeason(
         SeasonUpdater seasonUpdater,
         SeasonStorageData data,
         CancellationToken cancellationToken) => data switch
     {
         CurrentLatestSeason latest => seasonUpdater(DemoteCurrentLatestSeason(latest.Season), cancellationToken),
-        _ => Task.FromResult<Result<Unit>>(Error.Create($"Season data is not selectable to be updated as is not the current lastest season. Received {data.GetType().Name}"))
+        _ => Task.FromResult<Result<Unit, DomainError>>(Error.Create($"Season data is not selectable to be updated as is not the current lastest season. Received {data.GetType().Name}"))
     };
 
     private static SeasonStorage DemoteCurrentLatestSeason(SeasonStorage data)

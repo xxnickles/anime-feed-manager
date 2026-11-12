@@ -5,16 +5,16 @@ namespace AnimeFeedManager.Web.Features.Components.Responses;
 
 internal static class ComponentResults
 {
-    private static RazorComponentResult ToComponentResult<T>(this Result<T> result,
+    private static RazorComponentResult ToComponentResult<T>(this Result<T, DomainError> result,
         Func<T, RenderFragment[]> onSuccess,
         Func<DomainError, RenderFragment[]> onError)
     {
-        return result.MatchToValue<T,RazorComponentResult>(
+        return result.MatchToValue<T, DomainError, RazorComponentResult>(
             ok => onSuccess(ok).AggregateComponents(StatusCodes.Status200OK),
             error => onError(error).AggregateComponents(error.ToStatusCode()));
     }
 
-    extension<T>(Task<Result<T>> result)
+    extension<T>(Task<Result<T, DomainError>> result)
     {
         internal async Task<RazorComponentResult> ToComponentResult(Func<T, RenderFragment[]> onSuccess,
             Func<DomainError, RenderFragment[]> onError)

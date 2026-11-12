@@ -6,8 +6,8 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 
 public static class FeedProcess
 {
-    public static Task<Result<FeedProcessSummary>> RunProcess(
-        this Result<DailySeriesFeed[]> dailyFeed,
+    public static Task<Result<FeedProcessSummary, DomainError>> RunProcess(
+        this Result<DailySeriesFeed[], DomainError> dailyFeed,
         TvUserActiveSubscriptions tvUserActiveSubscriptions,
         DomainCollectionSender domainPostman,
         CancellationToken cancellationToken = default)
@@ -24,7 +24,7 @@ public static class FeedProcess
             .SendMessages(domainPostman, cancellationToken);
     }
     
-    private static Task<Result<FeedProcessData>> AddUsersToNotify(this Result<FeedProcessData> data, TvUserActiveSubscriptions getter,
+    private static Task<Result<FeedProcessData, DomainError>> AddUsersToNotify(this Result<FeedProcessData, DomainError> data, TvUserActiveSubscriptions getter,
         CancellationToken token)
     {
         return data.Bind(d => getter(d.DailyFeed.Select(x => x.Title), token)
@@ -32,13 +32,13 @@ public static class FeedProcess
     }
 
 
-    private static Result<FeedProcessData> InitializeProcess(this Result<DailySeriesFeed[]> processData)
+    private static Result<FeedProcessData, DomainError> InitializeProcess(this Result<DailySeriesFeed[], DomainError> processData)
     {
         return processData.Map(data => new FeedProcessData(data, []));
     }
     
-    private static Task<Result<FeedProcessSummary>> SendMessages(
-        this Task<Result<FeedNotification[]>> notifications,
+    private static Task<Result<FeedProcessSummary, DomainError>> SendMessages(
+        this Task<Result<FeedNotification[], DomainError>> notifications,
         DomainCollectionSender domainPostman,
         CancellationToken token)
     {
@@ -47,10 +47,10 @@ public static class FeedProcess
                 .Map(_ => new FeedProcessSummary(n.Length)));
     }
 
-    extension(Task<Result<FeedProcessData>> data)
+    extension(Task<Result<FeedProcessData, DomainError>> data)
     {
 
-        private Task<Result<FeedNotification[]>> AggregateNotifications()
+        private Task<Result<FeedNotification[], DomainError>> AggregateNotifications()
         {
             return data.Map(d => d.Subscriptions.Select(user =>
                 {

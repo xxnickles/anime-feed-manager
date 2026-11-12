@@ -24,17 +24,17 @@ public class LastSeasonsUpdateTests
         return;
 
         // SeasonGetter returns NoUpdateRequired to simulate no change
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
-            Task.FromResult<Result<SeasonStorageData>>(new NoUpdateRequired());
+        Task<Result<SeasonStorageData, DomainError>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
+            Task.FromResult<Result<SeasonStorageData, DomainError>>(new NoUpdateRequired());
 
-        Task<Result<Unit>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
+        Task<Result<Unit, DomainError>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
         {
             latestUpdaterCalled = true;
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         }
 
-        Task<Result<ImmutableArray<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
-            Task.FromResult(Result<ImmutableArray<SeriesSeason>>.Success(ImmutableArray<SeriesSeason>.Empty));
+        Task<Result<ImmutableArray<SeriesSeason>, DomainError>> GetAllSeasons(CancellationToken _) =>
+            Task.FromResult(Result<ImmutableArray<SeriesSeason>, DomainError>.Success(ImmutableArray<SeriesSeason>.Empty));
     }
 
     [Fact]
@@ -42,8 +42,8 @@ public class LastSeasonsUpdateTests
     {
         var incoming = new SeriesSeason(Season.Summer(), Year.FromNumber(2026), true);
         // Force path that is not NoUpdateRequired so UpdateLast4Seasons executes
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
-            Task.FromResult<Result<SeasonStorageData>>(new NewSeason(new SeasonStorage()));
+        Task<Result<SeasonStorageData, DomainError>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
+            Task.FromResult<Result<SeasonStorageData, DomainError>>(new NewSeason(new SeasonStorage()));
 
         var seasons = new List<SeriesSeason>
         {
@@ -81,13 +81,13 @@ public class LastSeasonsUpdateTests
         }
         return;
 
-        Task<Result<Unit>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
+        Task<Result<Unit, DomainError>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
         {
             stored = s;
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         }
 
-        Task<Result<ImmutableArray<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
-            Task.FromResult(Result<ImmutableArray<SeriesSeason>>.Success([..seasons]));
+        Task<Result<ImmutableArray<SeriesSeason>, DomainError>> GetAllSeasons(CancellationToken _) =>
+            Task.FromResult(Result<ImmutableArray<SeriesSeason>, DomainError>.Success([..seasons]));
     }
 }

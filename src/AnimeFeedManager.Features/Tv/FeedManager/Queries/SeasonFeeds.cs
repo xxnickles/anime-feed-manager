@@ -28,7 +28,7 @@ public enum BindingState
 public static class SeasonFeeds
 {
     /// <summary>Unfed, uncompleted library series plus the season's bindings; stale first, then unfed, tracking, completed.</summary>
-    public static Task<Result<ImmutableArray<SeasonFeed>>> GetSeasonFeeds(
+    public static Task<Result<ImmutableArray<SeasonFeed>, DomainError>> GetSeasonFeeds(
         SeriesSeason season,
         Uri publicBlobUri,
         TvLibrary libraryGetter,
@@ -43,7 +43,7 @@ public static class SeasonFeeds
             .WithOperationName(nameof(GetSeasonFeeds))
             .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season));
 
-    private static async Task<Result<ImmutableArray<BoundSeries>>> Bound(
+    private static async Task<Result<ImmutableArray<BoundSeries>, DomainError>> Bound(
         ImmutableArray<NyaaBindingStorage> bindings,
         NyaaCatalogGetter catalogGetter,
         DateTimeOffset now,

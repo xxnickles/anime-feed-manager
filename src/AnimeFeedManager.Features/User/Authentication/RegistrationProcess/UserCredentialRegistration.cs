@@ -13,7 +13,7 @@ public static class UserCredentialRegistration
     /// <param name="passwordlessClient"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static Task<Result<UserRegistrationResult>> TryAddCredential(
+    public static Task<Result<UserRegistrationResult, DomainError>> TryAddCredential(
         string id,
         ExistentUserGetterById userGetter,
         IPasswordlessClient passwordlessClient,
@@ -27,7 +27,7 @@ public static class UserCredentialRegistration
             .Bind(user => TryToCreate(user, passwordlessClient, cancellationToken));
     }
 
-    private static Task<Result<UserRegistrationResult>> TryToCreate(
+    private static Task<Result<UserRegistrationResult, DomainError>> TryToCreate(
         StoredUser storedUser,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken
@@ -36,11 +36,11 @@ public static class UserCredentialRegistration
         return storedUser switch
         {
             ValidStoredUser u => TryToGetCredential(u, passwordlessClient, cancellationToken),
-            _ => Task.FromResult<Result<UserRegistrationResult>>(Error.Create("User doesn't exist in the system"))
+            _ => Task.FromResult<Result<UserRegistrationResult, DomainError>>(Error.Create("User doesn't exist in the system"))
         };
     }
 
-    private static async Task<Result<UserRegistrationResult>> TryToGetCredential(
+    private static async Task<Result<UserRegistrationResult, DomainError>> TryToGetCredential(
         ValidStoredUser storedUser,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken)

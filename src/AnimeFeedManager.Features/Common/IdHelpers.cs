@@ -17,7 +17,7 @@ public static partial class IdHelpers
     /// <summary>
     /// Reads back the year and season encoded by <see cref="GenerateAnimeId"/>.
     /// </summary>
-    public static Result<SeriesSeason> SeriesSeasonFromId(string id)
+    public static Result<SeriesSeason, DomainError> SeriesSeasonFromId(string id)
     {
         var parts = id.Split('_', 3);
 

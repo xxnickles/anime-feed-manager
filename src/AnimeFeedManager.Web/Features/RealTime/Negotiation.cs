@@ -9,14 +9,14 @@ internal static class Negotiation
     // Admin membership is renewed on every negotiate and lapses with the client token, so a demoted admin drops out within it.
     private static readonly TimeSpan TokenLifetime = TimeSpan.FromHours(1);
 
-    internal static Task<Result<NegotiationResponse>> Negotiate(
+    internal static Task<Result<NegotiationResponse, DomainError>> Negotiate(
         ServiceHubContext hub,
         AppUser user,
         CancellationToken cancellationToken) =>
         SyncAdminGroup(hub, user, cancellationToken)
             .Bind(_ => IssueToken(hub, user, cancellationToken));
 
-    private static async Task<Result<Unit>> SyncAdminGroup(
+    private static async Task<Result<Unit, DomainError>> SyncAdminGroup(
         ServiceHubContext hub,
         AppUser user,
         CancellationToken cancellationToken)
@@ -33,7 +33,7 @@ internal static class Negotiation
                     break;
             }
 
-            return Result<Unit>.Success();
+            return Result<Unit, DomainError>.Success(new Unit());
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
@@ -41,7 +41,7 @@ internal static class Negotiation
         }
     }
 
-    private static async Task<Result<NegotiationResponse>> IssueToken(
+    private static async Task<Result<NegotiationResponse, DomainError>> IssueToken(
         ServiceHubContext hub,
         AppUser user,
         CancellationToken cancellationToken)

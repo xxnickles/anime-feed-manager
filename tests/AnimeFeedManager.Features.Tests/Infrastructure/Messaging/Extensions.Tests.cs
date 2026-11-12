@@ -12,7 +12,7 @@ public class MessagingExtensionsTests
     {
         var postman = new TestDomainPostman();
 
-        var result = await Task.FromResult(Result<int>.Success(42))
+        var result = await Task.FromResult(Result<int, DomainError>.Success(42))
             .SendOnError(postman, [ErrorEvent()], CancellationToken.None);
 
         result.AssertOnSuccess(value => Assert.Equal(42, value));
@@ -76,8 +76,8 @@ public class MessagingExtensionsTests
 
     #region Test Helpers
 
-    private static Task<Result<int>> Failure(string message) =>
-        Task.FromResult(Result<int>.Failure(Error.Create(message)));
+    private static Task<Result<int, DomainError>> Failure(string message) =>
+        Task.FromResult(Result<int, DomainError>.Failure(Error.Create(message)));
 
     private static DomainMessage ErrorEvent() => new RunFeedNotification();
 
@@ -89,11 +89,11 @@ public class MessagingExtensionsTests
         private DomainCollectionSender Delegate => (messages, _) =>
         {
             if (FailSend)
-                return Task.FromResult<Result<Unit>>(
+                return Task.FromResult<Result<Unit, DomainError>>(
                     MessagesNotDelivered.Create(new InvalidOperationException("queue unavailable"), messages));
 
             Sent.AddRange(messages);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;

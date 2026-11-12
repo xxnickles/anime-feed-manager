@@ -162,7 +162,7 @@ internal static class FeedManagerHandlers
                 error => [Notifications.CreateErrorNotification("Release search", error)]);
     }
 
-    private static Task<Result<FeedManagerSeries>> Reload(
+    private static Task<Result<FeedManagerSeries, DomainError>> Reload(
         string seriesId,
         ITableClientFactory clientFactory,
         CancellationToken token) =>

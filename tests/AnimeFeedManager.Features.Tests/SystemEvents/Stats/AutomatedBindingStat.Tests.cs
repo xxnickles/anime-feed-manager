@@ -37,7 +37,7 @@ public class AutomatedBindingStatTests
 
     #region Test Helpers
 
-    private static LatestAutomatedBindingRun Getter(Result<AutomatedBindingCompleted> outcome) =>
+    private static LatestAutomatedBindingRun Getter(Result<AutomatedBindingCompleted, DomainError> outcome) =>
         _ => Task.FromResult(outcome);
 
     #endregion

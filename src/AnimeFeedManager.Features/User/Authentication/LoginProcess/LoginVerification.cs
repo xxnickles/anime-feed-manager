@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Features.User.Authentication.LoginProcess;
 
 public static class LoginVerification
 {
-    public static async Task<Result<VerifiedUser>> VerifyUser(
+    public static async Task<Result<VerifiedUser, DomainError>> VerifyUser(
         IPasswordlessClient passwordlessClient,
         string token,
         CancellationToken cancellationToken = default)

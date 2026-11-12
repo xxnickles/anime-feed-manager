@@ -25,4 +25,3 @@ global using AnimeFeedManager.SourceGenerators.TableNames;
 global using Azure;
 global using Azure.Data.Tables;
 global using Microsoft.Extensions.Logging;
-global using static AnimeFeedManager.Shared.Results.ResultError;

@@ -4,7 +4,7 @@ public sealed record SeriesSeason(Season Season, Year Year, bool IsLatest = fals
 
 public static class SeriesSeasonExtensions
 {
-    public static Result<SeriesSeason> ParseAsSeriesSeason(this (string season, int year, bool isLatest) target)
+    public static Result<SeriesSeason, DomainError> ParseAsSeriesSeason(this (string season, int year, bool isLatest) target)
     {
         return target.season.ParseAsSeason().And(target.year.ParseAsYear())
             .Map(result => new SeriesSeason(result.Item1, result.Item2, target.isLatest));
@@ -20,7 +20,7 @@ public static class SeriesSeasonExtensions
     /// </summary>
     /// <param name="seasonString"></param>
     /// <returns></returns>
-    public static Result<SeriesSeason> ParseAsSeriesSeason(this string seasonString)
+    public static Result<SeriesSeason, DomainError> ParseAsSeriesSeason(this string seasonString)
     {
         var parts = seasonString.Split('-');
 

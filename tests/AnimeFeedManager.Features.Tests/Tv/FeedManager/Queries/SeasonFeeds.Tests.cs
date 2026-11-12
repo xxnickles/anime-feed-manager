@@ -49,15 +49,15 @@ public class SeasonFeedsTests
 
     #region Test Helpers
 
-    private static Task<Result<ImmutableArray<SeasonFeed>>> GetSeasonFeeds(
+    private static Task<Result<ImmutableArray<SeasonFeed>, DomainError>> GetSeasonFeeds(
         ImmutableArray<TvSeries> library,
         ImmutableArray<NyaaBindingStorage> bindings) =>
         SeasonFeeds.GetSeasonFeeds(
             Fall,
             new Uri("https://blob.example.com"),
-            (_, _, _) => Task.FromResult(Result<ImmutableArray<TvSeries>>.Success(library)),
-            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaBindingStorage>>.Success(bindings)),
-            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaCatalogStorage>>.Success([])),
+            (_, _, _) => Task.FromResult(Result<ImmutableArray<TvSeries>, DomainError>.Success(library)),
+            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaBindingStorage>, DomainError>.Success(bindings)),
+            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaCatalogStorage>, DomainError>.Success([])),
             Now,
             CancellationToken.None);
 

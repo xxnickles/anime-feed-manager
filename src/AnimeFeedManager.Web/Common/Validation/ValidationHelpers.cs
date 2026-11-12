@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Web.Common.Validation;
 
 internal static class ValidationHelpers
 {
-    internal static Result<T> Validate<T>([NotNull] T value) where T : notnull
+    internal static Result<T, DomainError> Validate<T>([NotNull] T value) where T : notnull
     {
         var validationIssues = new List<ValidationResult>();
         var context = new ValidationContext(value, serviceProvider: null, items: null);

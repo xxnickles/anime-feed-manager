@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 
 public static class NotificationProcess
 {
-    public static Task<Result<UserNotificationSummary>> UpdateUserSubscriptions(
+    public static Task<Result<UserNotificationSummary, DomainError>> UpdateUserSubscriptions(
         FeedNotification updateNotification,
         TvSubscriptionsUpdater updater,
         DomainCollectionSender domainPostman,
@@ -18,7 +18,7 @@ public static class NotificationProcess
             .Summarize();
     }
 
-    private static Task<Result<Unit>> UpdateUserSubscription(
+    private static Task<Result<Unit, DomainError>> UpdateUserSubscription(
         FeedNotification updateNotification,
         TvSubscriptionsUpdater updater,
         CancellationToken token)
@@ -92,7 +92,7 @@ public static class NotificationProcess
         return second <= first + 1 ? string.Empty : $"{id[..first]}-{id[(first + 1)..second]}";
     }
 
-    private static Task<Result<UserNotificationResult>> SendNotifications(DomainCollectionSender domainPostman, UserNotificationResult result)
+    private static Task<Result<UserNotificationResult, DomainError>> SendNotifications(DomainCollectionSender domainPostman, UserNotificationResult result)
     {
         var messages = result.Notifications.Select(n =>
             new SystemEvent(
@@ -106,6 +106,6 @@ public static class NotificationProcess
             .WithOperationName(nameof(SendNotifications));
     }
     
-    private static Task<Result<UserNotificationSummary>> Summarize(this Task<Result<UserNotificationResult>> result) =>
+    private static Task<Result<UserNotificationSummary, DomainError>> Summarize(this Task<Result<UserNotificationResult, DomainError>> result) =>
         result.Map(r => new UserNotificationSummary(r.UserId, r.Notifications.Length));
 }

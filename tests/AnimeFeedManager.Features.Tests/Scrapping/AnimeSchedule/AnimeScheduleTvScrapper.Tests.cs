@@ -42,7 +42,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = Substitute.For<IAnimeScheduleClient>();
         client.GetSeason(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>>.Failure(HandledError.Create())));
+            .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>, DomainError>.Failure(HandledError.Create())));
 
         var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
@@ -282,7 +282,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = Substitute.For<IAnimeScheduleClient>();
         client.GetSeason(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>>.Success([..series])));
+            .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>, DomainError>.Success([..series])));
         return client;
     }
 

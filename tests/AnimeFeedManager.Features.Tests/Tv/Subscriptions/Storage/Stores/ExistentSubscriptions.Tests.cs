@@ -198,7 +198,7 @@ public class ExistentSubscriptionsTests
 
     #region Test Helpers
 
-    private static Result<UserActiveSubscriptions[]> Project(
+    private static Result<UserActiveSubscriptions[], DomainError> Project(
         IEnumerable<string> feedTitles,
         params SubscriptionStorage[] rows) =>
         ExistentSubscriptions.ToUserActiveSubscriptions([..rows], feedTitles);

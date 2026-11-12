@@ -7,7 +7,7 @@ internal static class ResultMatching
         /// </summary>
         /// <param name="result">The result to assert on.</param>
         /// <typeparam name="T">The type of the success value.</typeparam>
-        extension<T>(Result<T> result)
+        extension<T>(Result<T, DomainError> result)
         {
             /// <summary>
             /// Asserts that a result is successful and executes the provided assertion on the success value.

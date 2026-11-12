@@ -6,7 +6,7 @@ public class TapExtensionsTests
     public void Should_Execute_Tap_Action_When_Result_Is_Success()
     {
         var executed = false;
-        var result = Result<int>.Success(42)
+        var result = Result<int, DomainError>.Success(42)
             .Tap(x =>
             {
                 executed = true;
@@ -22,7 +22,7 @@ public class TapExtensionsTests
     {
         var executed = false;
         var error = NotFoundError.Create("Test error");
-        var result = Result<int>.Failure(error)
+        var result = Result<int, DomainError>.Failure(error)
             .Tap(x => executed = true);
 
         Assert.False(executed);
@@ -32,7 +32,7 @@ public class TapExtensionsTests
     [Fact]
     public void Should_Return_Original_Result_From_Tap()
     {
-        var result = Result<int>.Success(42);
+        var result = Result<int, DomainError>.Success(42);
         var tappedResult = result.Tap(x => { });
 
         Assert.Same(result, tappedResult);
@@ -42,7 +42,7 @@ public class TapExtensionsTests
     public async Task Should_Execute_Tap_Action_When_Async_Result_Is_Success()
     {
         var executed = false;
-        var result = await Task.FromResult(Result<int>.Success(42))
+        var result = await Task.FromResult(Result<int, DomainError>.Success(42))
             .Tap(x =>
             {
                 executed = true;
@@ -58,7 +58,7 @@ public class TapExtensionsTests
     {
         var executed = false;
         var error = NotFoundError.Create("Test error");
-        var result = await Task.FromResult(Result<int>.Failure(error))
+        var result = await Task.FromResult(Result<int, DomainError>.Failure(error))
             .Tap(x => executed = true);
 
         Assert.False(executed);
@@ -69,7 +69,7 @@ public class TapExtensionsTests
     public async Task Should_Execute_Async_Tap_Action_When_Result_Is_Success()
     {
         var executed = false;
-        var result = await Task.FromResult(Result<int>.Success(42))
+        var result = await Task.FromResult(Result<int, DomainError>.Success(42))
             .Tap(async x =>
             {
                 await Task.Delay(1);
@@ -86,7 +86,7 @@ public class TapExtensionsTests
     {
         var executed = false;
         var error = NotFoundError.Create("Test error");
-        var result = await Task.FromResult(Result<int>.Failure(error))
+        var result = await Task.FromResult(Result<int, DomainError>.Failure(error))
             .Tap(async x =>
             {
                 await Task.Delay(1);
@@ -102,7 +102,7 @@ public class TapExtensionsTests
     {
         var log = new List<int>();
 
-        var result = Result<int>.Success(5)
+        var result = Result<int, DomainError>.Success(5)
             .Map(x => x * 2)
             .Tap(x => log.Add(x))
             .Map(x => x + 10)
@@ -117,7 +117,7 @@ public class TapExtensionsTests
     {
         var log = new List<int>();
 
-        var result = await Task.FromResult(Result<int>.Success(5))
+        var result = await Task.FromResult(Result<int, DomainError>.Success(5))
             .Map(x => x * 2)
             .Tap(x => log.Add(x))
             .Map(x => x + 10)

@@ -10,10 +10,10 @@ public sealed record ImageProcessData(
 
 public interface IImageProvider
 {
-    Task<Result<Uri>> Process(ImageProcessData data, CancellationToken cancellationToken = default);
+    Task<Result<Uri, DomainError>> Process(ImageProcessData data, CancellationToken cancellationToken = default);
 }
 
-public delegate Task<Result<Uri>> ImageProcessor(ImageProcessData data, CancellationToken cancellationToken = default);
+public delegate Task<Result<Uri, DomainError>> ImageProcessor(ImageProcessData data, CancellationToken cancellationToken = default);
 
 public class ImageProvider : IImageProvider
 {
@@ -33,7 +33,7 @@ public class ImageProvider : IImageProvider
         _logger = logger;
     }
 
-    public async Task<Result<Uri>> Process(
+    public async Task<Result<Uri, DomainError>> Process(
         ImageProcessData data,
         CancellationToken cancellationToken = default)
     {

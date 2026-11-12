@@ -83,7 +83,7 @@ else
             .Search(query, TrustedOnly, series.Binding, NyaaClient, CancellationToken.None)
             .MarkActivityErroredOnError()
             .FlushLogs(Logger)
-            .MatchToValue<ReleaseSearchResults, SearchOutcome>(
+            .MatchToValue<ReleaseSearchResults, DomainError, SearchOutcome>(
                 results => new Searched(results),
                 error => new SearchFailed(error.Message));
     }

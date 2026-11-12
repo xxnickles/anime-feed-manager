@@ -18,19 +18,19 @@ public readonly record struct Delay
     }
 }
 
-public delegate Task<Result<Unit>> DomainCollectionSender(IEnumerable<DomainMessage> messages,
+public delegate Task<Result<Unit, DomainError>> DomainCollectionSender(IEnumerable<DomainMessage> messages,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<Unit>> DelayedMessageSender(DomainMessage message, Delay delay,
+public delegate Task<Result<Unit, DomainError>> DelayedMessageSender(DomainMessage message, Delay delay,
     CancellationToken cancellationToken = default);
 
 
 public interface IDomainPostman{
 
-    Task<Result<Unit>> SendMessages<T>(IEnumerable<T> message, CancellationToken cancellationToken = default)
+    Task<Result<Unit, DomainError>> SendMessages<T>(IEnumerable<T> message, CancellationToken cancellationToken = default)
         where T : DomainMessage;
 
-    Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
+    Task<Result<Unit, DomainError>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage;
 }
 
@@ -46,7 +46,7 @@ public class AzureQueuePostman : IDomainPostman
     }
    
 
-    public async Task<Result<Unit>> SendMessages<T>(IEnumerable<T> messages,
+    public async Task<Result<Unit, DomainError>> SendMessages<T>(IEnumerable<T> messages,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         // If there is only one message, send it directly
@@ -78,7 +78,7 @@ public class AzureQueuePostman : IDomainPostman
         }
     }
 
-    public async Task<Result<Unit>> SendDelayedMessage<T>(T message, Delay delay,
+    public async Task<Result<Unit, DomainError>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
@@ -95,7 +95,7 @@ public class AzureQueuePostman : IDomainPostman
         }
     }
     
-    private async Task<Result<Unit>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
+    private async Task<Result<Unit, DomainError>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
         where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())

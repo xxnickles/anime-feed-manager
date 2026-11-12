@@ -5,7 +5,7 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Map_Success_Value_To_New_Type()
     {
-        var result = Result<int>.Success(42)
+        var result = Result<int, DomainError>.Success(42)
             .Map(x => x.ToString());
 
         result.AssertOnSuccess(value => Assert.Equal("42", value));
@@ -15,7 +15,7 @@ public class MapExtensionsTests
     public void Should_Not_Map_When_Result_Is_Failure()
     {
         var error = NotFoundError.Create("Test error");
-        var result = Result<int>.Failure(error)
+        var result = Result<int, DomainError>.Failure(error)
             .Map(x => x.ToString());
 
         result.AssertError();
@@ -24,7 +24,7 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Chain_Multiple_Map_Operations()
     {
-        var result = Result<int>.Success(5)
+        var result = Result<int, DomainError>.Success(5)
             .Map(x => x * 2)
             .Map(x => x + 10)
             .Map(x => x.ToString());
@@ -36,7 +36,7 @@ public class MapExtensionsTests
     public void Should_Preserve_Error_Through_Map_Chain()
     {
         var error = NotFoundError.Create("Test error");
-        var result = Result<int>.Failure(error)
+        var result = Result<int, DomainError>.Failure(error)
             .Map(x => x * 2)
             .Map(x => x + 10)
             .Map(x => x.ToString());
@@ -48,7 +48,7 @@ public class MapExtensionsTests
     public void Should_Map_Error_To_New_Error()
     {
         var originalError = NotFoundError.Create("Original error");
-        var result = Result<int>.Failure(originalError)
+        var result = Result<int, DomainError>.Failure(originalError)
             .MapError(_ => Error.Create("Mapped error"));
 
         result.AssertError();
@@ -58,7 +58,7 @@ public class MapExtensionsTests
     public void Should_Not_Map_Error_When_Result_Is_Success()
     {
         var mapErrorCalled = false;
-        var result = Result<int>.Success(42)
+        var result = Result<int, DomainError>.Success(42)
             .MapError(error =>
             {
                 mapErrorCalled = true;
@@ -73,7 +73,7 @@ public class MapExtensionsTests
     public void Should_Transform_Error_Type_With_MapError()
     {
         var originalError = NotFoundError.Create("Not found");
-        var result = Result<int>.Failure(originalError)
+        var result = Result<int, DomainError>.Failure(originalError)
             .MapError(error => Error.Create($"Wrapped: {error.Message}"));
 
         result.AssertError();

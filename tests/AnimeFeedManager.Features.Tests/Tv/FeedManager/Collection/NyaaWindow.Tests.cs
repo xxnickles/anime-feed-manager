@@ -83,7 +83,7 @@ public class NyaaWindowTests
         var sent = new ConcurrentBag<(string SeriesId, TimeSpan Delay)>();
         ImmutableArray<string> tracked = ["a", "b", "c", "d", "e", "f"];
 
-        var result = await Task.FromResult(Result<NyaaCollected>.Success(Collected(LastPoll.AddMinutes(5), tracked)))
+        var result = await Task.FromResult(Result<NyaaCollected, DomainError>.Success(Collected(LastPoll.AddMinutes(5), tracked)))
             .BackfillOnGap(LastPoll, Recording(sent), TestContext.Current.CancellationToken);
 
         result.AssertSuccess();
@@ -97,7 +97,7 @@ public class NyaaWindowTests
     {
         var sent = new ConcurrentBag<(string SeriesId, TimeSpan Delay)>();
 
-        var result = await Task.FromResult(Result<NyaaCollected>.Success(Collected(LastPoll.AddHours(-1), ["a"])))
+        var result = await Task.FromResult(Result<NyaaCollected, DomainError>.Success(Collected(LastPoll.AddHours(-1), ["a"])))
             .BackfillOnGap(LastPoll, Recording(sent), TestContext.Current.CancellationToken);
 
         result.AssertSuccess();
@@ -109,7 +109,7 @@ public class NyaaWindowTests
     {
         var collected = Collected(LastPoll.AddMinutes(5), ["a"]);
 
-        var result = await Task.FromResult(Result<NyaaCollected>.Success(collected))
+        var result = await Task.FromResult(Result<NyaaCollected, DomainError>.Success(collected))
             .BackfillOnGap(LastPoll, Recording(new ConcurrentBag<(string, TimeSpan)>()),
                 TestContext.Current.CancellationToken);
 
@@ -120,13 +120,13 @@ public class NyaaWindowTests
 
     #region Test Helpers
 
-    private static LastNyaaPoll Getter(Result<NyaaPoll> outcome) => _ => Task.FromResult(outcome);
+    private static LastNyaaPoll Getter(Result<NyaaPoll, DomainError> outcome) => _ => Task.FromResult(outcome);
 
     private static DelayedMessageSender Recording(ConcurrentBag<(string SeriesId, TimeSpan Delay)> sent) =>
         (message, delay, _) =>
         {
             sent.Add((((BackfillNyaaSeries) message).SeriesId, delay.Value));
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
     private static NyaaCollected Collected(DateTimeOffset oldestPolled, ImmutableArray<string> tracked) =>

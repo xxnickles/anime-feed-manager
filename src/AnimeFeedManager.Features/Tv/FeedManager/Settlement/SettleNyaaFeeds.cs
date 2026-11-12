@@ -14,7 +14,7 @@ public static class SettleNyaaFeeds
     internal static readonly TimeSpan RetireAfter = TimeSpan.FromDays(6);
 
     /// <summary>Stamps tracked feeds that reached their count, then retires feeds completed <see cref="RetireAfter"/> ago; a series that fails is logged and retried next run.</summary>
-    public static Task<Result<FeedsSettled>> Run(
+    public static Task<Result<FeedsSettled, DomainError>> Run(
         ITableClientFactory clientFactory,
         DomainCollectionSender domainPostman,
         CancellationToken token) =>
@@ -30,13 +30,13 @@ public static class SettleNyaaFeeds
         DateTimeOffset now) =>
         [.. tracked.Where(binding => binding is {Tracking: true, CompletedAt: { } completedAt} && completedAt <= now - RetireAfter)];
 
-    private static Task<Result<int>> CompleteFeeds(ITableClientFactory clientFactory, CancellationToken token) =>
+    private static Task<Result<int, DomainError>> CompleteFeeds(ITableClientFactory clientFactory, CancellationToken token) =>
         clientFactory.TableStorageTrackedNyaaBindings(token)
             .Bind(tracked => Each(ToComplete(tracked), binding => Complete(binding, clientFactory, token)))
             .WithOperationName(nameof(CompleteFeeds));
 
     // Events before untracking: a failed untrack re-sends next run, and library completion is idempotent.
-    private static Task<Result<int>> RetireFeeds(
+    private static Task<Result<int, DomainError>> RetireFeeds(
         ITableClientFactory clientFactory,
         DomainCollectionSender domainPostman,
         DateTimeOffset now,
@@ -51,7 +51,7 @@ public static class SettleNyaaFeeds
                 .Map(_ => true)))
             .WithOperationName(nameof(RetireFeeds));
 
-    private static Task<Result<bool>> Complete(NyaaBindingStorage binding, ITableClientFactory clientFactory,
+    private static Task<Result<bool, DomainError>> Complete(NyaaBindingStorage binding, ITableClientFactory clientFactory,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(binding.RowKey ?? string.Empty)
             .Bind(season => NyaaCompletion.CompleteWhenReached(
@@ -64,15 +64,15 @@ public static class SettleNyaaFeeds
             .Map(outcome => outcome is FeedCompleted);
 
     /// <summary>Counts the series settled; failures are logged without failing the step, even when all fail.</summary>
-    private static async Task<Result<int>> Each(
+    private static async Task<Result<int, DomainError>> Each(
         ImmutableArray<NyaaBindingStorage> bindings,
-        Func<NyaaBindingStorage, Task<Result<bool>>> settle) =>
+        Func<NyaaBindingStorage, Task<Result<bool, DomainError>>> settle) =>
         (await Task.WhenAll(bindings.Select(settle)))
         .Flatten(settled => settled.Count(done => done))
         .AddLogOnSuccess(bulk => bulk.LogErrors)
         .Map(bulk => bulk.Value)
         .BindOnErrorWhen(
-            error => Result<int>.Success(0).AddLog(error.WriteError),
+            error => Result<int, DomainError>.Success(0).AddLog(error.WriteError),
             error => error is AggregatedError);
 
     private static NyaaBindingStorage Untracked(NyaaBindingStorage binding)

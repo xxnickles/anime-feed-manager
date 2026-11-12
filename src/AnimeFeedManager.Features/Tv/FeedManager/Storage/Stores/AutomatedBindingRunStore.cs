@@ -2,11 +2,11 @@ using AnimeFeedManager.Features.Tv.FeedManager.Events;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
-public delegate Task<Result<Unit>> AutomatedBindingRunUpdater(AutomatedBindingCompleted run,
+public delegate Task<Result<Unit, DomainError>> AutomatedBindingRunUpdater(AutomatedBindingCompleted run,
     CancellationToken token = default);
 
 /// <summary>Fails with <see cref="NotFoundError"/> before the first run.</summary>
-public delegate Task<Result<AutomatedBindingCompleted>> LatestAutomatedBindingRun(CancellationToken token = default);
+public delegate Task<Result<AutomatedBindingCompleted, DomainError>> LatestAutomatedBindingRun(CancellationToken token = default);
 
 public static class AutomatedBindingRunStore
 {
@@ -23,13 +23,13 @@ public static class AutomatedBindingRunStore
 
     extension(TableClient tableClient)
     {
-        private Task<Result<Unit>> UpsertRun(AutomatedBindingCompleted run, CancellationToken token) =>
+        private Task<Result<Unit, DomainError>> UpsertRun(AutomatedBindingCompleted run, CancellationToken token) =>
             tableClient.TryExecute<AutomatedBindingRunStorage>(client => client.UpsertEntityAsync(
                     new AutomatedBindingRunStorage {Payload = run.AsJson()}, TableUpdateMode.Replace, token))
                 .WithDefaultMap()
                 .WithOperationName(nameof(UpsertRun));
 
-        private Task<Result<AutomatedBindingCompleted>> GetRun(CancellationToken token) =>
+        private Task<Result<AutomatedBindingCompleted, DomainError>> GetRun(CancellationToken token) =>
             tableClient.TryExecute<AutomatedBindingRunStorage>(client =>
                     client.GetEntityAsync<AutomatedBindingRunStorage>(AutomatedBindingRunStorage.Partition,
                         AutomatedBindingRunStorage.Key, cancellationToken: token))
@@ -37,7 +37,7 @@ public static class AutomatedBindingRunStore
                 .WithOperationName(nameof(GetRun));
     }
 
-    private static Result<AutomatedBindingCompleted> Deserialize(string? payload)
+    private static Result<AutomatedBindingCompleted, DomainError> Deserialize(string? payload)
     {
         try
         {

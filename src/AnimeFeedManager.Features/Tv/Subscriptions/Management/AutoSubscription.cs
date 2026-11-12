@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 
 public static class AutoSubscription
 {
-    public static Task<Result<Summary>> TryToSubscribe(
+    public static Task<Result<Summary, DomainError>> TryToSubscribe(
         string seriesId,
         string feedTitle,
         ITableClientFactory clientFactory,
@@ -21,7 +21,7 @@ public static class AutoSubscription
     }
 
 
-    internal static Task<Result<AutoSubscriptionProcess>> StartProcess(
+    internal static Task<Result<AutoSubscriptionProcess, DomainError>> StartProcess(
         string seriesId,
         string feedTitle,
         TvInterestedBySeries seriesGetter,
@@ -29,16 +29,16 @@ public static class AutoSubscription
         .Map(series =>
             new AutoSubscriptionProcess(seriesId, series.Select(s => Subscribe(s, feedTitle)).ToImmutableArray()));
 
-    extension(Task<Result<AutoSubscriptionProcess>> process)
+    extension(Task<Result<AutoSubscriptionProcess, DomainError>> process)
     {
-        internal Task<Result<AutoSubscriptionProcess>> StoreChanges(TvSubscriptionsUpdater updater,
+        internal Task<Result<AutoSubscriptionProcess, DomainError>> StoreChanges(TvSubscriptionsUpdater updater,
             CancellationToken token)
         {
             return process.Bind(p => updater(p.InterestedSeries, token)
                 .Map(_ => p));
         }
 
-        internal Task<Result<Summary>> SendEvents(string seriesId,
+        internal Task<Result<Summary, DomainError>> SendEvents(string seriesId,
             DomainCollectionSender domainPostman,
             CancellationToken token)
         {

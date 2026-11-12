@@ -68,7 +68,7 @@ internal static class SecurityHandlers
             .Tap(principal => httpContext.SignInAsync(
                 principal,
                 new AuthenticationProperties { IsPersistent = true }))
-            .MatchToValue<ClaimsPrincipal, IResult>(
+            .MatchToValue<ClaimsPrincipal, DomainError, IResult>(
                 _ => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
                 error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents(error.ToStatusCode()));
     }
@@ -101,7 +101,7 @@ internal static class SecurityHandlers
             ? returnUrl
             : "/";
 
-    private static Result<ClaimsPrincipal> TryToCreatePrincipal(StoredUser user)
+    private static Result<ClaimsPrincipal, DomainError> TryToCreatePrincipal(StoredUser user)
     {
         return user switch
         {

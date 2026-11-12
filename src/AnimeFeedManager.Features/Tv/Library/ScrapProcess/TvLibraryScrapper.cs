@@ -5,7 +5,7 @@ using AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
-public delegate Task<Result<ScrapTvLibraryData>> TvScrapper(SeasonSelector season, CancellationToken token);
+public delegate Task<Result<ScrapTvLibraryData, DomainError>> TvScrapper(SeasonSelector season, CancellationToken token);
 
 public static class TvLibraryScrapper
 {
@@ -21,7 +21,7 @@ public static class TvLibraryScrapper
 
     // The featured season is elected by hand, so the current season is whichever one storage holds
     // as latest. Scraping never elects it, so every season resolved here carries IsLatest false.
-    internal static Task<Result<SeriesSeason>> ResolveSeason(
+    internal static Task<Result<SeriesSeason, DomainError>> ResolveSeason(
         SeasonSelector selector,
         LatestSeasonGetter latestSeason,
         CancellationToken token) =>
@@ -33,11 +33,11 @@ public static class TvLibraryScrapper
                 FallbackLatestSeason newest => AsSeriesSeason(newest.Season),
                 _ => Error.Create("There is no latest season data in storage.")
             }),
-            BySeason bySeason => Task.FromResult<Result<SeriesSeason>>(
+            BySeason bySeason => Task.FromResult<Result<SeriesSeason, DomainError>>(
                 new SeriesSeason(bySeason.Season, bySeason.Year)),
             _ => throw new UnreachableException()
         };
 
-    private static Result<SeriesSeason> AsSeriesSeason(SeasonStorage season) =>
+    private static Result<SeriesSeason, DomainError> AsSeriesSeason(SeasonStorage season) =>
         (season.Season ?? string.Empty, season.Year, false).ParseAsSeriesSeason();
 }

@@ -9,7 +9,7 @@ public record SeasonNotifications(string Season, ImmutableArray<SeriesNotificati
 
 public static class UserNotifications
 {
-    public static Task<Result<ImmutableArray<SeasonNotifications>>> Get(
+    public static Task<Result<ImmutableArray<SeasonNotifications>, DomainError>> Get(
         string userId,
         SystemEventsGetter<NotificationSent> eventGetter,
         CancellationToken token)

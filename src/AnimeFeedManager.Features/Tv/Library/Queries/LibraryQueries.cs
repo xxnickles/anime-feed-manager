@@ -5,14 +5,14 @@ namespace AnimeFeedManager.Features.Tv.Library.Queries;
 
 public static class LibraryQueries
 {
-    public static Task<Result<ImmutableArray<TvSeries>>> GetTvLibrarySeries(
+    public static Task<Result<ImmutableArray<TvSeries>, DomainError>> GetTvLibrarySeries(
         this TvLibrary libraryGetter,
         SeriesSeason season,
         Uri publicBlobUri,
         CancellationToken cancellationToken) => libraryGetter(season, publicBlobUri, cancellationToken);
 
-    public static Task<Result<ImmutableArray<UserTvSeries>>> GetTvLibraryForUser(
-        this Task<Result<ImmutableArray<TvSeries>>> librarySeries,
+    public static Task<Result<ImmutableArray<UserTvSeries>, DomainError>> GetTvLibraryForUser(
+        this Task<Result<ImmutableArray<TvSeries>, DomainError>> librarySeries,
         AppUser user,
         TvSubscriptions subscriptionsGetter,
         CancellationToken cancellationToken
@@ -20,7 +20,7 @@ public static class LibraryQueries
         EnhanceLibraryData(libraryData, user, subscriptionsGetter, cancellationToken));
 
 
-    private static Task<Result<ImmutableArray<UserTvSeries>>> EnhanceLibraryData(
+    private static Task<Result<ImmutableArray<UserTvSeries>, DomainError>> EnhanceLibraryData(
         ImmutableArray<TvSeries> libraryData,
         AppUser user,
         TvSubscriptions subscriptionsGetter,
@@ -36,7 +36,7 @@ public static class LibraryQueries
         }
 
         return Task.FromResult(
-            Result<ImmutableArray<UserTvSeries>>.Success(libraryData.Select(s => MapForAnonymous(s, user)).ToImmutableArray()));
+            Result<ImmutableArray<UserTvSeries>, DomainError>.Success(libraryData.Select(s => MapForAnonymous(s, user)).ToImmutableArray()));
     }
 
 

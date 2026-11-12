@@ -8,7 +8,7 @@ internal sealed class NotificationsHub(ServiceManager serviceManager)
 {
     private Task<ServiceHubContext>? _context;
 
-    internal async Task<Result<ServiceHubContext>> GetContext()
+    internal async Task<Result<ServiceHubContext, DomainError>> GetContext()
     {
         try
         {

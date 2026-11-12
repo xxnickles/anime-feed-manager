@@ -12,7 +12,7 @@ public sealed record ErrorStats(ImmutableArray<ErrorCount> BySource)
 public static class ErrorStat
 {
     // Errors are only stored under the Admin and Everybody partitions; querying each avoids a full-table scan.
-    public static Task<Result<ErrorStats>> Get(
+    public static Task<Result<ErrorStats, DomainError>> Get(
         SystemErrorsGetter errorsGetter,
         DateTimeOffset from,
         CancellationToken cancellationToken) =>

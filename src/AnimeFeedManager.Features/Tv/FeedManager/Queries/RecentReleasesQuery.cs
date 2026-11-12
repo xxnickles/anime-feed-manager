@@ -19,7 +19,7 @@ internal sealed record SeriesCatalog(NyaaBindingStorage Binding, ImmutableArray<
 public static class RecentReleasesQuery
 {
     /// <summary>Tracked series with releases inside the notification feed window, newest first; any unreadable catalog fails the query.</summary>
-    public static Task<Result<ImmutableArray<RecentSeries>>> GetRecentReleases(
+    public static Task<Result<ImmutableArray<RecentSeries>, DomainError>> GetRecentReleases(
         TrackedNyaaBindings trackedBindings,
         NyaaCatalogGetter catalogGetter,
         DateTimeOffset now,
@@ -29,7 +29,7 @@ public static class RecentReleasesQuery
             .Map(catalogs => Summarize(catalogs, now - NyaaCollection.FeedWindow))
             .WithOperationName(nameof(GetRecentReleases));
 
-    private static async Task<Result<ImmutableArray<SeriesCatalog>>> ReadCatalogs(
+    private static async Task<Result<ImmutableArray<SeriesCatalog>, DomainError>> ReadCatalogs(
         ImmutableArray<NyaaBindingStorage> tracked,
         NyaaCatalogGetter catalogGetter,
         CancellationToken token)

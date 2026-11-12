@@ -3,7 +3,7 @@
 public static class Series
 {
     /// <summary>Sets the episode count until the next import that carries one from the provider.</summary>
-    public static Task<Result<Unit>> UpdateExpectedEpisodes(
+    public static Task<Result<Unit, DomainError>> UpdateExpectedEpisodes(
         string seriesId,
         SeriesSeason seriesSeason,
         int episodes,
@@ -21,7 +21,7 @@ public static class Series
         error => error is PreconditionFailedError);
 
 
-    public static Task<Result<Unit>> DeleteSeries(
+    public static Task<Result<Unit, DomainError>> DeleteSeries(
         string seriesId,
         SeriesSeason seriesSeason,
         TvSeriesRemover seriesRemover,

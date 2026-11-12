@@ -11,7 +11,7 @@ public sealed record BoundSeries(string Title, string FeedTitle, bool WasOngoing
 public static class BindSeries
 {
     /// <summary>Replaces the binding, feeds the library series from it, then queues the backfill; the catalog is kept.</summary>
-    public static Task<Result<BoundSeries>> Bind(
+    public static Task<Result<BoundSeries, DomainError>> Bind(
         BindNyaaSeries request,
         ITableClientFactory clientFactory,
         DomainCollectionSender domainPostman,
@@ -48,7 +48,7 @@ public static class BindSeries
             Premiere = series.Date is { } date ? new DateTimeOffset(DateTime.SpecifyKind(date, DateTimeKind.Utc)) : null
         };
 
-    private static Task<Result<BoundSeries>> FeedLibrarySeries(
+    private static Task<Result<BoundSeries, DomainError>> FeedLibrarySeries(
         BindNyaaSeries request,
         SeriesSeason season,
         TvSeriesGetter seriesGetter,

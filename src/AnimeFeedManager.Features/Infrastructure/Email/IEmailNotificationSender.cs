@@ -34,7 +34,7 @@ public interface IEmailNotificationSender
     /// <param name="model">The model data to pass to the template</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Result indicating success or failure</returns>
-    Task<Result<Unit>> Send<TModel>(
+    Task<Result<Unit, DomainError>> Send<TModel>(
         string to,
         string subject,
         EmailTemplateFactory<TModel> templateFactory,

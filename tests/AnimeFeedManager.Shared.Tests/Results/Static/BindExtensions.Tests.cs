@@ -5,8 +5,8 @@ public class BindExtensionsTests
     [Fact]
     public void Should_Bind_Success_Value_To_New_Result()
     {
-        var result = Result<int>.Success(42)
-            .Bind(x => Result<string>.Success(x.ToString()));
+        var result = Result<int, DomainError>.Success(42)
+            .Bind(x => Result<string, DomainError>.Success(x.ToString()));
 
         result.AssertOnSuccess(value => Assert.Equal("42", value));
     }
@@ -16,11 +16,11 @@ public class BindExtensionsTests
     {
         var binderCalled = false;
         var error = NotFoundError.Create("Test error");
-        var result = Result<int>.Failure(error)
+        var result = Result<int, DomainError>.Failure(error)
             .Bind(x =>
             {
                 binderCalled = true;
-                return Result<string>.Success(x.ToString());
+                return Result<string, DomainError>.Success(x.ToString());
             });
 
         result.AssertError();
@@ -31,12 +31,12 @@ public class BindExtensionsTests
     public void Should_Short_Circuit_On_First_Bind_Failure()
     {
         var secondBinderCalled = false;
-        var result = Result<int>.Success(42)
-            .Bind(x => Result<int>.Failure(NotFoundError.Create("First error")))
+        var result = Result<int, DomainError>.Success(42)
+            .Bind(x => Result<int, DomainError>.Failure(NotFoundError.Create("First error")))
             .Bind(x =>
             {
                 secondBinderCalled = true;
-                return Result<int>.Success(x * 2);
+                return Result<int, DomainError>.Success(x * 2);
             });
 
         result.AssertError();
@@ -46,10 +46,10 @@ public class BindExtensionsTests
     [Fact]
     public void Should_Chain_Multiple_Bind_Operations()
     {
-        var result = Result<int>.Success(5)
-            .Bind(x => Result<int>.Success(x * 2))
-            .Bind(x => Result<int>.Success(x + 10))
-            .Bind(x => Result<string>.Success(x.ToString()));
+        var result = Result<int, DomainError>.Success(5)
+            .Bind(x => Result<int, DomainError>.Success(x * 2))
+            .Bind(x => Result<int, DomainError>.Success(x + 10))
+            .Bind(x => Result<string, DomainError>.Success(x.ToString()));
 
         result.AssertOnSuccess(value => Assert.Equal("20", value));
     }
@@ -58,12 +58,12 @@ public class BindExtensionsTests
     public void Should_Execute_BindWhen_Only_When_Predicate_Is_True()
     {
         var binderCalled = false;
-        var result = Result<int>.Success(10)
+        var result = Result<int, DomainError>.Success(10)
             .BindWhen(
                 x =>
                 {
                     binderCalled = true;
-                    return Result<int>.Success(x * 2);
+                    return Result<int, DomainError>.Success(x * 2);
                 },
                 x => x > 5);
 
@@ -75,12 +75,12 @@ public class BindExtensionsTests
     public void Should_Skip_BindWhen_When_Predicate_Is_False()
     {
         var binderCalled = false;
-        var result = Result<int>.Success(3)
+        var result = Result<int, DomainError>.Success(3)
             .BindWhen(
                 x =>
                 {
                     binderCalled = true;
-                    return Result<int>.Success(x * 2);
+                    return Result<int, DomainError>.Success(x * 2);
                 },
                 x => x > 5);
 
@@ -94,12 +94,12 @@ public class BindExtensionsTests
         var binderCalled = false;
         var predicateCalled = false;
         var error = NotFoundError.Create("Test error");
-        var result = Result<int>.Failure(error)
+        var result = Result<int, DomainError>.Failure(error)
             .BindWhen(
                 x =>
                 {
                     binderCalled = true;
-                    return Result<int>.Success(x * 2);
+                    return Result<int, DomainError>.Success(x * 2);
                 },
                 x =>
                 {
@@ -117,12 +117,12 @@ public class BindExtensionsTests
     {
         var validatePositive = (int x) =>
             x > 0
-                ? Result<int>.Success(x)
-                : Result<int>.Failure(DomainValidationErrors.Create([
+                ? Result<int, DomainError>.Success(x)
+                : Result<int, DomainError>.Failure(DomainValidationErrors.Create([
                     DomainValidationError.Create("value", "Must be positive")
                 ]));
 
-        var result = Result<int>.Success(10)
+        var result = Result<int, DomainError>.Success(10)
             .BindWhen(validatePositive, x => x != 0);
 
         result.AssertOnSuccess(value => Assert.Equal(10, value));

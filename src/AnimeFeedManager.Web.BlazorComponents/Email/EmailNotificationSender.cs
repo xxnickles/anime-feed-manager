@@ -31,7 +31,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         _blazorRenderer = blazorRenderer;
     }
 
-    public Task<Result<Unit>> Send<TModel>(
+    public Task<Result<Unit, DomainError>> Send<TModel>(
         string to,
         string subject,
         EmailTemplateFactory<TModel> templateFactory,
@@ -46,12 +46,11 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         }
         catch (Exception ex)
         {
-            return EmailSendError.Create($"Unexpected error: {ex.Message}")
-                .AsTaskFailure<Unit>();
+            return Task.FromResult(Result<Unit, DomainError>.Failure(EmailSendError.Create($"Unexpected error: {ex.Message}")));
         }
     }
 
-    private async Task<Result<EmailBody>> RenderBody<TModel>(
+    private async Task<Result<EmailBody, DomainError>> RenderBody<TModel>(
         EmailTemplateFactory<TModel> templateFactory,
         EmailTextFactory<TModel> textFactory,
         TModel model) where TModel : notnull
@@ -72,7 +71,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         }
     }
 
-    private async Task<Result<Unit>> SendEmailAsync(
+    private async Task<Result<Unit, DomainError>> SendEmailAsync(
         string to,
         string subject,
         EmailBody body,

@@ -51,7 +51,7 @@ public static class NyaaCollection
     private static readonly NyaaQuery PollQuery = NyaaQuery.Create().Search(PollTerm);
 
     /// <summary>Polls nyaa once, catalogs every tracked binding's matches, then builds feeds from the tracked catalogs; any failure fails the run.</summary>
-    public static Task<Result<NyaaCollected>> Collect(
+    public static Task<Result<NyaaCollected, DomainError>> Collect(
         INyaaClient nyaaClient,
         ITableClientFactory clientFactory,
         WebAppHost host,
@@ -69,18 +69,18 @@ public static class NyaaCollection
                 [.. p.Tracked.Select(binding => binding.RowKey ?? string.Empty)]))
             .WithOperationName(nameof(Collect));
 
-    extension(Task<Result<CollectionProcess>> process)
+    extension(Task<Result<CollectionProcess, DomainError>> process)
     {
-        private Task<Result<CollectionProcess>> PollReleases(INyaaClient nyaaClient, CancellationToken token) =>
+        private Task<Result<CollectionProcess, DomainError>> PollReleases(INyaaClient nyaaClient, CancellationToken token) =>
             process.Bind(p => p.Tracked.IsEmpty
-                ? Task.FromResult(Result<CollectionProcess>.Success(p))
+                ? Task.FromResult(Result<CollectionProcess, DomainError>.Success(p))
                 : Poll(p with {PolledAt = DateTimeOffset.UtcNow}, nyaaClient, token));
 
-        private Task<Result<CollectionProcess>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
+        private Task<Result<CollectionProcess, DomainError>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
             CancellationToken token) =>
             process.Bind(p => catalogUpdater(p.Matches.SelectMany(match => match.Rows), token).Map(_ => p));
 
-        private Task<Result<CollectionProcess>> ReadCatalogs(NyaaCatalogGetter catalogGetter,
+        private Task<Result<CollectionProcess, DomainError>> ReadCatalogs(NyaaCatalogGetter catalogGetter,
             CancellationToken token) =>
             process.Bind(async p =>
             {
@@ -96,11 +96,11 @@ public static class NyaaCollection
             });
     }
 
-    private static Task<Result<CollectionProcess>> Poll(CollectionProcess process, INyaaClient nyaaClient,
+    private static Task<Result<CollectionProcess, DomainError>> Poll(CollectionProcess process, INyaaClient nyaaClient,
         CancellationToken token) =>
         nyaaClient.Fetch(PollQuery, token).Bind(document => MatchReleases(process, document));
 
-    private static Result<CollectionProcess> MatchReleases(CollectionProcess process, XDocument document) =>
+    private static Result<CollectionProcess, DomainError> MatchReleases(CollectionProcess process, XDocument document) =>
         NyaaFeed.Parse(document)
             .AddLogOnSuccess(feed => feed.LogErrors)
             .Map(feed => process with
@@ -109,7 +109,7 @@ public static class NyaaCollection
                 OldestPolled = feed.Value.IsEmpty ? null : feed.Value.Min(item => item.Published)
             });
 
-    private static Task<Result<CollectedSeries>> ReadCatalog(NyaaBindingStorage binding,
+    private static Task<Result<CollectedSeries, DomainError>> ReadCatalog(NyaaBindingStorage binding,
         ImmutableHashSet<string> matched, NyaaCatalogGetter catalogGetter, CancellationToken token) =>
         catalogGetter(binding.RowKey ?? string.Empty, token)
             .Map(catalog => new CollectedSeries(binding, catalog, matched));

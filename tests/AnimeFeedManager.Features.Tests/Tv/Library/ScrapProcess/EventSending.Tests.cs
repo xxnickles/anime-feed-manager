@@ -25,7 +25,7 @@ public class EventSendingTests
         };
         var postman = new TestDomainPostman();
 
-        var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(new ScrapTvLibraryData([.. items], season)))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, DomainError>.Success(new ScrapTvLibraryData([.. items], season)))
             .SendEvents(postman, new SeasonParameters(season.Season.ToString(), (ushort) season.Year),
                 CancellationToken.None);
 
@@ -47,7 +47,7 @@ public class EventSendingTests
             MakeSeries("n-1", SeriesStatus.NotAvailable(), Status.NewSeries)
         };
 
-        var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(new ScrapTvLibraryData([.. items], season)))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, DomainError>.Success(new ScrapTvLibraryData([.. items], season)))
             .SendEvents(new TestDomainPostman(), null, CancellationToken.None);
 
         result.AssertOnSuccess(summary =>
@@ -66,7 +66,7 @@ public class EventSendingTests
         var postman = new TestDomainPostman {FailOnFirstSend = true};
 
         var parameters = new SeasonParameters(season.Season.ToString(), (ushort) season.Year);
-        var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(data))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, DomainError>.Success(data))
             .SendEvents(postman, parameters, CancellationToken.None);
 
         result.AssertError();
@@ -85,11 +85,11 @@ public class EventSendingTests
             if (FailOnFirstSend && !_firstCallDone)
             {
                 _firstCallDone = true;
-                return Task.FromResult<Result<Unit>>(MessagesNotDelivered.Create("forced failure", messages));
+                return Task.FromResult<Result<Unit, DomainError>>(MessagesNotDelivered.Create("forced failure", messages));
             }
 
             Sent.AddRange(messages);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;

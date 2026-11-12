@@ -32,7 +32,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -60,7 +60,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -89,7 +89,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -121,7 +121,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -156,7 +156,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -189,7 +189,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -239,7 +239,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -284,7 +284,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -317,7 +317,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -343,7 +343,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -377,7 +377,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -410,7 +410,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -438,7 +438,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(emptyFeed).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(emptyFeed).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -461,7 +461,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(emptyUsers);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -477,7 +477,7 @@ public class FeedProcessTests
     public async Task Should_Fail_When_Feed_Is_Failure()
     {
         var error = HandledError.Create();
-        var failedFeed = Result<DailySeriesFeed[]>.Failure(error);
+        var failedFeed = Result<DailySeriesFeed[], DomainError>.Failure(error);
 
         var subscriptionsGetter = CreateSubscriptionsGetter([]);
         var postman = CreatePostman();
@@ -502,7 +502,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateFailingSubscriptionsGetter(error);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -527,7 +527,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreateFailingPostman(error);
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -567,7 +567,7 @@ public class FeedProcessTests
         var postman = CreatePostman();
 
         var stopwatch = Stopwatch.StartNew();
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -604,7 +604,7 @@ public class FeedProcessTests
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreatePostman();
 
-        var result = await Result<DailySeriesFeed[]>.Success(dailyFeeds).RunProcess(
+        var result = await Result<DailySeriesFeed[], DomainError>.Success(dailyFeeds).RunProcess(
             subscriptionsGetter,
             postman,
             CancellationToken.None);
@@ -654,18 +654,18 @@ public class FeedProcessTests
 
     private static TvUserActiveSubscriptions CreateSubscriptionsGetter(UserActiveSubscriptions[] users)
     {
-        return (_, _) => Task.FromResult(Result<UserActiveSubscriptions[]>.Success(users));
+        return (_, _) => Task.FromResult(Result<UserActiveSubscriptions[], DomainError>.Success(users));
     }
 
     private static TvUserActiveSubscriptions CreateFailingSubscriptionsGetter(DomainError error)
     {
-        return (_, _) => Task.FromResult(Result<UserActiveSubscriptions[]>.Failure(error));
+        return (_, _) => Task.FromResult(Result<UserActiveSubscriptions[], DomainError>.Failure(error));
     }
 
     private static TestPostman CreatePostman() => new();
 
     private static DomainCollectionSender CreateFailingPostman(DomainError error) =>
-        (messages, cancellationToken) => Task.FromResult(Result<Unit>.Failure(error));
+        (messages, cancellationToken) => Task.FromResult(Result<Unit, DomainError>.Failure(error));
 
     #endregion
 
@@ -678,7 +678,7 @@ public class FeedProcessTests
         public DomainCollectionSender Delegate => (messages, cancellationToken) =>
         {
             SentNotifications.AddRange(messages.OfType<FeedNotification>());
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         public static implicit operator DomainCollectionSender(TestPostman wrapper) => wrapper.Delegate;

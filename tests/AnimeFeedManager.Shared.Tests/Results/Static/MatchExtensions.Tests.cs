@@ -8,7 +8,7 @@ public class MatchExtensionsTests
         var successCalled = false;
         var errorCalled = false;
 
-        Result<int>.Success(42).Match(
+        Result<int, DomainError>.Success(42).Match(
             onOk: value =>
             {
                 successCalled = true;
@@ -27,7 +27,7 @@ public class MatchExtensionsTests
         var errorCalled = false;
         var testError = NotFoundError.Create("Test error");
 
-        Result<int>.Failure(testError).Match(
+        Result<int, DomainError>.Failure(testError).Match(
             onOk: value => successCalled = true,
             onError: error =>
             {
@@ -42,7 +42,7 @@ public class MatchExtensionsTests
     [Fact]
     public void Should_Return_Success_Value_With_MatchToValue()
     {
-        var result = Result<int>.Success(42)
+        var result = Result<int, DomainError>.Success(42)
             .MatchToValue(
                 onOk: value => $"Success: {value}",
                 onError: error => $"Error: {error.Message}");
@@ -54,7 +54,7 @@ public class MatchExtensionsTests
     public void Should_Return_Error_Value_With_MatchToValue()
     {
         var error = NotFoundError.Create("Not found");
-        var result = Result<int>.Failure(error)
+        var result = Result<int, DomainError>.Failure(error)
             .MatchToValue(
                 onOk: value => $"Success: {value}",
                 onError: error => $"Error: {error.Message}");
@@ -65,7 +65,7 @@ public class MatchExtensionsTests
     [Fact]
     public void Should_Use_MatchToValue_For_Type_Conversion()
     {
-        var result = Result<int>.Success(42)
+        var result = Result<int, DomainError>.Success(42)
             .MatchToValue(
                 onOk: value => value,
                 onError: error => -1);
@@ -77,7 +77,7 @@ public class MatchExtensionsTests
     public void Should_Use_MatchToValue_For_Default_On_Error()
     {
         var error = NotFoundError.Create("Not found");
-        var result = Result<int>.Failure(error)
+        var result = Result<int, DomainError>.Failure(error)
             .MatchToValue(
                 onOk: value => value,
                 onError: error => 0);
@@ -90,7 +90,7 @@ public class MatchExtensionsTests
     {
         var log = new List<string>();
 
-        Result<int>.Success(42).Match(
+        Result<int, DomainError>.Success(42).Match(
             onOk: value => log.Add($"Processed: {value}"),
             onError: error => log.Add($"Failed: {error.Message}"));
 
@@ -103,9 +103,9 @@ public class MatchExtensionsTests
     {
         var result = new List<string>();
 
-        Result<int>.Success(5)
+        Result<int, DomainError>.Success(5)
             .Map(x => x * 2)
-            .Bind(x => Result<int>.Success(x + 10))
+            .Bind(x => Result<int, DomainError>.Success(x + 10))
             .Match(
                 onOk: value => result.Add($"Final: {value}"),
                 onError: error => result.Add($"Error: {error.Message}"));

@@ -15,7 +15,7 @@ internal static class TvImagesCollector
 
     private static readonly ActivitySource Source = new(Telemetry.ImagesSource);
 
-    public static async Task<Result<ScrapTvLibraryData>> AddImagesLink(
+    public static async Task<Result<ScrapTvLibraryData, DomainError>> AddImagesLink(
         this ImageProcessor imageProvider,
         ScrapTvLibraryData data,
         CancellationToken token = default)
@@ -29,9 +29,9 @@ internal static class TvImagesCollector
         var pending = seriesData.Select(ToPendingImage).OfType<PendingImage>().ToArray();
         var untouched = seriesData
             .Where(series => ToPendingImage(series) is null)
-            .Select(series => Result<ImageOutcome>.Success(new ImageOutcome(series, false)));
+            .Select(series => Result<ImageOutcome, DomainError>.Success(new ImageOutcome(series, false)));
 
-        var downloaded = new List<Result<ImageOutcome>>(pending.Length);
+        var downloaded = new List<Result<ImageOutcome, DomainError>>(pending.Length);
         foreach (var batch in pending.Chunk(BatchSize))
         {
             // Skipped ahead of the first batch, so a single-batch import never waits.
@@ -73,7 +73,7 @@ internal static class TvImagesCollector
             downloaded, candidates, candidates - downloaded, total - candidates, total);
     };
 
-    private static async Task<Result<ImageOutcome>> AddImageLink(
+    private static async Task<Result<ImageOutcome, DomainError>> AddImageLink(
         ImageProcessor imageProvider,
         PendingImage pending,
         string targetDirectory,

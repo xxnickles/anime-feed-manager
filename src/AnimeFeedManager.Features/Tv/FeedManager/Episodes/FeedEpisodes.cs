@@ -19,7 +19,7 @@ internal sealed record EpisodesProcess(
 public static class FeedEpisodes
 {
     /// <summary>Copies the library count into the binding, then runs the completion rule.</summary>
-    public static Task<Result<EpisodesUpdated>> UpdateFromLibrary(
+    public static Task<Result<EpisodesUpdated, DomainError>> UpdateFromLibrary(
         string seriesId,
         ITableClientFactory clientFactory,
         CancellationToken token) =>
@@ -32,7 +32,7 @@ public static class FeedEpisodes
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
     /// <summary>Writes the count to the library and, when bound, to the binding, then runs the completion rule.</summary>
-    public static Task<Result<EpisodesUpdated>> Override(
+    public static Task<Result<EpisodesUpdated, DomainError>> Override(
         string seriesId,
         int episodes,
         ITableClientFactory clientFactory,
@@ -46,17 +46,17 @@ public static class FeedEpisodes
             .WithOperationName(nameof(Override))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
-    private static Task<Result<EpisodesProcess>> StartProcess(string seriesId) =>
+    private static Task<Result<EpisodesProcess, DomainError>> StartProcess(string seriesId) =>
         Task.FromResult(IdHelpers.SeriesSeasonFromId(seriesId)
             .Map(season => new EpisodesProcess(seriesId, season, null, false, new FeedOpen())));
 
-    extension(Task<Result<EpisodesProcess>> process)
+    extension(Task<Result<EpisodesProcess, DomainError>> process)
     {
-        private Task<Result<EpisodesProcess>> ReadLibrary(TvSeriesGetter seriesGetter, CancellationToken token) =>
+        private Task<Result<EpisodesProcess, DomainError>> ReadLibrary(TvSeriesGetter seriesGetter, CancellationToken token) =>
             process.Bind(p => seriesGetter(p.SeriesId, p.Season, token)
                 .Map(series => p with {Episodes = series.Episodes}));
 
-        private Task<Result<EpisodesProcess>> UpdateLibrary(
+        private Task<Result<EpisodesProcess, DomainError>> UpdateLibrary(
             int episodes,
             ITableClientFactory clientFactory,
             CancellationToken token) =>
@@ -69,7 +69,7 @@ public static class FeedEpisodes
                     token)
                 .Map(_ => p));
 
-        private Task<Result<EpisodesProcess>> UpdateBinding(ITableClientFactory clientFactory, CancellationToken token) =>
+        private Task<Result<EpisodesProcess, DomainError>> UpdateBinding(ITableClientFactory clientFactory, CancellationToken token) =>
             process.Bind(p => OptimisticConcurrency.UntilWritten(
                     attemptToken => clientFactory.TableStorageNyaaBindingGetter(p.SeriesId, p.Season, attemptToken)
                         .Bind(binding => clientFactory.TableStorageNyaaBindingUpdater(
@@ -79,7 +79,7 @@ public static class FeedEpisodes
                 .Map(_ => p with {Bound = true})
                 .BindOnErrorWhen(_ => p, error => error is NotFoundError));
 
-        private Task<Result<EpisodesProcess>> EvaluateCompletion(
+        private Task<Result<EpisodesProcess, DomainError>> EvaluateCompletion(
             ITableClientFactory clientFactory,
             CancellationToken token) =>
             process.BindWhen(p => NyaaCompletion.CompleteWhenReached(

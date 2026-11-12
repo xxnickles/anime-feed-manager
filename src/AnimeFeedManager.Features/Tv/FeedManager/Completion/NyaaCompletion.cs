@@ -27,7 +27,7 @@ public static class NyaaCompletion
             : new FeedOpen();
 
     /// <summary>Stamps a completed binding; the library completes when the binding retires.</summary>
-    public static Task<Result<CompletionOutcome>> CompleteWhenReached(
+    public static Task<Result<CompletionOutcome, DomainError>> CompleteWhenReached(
         string seriesId,
         SeriesSeason season,
         NyaaBindingGetter bindingGetter,
@@ -44,7 +44,7 @@ public static class NyaaCompletion
                             catalog))))
                     .Bind(state => state.Outcome is FeedCompleted completed
                         ? bindingUpdater(Stamp(state.Binding, completed.At), attemptToken).Map(_ => state.Outcome)
-                        : Task.FromResult(Result<CompletionOutcome>.Success(state.Outcome))),
+                        : Task.FromResult(Result<CompletionOutcome, DomainError>.Success(state.Outcome))),
                 token,
                 error => error is PreconditionFailedError)
             .WithOperationName(nameof(CompleteWhenReached))

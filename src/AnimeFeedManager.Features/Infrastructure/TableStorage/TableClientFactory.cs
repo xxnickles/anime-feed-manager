@@ -2,7 +2,7 @@
 
 public interface ITableClientFactory
 {
-    Result<TableClient> GetClient<T>()  where T : ITableEntity;
+    Result<TableClient, DomainError> GetClient<T>()  where T : ITableEntity;
 }
 
 public sealed class TableClientFactory : ITableClientFactory
@@ -17,7 +17,7 @@ public sealed class TableClientFactory : ITableClientFactory
     }
     
     
-    public Result<TableClient> GetClient<T>()  where T : ITableEntity
+    public Result<TableClient, DomainError> GetClient<T>()  where T : ITableEntity
     {
         try
         {
@@ -27,12 +27,12 @@ public sealed class TableClientFactory : ITableClientFactory
         catch (KeyNotFoundException ex)
         {
             _logger.LogError(ex, "Table name not found for entity type {table.entity_type}", typeof(T).FullName);
-            return HandledErrorResult<TableClient>();
+            return HandledError.Create();
         }
         catch (Exception e)
         {
             _logger.LogError(e, "An error occurred when creating a Table Client");
-            return HandledErrorResult<TableClient>();
+            return HandledError.Create();
         }
     }
 }

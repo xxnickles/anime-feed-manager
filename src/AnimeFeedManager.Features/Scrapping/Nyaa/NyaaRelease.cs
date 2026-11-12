@@ -22,7 +22,7 @@ public sealed record NyaaRelease(string Group, string Title, NyaaEpisode Episode
 public static partial class NyaaReleaseTitle
 {
     /// <summary>Parses <c>[Group] Title - NN(vN) tags</c> or <c>[Group] Title (-) SxxEyy tags</c>; batches and titles without an episode are warnings.</summary>
-    public static Result<NyaaRelease> Parse(string title)
+    public static Result<NyaaRelease, DomainError> Parse(string title)
     {
         if (BatchMarker().IsMatch(title))
             return Warning.Create($"Skipping nyaa release {title}: batch");

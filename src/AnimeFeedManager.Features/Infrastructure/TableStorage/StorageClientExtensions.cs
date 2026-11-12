@@ -6,12 +6,12 @@ internal static class StorageClientExtensions
 {
     extension(TableClient client)
     {
-        public async Task<Result<Response<T>>> TryExecute<T>(Func<TableClient, Task<Response<T>>> action)
+        public async Task<Result<Response<T>, DomainError>> TryExecute<T>(Func<TableClient, Task<Response<T>>> action)
             where T : ITableEntity
         {
             try
             {
-                return Result<Response<T>>.Success(await action(client));
+                return Result<Response<T>, DomainError>.Success(await action(client));
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
@@ -19,12 +19,12 @@ internal static class StorageClientExtensions
             }
         }
 
-        public async Task<Result<Response>> TryExecute<T>(Func<TableClient, Task<Response>> action)
+        public async Task<Result<Response, DomainError>> TryExecute<T>(Func<TableClient, Task<Response>> action)
             where T : ITableEntity
         {
             try
             {
-                return Result<Response>.Success(await action(client));
+                return Result<Response, DomainError>.Success(await action(client));
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
@@ -32,7 +32,7 @@ internal static class StorageClientExtensions
             }
         }
 
-        private static Result<TResult> HandleEntityException<TResult, TEntity>(Exception e)
+        private static Result<TResult, DomainError> HandleEntityException<TResult, TEntity>(Exception e)
             where TEntity : ITableEntity => e switch
         {
             RequestFailedException { Status: 404 } =>
@@ -48,7 +48,7 @@ internal static class StorageClientExtensions
                 "An error occurred when executing a Table Client action")
         };
 
-        public Task<Result<ImmutableArray<T>>> ExecuteQuery<T>(Expression<Func<T, bool>> filter,
+        public Task<Result<ImmutableArray<T>, DomainError>> ExecuteQuery<T>(Expression<Func<T, bool>> filter,
             CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity =>
             TableClient.CollectQuery(() => client.QueryAsync(filter, select: select, cancellationToken: token));
 
@@ -56,11 +56,11 @@ internal static class StorageClientExtensions
         /// Runs an OData filter built with <see cref="TableClient.CreateQueryFilter(FormattableString)"/>.
         /// Required for enum properties: they are stored as names, but a LINQ filter compares their numeric value.
         /// </summary>
-        public Task<Result<ImmutableArray<T>>> ExecuteQuery<T>(string filter,
+        public Task<Result<ImmutableArray<T>, DomainError>> ExecuteQuery<T>(string filter,
             CancellationToken token, IEnumerable<string>? select = null) where T : class, ITableEntity =>
             TableClient.CollectQuery(() => client.QueryAsync<T>(filter, select: select, cancellationToken: token));
 
-        private static async Task<Result<ImmutableArray<T>>> CollectQuery<T>(Func<AsyncPageable<T>> query)
+        private static async Task<Result<ImmutableArray<T>, DomainError>> CollectQuery<T>(Func<AsyncPageable<T>> query)
             where T : class, ITableEntity
         {
             try
@@ -72,7 +72,7 @@ internal static class StorageClientExtensions
                     builder.Add(qEntity);
                 }
 
-                return Result<ImmutableArray<T>>.Success(builder.DrainToImmutable());
+                return Result<ImmutableArray<T>, DomainError>.Success(builder.DrainToImmutable());
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
@@ -81,14 +81,14 @@ internal static class StorageClientExtensions
             }
         }
 
-        public async Task<Result<Unit>> AddBatch<T>(IEnumerable<T> entities,
+        public async Task<Result<Unit, DomainError>> AddBatch<T>(IEnumerable<T> entities,
             CancellationToken token,
             TableTransactionActionType actionType = TableTransactionActionType.UpsertMerge
         ) where T : ITableEntity
         {
             try
             {
-                if (!entities.Any()) return Result<Unit>.Success();
+                if (!entities.Any()) return Result<Unit, DomainError>.Success(new Unit());
 
                 // Create batches based on partition keys, as this is a restriction in azure tables
                 foreach (var groupedEntities in entities.GroupBy(e => e.PartitionKey))
@@ -103,7 +103,7 @@ internal static class StorageClientExtensions
                     }
                 }
 
-                return Result<Unit>.Success();
+                return Result<Unit, DomainError>.Success(new Unit());
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
@@ -113,25 +113,25 @@ internal static class StorageClientExtensions
         }
     }
 
-    extension<T>(Task<Result<ImmutableArray<T>>> result)
+    extension<T>(Task<Result<ImmutableArray<T>, DomainError>> result)
     {
-        public Task<Result<T>> SingleItem()
+        public Task<Result<T, DomainError>> SingleItem()
         {
             return result.Bind(x => x.IsEmpty
                 ? NotFoundError.Create($"Item of type '{typeof(T).FullName}' not found")
-                : Result<T>.Success(x[0]));
+                : Result<T, DomainError>.Success(x[0]));
         }
 
-        public Task<Result<T?>> SingleItemOrNull()
+        public Task<Result<T?, DomainError>> SingleItemOrNull()
         {
             return result.Bind(x => x.IsEmpty
-                ? Result<T?>.Success(default)
-                : Result<T?>.Success(x[0]));
+                ? Result<T?, DomainError>.Success(default)
+                : Result<T?, DomainError>.Success(x[0]));
         }
 
     }
 
-    internal static Task<Result<Unit>> WithDefaultMap(this Task<Result<Response>> result)
+    internal static Task<Result<Unit, DomainError>> WithDefaultMap(this Task<Result<Response, DomainError>> result)
     {
         return result.Map(_ => new Unit());
     }

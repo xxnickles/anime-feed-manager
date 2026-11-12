@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
 public static class UserRegistration
 {
-    public static Task<Result<UserRegistrationResult>> TryToRegister(
+    public static Task<Result<UserRegistrationResult, DomainError>> TryToRegister(
         string displayName,
         string email,
         IPasswordlessClient passwordlessClient,
@@ -22,7 +22,7 @@ public static class UserRegistration
     }
 
 
-    private static Task<Result<RegistrationProcessData>> VerifyData(
+    private static Task<Result<RegistrationProcessData, DomainError>> VerifyData(
         ExistentUserGetterByEmail userGetter,
         string displayName,
         string email,
@@ -38,8 +38,8 @@ public static class UserRegistration
                     })));
     }
 
-    public static Task<Result<UserRegistrationResult>> CreateUser(
-        this Task<Result<RegistrationProcessData>> data,
+    public static Task<Result<UserRegistrationResult, DomainError>> CreateUser(
+        this Task<Result<RegistrationProcessData, DomainError>> data,
         IPasswordlessClient passwordlessClient,
         UserUpdater updater,
         CancellationToken cancellationToken)
@@ -51,7 +51,7 @@ public static class UserRegistration
     }
 
     // Try to register in passwordless; then store the new user
-    private static Task<Result<RegisterTokenResponse>> TryToCreate(
+    private static Task<Result<RegisterTokenResponse, DomainError>> TryToCreate(
         RegistrationProcessData data,
         IPasswordlessClient passwordlessClient,
         UserUpdater updater,
@@ -60,7 +60,7 @@ public static class UserRegistration
         return data.StorageStoredUser switch
         {
             ValidStoredUser user => Task
-                .FromResult<Result<RegisterTokenResponse>>(
+                .FromResult<Result<RegisterTokenResponse, DomainError>>(
                     Error.Create($"Email '{user.Email}' already exist in the system")),
             _ => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
                 .Bind(token =>
@@ -69,7 +69,7 @@ public static class UserRegistration
         };
     }
 
-    private static async Task<Result<RegisterTokenResponse>> RegisterInPasswordless(
+    private static async Task<Result<RegisterTokenResponse, DomainError>> RegisterInPasswordless(
         IPasswordlessClient passwordlessClient,
         RegisterOptions options,
         CancellationToken token)

@@ -36,7 +36,7 @@ public sealed record NyaaReleaseFeed(
 public static class ReleaseListingQuery
 {
     /// <summary>A library series with its nyaa releases; an unbound series reads as <see cref="NoReleaseFeed"/>, one missing from the library fails with <see cref="NotFoundError"/>.</summary>
-    public static Task<Result<ReleaseListing>> GetReleaseListing(
+    public static Task<Result<ReleaseListing, DomainError>> GetReleaseListing(
         string seriesId,
         TvLibrarySeries seriesGetter,
         Uri publicBlobUri,
@@ -51,7 +51,7 @@ public static class ReleaseListingQuery
             .WithOperationName(nameof(GetReleaseListing))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
-    private static Task<Result<ReleaseFeed>> Feed(
+    private static Task<Result<ReleaseFeed, DomainError>> Feed(
         string seriesId,
         SeriesSeason season,
         NyaaBindingGetter bindingGetter,

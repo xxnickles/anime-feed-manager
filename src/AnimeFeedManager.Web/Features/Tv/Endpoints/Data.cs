@@ -17,7 +17,7 @@ internal partial class TvEndpointJsonContext : JsonSerializerContext;
 internal static class Data
 {
     // Season comes from the id, so the series read stays a partition + row key point operation.
-    internal static Task<Result<(AuthenticatedUser User, TvSeries Series)>> GetSeriesForUser(
+    internal static Task<Result<(AuthenticatedUser User, TvSeries Series), DomainError>> GetSeriesForUser(
         HttpContext context,
         string seriesId,
         TvLibrarySeries seriesGetter,
@@ -28,7 +28,7 @@ internal static class Data
             .Bind(data => seriesGetter(seriesId, data.Season, publicBlobUri, token)
                 .Map(series => (data.User, Series: series)));
 
-    private static Result<AuthenticatedUser> CurrentUser(HttpContext context) =>
+    private static Result<AuthenticatedUser, DomainError> CurrentUser(HttpContext context) =>
         context.GetCurrentUser() switch
         {
             AuthenticatedUser user => user,

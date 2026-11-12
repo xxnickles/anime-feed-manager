@@ -6,7 +6,7 @@ public record NewRegistration(Email Email, string UserId, NoEmptyString DisplayN
 
 public static class UserRegistrationExtensions
 {
-    public static Result<NewRegistration> AsUserRegistration(this (string email, string displayName) target)
+    public static Result<NewRegistration, DomainError> AsUserRegistration(this (string email, string displayName) target)
     {
         return target.email.ParseAsEmail()
             .And(target.displayName.ParseAsNonEmpty("Display Name"))

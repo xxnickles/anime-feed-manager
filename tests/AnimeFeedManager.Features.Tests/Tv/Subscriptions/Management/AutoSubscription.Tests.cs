@@ -35,7 +35,7 @@ public class AutoSubscriptionTests
 
         var seriesGetter = Substitute.For<TvInterestedBySeries>();
         seriesGetter(seriesId, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success(interestedSubscriptions)));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, DomainError>.Success(interestedSubscriptions)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
@@ -61,7 +61,7 @@ public class AutoSubscriptionTests
 
         var seriesGetter = Substitute.For<TvInterestedBySeries>();
         seriesGetter(seriesId, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success(emptySubscriptions)));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, DomainError>.Success(emptySubscriptions)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
@@ -81,7 +81,7 @@ public class AutoSubscriptionTests
 
         var seriesGetter = Substitute.For<TvInterestedBySeries>();
         seriesGetter(seriesId, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Failure(error)));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, DomainError>.Failure(error)));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, seriesGetter, CancellationToken.None);
 
@@ -104,11 +104,11 @@ public class AutoSubscriptionTests
         );
 
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
 
         var updater = Substitute.For<TvSubscriptionsUpdater>();
         updater(Arg.Any<IEnumerable<SubscriptionStorage>>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
 
@@ -136,12 +136,12 @@ public class AutoSubscriptionTests
         );
 
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
 
         var error = Error.Create("Storage error");
         var updater = Substitute.For<TvSubscriptionsUpdater>();
         updater(Arg.Any<IEnumerable<SubscriptionStorage>>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit>.Failure(error)));
+            .Returns(Task.FromResult(Result<Unit, DomainError>.Failure(error)));
 
         var result = await processTask.StoreChanges(updater, CancellationToken.None);
 
@@ -152,7 +152,7 @@ public class AutoSubscriptionTests
     public async Task StoreChanges_Should_Propagate_Failure_From_Previous_Step()
     {
         var error = Error.Create("Previous step error");
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Failure(error));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(error));
 
         var updater = Substitute.For<TvSubscriptionsUpdater>();
 
@@ -172,13 +172,13 @@ public class AutoSubscriptionTests
         );
 
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
 
         var capturedEvents = new List<SystemEvent>();
         DomainCollectionSender domainPostman = (messages, _) =>
         {
             capturedEvents.AddRange(messages.OfType<SystemEvent>());
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
@@ -199,10 +199,10 @@ public class AutoSubscriptionTests
         var emptySubscriptions = ImmutableArray<SubscriptionStorage>.Empty;
 
         var process = new AutoSubscriptionProcess(seriesId, emptySubscriptions);
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Success(process));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
 
         DomainCollectionSender domainPostman = (messages, _) =>
-            Task.FromResult(Result<Unit>.Success(new Unit()));
+            Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
@@ -214,13 +214,13 @@ public class AutoSubscriptionTests
     {
         const string seriesId = "test-series-123";
         var originalError = Error.Create("Process failed");
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Failure(originalError));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(originalError));
 
         var capturedEvents = new List<SystemEvent>();
         DomainCollectionSender domainPostman = (messages, _) =>
         {
             capturedEvents.AddRange(messages.OfType<SystemEvent>());
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
@@ -239,11 +239,11 @@ public class AutoSubscriptionTests
     {
         const string seriesId = "test-series-123";
         var originalError = Error.Create("Process failed");
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess>.Failure(originalError));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(originalError));
 
         var errorEventError = Error.Create("Failed to send error event");
         DomainCollectionSender domainPostman = (messages, _) =>
-            Task.FromResult(Result<Unit>.Failure(errorEventError));
+            Task.FromResult(Result<Unit, DomainError>.Failure(errorEventError));
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
@@ -268,14 +268,14 @@ public class AutoSubscriptionTests
         TvSubscriptionsUpdater updater = (subs, token) =>
         {
             capturedSubscriptions.AddRange(subs);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         var capturedEvents = new List<SystemEvent>();
         DomainCollectionSender domainPostman = (messages, _) =>
         {
             capturedEvents.AddRange(messages.OfType<SystemEvent>());
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, SeriesGetter, CancellationToken.None)
@@ -292,9 +292,9 @@ public class AutoSubscriptionTests
         Assert.Equal(EventType.Completed, capturedEvents[0].Type);
         return;
 
-        Task<Result<ImmutableArray<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) =>
+        Task<Result<ImmutableArray<SubscriptionStorage>, DomainError>> SeriesGetter(string id, CancellationToken token) =>
             Task.FromResult(
-                Result<ImmutableArray<SubscriptionStorage>>.Success([interestedSubscription]));
+                Result<ImmutableArray<SubscriptionStorage>, DomainError>.Success([interestedSubscription]));
     }
 
     [Fact]
@@ -308,11 +308,11 @@ public class AutoSubscriptionTests
         DomainCollectionSender domainPostman = (messages, _) =>
         {
             capturedEvents.AddRange(messages.OfType<SystemEvent>());
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         };
 
         TvSubscriptionsUpdater updater = (subs, token) =>
-            Task.FromResult(Result<Unit>.Success(new Unit()));
+            Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, SeriesGetter, CancellationToken.None)
             .StoreChanges(updater, CancellationToken.None)
@@ -323,8 +323,8 @@ public class AutoSubscriptionTests
         Assert.Equal(EventType.Error, capturedEvents[0].Type);
         return;
 
-        Task<Result<ImmutableArray<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) =>
-            Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Failure(error));
+        Task<Result<ImmutableArray<SubscriptionStorage>, DomainError>> SeriesGetter(string id, CancellationToken token) =>
+            Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, DomainError>.Failure(error));
     }
 
     [Fact]
@@ -360,7 +360,7 @@ public class AutoSubscriptionTests
         var capturedSubscriptions = new List<SubscriptionStorage>();
 
         DomainCollectionSender domainPostman = (messages, _) =>
-            Task.FromResult(Result<Unit>.Success(new Unit()));
+            Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, SeriesGetter, CancellationToken.None)
             .StoreChanges(Updater, CancellationToken.None)
@@ -376,13 +376,13 @@ public class AutoSubscriptionTests
         });
         return;
 
-        Task<Result<Unit>> Updater(IEnumerable<SubscriptionStorage> subs, CancellationToken token)
+        Task<Result<Unit, DomainError>> Updater(IEnumerable<SubscriptionStorage> subs, CancellationToken token)
         {
             capturedSubscriptions.AddRange(subs);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
         }
 
-        Task<Result<ImmutableArray<SubscriptionStorage>>> SeriesGetter(string id, CancellationToken token) =>
-            Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success(interestedSubscriptions));
+        Task<Result<ImmutableArray<SubscriptionStorage>, DomainError>> SeriesGetter(string id, CancellationToken token) =>
+            Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, DomainError>.Success(interestedSubscriptions));
     }
 }

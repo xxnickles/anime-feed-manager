@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Scrapping.Nyaa;
 
 public interface INyaaClient
 {
-    Task<Result<XDocument>> Fetch(NyaaQuery query, CancellationToken token = default);
+    Task<Result<XDocument, DomainError>> Fetch(NyaaQuery query, CancellationToken token = default);
 }
 
 internal sealed class NyaaClient : INyaaClient
@@ -24,7 +24,7 @@ internal sealed class NyaaClient : INyaaClient
         _httpClient = httpClient;
     }
 
-    public Task<Result<XDocument>> Fetch(NyaaQuery query, CancellationToken token = default)
+    public Task<Result<XDocument, DomainError>> Fetch(NyaaQuery query, CancellationToken token = default)
     {
         var request = query.Build();
         return FetchFeed(request, token)
@@ -32,7 +32,7 @@ internal sealed class NyaaClient : INyaaClient
             .WithLogProperty(ScrappingTelemetry.QueryTag, request);
     }
 
-    private async Task<Result<XDocument>> FetchFeed(string request, CancellationToken token)
+    private async Task<Result<XDocument, DomainError>> FetchFeed(string request, CancellationToken token)
     {
         try
         {
