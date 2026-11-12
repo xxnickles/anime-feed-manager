@@ -2,36 +2,18 @@ using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Shared.Results.Static;
 
-/// <summary>
-/// Extension members for collections of <see cref="Result{T}"/>,
-/// providing bulk aggregation operations.
-/// </summary>
 public static class ResultCollectionExtensionMembers
 {
     extension<T>(IEnumerable<Result<T, DomainError>> results)
     {
         /// <summary>
-        /// Aggregates a collection of individual results into a single <see cref="BulkResult{T}"/> result
-        /// using a single pass over the collection.
+        /// <see cref="CompletedBulkResult{T}"/> when all succeed, <see cref="PartialSuccessBulkResult{T}"/> when some fail,
+        /// <see cref="AggregatedError"/> when all fail; per-item trace contexts are merged into the outcome.
         /// </summary>
-        /// <typeparam name="TTarget">The type produced by aggregating successful values.</typeparam>
-        /// <param name="flattenFunc">
-        /// Projection applied to successful values to produce the aggregated result
-        /// (e.g., summing RU costs into <c>OperationMetadata</c>).
-        /// </param>
-        /// <returns>
-        /// <list type="bullet">
-        ///   <item><see cref="CompletedBulkResult{T}"/> — all operations succeeded.</item>
-        ///   <item><see cref="PartialSuccessBulkResult{T}"/> — some succeeded, errors collected alongside.</item>
-        ///   <item><see cref="AggregatedError"/> — all operations failed.</item>
-        /// </list>
-        /// </returns>
         public Result<BulkResult<TTarget>, DomainError> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
         {
             var successes = new List<T>();
             var errors = new List<DomainError>();
-            // Deferred log actions and scope properties staged on the per-item chains are merged so
-            // they survive the aggregation boundary and reach the eventual flush.
             var traceContext = TraceContext.Empty;
 
             foreach (var result in results)
@@ -56,10 +38,6 @@ public static class ResultCollectionExtensionMembers
 
     extension<T>(Task<IEnumerable<Result<T, DomainError>>> results)
     {
-        /// <summary>
-        /// Async variant of <see cref="Flatten{TTarget}"/>. Awaits the task, then delegates
-        /// to the synchronous overload.
-        /// </summary>
         public async Task<Result<BulkResult<TTarget>, DomainError>> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
         {
             return (await results).Flatten(flattenFunc);

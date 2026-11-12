@@ -23,30 +23,19 @@ public class Validation<T>
 
     internal bool IsSuccess { get; }
 
-    // Creator Methods
     public static Validation<T> Valid(T value) => new(true, value, null);
     public static Validation<T> Invalid(DomainValidationErrors error) => new(false, default, error);
 
-    /// <summary>
-    /// Creates an invalid validation using T as the field name.
-    /// </summary>
+    /// <summary>Invalid, keyed by <c>typeof(T).Name</c> as the field name.</summary>
     public static Validation<T> Invalid(string message) =>
         Invalid(DomainValidationError.Create<T>(message).ToErrors());
 
-    /// <summary>
-    /// Transforms the valid value using the provided mapper function.
-    /// </summary>
     public Validation<TTarget> Map<TTarget>(Func<T, TTarget> mapper) =>
         IsSuccess
             ? Validation<TTarget>.Valid(mapper(ValidValue))
             : Validation<TTarget>.Invalid(ErrorValue);
 
-    private Result<T, DomainError> ToResult()
-    {
-        return IsSuccess ? ValidValue : ErrorValue;
-    }
+    public Result<T, DomainError> AsResult() => IsSuccess ? ValidValue : ErrorValue;
 
-    public Result<T, DomainError> AsResult() => ToResult();
-
-    public static implicit operator Result<T, DomainError>(Validation<T> validation) => validation.ToResult();
+    public static implicit operator Result<T, DomainError>(Validation<T> validation) => validation.AsResult();
 }

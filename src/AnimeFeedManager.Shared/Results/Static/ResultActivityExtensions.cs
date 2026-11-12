@@ -2,20 +2,14 @@ using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Shared.Results.Static;
 
-/// <summary>Bridges <see cref="Result{T}"/> failure into the active <see cref="Activity"/>'s OTel error status.</summary>
 public static class ResultActivityExtensions
 {
     extension<T, TError>(Result<T, TError> result)
     {
         /// <summary>
-        /// On failure, sets <see cref="Activity.Current"/>'s status to <see cref="ActivityStatusCode.Error"/> and tags
-        /// <see cref="Telemetry.ErrorTypeTag"/> with the error's class name. Skips <see cref="Warning"/> and validation
-        /// errors (client input, like HTTP 4xx); call after any recovery so recovered failures stay unmarked.
+        /// On failure, marks <see cref="Activity.Current"/> errored and tags the error type; client-input errors
+        /// (<see cref="Warning"/>, validation) are skipped. Call after any recovery, inside the method that owns the activity.
         /// </summary>
-        /// <remarks>
-        /// <see cref="Activity.Current"/> is <c>AsyncLocal</c>, so it resolves to the caller's
-        /// <c>using var activity</c> as long as the chain stays inside that method.
-        /// </remarks>
         public Result<T, TError> MarkActivityErroredOnError() =>
             result.TapError(caseError =>
             {
@@ -31,7 +25,6 @@ public static class ResultActivityExtensions
 
     extension<T, TError>(Task<Result<T, TError>> resultTask)
     {
-        /// <inheritdoc cref="MarkActivityErroredOnError{T}(Result{T})"/>
         public async Task<Result<T, TError>> MarkActivityErroredOnError() =>
             (await resultTask).MarkActivityErroredOnError();
     }

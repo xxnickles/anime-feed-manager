@@ -32,11 +32,7 @@ public static class BulkResultExtensionMembers
             }
         }
 
-        /// <summary>
-        /// Writes the errors a partial success carries, without touching the value. A partial
-        /// success arrives on the success branch, so chain this (<c>AddLogOnSuccess(b => b.LogErrors)</c>)
-        /// wherever the summary is logged separately — otherwise those errors go unreported.
-        /// </summary>
+        /// <summary>Writes a partial success's errors only; chain as <c>AddLogOnSuccess(b => b.LogErrors)</c> when the summary is logged separately.</summary>
         public void LogErrors(ILogger logger)
         {
             switch (bulkResult)
