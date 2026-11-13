@@ -60,16 +60,16 @@ public static class UserRegistration
         return data.StorageStoredUser switch
         {
             ValidStoredUser user => Task
-                .FromResult<Result<RegisterTokenResponse, DomainError>>(
-                    Error.Create($"Email '{user.Email}' already exist in the system")),
+                .FromResult<Result<RegisterTokenResponse, DomainError>>(new AuthError.UserAlreadyExists(user.Email)),
             _ => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
+                .MapError(error => (DomainError)error)
                 .Bind(token =>
                     updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)
                         .Map(_ => token))
         };
     }
 
-    private static async Task<Result<RegisterTokenResponse, DomainError>> RegisterInPasswordless(
+    private static async Task<Result<RegisterTokenResponse, AuthError>> RegisterInPasswordless(
         IPasswordlessClient passwordlessClient,
         RegisterOptions options,
         CancellationToken token)
@@ -81,11 +81,11 @@ public static class UserRegistration
         }
         catch (PasswordlessApiException e)
         {
-            return PasswordlessError.FromException(e);
+            return new AuthError.PasswordlessFailure(e);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromException(e);
+            return new AuthError.RequestFailed(e);
         }
     }
 }

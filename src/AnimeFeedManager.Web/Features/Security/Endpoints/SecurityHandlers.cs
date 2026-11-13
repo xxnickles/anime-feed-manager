@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.User.Authentication;
 using AnimeFeedManager.Features.User.Authentication.LoginProcess;
 using AnimeFeedManager.Features.User.Authentication.Queries;
 using AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
@@ -57,6 +58,7 @@ internal static class SecurityHandlers
     {
         using var activity = Source.StartActivity(SecurityTelemetry.LoginSpan);
         return await LoginVerification.VerifyUser(passwordlessClient, viewModel.Token, cancellationToken)
+            .MapError(error => (DomainError)error)
             .Bind(verified => verified.UserId.ParseAsNonEmpty("UserId").AsResult())
             .Bind(id => Users.GetById(
                 tableClientFactory.TableStorageExistentUserGetterById(),
@@ -101,12 +103,12 @@ internal static class SecurityHandlers
             ? returnUrl
             : "/";
 
-    private static Result<ClaimsPrincipal, DomainError> TryToCreatePrincipal(StoredUser user)
+    private static Result<ClaimsPrincipal, AuthError> TryToCreatePrincipal(StoredUser user)
     {
         return user switch
         {
             ValidStoredUser vu => CreatePrincipal(vu),
-            _ => Error.Create("Provided user doesn't exist in the system")
+            _ => new AuthError.UserNotFound()
         };
     }
 

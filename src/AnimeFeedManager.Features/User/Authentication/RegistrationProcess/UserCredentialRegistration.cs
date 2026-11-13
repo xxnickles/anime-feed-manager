@@ -27,7 +27,7 @@ public static class UserCredentialRegistration
             .Bind(user => TryToCreate(user, passwordlessClient, cancellationToken));
     }
 
-    private static Task<Result<UserRegistrationResult, DomainError>> TryToCreate(
+    private static Task<Result<UserRegistrationResult, AuthError>> TryToCreate(
         StoredUser storedUser,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken
@@ -36,11 +36,11 @@ public static class UserCredentialRegistration
         return storedUser switch
         {
             ValidStoredUser u => TryToGetCredential(u, passwordlessClient, cancellationToken),
-            _ => Task.FromResult<Result<UserRegistrationResult, DomainError>>(Error.Create("User doesn't exist in the system"))
+            _ => Task.FromResult<Result<UserRegistrationResult, AuthError>>(new AuthError.UserNotFound())
         };
     }
 
-    private static async Task<Result<UserRegistrationResult, DomainError>> TryToGetCredential(
+    private static async Task<Result<UserRegistrationResult, AuthError>> TryToGetCredential(
         ValidStoredUser storedUser,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken)
@@ -56,11 +56,11 @@ public static class UserCredentialRegistration
         }
         catch (PasswordlessApiException e)
         {
-            return PasswordlessError.FromException(e);
+            return new AuthError.PasswordlessFailure(e);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromException(e);
+            return new AuthError.RequestFailed(e);
         }
     }
 }
