@@ -27,4 +27,17 @@ public closed record StorageError(string Message) : DomainError(Message)
     {
         public override Action<ILogger> LogAction() => logger => logger.LogError(Exception, "{domain_error.message}", Message);
     }
+
+    /// <summary>A stored row whose fields don't parse as their domain types.</summary>
+    public sealed record InvalidRecord(Type Entity, ImmutableArray<FieldError> Fields)
+        : StorageError($"The stored {Entity.Name} has invalid fields")
+    {
+        public override Action<ILogger> LogAction() => logger =>
+        {
+            logger.LogError("{domain_error.message}", Message);
+            foreach (var (field, errors) in Fields)
+                logger.LogError("Field: {validation.field} Messages: {validation.messages}", field,
+                    string.Join(". ", errors));
+        };
+    }
 }
