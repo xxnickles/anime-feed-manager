@@ -67,16 +67,11 @@ public static class SettleNyaaFeeds
             .Map(outcome => outcome is FeedCompleted);
 
     /// <summary>Counts the series settled; failures are logged without failing the step, even when all fail.</summary>
-    private static async Task<Result<int, DomainError>> Each<TError>(
+    private static async Task<Result<int, TError>> Each<TError>(
         ImmutableArray<NyaaBindingStorage> bindings,
-        Func<NyaaBindingStorage, Task<Result<bool, TError>>> settle) where TError : DomainError =>
+        Func<NyaaBindingStorage, Task<Result<bool, TError>>> settle) =>
         (await Task.WhenAll(bindings.Select(settle)))
-        .Flatten(settled => settled.Count(done => done))
-        .AddLogOnSuccess(bulk => bulk.LogErrors)
-        .Map(bulk => bulk.Value)
-        .BindOnErrorWhen(
-            error => Result<int, DomainError>.Success(0).AddLog(error.WriteError),
-            error => error is AggregatedError);
+        .CollectSuccesses(settled => settled.Count(done => done));
 
     private static NyaaBindingStorage Untracked(NyaaBindingStorage binding)
     {
