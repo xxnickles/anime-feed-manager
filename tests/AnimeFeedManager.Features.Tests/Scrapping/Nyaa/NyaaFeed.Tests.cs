@@ -52,7 +52,7 @@ public class NyaaFeedTests
         result.AssertOnSuccess(bulk =>
         {
             Assert.Equal("good", Assert.Single(bulk.Value).Title);
-            Assert.IsType<PartialSuccessBulkResult<ImmutableArray<NyaaItem>>>(bulk);
+            Assert.IsType<BulkResult<ImmutableArray<NyaaItem>, ValidationError.Fields>.Partial>(bulk);
         });
     }
 

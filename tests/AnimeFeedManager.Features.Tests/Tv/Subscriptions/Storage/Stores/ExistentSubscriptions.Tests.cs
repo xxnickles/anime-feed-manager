@@ -142,6 +142,35 @@ public class ExistentSubscriptionsTests
     }
 
     [Fact]
+    public void Should_Log_The_Unreadable_Row_When_A_Sharing_Row_Has_An_Unreadable_Id()
+    {
+        var logger = new RecordingLogger();
+
+        Project(
+                ["Shared"],
+                Row("user-1", "unreadable", "Shared"),
+                Row("user-1", "2025_spring_shared", "Shared"))
+            .FlushLogs(logger);
+
+        Assert.Single(logger.Entries, entry => entry == UnreadableRow);
+    }
+
+    [Fact]
+    public void Should_Log_Every_Unreadable_Row_When_A_Group_Is_Dropped()
+    {
+        var logger = new RecordingLogger();
+
+        Project(
+                ["Broken", "Intact"],
+                Row("user-1", "unreadable-one", "Broken"),
+                Row("user-1", "unreadable-two", "Broken"),
+                Row("user-1", "2025_spring_intact", "Intact"))
+            .FlushLogs(logger);
+
+        Assert.Equal(2, logger.Entries.Count(entry => entry == UnreadableRow));
+    }
+
+    [Fact]
     public void Should_Keep_A_Lone_Subscription_Even_When_Its_Id_Is_Unreadable()
     {
         var result = Project(
@@ -198,7 +227,9 @@ public class ExistentSubscriptionsTests
 
     #region Test Helpers
 
-    private static Result<UserActiveSubscriptions[], DomainError> Project(
+    private const string UnreadableRow = "The stored SubscriptionStorage has invalid fields";
+
+    private static Result<UserActiveSubscriptions[], BulkError<StorageError>.AllFailed> Project(
         IEnumerable<string> feedTitles,
         params SubscriptionStorage[] rows) =>
         ExistentSubscriptions.ToUserActiveSubscriptions([..rows], feedTitles);

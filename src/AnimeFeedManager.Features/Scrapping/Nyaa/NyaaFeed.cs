@@ -30,11 +30,12 @@ public static class NyaaFeed
         document.Root?.Element("channel")?.Elements("item").Count() >= MaxItems;
 
     /// <summary>Parses an RSS feed requested with <c>m=true</c>; an item with any field missing or invalid is skipped.</summary>
-    public static Result<BulkResult<ImmutableArray<NyaaItem>>, DomainError> Parse(XDocument document) =>
+    public static Result<BulkResult<ImmutableArray<NyaaItem>, ValidationError.Fields>, DomainError> Parse(XDocument document) =>
         document.Root?.Element("channel") is { } channel
             ? channel.Elements("item")
                 .Select(ParseItem)
-                .Flatten(items => items.ToImmutableArray())
+                .Collect(items => items.ToImmutableArray())
+                .MapError(error => (DomainError)error)
             : new ScrapeError.UnusablePayload("Nyaa RSS feed");
 
     private static Result<NyaaItem, ValidationError.Fields> ParseItem(XElement item) =>

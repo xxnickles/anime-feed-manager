@@ -26,10 +26,10 @@ public static class NyaaWindow
                 ? Backfill(c.TrackedSeries, delayedSender, token)
                     .Map(_ => c)
                     .AddLogOnSuccess(_ => GapWarning(lastPoll, c))
-                : Task.FromResult(Result<NyaaCollected, DomainError>.Success(c)));
+                : Task.FromResult(Result<NyaaCollected, BulkError<DeliveryError>.AllFailed>.Success(c)));
     }
 
-    private static async Task<Result<int, DomainError>> Backfill(
+    private static async Task<Result<int, BulkError<DeliveryError>.AllFailed>> Backfill(
         ImmutableArray<string> seriesIds,
         DelayedMessageSender delayedSender,
         CancellationToken token)
@@ -38,7 +38,7 @@ public static class NyaaWindow
             delayedSender(new BackfillNyaaSeries(seriesId), NyaaPacing.For(index), token)));
 
         return sends
-            .Flatten(sent => sent.Count())
+            .Collect(sent => sent.Count())
             .AddLogOnSuccess(bulk => bulk.LogErrors)
             .Map(bulk => bulk.Value);
     }

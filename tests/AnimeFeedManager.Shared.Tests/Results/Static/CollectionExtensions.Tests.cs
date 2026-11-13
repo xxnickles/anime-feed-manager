@@ -252,6 +252,87 @@ public class CollectionExtensionsTests
 
     #endregion
 
+    #region Merge Tests
+
+    [Fact]
+    public void Should_Return_Completed_When_Merging_Bulks_Without_Errors()
+    {
+        var merged = new[] { Completed(1), Completed(2) }.Merge(values => values.Sum());
+
+        merged.AssertOnSuccess(bulk =>
+            Assert.Equal(3, Assert.IsType<BulkResult<int, TestError>.Completed>(bulk).Value));
+    }
+
+    [Fact]
+    public void Should_Concatenate_Item_Errors_When_Merging_A_Partial_Bulk()
+    {
+        var first = new TestError("first");
+        var second = new TestError("second");
+
+        var merged = new[] { Partial(1, first), Completed(2), Partial(3, second) }.Merge(values => values.Sum());
+
+        merged.AssertOnSuccess(bulk =>
+        {
+            var partial = Assert.IsType<BulkResult<int, TestError>.Partial>(bulk);
+            Assert.Equal(6, partial.Value);
+            Assert.Equal([first, second], partial.Errors);
+        });
+    }
+
+    [Fact]
+    public void Should_Carry_The_Leaf_Errors_Of_A_Failed_Bulk_When_Merging_With_A_Success()
+    {
+        var lost = new TestError("lost");
+
+        var merged = new[] { Completed(1), AllFailed(lost) }.Merge(values => values.Sum());
+
+        merged.AssertOnSuccess(bulk =>
+        {
+            var partial = Assert.IsType<BulkResult<int, TestError>.Partial>(bulk);
+            Assert.Equal(1, partial.Value);
+            Assert.Equal([lost], partial.Errors);
+        });
+    }
+
+    [Fact]
+    public void Should_Fail_With_Every_Leaf_Error_When_Merging_Only_Failed_Bulks()
+    {
+        var first = new TestError("first");
+        var second = new TestError("second");
+        var third = new TestError("third");
+
+        var merged = new[] { AllFailed(first, second), AllFailed(third) }.Merge(values => values.Sum());
+
+        merged.AssertOnError(error => Assert.Equal([first, second, third], error.Errors));
+    }
+
+    [Fact]
+    public void Should_Return_Completed_When_Merging_No_Bulks()
+    {
+        var merged = Array.Empty<Result<BulkResult<int, TestError>, BulkError<TestError>.AllFailed>>()
+            .Merge(values => values.Sum());
+
+        merged.AssertOnSuccess(bulk =>
+            Assert.Equal(0, Assert.IsType<BulkResult<int, TestError>.Completed>(bulk).Value));
+    }
+
+    [Fact]
+    public void Should_Keep_Log_Actions_Staged_On_Bulks_When_Merging()
+    {
+        var logger = new RecordingLogger();
+        var bulks = new[]
+        {
+            Completed(1).AddLogOnSuccess(_ => log => log.LogInformation("kept")),
+            AllFailed(new TestError("gone")).AddLogOnFailure(_ => log => log.LogInformation("failed"))
+        };
+
+        bulks.Merge(values => values.Sum()).FlushLogs(logger);
+
+        Assert.Equal(["kept", "failed"], logger.Entries);
+    }
+
+    #endregion
+
     #region CollectSuccesses Tests
 
     [Fact]
@@ -365,6 +446,19 @@ public class CollectionExtensionsTests
 
         Assert.Contains("gone", logger.Entries);
     }
+
+    #endregion
+
+    #region Test Helpers
+
+    private static Result<BulkResult<int, TestError>, BulkError<TestError>.AllFailed> Completed(int value) =>
+        new BulkResult<int, TestError>.Completed(value);
+
+    private static Result<BulkResult<int, TestError>, BulkError<TestError>.AllFailed> Partial(int value, TestError error) =>
+        new BulkResult<int, TestError>.Partial(value, [error]);
+
+    private static Result<BulkResult<int, TestError>, BulkError<TestError>.AllFailed> AllFailed(params TestError[] errors) =>
+        new BulkError<TestError>.AllFailed([..errors]);
 
     #endregion
 }

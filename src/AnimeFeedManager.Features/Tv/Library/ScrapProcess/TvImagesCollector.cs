@@ -15,7 +15,8 @@ internal static class TvImagesCollector
 
     private static readonly ActivitySource Source = new(Telemetry.ImagesSource);
 
-    public static async Task<Result<ScrapTvLibraryData, DomainError>> AddImagesLink(
+    // Never fails: a cover that will not download keeps its series without an image.
+    public static async Task<Result<ScrapTvLibraryData, ImageNotStored>> AddImagesLink(
         this ImageProcessor imageProvider,
         ScrapTvLibraryData data,
         CancellationToken token = default)
@@ -43,10 +44,9 @@ internal static class TvImagesCollector
         }
 
         return downloaded.Concat(untouched)
-            .Flatten(items => items.ToImmutableArray())
-            .AddLogOnSuccess(bulk => LogImageOutcome(bulk, pending.Length, seriesData.Length))
-            .AddLogOnSuccess(bulk => bulk.LogErrors)
-            .Map(bulk => data with { SeriesData = bulk.Value.Select(outcome => outcome.Data) });
+            .CollectSuccesses(items => items.ToImmutableArray())
+            .AddLogOnSuccess(outcomes => LogImageOutcome(outcomes, pending.Length, seriesData.Length))
+            .Map(outcomes => data with { SeriesData = outcomes.Select(outcome => outcome.Data) });
     }
 
     private readonly record struct ImageOutcome(StorageData Data, bool Downloaded);
@@ -62,11 +62,11 @@ internal static class TvImagesCollector
     // Series with nothing to fetch pass through this step as successes, so the only honest count is
     // of the ones that actually had an image to download.
     private static Action<ILogger> LogImageOutcome(
-        BulkResult<ImmutableArray<ImageOutcome>> bulk,
+        ImmutableArray<ImageOutcome> outcomes,
         int candidates,
         int total) => logger =>
     {
-        var downloaded = bulk.Value.Count(outcome => outcome.Downloaded);
+        var downloaded = outcomes.Count(outcome => outcome.Downloaded);
 
         logger.LogInformation(
             "{image.downloaded_count} of {image.candidate_count} images downloaded, {image.failed_count} series kept without one; {image.skipped_count} of {series.count} series had no image to fetch",

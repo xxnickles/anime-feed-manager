@@ -57,46 +57,44 @@ public static class ExistentSubscriptions
                 .Bind(subscriptions => ToUserActiveSubscriptions(subscriptions, titles));
     }
 
-    internal static Result<UserActiveSubscriptions[], DomainError> ToUserActiveSubscriptions(
+    internal static Result<UserActiveSubscriptions[], BulkError<StorageError>.AllFailed> ToUserActiveSubscriptions(
         ImmutableArray<SubscriptionStorage> rows,
         IEnumerable<string> feedTitles) =>
         rows
             .Where(s => s.SeriesFeedTitle != null && feedTitles.Contains(s.SeriesFeedTitle))
             .GroupBy(s => s.PartitionKey)
             .Select(ToUserSubscriptions)
-            .Flatten(users => users.ToArray())
+            .Merge(users => users.ToArray())
             .AddLogOnSuccess(bulk => bulk.LogErrors)
             .Map(bulk => bulk.Value);
 
-    private static Result<UserActiveSubscriptions, DomainError> ToUserSubscriptions(
-        IGrouping<string?, SubscriptionStorage> userRows) =>
+    private static Result<BulkResult<UserActiveSubscriptions, StorageError>, BulkError<StorageError>.AllFailed>
+        ToUserSubscriptions(IGrouping<string?, SubscriptionStorage> userRows) =>
         userRows
             .GroupBy(s => s.SeriesFeedTitle!)
             .Select(PickAiringSeries)
-            .Flatten(subscriptions => subscriptions.ToArray())
-            .Map(bulk => new UserActiveSubscriptions(
+            .Merge(subscriptions => new UserActiveSubscriptions(
                 userRows.Key ?? string.Empty,
                 userRows.First().UserEmail,
-                bulk.Value));
+                subscriptions.ToArray()));
 
     /// <summary>
     /// A series and its later season can share one feed title. The feed's episodes belong to whichever
     /// is airing now, so the newest wins. Fails only when no candidate carries a readable season.
     /// </summary>
-    private static Result<ActiveSubscription, DomainError> PickAiringSeries(
+    private static Result<BulkResult<ActiveSubscription, StorageError>, BulkError<StorageError>.AllFailed> PickAiringSeries(
         IGrouping<string, SubscriptionStorage> sharingFeedTitle)
     {
         var rows = sharingFeedTitle.ToArray();
 
         if (rows.Length == 1)
-            return ToActiveSubscription(rows[0]);
+            return new BulkResult<ActiveSubscription, StorageError>.Completed(ToActiveSubscription(rows[0]));
 
         return rows
             .Select(row => IdHelpers.SeriesSeasonFromId(row.RowKey ?? string.Empty)
                 .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SubscriptionStorage), fields.Errors))
                 .Map(parsed => (Row: row, SeriesSeason: parsed)))
-            .Flatten(candidates => candidates.MaxBy(c => (c.SeriesSeason.Year, c.SeriesSeason.Season)).Row)
-            .Map(bulk => ToActiveSubscription(bulk.Value));
+            .Collect(candidates => ToActiveSubscription(candidates.MaxBy(c => (c.SeriesSeason.Year, c.SeriesSeason.Season)).Row));
     }
 
     private static ActiveSubscription ToActiveSubscription(SubscriptionStorage row) =>

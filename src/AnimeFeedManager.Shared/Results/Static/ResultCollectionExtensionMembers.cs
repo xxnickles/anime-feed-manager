@@ -58,14 +58,7 @@ public static class ResultCollectionExtensionMembers
                     errors.Add(result.ErrorValue!);
             }
 
-            Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> collected = (successes.Count, errors.Count) switch
-            {
-                (_, 0) => new BulkResult<TTarget, TError>.Completed(flatten(successes)),
-                (0, _) => new BulkError<TError>.AllFailed([..errors]),
-                _ => new BulkResult<TTarget, TError>.Partial(flatten(successes), [..errors])
-            };
-
-            return collected with {TraceContext = traceContext};
+            return Outcome(successes, errors, flatten, traceContext);
         }
 
         /// <summary>Never fails: flattens the successes and stages each failure's log on the merged trace context.</summary>
@@ -87,11 +80,53 @@ public static class ResultCollectionExtensionMembers
         }
     }
 
+    extension<T, TError>(IEnumerable<Result<BulkResult<T, TError>, BulkError<TError>.AllFailed>> results)
+    {
+        /// <summary>Merges collected bulks into one: values combined, every item's errors concatenated; same outcomes as <c>Collect</c>.</summary>
+        public Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> Merge<TTarget>(
+            Func<IEnumerable<T>, TTarget> combine)
+        {
+            var values = new List<T>();
+            var errors = new List<TError>();
+            var traceContext = TraceContext.Empty;
+
+            foreach (var result in results)
+            {
+                traceContext = traceContext.Merge(result.TraceContext);
+                if (result.IsSuccess)
+                {
+                    values.Add(result.ResultValue!.Value);
+                    errors.AddRange(result.ResultValue!.Errors);
+                }
+                else
+                    errors.AddRange(result.ErrorValue!.Errors);
+            }
+
+            return Outcome(values, errors, combine, traceContext);
+        }
+    }
+
     extension<T, TError>(Task<IEnumerable<Result<T, TError>>> results) where TError : DomainError
     {
         public async Task<Result<BulkResult<TTarget>, DomainError>> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
         {
             return (await results).Flatten(flattenFunc);
         }
+    }
+
+    private static Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> Outcome<T, TTarget, TError>(
+        List<T> values,
+        List<TError> errors,
+        Func<IEnumerable<T>, TTarget> flatten,
+        TraceContext traceContext)
+    {
+        Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> outcome = (values.Count, errors.Count) switch
+        {
+            (_, 0) => new BulkResult<TTarget, TError>.Completed(flatten(values)),
+            (0, _) => new BulkError<TError>.AllFailed([..errors]),
+            _ => new BulkResult<TTarget, TError>.Partial(flatten(values), [..errors])
+        };
+
+        return outcome with {TraceContext = traceContext};
     }
 }

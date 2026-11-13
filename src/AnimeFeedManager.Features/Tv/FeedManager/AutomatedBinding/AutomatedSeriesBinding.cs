@@ -65,7 +65,7 @@ public static class AutomatedSeriesBinding
         private Task<Result<AutomatedBindingProcess, DomainError>> SendBinds(DelayedMessageSender delayedSender,
             CancellationToken token) =>
             process.Bind(p => p.Matches.Matches.IsEmpty
-                ? Task.FromResult(Result<AutomatedBindingProcess, DomainError>.Success(p))
+                ? Task.FromResult(Result<AutomatedBindingProcess, BulkError<DeliveryError>.AllFailed>.Success(p))
                 : Send(p.Matches.Matches, delayedSender, token).Map(sent => p with {Sent = sent}));
 
         private Task<Result<AutomatedBindingCompleted, DomainError>> StoreRun(AutomatedBindingRunUpdater runUpdater,
@@ -149,7 +149,7 @@ public static class AutomatedSeriesBinding
                     .Select(title => title!)
             ]);
 
-    private static async Task<Result<int, DomainError>> Send(
+    private static async Task<Result<int, BulkError<DeliveryError>.AllFailed>> Send(
         ImmutableArray<ScheduleMatch> matches,
         DelayedMessageSender delayedSender,
         CancellationToken token)
@@ -158,7 +158,7 @@ public static class AutomatedSeriesBinding
             delayedSender(BindRequest(match), NyaaPacing.For(index), token)));
 
         return sends
-            .Flatten(sent => sent.Count())
+            .Collect(sent => sent.Count())
             .AddLogOnSuccess(bulk => bulk.LogErrors)
             .Map(bulk => bulk.Value);
     }
