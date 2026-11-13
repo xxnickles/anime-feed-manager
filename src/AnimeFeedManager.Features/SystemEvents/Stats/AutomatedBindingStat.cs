@@ -11,9 +11,9 @@ public sealed record LatestAutomatedBinding(AutomatedBindingCompleted Run) : Las
 
 public static class AutomatedBindingStat
 {
-    public static Task<Result<LastAutomatedBinding, DomainError>> Get(LatestAutomatedBindingRun runGetter,
+    public static Task<Result<LastAutomatedBinding, StorageError>> Get(LatestAutomatedBindingRun runGetter,
         CancellationToken cancellationToken) =>
         runGetter(cancellationToken)
             .Map(LastAutomatedBinding (run) => new LatestAutomatedBinding(run))
-            .BindOnErrorWhen(_ => new NoAutomatedBinding(), error => error is NotFoundError);
+            .BindOnErrorWhen(_ => new NoAutomatedBinding(), error => error is StorageError.NotFound);
 }

@@ -63,7 +63,7 @@ public class InterestedSeriesTests
     {
         var getter = Substitute.For<TvSubscriptionGetter>();
         getter(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<SubscriptionStorage?, DomainError>.Success(stored)));
+            .Returns(Task.FromResult(Result<SubscriptionStorage?, StorageError>.Success(stored)));
         return getter;
     }
 
@@ -71,7 +71,7 @@ public class InterestedSeriesTests
     {
         var updater = Substitute.For<TvSubscriptionUpdater>();
         updater(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, StorageError>.Success(new Unit())));
         return updater;
     }
 
@@ -79,7 +79,7 @@ public class InterestedSeriesTests
     {
         var remover = Substitute.For<TvSubscriptionsRemover>();
         remover(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, StorageError>.Success(new Unit())));
         return remover;
     }
 

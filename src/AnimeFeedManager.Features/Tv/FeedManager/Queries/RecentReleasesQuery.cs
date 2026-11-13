@@ -25,6 +25,7 @@ public static class RecentReleasesQuery
         DateTimeOffset now,
         CancellationToken token) =>
         trackedBindings(token)
+            .MapError(error => (DomainError)error)
             .Bind(tracked => ReadCatalogs(tracked, catalogGetter, token))
             .Map(catalogs => Summarize(catalogs, now - NyaaCollection.FeedWindow))
             .WithOperationName(nameof(GetRecentReleases));

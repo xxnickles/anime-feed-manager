@@ -125,8 +125,8 @@ public class LibraryQueriesTests
     {
         var getter = Substitute.For<TvSubscriptions>();
         getter(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<ImmutableArray<SubscriptionStorage>, DomainError>>(
-                Error.Create("subscriptions unavailable")));
+            .Returns(Task.FromResult<Result<ImmutableArray<SubscriptionStorage>, StorageError>>(
+                new StorageError.RequestFailed("test", new InvalidOperationException("subscriptions unavailable"))));
 
         var result = await Library([MakeSeries(SeriesStatus.OngoingValue)])
             .GetTvLibraryForUser(MakeUser(), getter, CancellationToken.None);
@@ -138,20 +138,20 @@ public class LibraryQueriesTests
 
     #region Test Helpers
 
-    private static Task<Result<ImmutableArray<UserTvSeries>, DomainError>> MapSingle(
+    private static Task<Result<ImmutableArray<UserTvSeries>, StorageError>> MapSingle(
         string seriesStatus,
         params SubscriptionStorage[] subscriptions) =>
         Library([MakeSeries(seriesStatus)])
             .GetTvLibraryForUser(MakeUser(), Subscriptions(subscriptions), CancellationToken.None);
 
-    private static Task<Result<ImmutableArray<TvSeries>, DomainError>> Library(TvSeries[] series) =>
-        Task.FromResult(Result<ImmutableArray<TvSeries>, DomainError>.Success([..series]));
+    private static Task<Result<ImmutableArray<TvSeries>, StorageError>> Library(TvSeries[] series) =>
+        Task.FromResult(Result<ImmutableArray<TvSeries>, StorageError>.Success([..series]));
 
     private static TvSubscriptions Subscriptions(params SubscriptionStorage[] subscriptions)
     {
         var getter = Substitute.For<TvSubscriptions>();
         getter(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, DomainError>.Success([..subscriptions])));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, StorageError>.Success([..subscriptions])));
         return getter;
     }
 

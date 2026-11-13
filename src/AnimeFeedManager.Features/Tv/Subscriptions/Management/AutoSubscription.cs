@@ -27,7 +27,8 @@ public static class AutoSubscription
         TvInterestedBySeries seriesGetter,
         CancellationToken token) => seriesGetter(seriesId, token)
         .Map(series =>
-            new AutoSubscriptionProcess(seriesId, series.Select(s => Subscribe(s, feedTitle)).ToImmutableArray()));
+            new AutoSubscriptionProcess(seriesId, series.Select(s => Subscribe(s, feedTitle)).ToImmutableArray()))
+        .MapError(error => (DomainError)error);
 
     extension(Task<Result<AutoSubscriptionProcess, DomainError>> process)
     {

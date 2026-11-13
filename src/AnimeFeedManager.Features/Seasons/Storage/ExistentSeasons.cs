@@ -4,15 +4,15 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Seasons.Storage;
 
-public delegate Task<Result<SeasonStorageData, DomainError>> LatestSeasonGetter(CancellationToken cancellationToken = default);
+public delegate Task<Result<SeasonStorageData, StorageError>> LatestSeasonGetter(CancellationToken cancellationToken = default);
 
-public delegate Task<Result<SeasonStorageData, DomainError>> SeasonGetter(SeriesSeason season,
+public delegate Task<Result<SeasonStorageData, StorageError>> SeasonGetter(SeriesSeason season,
     CancellationToken cancellation = default);
 
-public delegate Task<Result<ImmutableArray<SeriesSeason>, DomainError>> AllSeasonsGetter(
+public delegate Task<Result<ImmutableArray<SeriesSeason>, StorageError>> AllSeasonsGetter(
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<SeriesSeason>, DomainError>> Latest4SeasonsGetter(
+public delegate Task<Result<ImmutableArray<SeriesSeason>, StorageError>> Latest4SeasonsGetter(
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeasons
@@ -29,7 +29,7 @@ public static class ExistentSeasons
                     .ExecuteQuery<SeasonStorage>(
                         storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
                         cancellationToken)
-                    .Map<ImmutableArray<SeasonStorage>, DomainError, SeasonStorageData>(seasons =>
+                    .Map<ImmutableArray<SeasonStorage>, StorageError, SeasonStorageData>(seasons =>
                         seasons.FirstOrDefault(season => season.Latest) is { } flagged
                             ? new CurrentLatestSeason(flagged)
                             : NewestSeason(seasons)));
@@ -41,7 +41,7 @@ public static class ExistentSeasons
                 .Bind(client => client.ExecuteQuery<SeasonStorage>(storage =>
                         storage.PartitionKey == SeasonStorage.SeasonPartition &&
                         storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
-                    .Map<ImmutableArray<SeasonStorage>, DomainError, SeasonStorageData>(matches =>
+                    .Map<ImmutableArray<SeasonStorage>, StorageError, SeasonStorageData>(matches =>
                     {
                         if (matches.IsEmpty)
                             return new NoMatch();

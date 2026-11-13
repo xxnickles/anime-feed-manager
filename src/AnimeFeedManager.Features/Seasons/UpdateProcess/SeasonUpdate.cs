@@ -5,7 +5,8 @@ public static class SeasonUpdate
     public static Task<Result<SeasonUpdateData, DomainError>> CheckSeasonExist(SeasonGetter seasonGetter, SeriesSeason season,
         CancellationToken token) =>
         seasonGetter(season, token)
-            .Map(s => new SeasonUpdateData(season, s, new NoMatch()));
+            .Map(s => new SeasonUpdateData(season, s, new NoMatch()))
+            .MapError(error => (DomainError)error);
 
 
     extension(Task<Result<SeasonUpdateData, DomainError>> processData)
@@ -53,22 +54,28 @@ public static class SeasonUpdate
     private static Task<Result<Unit, DomainError>> UpdateSeason(
         SeasonUpdater seasonUpdater,
         SeasonStorageData data,
-        CancellationToken cancellationToken) => data switch
+        CancellationToken cancellationToken) =>
+        SelectableSeason(data).Bind(season => seasonUpdater(season, cancellationToken));
+
+    private static Result<SeasonStorage, DomainError> SelectableSeason(SeasonStorageData data) => data switch
     {
-        ExistentSeason existent => seasonUpdater(existent.Season, cancellationToken),
-        CurrentLatestSeason latest => seasonUpdater(latest.Season, cancellationToken),
-        NewSeason newSeason => seasonUpdater(newSeason.Season, cancellationToken),
-        ReplaceLatestSeason newLatest => seasonUpdater(newLatest.Season, cancellationToken),
-        _ => Task.FromResult<Result<Unit, DomainError>>(Error.Create($"Season data is not selectable to be updated. Received {data.GetType().Name}"))
+        ExistentSeason existent => existent.Season,
+        CurrentLatestSeason latest => latest.Season,
+        NewSeason newSeason => newSeason.Season,
+        ReplaceLatestSeason newLatest => newLatest.Season,
+        _ => Error.Create($"Season data is not selectable to be updated. Received {data.GetType().Name}")
     };
 
     private static Task<Result<Unit, DomainError>> UpdateCurrentLatestSeason(
         SeasonUpdater seasonUpdater,
         SeasonStorageData data,
-        CancellationToken cancellationToken) => data switch
+        CancellationToken cancellationToken) =>
+        DemotableSeason(data).Bind(season => seasonUpdater(season, cancellationToken));
+
+    private static Result<SeasonStorage, DomainError> DemotableSeason(SeasonStorageData data) => data switch
     {
-        CurrentLatestSeason latest => seasonUpdater(DemoteCurrentLatestSeason(latest.Season), cancellationToken),
-        _ => Task.FromResult<Result<Unit, DomainError>>(Error.Create($"Season data is not selectable to be updated as is not the current lastest season. Received {data.GetType().Name}"))
+        CurrentLatestSeason latest => DemoteCurrentLatestSeason(latest.Season),
+        _ => Error.Create($"Season data is not selectable to be updated as is not the current lastest season. Received {data.GetType().Name}")
     };
 
     private static SeasonStorage DemoteCurrentLatestSeason(SeasonStorage data)

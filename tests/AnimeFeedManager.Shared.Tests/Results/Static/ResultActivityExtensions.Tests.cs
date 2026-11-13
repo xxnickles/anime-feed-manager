@@ -56,6 +56,16 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     }
 
     [Fact]
+    public void Should_Tag_Family_And_Leaf_When_Error_Is_Nested_In_Its_Family()
+    {
+        using var activity = StartActivity();
+
+        Result<int, NestedFailure>.Failure(new NestedFailure.Gone()).MarkActivityErroredOnError();
+
+        Assert.Equal("NestedFailure.Gone", activity.GetTagItem(Telemetry.ErrorTypeTag));
+    }
+
+    [Fact]
     public void Should_Leave_Status_Unset_When_Result_Is_Success()
     {
         using var activity = StartActivity();
@@ -131,4 +141,11 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     }
 
     #endregion
+}
+
+public closed record NestedFailure(string Message) : DomainError(Message)
+{
+    public override Action<ILogger> LogAction() => _ => { };
+
+    public sealed record Gone() : NestedFailure("gone");
 }

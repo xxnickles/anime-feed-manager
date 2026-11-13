@@ -14,10 +14,10 @@ public static class CompleteFeedSeries
             .Bind(season => OptimisticConcurrency.UntilWritten(
                 attemptToken => seriesGetter(seriesId, season, attemptToken)
                     .Bind(series => series.Status == SeriesStatus.CompletedValue
-                        ? Task.FromResult(Result<Unit, DomainError>.Success(new Unit()))
+                        ? Task.FromResult(Result<Unit, StorageError>.Success(new Unit()))
                         : storageUpdater(MarkCompleted(series), attemptToken)),
                 token,
-                error => error is PreconditionFailedError))
+                error => error is StorageError.Conflict))
             .WithOperationName(nameof(CompleteFeedSeries))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 

@@ -16,7 +16,7 @@ public sealed record LatestScrape(
 
 public static class LastScrapeStat
 {
-    public static Task<Result<LastScrape, DomainError>> Get(
+    public static Task<Result<LastScrape, StorageError>> Get(
         SystemEventsGetter<ScrapTvLibraryResult> eventGetter,
         DateTimeOffset from,
         CancellationToken cancellationToken) =>

@@ -3,20 +3,20 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 namespace AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
 /// <summary>Unconditional: a bind resets the binding whatever its current state.</summary>
-public delegate Task<Result<Unit, DomainError>> NyaaBindingReplacer(NyaaBindingStorage binding,
+public delegate Task<Result<Unit, StorageError>> NyaaBindingReplacer(NyaaBindingStorage binding,
     CancellationToken token = default);
 
-public delegate Task<Result<NyaaBindingStorage, DomainError>> NyaaBindingGetter(string seriesId, SeriesSeason season,
+public delegate Task<Result<NyaaBindingStorage, StorageError>> NyaaBindingGetter(string seriesId, SeriesSeason season,
     CancellationToken token = default);
 
-/// <summary>ETag-guarded Replace of a binding read earlier; a lost race fails with <see cref="PreconditionFailedError"/>.</summary>
-public delegate Task<Result<Unit, DomainError>> NyaaBindingUpdater(NyaaBindingStorage binding,
+/// <summary>ETag-guarded Replace of a binding read earlier; a lost race fails with <see cref="StorageError.Conflict"/>.</summary>
+public delegate Task<Result<Unit, StorageError>> NyaaBindingUpdater(NyaaBindingStorage binding,
     CancellationToken token = default);
 
-public delegate Task<Result<ImmutableArray<NyaaBindingStorage>, DomainError>> SeasonNyaaBindings(SeriesSeason season,
+public delegate Task<Result<ImmutableArray<NyaaBindingStorage>, StorageError>> SeasonNyaaBindings(SeriesSeason season,
     CancellationToken token = default);
 
-public delegate Task<Result<ImmutableArray<NyaaBindingStorage>, DomainError>> TrackedNyaaBindings(
+public delegate Task<Result<ImmutableArray<NyaaBindingStorage>, StorageError>> TrackedNyaaBindings(
     CancellationToken token = default);
 
 public static class NyaaBindingsStore
@@ -50,14 +50,14 @@ public static class NyaaBindingsStore
 
     extension(TableClient tableClient)
     {
-        private Task<Result<Unit, DomainError>> ReplaceBinding(NyaaBindingStorage binding, CancellationToken token) =>
+        private Task<Result<Unit, StorageError>> ReplaceBinding(NyaaBindingStorage binding, CancellationToken token) =>
             tableClient.TryExecute<NyaaBindingStorage>(client =>
                     client.UpsertEntityAsync(binding, TableUpdateMode.Replace, token))
                 .WithDefaultMap()
                 .WithOperationName(nameof(ReplaceBinding))
                 .WithLogProperties(BindingProperties(binding.RowKey, binding.PartitionKey));
 
-        private Task<Result<NyaaBindingStorage, DomainError>> GetBinding(string seriesId, SeriesSeason season,
+        private Task<Result<NyaaBindingStorage, StorageError>> GetBinding(string seriesId, SeriesSeason season,
             CancellationToken token)
         {
             var partitionKey = IdHelpers.GenerateAnimePartitionKey(season);
@@ -68,7 +68,7 @@ public static class NyaaBindingsStore
                 .WithLogProperties(BindingProperties(seriesId, partitionKey));
         }
 
-        private Task<Result<Unit, DomainError>> UpdateBinding(NyaaBindingStorage binding, CancellationToken token) =>
+        private Task<Result<Unit, StorageError>> UpdateBinding(NyaaBindingStorage binding, CancellationToken token) =>
             tableClient.TryExecute<NyaaBindingStorage>(client =>
                     client.UpdateEntityAsync(binding, binding.ETag, TableUpdateMode.Replace, token))
                 .WithDefaultMap()

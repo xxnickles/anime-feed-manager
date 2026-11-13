@@ -51,7 +51,7 @@ public static class ReleaseListingQuery
             .WithOperationName(nameof(GetReleaseListing))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
-    private static Task<Result<ReleaseFeed, DomainError>> Feed(
+    private static Task<Result<ReleaseFeed, StorageError>> Feed(
         string seriesId,
         SeriesSeason season,
         NyaaBindingGetter bindingGetter,
@@ -60,7 +60,7 @@ public static class ReleaseListingQuery
         bindingGetter(seriesId, season, token)
             .Bind(binding => catalogGetter(seriesId, token)
                 .Map(catalog => (ReleaseFeed) ToFeed(binding, catalog)))
-            .BindOnErrorWhen(_ => new NoReleaseFeed(), error => error is NotFoundError);
+            .BindOnErrorWhen(_ => new NoReleaseFeed(), error => error is StorageError.NotFound);
 
     private static NyaaReleaseFeed ToFeed(NyaaBindingStorage binding, ImmutableArray<NyaaCatalogStorage> catalog) =>
         new(binding.Group,

@@ -66,6 +66,7 @@ public class TriggerFeedNotifications
         CancellationToken token)
     {
         return await NyaaWindow.LastPoll(_tableClientFactory.TableStorageLastNyaaPoll, token)
+            .MapError(error => (DomainError)error)
             .Bind(lastPoll => NyaaCollection.Collect(_nyaaClient, _tableClientFactory, _webAppHost, token)
                 .BackfillOnGap(lastPoll, _domainPostman.SendDelayedMessage, token))
             .Bind(collected => Result<DailySeriesFeed[], DomainError>.Success([.. collected.Feeds])
@@ -74,7 +75,7 @@ public class TriggerFeedNotifications
                 .Map(summary => (Collected: collected, Summary: summary)))
             .Bind(run => run.Collected.PolledAt is { } polledAt
                 ? _tableClientFactory.TableStorageNyaaPollUpdater(new NyaaPoll(polledAt), token).Map(_ => run)
-                : Task.FromResult(Result<(NyaaCollected, FeedProcessSummary), DomainError>.Success(run)))
+                : Task.FromResult(Result<(NyaaCollected, FeedProcessSummary), StorageError>.Success(run)))
             .MarkActivityErroredOnError();
     }
 }

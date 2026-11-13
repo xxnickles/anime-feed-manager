@@ -22,9 +22,10 @@ public static class ExistentUser
                     .WithOperationName(nameof(TableStorageExistentUserGetterByEmail))
                     .Bind(client =>
                         client.ExecuteQuery<UserStorage>(
-                                storage => storage.PartitionKey == Constants.UserPartitionKey && storage.Email == email,
-                                cancellationToken)
-                            .Bind(ParseAsUser));
+                            storage => storage.PartitionKey == Constants.UserPartitionKey && storage.Email == email,
+                            cancellationToken))
+                    .MapError(error => (DomainError)error)
+                    .Bind(ParseAsUser);
 
         public ExistentUserGetterById TableStorageExistentUserGetterById() =>
             (id, cancellationToken) =>
@@ -34,7 +35,9 @@ public static class ExistentUser
                     .Bind(client =>
                         client.ExecuteQuery<UserStorage>(
                             storage => storage.PartitionKey == Constants.UserPartitionKey && storage.RowKey == id,
-                            cancellationToken).Bind(ParseAsUser));
+                            cancellationToken))
+                    .MapError(error => (DomainError)error)
+                    .Bind(ParseAsUser);
     }
 
     private static Result<StoredUser, DomainError> ParseAsUser(ImmutableArray<UserStorage> storage)

@@ -1,12 +1,12 @@
 namespace AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
-public delegate Task<Result<Unit, DomainError>> NyaaCatalogWiper(string seriesId, CancellationToken token = default);
+public delegate Task<Result<Unit, StorageError>> NyaaCatalogWiper(string seriesId, CancellationToken token = default);
 
 /// <summary>Upsert-Replace: the info hash in the row key makes re-polling the same release idempotent.</summary>
-public delegate Task<Result<Unit, DomainError>> NyaaCatalogUpdater(IEnumerable<NyaaCatalogStorage> rows,
+public delegate Task<Result<Unit, StorageError>> NyaaCatalogUpdater(IEnumerable<NyaaCatalogStorage> rows,
     CancellationToken token = default);
 
-public delegate Task<Result<ImmutableArray<NyaaCatalogStorage>, DomainError>> NyaaCatalogGetter(string seriesId,
+public delegate Task<Result<ImmutableArray<NyaaCatalogStorage>, StorageError>> NyaaCatalogGetter(string seriesId,
     CancellationToken token = default);
 
 public static class NyaaCatalogStore
@@ -31,7 +31,7 @@ public static class NyaaCatalogStore
     extension(TableClient tableClient)
     {
         // Keys only, deleted with ETag.All: the wipe must not lose to a concurrent upsert of the same row.
-        private Task<Result<Unit, DomainError>> WipeCatalog(string seriesId, CancellationToken token) =>
+        private Task<Result<Unit, StorageError>> WipeCatalog(string seriesId, CancellationToken token) =>
             tableClient.ExecuteQuery<NyaaCatalogStorage>(row => row.PartitionKey == seriesId, token,
                     [nameof(NyaaCatalogStorage.PartitionKey), nameof(NyaaCatalogStorage.RowKey)])
                 .Bind(rows => tableClient.AddBatch(
@@ -42,7 +42,7 @@ public static class NyaaCatalogStore
                 .WithOperationName(nameof(WipeCatalog))
                 .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
-        private Task<Result<Unit, DomainError>> UpsertRows(IEnumerable<NyaaCatalogStorage> rows, CancellationToken token) =>
+        private Task<Result<Unit, StorageError>> UpsertRows(IEnumerable<NyaaCatalogStorage> rows, CancellationToken token) =>
             tableClient.AddBatch(rows, token, TableTransactionActionType.UpsertReplace)
                 .WithOperationName(nameof(UpsertRows));
     }

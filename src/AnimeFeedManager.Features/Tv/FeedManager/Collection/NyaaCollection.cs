@@ -57,6 +57,7 @@ public static class NyaaCollection
         WebAppHost host,
         CancellationToken token) =>
         clientFactory.TableStorageTrackedNyaaBindings(token)
+            .MapError(error => (DomainError)error)
             .Map(tracked => new CollectionProcess(tracked))
             .PollReleases(nyaaClient, token)
             .StoreReleases(clientFactory.TableStorageNyaaCatalogUpdater, token)
@@ -109,7 +110,7 @@ public static class NyaaCollection
                 OldestPolled = feed.Value.IsEmpty ? null : feed.Value.Min(item => item.Published)
             });
 
-    private static Task<Result<CollectedSeries, DomainError>> ReadCatalog(NyaaBindingStorage binding,
+    private static Task<Result<CollectedSeries, StorageError>> ReadCatalog(NyaaBindingStorage binding,
         ImmutableHashSet<string> matched, NyaaCatalogGetter catalogGetter, CancellationToken token) =>
         catalogGetter(binding.RowKey ?? string.Empty, token)
             .Map(catalog => new CollectedSeries(binding, catalog, matched));

@@ -32,6 +32,7 @@ public static class SettleNyaaFeeds
 
     private static Task<Result<int, DomainError>> CompleteFeeds(ITableClientFactory clientFactory, CancellationToken token) =>
         clientFactory.TableStorageTrackedNyaaBindings(token)
+            .MapError(error => (DomainError)error)
             .Bind(tracked => Each(ToComplete(tracked), binding => Complete(binding, clientFactory, token)))
             .WithOperationName(nameof(CompleteFeeds));
 
@@ -42,6 +43,7 @@ public static class SettleNyaaFeeds
         DateTimeOffset now,
         CancellationToken token) =>
         clientFactory.TableStorageTrackedNyaaBindings(token)
+            .MapError(error => (DomainError)error)
             .Map(tracked => ToRetire(tracked, now))
             .BindWhen(
                 due => domainPostman([.. due.Select(binding => new NyaaFeedCompleted(binding.RowKey ?? string.Empty))], token)
@@ -64,9 +66,9 @@ public static class SettleNyaaFeeds
             .Map(outcome => outcome is FeedCompleted);
 
     /// <summary>Counts the series settled; failures are logged without failing the step, even when all fail.</summary>
-    private static async Task<Result<int, DomainError>> Each(
+    private static async Task<Result<int, DomainError>> Each<TError>(
         ImmutableArray<NyaaBindingStorage> bindings,
-        Func<NyaaBindingStorage, Task<Result<bool, DomainError>>> settle) =>
+        Func<NyaaBindingStorage, Task<Result<bool, TError>>> settle) where TError : DomainError =>
         (await Task.WhenAll(bindings.Select(settle)))
         .Flatten(settled => settled.Count(done => done))
         .AddLogOnSuccess(bulk => bulk.LogErrors)

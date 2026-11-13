@@ -1,10 +1,10 @@
 namespace AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
-public delegate Task<Result<Unit, DomainError>> TvSubscriptionUpdater(SubscriptionStorage subscription, CancellationToken token);
+public delegate Task<Result<Unit, StorageError>> TvSubscriptionUpdater(SubscriptionStorage subscription, CancellationToken token);
 
-public delegate Task<Result<Unit, DomainError>> TvSubscriptionsRemover(string user, string seriesId, CancellationToken token);
+public delegate Task<Result<Unit, StorageError>> TvSubscriptionsRemover(string user, string seriesId, CancellationToken token);
 
-public delegate Task<Result<Unit, DomainError>> TvSubscriptionsUpdater(IEnumerable<SubscriptionStorage> subscriptions,
+public delegate Task<Result<Unit, StorageError>> TvSubscriptionsUpdater(IEnumerable<SubscriptionStorage> subscriptions,
     CancellationToken token);
 
 public static class TvSubscriptionsStore
@@ -27,7 +27,7 @@ public static class TvSubscriptionsStore
 
     extension(TableClient tableClient)
     {
-        private Task<Result<Unit, DomainError>> UpsertSubscription(SubscriptionStorage subscription, CancellationToken token) =>
+        private Task<Result<Unit, StorageError>> UpsertSubscription(SubscriptionStorage subscription, CancellationToken token) =>
             tableClient.TryExecute<SubscriptionStorage>(client =>
                     client.UpsertEntityAsync(subscription, cancellationToken: token))
                 .WithOperationName(nameof(TvSubscriptionsStore))
@@ -37,7 +37,7 @@ public static class TvSubscriptionsStore
                 ])
                 .WithDefaultMap();
 
-        private Task<Result<Unit, DomainError>> RemoveSubscription(string user,
+        private Task<Result<Unit, StorageError>> RemoveSubscription(string user,
             string seriesId,
             CancellationToken token) =>
             tableClient.TryExecute<SubscriptionStorage>(client =>

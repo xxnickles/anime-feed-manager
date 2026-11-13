@@ -1,4 +1,5 @@
 ﻿global using System.Collections.Immutable;
+global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Features.Tests.Helpers;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;

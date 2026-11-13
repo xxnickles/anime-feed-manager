@@ -41,8 +41,9 @@ public static class ResultExtensionMembers
                 ? Continue<TTarget, TError, TStepError>(result.TraceContext, await binder(result.ResultValue!))
                 : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-        public Result<T, TError> BindWhen(Func<T, Result<T, TError>> binder, Func<T, bool> predicate) =>
-            result.Bind(v => predicate(v) ? binder(v) : Result<T, TError>.Success(v));
+        public Result<T, TError> BindWhen<TStepError>(Func<T, Result<T, TStepError>> binder, Func<T, bool> predicate)
+            where TStepError : TError =>
+            result.IsSuccess && predicate(result.ResultValue!) ? result.Bind(binder) : result;
 
         /// <summary>Runs <paramref name="binder"/> on failure; the trace contexts of both results are merged.</summary>
         public Result<T, TError> BindOnError(Func<TError, Result<T, TError>> binder)

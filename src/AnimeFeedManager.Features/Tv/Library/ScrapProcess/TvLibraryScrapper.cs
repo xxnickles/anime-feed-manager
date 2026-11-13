@@ -27,7 +27,7 @@ public static class TvLibraryScrapper
         CancellationToken token) =>
         selector switch
         {
-            Current => latestSeason(token).Bind(stored => stored switch
+            Current => latestSeason(token).MapError(error => (DomainError)error).Bind(stored => stored switch
             {
                 CurrentLatestSeason latest => AsSeriesSeason(latest.Season),
                 FallbackLatestSeason newest => AsSeriesSeason(newest.Season),

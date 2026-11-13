@@ -7,10 +7,10 @@ public static class OptimisticConcurrency
     /// any other outcome is returned as-is. Cancellation is the only escape from sustained contention.
     /// </summary>
     /// <remarks>Each attempt must re-read and re-derive its change; a decision carried over from a lost attempt is stale.</remarks>
-    public static async Task<Result<T, DomainError>> UntilWritten<T>(
-        Func<CancellationToken, Task<Result<T, DomainError>>> readModifyWrite,
+    public static async Task<Result<T, TError>> UntilWritten<T, TError>(
+        Func<CancellationToken, Task<Result<T, TError>>> readModifyWrite,
         CancellationToken token,
-        Func<DomainError, bool> retryWhen)
+        Func<TError, bool> retryWhen)
     {
         var retries = 0;
         while (true)

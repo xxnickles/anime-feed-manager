@@ -11,13 +11,13 @@ public static class LastSeasonsUpdate
         CancellationToken cancellationToken) =>
         result.Bind(r => r.SeasonData switch
         {
-            NoUpdateRequired => Task.FromResult(Result<SeasonUpdateData, DomainError>.Success(r)),
+            NoUpdateRequired => Task.FromResult(Result<SeasonUpdateData, StorageError>.Success(r)),
             _ => GetLast4Season(seasonsGetter, cancellationToken)
                 .Bind(s => StoreLatestSeason(latestSeasonUpdater, s, cancellationToken))
                 .Map(_ => r)
         });
 
-    private static Task<Result<IEnumerable<SeriesSeason>, DomainError>> GetLast4Season(AllSeasonsGetter seasonsGetter,
+    private static Task<Result<IEnumerable<SeriesSeason>, StorageError>> GetLast4Season(AllSeasonsGetter seasonsGetter,
         CancellationToken cancellationToken) =>
         seasonsGetter(cancellationToken)
             .Map(seasons => seasons
@@ -26,7 +26,7 @@ public static class LastSeasonsUpdate
                 .Take(4)
                 .Reverse());
 
-    private static Task<Result<Unit, DomainError>> StoreLatestSeason(
+    private static Task<Result<Unit, StorageError>> StoreLatestSeason(
         LastestSeasonsUpdater latestSeasonUpdater,
         IEnumerable<SeriesSeason> seasons,
         CancellationToken cancellationToken)

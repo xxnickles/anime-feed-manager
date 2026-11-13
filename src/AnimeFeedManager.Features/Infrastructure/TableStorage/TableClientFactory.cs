@@ -2,37 +2,24 @@
 
 public interface ITableClientFactory
 {
-    Result<TableClient, DomainError> GetClient<T>()  where T : ITableEntity;
+    Result<TableClient, StorageError> GetClient<T>() where T : ITableEntity;
 }
 
-public sealed class TableClientFactory : ITableClientFactory
+public sealed class TableClientFactory(TableServiceClient serviceClient) : ITableClientFactory
 {
-    private readonly TableServiceClient _serviceClient;
-    private readonly ILogger<TableClientFactory> _logger;
-
-    public TableClientFactory(TableServiceClient serviceClient, ILogger<TableClientFactory> logger)
-    {
-        _serviceClient = serviceClient;
-        _logger = logger;
-    }
-    
-    
-    public Result<TableClient, DomainError> GetClient<T>()  where T : ITableEntity
+    public Result<TableClient, StorageError> GetClient<T>() where T : ITableEntity
     {
         try
         {
-            var client = _serviceClient.GetTableClient(AzureTableName.GetTableName<T>());
-            return client;
+            return serviceClient.GetTableClient(AzureTableName.GetTableName<T>());
         }
-        catch (KeyNotFoundException ex)
+        catch (KeyNotFoundException e)
         {
-            _logger.LogError(ex, "Table name not found for entity type {table.entity_type}", typeof(T).FullName);
-            return HandledError.Create();
+            return new StorageError.TableNotConfigured(typeof(T), e);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred when creating a Table Client");
-            return HandledError.Create();
+            return new StorageError.RequestFailed("create table client", e);
         }
     }
 }

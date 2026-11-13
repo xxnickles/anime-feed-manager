@@ -1,12 +1,12 @@
 namespace AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
-public delegate Task<Result<Unit, DomainError>> TvLibraryStorageUpdater(IEnumerable<AnimeInfoStorage> series,
+public delegate Task<Result<Unit, StorageError>> TvLibraryStorageUpdater(IEnumerable<AnimeInfoStorage> series,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<Unit, DomainError>> TvSeriesStorageUpdater(AnimeInfoStorage series,
+public delegate Task<Result<Unit, StorageError>> TvSeriesStorageUpdater(AnimeInfoStorage series,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<Unit, DomainError>> TvSeriesRemover(string id, SeriesSeason season, CancellationToken token = default);
+public delegate Task<Result<Unit, StorageError>> TvSeriesRemover(string id, SeriesSeason season, CancellationToken token = default);
 
 public static class TvLibraryStore
 {
@@ -29,7 +29,7 @@ public static class TvLibraryStore
 
     extension(TableClient tableClient)
     {
-        private Task<Result<Unit, DomainError>> UpsertSeries(IEnumerable<AnimeInfoStorage> series,
+        private Task<Result<Unit, StorageError>> UpsertSeries(IEnumerable<AnimeInfoStorage> series,
             CancellationToken cancellationToken = default)
         {
             return tableClient.AddBatch(series, cancellationToken)
@@ -37,7 +37,7 @@ public static class TvLibraryStore
                 .WithLogProperty(TvLibraryTelemetry.SeriesCountTag, series.Count());
         }
 
-        private Task<Result<Unit, DomainError>> UpdateSeries(AnimeInfoStorage series,
+        private Task<Result<Unit, StorageError>> UpdateSeries(AnimeInfoStorage series,
             CancellationToken token) =>
             tableClient.TryExecute<AnimeInfoStorage>(client =>
                     client.UpdateEntityAsync(series, series.ETag, cancellationToken: token))
@@ -48,7 +48,7 @@ public static class TvLibraryStore
                     new KeyValuePair<string, object>(Telemetry.SeriesSeasonTag, series.PartitionKey ?? string.Empty)
                 ]);
 
-        private Task<Result<Unit, DomainError>> RemoveSeries(string id,
+        private Task<Result<Unit, StorageError>> RemoveSeries(string id,
             SeriesSeason season,
             CancellationToken token)
         {

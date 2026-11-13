@@ -10,7 +10,7 @@ internal static class TvStorageEnrichment
         CancellationToken token = default) =>
         data.Bind(d => AddExistentDataFromStorage(d, storedSeriesGetter, token));
 
-    private static Task<Result<ScrapTvLibraryData, DomainError>> AddExistentDataFromStorage(
+    private static Task<Result<ScrapTvLibraryData, StorageError>> AddExistentDataFromStorage(
         ScrapTvLibraryData scrapTvLibraryData,
         StoredSeriesGetter storedSeriesGetter,
         CancellationToken token = default)

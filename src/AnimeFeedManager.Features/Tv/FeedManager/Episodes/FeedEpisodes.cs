@@ -75,9 +75,9 @@ public static class FeedEpisodes
                         .Bind(binding => clientFactory.TableStorageNyaaBindingUpdater(
                             WithEpisodes(binding, p.Episodes), attemptToken)),
                     token,
-                    error => error is PreconditionFailedError)
+                    error => error is StorageError.Conflict)
                 .Map(_ => p with {Bound = true})
-                .BindOnErrorWhen(_ => p, error => error is NotFoundError));
+                .BindOnErrorWhen(_ => p, error => error is StorageError.NotFound));
 
         private Task<Result<EpisodesProcess, DomainError>> EvaluateCompletion(
             ITableClientFactory clientFactory,

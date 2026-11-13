@@ -1,6 +1,6 @@
 namespace AnimeFeedManager.Features.User.Authentication.Storage.Stores;
 
-public delegate Task<Result<Unit, DomainError>> UserUpdater(Email email, string userId, UserRole role,
+public delegate Task<Result<Unit, StorageError>> UserUpdater(Email email, string userId, UserRole role,
     CancellationToken cancellationToken = default);
 
 public static class UserStore
@@ -10,7 +10,7 @@ public static class UserStore
             clientFactory.GetClient<UserStorage>()
                 .Bind(client => client.UpsertUser(email, userId, role, cancellationToken));
 
-    private static Task<Result<Unit, DomainError>> UpsertUser(
+    private static Task<Result<Unit, StorageError>> UpsertUser(
         this TableClient tableClient,
         Email email,
         string userId,

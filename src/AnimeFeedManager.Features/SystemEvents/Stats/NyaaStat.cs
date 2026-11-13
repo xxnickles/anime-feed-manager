@@ -11,7 +11,7 @@ public sealed record NyaaStats(int Automatic, int Manual)
 public static class NyaaStat
 {
     /// <summary>Tracked bindings now, split by origin.</summary>
-    public static Task<Result<NyaaStats, DomainError>> Get(TrackedNyaaBindings trackedBindings, CancellationToken cancellationToken) =>
+    public static Task<Result<NyaaStats, StorageError>> Get(TrackedNyaaBindings trackedBindings, CancellationToken cancellationToken) =>
         trackedBindings(cancellationToken).Map(Summarize);
 
     internal static NyaaStats Summarize(ImmutableArray<NyaaBindingStorage> tracked) =>

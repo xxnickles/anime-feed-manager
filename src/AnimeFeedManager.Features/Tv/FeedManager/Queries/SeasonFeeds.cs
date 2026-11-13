@@ -37,6 +37,7 @@ public static class SeasonFeeds
         DateTimeOffset now,
         CancellationToken token) =>
         bindingsGetter(season, token)
+            .MapError(error => (DomainError)error)
             .Bind(bindings => Bound(bindings, catalogGetter, now, token))
             .Bind(bound => libraryGetter(season, publicBlobUri, token)
                 .Map(library => Ordered([..Unfed(library, bound), ..bound])))

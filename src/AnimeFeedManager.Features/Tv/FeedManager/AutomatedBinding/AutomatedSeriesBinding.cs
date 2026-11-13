@@ -105,7 +105,7 @@ public static class AutomatedSeriesBinding
                     .ToImmutableArray()));
 
     private static Task<Result<SeriesSeason, DomainError>> LatestSeason(LatestSeasonGetter seasonGetter, CancellationToken token) =>
-        seasonGetter(token).Bind(season => season switch
+        seasonGetter(token).MapError(error => (DomainError)error).Bind(season => season switch
         {
             CurrentLatestSeason latest => SeasonOf(latest.Season),
             FallbackLatestSeason newest => SeasonOf(newest.Season),

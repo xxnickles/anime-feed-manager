@@ -58,7 +58,7 @@ public class NyaaWindowTests
     [Fact]
     public async Task Should_Return_Null_When_No_Poll_Is_Stored()
     {
-        var result = await NyaaWindow.LastPoll(Getter(NotFoundError.Create("none")),
+        var result = await NyaaWindow.LastPoll(Getter(new StorageError.NotFound(typeof(NyaaPoll))),
             TestContext.Current.CancellationToken);
 
         result.AssertOnSuccess(at => Assert.Null(at));
@@ -67,7 +67,7 @@ public class NyaaWindowTests
     [Fact]
     public async Task Should_Fail_When_The_Stored_Poll_Cannot_Be_Read()
     {
-        var result = await NyaaWindow.LastPoll(Getter(Error.Create("unreadable")),
+        var result = await NyaaWindow.LastPoll(Getter(new StorageError.UnreadablePayload(typeof(NyaaPoll), null)),
             TestContext.Current.CancellationToken);
 
         result.AssertError();
@@ -120,7 +120,7 @@ public class NyaaWindowTests
 
     #region Test Helpers
 
-    private static LastNyaaPoll Getter(Result<NyaaPoll, DomainError> outcome) => _ => Task.FromResult(outcome);
+    private static LastNyaaPoll Getter(Result<NyaaPoll, StorageError> outcome) => _ => Task.FromResult(outcome);
 
     private static DelayedMessageSender Recording(ConcurrentBag<(string SeriesId, TimeSpan Delay)> sent) =>
         (message, delay, _) =>

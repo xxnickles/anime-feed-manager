@@ -10,7 +10,7 @@ public sealed record NotificationActivity(BarChart Chart, NotificationStats Stat
 public static class NotificationSentChart
 {
     // The chart and its period totals share one query: notifications span every user partition.
-    public static Task<Result<NotificationActivity, DomainError>> Get(
+    public static Task<Result<NotificationActivity, StorageError>> Get(
         SystemEventsBroadGetter<NotificationSent> eventGetter,
         DateTimeOffset from,
         DateTimeOffset to,

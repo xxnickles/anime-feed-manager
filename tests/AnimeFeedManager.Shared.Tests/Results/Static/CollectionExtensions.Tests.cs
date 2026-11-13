@@ -142,6 +142,25 @@ public class CollectionExtensionsTests
         Assert.True(failure.IsFailure);
     }
 
+    [Fact]
+    public void Should_Aggregate_Derived_Errors_When_Flattening_Results_Of_A_Narrower_Error_Type()
+    {
+        var results = new[]
+        {
+            Result<int, MissingEntry>.Success(1),
+            Result<int, MissingEntry>.Failure(new MissingEntry("key"))
+        };
+
+        var flattened = results.Flatten(values => values.Sum());
+
+        flattened.AssertOnSuccess(bulk =>
+        {
+            var partial = Assert.IsType<PartialSuccessBulkResult<int>>(bulk);
+            Assert.Equal(1, partial.Value);
+            Assert.IsType<MissingEntry>(Assert.Single(partial.Errors));
+        });
+    }
+
     #region Trace Context Tests
 
     [Fact]

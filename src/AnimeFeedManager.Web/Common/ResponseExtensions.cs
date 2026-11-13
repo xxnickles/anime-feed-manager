@@ -43,12 +43,12 @@ internal static class ResponseExtensions
     {
         return error switch
         {
-            NotFoundError => TypedResults.NotFound(),
+            NotFoundError or StorageError.NotFound => TypedResults.NotFound(),
             DomainValidationErrors validationErrors => TypedResults.ValidationProblem(
                 validationErrors.Errors.ToDictionary(e => e.Field, e => e.Errors),
                 detail: "One or more validation errors occurred",
                 title: "Validation Error"),
-            ExceptionError => TypedResults.Problem(
+            ExceptionError or StorageError.RequestFailed => TypedResults.Problem(
                 detail: "An internal server error occurred",
                 title: "Internal Server Error",
                 statusCode: 500,

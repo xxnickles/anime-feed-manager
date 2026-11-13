@@ -20,7 +20,7 @@ public class AutomatedBindingStatTests
     [Fact]
     public async Task Should_Return_No_Run_When_None_Is_Stored()
     {
-        var result = await AutomatedBindingStat.Get(Getter(NotFoundError.Create("no run")),
+        var result = await AutomatedBindingStat.Get(Getter(new StorageError.NotFound(typeof(AutomatedBindingCompleted))),
             TestContext.Current.CancellationToken);
 
         result.AssertOnSuccess(stat => Assert.IsType<NoAutomatedBinding>(stat));
@@ -29,7 +29,7 @@ public class AutomatedBindingStatTests
     [Fact]
     public async Task Should_Fail_When_The_Run_Cannot_Be_Read()
     {
-        var result = await AutomatedBindingStat.Get(Getter(Error.Create("unreadable")),
+        var result = await AutomatedBindingStat.Get(Getter(new StorageError.UnreadablePayload(typeof(AutomatedBindingCompleted), null)),
             TestContext.Current.CancellationToken);
 
         result.AssertError();
@@ -37,7 +37,7 @@ public class AutomatedBindingStatTests
 
     #region Test Helpers
 
-    private static LatestAutomatedBindingRun Getter(Result<AutomatedBindingCompleted, DomainError> outcome) =>
+    private static LatestAutomatedBindingRun Getter(Result<AutomatedBindingCompleted, StorageError> outcome) =>
         _ => Task.FromResult(outcome);
 
     #endregion

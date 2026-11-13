@@ -17,16 +17,16 @@ public class ReleaseListingQueryTests
     public async Task Should_Fail_Not_Found_When_Series_Is_Not_In_The_Library()
     {
         var result = await GetListing(
-            Task.FromResult(Result<TvSeries, DomainError>.Failure(NotFoundError.Create("missing"))),
+            Task.FromResult(Result<TvSeries, StorageError>.Failure(new StorageError.NotFound(typeof(TvSeries)))),
             Bound());
 
-        result.AssertOnError(error => Assert.IsType<NotFoundError>(error));
+        result.AssertOnError(error => Assert.IsType<StorageError.NotFound>(error));
     }
 
     [Fact]
     public async Task Should_Have_No_Release_Feed_When_Series_Has_No_Binding()
     {
-        var result = await GetListing(Found(MakeSeries()), Task.FromResult(Result<NyaaBindingStorage, DomainError>.Failure(NotFoundError.Create("unbound"))));
+        var result = await GetListing(Found(MakeSeries()), Task.FromResult(Result<NyaaBindingStorage, StorageError>.Failure(new StorageError.NotFound(typeof(NyaaBindingStorage)))));
 
         result.AssertOnSuccess(listing => Assert.IsType<NoReleaseFeed>(listing.Feed));
     }
@@ -34,7 +34,7 @@ public class ReleaseListingQueryTests
     [Fact]
     public async Task Should_Fail_When_Binding_Read_Fails_For_Another_Reason()
     {
-        var result = await GetListing(Found(MakeSeries()), Task.FromResult(Result<NyaaBindingStorage, DomainError>.Failure(Error.Create("storage down"))));
+        var result = await GetListing(Found(MakeSeries()), Task.FromResult(Result<NyaaBindingStorage, StorageError>.Failure(new StorageError.RequestFailed("test", new InvalidOperationException("storage down")))));
 
         result.AssertError();
     }
@@ -103,8 +103,8 @@ public class ReleaseListingQueryTests
     #region Test Helpers
 
     private static Task<Result<ReleaseListing, DomainError>> GetListing(
-        Task<Result<TvSeries, DomainError>> series,
-        Task<Result<NyaaBindingStorage, DomainError>> binding,
+        Task<Result<TvSeries, StorageError>> series,
+        Task<Result<NyaaBindingStorage, StorageError>> binding,
         ImmutableArray<NyaaCatalogStorage> catalog = default,
         string seriesId = SeriesId) =>
         ReleaseListingQuery.GetReleaseListing(
@@ -112,13 +112,13 @@ public class ReleaseListingQueryTests
             (_, _, _, _) => series,
             new Uri("https://blob.example.com"),
             (_, _, _) => binding,
-            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaCatalogStorage>, DomainError>.Success(catalog.IsDefault ? [] : catalog)),
+            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaCatalogStorage>, StorageError>.Success(catalog.IsDefault ? [] : catalog)),
             CancellationToken.None);
 
-    private static Task<Result<TvSeries, DomainError>> Found(TvSeries series) => Task.FromResult(Result<TvSeries, DomainError>.Success(series));
+    private static Task<Result<TvSeries, StorageError>> Found(TvSeries series) => Task.FromResult(Result<TvSeries, StorageError>.Success(series));
 
-    private static Task<Result<NyaaBindingStorage, DomainError>> Bound() =>
-        Task.FromResult(Result<NyaaBindingStorage, DomainError>.Success(new NyaaBindingStorage
+    private static Task<Result<NyaaBindingStorage, StorageError>> Bound() =>
+        Task.FromResult(Result<NyaaBindingStorage, StorageError>.Success(new NyaaBindingStorage
         {
             PartitionKey = "2026-fall",
             RowKey = SeriesId,

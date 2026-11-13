@@ -19,7 +19,7 @@ public static class ResultActivityExtensions
 
                 activity.SetStatus(ActivityStatusCode.Error,
                     string.IsNullOrEmpty(error.Message) ? null : error.Message);
-                activity.SetTag(Telemetry.ErrorTypeTag, error.GetType().Name);
+                activity.SetTag(Telemetry.ErrorTypeTag, ErrorTypeName(error.GetType()));
             });
     }
 
@@ -28,6 +28,10 @@ public static class ResultActivityExtensions
         public async Task<Result<T, TError>> MarkActivityErroredOnError() =>
             (await resultTask).MarkActivityErroredOnError();
     }
+
+    // A leaf nested in its family keeps the family in the name: StorageError.NotFound, not NotFound.
+    private static string ErrorTypeName(Type type) =>
+        type.DeclaringType is { } family ? $"{family.Name}.{type.Name}" : type.Name;
 
     private static bool IsSpanError(DomainError error) =>
         error is not (Warning or DomainValidationErrors or FormDataValidationError);

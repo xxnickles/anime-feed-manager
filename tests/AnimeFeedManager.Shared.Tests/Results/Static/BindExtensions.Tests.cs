@@ -205,4 +205,44 @@ public class BindExtensionsTests
     }
 
     #endregion
+
+    #region Covariant BindWhen
+
+    [Fact]
+    public void Should_Widen_BindWhen_Step_Failure_When_Step_Error_Derives_From_Chain_Error()
+    {
+        Result<int, DomainError> result = Result<int, DomainError>.Success(1)
+            .BindWhen(_ => Result<int, MissingEntry>.Failure(new MissingEntry("key")), _ => true);
+
+        result.AssertOnError(error => Assert.IsType<MissingEntry>(error));
+    }
+
+    [Fact]
+    public async Task Should_Widen_BindWhen_Step_Failure_When_Binding_On_A_Task_Result()
+    {
+        Result<int, DomainError> result = await Task.FromResult(Result<int, DomainError>.Success(1))
+            .BindWhen(_ => Task.FromResult(Result<int, MissingEntry>.Failure(new MissingEntry("key"))), _ => true);
+
+        result.AssertOnError(error => Assert.IsType<MissingEntry>(error));
+    }
+
+    [Fact]
+    public async Task Should_Map_Without_Binding_When_Task_BindWhen_Predicate_Is_False()
+    {
+        var binderCalled = false;
+
+        var result = await Task.FromResult(Result<int, DomainError>.Success(3))
+            .BindWhen(x =>
+                {
+                    binderCalled = true;
+                    return Task.FromResult(Result<int, MissingEntry>.Success(x));
+                },
+                x => x.ToString(),
+                _ => false);
+
+        Assert.False(binderCalled);
+        result.AssertOnSuccess(value => Assert.Equal("3", value));
+    }
+
+    #endregion
 }

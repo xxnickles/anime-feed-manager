@@ -1,11 +1,11 @@
 namespace AnimeFeedManager.Features.Seasons.Storage.Stores;
 
-public delegate Task<Result<Unit, DomainError>> SeasonUpdater(SeasonStorage seasonStorage, CancellationToken token = default);
+public delegate Task<Result<Unit, StorageError>> SeasonUpdater(SeasonStorage seasonStorage, CancellationToken token = default);
 
-public delegate Task<Result<Unit, DomainError>> LastestSeasonsUpdater(LatestSeasonsStorage seasonsStorage,
+public delegate Task<Result<Unit, StorageError>> LastestSeasonsUpdater(LatestSeasonsStorage seasonsStorage,
     CancellationToken token = default);
 
-public delegate Task<Result<Unit, DomainError>> SeasonRemover(string partition, string id, CancellationToken token = default);
+public delegate Task<Result<Unit, StorageError>> SeasonRemover(string partition, string id, CancellationToken token = default);
 
 public static class SeasonStore
 {
@@ -27,7 +27,7 @@ public static class SeasonStore
 
     extension(TableClient tableClient)
     {
-        private Task<Result<Unit, DomainError>> UpsertSeason(SeasonStorage seasonStorage,
+        private Task<Result<Unit, StorageError>> UpsertSeason(SeasonStorage seasonStorage,
             CancellationToken token = default)
         {
             return tableClient
@@ -37,7 +37,7 @@ public static class SeasonStore
                 .WithDefaultMap();
         }
 
-        private Task<Result<Unit, DomainError>> UpsertLatestSeasons(LatestSeasonsStorage latestSeasonsStorage,
+        private Task<Result<Unit, StorageError>> UpsertLatestSeasons(LatestSeasonsStorage latestSeasonsStorage,
             CancellationToken token = default)
         {
             return tableClient
@@ -47,7 +47,7 @@ public static class SeasonStore
                 .WithDefaultMap();
         }
 
-        private Task<Result<Unit, DomainError>> RemoveSeason(string partitionKey, string rowKey, CancellationToken token = default)
+        private Task<Result<Unit, StorageError>> RemoveSeason(string partitionKey, string rowKey, CancellationToken token = default)
         {
             return tableClient
                 .TryExecute<SeasonStorage>(client =>

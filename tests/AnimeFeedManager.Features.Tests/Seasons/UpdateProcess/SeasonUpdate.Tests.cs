@@ -14,7 +14,7 @@ public class SeasonUpdateTests
 
         var seasonGetter = Substitute.For<SeasonGetter>();
         seasonGetter(season, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, DomainError>>(new NoUpdateRequired()));
+            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoUpdateRequired()));
 
         var latestGetter = Substitute.For<LatestSeasonGetter>();
         // Should not be called due to predicate
@@ -44,12 +44,12 @@ public class SeasonUpdateTests
 
         var seasonGetter = Substitute.For<SeasonGetter>();
         seasonGetter(season, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, DomainError>>(new NoMatch()));
+            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoMatch()));
 
         var latestGetter = Substitute.For<LatestSeasonGetter>();
         // Predicate WhenNewIsNotLatest will call this (CurrentLatestSeasonData initially NoMatch)
         latestGetter(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, DomainError>>(new CurrentLatestSeason(new SeasonStorage
+            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new CurrentLatestSeason(new SeasonStorage
             {
                 PartitionKey = SeasonStorage.SeasonPartition,
                 RowKey = "latest-2025",
@@ -60,7 +60,7 @@ public class SeasonUpdateTests
 
         var seasonUpdater = Substitute.For<SeasonUpdater>();
         seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
-            .Returns(_ => Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
+            .Returns(_ => Task.FromResult(Result<Unit, StorageError>.Success(new Unit())));
 
         var token = CancellationToken.None;
         var result = await SeasonUpdate
@@ -96,11 +96,11 @@ public class SeasonUpdateTests
 
         var seasonGetter = Substitute.For<SeasonGetter>();
         seasonGetter(season, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, DomainError>>(new ExistentSeason(existingStorage)));
+            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new ExistentSeason(existingStorage)));
 
         var seasonUpdater = Substitute.For<SeasonUpdater>();
         seasonUpdater(existingStorage, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, StorageError>.Success(new Unit())));
 
         var token = CancellationToken.None;
         var result = await SeasonUpdate
@@ -121,7 +121,7 @@ public class SeasonUpdateTests
         var seasonGetter = Substitute.For<SeasonGetter>();
         // Incoming is latest but not present -> NoMatch, then CreateNewSeason -> ReplaceLatestSeason
         seasonGetter(incoming, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, DomainError>>(new NoMatch()));
+            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoMatch()));
 
         var currentLatest = new SeasonStorage
         {
@@ -134,11 +134,11 @@ public class SeasonUpdateTests
 
         var latestGetter = Substitute.For<LatestSeasonGetter>();
         latestGetter(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, DomainError>>(new CurrentLatestSeason(currentLatest)));
+            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new CurrentLatestSeason(currentLatest)));
 
         var seasonUpdater = Substitute.For<SeasonUpdater>();
         seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, StorageError>.Success(new Unit())));
 
         var token = CancellationToken.None;
         var result = await SeasonUpdate
@@ -165,16 +165,16 @@ public class SeasonUpdateTests
 
         var seasonGetter = Substitute.For<SeasonGetter>();
         seasonGetter(incoming, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, DomainError>>(new NoMatch()));
+            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoMatch()));
 
         var latestGetter = Substitute.For<LatestSeasonGetter>();
         // No current latest in storage
         latestGetter(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, DomainError>>(new NoMatch()));
+            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoMatch()));
 
         var seasonUpdater = Substitute.For<SeasonUpdater>();
         seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit, DomainError>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, StorageError>.Success(new Unit())));
         var token = CancellationToken.None;
         var result = await SeasonUpdate
             .CheckSeasonExist(seasonGetter, incoming, token)

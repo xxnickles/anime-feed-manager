@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Shared.Results.Static;
 
 public static class ResultCollectionExtensionMembers
 {
-    extension<T>(IEnumerable<Result<T, DomainError>> results)
+    extension<T, TError>(IEnumerable<Result<T, TError>> results) where TError : DomainError
     {
         /// <summary>
         /// <see cref="CompletedBulkResult{T}"/> when all succeed, <see cref="PartialSuccessBulkResult{T}"/> when some fail,
@@ -36,7 +36,7 @@ public static class ResultCollectionExtensionMembers
         }
     }
 
-    extension<T>(Task<IEnumerable<Result<T, DomainError>>> results)
+    extension<T, TError>(Task<IEnumerable<Result<T, TError>>> results) where TError : DomainError
     {
         public async Task<Result<BulkResult<TTarget>, DomainError>> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
         {

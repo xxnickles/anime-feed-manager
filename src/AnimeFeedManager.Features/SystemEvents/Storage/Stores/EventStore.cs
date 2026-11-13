@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.SystemEvents.Storage.Stores;
 
-public delegate Task<Result<Unit, DomainError>> EventUpdater(EventStorage systemEvent,
+public delegate Task<Result<Unit, StorageError>> EventUpdater(EventStorage systemEvent,
     CancellationToken cancellationToken = default);
 
 public static class EventStore
@@ -10,7 +10,7 @@ public static class EventStore
             .Bind(client => client.UpsertEvent(systemEvent, cancellationToken));
     
     
-    private static Task<Result<Unit, DomainError>> UpsertEvent(
+    private static Task<Result<Unit, StorageError>> UpsertEvent(
         this TableClient tableClient,
         EventStorage systemEvent,
         CancellationToken cancellationToken = default)

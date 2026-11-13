@@ -1,12 +1,12 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
-public delegate Task<Result<ImmutableArray<SubscriptionStorage>, DomainError>> TvSubscriptions(string userId,
+public delegate Task<Result<ImmutableArray<SubscriptionStorage>, StorageError>> TvSubscriptions(string userId,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<SubscriptionStorage?, DomainError>> TvSubscriptionGetter(string userId, string seriesId,
+public delegate Task<Result<SubscriptionStorage?, StorageError>> TvSubscriptionGetter(string userId, string seriesId,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<SubscriptionStorage>, DomainError>> TvInterestedBySeries(string seriesId,
+public delegate Task<Result<ImmutableArray<SubscriptionStorage>, StorageError>> TvInterestedBySeries(string seriesId,
     CancellationToken cancellationToken = default);
 
 /// <summary>
@@ -51,9 +51,10 @@ public static class ExistentSubscriptions
                 .WithOperationName("TableStorageTvActiveSubscribers")
                 .Bind(client =>
                     client.ExecuteQuery<SubscriptionStorage>(
-                            storage => storage.Type == nameof(SubscriptionType.Subscribed),
-                            token)
-                        .Bind(subscriptions => ToUserActiveSubscriptions(subscriptions, titles)));
+                        storage => storage.Type == nameof(SubscriptionType.Subscribed),
+                        token))
+                .MapError(error => (DomainError)error)
+                .Bind(subscriptions => ToUserActiveSubscriptions(subscriptions, titles));
     }
 
     internal static Result<UserActiveSubscriptions[], DomainError> ToUserActiveSubscriptions(

@@ -109,7 +109,7 @@ else
                 },
                 error =>
                 {
-                    _error = error is NotFoundError
+                    _error = error is StorageError.NotFound
                         ? $"Series '{SeriesId}' was not found."
                         : "The series could not be loaded.";
                 });

@@ -112,7 +112,7 @@ public class ScrapStepsTests
 
         var storedSeriesGetter = Substitute.For<StoredSeriesGetter>();
         storedSeriesGetter(season, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>, DomainError>.Success(stored)));
+            .Returns(Task.FromResult(Result<ImmutableArray<TvSeriesInfo>, StorageError>.Success(stored)));
 
         return Task.FromResult(Result<ScrapTvLibraryData, DomainError>.Success(new ScrapTvLibraryData([imported], season)))
             .AddDataFromStorage(storedSeriesGetter, CancellationToken.None);

@@ -13,6 +13,7 @@ public static class Subscription
         TvSubscriptionGetter subscriptionGetterGetter,
         CancellationToken token) =>
         subscriptionGetterGetter(user.UserId, seriesId, token)
+            .MapError(error => (DomainError)error)
             .WithOperationName(nameof(VerifyStorage))
             .WithLogProperties([
                 new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId),
@@ -49,7 +50,7 @@ public static class Subscription
         }
     };
 
-    private static Task<Result<SubscriptionType, DomainError>> ToggleSubscription(
+    private static Task<Result<SubscriptionType, StorageError>> ToggleSubscription(
         SubscriptionStorage storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,

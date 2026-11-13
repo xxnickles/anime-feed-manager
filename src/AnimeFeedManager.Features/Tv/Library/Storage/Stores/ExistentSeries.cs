@@ -28,27 +28,27 @@ public sealed record TvSeries(
     ExpectedEpisodes Episodes,
     BroadcastHint Broadcast);
 
-public delegate Task<Result<ImmutableArray<TvSeriesInfo>, DomainError>> StoredSeriesGetter(SeriesSeason season,
+public delegate Task<Result<ImmutableArray<TvSeriesInfo>, StorageError>> StoredSeriesGetter(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<AnimeInfoStorage>, DomainError>> RawStoredSeries(SeriesSeason season,
+public delegate Task<Result<ImmutableArray<AnimeInfoStorage>, StorageError>> RawStoredSeries(SeriesSeason season,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<AnimeInfoStorage>, DomainError>> OnGoingStoredTvSeries(
+public delegate Task<Result<ImmutableArray<AnimeInfoStorage>, StorageError>> OnGoingStoredTvSeries(
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<TvSeries>, DomainError>> TvLibrary(
+public delegate Task<Result<ImmutableArray<TvSeries>, StorageError>> TvLibrary(
     SeriesSeason season,
     Uri publicBlobUri,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<TvSeries, DomainError>> TvLibrarySeries(
+public delegate Task<Result<TvSeries, StorageError>> TvLibrarySeries(
     string id,
     SeriesSeason season,
     Uri publicBlobUri,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<AnimeInfoStorage, DomainError>> TvSeriesGetter(string id, SeriesSeason season,
+public delegate Task<Result<AnimeInfoStorage, StorageError>> TvSeriesGetter(string id, SeriesSeason season,
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeries
@@ -99,7 +99,7 @@ public static class ExistentSeries
     }
 
 
-    private static Task<Result<ImmutableArray<AnimeInfoStorage>, DomainError>> GetStoredSeries(
+    private static Task<Result<ImmutableArray<AnimeInfoStorage>, StorageError>> GetStoredSeries(
         this TableClient tableClient,
         SeriesSeason season,
         CancellationToken cancellationToken = default)
@@ -157,7 +157,7 @@ public static class ExistentSeries
                 (SeriesStatus) entity.Status,
                 entity.ImagePath ?? string.Empty);
 
-    private static Task<Result<AnimeInfoStorage, DomainError>> GetAnimeInfo(
+    private static Task<Result<AnimeInfoStorage, StorageError>> GetAnimeInfo(
         this TableClient tableClient,
         string id,
         SeriesSeason season,

@@ -48,7 +48,7 @@ public static class BindSeries
             Premiere = series.Date is { } date ? new DateTimeOffset(DateTime.SpecifyKind(date, DateTimeKind.Utc)) : null
         };
 
-    private static Task<Result<BoundSeries, DomainError>> FeedLibrarySeries(
+    private static Task<Result<BoundSeries, StorageError>> FeedLibrarySeries(
         BindNyaaSeries request,
         SeriesSeason season,
         TvSeriesGetter seriesGetter,
@@ -59,7 +59,7 @@ public static class BindSeries
                 .Map(series => FeedFromBinding(series, request))
                 .Bind(fed => seriesUpdater(fed.Series, attemptToken).Map(_ => fed.Bound)),
             token,
-            error => error is PreconditionFailedError);
+            error => error is StorageError.Conflict);
 
     private static (AnimeInfoStorage Series, BoundSeries Bound) FeedFromBinding(AnimeInfoStorage series,
         BindNyaaSeries request)

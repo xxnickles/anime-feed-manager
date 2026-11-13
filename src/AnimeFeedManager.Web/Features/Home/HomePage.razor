@@ -26,6 +26,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeason, CancellationToken.None)
+            .MapError(error => (DomainError)error)
             .Bind(season => season switch
             {
                 CurrentLatestSeason currentLatestSeason => ParseSeason(currentLatestSeason.Season),

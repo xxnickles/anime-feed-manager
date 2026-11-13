@@ -13,12 +13,13 @@ public static class NotificationProcess
         CancellationToken token)
     {
         return UpdateUserSubscription(updateNotification, updater, token)
+            .MapError(error => (DomainError)error)
             .Map(_ => ToUserNotificationResult(updateNotification))
             .Bind(results => SendNotifications(domainPostman, results))
             .Summarize();
     }
 
-    private static Task<Result<Unit, DomainError>> UpdateUserSubscription(
+    private static Task<Result<Unit, StorageError>> UpdateUserSubscription(
         FeedNotification updateNotification,
         TvSubscriptionsUpdater updater,
         CancellationToken token)

@@ -36,6 +36,7 @@ public class OnSystemEvent
         return await SystemEventUpdate.StartProcess(message)
             .StoreEvent(_tableClientFactory.TableStorageEventUpdater(), cancellationToken)
             .PrepareUiNotification()
+            .MapError(error => (DomainError)error)
             .Bind(result =>
             {
                 var audience = LiveAudience.From(result.Event.Consumer);

@@ -6,10 +6,10 @@ namespace AnimeFeedManager.Features.Tv.FeedManager.Collection;
 public static class NyaaWindow
 {
     /// <summary>The last stamped poll time; null before the first stamped run.</summary>
-    public static Task<Result<DateTimeOffset?, DomainError>> LastPoll(LastNyaaPoll pollGetter, CancellationToken token) =>
+    public static Task<Result<DateTimeOffset?, StorageError>> LastPoll(LastNyaaPoll pollGetter, CancellationToken token) =>
         pollGetter(token)
             .Map(DateTimeOffset? (poll) => poll.At)
-            .BindOnErrorWhen(_ => Result<DateTimeOffset?, DomainError>.Success(null), error => error is NotFoundError);
+            .BindOnErrorWhen(_ => Result<DateTimeOffset?, StorageError>.Success(null), error => error is StorageError.NotFound);
 
     /// <summary>Releases may have fallen out of the 75-item window: the oldest polled one is newer than the last poll. No stored poll is no gap.</summary>
     internal static bool HasGap(DateTimeOffset? lastPoll, DateTimeOffset? oldestPolled) =>

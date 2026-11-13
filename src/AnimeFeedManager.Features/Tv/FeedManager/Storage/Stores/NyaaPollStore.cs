@@ -1,9 +1,9 @@
 namespace AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
-public delegate Task<Result<Unit, DomainError>> NyaaPollUpdater(NyaaPoll poll, CancellationToken token = default);
+public delegate Task<Result<Unit, StorageError>> NyaaPollUpdater(NyaaPoll poll, CancellationToken token = default);
 
-/// <summary>Fails with <see cref="NotFoundError"/> before the first stamped run.</summary>
-public delegate Task<Result<NyaaPoll, DomainError>> LastNyaaPoll(CancellationToken token = default);
+/// <summary>Fails with <see cref="StorageError.NotFound"/> before the first stamped run.</summary>
+public delegate Task<Result<NyaaPoll, StorageError>> LastNyaaPoll(CancellationToken token = default);
 
 public static class NyaaPollStore
 {
@@ -20,7 +20,7 @@ public static class NyaaPollStore
 
     extension(TableClient tableClient)
     {
-        private Task<Result<Unit, DomainError>> UpsertPoll(NyaaPoll poll, CancellationToken token) =>
+        private Task<Result<Unit, StorageError>> UpsertPoll(NyaaPoll poll, CancellationToken token) =>
             tableClient.TryExecute<NyaaPollStorage>(client => client.UpsertEntityAsync(
                     new NyaaPollStorage
                     {
@@ -29,7 +29,7 @@ public static class NyaaPollStore
                 .WithDefaultMap()
                 .WithOperationName(nameof(UpsertPoll));
 
-        private Task<Result<NyaaPoll, DomainError>> GetPoll(CancellationToken token) =>
+        private Task<Result<NyaaPoll, StorageError>> GetPoll(CancellationToken token) =>
             tableClient.TryExecute<NyaaPollStorage>(client =>
                     client.GetEntityAsync<NyaaPollStorage>(NyaaPollStorage.Partition, NyaaPollStorage.Key,
                         cancellationToken: token))
@@ -37,17 +37,17 @@ public static class NyaaPollStore
                 .WithOperationName(nameof(GetPoll));
     }
 
-    private static Result<NyaaPoll, DomainError> Deserialize(string? payload)
+    private static Result<NyaaPoll, StorageError> Deserialize(string? payload)
     {
         try
         {
             return JsonSerializer.Deserialize(payload ?? string.Empty, TvJsonContext.Default.NyaaPoll) is { } poll
                 ? poll
-                : Error.Create("The last nyaa poll has no payload");
+                : new StorageError.UnreadablePayload(typeof(NyaaPoll), null);
         }
         catch (JsonException e)
         {
-            return ExceptionError.FromExceptionWithMessage(e, "The last nyaa poll is unreadable");
+            return new StorageError.UnreadablePayload(typeof(NyaaPoll), e);
         }
     }
 }

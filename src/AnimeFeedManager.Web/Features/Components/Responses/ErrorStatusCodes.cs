@@ -7,7 +7,7 @@ internal static class ErrorStatusCodes
     // Mapped as error types reach the client; anything unmapped is a 500.
     internal static int ToStatusCode(this DomainError error) => error switch
     {
-        NotFoundError => StatusCodes.Status404NotFound,
+        NotFoundError or StorageError.NotFound => StatusCodes.Status404NotFound,
         DomainValidationErrors or FormDataValidationError => StatusCodes.Status422UnprocessableEntity,
         // Upstream 4xx is the caller's problem (e.g. an invalid token); anything else is Passwordless failing.
         PasswordlessError { ProblemDetails.Status: >= 400 and < 500 } passwordless => passwordless.ProblemDetails.Status,

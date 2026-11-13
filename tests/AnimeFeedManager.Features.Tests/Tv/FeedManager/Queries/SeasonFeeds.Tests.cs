@@ -55,9 +55,9 @@ public class SeasonFeedsTests
         SeasonFeeds.GetSeasonFeeds(
             Fall,
             new Uri("https://blob.example.com"),
-            (_, _, _) => Task.FromResult(Result<ImmutableArray<TvSeries>, DomainError>.Success(library)),
-            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaBindingStorage>, DomainError>.Success(bindings)),
-            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaCatalogStorage>, DomainError>.Success([])),
+            (_, _, _) => Task.FromResult(Result<ImmutableArray<TvSeries>, StorageError>.Success(library)),
+            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaBindingStorage>, StorageError>.Success(bindings)),
+            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaCatalogStorage>, StorageError>.Success([])),
             Now,
             CancellationToken.None);
 
