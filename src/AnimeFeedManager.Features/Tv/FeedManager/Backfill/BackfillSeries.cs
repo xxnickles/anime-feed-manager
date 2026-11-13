@@ -48,6 +48,7 @@ public static class BackfillSeries
     {
         private Task<Result<BackfillProcess, DomainError>> Search(INyaaClient nyaaClient, CancellationToken token) =>
             process.Bind(p => nyaaClient.Fetch(NyaaBindingQuery.For(p.Binding), token)
+                .MapError(error => (DomainError)error)
                 .Bind(document => Match(p, document)));
 
         private Task<Result<BackfillProcess, DomainError>> StoreReleases(NyaaCatalogUpdater catalogUpdater,

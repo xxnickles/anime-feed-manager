@@ -32,6 +32,7 @@ public static class ReleaseSearch
         INyaaClient nyaaClient,
         CancellationToken token) =>
         nyaaClient.Fetch(Query(terms, trustedOnly), token)
+            .MapError(error => (DomainError)error)
             .Bind(document => ToResults(document, binding))
             .WithOperationName(nameof(Search));
 

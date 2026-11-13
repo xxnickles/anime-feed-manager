@@ -11,7 +11,7 @@ internal static partial class AnimeScheduleTvScrapper
     private const string NoSynopsis = "No synopsis available.";
     private const string ImageBaseUrl = "https://img.animeschedule.net/production/assets/public/img/";
 
-    internal static Task<Result<ScrapTvLibraryData, DomainError>> ScrapSeries(
+    internal static Task<Result<ScrapTvLibraryData, ScrapeError>> ScrapSeries(
         IAnimeScheduleClient client,
         SeriesSeason season,
         CancellationToken token) =>

@@ -21,11 +21,12 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
 
     public Task<Result<ImmutableArray<ScheduledShow>, DomainError>> Fetch(CancellationToken token = default) =>
         FetchSchedule(token)
+            .MapError(error => (DomainError)error)
             .Bind(ToShows)
             .WithOperationName(nameof(Fetch))
             .WithLogProperty(ScrappingTelemetry.QueryTag, Request);
 
-    private async Task<Result<SubsPleaseScheduleResponse, DomainError>> FetchSchedule(CancellationToken token)
+    private async Task<Result<SubsPleaseScheduleResponse, ScrapeError>> FetchSchedule(CancellationToken token)
     {
         try
         {
@@ -34,13 +35,13 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromExceptionWithMessage(e, $"Request failed for {Request}");
+            return new ScrapeError.RequestFailed(Request, e);
         }
     }
 
     // The body decides, not Content-Type (the JSON is served as text/html) or the status
     // (a challenge page can arrive as a 200 or as an error).
-    private static async Task<Result<SubsPleaseScheduleResponse, DomainError>> Parse(HttpResponseMessage response,
+    private static async Task<Result<SubsPleaseScheduleResponse, ScrapeError>> Parse(HttpResponseMessage response,
         CancellationToken token)
     {
         try
@@ -53,11 +54,11 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
 
             return payload is not null
                 ? payload
-                : Error.Create($"No usable payload for {Request}");
+                : new ScrapeError.UnusablePayload(Request);
         }
         catch (JsonException)
         {
-            return ScheduleUnavailableError.Create(Request, response.StatusCode);
+            return new ScrapeError.SourceUnavailable(Request, response.StatusCode);
         }
     }
 

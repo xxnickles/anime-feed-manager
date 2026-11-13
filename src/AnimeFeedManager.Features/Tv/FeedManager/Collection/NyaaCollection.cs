@@ -99,7 +99,9 @@ public static class NyaaCollection
 
     private static Task<Result<CollectionProcess, DomainError>> Poll(CollectionProcess process, INyaaClient nyaaClient,
         CancellationToken token) =>
-        nyaaClient.Fetch(PollQuery, token).Bind(document => MatchReleases(process, document));
+        nyaaClient.Fetch(PollQuery, token)
+            .MapError(error => (DomainError)error)
+            .Bind(document => MatchReleases(process, document));
 
     private static Result<CollectionProcess, DomainError> MatchReleases(CollectionProcess process, XDocument document) =>
         NyaaFeed.Parse(document)

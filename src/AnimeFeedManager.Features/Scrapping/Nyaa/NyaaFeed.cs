@@ -35,7 +35,7 @@ public static class NyaaFeed
             ? channel.Elements("item")
                 .Select(ParseItem)
                 .Flatten(items => items.ToImmutableArray())
-            : Error.Create("Nyaa response is not an RSS feed");
+            : new ScrapeError.UnusablePayload("Nyaa RSS feed");
 
     private static Result<NyaaItem, DomainError> ParseItem(XElement item) =>
         Required(item, "title")

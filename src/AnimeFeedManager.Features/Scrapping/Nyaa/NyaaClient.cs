@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Scrapping.Nyaa;
 
 public interface INyaaClient
 {
-    Task<Result<XDocument, DomainError>> Fetch(NyaaQuery query, CancellationToken token = default);
+    Task<Result<XDocument, ScrapeError>> Fetch(NyaaQuery query, CancellationToken token = default);
 }
 
 internal sealed class NyaaClient : INyaaClient
@@ -24,7 +24,7 @@ internal sealed class NyaaClient : INyaaClient
         _httpClient = httpClient;
     }
 
-    public Task<Result<XDocument, DomainError>> Fetch(NyaaQuery query, CancellationToken token = default)
+    public Task<Result<XDocument, ScrapeError>> Fetch(NyaaQuery query, CancellationToken token = default)
     {
         var request = query.Build();
         return FetchFeed(request, token)
@@ -32,7 +32,7 @@ internal sealed class NyaaClient : INyaaClient
             .WithLogProperty(ScrappingTelemetry.QueryTag, request);
     }
 
-    private async Task<Result<XDocument, DomainError>> FetchFeed(string request, CancellationToken token)
+    private async Task<Result<XDocument, ScrapeError>> FetchFeed(string request, CancellationToken token)
     {
         try
         {
@@ -40,7 +40,7 @@ internal sealed class NyaaClient : INyaaClient
 
             // Checked before the status: the challenge page can arrive as a 200 or as an error.
             if (response.Content.Headers.ContentType?.MediaType is "text/html")
-                return NyaaChallengeError.Create(request, response.StatusCode);
+                return new ScrapeError.Challenged(request, response.StatusCode);
 
             response.EnsureSuccessStatusCode();
 
@@ -50,7 +50,7 @@ internal sealed class NyaaClient : INyaaClient
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromExceptionWithMessage(e, $"Request failed for {request}");
+            return new ScrapeError.RequestFailed(request, e);
         }
     }
 }

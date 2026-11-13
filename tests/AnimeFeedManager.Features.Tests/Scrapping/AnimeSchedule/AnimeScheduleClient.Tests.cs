@@ -1,3 +1,4 @@
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -71,7 +72,19 @@ public class AnimeScheduleClientTests : IDisposable
 
         var result = await CreateClient().GetSeason(2026, "summer", CancellationToken.None);
 
-        result.AssertError();
+        result.AssertOnError(error => Assert.IsType<ScrapeError.RequestFailed>(error));
+    }
+
+    [Fact]
+    public async Task GetSeason_LaterPageRateLimited_FailsWithRateLimited()
+    {
+        StubSeasonPage("summer", 2026, 1, PageSize * 2 + 1, Entry("a", "Page1"));
+        StubStatusSeasonPage("summer", 2026, 2, 429);
+        StubSeasonPage("summer", 2026, 3, PageSize * 2 + 1, Entry("c", "Page3"));
+
+        var result = await CreateClient().GetSeason(2026, "summer", CancellationToken.None);
+
+        result.AssertOnError(error => Assert.Equal(new ScrapeError.RateLimited("anime?seasons=summer&years=2026", 2), error));
     }
 
     [Fact]
@@ -120,13 +133,16 @@ public class AnimeScheduleClientTests : IDisposable
                 .WithBody(Payload(page, totalAmount, entries)));
 
     private void StubFailedSeasonPage(string season, int year, int page) =>
+        StubStatusSeasonPage(season, year, page, 500);
+
+    private void StubStatusSeasonPage(string season, int year, int page, int status) =>
         _server
             .Given(Request.Create().WithPath("/anime")
                 .WithParam("seasons", season)
                 .WithParam("years", year.ToString())
                 .WithParam("page", page.ToString())
                 .UsingGet())
-            .RespondWith(Response.Create().WithStatusCode(500));
+            .RespondWith(Response.Create().WithStatusCode(status));
 
     private static string Payload(int page, int totalAmount, params string[] entries) =>
         $$"""

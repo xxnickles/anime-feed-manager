@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 
 public interface IAnimeScheduleClient
 {
-    Task<Result<ImmutableArray<AnimeScheduleAnime>, DomainError>> GetSeason(int year, string season,
+    Task<Result<ImmutableArray<AnimeScheduleAnime>, ScrapeError>> GetSeason(int year, string season,
         CancellationToken token = default);
 }
 
@@ -21,14 +21,14 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
     }
 
     /// <param name="season">Canonical lowercase name (winter/spring/summer/fall). The API rejects "autumn".</param>
-    public Task<Result<ImmutableArray<AnimeScheduleAnime>, DomainError>> GetSeason(int year, string season,
+    public Task<Result<ImmutableArray<AnimeScheduleAnime>, ScrapeError>> GetSeason(int year, string season,
         CancellationToken token = default) =>
         FetchAllPages($"anime?seasons={season}&years={year}", token);
 
     // Page 1 is terminal on failure — without it there is no page count to walk. Later pages are
     // gathered as a bulk result, so a failed page is skipped and reported rather than discarding
     // everything already collected. A 429 is the exception: terminal wherever it lands.
-    private Task<Result<ImmutableArray<AnimeScheduleAnime>, DomainError>> FetchAllPages(string query, CancellationToken token) =>
+    private Task<Result<ImmutableArray<AnimeScheduleAnime>, ScrapeError>> FetchAllPages(string query, CancellationToken token) =>
         FetchPage(query, 1, token)
             .WithOperationName(nameof(FetchAllPages))
             .WithLogProperty(ScrappingTelemetry.QueryTag, query)
@@ -37,15 +37,15 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
     /// <summary>Pages gathered so far, alongside the ones that failed and were skipped.</summary>
     private readonly record struct Walk(
         ImmutableArray<AnimeScheduleResponse> Pages,
-        ImmutableArray<DomainError> Skipped);
+        ImmutableArray<ScrapeError> Skipped);
 
-    private async Task<Result<ImmutableArray<AnimeScheduleAnime>, DomainError>> FetchRemainingPages(
+    private async Task<Result<ImmutableArray<AnimeScheduleAnime>, ScrapeError>> FetchRemainingPages(
         string query,
         AnimeScheduleResponse firstPage,
         CancellationToken token)
     {
         var lastPage = (int) Math.Ceiling(firstPage.TotalAmount / (double) PageSize);
-        var walk = Result<Walk, DomainError>.Success(new Walk([firstPage], []));
+        var walk = Result<Walk, ScrapeError>.Success(new Walk([firstPage], []));
 
         // Sequential by necessity: the API throttles bursts after roughly 16 requests and answers
         // 429 with no Retry-After to back off against. Sequential walks stay well clear of it.
@@ -65,12 +65,12 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
     // reported. A 429 is the exception: it bans the caller, so it stays a failure and short-circuits
     // the rest of the walk, which both stops the requests and keeps a truncated page set from
     // reaching callers as a partial season.
-    private Task<Result<Walk, DomainError>> FetchNextPage(string query, int page, Walk state, CancellationToken token) =>
+    private Task<Result<Walk, ScrapeError>> FetchNextPage(string query, int page, Walk state, CancellationToken token) =>
         FetchPage(query, page, token)
             .Map(fetched => state with {Pages = state.Pages.Add(fetched)})
             .BindOnErrorWhen(
                 error => state with {Skipped = state.Skipped.Add(error)},
-                error => error is not RateLimitedError);
+                error => error is not ScrapeError.RateLimited);
 
     private static ImmutableArray<AnimeScheduleAnime> Deduplicate(IEnumerable<AnimeScheduleResponse> pages) =>
         pages.SelectMany(page => page.Anime)
@@ -90,13 +90,13 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
                 string.Join("; ", state.Skipped.Select(e => e.Message)));
     };
 
-    private async Task<Result<AnimeScheduleResponse, DomainError>> FetchPage(string query, int page, CancellationToken token)
+    private async Task<Result<AnimeScheduleResponse, ScrapeError>> FetchPage(string query, int page, CancellationToken token)
     {
         try
         {
             var response = await _httpClient.GetAsync($"{query}&page={page}", token);
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
-                return RateLimitedError.Create(query, page);
+                return new ScrapeError.RateLimited(query, page);
 
             response.EnsureSuccessStatusCode();
 
@@ -106,11 +106,11 @@ internal sealed class AnimeScheduleClient : IAnimeScheduleClient
 
             return payload is not null
                 ? payload
-                : Error.Create($"No usable payload for {query} page {page}");
+                : new ScrapeError.UnusablePayload($"{query} page {page}");
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromExceptionWithMessage(e, $"Request failed for {query} page {page}");
+            return new ScrapeError.RequestFailed($"{query} page {page}", e);
         }
     }
 }
