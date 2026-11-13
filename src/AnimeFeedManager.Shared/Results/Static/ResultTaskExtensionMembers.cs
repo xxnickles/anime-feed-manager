@@ -14,10 +14,12 @@ public static class ResultTaskExtensionMembers
         public async Task<Result<T, TNew>> MapError<TNew>(Func<TError, Task<TNew>> mapper) =>
             await (await resultTask).MapError(mapper);
 
-        public async Task<Result<TTarget, TError>> Bind<TTarget>(Func<T, Result<TTarget, TError>> binder) =>
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(Func<T, Result<TTarget, TStepError>> binder)
+            where TStepError : TError =>
             (await resultTask).Bind(binder);
 
-        public async Task<Result<TTarget, TError>> Bind<TTarget>(Func<T, Task<Result<TTarget, TError>>> binder) =>
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(Func<T, Task<Result<TTarget, TStepError>>> binder)
+            where TStepError : TError =>
             await (await resultTask).Bind(binder);
 
         public Task<Result<T, TError>> BindWhen(Func<T, Task<Result<T, TError>>> binder, Func<T, bool> predicate) =>

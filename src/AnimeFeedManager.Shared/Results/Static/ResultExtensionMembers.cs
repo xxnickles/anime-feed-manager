@@ -28,24 +28,18 @@ public static class ResultExtensionMembers
                 ? Result<T, TNew>.Success(result.ResultValue!, result.TraceContext)
                 : Result<T, TNew>.Failure(await mapper(result.ErrorValue!), result.TraceContext);
 
-        /// <summary>Runs <paramref name="binder"/> on success; the trace contexts of both results are merged.</summary>
-        public Result<TTarget, TError> Bind<TTarget>(Func<T, Result<TTarget, TError>> binder)
-        {
-            if (!result.IsSuccess)
-                return Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
+        /// <summary>Runs <paramref name="binder"/> on success; a step error deriving from <typeparamref name="TError"/> widens into it, and both trace contexts are merged.</summary>
+        public Result<TTarget, TError> Bind<TTarget, TStepError>(Func<T, Result<TTarget, TStepError>> binder)
+            where TStepError : TError =>
+            result.IsSuccess
+                ? Continue<TTarget, TError, TStepError>(result.TraceContext, binder(result.ResultValue!))
+                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-            var next = binder(result.ResultValue!);
-            return next with { TraceContext = result.TraceContext.Merge(next.TraceContext) };
-        }
-
-        public async Task<Result<TTarget, TError>> Bind<TTarget>(Func<T, Task<Result<TTarget, TError>>> binder)
-        {
-            if (!result.IsSuccess)
-                return Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
-
-            var next = await binder(result.ResultValue!);
-            return next with { TraceContext = result.TraceContext.Merge(next.TraceContext) };
-        }
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(Func<T, Task<Result<TTarget, TStepError>>> binder)
+            where TStepError : TError =>
+            result.IsSuccess
+                ? Continue<TTarget, TError, TStepError>(result.TraceContext, await binder(result.ResultValue!))
+                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
         public Result<T, TError> BindWhen(Func<T, Result<T, TError>> binder, Func<T, bool> predicate) =>
             result.Bind(v => predicate(v) ? binder(v) : Result<T, TError>.Success(v));
@@ -164,5 +158,15 @@ public static class ResultExtensionMembers
         }
 
         public void Complete(ILogger logger) => result.FlushLogs(logger);
+    }
+
+    private static Result<TTarget, TError> Continue<TTarget, TError, TStepError>(
+        TraceContext previous,
+        Result<TTarget, TStepError> next) where TStepError : TError
+    {
+        var traceContext = previous.Merge(next.TraceContext);
+        return next.IsSuccess
+            ? Result<TTarget, TError>.Success(next.ResultValue!, traceContext)
+            : Result<TTarget, TError>.Failure(next.ErrorValue!, traceContext);
     }
 }

@@ -1,7 +1,16 @@
 namespace AnimeFeedManager.Shared.Tests.Results.Static;
 
+public closed record CatalogFailure(string Message) : DomainError(Message)
+{
+    public override Action<ILogger> LogAction() => logger => logger.LogWarning("{domain_error.message}", Message);
+}
+
+public sealed record MissingEntry(string Key) : CatalogFailure($"{Key} is missing");
+
 public class BindExtensionsTests
 {
+    #region Bind
+
     [Fact]
     public void Should_Bind_Success_Value_To_New_Result()
     {
@@ -53,6 +62,73 @@ public class BindExtensionsTests
 
         result.AssertOnSuccess(value => Assert.Equal("20", value));
     }
+
+    #endregion
+
+    #region Covariant Steps
+
+    [Fact]
+    public void Should_Widen_Step_Failure_When_Step_Error_Derives_From_Chain_Error()
+    {
+        Result<string, DomainError> result = Result<int, DomainError>.Success(1)
+            .Bind(_ => Result<string, MissingEntry>.Failure(new MissingEntry("key")));
+
+        result.AssertOnError(error => Assert.Equal(new MissingEntry("key"), error));
+    }
+
+    [Fact]
+    public void Should_Pass_Step_Value_When_A_Narrower_Step_Succeeds()
+    {
+        Result<string, DomainError> result = Result<int, DomainError>.Success(1)
+            .Bind(x => Result<string, MissingEntry>.Success(x.ToString()));
+
+        result.AssertOnSuccess(value => Assert.Equal("1", value));
+    }
+
+    [Fact]
+    public void Should_Bind_Leaf_Step_When_Chain_Error_Is_Its_Family()
+    {
+        Result<string, CatalogFailure> result = Result<int, CatalogFailure>.Success(1)
+            .Bind(_ => Result<string, MissingEntry>.Failure(new MissingEntry("key")));
+
+        result.AssertOnError(error => Assert.IsType<MissingEntry>(error));
+    }
+
+    [Fact]
+    public void Should_Merge_Trace_Contexts_When_Step_Error_Is_Widened()
+    {
+        var logger = new RecordingLogger();
+
+        Result<int, DomainError>.Success(1)
+            .AddLog(log => log.LogInformation("chain"))
+            .Bind(_ => Result<string, MissingEntry>.Failure(new MissingEntry("key"))
+                .AddLog(log => log.LogInformation("step")))
+            .FlushLogs(logger);
+
+        Assert.Equal(["chain", "step", "key is missing"], logger.Entries);
+    }
+
+    [Fact]
+    public async Task Should_Widen_Step_Failure_When_Async_Binder_Returns_A_Narrower_Error()
+    {
+        Result<string, DomainError> result = await Result<int, DomainError>.Success(1)
+            .Bind(_ => Task.FromResult(Result<string, MissingEntry>.Failure(new MissingEntry("key"))));
+
+        result.AssertOnError(error => Assert.IsType<MissingEntry>(error));
+    }
+
+    [Fact]
+    public async Task Should_Widen_Step_Failure_When_Binding_On_A_Task_Result()
+    {
+        Result<string, DomainError> result = await Task.FromResult(Result<int, DomainError>.Success(1))
+            .Bind(_ => Task.FromResult(Result<string, MissingEntry>.Failure(new MissingEntry("key"))));
+
+        result.AssertOnError(error => Assert.IsType<MissingEntry>(error));
+    }
+
+    #endregion
+
+    #region BindWhen
 
     [Fact]
     public void Should_Execute_BindWhen_Only_When_Predicate_Is_True()
@@ -127,4 +203,6 @@ public class BindExtensionsTests
 
         result.AssertOnSuccess(value => Assert.Equal(10, value));
     }
+
+    #endregion
 }
