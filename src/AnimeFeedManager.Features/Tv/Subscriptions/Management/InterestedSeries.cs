@@ -46,7 +46,7 @@ public static class InterestedSeries
             };
 
         if (subscription.Type == nameof(SubscriptionType.Subscribed))
-            return Error.Create($"You are already subscribed to {seriesTitle}");
+            return new AlreadySubscribed(seriesTitle);
 
         return subscription;
     }

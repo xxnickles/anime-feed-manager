@@ -32,6 +32,6 @@ internal static class Data
         context.GetCurrentUser() switch
         {
             AuthenticatedUser user => user,
-            _ => Error.Create("User can not be anonymous")
+            _ => new UserIsAnonymous()
         };
 }

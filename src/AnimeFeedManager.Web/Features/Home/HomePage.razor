@@ -31,7 +31,7 @@ else
             {
                 CurrentLatestSeason currentLatestSeason => ParseSeason(currentLatestSeason.Season),
                 FallbackLatestSeason newestSeason => ParseSeason(newestSeason.Season),
-                _ => Error.Create("Season is not latest")
+                _ => new NoLatestSeason()
             })
             .FlushLogs(Logger)
             .Match(

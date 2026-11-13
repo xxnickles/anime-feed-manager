@@ -38,7 +38,7 @@ public static class Subscription
         string feedTitle) => subscription switch
     {
         not null => subscription,
-        _ when string.IsNullOrWhiteSpace(feedTitle) => Error.Create($"{seriesTitle} has no feed to subscribe to"),
+        _ when string.IsNullOrWhiteSpace(feedTitle) => new NoFeed(seriesTitle),
         _ => new SubscriptionStorage
         {
             PartitionKey = user.UserId,

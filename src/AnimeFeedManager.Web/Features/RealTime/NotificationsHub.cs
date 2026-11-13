@@ -8,7 +8,7 @@ internal sealed class NotificationsHub(ServiceManager serviceManager)
 {
     private Task<ServiceHubContext>? _context;
 
-    internal async Task<Result<ServiceHubContext, DomainError>> GetContext()
+    internal async Task<Result<ServiceHubContext, RealTimeError>> GetContext()
     {
         try
         {
@@ -18,7 +18,7 @@ internal sealed class NotificationsHub(ServiceManager serviceManager)
         {
             // Dropped so the next negotiate retries the creation.
             _context = null;
-            return ExceptionError.FromExceptionWithMessage(e, "The notifications hub context could not be created");
+            return new RealTimeError.HubUnavailable(e);
         }
     }
 }

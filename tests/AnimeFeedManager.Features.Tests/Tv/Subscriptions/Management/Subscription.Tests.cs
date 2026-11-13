@@ -56,7 +56,7 @@ public class SubscriptionTests
 
         var result = await Toggle(stored: null, updater, Remover(), feedTitle);
 
-        result.AssertError();
+        result.AssertOnError(error => Assert.Equal(new NoFeed("Black Torch"), error));
         await updater.DidNotReceive().Invoke(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>());
     }
 

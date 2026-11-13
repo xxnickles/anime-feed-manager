@@ -63,7 +63,7 @@ public static class SeasonUpdate
         CurrentLatestSeason latest => latest.Season,
         NewSeason newSeason => newSeason.Season,
         ReplaceLatestSeason newLatest => newLatest.Season,
-        _ => Error.Create($"Season data is not selectable to be updated. Received {data.GetType().Name}")
+        _ => new SeasonNotUpdatable(data.GetType(), "an existent, new or latest season")
     };
 
     private static Task<Result<Unit, DomainError>> UpdateCurrentLatestSeason(
@@ -75,7 +75,7 @@ public static class SeasonUpdate
     private static Result<SeasonStorage, DomainError> DemotableSeason(SeasonStorageData data) => data switch
     {
         CurrentLatestSeason latest => DemoteCurrentLatestSeason(latest.Season),
-        _ => Error.Create($"Season data is not selectable to be updated as is not the current lastest season. Received {data.GetType().Name}")
+        _ => new SeasonNotUpdatable(data.GetType(), "the current latest season")
     };
 
     private static SeasonStorage DemoteCurrentLatestSeason(SeasonStorage data)

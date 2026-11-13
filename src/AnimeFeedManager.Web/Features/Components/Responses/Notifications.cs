@@ -1,4 +1,6 @@
-﻿using AnimeFeedManager.Web.BlazorComponents.Toast;
+﻿using AnimeFeedManager.Features.Tv.Subscriptions.Management;
+using AnimeFeedManager.Web.BlazorComponents.Toast;
+using AnimeFeedManager.Web.Features.Tv.Endpoints;
 using Microsoft.AspNetCore.Components;
 
 namespace AnimeFeedManager.Web.Features.Components.Responses;
@@ -65,8 +67,8 @@ internal static class Notifications
                     builder.AddContent(1, "An internal server error occurred. Please try again later.");
                     break;
 
-                case Error basic:
-                    builder.AddContent(1, basic.Message);
+                case Error or NoFeed or AlreadySubscribed or UserIsAnonymous:
+                    builder.AddContent(1, error.Message);
                     break;
 
                 case FormDataValidationError:

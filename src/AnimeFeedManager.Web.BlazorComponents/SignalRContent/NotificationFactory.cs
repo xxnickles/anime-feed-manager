@@ -4,7 +4,7 @@ namespace AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 
 public static class NotificationFactory
 {
-    public static Task<Result<string, DomainError>> GenerateNotificationContent(
+    public static Task<Result<string, UnreadableEventPayload>> GenerateNotificationContent(
         SystemEvent notification,
         PayloadDeserializer payloadDeserializer,
         BlazorRenderer renderer)

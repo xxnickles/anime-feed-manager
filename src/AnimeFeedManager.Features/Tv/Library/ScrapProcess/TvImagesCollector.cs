@@ -29,9 +29,9 @@ internal static class TvImagesCollector
         var pending = seriesData.Select(ToPendingImage).OfType<PendingImage>().ToArray();
         var untouched = seriesData
             .Where(series => ToPendingImage(series) is null)
-            .Select(series => Result<ImageOutcome, DomainError>.Success(new ImageOutcome(series, false)));
+            .Select(series => Result<ImageOutcome, ImageNotStored>.Success(new ImageOutcome(series, false)));
 
-        var downloaded = new List<Result<ImageOutcome, DomainError>>(pending.Length);
+        var downloaded = new List<Result<ImageOutcome, ImageNotStored>>(pending.Length);
         foreach (var batch in pending.Chunk(BatchSize))
         {
             // Skipped ahead of the first batch, so a single-batch import never waits.
@@ -73,7 +73,7 @@ internal static class TvImagesCollector
             downloaded, candidates, candidates - downloaded, total - candidates, total);
     };
 
-    private static async Task<Result<ImageOutcome, DomainError>> AddImageLink(
+    private static async Task<Result<ImageOutcome, ImageNotStored>> AddImageLink(
         ImageProcessor imageProvider,
         PendingImage pending,
         string targetDirectory,
@@ -86,6 +86,7 @@ internal static class TvImagesCollector
                 pending.Url), cancellationToken)
             .Map(uri => new ImageOutcome(AddUrl(pending.Data, uri), true))
             // A cover that will not download must not cost the series its row in the library.
+            .AddLogOnFailure(error => error.LogAction())
             .AddLogOnFailure(error => logger => logger.LogWarning(
                 "Storing {series.title} without an image: {domain_error.message}", pending.Data.Series.Title, error.Message))
             .BindOnError(_ => new ImageOutcome(pending.Data, false));

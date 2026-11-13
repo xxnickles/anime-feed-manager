@@ -10,10 +10,10 @@ public sealed record ImageProcessData(
 
 public interface IImageProvider
 {
-    Task<Result<Uri, DomainError>> Process(ImageProcessData data, CancellationToken cancellationToken = default);
+    Task<Result<Uri, ImageNotStored>> Process(ImageProcessData data, CancellationToken cancellationToken = default);
 }
 
-public delegate Task<Result<Uri, DomainError>> ImageProcessor(ImageProcessData data, CancellationToken cancellationToken = default);
+public delegate Task<Result<Uri, ImageNotStored>> ImageProcessor(ImageProcessData data, CancellationToken cancellationToken = default);
 
 public class ImageProvider : IImageProvider
 {
@@ -33,7 +33,7 @@ public class ImageProvider : IImageProvider
         _logger = logger;
     }
 
-    public async Task<Result<Uri, DomainError>> Process(
+    public async Task<Result<Uri, ImageNotStored>> Process(
         ImageProcessData data,
         CancellationToken cancellationToken = default)
     {
@@ -59,8 +59,7 @@ public class ImageProvider : IImageProvider
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred when processing image {image.name}", data.FileName);
-            return HandledError.Create();
+            return new ImageNotStored(data.FileName, e);
         }
     }
 

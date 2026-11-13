@@ -109,7 +109,7 @@ public static class AutomatedSeriesBinding
         {
             CurrentLatestSeason latest => SeasonOf(latest.Season),
             FallbackLatestSeason newest => SeasonOf(newest.Season),
-            _ => Error.Create("There is no latest season data in storage.")
+            _ => new NoLatestSeason()
         });
 
     private static Result<SeriesSeason, DomainError> SeasonOf(SeasonStorage season) =>

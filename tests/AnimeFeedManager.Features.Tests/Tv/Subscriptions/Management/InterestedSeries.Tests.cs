@@ -43,7 +43,7 @@ public class InterestedSeriesTests
 
         var result = await Toggle(MakeSubscription(nameof(SubscriptionType.Subscribed)), updater, remover);
 
-        result.AssertError();
+        result.AssertOnError(error => Assert.Equal(new AlreadySubscribed("Black Torch"), error));
         await updater.DidNotReceive().Invoke(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>());
         await remover.DidNotReceive().Invoke(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }

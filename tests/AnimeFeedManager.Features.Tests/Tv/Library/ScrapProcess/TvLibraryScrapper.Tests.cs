@@ -54,7 +54,7 @@ public class TvLibraryScrapperTests
 
         var result = await TvLibraryScrapper.ResolveSeason(new Current(), getter, CancellationToken.None);
 
-        result.AssertError();
+        result.AssertOnError(error => Assert.IsType<NoLatestSeason>(error));
     }
 
     [Fact]

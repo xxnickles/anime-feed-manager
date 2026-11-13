@@ -9,14 +9,14 @@ internal static class Negotiation
     // Admin membership is renewed on every negotiate and lapses with the client token, so a demoted admin drops out within it.
     private static readonly TimeSpan TokenLifetime = TimeSpan.FromHours(1);
 
-    internal static Task<Result<NegotiationResponse, DomainError>> Negotiate(
+    internal static Task<Result<NegotiationResponse, RealTimeError>> Negotiate(
         ServiceHubContext hub,
         AppUser user,
         CancellationToken cancellationToken) =>
         SyncAdminGroup(hub, user, cancellationToken)
             .Bind(_ => IssueToken(hub, user, cancellationToken));
 
-    private static async Task<Result<Unit, DomainError>> SyncAdminGroup(
+    private static async Task<Result<Unit, RealTimeError>> SyncAdminGroup(
         ServiceHubContext hub,
         AppUser user,
         CancellationToken cancellationToken)
@@ -33,15 +33,15 @@ internal static class Negotiation
                     break;
             }
 
-            return Result<Unit, DomainError>.Success(new Unit());
+            return Result<Unit, RealTimeError>.Success(new Unit());
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromExceptionWithMessage(e, "The admin group membership could not be updated");
+            return new RealTimeError.GroupSyncFailed(e);
         }
     }
 
-    private static async Task<Result<NegotiationResponse, DomainError>> IssueToken(
+    private static async Task<Result<NegotiationResponse, RealTimeError>> IssueToken(
         ServiceHubContext hub,
         AppUser user,
         CancellationToken cancellationToken)
@@ -56,7 +56,7 @@ internal static class Negotiation
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromExceptionWithMessage(e, "The SignalR connection could not be negotiated");
+            return new RealTimeError.NegotiationFailed(e);
         }
     }
 }

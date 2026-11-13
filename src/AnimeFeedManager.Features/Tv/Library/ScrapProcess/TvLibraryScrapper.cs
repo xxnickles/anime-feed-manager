@@ -31,7 +31,7 @@ public static class TvLibraryScrapper
             {
                 CurrentLatestSeason latest => AsSeriesSeason(latest.Season),
                 FallbackLatestSeason newest => AsSeriesSeason(newest.Season),
-                _ => Error.Create("There is no latest season data in storage.")
+                _ => new NoLatestSeason()
             }),
             BySeason bySeason => Task.FromResult<Result<SeriesSeason, DomainError>>(
                 new SeriesSeason(bySeason.Season, bySeason.Year)),
