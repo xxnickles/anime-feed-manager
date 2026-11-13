@@ -44,7 +44,7 @@ public static class SeasonFeeds
             .WithOperationName(nameof(GetSeasonFeeds))
             .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season));
 
-    private static async Task<Result<ImmutableArray<BoundSeries>, DomainError>> Bound(
+    private static async Task<Result<ImmutableArray<BoundSeries>, BulkError<StorageError>>> Bound(
         ImmutableArray<NyaaBindingStorage> bindings,
         NyaaCatalogGetter catalogGetter,
         DateTimeOffset now,
@@ -54,8 +54,8 @@ public static class SeasonFeeds
             catalogGetter(binding.RowKey ?? string.Empty, token).Map(catalog => ToBound(binding, catalog, now))));
 
         // A bound series missing from the list would read as never bound.
-        return reads.Flatten(rows => rows.ToImmutableArray())
-            .Bind(bulk => bulk.RequireAll("Some binding catalogs could not be read"));
+        return reads.Collect(rows => rows.ToImmutableArray())
+            .RequireAll("Some binding catalogs could not be read");
     }
 
     private static BoundSeries ToBound(

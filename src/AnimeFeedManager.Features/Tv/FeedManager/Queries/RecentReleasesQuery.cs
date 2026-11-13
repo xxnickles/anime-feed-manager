@@ -30,7 +30,7 @@ public static class RecentReleasesQuery
             .Map(catalogs => Summarize(catalogs, now - NyaaCollection.FeedWindow))
             .WithOperationName(nameof(GetRecentReleases));
 
-    private static async Task<Result<ImmutableArray<SeriesCatalog>, DomainError>> ReadCatalogs(
+    private static async Task<Result<ImmutableArray<SeriesCatalog>, BulkError<StorageError>>> ReadCatalogs(
         ImmutableArray<NyaaBindingStorage> tracked,
         NyaaCatalogGetter catalogGetter,
         CancellationToken token)
@@ -38,8 +38,8 @@ public static class RecentReleasesQuery
         var reads = await Task.WhenAll(tracked.Select(binding =>
             catalogGetter(binding.RowKey ?? string.Empty, token).Map(catalog => new SeriesCatalog(binding, catalog))));
 
-        return reads.Flatten(series => series.ToImmutableArray())
-            .Bind(bulk => bulk.RequireAll("Some tracked series' catalogs could not be read"));
+        return reads.Collect(series => series.ToImmutableArray())
+            .RequireAll("Some tracked series' catalogs could not be read");
     }
 
     /// <summary>Same series selection as the notification feed; repeated episode labels keep the newest upload.</summary>

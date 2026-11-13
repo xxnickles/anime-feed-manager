@@ -119,7 +119,7 @@ public static class AutomatedSeriesBinding
             .DistinctBy(entry => entry.RowKey)
     ];
 
-    private static async Task<Result<HashSet<string>, DomainError>> BoundSeriesIds(
+    private static async Task<Result<HashSet<string>, BulkError<StorageError>>> BoundSeriesIds(
         ImmutableArray<AnimeInfoStorage> series,
         SeasonNyaaBindings bindingsGetter,
         CancellationToken token)
@@ -127,15 +127,15 @@ public static class AutomatedSeriesBinding
         var seasons = series
             .Select(entry => IdHelpers.SeriesSeasonFromId(entry.RowKey ?? string.Empty)
                 .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(AnimeInfoStorage), fields.Errors)))
-            .Flatten(parsed => parsed
-                .DistinctBy(season => IdHelpers.GenerateAnimePartitionKey(season))
+            .Collect(parsed => parsed
+                .DistinctBy(IdHelpers.GenerateAnimePartitionKey)
                 .ToImmutableArray())
-            .Bind(bulk => bulk.RequireAll("Some series' seasons could not be read"));
+            .RequireAll("Some series' seasons could not be read");
 
         return await seasons.Bind(async distinct =>
             (await Task.WhenAll(distinct.Select(season => bindingsGetter(season, token))))
-            .Flatten(bindings => bindings.SelectMany(rows => rows).Select(row => row.RowKey ?? string.Empty).ToHashSet())
-            .Bind(bulk => bulk.RequireAll("Some series' bindings could not be read")));
+            .Collect(bindings => bindings.SelectMany(rows => rows).Select(row => row.RowKey ?? string.Empty).ToHashSet())
+            .RequireAll("Some series' bindings could not be read"));
     }
 
     private static BindingCandidate ToCandidate(AnimeInfoStorage series) =>

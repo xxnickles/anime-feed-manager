@@ -93,8 +93,8 @@ public static class NyaaCollection
                 return (await Task.WhenAll(p.Tracked.Select(binding =>
                         ReadCatalog(binding, matched.GetValueOrDefault(binding.RowKey ?? string.Empty, []),
                             catalogGetter, token))))
-                    .Flatten(series => series.ToImmutableArray())
-                    .Bind(bulk => bulk.RequireAll("Some tracked series' catalogs could not be read"))
+                    .Collect(series => series.ToImmutableArray())
+                    .RequireAll("Some tracked series' catalogs could not be read")
                     .Map(collected => p with {Collected = collected});
             });
     }

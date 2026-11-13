@@ -47,17 +47,37 @@ public class SeasonFeedsTests
 
     #endregion
 
+    #region Bound Tests
+
+    [Fact]
+    public async Task Should_Fail_As_Incomplete_When_A_Binding_Catalog_Cannot_Be_Read()
+    {
+        StorageError unreadable = new StorageError.NotFound(typeof(NyaaCatalogStorage));
+
+        var result = await GetSeasonFeeds([], [MakeBinding("2026_fall_psyren"), MakeBinding("2026_fall_other")],
+            seriesId => seriesId == "2026_fall_other"
+                ? unreadable
+                : Result<ImmutableArray<NyaaCatalogStorage>, StorageError>.Success([]));
+
+        result.AssertOnError(error =>
+            Assert.Equal(unreadable, Assert.Single(Assert.IsType<BulkError<StorageError>.Incomplete>(error).Errors)));
+    }
+
+    #endregion
+
     #region Test Helpers
 
     private static Task<Result<ImmutableArray<SeasonFeed>, DomainError>> GetSeasonFeeds(
         ImmutableArray<TvSeries> library,
-        ImmutableArray<NyaaBindingStorage> bindings) =>
+        ImmutableArray<NyaaBindingStorage> bindings,
+        Func<string, Result<ImmutableArray<NyaaCatalogStorage>, StorageError>>? catalog = null) =>
         SeasonFeeds.GetSeasonFeeds(
             Fall,
             new Uri("https://blob.example.com"),
             (_, _, _) => Task.FromResult(Result<ImmutableArray<TvSeries>, StorageError>.Success(library)),
             (_, _) => Task.FromResult(Result<ImmutableArray<NyaaBindingStorage>, StorageError>.Success(bindings)),
-            (_, _) => Task.FromResult(Result<ImmutableArray<NyaaCatalogStorage>, StorageError>.Success([])),
+            (seriesId, _) => Task.FromResult(
+                catalog?.Invoke(seriesId) ?? Result<ImmutableArray<NyaaCatalogStorage>, StorageError>.Success([])),
             Now,
             CancellationToken.None);
 
