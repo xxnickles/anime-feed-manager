@@ -161,6 +161,97 @@ public class CollectionExtensionsTests
         });
     }
 
+    #region Collect Tests
+
+    [Fact]
+    public void Should_Return_Completed_When_Collecting_And_All_Results_Succeed()
+    {
+        var results = new[] { Result<int, TestError>.Success(1), Result<int, TestError>.Success(2) };
+
+        var collected = results.Collect(items => items.ToList());
+
+        collected.AssertOnSuccess(bulk =>
+            Assert.Equal([1, 2], Assert.IsType<BulkResult<List<int>, TestError>.Completed>(bulk).Value));
+    }
+
+    [Fact]
+    public void Should_Return_Partial_With_Typed_Errors_When_Collecting_And_Some_Results_Fail()
+    {
+        var failure = new TestError("Error");
+        var results = new[]
+        {
+            Result<int, TestError>.Success(1),
+            Result<int, TestError>.Failure(failure),
+            Result<int, TestError>.Success(3)
+        };
+
+        var collected = results.Collect(items => items.ToList());
+
+        collected.AssertOnSuccess(bulk =>
+        {
+            var partial = Assert.IsType<BulkResult<List<int>, TestError>.Partial>(bulk);
+            Assert.Equal([1, 3], partial.Value);
+            Assert.Equal([failure], partial.Errors);
+        });
+    }
+
+    [Fact]
+    public void Should_Fail_With_AllFailed_When_Collecting_And_All_Results_Fail()
+    {
+        var results = new[]
+        {
+            Result<int, TestError>.Failure(new TestError("Error 1")),
+            Result<int, TestError>.Failure(new TestError("Error 2"))
+        };
+
+        var collected = results.Collect(items => items.ToList());
+
+        collected.AssertOnError(error =>
+            Assert.Equal(["Error 1", "Error 2"], error.Errors.Select(item => item.Message)));
+    }
+
+    [Fact]
+    public void Should_Return_Completed_When_Collecting_An_Empty_Collection()
+    {
+        var collected = Array.Empty<Result<int, TestError>>().Collect(items => items.ToList());
+
+        collected.AssertOnSuccess(bulk =>
+            Assert.Empty(Assert.IsType<BulkResult<List<int>, TestError>.Completed>(bulk).Value));
+    }
+
+    [Fact]
+    public void Should_Keep_Log_Actions_Staged_On_Items_When_Collecting()
+    {
+        var logger = new RecordingLogger();
+        var results = new[]
+        {
+            Result<int, TestError>.Success(1).AddLogOnSuccess(_ => log => log.LogInformation("first")),
+            Result<int, TestError>.Failure(new TestError("gone"))
+                .AddLogOnFailure(error => log => log.LogWarning("{Message}", error.Message))
+        };
+
+        results.Collect(items => items.ToList()).FlushLogs(logger);
+
+        Assert.Equal(["first", "gone"], logger.Entries);
+    }
+
+    [Fact]
+    public void Should_Keep_Log_Actions_Staged_On_Items_When_Collecting_And_All_Results_Fail()
+    {
+        var logger = new RecordingLogger();
+        var results = new[]
+        {
+            Result<int, TestError>.Failure(new TestError("gone"))
+                .AddLogOnFailure(error => log => log.LogWarning("{Message}", error.Message))
+        };
+
+        results.Collect(items => items.ToList()).FlushLogs(logger);
+
+        Assert.Contains("gone", logger.Entries);
+    }
+
+    #endregion
+
     #region CollectSuccesses Tests
 
     [Fact]

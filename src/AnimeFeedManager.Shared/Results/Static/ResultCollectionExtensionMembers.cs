@@ -34,6 +34,39 @@ public static class ResultCollectionExtensionMembers
 
             return aggregated with {TraceContext = traceContext};
         }
+    }
+
+    extension<T, TError>(IEnumerable<Result<T, TError>> results)
+    {
+        /// <summary>
+        /// <see cref="BulkResult{T, TError}.Completed"/> when all succeed, <see cref="BulkResult{T, TError}.Partial"/> when some fail,
+        /// <see cref="BulkError{TError}.AllFailed"/> when all fail; per-item trace contexts are merged into the outcome.
+        /// </summary>
+        public Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> Collect<TTarget>(
+            Func<IEnumerable<T>, TTarget> flatten)
+        {
+            var successes = new List<T>();
+            var errors = new List<TError>();
+            var traceContext = TraceContext.Empty;
+
+            foreach (var result in results)
+            {
+                traceContext = traceContext.Merge(result.TraceContext);
+                if (result.IsSuccess)
+                    successes.Add(result.ResultValue!);
+                else
+                    errors.Add(result.ErrorValue!);
+            }
+
+            Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> collected = (successes.Count, errors.Count) switch
+            {
+                (_, 0) => new BulkResult<TTarget, TError>.Completed(flatten(successes)),
+                (0, _) => new BulkError<TError>.AllFailed([..errors]),
+                _ => new BulkResult<TTarget, TError>.Partial(flatten(successes), [..errors])
+            };
+
+            return collected with {TraceContext = traceContext};
+        }
 
         /// <summary>Never fails: flattens the successes and stages each failure's log on the merged trace context.</summary>
         public Result<TTarget, TError> CollectSuccesses<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
@@ -47,7 +80,7 @@ public static class ResultCollectionExtensionMembers
                 if (result.IsSuccess)
                     successes.Add(result.ResultValue!);
                 else
-                    traceContext = traceContext.AddLog(result.ErrorValue!.LogAction());
+                    traceContext = traceContext.AddLog(ErrorCases.AsDomainError(result.ErrorValue!).LogAction());
             }
 
             return Result<TTarget, TError>.Success(flattenFunc(successes), traceContext);
