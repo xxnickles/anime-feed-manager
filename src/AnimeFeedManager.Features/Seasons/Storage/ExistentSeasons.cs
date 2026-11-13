@@ -66,7 +66,7 @@ public static class ExistentSeasons
                 .Bind(client =>
                     client.ExecuteQuery<SeasonStorage>(storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
                         cancellationToken))
-                .Map(seasons => seasons.TransformToSeriesSeason());
+                .Bind(seasons => seasons.TransformToSeriesSeason());
 
         public Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(ILogger logger) =>
             cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
@@ -109,8 +109,10 @@ public static class ExistentSeasons
         }
     }
 
-    private static ImmutableArray<SeriesSeason> TransformToSeriesSeason(this ImmutableArray<SeasonStorage> seasons) =>
-        seasons.Select(s => (s.Season ?? string.Empty, s.Year, s.Latest).ParseAsSeriesSeason())
-            .Flatten(list => list.ToImmutableArray())
-            .MatchToValue(bulk => bulk.Value, _ => ImmutableArray<SeriesSeason>.Empty);
+    // Unreadable rows are logged and left out.
+    private static Result<ImmutableArray<SeriesSeason>, StorageError> TransformToSeriesSeason(
+        this ImmutableArray<SeasonStorage> seasons) =>
+        seasons.Select(s => (s.Season ?? string.Empty, s.Year, s.Latest).ParseAsSeriesSeason()
+                .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SeasonStorage), fields.Errors)))
+            .CollectSuccesses(list => list.ToImmutableArray());
 }

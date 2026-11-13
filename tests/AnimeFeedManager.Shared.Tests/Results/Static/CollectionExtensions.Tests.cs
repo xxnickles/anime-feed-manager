@@ -161,6 +161,69 @@ public class CollectionExtensionsTests
         });
     }
 
+    #region CollectSuccesses Tests
+
+    [Fact]
+    public void Should_Flatten_Only_Successes_When_Collecting_Successes_With_Some_Failures()
+    {
+        var results = new[]
+        {
+            Result<int, TestError>.Success(1),
+            Result<int, TestError>.Failure(new TestError("Error")),
+            Result<int, TestError>.Success(3)
+        };
+
+        var collected = results.CollectSuccesses(items => items.ToList());
+
+        collected.AssertOnSuccess(values => Assert.Equal([1, 3], values));
+    }
+
+    [Fact]
+    public void Should_Succeed_With_Empty_Value_When_Collecting_Successes_And_All_Fail()
+    {
+        var results = new[]
+        {
+            Result<int, TestError>.Failure(new TestError("Error 1")),
+            Result<int, TestError>.Failure(new TestError("Error 2"))
+        };
+
+        var collected = results.CollectSuccesses(items => items.ToList());
+
+        collected.AssertOnSuccess(Assert.Empty);
+    }
+
+    [Fact]
+    public void Should_Stage_Each_Failure_Log_When_Collecting_Successes()
+    {
+        var logger = new RecordingLogger();
+        var results = new[]
+        {
+            Result<int, TestError>.Failure(new TestError("first")),
+            Result<int, TestError>.Success(2),
+            Result<int, TestError>.Failure(new TestError("second"))
+        };
+
+        results.CollectSuccesses(items => items.ToList()).FlushLogs(logger);
+
+        Assert.Equal(["first", "second"], logger.Entries);
+    }
+
+    [Fact]
+    public void Should_Keep_Log_Actions_Staged_On_Items_When_Collecting_Successes()
+    {
+        var logger = new RecordingLogger();
+        var results = new[]
+        {
+            Result<int, TestError>.Success(1).AddLogOnSuccess(_ => log => log.LogInformation("staged"))
+        };
+
+        results.CollectSuccesses(items => items.ToList()).FlushLogs(logger);
+
+        Assert.Equal(["staged"], logger.Entries);
+    }
+
+    #endregion
+
     #region Trace Context Tests
 
     [Fact]

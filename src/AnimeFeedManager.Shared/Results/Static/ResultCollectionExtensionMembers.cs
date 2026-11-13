@@ -34,6 +34,24 @@ public static class ResultCollectionExtensionMembers
 
             return aggregated with {TraceContext = traceContext};
         }
+
+        /// <summary>Never fails: flattens the successes and stages each failure's log on the merged trace context.</summary>
+        public Result<TTarget, TError> CollectSuccesses<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
+        {
+            var successes = new List<T>();
+            var traceContext = TraceContext.Empty;
+
+            foreach (var result in results)
+            {
+                traceContext = traceContext.Merge(result.TraceContext);
+                if (result.IsSuccess)
+                    successes.Add(result.ResultValue!);
+                else
+                    traceContext = traceContext.AddLog(result.ErrorValue!.LogAction());
+            }
+
+            return Result<TTarget, TError>.Success(flattenFunc(successes), traceContext);
+        }
     }
 
     extension<T, TError>(Task<IEnumerable<Result<T, TError>>> results) where TError : DomainError

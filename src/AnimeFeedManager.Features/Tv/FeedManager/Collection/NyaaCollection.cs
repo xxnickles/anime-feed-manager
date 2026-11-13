@@ -22,9 +22,11 @@ public sealed record NyaaCollected(
 
 internal sealed record SeriesMatch(NyaaBindingStorage Binding, ImmutableArray<NyaaCatalogStorage> Rows);
 
+/// <param name="SeasonOrder">Ranks series sharing a feed title; the newest wins.</param>
 /// <param name="Matched">Info hashes matched this run.</param>
 internal sealed record CollectedSeries(
     NyaaBindingStorage Binding,
+    (Year Year, Season Season) SeasonOrder,
     ImmutableArray<NyaaCatalogStorage> Catalog,
     ImmutableHashSet<string> Matched);
 
@@ -114,8 +116,9 @@ public static class NyaaCollection
 
     private static Task<Result<CollectedSeries, StorageError>> ReadCatalog(NyaaBindingStorage binding,
         ImmutableHashSet<string> matched, NyaaCatalogGetter catalogGetter, CancellationToken token) =>
-        catalogGetter(binding.RowKey ?? string.Empty, token)
-            .Map(catalog => new CollectedSeries(binding, catalog, matched));
+        SeasonOrder(binding)
+            .Bind(order => catalogGetter(binding.RowKey ?? string.Empty, token)
+                .Map(catalog => new CollectedSeries(binding, order, catalog, matched)));
 
     /// <summary>Each tracked binding's catalog rows among the polled items; bindings without any are left out.</summary>
     internal static ImmutableArray<SeriesMatch> Match(ImmutableArray<NyaaBindingStorage> tracked,
@@ -135,7 +138,7 @@ public static class NyaaCollection
             .Where(series => !string.IsNullOrWhiteSpace(series.Binding.FeedTitle))
             .Where(series => series.Catalog.Any(row => row.Published >= since))
             .GroupBy(series => series.Binding.FeedTitle)
-            .Select(group => group.MaxBy(series => SeasonOrder(series.Binding))!)
+            .Select(group => group.MaxBy(series => series.SeasonOrder)!)
             .Select(series => Feed(series, host))
     ];
 
@@ -154,9 +157,11 @@ public static class NyaaCollection
                         series.Matched.Contains(row.InfoHash)))
             ]);
 
-    // An unparsable id sorts oldest.
-    private static (Year Year, Season Season) SeasonOrder(NyaaBindingStorage binding) =>
-        IdHelpers.SeriesSeasonFromId(binding.RowKey ?? string.Empty).MatchToValue(
-            season => (season.Year, season.Season),
-            _ => default);
+    /// <summary>Never fails: an unreadable id is logged and sorts oldest.</summary>
+    internal static Result<(Year Year, Season Season), StorageError> SeasonOrder(NyaaBindingStorage binding) =>
+        IdHelpers.SeriesSeasonFromId(binding.RowKey ?? string.Empty)
+            .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(NyaaBindingStorage), fields.Errors))
+            .Map(season => (season.Year, season.Season))
+            .AddLogOnFailure(error => error.LogAction())
+            .BindOnError(_ => default((Year, Season)));
 }

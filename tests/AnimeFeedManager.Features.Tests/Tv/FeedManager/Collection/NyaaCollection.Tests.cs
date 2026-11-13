@@ -197,6 +197,38 @@ public class NyaaCollectionTests
 
     #endregion
 
+    #region SeasonOrder Tests
+
+    [Fact]
+    public void Should_Order_By_The_Id_Season_When_Binding_Id_Is_Readable()
+    {
+        var order = NyaaCollection.SeasonOrder(Binding("2026_fall_show", "Show"));
+
+        order.AssertOnSuccess(value => Assert.Equal((Year.FromNumber(2026), Season.Fall()), value));
+    }
+
+    [Fact]
+    public void Should_Sort_Oldest_When_Binding_Id_Is_Unreadable()
+    {
+        var order = NyaaCollection.SeasonOrder(Binding("not-a-series-id", "Show"));
+
+        order.AssertOnSuccess(value => Assert.Equal(default, value));
+    }
+
+    [Fact]
+    public void Should_Keep_The_Readable_Season_When_A_Series_Sharing_The_Feed_Title_Has_An_Unreadable_Id()
+    {
+        var feeds = NyaaCollection.Feeds(
+            [
+                Collected("2026_fall_show", "Show", [Row(1)]),
+                Collected("not-a-series-id", "Show", [Row(2)])
+            ], Host, Anytime);
+
+        Assert.Equal("https://afm.example/tv/releases/2026_fall_show", Assert.Single(feeds).Url);
+    }
+
+    #endregion
+
     #region Test Helpers
 
     private static NyaaBindingStorage Binding(string seriesId, string releaseTitle, DateTimeOffset? premiere = null) =>
@@ -219,9 +251,12 @@ public class NyaaCollectionTests
             Trusted: true, Remake: false, Category: "1_2");
 
     private static CollectedSeries Collected(string seriesId, string feedTitle,
-        ImmutableArray<NyaaCatalogStorage> catalog, ImmutableArray<string> matched = default) =>
-        new(Binding(seriesId, feedTitle), catalog,
-            [.. matched.IsDefault ? [] : matched]);
+        ImmutableArray<NyaaCatalogStorage> catalog, ImmutableArray<string> matched = default)
+    {
+        var binding = Binding(seriesId, feedTitle);
+        var order = NyaaCollection.SeasonOrder(binding).MatchToValue(value => value, _ => default);
+        return new CollectedSeries(binding, order, catalog, [.. matched.IsDefault ? [] : matched]);
+    }
 
     private static NyaaCatalogStorage Row(int episode, int? version = null, string? infoHash = null,
         DateTimeOffset? published = null)
