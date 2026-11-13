@@ -53,10 +53,10 @@ public static class SettleNyaaFeeds
                 .Map(_ => true)))
             .WithOperationName(nameof(RetireFeeds));
 
-    private static Task<Result<bool, DomainError>> Complete(NyaaBindingStorage binding, ITableClientFactory clientFactory,
+    private static Task<Result<bool, StorageError>> Complete(NyaaBindingStorage binding, ITableClientFactory clientFactory,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(binding.RowKey ?? string.Empty)
-            .MapError(error => (DomainError)error)
+            .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(NyaaBindingStorage), fields.Errors))
             .Bind(season => NyaaCompletion.CompleteWhenReached(
                 binding.RowKey ?? string.Empty,
                 season,

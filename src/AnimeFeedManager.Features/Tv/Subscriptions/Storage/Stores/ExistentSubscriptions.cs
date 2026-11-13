@@ -93,6 +93,7 @@ public static class ExistentSubscriptions
 
         return rows
             .Select(row => IdHelpers.SeriesSeasonFromId(row.RowKey ?? string.Empty)
+                .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SubscriptionStorage), fields.Errors))
                 .Map(parsed => (Row: row, SeriesSeason: parsed)))
             .Flatten(candidates => candidates.MaxBy(c => (c.SeriesSeason.Year, c.SeriesSeason.Season)).Row)
             .Map(bulk => ToActiveSubscription(bulk.Value));

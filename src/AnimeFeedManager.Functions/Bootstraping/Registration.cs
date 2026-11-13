@@ -2,9 +2,6 @@
 using AnimeFeedManager.Web.BlazorComponents.Email;
 using AnimeFeedManager.Features.Common;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace AnimeFeedManager.Functions.Bootstraping;
 

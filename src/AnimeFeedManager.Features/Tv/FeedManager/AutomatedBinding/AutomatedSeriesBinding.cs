@@ -1,5 +1,4 @@
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
-using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
@@ -109,8 +108,9 @@ public static class AutomatedSeriesBinding
             .Bind(stored => stored.AsFeaturedSeason())
             .Bind(SeasonOf);
 
-    private static Result<SeriesSeason, ValidationError.Fields> SeasonOf(SeasonStorage season) =>
-        (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason();
+    private static Result<SeriesSeason, StorageError> SeasonOf(SeasonStorage season) =>
+        (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason()
+            .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SeasonStorage), fields.Errors));
 
     private static ImmutableArray<AnimeInfoStorage> Unfinished(IEnumerable<AnimeInfoStorage> series) =>
     [
@@ -125,7 +125,8 @@ public static class AutomatedSeriesBinding
         CancellationToken token)
     {
         var seasons = series
-            .Select(entry => IdHelpers.SeriesSeasonFromId(entry.RowKey ?? string.Empty))
+            .Select(entry => IdHelpers.SeriesSeasonFromId(entry.RowKey ?? string.Empty)
+                .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(AnimeInfoStorage), fields.Errors)))
             .Flatten(parsed => parsed
                 .DistinctBy(season => IdHelpers.GenerateAnimePartitionKey(season))
                 .ToImmutableArray())

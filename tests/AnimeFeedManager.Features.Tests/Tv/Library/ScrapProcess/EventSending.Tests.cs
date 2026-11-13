@@ -4,7 +4,6 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Features.SystemEvents;
-using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 

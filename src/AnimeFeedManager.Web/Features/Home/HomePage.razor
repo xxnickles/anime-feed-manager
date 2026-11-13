@@ -1,7 +1,6 @@
 @page "/"
 @using AnimeFeedManager.Features.Seasons.Queries
 @using AnimeFeedManager.Features.Seasons.Storage
-@using AnimeFeedManager.Features.Seasons.UpdateProcess
 @using AnimeFeedManager.Web.Features.Tv
 @inject ITableClientFactory TableClientFactory;
 @inject ILogger<HomePage> Logger;
@@ -20,8 +19,9 @@ else
 @code {
     private SeriesSeason? _season;
 
-    private static Result<SeriesSeason, ValidationError.Fields> ParseSeason(SeasonStorage season) =>
-        (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason();
+    private static Result<SeriesSeason, StorageError> ParseSeason(SeasonStorage season) =>
+        (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason()
+            .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SeasonStorage), fields.Errors));
 
     protected override async Task OnInitializedAsync()
     {

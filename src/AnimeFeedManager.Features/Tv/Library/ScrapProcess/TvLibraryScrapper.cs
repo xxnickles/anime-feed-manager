@@ -1,6 +1,5 @@
 ﻿using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
 using AnimeFeedManager.Features.Scrapping.Types;
-using AnimeFeedManager.Features.Seasons.UpdateProcess;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 
 namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
@@ -35,6 +34,7 @@ public static class TvLibraryScrapper
             _ => throw new UnreachableException()
         };
 
-    private static Result<SeriesSeason, ValidationError.Fields> AsSeriesSeason(SeasonStorage season) =>
-        (season.Season ?? string.Empty, season.Year, false).ParseAsSeriesSeason();
+    private static Result<SeriesSeason, StorageError> AsSeriesSeason(SeasonStorage season) =>
+        (season.Season ?? string.Empty, season.Year, false).ParseAsSeriesSeason()
+            .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SeasonStorage), fields.Errors));
 }

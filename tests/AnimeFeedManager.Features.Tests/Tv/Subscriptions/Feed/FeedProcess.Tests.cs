@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
-using AnimeFeedManager.Features.Scrapping.SubsPlease;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 using AnimeFeedManager.Features.Tv.Subscriptions.Feed.Events;
