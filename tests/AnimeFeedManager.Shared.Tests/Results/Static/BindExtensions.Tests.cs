@@ -24,7 +24,7 @@ public class BindExtensionsTests
     public void Should_Not_Bind_When_Result_Is_Failure()
     {
         var binderCalled = false;
-        var error = NotFoundError.Create("Test error");
+        var error = new TestError("Test error");
         var result = Result<int, DomainError>.Failure(error)
             .Bind(x =>
             {
@@ -41,7 +41,7 @@ public class BindExtensionsTests
     {
         var secondBinderCalled = false;
         var result = Result<int, DomainError>.Success(42)
-            .Bind(x => Result<int, DomainError>.Failure(NotFoundError.Create("First error")))
+            .Bind(x => Result<int, DomainError>.Failure(new TestError("First error")))
             .Bind(x =>
             {
                 secondBinderCalled = true;
@@ -169,7 +169,7 @@ public class BindExtensionsTests
     {
         var binderCalled = false;
         var predicateCalled = false;
-        var error = NotFoundError.Create("Test error");
+        var error = new TestError("Test error");
         var result = Result<int, DomainError>.Failure(error)
             .BindWhen(
                 x =>

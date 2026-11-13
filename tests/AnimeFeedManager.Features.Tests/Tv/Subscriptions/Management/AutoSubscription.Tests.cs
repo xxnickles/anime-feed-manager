@@ -151,7 +151,7 @@ public class AutoSubscriptionTests
     [Fact]
     public async Task StoreChanges_Should_Propagate_Failure_From_Previous_Step()
     {
-        var error = Error.Create("Previous step error");
+        var error = new OtherTestError("Previous step error");
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(error));
 
         var updater = Substitute.For<TvSubscriptionsUpdater>();
@@ -213,7 +213,7 @@ public class AutoSubscriptionTests
     public async Task SendEvents_Should_Send_Error_Event_And_Return_Original_Error_When_Process_Fails()
     {
         const string seriesId = "test-series-123";
-        var originalError = Error.Create("Process failed");
+        var originalError = new OtherTestError("Process failed");
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(originalError));
 
         var capturedEvents = new List<SystemEvent>();
@@ -238,7 +238,7 @@ public class AutoSubscriptionTests
     public async Task SendEvents_Should_Return_Error_Event_Failure_When_Both_Process_And_ErrorEvent_Fail()
     {
         const string seriesId = "test-series-123";
-        var originalError = Error.Create("Process failed");
+        var originalError = new OtherTestError("Process failed");
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(originalError));
 
         var errorEventError = new DeliveryError.NotDelivered([], new InvalidOperationException("Failed to send error event"));

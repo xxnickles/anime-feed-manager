@@ -44,7 +44,7 @@ internal static class Notifications
 
     private static ToastType ToToastType(DomainError error) => error switch
     {
-        NotFoundError or StorageError.NotFound => ToastType.Info,
+        StorageError.NotFound => ToastType.Info,
         DomainValidationErrors or FormDataValidationError => ToastType.Warning,
         _ => ToastType.Error
     };
@@ -55,7 +55,7 @@ internal static class Notifications
         {
             switch (error)
             {
-                case NotFoundError or StorageError.NotFound:
+                case StorageError.NotFound:
                     builder.AddContent(1, "The requested resource was not found.");
                     break;
 
@@ -63,11 +63,11 @@ internal static class Notifications
                     builder.AddContent(2, "One or more validation errors occurred:");
                     break;
 
-                case ExceptionError or StorageError.RequestFailed:
+                case StorageError.RequestFailed:
                     builder.AddContent(1, "An internal server error occurred. Please try again later.");
                     break;
 
-                case Error or NoFeed or AlreadySubscribed or UserIsAnonymous:
+                case NoFeed or AlreadySubscribed or UserIsAnonymous:
                     builder.AddContent(1, error.Message);
                     break;
 

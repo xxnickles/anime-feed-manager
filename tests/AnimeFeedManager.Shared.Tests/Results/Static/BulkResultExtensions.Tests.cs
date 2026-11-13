@@ -30,7 +30,7 @@ public class BulkResultExtensionsTests
         var logger = new TrackingLogger();
         int? capturedValue = null;
 
-        var bulk = new PartialSuccessBulkResult<int>(7, [NotFoundError.Create("err")]);
+        var bulk = new PartialSuccessBulkResult<int>(7, [new TestError("err")]);
         bulk.LogResults(logger, (value, _) => capturedValue = value);
 
         Assert.Equal(7, capturedValue);
@@ -42,8 +42,8 @@ public class BulkResultExtensionsTests
         var logger = new TrackingLogger();
 
         var bulk = new PartialSuccessBulkResult<int>(0, [
-            NotFoundError.Create("err1"),
-            NotFoundError.Create("err2")
+            new TestError("err1"),
+            new TestError("err2")
         ]);
 
         bulk.LogResults(logger, (_, _) => { });
@@ -57,8 +57,8 @@ public class BulkResultExtensionsTests
         var logger = new TrackingLogger();
 
         var bulk = new PartialSuccessBulkResult<int>(5, [
-            NotFoundError.Create("err1"),
-            NotFoundError.Create("err2")
+            new TestError("err1"),
+            new TestError("err2")
         ]);
 
         bulk.LogErrors(logger);

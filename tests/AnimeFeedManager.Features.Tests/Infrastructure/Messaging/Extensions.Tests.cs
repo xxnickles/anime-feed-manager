@@ -28,7 +28,7 @@ public class MessagingExtensionsTests
         var result = await Failure("original failure")
             .SendOnError(postman, [errorEvent], CancellationToken.None);
 
-        result.AssertOnError(error => Assert.Equal("original failure", Assert.IsType<Error>(error).Message));
+        result.AssertOnError(error => Assert.Equal("original failure", Assert.IsType<OtherTestError>(error).Message));
         Assert.Equal([errorEvent], postman.Sent);
     }
 
@@ -40,7 +40,7 @@ public class MessagingExtensionsTests
         var result = await Failure("original failure")
             .SendOnError(postman, [ErrorEvent()], CancellationToken.None);
 
-        result.AssertOnError(error => Assert.Equal("original failure", Assert.IsType<Error>(error).Message));
+        result.AssertOnError(error => Assert.Equal("original failure", Assert.IsType<OtherTestError>(error).Message));
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class MessagingExtensionsTests
     #region Test Helpers
 
     private static Task<Result<int, DomainError>> Failure(string message) =>
-        Task.FromResult(Result<int, DomainError>.Failure(Error.Create(message)));
+        Task.FromResult(Result<int, DomainError>.Failure(new OtherTestError(message)));
 
     private static DomainMessage ErrorEvent() => new RunFeedNotification();
 

@@ -14,7 +14,7 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Not_Map_When_Result_Is_Failure()
     {
-        var error = NotFoundError.Create("Test error");
+        var error = new TestError("Test error");
         var result = Result<int, DomainError>.Failure(error)
             .Map(x => x.ToString());
 
@@ -35,7 +35,7 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Preserve_Error_Through_Map_Chain()
     {
-        var error = NotFoundError.Create("Test error");
+        var error = new TestError("Test error");
         var result = Result<int, DomainError>.Failure(error)
             .Map(x => x * 2)
             .Map(x => x + 10)
@@ -47,8 +47,8 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Change_Error_Type_When_MapError_Runs_On_Failure()
     {
-        Result<int, Error> result = Result<int, DomainError>.Failure(NotFoundError.Create("Not found"))
-            .MapError(error => Error.Create($"Wrapped: {error.Message}"));
+        Result<int, OtherTestError> result = Result<int, DomainError>.Failure(new TestError("Not found"))
+            .MapError(error => new OtherTestError($"Wrapped: {error.Message}"));
 
         result.AssertOnError(error => Assert.Equal("Wrapped: Not found", error.Message));
     }
@@ -73,10 +73,10 @@ public class MapExtensionsTests
     {
         var logger = new RecordingLogger();
 
-        Result<int, DomainError>.Failure(NotFoundError.Create("Not found"))
+        Result<int, DomainError>.Failure(new TestError("Not found"))
             .AddLog(log => log.LogInformation("staged"))
             .WithLogProperty("Key", "value")
-            .MapError(error => Error.Create($"Wrapped: {error.Message}"))
+            .MapError(error => new OtherTestError($"Wrapped: {error.Message}"))
             .FlushLogs(logger);
 
         Assert.Equal(["staged", "Wrapped: Not found"], logger.Entries);
@@ -90,7 +90,7 @@ public class MapExtensionsTests
 
         Result<int, DomainError>.Success(42)
             .AddLog(log => log.LogInformation("staged"))
-            .MapError(error => Error.Create(error.Message))
+            .MapError(error => new OtherTestError(error.Message))
             .FlushLogs(logger);
 
         Assert.Equal(["staged"], logger.Entries);

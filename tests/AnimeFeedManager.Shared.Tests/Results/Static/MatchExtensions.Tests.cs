@@ -25,7 +25,7 @@ public class MatchExtensionsTests
     {
         var successCalled = false;
         var errorCalled = false;
-        var testError = NotFoundError.Create("Test error");
+        var testError = new TestError("Test error");
 
         Result<int, DomainError>.Failure(testError).Match(
             onOk: value => successCalled = true,
@@ -53,7 +53,7 @@ public class MatchExtensionsTests
     [Fact]
     public void Should_Return_Error_Value_With_MatchToValue()
     {
-        var error = NotFoundError.Create("Not found");
+        var error = new TestError("Not found");
         var result = Result<int, DomainError>.Failure(error)
             .MatchToValue(
                 onOk: value => $"Success: {value}",
@@ -76,7 +76,7 @@ public class MatchExtensionsTests
     [Fact]
     public void Should_Use_MatchToValue_For_Default_On_Error()
     {
-        var error = NotFoundError.Create("Not found");
+        var error = new TestError("Not found");
         var result = Result<int, DomainError>.Failure(error)
             .MatchToValue(
                 onOk: value => value,

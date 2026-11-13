@@ -43,31 +43,19 @@ internal static class ResponseExtensions
     {
         return error switch
         {
-            NotFoundError or StorageError.NotFound => TypedResults.NotFound(),
+            StorageError.NotFound => TypedResults.NotFound(),
             DomainValidationErrors validationErrors => TypedResults.ValidationProblem(
                 validationErrors.Errors.ToDictionary(e => e.Field, e => e.Errors),
                 detail: "One or more validation errors occurred",
                 title: "Validation Error"),
-            ExceptionError or StorageError.RequestFailed => TypedResults.Problem(
+            StorageError.RequestFailed => TypedResults.Problem(
                 detail: "An internal server error occurred",
                 title: "Internal Server Error",
                 statusCode: 500,
                 type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"),
-            HandledError => TypedResults.NoContent(),
-            TypeMismatch typeMismatch => TypedResults.Problem(
-                detail:
-                $"Expected type '{typeMismatch.TargetType.Name}' but received '{typeMismatch.Received.GetType().Name}'",
-                title: "Type Mismatch Error",
-                statusCode: 400,
-                type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1"),
             AggregatedError aggregatedError => TypedResults.Problem(
                 detail: string.Join("; ", aggregatedError.Errors.Select(e => e.Message)),
                 title: "All operations failed",
-                statusCode: 500,
-                type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"),
-            Error basicError => TypedResults.Problem(
-                detail: basicError.Message,
-                title: "An error occurred",
                 statusCode: 500,
                 type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"),
             _ => TypedResults.Problem(

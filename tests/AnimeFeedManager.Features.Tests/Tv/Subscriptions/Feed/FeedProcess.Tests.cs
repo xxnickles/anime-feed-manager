@@ -476,7 +476,7 @@ public class FeedProcessTests
     [Fact]
     public async Task Should_Fail_When_Feed_Is_Failure()
     {
-        var error = HandledError.Create();
+        var error = new TestError(string.Empty);
         var failedFeed = Result<DailySeriesFeed[], DomainError>.Failure(error);
 
         var subscriptionsGetter = CreateSubscriptionsGetter([]);
@@ -487,7 +487,7 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        result.AssertOnError(domainError => Assert.IsType<HandledError>(domainError));
+        result.AssertOnError(domainError => Assert.IsType<TestError>(domainError));
     }
 
     [Fact]
@@ -498,7 +498,7 @@ public class FeedProcessTests
             CreateDailyFeed("Anime 1", "https://example.com/anime-1", 3)
         };
 
-        var error = Error.Create("Database error");
+        var error = new OtherTestError("Database error");
         var subscriptionsGetter = CreateFailingSubscriptionsGetter(error);
         var postman = CreatePostman();
 

@@ -21,7 +21,7 @@ public class TapExtensionsTests
     public void Should_Not_Execute_Tap_Action_When_Result_Is_Failure()
     {
         var executed = false;
-        var error = NotFoundError.Create("Test error");
+        var error = new TestError("Test error");
         var result = Result<int, DomainError>.Failure(error)
             .Tap(x => executed = true);
 
@@ -57,7 +57,7 @@ public class TapExtensionsTests
     public async Task Should_Not_Execute_Tap_Action_When_Async_Result_Is_Failure()
     {
         var executed = false;
-        var error = NotFoundError.Create("Test error");
+        var error = new TestError("Test error");
         var result = await Task.FromResult(Result<int, DomainError>.Failure(error))
             .Tap(x => executed = true);
 
@@ -85,7 +85,7 @@ public class TapExtensionsTests
     public async Task Should_Not_Execute_Async_Tap_Action_When_Result_Is_Failure()
     {
         var executed = false;
-        var error = NotFoundError.Create("Test error");
+        var error = new TestError("Test error");
         var result = await Task.FromResult(Result<int, DomainError>.Failure(error))
             .Tap(async x =>
             {

@@ -26,9 +26,9 @@ public class CollectionExtensionsTests
     {
         var results = new[]
         {
-            Result<int, DomainError>.Failure(NotFoundError.Create("Error 1")),
-            Result<int, DomainError>.Failure(NotFoundError.Create("Error 2")),
-            Result<int, DomainError>.Failure(NotFoundError.Create("Error 3"))
+            Result<int, DomainError>.Failure(new TestError("Error 1")),
+            Result<int, DomainError>.Failure(new TestError("Error 2")),
+            Result<int, DomainError>.Failure(new TestError("Error 3"))
         };
 
         var flattened = results.Flatten(items => items.ToList());
@@ -47,7 +47,7 @@ public class CollectionExtensionsTests
         var results = new[]
         {
             Result<int, DomainError>.Success(1),
-            Result<int, DomainError>.Failure(NotFoundError.Create("Error 1")),
+            Result<int, DomainError>.Failure(new TestError("Error 1")),
             Result<int, DomainError>.Success(3)
         };
 
@@ -100,9 +100,9 @@ public class CollectionExtensionsTests
         var results = new[]
         {
             Result<int, DomainError>.Success(2),
-            Result<int, DomainError>.Failure(NotFoundError.Create("Error")),
+            Result<int, DomainError>.Failure(new TestError("Error")),
             Result<int, DomainError>.Success(4),
-            Result<int, DomainError>.Failure(NotFoundError.Create("Error 2"))
+            Result<int, DomainError>.Failure(new TestError("Error 2"))
         };
 
         var flattened = results.Flatten(items => items.ToList());
@@ -136,7 +136,7 @@ public class CollectionExtensionsTests
     public void Should_Preserve_IsFailure_Property()
     {
         var success = Result<int, DomainError>.Success(42);
-        var failure = Result<int, DomainError>.Failure(NotFoundError.Create("Error"));
+        var failure = Result<int, DomainError>.Failure(new TestError("Error"));
 
         Assert.False(success.IsFailure);
         Assert.True(failure.IsFailure);
@@ -203,7 +203,7 @@ public class CollectionExtensionsTests
         var results = new[]
         {
             Result<int, DomainError>.Success(1),
-            Result<int, DomainError>.Failure(NotFoundError.Create("gone"))
+            Result<int, DomainError>.Failure(new TestError("gone"))
                 .AddLogOnFailure(error => log => log.LogWarning("{Message}", error.Message))
         };
 

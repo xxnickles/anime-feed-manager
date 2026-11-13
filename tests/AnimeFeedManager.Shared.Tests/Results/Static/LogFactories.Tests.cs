@@ -29,7 +29,7 @@ public class LogFactoriesTests
         int? capturedValue = null;
 
         var factory = LogFactories.LogBulkResult<int>((value, _) => capturedValue = value);
-        factory(new PartialSuccessBulkResult<int>(5, [NotFoundError.Create("partial")]))(logger);
+        factory(new PartialSuccessBulkResult<int>(5, [new TestError("partial")]))(logger);
 
         Assert.Equal(5, capturedValue);
     }

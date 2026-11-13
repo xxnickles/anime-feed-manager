@@ -53,7 +53,7 @@ public class EventSendingTests
     {
         var postman = new TestDomainPostman();
 
-        var result = await Task.FromResult<Result<SeasonUpdateData, DomainError>>(Error.Create("update failed"))
+        var result = await Task.FromResult<Result<SeasonUpdateData, DomainError>>(new OtherTestError("update failed"))
             .SentEvents(postman, TestSeason, CancellationToken.None);
 
         result.AssertError();

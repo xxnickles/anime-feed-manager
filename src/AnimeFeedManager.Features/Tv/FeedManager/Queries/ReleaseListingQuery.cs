@@ -35,7 +35,7 @@ public sealed record NyaaReleaseFeed(
 
 public static class ReleaseListingQuery
 {
-    /// <summary>A library series with its nyaa releases; an unbound series reads as <see cref="NoReleaseFeed"/>, one missing from the library fails with <see cref="NotFoundError"/>.</summary>
+    /// <summary>A library series with its nyaa releases; an unbound series reads as <see cref="NoReleaseFeed"/>, one missing from the library fails with <see cref="StorageError.NotFound"/>.</summary>
     public static Task<Result<ReleaseListing, DomainError>> GetReleaseListing(
         string seriesId,
         TvLibrarySeries seriesGetter,

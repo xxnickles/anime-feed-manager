@@ -1,6 +1,6 @@
 namespace AnimeFeedManager.Shared.Tests.Results;
 
-public union LookupError(NotFoundError, Error);
+public union LookupError(TestError, OtherTestError);
 
 public class ResultTests
 {
@@ -17,9 +17,9 @@ public class ResultTests
     [Fact]
     public void Should_Hold_Error_When_Leaf_Error_Is_Assigned_To_Result()
     {
-        Result<int, DomainError> result = NotFoundError.Create("gone");
+        Result<int, DomainError> result = new TestError("gone");
 
-        result.AssertOnError(error => Assert.IsType<NotFoundError>(error));
+        result.AssertOnError(error => Assert.IsType<TestError>(error));
     }
 
     #endregion
@@ -39,7 +39,7 @@ public class ResultTests
     [Fact]
     public void Should_Match_Error_Case_When_Result_Is_Failure()
     {
-        var result = Result<int, DomainError>.Failure(NotFoundError.Create("gone"));
+        var result = Result<int, DomainError>.Failure(new TestError("gone"));
 
         var description = Describe(result);
 
@@ -49,7 +49,7 @@ public class ResultTests
     [Fact]
     public void Should_Match_Leaf_Case_When_Error_Is_Widened_Into_A_Path_Union()
     {
-        var result = Result<int, NotFoundError>.Failure(NotFoundError.Create("gone"))
+        var result = Result<int, TestError>.Failure(new TestError("gone"))
             .MapError(error => (LookupError)error);
 
         var description = result switch
@@ -57,8 +57,8 @@ public class ResultTests
             int value => $"value {value}",
             LookupError error => error switch
             {
-                NotFoundError => "not found",
-                Error => "error"
+                TestError => "not found",
+                OtherTestError => "error"
             }
         };
 
@@ -90,8 +90,8 @@ public class ResultTests
     [Fact]
     public void Should_Recover_When_Path_Error_Matches_The_Predicate()
     {
-        var result = LookupFailure(NotFoundError.Create("gone"))
-            .BindOnErrorWhen(_ => 0, error => error is NotFoundError);
+        var result = LookupFailure(new TestError("gone"))
+            .BindOnErrorWhen(_ => 0, error => error is TestError);
 
         result.AssertOnSuccess(value => Assert.Equal(0, value));
     }
@@ -99,10 +99,10 @@ public class ResultTests
     [Fact]
     public void Should_Keep_Failure_When_Path_Error_Does_Not_Match_The_Predicate()
     {
-        var result = LookupFailure(Error.Create("broken"))
-            .BindOnErrorWhen(_ => 0, error => error is NotFoundError);
+        var result = LookupFailure(new OtherTestError("broken"))
+            .BindOnErrorWhen(_ => 0, error => error is TestError);
 
-        result.AssertOnError(error => Assert.True(error is Error));
+        result.AssertOnError(error => Assert.True(error is OtherTestError));
     }
 
     #endregion
@@ -114,7 +114,7 @@ public class ResultTests
     {
         var logger = new RecordingLogger();
 
-        LookupFailure(NotFoundError.Create("gone")).FlushLogs(logger);
+        LookupFailure(new TestError("gone")).FlushLogs(logger);
 
         Assert.Equal(["gone"], logger.Entries);
     }
