@@ -78,7 +78,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 
 - The producer stamps its span context (or the caller's, when the send span is unsampled) into the message's trace information; the consumer reads it to build the link.
 - `messaging.message.id` is the join key across hops.
-- A failed send sets span status `Error` and `error.type` = the exception's full type name (not a `DomainError` class name); the caller's `MessagesNotDelivered` logs it once.
+- A failed send sets span status `Error` and `error.type` = the exception's full type name (not a `DomainError` class name); the caller's `DeliveryError.NotDelivered` logs it once.
 - Every queue-triggered function starts `message.StartProcessActivity(functionContext)` first, then its domain span. Timer-triggered functions start only the domain span.
 
 ## 6. Dictionary: sources and spans

@@ -37,6 +37,7 @@ internal static class TvAdminHandlers
         return await domainPostman.SendMessages([new UpdateTvSeriesEvent()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
+            .MapError(error => (DomainError)error)
             .ToComponentNotification<Unit, Noop, TvLatestSeasonUpdate>(new Noop());
     }
 
@@ -50,6 +51,7 @@ internal static class TvAdminHandlers
         return await domainPostman.SendMessages([new RunFeedNotification()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
+            .MapError(error => (DomainError)error)
             .ToComponentNotification<Unit, Noop, TvNotificationsTrigger>(new Noop());
     }
 
@@ -63,6 +65,7 @@ internal static class TvAdminHandlers
         return await domainPostman.SendMessages([new RunAutomatedBinding()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
+            .MapError(error => (DomainError)error)
             .ToComponentNotification<Unit, Noop, AutomatedBindingTrigger>(new Noop());
     }
 
@@ -76,6 +79,7 @@ internal static class TvAdminHandlers
         return await domainPostman.SendMessages([new RunFeedSettlement()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
+            .MapError(error => (DomainError)error)
             .ToComponentNotification<Unit, Noop, FeedSettlementTrigger>(new Noop());
     }
 }

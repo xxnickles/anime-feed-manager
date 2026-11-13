@@ -523,7 +523,7 @@ public class FeedProcessTests
             CreateUser("user1", "user1@example.com", ["Anime 1"])
         };
 
-        var error = MessagesNotDelivered.Create("Queue error", []);
+        var error = new DeliveryError.NotDelivered([], new InvalidOperationException("Queue error"));
         var subscriptionsGetter = CreateSubscriptionsGetter(users);
         var postman = CreateFailingPostman(error);
 
@@ -532,7 +532,7 @@ public class FeedProcessTests
             postman,
             CancellationToken.None);
 
-        result.AssertOnError(domainError => Assert.IsType<MessagesNotDelivered>(domainError));
+        result.AssertOnError(domainError => Assert.IsType<DeliveryError.NotDelivered>(domainError));
     }
 
     #endregion
@@ -664,8 +664,8 @@ public class FeedProcessTests
 
     private static TestPostman CreatePostman() => new();
 
-    private static DomainCollectionSender CreateFailingPostman(DomainError error) =>
-        (messages, cancellationToken) => Task.FromResult(Result<Unit, DomainError>.Failure(error));
+    private static DomainCollectionSender CreateFailingPostman(DeliveryError error) =>
+        (messages, cancellationToken) => Task.FromResult(Result<Unit, DeliveryError>.Failure(error));
 
     #endregion
 
@@ -678,7 +678,7 @@ public class FeedProcessTests
         public DomainCollectionSender Delegate => (messages, cancellationToken) =>
         {
             SentNotifications.AddRange(messages.OfType<FeedNotification>());
-            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
         public static implicit operator DomainCollectionSender(TestPostman wrapper) => wrapper.Delegate;

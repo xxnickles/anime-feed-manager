@@ -178,7 +178,7 @@ public class AutoSubscriptionTests
         DomainCollectionSender domainPostman = (messages, _) =>
         {
             capturedEvents.AddRange(messages.OfType<SystemEvent>());
-            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
@@ -202,7 +202,7 @@ public class AutoSubscriptionTests
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
 
         DomainCollectionSender domainPostman = (messages, _) =>
-            Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
@@ -220,7 +220,7 @@ public class AutoSubscriptionTests
         DomainCollectionSender domainPostman = (messages, _) =>
         {
             capturedEvents.AddRange(messages.OfType<SystemEvent>());
-            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
@@ -241,9 +241,9 @@ public class AutoSubscriptionTests
         var originalError = Error.Create("Process failed");
         var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(originalError));
 
-        var errorEventError = Error.Create("Failed to send error event");
+        var errorEventError = new DeliveryError.NotDelivered([], new InvalidOperationException("Failed to send error event"));
         DomainCollectionSender domainPostman = (messages, _) =>
-            Task.FromResult(Result<Unit, DomainError>.Failure(errorEventError));
+            Task.FromResult(Result<Unit, DeliveryError>.Failure(errorEventError));
 
         var result = await processTask.SendEvents(seriesId, domainPostman, CancellationToken.None);
 
@@ -275,7 +275,7 @@ public class AutoSubscriptionTests
         DomainCollectionSender domainPostman = (messages, _) =>
         {
             capturedEvents.AddRange(messages.OfType<SystemEvent>());
-            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, SeriesGetter, CancellationToken.None)
@@ -308,7 +308,7 @@ public class AutoSubscriptionTests
         DomainCollectionSender domainPostman = (messages, _) =>
         {
             capturedEvents.AddRange(messages.OfType<SystemEvent>());
-            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
         TvSubscriptionsUpdater updater = (subs, token) =>
@@ -360,7 +360,7 @@ public class AutoSubscriptionTests
         var capturedSubscriptions = new List<SubscriptionStorage>();
 
         DomainCollectionSender domainPostman = (messages, _) =>
-            Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
 
         var result = await AutoSubscription.StartProcess(seriesId, feedTitle, SeriesGetter, CancellationToken.None)
             .StoreChanges(Updater, CancellationToken.None)

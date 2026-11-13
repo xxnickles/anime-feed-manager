@@ -82,7 +82,7 @@ public class AnimeScheduleClientTests : IDisposable
         StubStatusSeasonPage("summer", 2026, 2, 429);
         StubSeasonPage("summer", 2026, 3, PageSize * 2 + 1, Entry("c", "Page3"));
 
-        var result = await CreateClient().GetSeason(2026, "summer", CancellationToken.None);
+        var result = await CreateClient().GetSeason(2026, "summer", TestContext.Current.CancellationToken);
 
         result.AssertOnError(error => Assert.Equal(new ScrapeError.RateLimited("anime?seasons=summer&years=2026", 2), error));
     }

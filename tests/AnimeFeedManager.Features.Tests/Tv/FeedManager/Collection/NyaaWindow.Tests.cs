@@ -126,7 +126,7 @@ public class NyaaWindowTests
         (message, delay, _) =>
         {
             sent.Add((((BackfillNyaaSeries) message).SeriesId, delay.Value));
-            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
     private static NyaaCollected Collected(DateTimeOffset oldestPolled, ImmutableArray<string> tracked) =>

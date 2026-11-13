@@ -95,11 +95,11 @@ public class EventSendingTests
             if (FailOnFirstSend && !_firstCallDone)
             {
                 _firstCallDone = true;
-                return Task.FromResult<Result<Unit, DomainError>>(MessagesNotDelivered.Create("forced failure", messages));
+                return Task.FromResult<Result<Unit, DeliveryError>>(new DeliveryError.NotDelivered([.. messages], new InvalidOperationException("forced failure")));
             }
 
             _sent.AddRange(messages);
-            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
         public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;

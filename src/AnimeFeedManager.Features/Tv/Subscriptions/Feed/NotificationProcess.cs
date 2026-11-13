@@ -93,7 +93,7 @@ public static class NotificationProcess
         return second <= first + 1 ? string.Empty : $"{id[..first]}-{id[(first + 1)..second]}";
     }
 
-    private static Task<Result<UserNotificationResult, DomainError>> SendNotifications(DomainCollectionSender domainPostman, UserNotificationResult result)
+    private static Task<Result<UserNotificationResult, DeliveryError>> SendNotifications(DomainCollectionSender domainPostman, UserNotificationResult result)
     {
         var messages = result.Notifications.Select(n =>
             new SystemEvent(

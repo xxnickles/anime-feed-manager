@@ -18,19 +18,19 @@ public readonly record struct Delay
     }
 }
 
-public delegate Task<Result<Unit, DomainError>> DomainCollectionSender(IEnumerable<DomainMessage> messages,
+public delegate Task<Result<Unit, DeliveryError>> DomainCollectionSender(IEnumerable<DomainMessage> messages,
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<Unit, DomainError>> DelayedMessageSender(DomainMessage message, Delay delay,
+public delegate Task<Result<Unit, DeliveryError>> DelayedMessageSender(DomainMessage message, Delay delay,
     CancellationToken cancellationToken = default);
 
 
 public interface IDomainPostman{
 
-    Task<Result<Unit, DomainError>> SendMessages<T>(IEnumerable<T> message, CancellationToken cancellationToken = default)
+    Task<Result<Unit, DeliveryError>> SendMessages<T>(IEnumerable<T> message, CancellationToken cancellationToken = default)
         where T : DomainMessage;
 
-    Task<Result<Unit, DomainError>> SendDelayedMessage<T>(T message, Delay delay,
+    Task<Result<Unit, DeliveryError>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage;
 }
 
@@ -46,7 +46,7 @@ public class AzureQueuePostman : IDomainPostman
     }
    
 
-    public async Task<Result<Unit, DomainError>> SendMessages<T>(IEnumerable<T> messages,
+    public async Task<Result<Unit, DeliveryError>> SendMessages<T>(IEnumerable<T> messages,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         // If there is only one message, send it directly
@@ -56,10 +56,8 @@ public class AzureQueuePostman : IDomainPostman
         var processMessages = new Queue<T>(messages);
         try
         {
-            if (processMessages.Any(m => m.MessageBox.HasNoTarget()))
-            {
-                return Error.Create("One of the messages has no target box");
-            }
+            if (processMessages.FirstOrDefault(m => m.MessageBox.HasNoTarget()) is { } untargeted)
+                return new DeliveryError.NoTargetBox(untargeted.GetType());
 
             // Dequeue only after a successful send, so the failed message is reported as undelivered
             while (processMessages.Count > 0)
@@ -74,15 +72,15 @@ public class AzureQueuePostman : IDomainPostman
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return MessagesNotDelivered.Create(e, processMessages);
+            return new DeliveryError.NotDelivered([.. processMessages], e);
         }
     }
 
-    public async Task<Result<Unit, DomainError>> SendDelayedMessage<T>(T message, Delay delay,
+    public async Task<Result<Unit, DeliveryError>> SendDelayedMessage<T>(T message, Delay delay,
         CancellationToken cancellationToken = default) where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
-            return Error.Create($"{typeof(T).FullName} has not a target box");
+            return new DeliveryError.NoTargetBox(message.GetType());
 
         try
         {
@@ -91,15 +89,15 @@ public class AzureQueuePostman : IDomainPostman
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return MessagesNotDelivered.Create(e, message);
+            return new DeliveryError.NotDelivered([message], e);
         }
     }
     
-    private async Task<Result<Unit, DomainError>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
+    private async Task<Result<Unit, DeliveryError>> SendMessage<T>(T message, CancellationToken cancellationToken = default)
         where T : DomainMessage
     {
         if (message.MessageBox.HasNoTarget())
-            return Error.Create($"{typeof(T).FullName} has not a target box");
+            return new DeliveryError.NoTargetBox(message.GetType());
 
         try
         {
@@ -108,7 +106,7 @@ public class AzureQueuePostman : IDomainPostman
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return MessagesNotDelivered.Create(e, message);
+            return new DeliveryError.NotDelivered([message], e);
         }
     }
 
@@ -144,7 +142,7 @@ public class AzureQueuePostman : IDomainPostman
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            // Logged once by the caller's MessagesNotDelivered; the span only records the failure
+            // Logged once by the caller's DeliveryError.NotDelivered; the span only records the failure
             activity?.SetStatus(ActivityStatusCode.Error, e.Message);
             activity?.SetTag(Telemetry.ErrorTypeTag, e.GetType().FullName);
             throw;

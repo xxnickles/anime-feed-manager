@@ -89,11 +89,11 @@ public class MessagingExtensionsTests
         private DomainCollectionSender Delegate => (messages, _) =>
         {
             if (FailSend)
-                return Task.FromResult<Result<Unit, DomainError>>(
-                    MessagesNotDelivered.Create(new InvalidOperationException("queue unavailable"), messages));
+                return Task.FromResult<Result<Unit, DeliveryError>>(
+                    new DeliveryError.NotDelivered([.. messages], new InvalidOperationException("queue unavailable")));
 
             Sent.AddRange(messages);
-            return Task.FromResult(Result<Unit, DomainError>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
         public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;
