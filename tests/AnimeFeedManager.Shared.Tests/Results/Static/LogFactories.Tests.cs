@@ -11,30 +11,6 @@ public class LogFactoriesTests
     }
 
     [Fact]
-    public void Should_LogBulkResult_Invoke_OnCompleted_For_CompletedBulkResult()
-    {
-        var logger = new SilentLogger();
-        int? capturedValue = null;
-
-        var factory = LogFactories.LogBulkResult<int>((value, _) => capturedValue = value);
-        factory(new CompletedBulkResult<int>(99))(logger);
-
-        Assert.Equal(99, capturedValue);
-    }
-
-    [Fact]
-    public void Should_LogBulkResult_Invoke_OnCompleted_For_PartialSuccessBulkResult()
-    {
-        var logger = new SilentLogger();
-        int? capturedValue = null;
-
-        var factory = LogFactories.LogBulkResult<int>((value, _) => capturedValue = value);
-        factory(new PartialSuccessBulkResult<int>(5, [new TestError("partial")]))(logger);
-
-        Assert.Equal(5, capturedValue);
-    }
-
-    [Fact]
     public void Should_Log_Invoke_LogAction_With_Value()
     {
         var logger = new SilentLogger();

@@ -53,9 +53,9 @@ internal static class ResponseExtensions
                 title: "Internal Server Error",
                 statusCode: 500,
                 type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"),
-            AggregatedError aggregatedError => TypedResults.Problem(
-                detail: string.Join("; ", aggregatedError.Errors.Select(e => e.Message)),
-                title: "All operations failed",
+            BulkError bulk => TypedResults.Problem(
+                detail: string.Join("; ", bulk.Failures.Select(e => e.Message)),
+                title: bulk.Message,
                 statusCode: 500,
                 type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"),
             _ => TypedResults.Problem(

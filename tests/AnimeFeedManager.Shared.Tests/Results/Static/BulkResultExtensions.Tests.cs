@@ -2,81 +2,7 @@ namespace AnimeFeedManager.Shared.Tests.Results.Static;
 
 public class BulkResultExtensionsTests
 {
-    private sealed class TrackingLogger : ILogger
-    {
-        public int CallCount { get; private set; }
-
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
-        public bool IsEnabled(LogLevel logLevel) => true;
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
-            Func<TState, Exception?, string> formatter) => CallCount++;
-    }
-
-    [Fact]
-    public void Should_Call_OnCompleted_For_CompletedBulkResult()
-    {
-        var logger = new TrackingLogger();
-        int? capturedValue = null;
-
-        var bulk = new CompletedBulkResult<int>(42);
-        bulk.LogResults(logger, (value, _) => capturedValue = value);
-
-        Assert.Equal(42, capturedValue);
-    }
-
-    [Fact]
-    public void Should_Call_OnCompleted_For_PartialSuccessBulkResult()
-    {
-        var logger = new TrackingLogger();
-        int? capturedValue = null;
-
-        var bulk = new PartialSuccessBulkResult<int>(7, [new TestError("err")]);
-        bulk.LogResults(logger, (value, _) => capturedValue = value);
-
-        Assert.Equal(7, capturedValue);
-    }
-
-    [Fact]
-    public void Should_Log_Each_Error_In_PartialSuccessBulkResult()
-    {
-        var logger = new TrackingLogger();
-
-        var bulk = new PartialSuccessBulkResult<int>(0, [
-            new TestError("err1"),
-            new TestError("err2")
-        ]);
-
-        bulk.LogResults(logger, (_, _) => { });
-
-        Assert.Equal(2, logger.CallCount);
-    }
-
-    [Fact]
-    public void Should_Log_Each_Error_When_Logging_Errors_Only()
-    {
-        var logger = new TrackingLogger();
-
-        var bulk = new PartialSuccessBulkResult<int>(5, [
-            new TestError("err1"),
-            new TestError("err2")
-        ]);
-
-        bulk.LogErrors(logger);
-
-        Assert.Equal(2, logger.CallCount);
-    }
-
-    [Fact]
-    public void Should_Log_Nothing_When_Logging_Errors_Of_CompletedBulkResult()
-    {
-        var logger = new TrackingLogger();
-
-        new CompletedBulkResult<int>(42).LogErrors(logger);
-
-        Assert.Equal(0, logger.CallCount);
-    }
-
-    #region Typed Bulk Tests
+    #region Errors Tests
 
     [Fact]
     public void Should_Expose_No_Errors_When_Bulk_Is_Completed()
@@ -96,7 +22,7 @@ public class BulkResultExtensionsTests
     }
 
     [Fact]
-    public void Should_Log_Each_Error_When_Logging_Errors_Of_A_Partial_Typed_Bulk()
+    public void Should_Log_Each_Error_When_Logging_Errors_Of_A_Partial_Bulk()
     {
         var logger = new RecordingLogger();
         BulkResult<int, TestError> bulk = new BulkResult<int, TestError>.Partial(5, [new TestError("err1"), new TestError("err2")]);
@@ -107,7 +33,7 @@ public class BulkResultExtensionsTests
     }
 
     [Fact]
-    public void Should_Log_Nothing_When_Logging_Errors_Of_A_Completed_Typed_Bulk()
+    public void Should_Log_Nothing_When_Logging_Errors_Of_A_Completed_Bulk()
     {
         var logger = new RecordingLogger();
         BulkResult<int, TestError> bulk = new BulkResult<int, TestError>.Completed(42);
