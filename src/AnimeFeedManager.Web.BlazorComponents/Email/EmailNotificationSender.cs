@@ -31,7 +31,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         _blazorRenderer = blazorRenderer;
     }
 
-    public Task<Result<Unit, DomainError>> Send<TModel>(
+    public Task<Result<Unit, EmailError>> Send<TModel>(
         string to,
         string subject,
         EmailTemplateFactory<TModel> templateFactory,
@@ -46,11 +46,11 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         }
         catch (Exception ex)
         {
-            return Task.FromResult(Result<Unit, DomainError>.Failure(EmailSendError.Create($"Unexpected error: {ex.Message}")));
+            return Task.FromResult(Result<Unit, EmailError>.Failure(new EmailError.SendFailed(ex)));
         }
     }
 
-    private async Task<Result<EmailBody, DomainError>> RenderBody<TModel>(
+    private async Task<Result<EmailBody, EmailError>> RenderBody<TModel>(
         EmailTemplateFactory<TModel> templateFactory,
         EmailTextFactory<TModel> textFactory,
         TModel model) where TModel : notnull
@@ -67,11 +67,11 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            return EmailRenderError.Create($"Template rendering failed: {ex.Message}");
+            return new EmailError.RenderFailed(ex);
         }
     }
 
-    private async Task<Result<Unit, DomainError>> SendEmailAsync(
+    private async Task<Result<Unit, EmailError>> SendEmailAsync(
         string to,
         string subject,
         EmailBody body,
@@ -102,7 +102,7 @@ public sealed class EmailNotificationSender : IEmailNotificationSender
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            return EmailSendError.Create($"SMTP send failed: {ex.Message}");
+            return new EmailError.SendFailed(ex);
         }
     }
 }

@@ -44,6 +44,7 @@ public class OnTvFeedNotification
                 NotificationEmailText.Render,
                 notification.ToEmailModel(),
                 cancellationToken)
+            .MapError(error => (DomainError)error)
             .Bind(_ => NotificationProcess.UpdateUserSubscriptions(notification,
                 _tableClientFactory.TableStorageTvSubscriptionsUpdater,
                 _domainPostman.SendMessages,
