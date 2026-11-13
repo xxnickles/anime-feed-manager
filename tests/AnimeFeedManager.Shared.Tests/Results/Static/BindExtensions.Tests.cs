@@ -194,9 +194,7 @@ public class BindExtensionsTests
         var validatePositive = (int x) =>
             x > 0
                 ? Result<int, DomainError>.Success(x)
-                : Result<int, DomainError>.Failure(DomainValidationErrors.Create([
-                    DomainValidationError.Create("value", "Must be positive")
-                ]));
+                : Result<int, DomainError>.Failure(new ValidationError.Fields([new FieldError("value", ["Must be positive"])]));
 
         var result = Result<int, DomainError>.Success(10)
             .BindWhen(validatePositive, x => x != 0);

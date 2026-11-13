@@ -75,11 +75,11 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     }
 
     [Fact]
-    public void Should_Leave_Status_Unset_When_Error_Is_Domain_Validation()
+    public void Should_Leave_Status_Unset_When_Error_Is_Field_Validation()
     {
         using var activity = StartActivity();
 
-        Result<int, DomainError>.Failure(DomainValidationErrors.Create([DomainValidationError.Create("Email", "required")]))
+        Result<int, DomainError>.Failure(new ValidationError.Fields([new FieldError("Email", ["required"])]))
             .MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
@@ -90,7 +90,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int, DomainError>.Failure(new FormDataValidationError<string>([new ValidationResult("required", ["Email"])]))
+        Result<int, DomainError>.Failure(new ValidationError.Form<string>([new ValidationResult("required", ["Email"])]))
             .MarkActivityErroredOnError();
 
         AssertUnmarked(activity);

@@ -34,5 +34,5 @@ public static class ResultActivityExtensions
         type.DeclaringType is { } family ? $"{family.Name}.{type.Name}" : type.Name;
 
     private static bool IsSpanError(DomainError error) =>
-        error is not (Warning or DomainValidationErrors or FormDataValidationError);
+        error is not (Warning or ValidationError);
 }

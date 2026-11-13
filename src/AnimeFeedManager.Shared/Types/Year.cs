@@ -47,9 +47,7 @@ public static class YearExtensions
     public static Validation<Year> ParseAsYear(this int value) =>
         Year.NumberIsValid(value)
             ? Validation<Year>.Valid(Year.FromNumber(value))
-            : Validation<Year>.Invalid(
-                DomainValidationError.Create<Year>($"'{value}' is not a valid year")
-                    .ToErrors());
+            : Validation<Year>.Invalid($"'{value}' is not a valid year");
 }
 
 public class YearJsonConverter : JsonConverter<Year>

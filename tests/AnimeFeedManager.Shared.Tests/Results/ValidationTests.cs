@@ -14,9 +14,7 @@ public class ValidationTests
     [Fact]
     public void Should_Create_Invalid_Validation()
     {
-        var error = DomainValidationErrors.Create([
-            DomainValidationError.Create("field", "error message")
-        ]);
+        var error = new ValidationError.Fields([new FieldError("field", ["error message"])]);
         var validation = Validation<int>.Invalid(error);
         var result = validation.AsResult();
 
@@ -36,9 +34,7 @@ public class ValidationTests
     [Fact]
     public void Should_Not_Map_Invalid_Validation()
     {
-        var error = DomainValidationErrors.Create([
-            DomainValidationError.Create("field", "error message")
-        ]);
+        var error = new ValidationError.Fields([new FieldError("field", ["error message"])]);
         var validation = Validation<int>.Invalid(error)
             .Map(x => x.ToString());
 
@@ -58,7 +54,7 @@ public class ValidationTests
     [Fact]
     public void Should_Convert_Validation_To_Result_Implicitly()
     {
-        Result<int, DomainError> result = Validation<int>.Valid(42);
+        Result<int, ValidationError.Fields> result = Validation<int>.Valid(42);
 
         result.AssertOnSuccess(value => Assert.Equal(42, value));
     }
@@ -82,12 +78,8 @@ public class ValidationTests
     [Fact]
     public void Should_Aggregate_Errors_When_Both_Validations_Invalid()
     {
-        var error1 = DomainValidationErrors.Create([
-            DomainValidationError.Create("field1", "error 1")
-        ]);
-        var error2 = DomainValidationErrors.Create([
-            DomainValidationError.Create("field2", "error 2")
-        ]);
+        var error1 = new ValidationError.Fields([new FieldError("field1", ["error 1"])]);
+        var error2 = new ValidationError.Fields([new FieldError("field2", ["error 2"])]);
 
         var validation1 = Validation<int>.Invalid(error1);
         var validation2 = Validation<string>.Invalid(error2);
@@ -95,15 +87,29 @@ public class ValidationTests
         var combined = validation1.And(validation2);
         var result = combined.AsResult();
 
-        result.AssertError();
+        result.AssertOnError(error =>
+            Assert.Equal(["field1", "field2"], error.Errors.Select(fieldError => fieldError.Field)));
+    }
+
+    [Fact]
+    public void Should_Keep_Each_Combination_Separate_When_Invalid_Validation_Is_Reused()
+    {
+        var shared = Validation<int>.Invalid(new FieldError("shared", ["error"]));
+
+        var first = shared.And(Validation<int>.Invalid(new FieldError("first", ["error"]))).AsResult();
+        var second = shared.And(Validation<int>.Invalid(new FieldError("second", ["error"]))).AsResult();
+
+        first.AssertOnError(error =>
+            Assert.Equal(["shared", "first"], error.Errors.Select(fieldError => fieldError.Field)));
+        second.AssertOnError(error =>
+            Assert.Equal(["shared", "second"], error.Errors.Select(fieldError => fieldError.Field)));
+        shared.AsResult().AssertOnError(error => Assert.Single(error.Errors));
     }
 
     [Fact]
     public void Should_Fail_When_First_Validation_Invalid()
     {
-        var error = DomainValidationErrors.Create([
-            DomainValidationError.Create("field", "error")
-        ]);
+        var error = new ValidationError.Fields([new FieldError("field", ["error"])]);
 
         var validation1 = Validation<int>.Invalid(error);
         var validation2 = Validation<string>.Valid("test");
@@ -116,9 +122,7 @@ public class ValidationTests
     [Fact]
     public void Should_Fail_When_Second_Validation_Invalid()
     {
-        var error = DomainValidationErrors.Create([
-            DomainValidationError.Create("field", "error")
-        ]);
+        var error = new ValidationError.Fields([new FieldError("field", ["error"])]);
 
         var validation1 = Validation<int>.Valid(42);
         var validation2 = Validation<string>.Invalid(error);
@@ -270,15 +274,9 @@ public class ValidationTests
     [Fact]
     public void Should_Aggregate_Multiple_Validation_Errors()
     {
-        var error1 = DomainValidationErrors.Create([
-            DomainValidationError.Create("field1", "error 1")
-        ]);
-        var error2 = DomainValidationErrors.Create([
-            DomainValidationError.Create("field2", "error 2")
-        ]);
-        var error3 = DomainValidationErrors.Create([
-            DomainValidationError.Create("field3", "error 3")
-        ]);
+        var error1 = new ValidationError.Fields([new FieldError("field1", ["error 1"])]);
+        var error2 = new ValidationError.Fields([new FieldError("field2", ["error 2"])]);
+        var error3 = new ValidationError.Fields([new FieldError("field3", ["error 3"])]);
 
         var combined = Validation<int>.Invalid(error1)
             .And(Validation<int>.Invalid(error2))
@@ -293,16 +291,12 @@ public class ValidationTests
     {
         var validateName = (string name) =>
             string.IsNullOrWhiteSpace(name)
-                ? Validation<string>.Invalid(DomainValidationErrors.Create([
-                    DomainValidationError.Create("name", "Name is required")
-                ]))
+                ? Validation<string>.Invalid(new ValidationError.Fields([new FieldError("name", ["Name is required"])]))
                 : Validation<string>.Valid(name);
 
         var validateAge = (int age) =>
             age < 0 || age > 150
-                ? Validation<int>.Invalid(DomainValidationErrors.Create([
-                    DomainValidationError.Create("age", "Age must be between 0 and 150")
-                ]))
+                ? Validation<int>.Invalid(new ValidationError.Fields([new FieldError("age", ["Age must be between 0 and 150"])]))
                 : Validation<int>.Valid(age);
 
         var validResult = validateName("John")
@@ -321,16 +315,12 @@ public class ValidationTests
     {
         var validateName = (string name) =>
             string.IsNullOrWhiteSpace(name)
-                ? Validation<string>.Invalid(DomainValidationErrors.Create([
-                    DomainValidationError.Create("name", "Name is required")
-                ]))
+                ? Validation<string>.Invalid(new ValidationError.Fields([new FieldError("name", ["Name is required"])]))
                 : Validation<string>.Valid(name);
 
         var validateAge = (int age) =>
             age < 0 || age > 150
-                ? Validation<int>.Invalid(DomainValidationErrors.Create([
-                    DomainValidationError.Create("age", "Age must be between 0 and 150")
-                ]))
+                ? Validation<int>.Invalid(new ValidationError.Fields([new FieldError("age", ["Age must be between 0 and 150"])]))
                 : Validation<int>.Valid(age);
 
         var invalidResult = validateName("")
