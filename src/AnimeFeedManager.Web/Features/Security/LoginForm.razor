@@ -89,7 +89,7 @@
 
     private string ErrorMessage => Error switch
     {
-        DomainValidationErrors e => string.Join(", ", e.Errors.SelectMany(x => x.Errors)),
+        ValidationError.Fields e => string.Join(", ", e.Errors.SelectMany(x => x.Errors)),
         not null => Error.Message,
         _ => "Login failed. Please try again."
     };

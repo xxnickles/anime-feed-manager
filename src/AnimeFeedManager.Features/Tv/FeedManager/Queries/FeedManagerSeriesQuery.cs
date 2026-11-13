@@ -44,6 +44,7 @@ public static class FeedManagerSeriesQuery
         DateTimeOffset now,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
+            .MapError(error => (DomainError)error)
             .Bind(season => seriesGetter(seriesId, season, token).Map(series => (Season: season, Series: series)))
             .Bind(found => Binding(seriesId, found.Season, bindingGetter, catalogGetter, now, token)
                 .Map(binding => ToSeries(seriesId, found.Season, found.Series, binding)))

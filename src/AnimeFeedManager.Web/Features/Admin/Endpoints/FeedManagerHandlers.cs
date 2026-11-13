@@ -24,6 +24,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.BindNyaaSeriesSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(vm => domainPostman.SendMessages(
                 [new BindNyaaSeries(vm.SeriesId, vm.Group, vm.ReleaseTitle, vm.Variant ?? string.Empty, vm.Trusted)],
                 token))
@@ -48,6 +49,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.BackfillNyaaSeriesSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(vm => domainPostman.SendMessages([new BackfillNyaaSeries(vm.SeriesId)], token))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
@@ -69,6 +71,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.ClearNyaaCatalogSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(vm => clientFactory.TableStorageNyaaCatalogWiper(vm.SeriesId, token))
             .Bind(_ => Reload(viewModel.SeriesId, clientFactory, token))
             .MarkActivityErroredOnError()
@@ -91,6 +94,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.UpdateFeedEpisodesSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(vm => FeedEpisodes.UpdateFromLibrary(vm.SeriesId, clientFactory, token))
             .Bind(updated => Reload(viewModel.SeriesId, clientFactory, token).Map(series => (Updated: updated, Series: series)))
             .MarkActivityErroredOnError()
@@ -113,6 +117,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.OverrideEpisodesSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(vm => FeedEpisodes.Override(vm.SeriesId, vm.Episodes, clientFactory, token))
             .Bind(updated => Reload(viewModel.SeriesId, clientFactory, token).Map(series => (Updated: updated, Series: series)))
             .MarkActivityErroredOnError()

@@ -17,16 +17,13 @@ public static partial class IdHelpers
     /// <summary>
     /// Reads back the year and season encoded by <see cref="GenerateAnimeId"/>.
     /// </summary>
-    public static Result<SeriesSeason, DomainError> SeriesSeasonFromId(string id)
+    public static Result<SeriesSeason, ValidationError.Fields> SeriesSeasonFromId(string id)
     {
         var parts = id.Split('_', 3);
 
         return parts.Length == 3 && int.TryParse(parts[0], out var year)
             ? (parts[1], year, false).ParseAsSeriesSeason()
-            : Validation<SeriesSeason>.Invalid(
-                DomainValidationError
-                    .Create<SeriesSeason>($"'{id}' is not a valid series id (year_season_title)")
-                    .ToErrors()).AsResult();
+            : Validation<SeriesSeason>.Invalid($"'{id}' is not a valid series id (year_season_title)").AsResult();
     }
 
     public static string CleanAndFormatAnimeTitle(string title)

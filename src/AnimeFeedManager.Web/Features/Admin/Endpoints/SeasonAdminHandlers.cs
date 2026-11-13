@@ -17,6 +17,7 @@ internal static class SeasonAdminHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.SetFeaturedSeasonSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(vm => vm.Season.ParseAsSeriesSeason())
             .Map(season => season with {IsLatest = true})
             .Bind(season => domainPostman.SendMessages([new SeasonUpdated(season)], cancellationToken))

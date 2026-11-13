@@ -29,6 +29,7 @@ public static class UserRegistration
         CancellationToken cancellationToken)
     {
         return (email, displayName).AsUserRegistration()
+            .MapError(error => (DomainError)error)
             .Bind(userData => userGetter(userData.Email, cancellationToken)
                 .Map(user => new RegistrationProcessData(userData, user,
                     new RegisterOptions(userData.UserId, userData.Email)

@@ -19,6 +19,7 @@ internal static class TvAdminHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.UpdateTvSeasonSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(vm => domainPostman.SendMessages([new UpdateTvSeriesEvent(new SeasonParameters(vm.Season, vm.Year))],
                 cancellationToken))
             .MarkActivityErroredOnError()

@@ -40,6 +40,7 @@ internal static class InterestedHandlers
     {
         using var activity = Source.StartActivity(TvTelemetry.ToggleInterestedSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(model => Data.GetSeriesForUser(context, model.SeriesId,
                 clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken))
             .Bind(data => InterestedSeries.VerifyStorage(

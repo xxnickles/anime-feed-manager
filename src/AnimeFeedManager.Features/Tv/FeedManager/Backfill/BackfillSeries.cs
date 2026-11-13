@@ -41,6 +41,7 @@ public static class BackfillSeries
         NyaaBindingGetter bindingGetter,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
+            .MapError(error => (DomainError)error)
             .Bind(season => bindingGetter(seriesId, season, token)
                 .Map(binding => new BackfillProcess(seriesId, season, binding, [], new FeedOpen())));
 

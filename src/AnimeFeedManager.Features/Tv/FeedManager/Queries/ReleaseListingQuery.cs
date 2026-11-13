@@ -44,6 +44,7 @@ public static class ReleaseListingQuery
         NyaaCatalogGetter catalogGetter,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
+            .MapError(error => (DomainError)error)
             .Bind(season => seriesGetter(seriesId, season, publicBlobUri, token)
                 .Map(series => (Season: season, Series: series)))
             .Bind(found => Feed(seriesId, found.Season, bindingGetter, catalogGetter, token)

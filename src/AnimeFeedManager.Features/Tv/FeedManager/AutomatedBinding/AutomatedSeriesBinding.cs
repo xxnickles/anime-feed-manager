@@ -105,14 +105,11 @@ public static class AutomatedSeriesBinding
                     .ToImmutableArray()));
 
     private static Task<Result<SeriesSeason, DomainError>> LatestSeason(LatestSeasonGetter seasonGetter, CancellationToken token) =>
-        seasonGetter(token).MapError(error => (DomainError)error).Bind(season => season switch
-        {
-            CurrentLatestSeason latest => SeasonOf(latest.Season),
-            FallbackLatestSeason newest => SeasonOf(newest.Season),
-            _ => new NoLatestSeason()
-        });
+        seasonGetter(token).MapError(error => (DomainError)error)
+            .Bind(stored => stored.AsFeaturedSeason())
+            .Bind(SeasonOf);
 
-    private static Result<SeriesSeason, DomainError> SeasonOf(SeasonStorage season) =>
+    private static Result<SeriesSeason, ValidationError.Fields> SeasonOf(SeasonStorage season) =>
         (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason();
 
     private static ImmutableArray<AnimeInfoStorage> Unfinished(IEnumerable<AnimeInfoStorage> series) =>

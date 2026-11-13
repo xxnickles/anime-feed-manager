@@ -56,6 +56,7 @@ public static class SettleNyaaFeeds
     private static Task<Result<bool, DomainError>> Complete(NyaaBindingStorage binding, ITableClientFactory clientFactory,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(binding.RowKey ?? string.Empty)
+            .MapError(error => (DomainError)error)
             .Bind(season => NyaaCompletion.CompleteWhenReached(
                 binding.RowKey ?? string.Empty,
                 season,

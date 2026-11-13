@@ -37,7 +37,7 @@ public static class NyaaFeed
                 .Flatten(items => items.ToImmutableArray())
             : new ScrapeError.UnusablePayload("Nyaa RSS feed");
 
-    private static Result<NyaaItem, DomainError> ParseItem(XElement item) =>
+    private static Result<NyaaItem, ValidationError.Fields> ParseItem(XElement item) =>
         Required(item, "title")
             .And(Magnet(item))
             .And(Torrent(item))
@@ -113,5 +113,5 @@ public static class NyaaFeed
     private static Validation<T> Missing<T>(XName name) => Invalid<T>(name, "Missing");
 
     private static Validation<T> Invalid<T>(XName name, string message) =>
-        Validation<T>.Invalid(DomainValidationError.Create(name.LocalName, message).ToErrors());
+        Validation<T>.Invalid(new FieldError(name.LocalName, [message]));
 }

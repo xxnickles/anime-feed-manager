@@ -40,6 +40,7 @@ internal static class SubscriptionHandlers
     {
         using var activity = Source.StartActivity(TvTelemetry.ToggleSubscriptionSpan);
         return await Validate(viewModel)
+            .MapError(error => (DomainError)error)
             .Bind(model => Data.GetSeriesForUser(context, model.SeriesId,
                 clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken))
             .Bind(data => Subscription.VerifyStorage(

@@ -20,19 +20,15 @@ else
 @code {
     private SeriesSeason? _season;
 
-    private static Result<SeriesSeason, DomainError> ParseSeason(SeasonStorage season) =>
+    private static Result<SeriesSeason, ValidationError.Fields> ParseSeason(SeasonStorage season) =>
         (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason();
 
     protected override async Task OnInitializedAsync()
     {
         await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeason, CancellationToken.None)
             .MapError(error => (DomainError)error)
-            .Bind(season => season switch
-            {
-                CurrentLatestSeason currentLatestSeason => ParseSeason(currentLatestSeason.Season),
-                FallbackLatestSeason newestSeason => ParseSeason(newestSeason.Season),
-                _ => new NoLatestSeason()
-            })
+            .Bind(stored => stored.AsFeaturedSeason())
+            .Bind(ParseSeason)
             .FlushLogs(Logger)
             .Match(
                 season => _season = season,

@@ -17,6 +17,7 @@ public static class BindSeries
         DomainCollectionSender domainPostman,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(request.SeriesId)
+            .MapError(error => (DomainError)error)
             .Bind(season => clientFactory.TableStorageTvSeriesGetter(request.SeriesId, season, token)
                 .Bind(series => clientFactory.TableStorageNyaaBindingReplacer(NewBinding(request, season, series), token))
                 .Bind(_ => FeedLibrarySeries(request, season,

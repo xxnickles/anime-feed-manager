@@ -21,6 +21,7 @@ public static class UserCredentialRegistration
     {
        return id.ParseAsNonEmpty("Display Name")
             .AsResult()
+            .MapError(error => (DomainError)error)
             .WithOperationName(nameof(UserCredentialRegistration))
             .AddLog((logger) => logger.LogInformation("Trying to add credential for user {user.id}", id))
             .Bind(safeId => userGetter(safeId, cancellationToken))

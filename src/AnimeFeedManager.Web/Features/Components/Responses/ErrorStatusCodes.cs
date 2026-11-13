@@ -8,7 +8,7 @@ internal static class ErrorStatusCodes
     internal static int ToStatusCode(this DomainError error) => error switch
     {
         StorageError.NotFound or AuthError.UserNotVerified => StatusCodes.Status404NotFound,
-        DomainValidationErrors or FormDataValidationError => StatusCodes.Status422UnprocessableEntity,
+        ValidationError => StatusCodes.Status422UnprocessableEntity,
         // Upstream 4xx is the caller's problem (e.g. an invalid token); anything else is Passwordless failing.
         AuthError.PasswordlessFailure { ProblemDetails.Status: >= 400 and < 500 } passwordless => passwordless.ProblemDetails.Status,
         AuthError.PasswordlessFailure => StatusCodes.Status502BadGateway,

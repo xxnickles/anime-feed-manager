@@ -13,6 +13,7 @@ public static class TvScrapProcess
         CancellationToken token)
     {
         return TryGetSeasonSelector(season)
+            .MapError(error => (DomainError)error)
             .GetTvSeries(scrapper, token)
             .AddImagesLinks(imagesProvider, token)
             .UpdateTvLibrary(libraryStorageUpdater, token);
@@ -20,14 +21,14 @@ public static class TvScrapProcess
     
     // Just combinators to make the code more readable
     
-    private static Result<SeasonSelector, DomainError> TryGetSeasonSelector(SeasonParameters? season)
+    private static Result<SeasonSelector, ValidationError.Fields> TryGetSeasonSelector(SeasonParameters? season)
     {
         if (season is null)
             return new Current();
 
         return (season.Season, season.Year, false)
             .ParseAsSeriesSeason()
-            .Map<SeriesSeason, DomainError, SeasonSelector>(parsedSeason => new BySeason(parsedSeason.Season, parsedSeason.Year));
+            .Map(SeasonSelector (parsedSeason) => new BySeason(parsedSeason.Season, parsedSeason.Year));
     }
     
     

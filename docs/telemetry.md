@@ -41,7 +41,7 @@ Applies to both hosts: Web (Blazor SSR) and Functions (isolated worker). Signals
 | Child spans | Timing detail only (e.g. `Images.Download`); logs belong to the domain span that flushes them. |
 | Logs inside the span | `FlushLogs` / `Complete` must run before the span disposes, in the same method that owns `using var activity`. |
 | Errors | `MarkActivityErroredOnError()` sets status `Error` (message = domain error message) and `error.type` = `DomainError` class name, prefixed by its family when nested (e.g. `NoLatestSeason`, `StorageError.NotFound`). |
-| Not marked | `Warning`, `DomainValidationErrors`, `FormDataValidationError` (client input, like HTTP 4xx). |
+| Not marked | `Warning`, `ValidationError` (client input, like HTTP 4xx). |
 | Mark placement | After any recovery, so recovered failures stay unmarked; inside the method that owns the span (`Activity.Current` is async-local). |
 | Exceptions | Logged once via `LogError(ex)` (the exception error's log action does this). Spans never get `AddException`. |
 | Errors by feature | Span-name prefix (`Tv.Library`, `Tv.Subscriptions`, ...) identifies the feature of a failure. |

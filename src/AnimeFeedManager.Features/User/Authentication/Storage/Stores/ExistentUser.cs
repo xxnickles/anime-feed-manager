@@ -40,7 +40,7 @@ public static class ExistentUser
                     .Bind(ParseAsUser);
     }
 
-    private static Result<StoredUser, DomainError> ParseAsUser(ImmutableArray<UserStorage> storage)
+    private static Result<StoredUser, ValidationError.Fields> ParseAsUser(ImmutableArray<UserStorage> storage)
     {
         // No match
         if (storage.Length == 0)

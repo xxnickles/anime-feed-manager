@@ -44,8 +44,8 @@ internal static class ResponseExtensions
         return error switch
         {
             StorageError.NotFound => TypedResults.NotFound(),
-            DomainValidationErrors validationErrors => TypedResults.ValidationProblem(
-                validationErrors.Errors.ToDictionary(e => e.Field, e => e.Errors),
+            ValidationError.Fields fields => TypedResults.ValidationProblem(
+                fields.Errors.ToDictionary(e => e.Field, e => e.Errors.ToArray()),
                 detail: "One or more validation errors occurred",
                 title: "Validation Error"),
             StorageError.RequestFailed => TypedResults.Problem(

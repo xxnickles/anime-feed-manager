@@ -11,6 +11,7 @@ public static class CompleteFeedSeries
         TvSeriesStorageUpdater storageUpdater,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
+            .MapError(error => (DomainError)error)
             .Bind(season => OptimisticConcurrency.UntilWritten(
                 attemptToken => seriesGetter(seriesId, season, attemptToken)
                     .Bind(series => series.Status == SeriesStatus.CompletedValue

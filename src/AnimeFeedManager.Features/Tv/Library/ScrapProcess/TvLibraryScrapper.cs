@@ -27,17 +27,14 @@ public static class TvLibraryScrapper
         CancellationToken token) =>
         selector switch
         {
-            Current => latestSeason(token).MapError(error => (DomainError)error).Bind(stored => stored switch
-            {
-                CurrentLatestSeason latest => AsSeriesSeason(latest.Season),
-                FallbackLatestSeason newest => AsSeriesSeason(newest.Season),
-                _ => new NoLatestSeason()
-            }),
+            Current => latestSeason(token).MapError(error => (DomainError)error)
+                .Bind(stored => stored.AsFeaturedSeason())
+                .Bind(AsSeriesSeason),
             BySeason bySeason => Task.FromResult<Result<SeriesSeason, DomainError>>(
                 new SeriesSeason(bySeason.Season, bySeason.Year)),
             _ => throw new UnreachableException()
         };
 
-    private static Result<SeriesSeason, DomainError> AsSeriesSeason(SeasonStorage season) =>
+    private static Result<SeriesSeason, ValidationError.Fields> AsSeriesSeason(SeasonStorage season) =>
         (season.Season ?? string.Empty, season.Year, false).ParseAsSeriesSeason();
 }

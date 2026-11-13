@@ -48,6 +48,7 @@ public static class FeedEpisodes
 
     private static Task<Result<EpisodesProcess, DomainError>> StartProcess(string seriesId) =>
         Task.FromResult(IdHelpers.SeriesSeasonFromId(seriesId)
+            .MapError(error => (DomainError)error)
             .Map(season => new EpisodesProcess(seriesId, season, null, false, new FeedOpen())));
 
     extension(Task<Result<EpisodesProcess, DomainError>> process)

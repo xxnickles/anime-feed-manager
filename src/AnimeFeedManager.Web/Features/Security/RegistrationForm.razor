@@ -100,7 +100,7 @@ else
 
     private string ErrorMessage => Error switch
     {
-        DomainValidationErrors validationErrors => string.Join(", ",
+        ValidationError.Fields validationErrors => string.Join(", ",
             validationErrors.Errors.SelectMany(e => e.Errors)),
        not null => Error.Message,
         _ =>  "Registration failed. Please try again."
