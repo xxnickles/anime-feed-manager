@@ -12,7 +12,7 @@ public delegate Task<Result<ImmutableArray<SubscriptionStorage>, StorageError>> 
 /// <summary>
 /// Subscribed series grouped by user, for the given feed titles.
 /// </summary>
-public delegate Task<Result<UserActiveSubscriptions[], DomainError>> TvUserActiveSubscriptions(IEnumerable<string> feedTitles,
+public delegate Task<Result<UserActiveSubscriptions[], StorageError>> TvUserActiveSubscriptions(IEnumerable<string> feedTitles,
     CancellationToken token);
 
 public static class ExistentSubscriptions
@@ -53,36 +53,37 @@ public static class ExistentSubscriptions
                     client.ExecuteQuery<SubscriptionStorage>(
                         storage => storage.Type == nameof(SubscriptionType.Subscribed),
                         token))
-                .MapError(error => (DomainError)error)
                 .Bind(subscriptions => ToUserActiveSubscriptions(subscriptions, titles));
     }
 
-    internal static Result<UserActiveSubscriptions[], BulkError<StorageError>.AllFailed> ToUserActiveSubscriptions(
+    internal static Result<UserActiveSubscriptions[], StorageError> ToUserActiveSubscriptions(
         ImmutableArray<SubscriptionStorage> rows,
         IEnumerable<string> feedTitles) =>
         rows
             .Where(s => s.SeriesFeedTitle != null && feedTitles.Contains(s.SeriesFeedTitle))
             .GroupBy(s => s.PartitionKey)
             .Select(ToUserSubscriptions)
-            .Merge(users => users.ToArray())
+            .Merge(users => users.ToArray(),
+                StorageError (errors) => new StorageError.BatchFailed("No subscribed user's subscriptions could be read", errors))
             .AddLogOnSuccess(bulk => bulk.LogErrors)
             .Map(bulk => bulk.Value);
 
-    private static Result<BulkResult<UserActiveSubscriptions, StorageError>, BulkError<StorageError>.AllFailed>
+    private static Result<BulkResult<UserActiveSubscriptions, StorageError>, StorageError>
         ToUserSubscriptions(IGrouping<string?, SubscriptionStorage> userRows) =>
         userRows
             .GroupBy(s => s.SeriesFeedTitle!)
             .Select(PickAiringSeries)
             .Merge(subscriptions => new UserActiveSubscriptions(
-                userRows.Key ?? string.Empty,
-                userRows.First().UserEmail,
-                subscriptions.ToArray()));
+                    userRows.Key ?? string.Empty,
+                    userRows.First().UserEmail,
+                    subscriptions.ToArray()),
+                StorageError (errors) => new StorageError.BatchFailed("None of a user's subscriptions could be read", errors));
 
     /// <summary>
     /// A series and its later season can share one feed title. The feed's episodes belong to whichever
     /// is airing now, so the newest wins. Fails only when no candidate carries a readable season.
     /// </summary>
-    private static Result<BulkResult<ActiveSubscription, StorageError>, BulkError<StorageError>.AllFailed> PickAiringSeries(
+    private static Result<BulkResult<ActiveSubscription, StorageError>, StorageError> PickAiringSeries(
         IGrouping<string, SubscriptionStorage> sharingFeedTitle)
     {
         var rows = sharingFeedTitle.ToArray();
@@ -94,7 +95,8 @@ public static class ExistentSubscriptions
             .Select(row => IdHelpers.SeriesSeasonFromId(row.RowKey ?? string.Empty)
                 .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SubscriptionStorage), fields.Errors))
                 .Map(parsed => (Row: row, SeriesSeason: parsed)))
-            .Collect(candidates => ToActiveSubscription(candidates.MaxBy(c => (c.SeriesSeason.Year, c.SeriesSeason.Season)).Row));
+            .Collect(candidates => ToActiveSubscription(candidates.MaxBy(c => (c.SeriesSeason.Year, c.SeriesSeason.Season)).Row),
+                StorageError (errors) => new StorageError.BatchFailed("No series sharing a feed title has a readable id", errors));
     }
 
     private static ActiveSubscription ToActiveSubscription(SubscriptionStorage row) =>

@@ -229,7 +229,7 @@ public class ExistentSubscriptionsTests
 
     private const string UnreadableRow = "The stored SubscriptionStorage has invalid fields";
 
-    private static Result<UserActiveSubscriptions[], BulkError<StorageError>.AllFailed> Project(
+    private static Result<UserActiveSubscriptions[], StorageError> Project(
         IEnumerable<string> feedTitles,
         params SubscriptionStorage[] rows) =>
         ExistentSubscriptions.ToUserActiveSubscriptions([..rows], feedTitles);
