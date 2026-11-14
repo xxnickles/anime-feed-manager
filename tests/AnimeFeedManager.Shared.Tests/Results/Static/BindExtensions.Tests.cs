@@ -128,13 +128,22 @@ public class BindExtensionsTests
 
     #endregion
 
-    #region Widening Steps
+    #region Union Widening
 
     [Fact]
-    public void Should_Widen_Step_Failure_Into_Chain_Union_When_Widen_Is_Given()
+    public void Should_Bind_Union_Step_When_Step_Returns_The_Chain_Union()
     {
         var result = Result<int, LookupError>.Success(1)
-            .Bind(_ => Result<string, OtherTestError>.Failure(new OtherTestError("down")), error => error);
+            .Bind(_ => Result<string, LookupError>.Failure(new OtherTestError("down")));
+
+        result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
+    }
+
+    [Fact]
+    public void Should_Widen_Step_Failure_Into_Chain_Union_When_Union_Accepts_Its_Family()
+    {
+        var result = Result<int, LookupError>.Success(1)
+            .Bind(_ => Result<string, OtherTestError>.Failure(new OtherTestError("down")));
 
         result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
     }
@@ -143,7 +152,7 @@ public class BindExtensionsTests
     public void Should_Pass_Step_Value_When_Widened_Step_Succeeds()
     {
         var result = Result<int, LookupError>.Success(1)
-            .Bind(x => Result<string, OtherTestError>.Success(x.ToString()), error => error);
+            .Bind(x => Result<string, OtherTestError>.Success(x.ToString()));
 
         result.AssertOnSuccess(value => Assert.Equal("1", value));
     }
@@ -158,7 +167,7 @@ public class BindExtensionsTests
             {
                 binderCalled = true;
                 return Result<string, OtherTestError>.Success(x.ToString());
-            }, error => error);
+            });
 
         result.AssertOnError(error => Assert.Equal(new TestError("gone"), error.Value));
         Assert.False(binderCalled);
@@ -172,27 +181,26 @@ public class BindExtensionsTests
         Result<int, LookupError>.Success(1)
             .AddLog(log => log.LogInformation("chain"))
             .Bind(_ => Result<string, OtherTestError>.Failure(new OtherTestError("down"))
-                .AddLog(log => log.LogInformation("step")), error => error)
+                .AddLog(log => log.LogInformation("step")))
             .FlushLogs(logger);
 
         Assert.Equal(["chain", "step", "down"], logger.Entries);
     }
 
     [Fact]
-    public async Task Should_Widen_Step_Failure_When_Async_Binder_Is_Widened()
+    public async Task Should_Widen_Step_Failure_Into_Chain_Union_When_Async_Binder_Fails()
     {
         var result = await Result<int, LookupError>.Success(1)
-            .Bind(_ => Task.FromResult(Result<string, OtherTestError>.Failure(new OtherTestError("down"))),
-                error => error);
+            .Bind(_ => Task.FromResult(Result<string, OtherTestError>.Failure(new OtherTestError("down"))));
 
         result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
     }
 
     [Fact]
-    public async Task Should_Widen_Step_Failure_When_Binding_On_A_Task_Result_With_Widen()
+    public async Task Should_Widen_Step_Failure_Into_Chain_Union_When_Binding_On_A_Task_Result()
     {
         var result = await Task.FromResult(Result<int, LookupError>.Success(1))
-            .Bind(_ => Result<string, OtherTestError>.Failure(new OtherTestError("down")), error => error);
+            .Bind(_ => Result<string, OtherTestError>.Failure(new OtherTestError("down")));
 
         result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
     }
@@ -201,8 +209,7 @@ public class BindExtensionsTests
     public async Task Should_Widen_Step_Failure_When_Binding_An_Async_Step_On_A_Task_Result()
     {
         var result = await Task.FromResult(Result<int, LookupError>.Success(1))
-            .Bind(_ => Task.FromResult(Result<string, OtherTestError>.Failure(new OtherTestError("down"))),
-                error => error);
+            .Bind(_ => Task.FromResult(Result<string, OtherTestError>.Failure(new OtherTestError("down"))));
 
         result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
     }
@@ -325,15 +332,23 @@ public class BindExtensionsTests
 
     #endregion
 
-    #region Widening BindWhen
+    #region Union Widening BindWhen
+
+    [Fact]
+    public void Should_Widen_Sync_BindWhen_Step_Failure_When_Predicate_Holds()
+    {
+        var result = Result<int, LookupError>.Success(1)
+            .BindWhen(_ => Result<int, OtherTestError>.Failure(new OtherTestError("down")), _ => true);
+
+        result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
+    }
 
     [Fact]
     public async Task Should_Widen_BindWhen_Step_Failure_When_Predicate_Holds()
     {
         var result = await Task.FromResult(Result<int, LookupError>.Success(1))
             .BindWhen(_ => Task.FromResult(Result<int, OtherTestError>.Failure(new OtherTestError("down"))),
-                _ => true,
-                error => error);
+                _ => true);
 
         result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
     }
@@ -343,8 +358,7 @@ public class BindExtensionsTests
     {
         var result = await Task.FromResult(Result<int, LookupError>.Success(1))
             .BindWhen(x => Task.FromResult(Result<int, OtherTestError>.Success(x + 1)),
-                _ => true,
-                error => error);
+                _ => true);
 
         result.AssertOnSuccess(value => Assert.Equal(2, value));
     }
@@ -360,8 +374,7 @@ public class BindExtensionsTests
                     binderCalled = true;
                     return Task.FromResult(Result<int, OtherTestError>.Success(x + 1));
                 },
-                _ => false,
-                error => error);
+                _ => false);
 
         Assert.False(binderCalled);
         result.AssertOnSuccess(value => Assert.Equal(1, value));
@@ -378,8 +391,7 @@ public class BindExtensionsTests
                     binderCalled = true;
                     return Task.FromResult(Result<int, OtherTestError>.Success(x));
                 },
-                _ => true,
-                error => error);
+                _ => true);
 
         Assert.False(binderCalled);
         result.AssertOnError(error => Assert.Equal(new TestError("gone"), error.Value));

@@ -17,7 +17,7 @@ public static class ResultExtensionMembers
                 ? Result<TTarget, TError>.Success(await mapper(result.ResultValue!), result.TraceContext)
                 : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-        /// <summary>Changes the error type; starts a path union chain with <c>MapError(e => (PathError)e)</c>.</summary>
+        /// <summary>Changes the error type; a chain enters its union with <c>MapError(e => (PathError)e)</c>.</summary>
         public Result<T, TNew> MapError<TNew>(Func<TError, TNew> mapper) =>
             result.IsSuccess
                 ? Result<T, TNew>.Success(result.ResultValue!, result.TraceContext)
@@ -41,20 +41,6 @@ public static class ResultExtensionMembers
                 ? Continue<TTarget, TError, TStepError>(result.TraceContext, await binder(result.ResultValue!))
                 : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-        /// <summary>Runs <paramref name="binder"/> on success; a step error converts with <paramref name="widen"/> (into a path union: <c>error => error</c>).</summary>
-        public Result<TTarget, TError> Bind<TTarget, TStepError>(Func<T, Result<TTarget, TStepError>> binder,
-            Func<TStepError, TError> widen) =>
-            result.IsSuccess
-                ? Continue<TTarget, TError, TError>(result.TraceContext, binder(result.ResultValue!).MapError(widen))
-                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
-
-        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(
-            Func<T, Task<Result<TTarget, TStepError>>> binder,
-            Func<TStepError, TError> widen) =>
-            result.IsSuccess
-                ? Continue<TTarget, TError, TError>(result.TraceContext, (await binder(result.ResultValue!)).MapError(widen))
-                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
-
         public Result<T, TError> BindWhen<TStepError>(Func<T, Result<T, TStepError>> binder, Func<T, bool> predicate)
             where TStepError : TError =>
             result.IsSuccess && predicate(result.ResultValue!) ? result.Bind(binder) : result;
@@ -63,13 +49,6 @@ public static class ResultExtensionMembers
             Func<T, Task<Result<T, TStepError>>> binder,
             Func<T, bool> predicate) where TStepError : TError =>
             result.IsSuccess && predicate(result.ResultValue!) ? await result.Bind(binder) : result;
-
-        /// <summary>Binds when <paramref name="predicate"/> holds; <paramref name="widen"/> is last, as a second argument it would also fit a mapper.</summary>
-        public async Task<Result<T, TError>> BindWhen<TStepError>(
-            Func<T, Task<Result<T, TStepError>>> binder,
-            Func<T, bool> predicate,
-            Func<TStepError, TError> widen) =>
-            result.IsSuccess && predicate(result.ResultValue!) ? await result.Bind(binder, widen) : result;
 
         /// <summary>Runs <paramref name="binder"/> on failure; the trace contexts of both results are merged.</summary>
         public Result<T, TError> BindOnError(Func<TError, Result<T, TError>> binder)
@@ -187,7 +166,7 @@ public static class ResultExtensionMembers
         public void Complete(ILogger logger) => result.FlushLogs(logger);
     }
 
-    private static Result<TTarget, TError> Continue<TTarget, TError, TStepError>(
+    internal static Result<TTarget, TError> Continue<TTarget, TError, TStepError>(
         TraceContext previous,
         Result<TTarget, TStepError> next) where TStepError : TError
     {

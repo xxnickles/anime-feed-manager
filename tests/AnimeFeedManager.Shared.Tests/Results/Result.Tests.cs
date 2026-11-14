@@ -1,6 +1,11 @@
 namespace AnimeFeedManager.Shared.Tests.Results;
 
-public union LookupError(TestError, OtherTestError);
+public union LookupError(TestError, OtherTestError)
+    : IWidensFrom<LookupError, TestError>, IWidensFrom<LookupError, OtherTestError>
+{
+    static LookupError IWidensFrom<LookupError, TestError>.Widen(TestError error) => error;
+    static LookupError IWidensFrom<LookupError, OtherTestError>.Widen(OtherTestError error) => error;
+}
 
 public union CatalogLookupError(LookupError, Static.MissingEntry);
 
