@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Scrapping.Nyaa;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.FeedManager.Matching;
@@ -53,13 +54,13 @@ public static class NyaaCollection
     private static readonly NyaaQuery PollQuery = NyaaQuery.Create().Search(PollTerm);
 
     /// <summary>Polls nyaa once, catalogs every tracked binding's matches, then builds feeds from the tracked catalogs; any failure fails the run.</summary>
-    public static Task<Result<NyaaCollected, DomainError>> Collect(
+    public static Task<Result<NyaaCollected, NyaaCollectionError>> Collect(
         INyaaClient nyaaClient,
         ITableClientFactory clientFactory,
         WebAppHost host,
         CancellationToken token) =>
         clientFactory.TableStorageTrackedNyaaBindings(token)
-            .MapError(error => (DomainError)error)
+            .MapError(error => (NyaaCollectionError)error)
             .Map(tracked => new CollectionProcess(tracked))
             .PollReleases(nyaaClient, token)
             .StoreReleases(clientFactory.TableStorageNyaaCatalogUpdater, token)
@@ -72,18 +73,19 @@ public static class NyaaCollection
                 [.. p.Tracked.Select(binding => binding.RowKey ?? string.Empty)]))
             .WithOperationName(nameof(Collect));
 
-    extension(Task<Result<CollectionProcess, DomainError>> process)
+    extension(Task<Result<CollectionProcess, NyaaCollectionError>> process)
     {
-        private Task<Result<CollectionProcess, DomainError>> PollReleases(INyaaClient nyaaClient, CancellationToken token) =>
+        private Task<Result<CollectionProcess, NyaaCollectionError>> PollReleases(INyaaClient nyaaClient,
+            CancellationToken token) =>
             process.Bind(p => p.Tracked.IsEmpty
-                ? Task.FromResult(Result<CollectionProcess, DomainError>.Success(p))
+                ? Task.FromResult(Result<CollectionProcess, ScrapeError>.Success(p))
                 : Poll(p with {PolledAt = DateTimeOffset.UtcNow}, nyaaClient, token));
 
-        private Task<Result<CollectionProcess, DomainError>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
+        private Task<Result<CollectionProcess, NyaaCollectionError>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
             CancellationToken token) =>
             process.Bind(p => catalogUpdater(p.Matches.SelectMany(match => match.Rows), token).Map(_ => p));
 
-        private Task<Result<CollectionProcess, DomainError>> ReadCatalogs(NyaaCatalogGetter catalogGetter,
+        private Task<Result<CollectionProcess, NyaaCollectionError>> ReadCatalogs(NyaaCatalogGetter catalogGetter,
             CancellationToken token) =>
             process.Bind(async p =>
             {
@@ -93,19 +95,19 @@ public static class NyaaCollection
                 return (await Task.WhenAll(p.Tracked.Select(binding =>
                         ReadCatalog(binding, matched.GetValueOrDefault(binding.RowKey ?? string.Empty, []),
                             catalogGetter, token))))
-                    .Collect(series => series.ToImmutableArray())
-                    .RequireAll("Some tracked series' catalogs could not be read")
+                    .CollectAll(series => series.ToImmutableArray(),
+                        StorageError (errors) => new StorageError.BatchFailed(
+                            "Some tracked series' catalogs could not be read", errors))
                     .Map(collected => p with {Collected = collected});
             });
     }
 
-    private static Task<Result<CollectionProcess, DomainError>> Poll(CollectionProcess process, INyaaClient nyaaClient,
+    private static Task<Result<CollectionProcess, ScrapeError>> Poll(CollectionProcess process, INyaaClient nyaaClient,
         CancellationToken token) =>
         nyaaClient.Fetch(PollQuery, token)
-            .MapError(error => (DomainError)error)
             .Bind(document => MatchReleases(process, document));
 
-    private static Result<CollectionProcess, DomainError> MatchReleases(CollectionProcess process, XDocument document) =>
+    private static Result<CollectionProcess, ScrapeError> MatchReleases(CollectionProcess process, XDocument document) =>
         NyaaFeed.Parse(document)
             .AddLogOnSuccess(feed => feed.LogErrors)
             .Map(feed => process with

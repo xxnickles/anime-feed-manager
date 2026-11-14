@@ -32,4 +32,16 @@ public closed record ScrapeError(string Message) : DomainError(Message)
     }
 
     public sealed record UnusablePayload(string Request) : ScrapeError($"No usable payload for {Request}");
+
+    /// <summary>A payload whose items all failed to parse.</summary>
+    public sealed record UnusableItems(string Request, ImmutableArray<ValidationError.Fields> Errors)
+        : ScrapeError($"No item in {Request} could be parsed")
+    {
+        public override Action<ILogger> LogAction() => logger =>
+        {
+            logger.LogError("{domain_error.message}", Message);
+            foreach (var error in Errors)
+                error.WriteError(logger);
+        };
+    }
 }

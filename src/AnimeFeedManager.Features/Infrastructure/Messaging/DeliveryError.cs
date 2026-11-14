@@ -15,4 +15,15 @@ public closed record DeliveryError(string Message) : DomainError(Message)
     }
 
     public sealed record NoTargetBox(Type MessageType) : DeliveryError($"{MessageType.FullName} has no target box");
+
+    /// <summary>A bulk call failed where its caller couldn't go on; <paramref name="Message"/> says which.</summary>
+    public sealed record BatchFailed(string Message, ImmutableArray<DeliveryError> Errors) : DeliveryError(Message)
+    {
+        public override Action<ILogger> LogAction() => logger =>
+        {
+            logger.LogError("{domain_error.message}", Message);
+            foreach (var error in Errors)
+                error.WriteError(logger);
+        };
+    }
 }

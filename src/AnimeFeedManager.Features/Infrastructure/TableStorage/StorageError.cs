@@ -40,4 +40,15 @@ public closed record StorageError(string Message) : DomainError(Message)
                     string.Join(". ", errors));
         };
     }
+
+    /// <summary>A bulk call failed where its caller couldn't go on; <paramref name="Message"/> says which.</summary>
+    public sealed record BatchFailed(string Message, ImmutableArray<StorageError> Errors) : StorageError(Message)
+    {
+        public override Action<ILogger> LogAction() => logger =>
+        {
+            logger.LogError("{domain_error.message}", Message);
+            foreach (var error in Errors)
+                error.WriteError(logger);
+        };
+    }
 }

@@ -33,7 +33,7 @@ internal static class ErrorContents
             StorageError.Conflict => new ErrorContent(StatusCodes.Status409Conflict, ToastType.Warning,
                 TextBody("This item changed since it was loaded. Reload and try again.")),
             StorageError.RequestFailed or StorageError.TableNotConfigured
-                or StorageError.UnreadablePayload or StorageError.InvalidRecord =>
+                or StorageError.UnreadablePayload or StorageError.InvalidRecord or StorageError.BatchFailed =>
                 ErrorContent.Fault("An internal server error occurred. Please try again later.")
         };
     }
@@ -42,7 +42,8 @@ internal static class ErrorContents
     {
         internal ErrorContent ToContent() => error switch
         {
-            DeliveryError.NotDelivered => ErrorContent.Fault("The request couldn't be queued. Please try again later."),
+            DeliveryError.NotDelivered or DeliveryError.BatchFailed =>
+                ErrorContent.Fault("The request couldn't be queued. Please try again later."),
             DeliveryError.NoTargetBox => ErrorContent.Unexpected
         };
     }
@@ -76,7 +77,7 @@ internal static class ErrorContents
             ScrapeError.Challenged => Upstream("Nyaa answered with a challenge page. Try again later."),
             ScrapeError.SourceUnavailable => Upstream("SubsPlease didn't return a schedule. Try again later."),
             ScrapeError.RequestFailed => Upstream("The request to the source failed. Try again later."),
-            ScrapeError.UnusablePayload => Upstream("The source returned nothing usable.")
+            ScrapeError.UnusablePayload or ScrapeError.UnusableItems => Upstream("The source returned nothing usable.")
         };
     }
 
