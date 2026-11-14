@@ -97,6 +97,15 @@ internal static class ErrorContents
             new(StatusCodes.Status403Forbidden, ToastType.Warning, TextBody("You need to be signed in to do that."));
     }
 
+    extension(StorageRequestError error)
+    {
+        internal ErrorContent ToContent() => error switch
+        {
+            ValidationError validation => validation.ToContent(),
+            StorageError storage => storage.ToContent()
+        };
+    }
+
     /// <summary>Transitional: for chains still typed <see cref="DomainError"/> until their path union lands (Phase 6).</summary>
     extension(DomainError error)
     {

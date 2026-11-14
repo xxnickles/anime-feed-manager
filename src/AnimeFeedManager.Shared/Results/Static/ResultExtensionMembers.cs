@@ -59,6 +59,18 @@ public static class ResultExtensionMembers
             where TStepError : TError =>
             result.IsSuccess && predicate(result.ResultValue!) ? result.Bind(binder) : result;
 
+        public async Task<Result<T, TError>> BindWhen<TStepError>(
+            Func<T, Task<Result<T, TStepError>>> binder,
+            Func<T, bool> predicate) where TStepError : TError =>
+            result.IsSuccess && predicate(result.ResultValue!) ? await result.Bind(binder) : result;
+
+        /// <summary>Binds when <paramref name="predicate"/> holds; <paramref name="widen"/> is last, as a second argument it would also fit a mapper.</summary>
+        public async Task<Result<T, TError>> BindWhen<TStepError>(
+            Func<T, Task<Result<T, TStepError>>> binder,
+            Func<T, bool> predicate,
+            Func<TStepError, TError> widen) =>
+            result.IsSuccess && predicate(result.ResultValue!) ? await result.Bind(binder, widen) : result;
+
         /// <summary>Runs <paramref name="binder"/> on failure; the trace contexts of both results are merged.</summary>
         public Result<T, TError> BindOnError(Func<TError, Result<T, TError>> binder)
         {

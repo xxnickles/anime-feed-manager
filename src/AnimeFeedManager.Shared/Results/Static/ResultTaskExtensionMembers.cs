@@ -33,11 +33,14 @@ public static class ResultTaskExtensionMembers
 
         public async Task<Result<T, TError>> BindWhen<TStepError>(
             Func<T, Task<Result<T, TStepError>>> binder,
-            Func<T, bool> predicate) where TStepError : TError
-        {
-            var result = await resultTask;
-            return result.IsSuccess && predicate(result.ResultValue!) ? await result.Bind(binder) : result;
-        }
+            Func<T, bool> predicate) where TStepError : TError =>
+            await (await resultTask).BindWhen(binder, predicate);
+
+        public async Task<Result<T, TError>> BindWhen<TStepError>(
+            Func<T, Task<Result<T, TStepError>>> binder,
+            Func<T, bool> predicate,
+            Func<TStepError, TError> widen) =>
+            await (await resultTask).BindWhen(binder, predicate, widen);
 
         /// <summary>Maps the value either way; binds first when <paramref name="predicate"/> holds.</summary>
         public async Task<Result<TTarget, TError>> BindWhen<TTarget, TStepError>(

@@ -324,4 +324,66 @@ public class BindExtensionsTests
     }
 
     #endregion
+
+    #region Widening BindWhen
+
+    [Fact]
+    public async Task Should_Widen_BindWhen_Step_Failure_When_Predicate_Holds()
+    {
+        var result = await Task.FromResult(Result<int, LookupError>.Success(1))
+            .BindWhen(_ => Task.FromResult(Result<int, OtherTestError>.Failure(new OtherTestError("down"))),
+                _ => true,
+                error => error);
+
+        result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
+    }
+
+    [Fact]
+    public async Task Should_Pass_Step_Value_When_Widened_BindWhen_Step_Succeeds()
+    {
+        var result = await Task.FromResult(Result<int, LookupError>.Success(1))
+            .BindWhen(x => Task.FromResult(Result<int, OtherTestError>.Success(x + 1)),
+                _ => true,
+                error => error);
+
+        result.AssertOnSuccess(value => Assert.Equal(2, value));
+    }
+
+    [Fact]
+    public async Task Should_Keep_Value_Without_Binding_When_Widened_BindWhen_Predicate_Is_False()
+    {
+        var binderCalled = false;
+
+        var result = await Task.FromResult(Result<int, LookupError>.Success(1))
+            .BindWhen(x =>
+                {
+                    binderCalled = true;
+                    return Task.FromResult(Result<int, OtherTestError>.Success(x + 1));
+                },
+                _ => false,
+                error => error);
+
+        Assert.False(binderCalled);
+        result.AssertOnSuccess(value => Assert.Equal(1, value));
+    }
+
+    [Fact]
+    public async Task Should_Keep_Chain_Failure_Without_Binding_When_Widened_BindWhen_Chain_Is_Failure()
+    {
+        var binderCalled = false;
+
+        var result = await Task.FromResult(Result<int, LookupError>.Failure(new TestError("gone")))
+            .BindWhen(x =>
+                {
+                    binderCalled = true;
+                    return Task.FromResult(Result<int, OtherTestError>.Success(x));
+                },
+                _ => true,
+                error => error);
+
+        Assert.False(binderCalled);
+        result.AssertOnError(error => Assert.Equal(new TestError("gone"), error.Value));
+    }
+
+    #endregion
 }

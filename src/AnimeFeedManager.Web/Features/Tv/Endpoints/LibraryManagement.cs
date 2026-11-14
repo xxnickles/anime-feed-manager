@@ -19,7 +19,7 @@ internal static class LibraryManagement
     {
         using var activity = Source.StartActivity(TvTelemetry.RemoveSeriesSpan);
         return await Validate(viewModel)
-            .MapError(error => (RemoveSeriesError)error)
+            .MapError(error => (StorageRequestError)error)
             .Bind(model => IdHelpers.SeriesSeasonFromId(model.SeriesId)
                     .Map(season => (Model: model, Season: season)),
                 error => error)
