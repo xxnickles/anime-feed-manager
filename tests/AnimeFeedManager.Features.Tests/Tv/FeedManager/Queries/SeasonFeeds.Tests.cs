@@ -50,7 +50,7 @@ public class SeasonFeedsTests
     #region Bound Tests
 
     [Fact]
-    public async Task Should_Fail_As_Incomplete_When_A_Binding_Catalog_Cannot_Be_Read()
+    public async Task Should_Fail_As_BatchFailed_When_A_Binding_Catalog_Cannot_Be_Read()
     {
         StorageError unreadable = new StorageError.NotFound(typeof(NyaaCatalogStorage));
 
@@ -60,14 +60,14 @@ public class SeasonFeedsTests
                 : Result<ImmutableArray<NyaaCatalogStorage>, StorageError>.Success([]));
 
         result.AssertOnError(error =>
-            Assert.Equal(unreadable, Assert.Single(Assert.IsType<BulkError<StorageError>.Incomplete>(error).Errors)));
+            Assert.Equal(unreadable, Assert.Single(Assert.IsType<StorageError.BatchFailed>(error).Errors)));
     }
 
     #endregion
 
     #region Test Helpers
 
-    private static Task<Result<ImmutableArray<SeasonFeed>, DomainError>> GetSeasonFeeds(
+    private static Task<Result<ImmutableArray<SeasonFeed>, StorageError>> GetSeasonFeeds(
         ImmutableArray<TvSeries> library,
         ImmutableArray<NyaaBindingStorage> bindings,
         Func<string, Result<ImmutableArray<NyaaCatalogStorage>, StorageError>>? catalog = null) =>

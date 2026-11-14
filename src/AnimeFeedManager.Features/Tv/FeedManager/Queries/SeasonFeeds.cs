@@ -28,7 +28,7 @@ public enum BindingState
 public static class SeasonFeeds
 {
     /// <summary>Unfed, uncompleted library series plus the season's bindings; stale first, then unfed, tracking, completed.</summary>
-    public static Task<Result<ImmutableArray<SeasonFeed>, DomainError>> GetSeasonFeeds(
+    public static Task<Result<ImmutableArray<SeasonFeed>, StorageError>> GetSeasonFeeds(
         SeriesSeason season,
         Uri publicBlobUri,
         TvLibrary libraryGetter,
@@ -37,14 +37,13 @@ public static class SeasonFeeds
         DateTimeOffset now,
         CancellationToken token) =>
         bindingsGetter(season, token)
-            .MapError(error => (DomainError)error)
             .Bind(bindings => Bound(bindings, catalogGetter, now, token))
             .Bind(bound => libraryGetter(season, publicBlobUri, token)
                 .Map(library => Ordered([..Unfed(library, bound), ..bound])))
             .WithOperationName(nameof(GetSeasonFeeds))
             .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season));
 
-    private static async Task<Result<ImmutableArray<BoundSeries>, BulkError<StorageError>>> Bound(
+    private static async Task<Result<ImmutableArray<BoundSeries>, StorageError>> Bound(
         ImmutableArray<NyaaBindingStorage> bindings,
         NyaaCatalogGetter catalogGetter,
         DateTimeOffset now,
@@ -54,8 +53,8 @@ public static class SeasonFeeds
             catalogGetter(binding.RowKey ?? string.Empty, token).Map(catalog => ToBound(binding, catalog, now))));
 
         // A bound series missing from the list would read as never bound.
-        return reads.Collect(rows => rows.ToImmutableArray())
-            .RequireAll("Some binding catalogs could not be read");
+        return reads.CollectAll(rows => rows.ToImmutableArray(),
+            StorageError (errors) => new StorageError.BatchFailed("Some binding catalogs could not be read", errors));
     }
 
     private static BoundSeries ToBound(
