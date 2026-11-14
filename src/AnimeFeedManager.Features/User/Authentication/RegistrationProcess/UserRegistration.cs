@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
 public static class UserRegistration
 {
-    public static Task<Result<UserRegistrationResult, DomainError>> TryToRegister(
+    public static Task<Result<UserRegistrationResult, RegistrationError>> TryToRegister(
         string displayName,
         string email,
         IPasswordlessClient passwordlessClient,
@@ -22,25 +22,26 @@ public static class UserRegistration
     }
 
 
-    private static Task<Result<RegistrationProcessData, DomainError>> VerifyData(
+    private static Task<Result<RegistrationProcessData, RegistrationError>> VerifyData(
         ExistentUserGetterByEmail userGetter,
         string displayName,
         string email,
         CancellationToken cancellationToken)
     {
         return (email, displayName).AsUserRegistration()
-            .MapError(error => (DomainError)error)
+            .MapError(error => (RegistrationError)error)
             .Bind(userData => userGetter(userData.Email, cancellationToken)
-                .Map(user => new RegistrationProcessData(userData, user,
-                    new RegisterOptions(userData.UserId, userData.Email)
-                    {
-                        DisplayName = userData.DisplayName,
-                        Aliases = [userData.Email]
-                    })));
+                    .Map(user => new RegistrationProcessData(userData, user,
+                        new RegisterOptions(userData.UserId, userData.Email)
+                        {
+                            DisplayName = userData.DisplayName,
+                            Aliases = [userData.Email]
+                        })),
+                error => error);
     }
 
-    public static Task<Result<UserRegistrationResult, DomainError>> CreateUser(
-        this Task<Result<RegistrationProcessData, DomainError>> data,
+    public static Task<Result<UserRegistrationResult, RegistrationError>> CreateUser(
+        this Task<Result<RegistrationProcessData, RegistrationError>> data,
         IPasswordlessClient passwordlessClient,
         UserUpdater updater,
         CancellationToken cancellationToken)
@@ -52,7 +53,7 @@ public static class UserRegistration
     }
 
     // Try to register in passwordless; then store the new user
-    private static Task<Result<RegisterTokenResponse, DomainError>> TryToCreate(
+    private static Task<Result<RegisterTokenResponse, RegistrationError>> TryToCreate(
         RegistrationProcessData data,
         IPasswordlessClient passwordlessClient,
         UserUpdater updater,
@@ -61,12 +62,14 @@ public static class UserRegistration
         return data.StorageStoredUser switch
         {
             ValidStoredUser user => Task
-                .FromResult<Result<RegisterTokenResponse, DomainError>>(new AuthError.UserAlreadyExists(user.Email)),
+                .FromResult<Result<RegisterTokenResponse, RegistrationError>>(
+                    (RegistrationError)new AuthError.UserAlreadyExists(user.Email)),
             _ => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
-                .MapError(error => (DomainError)error)
+                .MapError(error => (RegistrationError)error)
                 .Bind(token =>
-                    updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)
-                        .Map(_ => token))
+                        updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)
+                            .Map(_ => token),
+                    error => error)
         };
     }
 

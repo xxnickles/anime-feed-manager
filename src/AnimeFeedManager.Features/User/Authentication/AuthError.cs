@@ -21,6 +21,8 @@ public closed record AuthError(string Message) : DomainError(Message)
     /// <summary>Passwordless rejected the sign-in token.</summary>
     public sealed record UserNotVerified() : AuthError("User not found");
 
+    public sealed record UnusableVerification() : AuthError("Passwordless verified the sign-in token without a user id");
+
     public sealed record UserNotFound() : AuthError("User doesn't exist in the system");
 
     public sealed record UserAlreadyExists(Email Email) : AuthError($"Email '{Email}' already exist in the system");

@@ -15,6 +15,6 @@ public class UserCredentialRegistrationTests
         var result = await UserCredentialRegistration.TryAddCredential("user-1", UserGetter,
             Substitute.For<IPasswordlessClient>(), TestContext.Current.CancellationToken);
 
-        result.AssertOnError(error => Assert.IsType<AuthError.UserNotFound>(error));
+        result.AssertOnError(error => Assert.IsType<AuthError.UserNotFound>(error.Value));
     }
 }

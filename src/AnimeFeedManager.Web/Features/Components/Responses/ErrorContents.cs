@@ -2,6 +2,7 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 using AnimeFeedManager.Features.User.Authentication;
+using AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 using AnimeFeedManager.Web.BlazorComponents.Toast;
 using AnimeFeedManager.Web.Features.Tv.Endpoints;
 using static AnimeFeedManager.Web.Features.Components.Responses.Notifications;
@@ -54,8 +55,8 @@ internal static class ErrorContents
             AuthError.PasswordlessFailure { ProblemDetails.Status: >= 400 and < 500 } passwordless =>
                 new ErrorContent(passwordless.ProblemDetails.Status, ToastType.Warning,
                     TextBody("We couldn't verify your passkey. Please try again.")),
-            AuthError.PasswordlessFailure => new ErrorContent(StatusCodes.Status502BadGateway, ToastType.Error,
-                TextBody("The sign-in service is unavailable. Please try again later.")),
+            AuthError.PasswordlessFailure or AuthError.UnusableVerification => Upstream(
+                "The sign-in service is unavailable. Please try again later."),
             AuthError.RequestFailed => ErrorContent.Unexpected,
             AuthError.UserNotVerified => new ErrorContent(StatusCodes.Status404NotFound, ToastType.Warning,
                 TextBody("We couldn't verify your sign-in. Please try again.")),
@@ -103,6 +104,27 @@ internal static class ErrorContents
         {
             ValidationError validation => validation.ToContent(),
             StorageError storage => storage.ToContent()
+        };
+    }
+
+    extension(RegistrationError error)
+    {
+        internal ErrorContent ToContent() => error switch
+        {
+            ValidationError validation => validation.ToContent(),
+            StorageError storage => storage.ToContent(),
+            AuthError auth => auth.ToContent(),
+            DeliveryError delivery => delivery.ToContent()
+        };
+    }
+
+    extension(AddCredentialError error)
+    {
+        internal ErrorContent ToContent() => error switch
+        {
+            ValidationError validation => validation.ToContent(),
+            StorageError storage => storage.ToContent(),
+            AuthError auth => auth.ToContent()
         };
     }
 

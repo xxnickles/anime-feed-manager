@@ -9,13 +9,25 @@ public class LoginVerificationTests
     #region VerifyUser
 
     [Fact]
-    public async Task Should_Return_Verified_User_When_Token_Verifies()
+    public async Task Should_Return_User_Id_When_Token_Verifies()
     {
         var client = ClientVerifying(Verified(success: true));
 
         var result = await LoginVerification.VerifyUser(client, "token", TestContext.Current.CancellationToken);
 
-        result.AssertOnSuccess(user => Assert.Equal("user-1", user.UserId));
+        result.AssertOnSuccess(userId => Assert.Equal("user-1", (string)userId));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Should_Fail_With_UnusableVerification_When_Verified_Token_Has_No_User_Id(string userId)
+    {
+        var client = ClientVerifying(Verified(success: true, userId));
+
+        var result = await LoginVerification.VerifyUser(client, "token", TestContext.Current.CancellationToken);
+
+        result.AssertOnError(error => Assert.IsType<AuthError.UnusableVerification>(error));
     }
 
     [Fact]
@@ -66,8 +78,8 @@ public class LoginVerificationTests
         return client;
     }
 
-    private static VerifiedUser Verified(bool success) =>
-        new("user-1", [], success, DateTime.UtcNow, "localhost", "https://localhost", "device", "XX", "nickname",
+    private static VerifiedUser Verified(bool success, string userId = "user-1") =>
+        new(userId, [], success, DateTime.UtcNow, "localhost", "https://localhost", "device", "XX", "nickname",
             DateTime.UtcNow.AddMinutes(2), Guid.NewGuid(), "passkey_signin", "signin");
 
     #endregion

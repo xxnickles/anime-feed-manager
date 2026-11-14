@@ -44,7 +44,7 @@ internal static class SecurityHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 model => [RegistrationForm.SuccessFragment(model)],
-                error => error.ToContentFallback(),
+                error => error.ToContent(),
                 content => [RegistrationForm.ErrorFragment(viewModel, content.Message)]
             );
     }
@@ -59,23 +59,23 @@ internal static class SecurityHandlers
     {
         using var activity = Source.StartActivity(SecurityTelemetry.LoginSpan);
         return await LoginVerification.VerifyUser(passwordlessClient, viewModel.Token, cancellationToken)
-            .MapError(error => (DomainError)error)
-            .Bind(verified => verified.UserId.ParseAsNonEmpty("UserId").AsResult())
+            .MapError(error => (LoginError)error)
             .Bind(id => Users.GetById(
-                tableClientFactory.TableStorageExistentUserGetterById(),
-                id,
-                cancellationToken))
-            .Bind(TryToCreatePrincipal)
+                    tableClientFactory.TableStorageExistentUserGetterById(),
+                    id,
+                    cancellationToken),
+                error => error)
+            .Bind(TryToCreatePrincipal, error => error)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .Tap(principal => httpContext.SignInAsync(
                 principal,
                 new AuthenticationProperties { IsPersistent = true }))
-            .MatchToValue<ClaimsPrincipal, DomainError, IResult>(
+            .MatchToValue<ClaimsPrincipal, LoginError, IResult>(
                 _ => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
                 error =>
                 {
-                    var content = error.ToContentFallback();
+                    var content = error.ToContent();
                     return new[] { LoginForm.ErrorFragment(viewModel, content.Message) }
                         .AggregateComponents(content.StatusCode);
                 });
@@ -153,7 +153,7 @@ internal static class SecurityHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 model => [AddCredentialForm.SuccessFragment(model)],
-                error => error.ToContentFallback(),
+                error => error.ToContent(),
                 content => [AddCredentialForm.ErrorFragment(viewModel, content.Message)]
             );
     }

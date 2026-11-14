@@ -13,19 +13,19 @@ public static class UserCredentialRegistration
     /// <param name="passwordlessClient"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static Task<Result<UserRegistrationResult, DomainError>> TryAddCredential(
+    public static Task<Result<UserRegistrationResult, AddCredentialError>> TryAddCredential(
         string id,
         ExistentUserGetterById userGetter,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken)
     {
-       return id.ParseAsNonEmpty("Display Name")
+       return id.ParseAsNonEmpty("Id")
             .AsResult()
-            .MapError(error => (DomainError)error)
+            .MapError(error => (AddCredentialError)error)
             .WithOperationName(nameof(UserCredentialRegistration))
             .AddLog((logger) => logger.LogInformation("Trying to add credential for user {user.id}", id))
-            .Bind(safeId => userGetter(safeId, cancellationToken))
-            .Bind(user => TryToCreate(user, passwordlessClient, cancellationToken));
+            .Bind(safeId => userGetter(safeId, cancellationToken), error => error)
+            .Bind(user => TryToCreate(user, passwordlessClient, cancellationToken), error => error);
     }
 
     private static Task<Result<UserRegistrationResult, AuthError>> TryToCreate(
