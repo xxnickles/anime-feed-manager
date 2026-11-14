@@ -10,9 +10,11 @@ internal static class ResponseExtensions
         );
     }
 
-    internal static async Task<IResult> ToJsonResponse<T>(this Task<Result<T, DomainError>> result, ILogger logger)
+    internal static Task<IResult> ToJsonResponse<T>(this Task<Result<T, DomainError>> result, ILogger logger)
     {
-        return (await result).ToJsonResponse(logger);
+        return result.MatchToValue(
+            success => success.ToSuccessResponse(),
+            error => error.ToErrorResponse(logger));
     }
 
 
@@ -24,9 +26,11 @@ internal static class ResponseExtensions
         );
     }
     
-    internal static async Task<IResult> ToJsonResponse(this Task<Result<Unit, DomainError>> result, ILogger logger)
+    internal static Task<IResult> ToJsonResponse(this Task<Result<Unit, DomainError>> result, ILogger logger)
     {
-        return (await result).ToJsonResponse(logger);
+        return result.MatchToValue(
+            _ => TypedResults.Accepted(string.Empty),
+            error => error.ToErrorResponse(logger));
     }
 
     private static IResult ToSuccessResponse<T>(this T value)

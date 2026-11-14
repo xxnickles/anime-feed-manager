@@ -27,9 +27,13 @@ internal static class Notifications
 
     // 4xx errors are the user's to fix: a toast. 5xx are ours: a dialog with the trace ID.
     internal static RenderFragment CreateErrorNotification(string title, DomainError error) =>
-        error.ToStatusCode() >= StatusCodes.Status500InternalServerError
-            ? CreateErrorDialog(title, ErrorToContent(error), error.ToStatusCode(), error.ToString())
-            : CreateToast(title, ErrorToContent(error), ToToastType(error));
+        CreateErrorNotification(title, new ErrorContent(error.ToStatusCode(), ToToastType(error), ErrorToContent(error)),
+            error.ToString());
+
+    internal static RenderFragment CreateErrorNotification(string title, ErrorContent content, string? details) =>
+        content.StatusCode >= StatusCodes.Status500InternalServerError
+            ? CreateErrorDialog(title, content.Message, content.StatusCode, details)
+            : CreateToast(title, content.Message, content.Severity);
 
     internal static RenderFragment CreateErrorDialog(string title, RenderFragment message, int statusCode,
         string? details) => builder =>

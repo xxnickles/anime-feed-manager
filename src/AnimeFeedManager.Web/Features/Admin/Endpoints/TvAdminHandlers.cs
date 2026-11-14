@@ -19,12 +19,14 @@ internal static class TvAdminHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.UpdateTvSeasonSpan);
         return await Validate(viewModel)
-            .MapError(error => (DomainError)error)
+            .MapError(error => (AdminCommandError)error)
             .Bind(vm => domainPostman.SendMessages([new UpdateTvSeriesEvent(new SeasonParameters(vm.Season, vm.Year))],
-                cancellationToken))
+                    cancellationToken)
+                .MapError(error => (AdminCommandError)error))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
-            .ToComponentNotification<Unit, BySeasonViewModel, TvSeasonalUpdate>(viewModel);
+            .ToComponentNotification(viewModel, error => error.ToContent())
+            .For<TvSeasonalUpdate>();
     }
 
 
@@ -38,8 +40,8 @@ internal static class TvAdminHandlers
         return await domainPostman.SendMessages([new UpdateTvSeriesEvent()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
-            .MapError(error => (DomainError)error)
-            .ToComponentNotification<Unit, Noop, TvLatestSeasonUpdate>(new Noop());
+            .ToComponentNotification(new Noop(), error => error.ToContent())
+            .For<TvLatestSeasonUpdate>();
     }
 
     internal static async Task<RazorComponentResult> TriggerNotificationProcess(
@@ -52,8 +54,8 @@ internal static class TvAdminHandlers
         return await domainPostman.SendMessages([new RunFeedNotification()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
-            .MapError(error => (DomainError)error)
-            .ToComponentNotification<Unit, Noop, TvNotificationsTrigger>(new Noop());
+            .ToComponentNotification(new Noop(), error => error.ToContent())
+            .For<TvNotificationsTrigger>();
     }
 
     internal static async Task<RazorComponentResult> TriggerAutomatedBinding(
@@ -66,8 +68,8 @@ internal static class TvAdminHandlers
         return await domainPostman.SendMessages([new RunAutomatedBinding()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
-            .MapError(error => (DomainError)error)
-            .ToComponentNotification<Unit, Noop, AutomatedBindingTrigger>(new Noop());
+            .ToComponentNotification(new Noop(), error => error.ToContent())
+            .For<AutomatedBindingTrigger>();
     }
 
     internal static async Task<RazorComponentResult> TriggerFeedSettlement(
@@ -80,7 +82,7 @@ internal static class TvAdminHandlers
         return await domainPostman.SendMessages([new RunFeedSettlement()], cancellationToken)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
-            .MapError(error => (DomainError)error)
-            .ToComponentNotification<Unit, Noop, FeedSettlementTrigger>(new Noop());
+            .ToComponentNotification(new Noop(), error => error.ToContent())
+            .For<FeedSettlementTrigger>();
     }
 }
