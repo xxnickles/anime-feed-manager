@@ -30,5 +30,7 @@
       <ProjectReference Include="..\AnimeFeedManager.ServiceDefaults\AnimeFeedManager.ServiceDefaults.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Services.Shared\AnimeFeedManager.Services.Shared.csproj" />
       <ProjectReference Include="..\AnimeFeedManager.Web.BlazorComponents\AnimeFeedManager.Web.BlazorComponents.csproj" />
-    </ItemGroup>    
+      <ProjectReference Include="..\AnimeFeedManager.SourceGenerators\AnimeFeedManager.SourceGenerators.csproj"
+                        OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
 </Project>

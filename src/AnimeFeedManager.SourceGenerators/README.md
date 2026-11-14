@@ -9,7 +9,7 @@ This is a Roslyn `IIncrementalGenerator` project targeting `netstandard2.0`. It 
                   OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 ```
 
-Each generator lives in its own folder with a `Generator.cs` entry point. Five generators are currently defined.
+Each generator lives in its own folder with a `Generator.cs` entry point. Six generators are currently defined.
 
 ---
 
@@ -108,6 +108,42 @@ Synthesizes an internal `WithTableNameAttribute` for marking Azure Table Storage
 | ID | Condition |
 |---|---|
 | `TNM001` | Decorated class does not implement `ITableEntity` |
+
+---
+
+### UnionWidening
+
+Implements `IWidensFrom<TSelf, TFamily>` (`AnimeFeedManager.Shared.Results`) on unions marked `[Widens]`, so the constrained `Bind` / `BindWhen` in `ResultWidening` can widen a step's error.
+
+| Detail | Value |
+|---|---|
+| Trigger | `[Widens]` / `[Widens<TUnion1, …>]` (up to 4) on a `partial union`; `partial` alone generates nothing |
+| Constraints | Consumed types are `struct, IUnion` (compiler-checked: a family or case record listed there is CS0453 / CS0315); attribute targets structs only (CS0592 on a class) |
+| Emitted | One `IWidensFrom` per case (`=> error`); one per consumed union, a switch mapping each of its cases |
+| Case discovery | The union's single-parameter constructors (compiler-synthesized, one per case); works for unions from referenced assemblies |
+| Output namespace | Same namespace as the union |
+| Consumer wiring | None beyond the project reference; consuming project must reference `AnimeFeedManager.Shared` |
+
+```csharp
+[Widens]
+public partial union NyaaCollectionError(StorageError, ScrapeError);
+
+[Widens<NyaaCollectionError, FeedProcessError>]
+internal partial union FeedRunError(StorageError, ScrapeError, DeliveryError);
+```
+
+**Diagnostics**
+
+| ID | Condition |
+|---|---|
+| `WID001` | A consumed type implements `IUnion` but is not a union |
+| `WID002` | A consumed union has a case the marked union lacks |
+| `WID003` | A consumed type is already a case (its widen is generated) |
+| `WID004` | Union is generic or nested in another type |
+| `WID005` | Union is not `partial` |
+| `WID006` | More than one `[Widens]` attribute on the union |
+| `WID007` | A consumed union is listed twice |
+| `WID008` | `[Widens]` on a struct or record struct, not a union |
 
 ---
 

@@ -5,12 +5,8 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 
-public union FeedProcessError(StorageError, DeliveryError)
-    : IWidensFrom<FeedProcessError, StorageError>, IWidensFrom<FeedProcessError, DeliveryError>
-{
-    static FeedProcessError IWidensFrom<FeedProcessError, StorageError>.Widen(StorageError error) => error;
-    static FeedProcessError IWidensFrom<FeedProcessError, DeliveryError>.Widen(DeliveryError error) => error;
-}
+[Widens]
+public partial union FeedProcessError(StorageError, DeliveryError);
 
 public static class FeedProcess
 {
