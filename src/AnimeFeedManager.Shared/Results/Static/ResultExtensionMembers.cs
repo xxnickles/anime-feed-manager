@@ -17,7 +17,7 @@ public static class ResultExtensionMembers
                 ? Result<TTarget, TError>.Success(await mapper(result.ResultValue!), result.TraceContext)
                 : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-        /// <summary>Changes the error type; widens into a path union with <c>MapError(e => (PathError)e)</c>.</summary>
+        /// <summary>Changes the error type; starts a path union chain with <c>MapError(e => (PathError)e)</c>.</summary>
         public Result<T, TNew> MapError<TNew>(Func<TError, TNew> mapper) =>
             result.IsSuccess
                 ? Result<T, TNew>.Success(result.ResultValue!, result.TraceContext)
@@ -39,6 +39,20 @@ public static class ResultExtensionMembers
             where TStepError : TError =>
             result.IsSuccess
                 ? Continue<TTarget, TError, TStepError>(result.TraceContext, await binder(result.ResultValue!))
+                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
+
+        /// <summary>Runs <paramref name="binder"/> on success; a step error converts with <paramref name="widen"/> (into a path union: <c>error => error</c>).</summary>
+        public Result<TTarget, TError> Bind<TTarget, TStepError>(Func<T, Result<TTarget, TStepError>> binder,
+            Func<TStepError, TError> widen) =>
+            result.IsSuccess
+                ? Continue<TTarget, TError, TError>(result.TraceContext, binder(result.ResultValue!).MapError(widen))
+                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
+
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(
+            Func<T, Task<Result<TTarget, TStepError>>> binder,
+            Func<TStepError, TError> widen) =>
+            result.IsSuccess
+                ? Continue<TTarget, TError, TError>(result.TraceContext, (await binder(result.ResultValue!)).MapError(widen))
                 : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
         public Result<T, TError> BindWhen<TStepError>(Func<T, Result<T, TStepError>> binder, Func<T, bool> predicate)

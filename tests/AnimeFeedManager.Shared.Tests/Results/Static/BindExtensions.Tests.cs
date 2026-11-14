@@ -128,6 +128,87 @@ public class BindExtensionsTests
 
     #endregion
 
+    #region Widening Steps
+
+    [Fact]
+    public void Should_Widen_Step_Failure_Into_Chain_Union_When_Widen_Is_Given()
+    {
+        var result = Result<int, LookupError>.Success(1)
+            .Bind(_ => Result<string, OtherTestError>.Failure(new OtherTestError("down")), error => error);
+
+        result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
+    }
+
+    [Fact]
+    public void Should_Pass_Step_Value_When_Widened_Step_Succeeds()
+    {
+        var result = Result<int, LookupError>.Success(1)
+            .Bind(x => Result<string, OtherTestError>.Success(x.ToString()), error => error);
+
+        result.AssertOnSuccess(value => Assert.Equal("1", value));
+    }
+
+    [Fact]
+    public void Should_Keep_Chain_Failure_Without_Binding_When_Widened_Chain_Is_Failure()
+    {
+        var binderCalled = false;
+
+        var result = Result<int, LookupError>.Failure(new TestError("gone"))
+            .Bind(x =>
+            {
+                binderCalled = true;
+                return Result<string, OtherTestError>.Success(x.ToString());
+            }, error => error);
+
+        result.AssertOnError(error => Assert.Equal(new TestError("gone"), error.Value));
+        Assert.False(binderCalled);
+    }
+
+    [Fact]
+    public void Should_Merge_Trace_Contexts_When_Widened_Step_Fails()
+    {
+        var logger = new RecordingLogger();
+
+        Result<int, LookupError>.Success(1)
+            .AddLog(log => log.LogInformation("chain"))
+            .Bind(_ => Result<string, OtherTestError>.Failure(new OtherTestError("down"))
+                .AddLog(log => log.LogInformation("step")), error => error)
+            .FlushLogs(logger);
+
+        Assert.Equal(["chain", "step", "down"], logger.Entries);
+    }
+
+    [Fact]
+    public async Task Should_Widen_Step_Failure_When_Async_Binder_Is_Widened()
+    {
+        var result = await Result<int, LookupError>.Success(1)
+            .Bind(_ => Task.FromResult(Result<string, OtherTestError>.Failure(new OtherTestError("down"))),
+                error => error);
+
+        result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
+    }
+
+    [Fact]
+    public async Task Should_Widen_Step_Failure_When_Binding_On_A_Task_Result_With_Widen()
+    {
+        var result = await Task.FromResult(Result<int, LookupError>.Success(1))
+            .Bind(_ => Result<string, OtherTestError>.Failure(new OtherTestError("down")), error => error);
+
+        result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
+    }
+
+    [Fact]
+    public async Task Should_Widen_Step_Failure_When_Binding_An_Async_Step_On_A_Task_Result()
+    {
+        var result = await Task.FromResult(Result<int, LookupError>.Success(1))
+            .Bind(_ => Task.FromResult(Result<string, OtherTestError>.Failure(new OtherTestError("down"))),
+                error => error);
+
+        result.AssertOnError(error => Assert.Equal(new OtherTestError("down"), error.Value));
+    }
+
+    #endregion
+
     #region BindWhen
 
     [Fact]

@@ -19,11 +19,13 @@ internal static class LibraryManagement
     {
         using var activity = Source.StartActivity(TvTelemetry.RemoveSeriesSpan);
         return await Validate(viewModel)
-            .MapError(error => (DomainError)error)
+            .MapError(error => (RemoveSeriesError)error)
             .Bind(model => IdHelpers.SeriesSeasonFromId(model.SeriesId)
-                .Map(season => (Model: model, Season: season)))
+                    .Map(season => (Model: model, Season: season)),
+                error => error)
             .Bind(data => DeleteSeries(data.Model.SeriesId, data.Season,
-                clientFactory.TableStorageTvSeriesRemover, token))
+                    clientFactory.TableStorageTvSeriesRemover, token),
+                error => error)
             .Map(result =>
             {
                 context.Response.HxTrigger(
@@ -38,6 +40,6 @@ internal static class LibraryManagement
                     Notifications.CreateNotificationToast("Remove Series",
                         Notifications.TextBody($"Series {viewModel.SeriesTitle} has been removed"))
                 ],
-                error => error.ToContentFallback(), "Remove Series");
+                error => error.ToContent(), "Remove Series");
     }
 }

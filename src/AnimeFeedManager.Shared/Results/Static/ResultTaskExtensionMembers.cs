@@ -22,6 +22,15 @@ public static class ResultTaskExtensionMembers
             where TStepError : TError =>
             await (await resultTask).Bind(binder);
 
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(Func<T, Result<TTarget, TStepError>> binder,
+            Func<TStepError, TError> widen) =>
+            (await resultTask).Bind(binder, widen);
+
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(
+            Func<T, Task<Result<TTarget, TStepError>>> binder,
+            Func<TStepError, TError> widen) =>
+             await (await resultTask).Bind(binder, widen);
+
         public async Task<Result<T, TError>> BindWhen<TStepError>(
             Func<T, Task<Result<T, TStepError>>> binder,
             Func<T, bool> predicate) where TStepError : TError
