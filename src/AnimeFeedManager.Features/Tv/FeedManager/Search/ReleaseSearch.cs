@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Scrapping.Nyaa;
 using AnimeFeedManager.Features.Tv.FeedManager.Collection;
 using AnimeFeedManager.Features.Tv.FeedManager.Queries;
@@ -25,14 +26,13 @@ public sealed record ReleaseSearchResults(ImmutableArray<ReleaseCandidate> Candi
 public static class ReleaseSearch
 {
     /// <summary>Searches nyaa and groups single-episode releases into candidates, newest first; batches, unparsable titles and items the poll never sees are left out.</summary>
-    public static Task<Result<ReleaseSearchResults, DomainError>> Search(
+    public static Task<Result<ReleaseSearchResults, ScrapeError>> Search(
         string terms,
         bool trustedOnly,
         CurrentBinding binding,
         INyaaClient nyaaClient,
         CancellationToken token) =>
         nyaaClient.Fetch(Query(terms, trustedOnly), token)
-            .MapError(error => (DomainError)error)
             .Bind(document => ToResults(document, binding))
             .WithOperationName(nameof(Search));
 
@@ -42,7 +42,7 @@ public static class ReleaseSearch
         return trustedOnly ? query.TrustedOnly() : query;
     }
 
-    private static Result<ReleaseSearchResults, DomainError> ToResults(XDocument document, CurrentBinding binding) =>
+    private static Result<ReleaseSearchResults, ScrapeError> ToResults(XDocument document, CurrentBinding binding) =>
         NyaaFeed.Parse(document)
             .AddLogOnSuccess(feed => feed.LogErrors)
             .Map(feed => new ReleaseSearchResults(Candidates(feed.Value, binding), NyaaFeed.IsFull(document)));

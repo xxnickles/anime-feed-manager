@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Scrapping.Nyaa;
 using AnimeFeedManager.Features.Tv.FeedManager.Completion;
 using AnimeFeedManager.Features.Tv.FeedManager.Events;
@@ -11,6 +12,9 @@ namespace AnimeFeedManager.Features.Tv.FeedManager.Backfill;
 
 public sealed record BackfilledSeries(string Title, int Catalogued);
 
+[Widens]
+public partial union BackfillError(UnreadableMessage, StorageError, ScrapeError, DeliveryError);
+
 internal sealed record BackfillProcess(
     string SeriesId,
     SeriesSeason Season,
@@ -21,7 +25,7 @@ internal sealed record BackfillProcess(
 public static class BackfillSeries
 {
     /// <summary>Catalogs the bound variant's releases from one nyaa search, then runs the completion rule; never notifies, and a failure is stored without a toast.</summary>
-    public static Task<Result<BackfilledSeries, DomainError>> Backfill(
+    public static Task<Result<BackfilledSeries, BackfillError>> Backfill(
         BackfillNyaaSeries request,
         INyaaClient nyaaClient,
         ITableClientFactory clientFactory,
@@ -36,27 +40,26 @@ public static class BackfillSeries
             .WithOperationName(nameof(Backfill))
             .WithLogProperty(Telemetry.SeriesIdTag, request.SeriesId);
 
-    private static Task<Result<BackfillProcess, DomainError>> StartProcess(
+    private static Task<Result<BackfillProcess, BackfillError>> StartProcess(
         string seriesId,
         NyaaBindingGetter bindingGetter,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
-            .MapError(error => (DomainError)error)
+            .MapError(BackfillError (fields) => new UnreadableMessage(typeof(BackfillNyaaSeries), fields.Errors))
             .Bind(season => bindingGetter(seriesId, season, token)
                 .Map(binding => new BackfillProcess(seriesId, season, binding, [], new FeedOpen())));
 
-    extension(Task<Result<BackfillProcess, DomainError>> process)
+    extension(Task<Result<BackfillProcess, BackfillError>> process)
     {
-        private Task<Result<BackfillProcess, DomainError>> Search(INyaaClient nyaaClient, CancellationToken token) =>
+        private Task<Result<BackfillProcess, BackfillError>> Search(INyaaClient nyaaClient, CancellationToken token) =>
             process.Bind(p => nyaaClient.Fetch(NyaaBindingQuery.For(p.Binding), token)
-                .MapError(error => (DomainError)error)
                 .Bind(document => Match(p, document)));
 
-        private Task<Result<BackfillProcess, DomainError>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
+        private Task<Result<BackfillProcess, BackfillError>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
             CancellationToken token) =>
             process.Bind(p => catalogUpdater(p.Rows, token).Map(_ => p));
 
-        private Task<Result<BackfillProcess, DomainError>> EvaluateCompletion(
+        private Task<Result<BackfillProcess, BackfillError>> EvaluateCompletion(
             ITableClientFactory clientFactory,
             CancellationToken token) =>
             process.Bind(p => NyaaCompletion.CompleteWhenReached(
@@ -68,7 +71,7 @@ public static class BackfillSeries
                     token)
                 .Map(outcome => p with {Completion = outcome}));
 
-        private Task<Result<BackfillProcess, DomainError>> SendEvents(
+        private Task<Result<BackfillProcess, BackfillError>> SendEvents(
             BackfillNyaaSeries request,
             DomainCollectionSender domainPostman,
             CancellationToken token) =>
@@ -83,7 +86,7 @@ public static class BackfillSeries
                     token);
     }
 
-    private static Result<BackfillProcess, DomainError> Match(BackfillProcess process, XDocument document) =>
+    private static Result<BackfillProcess, ScrapeError> Match(BackfillProcess process, XDocument document) =>
         NyaaFeed.Parse(document)
             .AddLogOnSuccess(feed => feed.LogErrors)
             .Map(feed => process with {Rows = NyaaMatch.CatalogRows(process.Binding, process.SeriesId, feed.Value)});
