@@ -43,7 +43,7 @@ public class InterestedSeriesTests
 
         var result = await Toggle(MakeSubscription(nameof(SubscriptionType.Subscribed)), updater, remover);
 
-        result.AssertOnError(error => Assert.Equal(new AlreadySubscribed("Black Torch"), error));
+        result.AssertOnError(error => Assert.Equal(new AlreadySubscribed("Black Torch"), error.Value));
         await updater.DidNotReceive().Invoke(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>());
         await remover.DidNotReceive().Invoke(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
@@ -52,7 +52,7 @@ public class InterestedSeriesTests
 
     #region Test Helpers
 
-    private static Task<Result<SubscriptionType, DomainError>> Toggle(
+    private static Task<Result<SubscriptionType, InterestedError>> Toggle(
         SubscriptionStorage? stored,
         TvSubscriptionUpdater updater,
         TvSubscriptionsRemover remover) =>

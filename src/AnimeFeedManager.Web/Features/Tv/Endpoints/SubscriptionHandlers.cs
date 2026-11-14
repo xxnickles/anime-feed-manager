@@ -40,9 +40,10 @@ internal static class SubscriptionHandlers
     {
         using var activity = Source.StartActivity(TvTelemetry.ToggleSubscriptionSpan);
         return await Validate(viewModel)
-            .MapError(error => (DomainError)error)
+            .MapError(error => (ToggleSubscriptionError)error)
             .Bind(model => Data.GetSeriesForUser(context, model.SeriesId,
-                clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken))
+                    clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken),
+                error => error)
             .Bind(data => Subscription.VerifyStorage(
                     data.User,
                     data.Series.Id,
@@ -51,7 +52,8 @@ internal static class SubscriptionHandlers
                     clientFactory.TableStorageTvSubscription, cancellationToken)
                 .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
                     clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
-                .Map(state => data.Series.ForUser(data.User, state)))
+                    .Map(state => data.Series.ForUser(data.User, state)),
+                error => error)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
@@ -63,6 +65,6 @@ internal static class SubscriptionHandlers
                             ? $"{card.TvSeries.Title} has been added to your subscriptions"
                             : $"{card.TvSeries.Title} has been removed from your subscriptions"))
                 ],
-                error => error.ToContentFallback(), "TV Subscription");
+                error => error.ToContent(), "TV Subscription");
     }
 }

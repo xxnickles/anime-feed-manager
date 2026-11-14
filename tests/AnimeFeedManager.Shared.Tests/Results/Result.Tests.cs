@@ -2,6 +2,8 @@ namespace AnimeFeedManager.Shared.Tests.Results;
 
 public union LookupError(TestError, OtherTestError);
 
+public union CatalogLookupError(LookupError, Static.MissingEntry);
+
 public class ResultTests
 {
     #region Union Conversions
@@ -115,6 +117,16 @@ public class ResultTests
         var logger = new RecordingLogger();
 
         LookupFailure(new TestError("gone")).FlushLogs(logger);
+
+        Assert.Equal(["gone"], logger.Entries);
+    }
+
+    [Fact]
+    public void Should_Log_The_Leaf_Error_When_A_Nested_Path_Union_Failure_Is_Flushed()
+    {
+        var logger = new RecordingLogger();
+
+        Result<int, CatalogLookupError>.Failure((LookupError)new TestError("gone")).FlushLogs(logger);
 
         Assert.Equal(["gone"], logger.Entries);
     }

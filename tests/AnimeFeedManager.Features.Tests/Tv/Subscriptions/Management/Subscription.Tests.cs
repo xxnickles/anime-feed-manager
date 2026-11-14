@@ -56,7 +56,7 @@ public class SubscriptionTests
 
         var result = await Toggle(stored: null, updater, Remover(), feedTitle);
 
-        result.AssertOnError(error => Assert.Equal(new NoFeed("Black Torch"), error));
+        result.AssertOnError(error => Assert.Equal(new NoFeed("Black Torch"), error.Value));
         await updater.DidNotReceive().Invoke(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>());
     }
 
@@ -76,7 +76,7 @@ public class SubscriptionTests
 
     #region Test Helpers
 
-    private static Task<Result<SubscriptionType, DomainError>> Toggle(
+    private static Task<Result<SubscriptionType, SubscriptionError>> Toggle(
         SubscriptionStorage? stored,
         TvSubscriptionUpdater updater,
         TvSubscriptionsRemover remover,

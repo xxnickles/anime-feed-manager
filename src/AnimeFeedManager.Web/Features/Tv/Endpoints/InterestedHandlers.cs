@@ -40,9 +40,10 @@ internal static class InterestedHandlers
     {
         using var activity = Source.StartActivity(TvTelemetry.ToggleInterestedSpan);
         return await Validate(viewModel)
-            .MapError(error => (DomainError)error)
+            .MapError(error => (ToggleInterestedError)error)
             .Bind(model => Data.GetSeriesForUser(context, model.SeriesId,
-                clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken))
+                    clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken),
+                error => error)
             .Bind(data => InterestedSeries.VerifyStorage(
                     data.User,
                     data.Series.Id,
@@ -50,7 +51,8 @@ internal static class InterestedHandlers
                     clientFactory.TableStorageTvSubscription, cancellationToken)
                 .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater,
                     clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
-                .Map(state => data.Series.ForUser(data.User, state)))
+                    .Map(state => data.Series.ForUser(data.User, state)),
+                error => error)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
@@ -62,6 +64,6 @@ internal static class InterestedHandlers
                             ? $"{card.TvSeries.Title} has been added to your interested list"
                             : $"{card.TvSeries.Title} has been removed from your interested list"))
                 ],
-                error => error.ToContentFallback(), "Interested");
+                error => error.ToContent(), "Interested");
     }
 }

@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 
 public static class Subscription
 {
-    public static Task<Result<SubscriptionStorage, DomainError>> VerifyStorage(
+    public static Task<Result<SubscriptionStorage, SubscriptionError>> VerifyStorage(
         AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
@@ -13,24 +13,24 @@ public static class Subscription
         TvSubscriptionGetter subscriptionGetterGetter,
         CancellationToken token) =>
         subscriptionGetterGetter(user.UserId, seriesId, token)
-            .MapError(error => (DomainError)error)
+            .MapError(error => (SubscriptionError)error)
             .WithOperationName(nameof(VerifyStorage))
             .WithLogProperties([
                 new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId),
                 new KeyValuePair<string, object>(Telemetry.UserIdTag, user.UserId)
             ])
             .Bind(subscription =>
-                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle));
+                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle), error => error);
 
     // Toggles the stored state and returns the resulting one.
-    public static Task<Result<SubscriptionType, DomainError>> UpdateSubscription(this Task<Result<SubscriptionStorage, DomainError>> storage,
+    public static Task<Result<SubscriptionType, SubscriptionError>> UpdateSubscription(this Task<Result<SubscriptionStorage, SubscriptionError>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) =>
-        storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
+        storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token), error => error);
 
     // The feed title keys notifications, so a new subscription needs one; a stored one stays removable.
-    private static Result<SubscriptionStorage, DomainError> VerifyCurrentSubscription(
+    private static Result<SubscriptionStorage, NoFeed> VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
         AuthenticatedUser user,
         string seriesId,

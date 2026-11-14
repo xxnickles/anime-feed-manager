@@ -92,6 +92,24 @@ internal static class ErrorContents
             new(StatusCodes.Status409Conflict, ToastType.Warning, TextBody(error.Message));
     }
 
+    extension(SubscriptionError error)
+    {
+        internal ErrorContent ToContent() => error switch
+        {
+            StorageError storage => storage.ToContent(),
+            NoFeed noFeed => noFeed.ToContent()
+        };
+    }
+
+    extension(InterestedError error)
+    {
+        internal ErrorContent ToContent() => error switch
+        {
+            StorageError storage => storage.ToContent(),
+            AlreadySubscribed alreadySubscribed => alreadySubscribed.ToContent()
+        };
+    }
+
     extension(UserIsAnonymous error)
     {
         internal ErrorContent ToContent() =>
