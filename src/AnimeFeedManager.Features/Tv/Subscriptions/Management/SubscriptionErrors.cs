@@ -11,6 +11,8 @@ public sealed record AlreadySubscribed(string Series) : DomainError($"You are al
     public override Action<ILogger> LogAction() => logger => logger.LogError("{domain_error.message}", Message);
 }
 
-public union SubscriptionError(StorageError, NoFeed);
+[Widens]
+public partial union SubscriptionError(StorageError, NoFeed);
 
-public union InterestedError(StorageError, AlreadySubscribed);
+[Widens]
+public partial union InterestedError(StorageError, AlreadySubscribed);

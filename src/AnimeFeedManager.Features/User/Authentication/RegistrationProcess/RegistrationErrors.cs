@@ -1,5 +1,7 @@
 namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
-public union RegistrationError(ValidationError, StorageError, AuthError, DeliveryError);
+[Widens]
+public partial union RegistrationError(ValidationError, StorageError, AuthError, DeliveryError);
 
-public union AddCredentialError(ValidationError, StorageError, AuthError);
+[Widens]
+public partial union AddCredentialError(ValidationError, StorageError, AuthError);

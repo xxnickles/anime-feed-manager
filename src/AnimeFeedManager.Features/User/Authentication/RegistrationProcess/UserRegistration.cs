@@ -36,8 +36,7 @@ public static class UserRegistration
                         {
                             DisplayName = userData.DisplayName,
                             Aliases = [userData.Email]
-                        })),
-                error => error);
+                        })));
     }
 
     public static Task<Result<UserRegistrationResult, RegistrationError>> CreateUser(
@@ -68,8 +67,7 @@ public static class UserRegistration
                 .MapError(error => (RegistrationError)error)
                 .Bind(token =>
                         updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)
-                            .Map(_ => token),
-                    error => error)
+                            .Map(_ => token))
         };
     }
 

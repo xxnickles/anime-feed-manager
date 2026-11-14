@@ -24,8 +24,8 @@ public static class UserCredentialRegistration
             .MapError(error => (AddCredentialError)error)
             .WithOperationName(nameof(UserCredentialRegistration))
             .AddLog((logger) => logger.LogInformation("Trying to add credential for user {user.id}", id))
-            .Bind(safeId => userGetter(safeId, cancellationToken), error => error)
-            .Bind(user => TryToCreate(user, passwordlessClient, cancellationToken), error => error);
+            .Bind(safeId => userGetter(safeId, cancellationToken))
+            .Bind(user => TryToCreate(user, passwordlessClient, cancellationToken));
     }
 
     private static Task<Result<UserRegistrationResult, AuthError>> TryToCreate(

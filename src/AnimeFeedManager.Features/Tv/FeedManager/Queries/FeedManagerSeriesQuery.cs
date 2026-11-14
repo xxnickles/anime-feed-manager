@@ -45,11 +45,9 @@ public static class FeedManagerSeriesQuery
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
             .MapError(error => (StorageRequestError)error)
-            .Bind(season => seriesGetter(seriesId, season, token).Map(series => (Season: season, Series: series)),
-                error => error)
+            .Bind(season => seriesGetter(seriesId, season, token).Map(series => (Season: season, Series: series)))
             .Bind(found => Binding(seriesId, found.Season, bindingGetter, catalogGetter, now, token)
-                    .Map(binding => ToSeries(seriesId, found.Season, found.Series, binding)),
-                error => error)
+                    .Map(binding => ToSeries(seriesId, found.Season, found.Series, binding)))
             .WithOperationName(nameof(GetFeedManagerSeries))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 

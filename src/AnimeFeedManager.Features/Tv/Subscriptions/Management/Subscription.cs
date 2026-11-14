@@ -20,14 +20,14 @@ public static class Subscription
                 new KeyValuePair<string, object>(Telemetry.UserIdTag, user.UserId)
             ])
             .Bind(subscription =>
-                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle), error => error);
+                VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle));
 
     // Toggles the stored state and returns the resulting one.
     public static Task<Result<SubscriptionType, SubscriptionError>> UpdateSubscription(this Task<Result<SubscriptionStorage, SubscriptionError>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) =>
-        storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token), error => error);
+        storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
 
     // The feed title keys notifications, so a new subscription needs one; a stored one stays removable.
     private static Result<SubscriptionStorage, NoFeed> VerifyCurrentSubscription(

@@ -55,8 +55,7 @@ public static class FeedEpisodes
     {
         private Task<Result<EpisodesProcess, StorageRequestError>> ReadLibrary(TvSeriesGetter seriesGetter, CancellationToken token) =>
             process.Bind(p => seriesGetter(p.SeriesId, p.Season, token)
-                    .Map(series => p with {Episodes = series.Episodes}),
-                error => error);
+                    .Map(series => p with {Episodes = series.Episodes}));
 
         private Task<Result<EpisodesProcess, StorageRequestError>> UpdateLibrary(
             int episodes,
@@ -69,8 +68,7 @@ public static class FeedEpisodes
                         clientFactory.TableStorageTvSeriesGetter,
                         clientFactory.TableStorageTvSeriesUpdater,
                         token)
-                    .Map(_ => p),
-                error => error);
+                    .Map(_ => p));
 
         private Task<Result<EpisodesProcess, StorageRequestError>> UpdateBinding(ITableClientFactory clientFactory, CancellationToken token) =>
             process.Bind(p => OptimisticConcurrency.UntilWritten(
@@ -80,8 +78,7 @@ public static class FeedEpisodes
                         token,
                         error => error is StorageError.Conflict)
                     .Map(_ => p with {Bound = true})
-                    .BindOnErrorWhen(_ => p, error => error is StorageError.NotFound),
-                error => error);
+                    .BindOnErrorWhen(_ => p, error => error is StorageError.NotFound));
 
         private Task<Result<EpisodesProcess, StorageRequestError>> EvaluateCompletion(
             ITableClientFactory clientFactory,
@@ -94,8 +91,7 @@ public static class FeedEpisodes
                         clientFactory.TableStorageNyaaBindingUpdater,
                         token)
                     .Map(outcome => p with {Completion = outcome}),
-                p => p.Bound,
-                error => error);
+                p => p.Bound);
     }
 
     private static NyaaBindingStorage WithEpisodes(NyaaBindingStorage binding, int? episodes)

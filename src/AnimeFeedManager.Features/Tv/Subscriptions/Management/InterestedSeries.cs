@@ -18,8 +18,7 @@ public static class InterestedSeries
             new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId),
             new KeyValuePair<string, object>(Telemetry.SeriesTitleTag, seriesTitle)
         ])
-        .Bind(subscription => VerifyCurrentSubscription(subscription, user.UserId, seriesId, seriesTitle, user.Email),
-            error => error);
+        .Bind(subscription => VerifyCurrentSubscription(subscription, user.UserId, seriesId, seriesTitle, user.Email));
 
 
     // Toggles the stored state and returns the resulting one.
@@ -27,7 +26,7 @@ public static class InterestedSeries
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) =>
-        storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token), error => error);
+        storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
 
     private static Result<SubscriptionStorage, AlreadySubscribed> VerifyCurrentSubscription(
         SubscriptionStorage? subscription,

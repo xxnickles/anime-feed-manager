@@ -65,7 +65,7 @@ public static class AutomatedSeriesBinding
         private Task<Result<AutomatedBindingProcess, DomainError>> SendBinds(DelayedMessageSender delayedSender,
             CancellationToken token) =>
             process.Bind(p => p.Matches.Matches.IsEmpty
-                ? Task.FromResult(Result<AutomatedBindingProcess, BulkError<DeliveryError>.AllFailed>.Success(p))
+                ? Task.FromResult(Result<AutomatedBindingProcess, DeliveryError>.Success(p))
                 : Send(p.Matches.Matches, delayedSender, token).Map(sent => p with {Sent = sent}));
 
         private Task<Result<AutomatedBindingCompleted, DomainError>> StoreRun(AutomatedBindingRunUpdater runUpdater,
@@ -119,7 +119,7 @@ public static class AutomatedSeriesBinding
             .DistinctBy(entry => entry.RowKey)
     ];
 
-    private static async Task<Result<HashSet<string>, BulkError<StorageError>>> BoundSeriesIds(
+    private static async Task<Result<HashSet<string>, StorageError>> BoundSeriesIds(
         ImmutableArray<AnimeInfoStorage> series,
         SeasonNyaaBindings bindingsGetter,
         CancellationToken token)
@@ -127,15 +127,15 @@ public static class AutomatedSeriesBinding
         var seasons = series
             .Select(entry => IdHelpers.SeriesSeasonFromId(entry.RowKey ?? string.Empty)
                 .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(AnimeInfoStorage), fields.Errors)))
-            .Collect(parsed => parsed
-                .DistinctBy(IdHelpers.GenerateAnimePartitionKey)
-                .ToImmutableArray())
-            .RequireAll("Some series' seasons could not be read");
+            .CollectAll(parsed => parsed
+                    .DistinctBy(IdHelpers.GenerateAnimePartitionKey)
+                    .ToImmutableArray(),
+                StorageError (errors) => new StorageError.BatchFailed("Some series' seasons could not be read", errors));
 
         return await seasons.Bind(async distinct =>
             (await Task.WhenAll(distinct.Select(season => bindingsGetter(season, token))))
-            .Collect(bindings => bindings.SelectMany(rows => rows).Select(row => row.RowKey ?? string.Empty).ToHashSet())
-            .RequireAll("Some series' bindings could not be read"));
+            .CollectAll(bindings => bindings.SelectMany(rows => rows).Select(row => row.RowKey ?? string.Empty).ToHashSet(),
+                StorageError (errors) => new StorageError.BatchFailed("Some series' bindings could not be read", errors)));
     }
 
     private static BindingCandidate ToCandidate(AnimeInfoStorage series) =>
@@ -149,7 +149,7 @@ public static class AutomatedSeriesBinding
                     .Select(title => title!)
             ]);
 
-    private static async Task<Result<int, BulkError<DeliveryError>.AllFailed>> Send(
+    private static async Task<Result<int, DeliveryError>> Send(
         ImmutableArray<ScheduleMatch> matches,
         DelayedMessageSender delayedSender,
         CancellationToken token)
@@ -158,7 +158,8 @@ public static class AutomatedSeriesBinding
             delayedSender(BindRequest(match), NyaaPacing.For(index), token)));
 
         return sends
-            .Collect(sent => sent.Count())
+            .Collect(sent => sent.Count(),
+                DeliveryError (errors) => new DeliveryError.BatchFailed("No bind request could be sent", errors))
             .AddLogOnSuccess(bulk => bulk.LogErrors)
             .Map(bulk => bulk.Value);
     }

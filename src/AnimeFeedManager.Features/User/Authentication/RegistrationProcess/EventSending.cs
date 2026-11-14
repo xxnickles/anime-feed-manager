@@ -9,8 +9,7 @@ internal static class EventSending
         DomainCollectionSender domainPostman,
         CancellationToken token) => processData
         .Bind(data => domainPostman(GetEvents(new UserRegistered(data.Email, data.UserId)), token)
-                .Map(_ => data),
-            error => error);
+                .Map(_ => data));
 
 
     private static DomainMessage[] GetEvents(UserRegistered payload) =>
