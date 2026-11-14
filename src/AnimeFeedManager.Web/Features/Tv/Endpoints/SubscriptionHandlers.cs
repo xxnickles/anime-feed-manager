@@ -42,8 +42,7 @@ internal static class SubscriptionHandlers
         return await Validate(viewModel)
             .MapError(error => (ToggleSubscriptionError)error)
             .Bind(model => Data.GetSeriesForUser(context, model.SeriesId,
-                    clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken),
-                error => error)
+                    clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken))
             .Bind(data => Subscription.VerifyStorage(
                     data.User,
                     data.Series.Id,
@@ -52,8 +51,7 @@ internal static class SubscriptionHandlers
                     clientFactory.TableStorageTvSubscription, cancellationToken)
                 .UpdateSubscription(clientFactory.TableStorageTvSubscriptionUpdater,
                     clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
-                    .Map(state => data.Series.ForUser(data.User, state)),
-                error => error)
+                    .Map(state => data.Series.ForUser(data.User, state)))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(

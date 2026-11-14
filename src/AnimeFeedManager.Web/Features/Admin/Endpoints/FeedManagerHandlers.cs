@@ -27,8 +27,7 @@ internal static class FeedManagerHandlers
             .MapError(error => (AdminCommandError)error)
             .Bind(vm => domainPostman.SendMessages(
                     [new BindNyaaSeries(vm.SeriesId, vm.Group, vm.ReleaseTitle, vm.Variant ?? string.Empty, vm.Trusted)],
-                    token),
-                error => error)
+                    token))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
@@ -51,7 +50,7 @@ internal static class FeedManagerHandlers
         using var activity = Source.StartActivity(AdminTelemetry.BackfillNyaaSeriesSpan);
         return await Validate(viewModel)
             .MapError(error => (AdminCommandError)error)
-            .Bind(vm => domainPostman.SendMessages([new BackfillNyaaSeries(vm.SeriesId)], token), error => error)
+            .Bind(vm => domainPostman.SendMessages([new BackfillNyaaSeries(vm.SeriesId)], token))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
@@ -73,7 +72,7 @@ internal static class FeedManagerHandlers
         using var activity = Source.StartActivity(AdminTelemetry.ClearNyaaCatalogSpan);
         return await Validate(viewModel)
             .MapError(error => (StorageRequestError)error)
-            .Bind(vm => clientFactory.TableStorageNyaaCatalogWiper(vm.SeriesId, token), error => error)
+            .Bind(vm => clientFactory.TableStorageNyaaCatalogWiper(vm.SeriesId, token))
             .Bind(_ => Reload(viewModel.SeriesId, clientFactory, token))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)

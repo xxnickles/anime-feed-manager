@@ -2,7 +2,8 @@ using AnimeFeedManager.Features.User.Authentication;
 
 namespace AnimeFeedManager.Web.Features.Security.Endpoints;
 
-internal union LoginError(AuthError, StorageError);
+[Widens]
+internal partial union LoginError(AuthError, StorageError);
 
 internal static class LoginErrorContent
 {

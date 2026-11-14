@@ -42,8 +42,7 @@ internal static class InterestedHandlers
         return await Validate(viewModel)
             .MapError(error => (ToggleInterestedError)error)
             .Bind(model => Data.GetSeriesForUser(context, model.SeriesId,
-                    clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken),
-                error => error)
+                    clientFactory.TableStorageTvLibrarySeries, publicBlobUri, cancellationToken))
             .Bind(data => InterestedSeries.VerifyStorage(
                     data.User,
                     data.Series.Id,
@@ -51,8 +50,7 @@ internal static class InterestedHandlers
                     clientFactory.TableStorageTvSubscription, cancellationToken)
                 .UpdateInterested(clientFactory.TableStorageTvSubscriptionUpdater,
                     clientFactory.TableStorageTvSubscriptionsRemover, cancellationToken)
-                    .Map(state => data.Series.ForUser(data.User, state)),
-                error => error)
+                    .Map(state => data.Series.ForUser(data.User, state)))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(

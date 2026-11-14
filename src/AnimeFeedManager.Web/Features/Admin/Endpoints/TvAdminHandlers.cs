@@ -21,8 +21,7 @@ internal static class TvAdminHandlers
         return await Validate(viewModel)
             .MapError(error => (AdminCommandError)error)
             .Bind(vm => domainPostman.SendMessages([new UpdateTvSeriesEvent(new SeasonParameters(vm.Season, vm.Year))],
-                    cancellationToken),
-                error => error)
+                    cancellationToken))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentNotification(viewModel, error => error.ToContent())

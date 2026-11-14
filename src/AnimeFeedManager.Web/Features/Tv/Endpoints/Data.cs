@@ -25,11 +25,9 @@ internal static class Data
         CancellationToken token) =>
         CurrentUser(context)
             .MapError(error => (SeriesForUserError)error)
-            .Bind(user => IdHelpers.SeriesSeasonFromId(seriesId).Map(season => (User: user, Season: season)),
-                error => error)
+            .Bind(user => IdHelpers.SeriesSeasonFromId(seriesId).Map(season => (User: user, Season: season)))
             .Bind(data => seriesGetter(seriesId, data.Season, publicBlobUri, token)
-                    .Map(series => (data.User, Series: series)),
-                error => error);
+                    .Map(series => (data.User, Series: series)));
 
     private static Result<AuthenticatedUser, UserIsAnonymous> CurrentUser(HttpContext context) =>
         context.GetCurrentUser() switch

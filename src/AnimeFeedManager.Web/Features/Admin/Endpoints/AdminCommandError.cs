@@ -3,7 +3,8 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 namespace AnimeFeedManager.Web.Features.Admin.Endpoints;
 
 /// <summary>A validated admin form that queues domain messages.</summary>
-internal union AdminCommandError(ValidationError, DeliveryError);
+[Widens]
+internal partial union AdminCommandError(ValidationError, DeliveryError);
 
 internal static class AdminCommandErrorContent
 {

@@ -63,9 +63,8 @@ internal static class SecurityHandlers
             .Bind(id => Users.GetById(
                     tableClientFactory.TableStorageExistentUserGetterById(),
                     id,
-                    cancellationToken),
-                error => error)
-            .Bind(TryToCreatePrincipal, error => error)
+                    cancellationToken))
+            .Bind(TryToCreatePrincipal)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .Tap(principal => httpContext.SignInAsync(

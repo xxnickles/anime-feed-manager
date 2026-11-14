@@ -2,31 +2,25 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Management;
 
 namespace AnimeFeedManager.Web.Features.Tv.Endpoints;
 
-internal union SeriesForUserError(UserIsAnonymous, ValidationError, StorageError);
+[Widens]
+internal partial union SeriesForUserError(UserIsAnonymous, ValidationError, StorageError);
 
-internal union ToggleSubscriptionError(ValidationError, SeriesForUserError, SubscriptionError);
+[Widens<SeriesForUserError, SubscriptionError>]
+internal partial union ToggleSubscriptionError(ValidationError, UserIsAnonymous, StorageError, NoFeed);
 
-internal union ToggleInterestedError(ValidationError, SeriesForUserError, InterestedError);
+[Widens<SeriesForUserError, InterestedError>]
+internal partial union ToggleInterestedError(ValidationError, UserIsAnonymous, StorageError, AlreadySubscribed);
 
 internal static class TvEndpointErrorContents
 {
-    extension(SeriesForUserError error)
-    {
-        internal ErrorContent ToContent() => error switch
-        {
-            UserIsAnonymous anonymous => anonymous.ToContent(),
-            ValidationError validation => validation.ToContent(),
-            StorageError storage => storage.ToContent()
-        };
-    }
-
     extension(ToggleSubscriptionError error)
     {
         internal ErrorContent ToContent() => error switch
         {
             ValidationError validation => validation.ToContent(),
-            SeriesForUserError seriesForUser => seriesForUser.ToContent(),
-            SubscriptionError subscription => subscription.ToContent()
+            UserIsAnonymous anonymous => anonymous.ToContent(),
+            StorageError storage => storage.ToContent(),
+            NoFeed noFeed => noFeed.ToContent()
         };
     }
 
@@ -35,8 +29,9 @@ internal static class TvEndpointErrorContents
         internal ErrorContent ToContent() => error switch
         {
             ValidationError validation => validation.ToContent(),
-            SeriesForUserError seriesForUser => seriesForUser.ToContent(),
-            InterestedError interested => interested.ToContent()
+            UserIsAnonymous anonymous => anonymous.ToContent(),
+            StorageError storage => storage.ToContent(),
+            AlreadySubscribed alreadySubscribed => alreadySubscribed.ToContent()
         };
     }
 }

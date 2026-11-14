@@ -21,11 +21,9 @@ internal static class LibraryManagement
         return await Validate(viewModel)
             .MapError(error => (StorageRequestError)error)
             .Bind(model => IdHelpers.SeriesSeasonFromId(model.SeriesId)
-                    .Map(season => (Model: model, Season: season)),
-                error => error)
+                    .Map(season => (Model: model, Season: season)))
             .Bind(data => DeleteSeries(data.Model.SeriesId, data.Season,
-                    clientFactory.TableStorageTvSeriesRemover, token),
-                error => error)
+                    clientFactory.TableStorageTvSeriesRemover, token))
             .Map(result =>
             {
                 context.Response.HxTrigger(
