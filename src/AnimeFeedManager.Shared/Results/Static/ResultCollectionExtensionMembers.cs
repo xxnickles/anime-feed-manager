@@ -1,5 +1,3 @@
-using AnimeFeedManager.Shared.Results.Errors;
-
 namespace AnimeFeedManager.Shared.Results.Static;
 
 public static class ResultCollectionExtensionMembers
@@ -7,26 +5,26 @@ public static class ResultCollectionExtensionMembers
     extension<T, TError>(IEnumerable<Result<T, TError>> results)
     {
         /// <summary>
-        /// <see cref="BulkResult{T, TError}.Completed"/> when all succeed, <see cref="BulkResult{T, TError}.Partial"/> when some fail,
-        /// <see cref="BulkError{TError}.AllFailed"/> when all fail; per-item trace contexts are merged into the outcome.
+        /// <see cref="BulkResult{T, TError}.Completed"/> when all succeed, <see cref="BulkResult{T, TError}.Partial"/> when some fail;
+        /// when all fail, <paramref name="allFailed"/> builds the caller's error. Item trace contexts merge into the outcome.
         /// </summary>
-        public Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> Collect<TTarget>(
-            Func<IEnumerable<T>, TTarget> flatten)
+        public Result<BulkResult<TTarget, TError>, TFailure> Collect<TTarget, TFailure>(
+            Func<IEnumerable<T>, TTarget> flatten,
+            Func<ImmutableArray<TError>, TFailure> allFailed)
         {
-            var successes = new List<T>();
-            var errors = new List<TError>();
-            var traceContext = TraceContext.Empty;
+            var (successes, errors, traceContext) = Split(results);
+            return Outcome(successes, errors, flatten, allFailed, traceContext);
+        }
 
-            foreach (var result in results)
-            {
-                traceContext = traceContext.Merge(result.TraceContext);
-                if (result.IsSuccess)
-                    successes.Add(result.ResultValue!);
-                else
-                    errors.Add(result.ErrorValue!);
-            }
-
-            return Outcome(successes, errors, flatten, traceContext);
+        /// <summary>The flattened values when every item succeeds; otherwise <paramref name="failed"/> builds the caller's error from the items that failed.</summary>
+        public Result<TTarget, TFailure> CollectAll<TTarget, TFailure>(
+            Func<IEnumerable<T>, TTarget> flatten,
+            Func<ImmutableArray<TError>, TFailure> failed)
+        {
+            var (successes, errors, traceContext) = Split(results);
+            return errors.Count == 0
+                ? Result<TTarget, TFailure>.Success(flatten(successes), traceContext)
+                : Result<TTarget, TFailure>.Failure(failed([..errors]), traceContext);
         }
 
         /// <summary>Never fails: flattens the successes and stages each failure's log on the merged trace context.</summary>
@@ -48,11 +46,12 @@ public static class ResultCollectionExtensionMembers
         }
     }
 
-    extension<T, TError>(IEnumerable<Result<BulkResult<T, TError>, BulkError<TError>.AllFailed>> results)
+    extension<T, TError>(IEnumerable<Result<BulkResult<T, TError>, TError>> results)
     {
-        /// <summary>Merges collected bulks into one: values combined, every item's errors concatenated; same outcomes as <c>Collect</c>.</summary>
-        public Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> Merge<TTarget>(
-            Func<IEnumerable<T>, TTarget> combine)
+        /// <summary>Merges collected bulks into one: values combined, item errors concatenated, a failed bulk's error kept as one more item error; same outcomes as <c>Collect</c>.</summary>
+        public Result<BulkResult<TTarget, TError>, TFailure> Merge<TTarget, TFailure>(
+            Func<IEnumerable<T>, TTarget> combine,
+            Func<ImmutableArray<TError>, TFailure> allFailed)
         {
             var values = new List<T>();
             var errors = new List<TError>();
@@ -67,26 +66,44 @@ public static class ResultCollectionExtensionMembers
                     errors.AddRange(result.ResultValue!.Errors);
                 }
                 else
-                    errors.AddRange(result.ErrorValue!.Errors);
+                    errors.Add(result.ErrorValue!);
             }
 
-            return Outcome(values, errors, combine, traceContext);
+            return Outcome(values, errors, combine, allFailed, traceContext);
         }
     }
 
-    private static Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> Outcome<T, TTarget, TError>(
+    private static (List<T> Successes, List<TError> Errors, TraceContext TraceContext) Split<T, TError>(
+        IEnumerable<Result<T, TError>> results)
+    {
+        var successes = new List<T>();
+        var errors = new List<TError>();
+        var traceContext = TraceContext.Empty;
+
+        foreach (var result in results)
+        {
+            traceContext = traceContext.Merge(result.TraceContext);
+            if (result.IsSuccess)
+                successes.Add(result.ResultValue!);
+            else
+                errors.Add(result.ErrorValue!);
+        }
+
+        return (successes, errors, traceContext);
+    }
+
+    private static Result<BulkResult<TTarget, TError>, TFailure> Outcome<T, TTarget, TError, TFailure>(
         List<T> values,
         List<TError> errors,
         Func<IEnumerable<T>, TTarget> flatten,
-        TraceContext traceContext)
-    {
-        Result<BulkResult<TTarget, TError>, BulkError<TError>.AllFailed> outcome = (values.Count, errors.Count) switch
+        Func<ImmutableArray<TError>, TFailure> allFailed,
+        TraceContext traceContext) =>
+        (values.Count, errors.Count) switch
         {
-            (_, 0) => new BulkResult<TTarget, TError>.Completed(flatten(values)),
-            (0, _) => new BulkError<TError>.AllFailed([..errors]),
-            _ => new BulkResult<TTarget, TError>.Partial(flatten(values), [..errors])
+            (_, 0) => Result<BulkResult<TTarget, TError>, TFailure>.Success(
+                new BulkResult<TTarget, TError>.Completed(flatten(values)), traceContext),
+            (0, _) => Result<BulkResult<TTarget, TError>, TFailure>.Failure(allFailed([..errors]), traceContext),
+            _ => Result<BulkResult<TTarget, TError>, TFailure>.Success(
+                new BulkResult<TTarget, TError>.Partial(flatten(values), [..errors]), traceContext)
         };
-
-        return outcome with {TraceContext = traceContext};
-    }
 }
