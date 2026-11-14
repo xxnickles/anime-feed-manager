@@ -38,9 +38,6 @@ internal static class LibraryManagement
                     Notifications.CreateNotificationToast("Remove Series",
                         Notifications.TextBody($"Series {viewModel.SeriesTitle} has been removed"))
                 ],
-                error =>
-                [
-                    Notifications.CreateErrorNotification("Remove Series", error)
-                ]);
+                error => error.ToContentFallback(), "Remove Series");
     }
 }

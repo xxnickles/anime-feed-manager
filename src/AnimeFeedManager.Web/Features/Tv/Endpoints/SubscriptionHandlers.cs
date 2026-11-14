@@ -63,6 +63,6 @@ internal static class SubscriptionHandlers
                             ? $"{card.TvSeries.Title} has been added to your subscriptions"
                             : $"{card.TvSeries.Title} has been removed from your subscriptions"))
                 ],
-                error => [Notifications.CreateErrorNotification("TV Subscription", error)]);
+                error => error.ToContentFallback(), "TV Subscription");
     }
 }

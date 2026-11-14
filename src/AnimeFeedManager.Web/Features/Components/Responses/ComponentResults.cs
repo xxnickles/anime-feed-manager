@@ -6,19 +6,38 @@ namespace AnimeFeedManager.Web.Features.Components.Responses;
 
 internal static class ComponentResults
 {
-    extension<T, TError>(Task<Result<T, TError>> result) where TError : DomainError
+    extension<T, TError>(Task<Result<T, TError>> result)
     {
+        /// <summary>Renders the error as a notification titled <paramref name="errorTitle"/>.</summary>
         internal Task<RazorComponentResult> ToComponentResult(Func<T, RenderFragment[]> onSuccess,
-            Func<DomainError, RenderFragment[]> onError)
+            Func<TError, ErrorContent> toContent,
+            string errorTitle)
         {
             return result.MatchToValue(
                 ok => onSuccess(ok).AggregateComponents(StatusCodes.Status200OK),
-                error => onError(error).AggregateComponents(error.ToStatusCode()));
+                error =>
+                {
+                    var content = toContent(error);
+                    // A union's ToString prints only its type name.
+                    var details = (error is IUnion { Value: { } value } ? value : error)?.ToString();
+                    return new[] { Notifications.CreateErrorNotification(errorTitle, content, details) }
+                        .AggregateComponents(content.StatusCode);
+                });
         }
-    }
 
-    extension<T, TError>(Task<Result<T, TError>> result)
-    {
+        internal Task<RazorComponentResult> ToComponentResult(Func<T, RenderFragment[]> onSuccess,
+            Func<TError, ErrorContent> toContent,
+            Func<ErrorContent, RenderFragment[]> onError)
+        {
+            return result.MatchToValue(
+                ok => onSuccess(ok).AggregateComponents(StatusCodes.Status200OK),
+                error =>
+                {
+                    var content = toContent(error);
+                    return onError(content).AggregateComponents(content.StatusCode);
+                });
+        }
+
         internal PendingNotification<T, TError, TViewModel> ToComponentNotification<TViewModel>(TViewModel viewModel,
             Func<TError, ErrorContent> toContent)
             where TViewModel : class, new() => new(result, viewModel, toContent);
@@ -34,23 +53,15 @@ internal sealed class PendingNotification<T, TError, TViewModel>(
 {
     internal Task<RazorComponentResult> For<TComponent>() where TComponent : INotifiableComponent<TViewModel>
     {
-        return result.MatchToValue(
-            _ => new[]
-            {
+        return result.ToComponentResult(
+            _ =>
+            [
                 TComponent.AsRenderFragment(viewModel),
                 Notifications.CreateNotificationToast(
                     TComponent.SuccessNotificationTitle,
                     TComponent.OkNotificationContent(viewModel))
-            }.AggregateComponents(StatusCodes.Status200OK),
-            error =>
-            {
-                var content = toContent(error);
-                // A union's ToString prints only its type name.
-                var details = (error is IUnion { Value: { } value } ? value : error)?.ToString();
-                return new[]
-                {
-                    Notifications.CreateErrorNotification(TComponent.ErrorNotificationTitle, content, details)
-                }.AggregateComponents(content.StatusCode);
-            });
+            ],
+            toContent,
+            TComponent.ErrorNotificationTitle);
     }
 }

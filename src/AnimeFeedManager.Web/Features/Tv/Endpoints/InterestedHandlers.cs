@@ -62,6 +62,6 @@ internal static class InterestedHandlers
                             ? $"{card.TvSeries.Title} has been added to your interested list"
                             : $"{card.TvSeries.Title} has been removed from your interested list"))
                 ],
-                error => [Notifications.CreateErrorNotification("Interested", error)]);
+                error => error.ToContentFallback(), "Interested");
     }
 }

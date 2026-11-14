@@ -44,7 +44,8 @@ internal static class SecurityHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 model => [RegistrationForm.SuccessFragment(model)],
-                error => [RegistrationForm.ErrorFragment(viewModel, error)]
+                error => error.ToContentFallback(),
+                content => [RegistrationForm.ErrorFragment(viewModel, content.Message)]
             );
     }
 
@@ -72,7 +73,12 @@ internal static class SecurityHandlers
                 new AuthenticationProperties { IsPersistent = true }))
             .MatchToValue<ClaimsPrincipal, DomainError, IResult>(
                 _ => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
-                error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents(error.ToStatusCode()));
+                error =>
+                {
+                    var content = error.ToContentFallback();
+                    return new[] { LoginForm.ErrorFragment(viewModel, content.Message) }
+                        .AggregateComponents(content.StatusCode);
+                });
     }
 
     // The CancellationToken keeps the signature off the (HttpContext) => Task RequestDelegate shape,
@@ -147,7 +153,8 @@ internal static class SecurityHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 model => [AddCredentialForm.SuccessFragment(model)],
-                error => [AddCredentialForm.ErrorFragment(viewModel, error)]
+                error => error.ToContentFallback(),
+                content => [AddCredentialForm.ErrorFragment(viewModel, content.Message)]
             );
     }
 }

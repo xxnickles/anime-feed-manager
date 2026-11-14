@@ -38,7 +38,7 @@ internal static class FeedManagerHandlers
                             $"{viewModel.SeriesTitle} will be bound to [{viewModel.Group}] and indexed in the background."),
                         ToastType.Info)
                 ],
-                error => [Notifications.CreateErrorNotification("Feed binding", error)]);
+                error => error.ToContentFallback(), "Feed binding");
     }
 
     internal static async Task<RazorComponentResult> Backfill(
@@ -60,7 +60,7 @@ internal static class FeedManagerHandlers
                         Notifications.TextBody($"{viewModel.SeriesTitle} will be backfilled in the background."),
                         ToastType.Info)
                 ],
-                error => [Notifications.CreateErrorNotification("Backfill", error)]);
+                error => error.ToContentFallback(), "Backfill");
     }
 
     internal static async Task<RazorComponentResult> ClearCatalog(
@@ -83,7 +83,7 @@ internal static class FeedManagerHandlers
                     Notifications.CreateNotificationToast("Catalog cleared",
                         Notifications.TextBody($"{viewModel.SeriesTitle} has no catalogued releases. Backfill to index the bound release again."))
                 ],
-                error => [Notifications.CreateErrorNotification("Clear catalog", error)]);
+                error => error.ToContentFallback(), "Clear catalog");
     }
 
     internal static async Task<RazorComponentResult> UpdateEpisodesFromLibrary(
@@ -106,7 +106,7 @@ internal static class FeedManagerHandlers
                     Notifications.CreateNotificationToast("Feed episodes",
                         Notifications.TextBody(FromLibraryMessage(viewModel.SeriesTitle, result.Updated)))
                 ],
-                error => [Notifications.CreateErrorNotification("Feed episodes", error)]);
+                error => error.ToContentFallback(), "Feed episodes");
     }
 
     internal static async Task<RazorComponentResult> OverrideEpisodes(
@@ -129,7 +129,7 @@ internal static class FeedManagerHandlers
                     Notifications.CreateNotificationToast("Episodes override",
                         Notifications.TextBody(OverrideMessage(viewModel.SeriesTitle, result.Updated)))
                 ],
-                error => [Notifications.CreateErrorNotification("Episodes override", error)]);
+                error => error.ToContentFallback(), "Episodes override");
     }
 
     internal static async Task<RazorComponentResult> Cards(
@@ -144,7 +144,7 @@ internal static class FeedManagerHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 series => [BindingCards.AsOobFragment(series)],
-                error => [Notifications.CreateErrorNotification("Feed cards", error)]);
+                error => error.ToContentFallback(), "Feed cards");
     }
 
     internal static async Task<RazorComponentResult> Candidates(
@@ -164,7 +164,7 @@ internal static class FeedManagerHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 result => [ReleaseCandidates.AsOobFragment(result.Series, q, trusted, result.Results)],
-                error => [Notifications.CreateErrorNotification("Release search", error)]);
+                error => error.ToContentFallback(), "Release search");
     }
 
     private static Task<Result<FeedManagerSeries, DomainError>> Reload(

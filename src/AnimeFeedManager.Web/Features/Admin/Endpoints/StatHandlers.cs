@@ -27,6 +27,7 @@ internal static class StatHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 stat => [LastScrapeStatCard.AsRenderFragment(stat)],
+                error => error.ToContent(),
                 _ => [StatCardError.AsRenderFragment("Last scrape")]);
     }
 
@@ -45,6 +46,7 @@ internal static class StatHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 stat => [ErrorsStatCard.AsRenderFragment(stat)],
+                error => error.ToContent(),
                 _ => [StatCardError.AsRenderFragment("Errors")]);
     }
 
@@ -59,6 +61,7 @@ internal static class StatHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 stat => [NyaaStatCard.AsRenderFragment(stat)],
+                error => error.ToContent(),
                 _ => [StatCardError.AsRenderFragment("Nyaa")]);
     }
 
@@ -73,6 +76,7 @@ internal static class StatHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 stat => [AutomatedBindingStatCard.AsRenderFragment(stat)],
+                error => error.ToContent(),
                 _ => [StatCardError.AsRenderFragment("Automated binding")]);
     }
 
@@ -91,6 +95,7 @@ internal static class StatHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 series => [RecentReleasesList.AsRenderFragment(series)],
+                error => error.ToContentFallback(),
                 _ => [StatCardError.AsRenderFragment("Recent releases")]);
     }
 }
