@@ -1,6 +1,6 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Library.Queries;
 
-public abstract record UserTvSeries(AppUser User, TvSeries TvSeries);
+public closed record UserTvSeries(AppUser User, TvSeries TvSeries);
 
 public record NotAvailable(AppUser User, TvSeries TvSeries) : UserTvSeries(User, TvSeries);
 public record Available(AppUser User, TvSeries TvSeries) : UserTvSeries(User, TvSeries);

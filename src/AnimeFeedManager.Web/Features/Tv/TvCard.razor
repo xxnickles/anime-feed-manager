@@ -23,7 +23,7 @@
                     case Completed:
                         <Badge Text="Completed" Type="StatusType.Info"></Badge>
                         break;
-                    default:
+                    case NotAvailable or AvailableForFuture:
                         <Badge Text="Not Available" Type="StatusType.Warning"></Badge>
                         break;
                 }
