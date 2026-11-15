@@ -19,16 +19,9 @@ else
 @code {
     private SeriesSeason? _season;
 
-    private static Result<SeriesSeason, StorageError> ParseSeason(SeasonStorage season) =>
-        (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason()
-            .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SeasonStorage), fields.Errors));
-
     protected override async Task OnInitializedAsync()
     {
         await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeason, CancellationToken.None)
-            .MapError(error => (DomainError)error)
-            .Bind(stored => stored.AsFeaturedSeason())
-            .Bind(ParseSeason)
             .FlushLogs(Logger)
             .Match(
                 season => _season = season,
