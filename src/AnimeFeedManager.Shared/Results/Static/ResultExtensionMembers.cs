@@ -1,262 +1,111 @@
 namespace AnimeFeedManager.Shared.Results.Static;
 
-/// <summary>
-/// Provides extension members for <see cref="Result{T}"/> enabling functional composition,
-/// transformation, matching, and logging operations in synchronous contexts.
-/// </summary>
+// ReSharper disable NullableWarningSuppressionIsUsed
 public static class ResultExtensionMembers
 {
-    extension<T>(Result<T> result)
+    extension<T, TError>(Result<T, TError> result)
     {
-        // ──────────────────────────────────────────────────────────────────
-        // Properties
-        // ──────────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Gets whether the result represents a failure (opposite of <see cref="Result{T}.IsSuccess"/>).
-        /// </summary>
         public bool IsFailure => !result.IsSuccess;
 
-        // ──────────────────────────────────────────────────────────────────
-        // Transformation - Map
-        // ──────────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Transforms the success value using the provided mapper function.
-        /// If the result is a failure, the error is propagated unchanged.
-        /// </summary>
-        /// <typeparam name="TTarget">The type to transform to.</typeparam>
-        /// <param name="mapper">Function to transform the success value.</param>
-        /// <returns>A new <see cref="Result{T}"/> with the transformed value or the original error.</returns>
-        public Result<TTarget> Map<TTarget>(Func<T, TTarget> mapper) =>
+        public Result<TTarget, TError> Map<TTarget>(Func<T, TTarget> mapper) =>
             result.IsSuccess
-                ? new Result<TTarget>(mapper(result.ResultValue!), null, true, result.TraceContext)
-                : new Result<TTarget>(default, result.ErrorValue!, false, result.TraceContext);
+                ? Result<TTarget, TError>.Success(mapper(result.ResultValue!), result.TraceContext)
+                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-        /// <summary>
-        /// Transforms the success value using the provided async mapper function.
-        /// If the result is a failure, the error is propagated unchanged.
-        /// </summary>
-        /// <typeparam name="TTarget">The type to transform to.</typeparam>
-        /// <param name="mapper">Async function to transform the success value.</param>
-        /// <returns>A new <see cref="Result{T}"/> with the transformed value or the original error.</returns>
-        public async Task<Result<TTarget>> Map<TTarget>(Func<T, Task<TTarget>> mapper) =>
+        public async Task<Result<TTarget, TError>> Map<TTarget>(Func<T, Task<TTarget>> mapper) =>
             result.IsSuccess
-                ? new Result<TTarget>(await mapper(result.ResultValue!), null, true, result.TraceContext)
-                : new Result<TTarget>(default, result.ErrorValue!, false, result.TraceContext);
+                ? Result<TTarget, TError>.Success(await mapper(result.ResultValue!), result.TraceContext)
+                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-        /// <summary>
-        /// Transforms the error using the provided mapper function.
-        /// If the result is a success, it is returned unchanged.
-        /// </summary>
-        /// <param name="mapper">Function to transform the error.</param>
-        /// <returns>A new <see cref="Result{T}"/> with the transformed error or the original success value.</returns>
-        public Result<T> MapError(Func<DomainError, DomainError> mapper) =>
+        /// <summary>Changes the error type; a chain enters its union with <c>MapError(e => (PathError)e)</c>.</summary>
+        public Result<T, TNew> MapError<TNew>(Func<TError, TNew> mapper) =>
             result.IsSuccess
-                ? result
-                : result with {ErrorValue = mapper(result.ErrorValue!)};
+                ? Result<T, TNew>.Success(result.ResultValue!, result.TraceContext)
+                : Result<T, TNew>.Failure(mapper(result.ErrorValue!), result.TraceContext);
 
-        /// <summary>
-        /// Transforms the error using the provided async mapper function.
-        /// If the result is a success, it is returned unchanged.
-        /// </summary>
-        /// <param name="mapper">Async function to transform the error.</param>
-        /// <returns>A new <see cref="Result{T}"/> with the transformed error or the original success value.</returns>
-        public async Task<Result<T>> MapError(Func<DomainError, Task<DomainError>> mapper) =>
+        public async Task<Result<T, TNew>> MapError<TNew>(Func<TError, Task<TNew>> mapper) =>
             result.IsSuccess
-                ? result
-                : result with {ErrorValue = await mapper(result.ErrorValue!)};
+                ? Result<T, TNew>.Success(result.ResultValue!, result.TraceContext)
+                : Result<T, TNew>.Failure(await mapper(result.ErrorValue!), result.TraceContext);
 
-        // ──────────────────────────────────────────────────────────────────
-        // Chaining - Bind
-        // ──────────────────────────────────────────────────────────────────
+        /// <summary>Runs <paramref name="binder"/> on success; a step error deriving from <typeparamref name="TError"/> widens into it, and both trace contexts are merged.</summary>
+        public Result<TTarget, TError> Bind<TTarget, TStepError>(Func<T, Result<TTarget, TStepError>> binder)
+            where TStepError : TError =>
+            result.IsSuccess
+                ? Continue<TTarget, TError, TStepError>(result.TraceContext, binder(result.ResultValue!))
+                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-        /// <summary>
-        /// Chains a new operation that returns a <see cref="Result{T}"/>.
-        /// If the current result is a failure, the error is propagated without executing the binder.
-        /// Trace contexts from both results are merged.
-        /// </summary>
-        /// <typeparam name="TTarget">The type of the new result.</typeparam>
-        /// <param name="binder">Function that takes the success value and returns a new result.</param>
-        /// <returns>The result from the binder or the propagated error.</returns>
-        public Result<TTarget> Bind<TTarget>(Func<T, Result<TTarget>> binder)
-        {
-            if (!result.IsSuccess)
-                return new Result<TTarget>(default, result.ErrorValue, false, result.TraceContext);
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(Func<T, Task<Result<TTarget, TStepError>>> binder)
+            where TStepError : TError =>
+            result.IsSuccess
+                ? Continue<TTarget, TError, TStepError>(result.TraceContext, await binder(result.ResultValue!))
+                : Result<TTarget, TError>.Failure(result.ErrorValue!, result.TraceContext);
 
-            var next = binder(result.ResultValue!);
-            return next with {TraceContext = result.TraceContext.Merge(next.TraceContext)};
-        }
+        public Result<T, TError> BindWhen<TStepError>(Func<T, Result<T, TStepError>> binder, Func<T, bool> predicate)
+            where TStepError : TError =>
+            result.IsSuccess && predicate(result.ResultValue!) ? result.Bind(binder) : result;
 
-        /// <summary>
-        /// Chains a new async operation that returns a <see cref="Result{T}"/>.
-        /// If the current result is a failure, the error is propagated without executing the binder.
-        /// Trace contexts from both results are merged.
-        /// </summary>
-        /// <typeparam name="TTarget">The type of the new result.</typeparam>
-        /// <param name="binder">Async function that takes the success value and returns a new result.</param>
-        /// <returns>The result from the binder or the propagated error.</returns>
-        public async Task<Result<TTarget>> Bind<TTarget>(Func<T, Task<Result<TTarget>>> binder)
-        {
-            if (!result.IsSuccess)
-                return new Result<TTarget>(default, result.ErrorValue, false, result.TraceContext);
+        public async Task<Result<T, TError>> BindWhen<TStepError>(
+            Func<T, Task<Result<T, TStepError>>> binder,
+            Func<T, bool> predicate) where TStepError : TError =>
+            result.IsSuccess && predicate(result.ResultValue!) ? await result.Bind(binder) : result;
 
-            var next = await binder(result.ResultValue!);
-            return next with {TraceContext = result.TraceContext.Merge(next.TraceContext)};
-        }
-
-        /// <summary>
-        /// Conditionally chains a new operation based on a predicate.
-        /// If the predicate returns false, the original value is returned as success.
-        /// </summary>
-        /// <param name="binder">Function to bind the success value.</param>
-        /// <param name="predicate">Function to test whether to apply the binder.</param>
-        /// <returns>The result from the binder if predicate is true, otherwise the original value.</returns>
-        public Result<T> BindWhen(
-            Func<T, Result<T>> binder,
-            Func<T, bool> predicate)
-            => result.Bind(v => predicate(v) ? binder(v) : Result<T>.Success(v));
-
-        /// <summary>
-        /// Chains a recovery operation that runs only when the result is a failure.
-        /// Mirror of <see cref="Bind{TTarget}(Func{T, Result{TTarget}})"/> for the error channel.
-        /// If the current result is a success, the value is propagated without executing the binder.
-        /// Trace contexts from both results are merged.
-        /// </summary>
-        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
-        /// <returns>The original success or the result from the binder.</returns>
-        public Result<T> BindOnError(Func<DomainError, Result<T>> binder)
+        /// <summary>Runs <paramref name="binder"/> on failure; the trace contexts of both results are merged.</summary>
+        public Result<T, TError> BindOnError(Func<TError, Result<T, TError>> binder)
         {
             if (result.IsSuccess)
                 return result;
 
             var next = binder(result.ErrorValue!);
-            return next with {TraceContext = result.TraceContext.Merge(next.TraceContext)};
+            return next with { TraceContext = result.TraceContext.Merge(next.TraceContext) };
         }
 
-        /// <summary>
-        /// Async-binder overload of <see cref="BindOnError(Func{DomainError, Result{T}})"/>.
-        /// </summary>
-        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
-        /// <returns>The original success or the awaited result from the binder.</returns>
-        public async Task<Result<T>> BindOnError(Func<DomainError, Task<Result<T>>> binder)
+        public async Task<Result<T, TError>> BindOnError(Func<TError, Task<Result<T, TError>>> binder)
         {
             if (result.IsSuccess)
                 return result;
 
             var next = await binder(result.ErrorValue!);
-            return next with {TraceContext = result.TraceContext.Merge(next.TraceContext)};
+            return next with { TraceContext = result.TraceContext.Merge(next.TraceContext) };
         }
 
-        /// <summary>
-        /// Conditionally chains a recovery operation when a predicate matches the failure.
-        /// If the predicate returns false, the original failure is propagated unchanged.
-        /// Mirror of <see cref="BindWhen(Func{T, Result{T}}, Func{T, bool})"/> for the error channel.
-        /// </summary>
-        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
-        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
-        /// <returns>The original success, the binder's result if the predicate matches, otherwise the original failure.</returns>
-        public Result<T> BindOnErrorWhen(
-            Func<DomainError, Result<T>> binder,
-            Func<DomainError, bool> predicate)
-        {
-            if (result.IsSuccess)
-                return result;
+        public Result<T, TError> BindOnErrorWhen(Func<TError, Result<T, TError>> binder, Func<TError, bool> predicate) =>
+            result.IsFailure && predicate(result.ErrorValue!) ? result.BindOnError(binder) : result;
 
-            var error = result.ErrorValue!;
-            return predicate(error)
-                ? result.BindOnError(binder)
-                : result;
-        }
+        public async Task<Result<T, TError>> BindOnErrorWhen(
+            Func<TError, Task<Result<T, TError>>> binder,
+            Func<TError, bool> predicate) =>
+            result.IsFailure && predicate(result.ErrorValue!) ? await result.BindOnError(binder) : result;
 
-        /// <summary>
-        /// Async-binder overload of <see cref="BindOnErrorWhen(Func{DomainError, Result{T}}, Func{DomainError, bool})"/>.
-        /// </summary>
-        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
-        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
-        /// <returns>The original success, the awaited binder's result if the predicate matches, otherwise the original failure.</returns>
-        public async Task<Result<T>> BindOnErrorWhen(
-            Func<DomainError, Task<Result<T>>> binder,
-            Func<DomainError, bool> predicate)
-        {
-            if (result.IsSuccess)
-                return result;
-
-            var error = result.ErrorValue!;
-            return predicate(error)
-                ? await result.BindOnError(binder)
-                : result;
-        }
-
-        // ──────────────────────────────────────────────────────────────────
-        // Side Effects - Tap
-        // ──────────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Executes a side effect action on the success value without modifying the result.
-        /// Useful for logging, debugging, or other side effects in a fluent chain.
-        /// </summary>
-        /// <param name="action">Action to execute on the success value.</param>
-        /// <returns>The original result unchanged.</returns>
-        public Result<T> Tap(Action<T> action)
+        public Result<T, TError> Tap(Action<T> action)
         {
             if (result.IsSuccess)
                 action(result.ResultValue!);
-
             return result;
         }
 
-        /// <summary>
-        /// Executes an async side effect action on the success value without modifying the result.
-        /// Useful for async logging, debugging, or other side effects in a fluent chain.
-        /// </summary>
-        /// <param name="action">Async action to execute on the success value.</param>
-        /// <returns>The original result unchanged.</returns>
-        public async Task<Result<T>> Tap(Func<T, Task> action)
+        public async Task<Result<T, TError>> Tap(Func<T, Task> action)
         {
             if (result.IsSuccess)
                 await action(result.ResultValue!);
             return result;
         }
 
-        /// <summary>
-        /// Executes a side effect action on the failure value without modifying the result.
-        /// Symmetric counterpart of <see cref="Tap(Action{T})"/>.
-        /// </summary>
-        /// <param name="action">Action to execute on the failure value.</param>
-        /// <returns>The original result unchanged.</returns>
-        public Result<T> TapError(Action<DomainError> action)
+        public Result<T, TError> TapError(Action<TError> action)
         {
             if (result.IsFailure)
                 action(result.ErrorValue!);
-
             return result;
         }
 
-        /// <summary>
-        /// Executes an async side effect action on the failure value without modifying the result.
-        /// Symmetric counterpart of <see cref="Tap(Func{T, Task})"/>.
-        /// </summary>
-        /// <param name="action">Async action to execute on the failure value.</param>
-        /// <returns>The original result unchanged.</returns>
-        public async Task<Result<T>> TapError(Func<DomainError, Task> action)
+        public async Task<Result<T, TError>> TapError(Func<TError, Task> action)
         {
             if (result.IsFailure)
                 await action(result.ErrorValue!);
-
             return result;
         }
 
-        // ──────────────────────────────────────────────────────────────────
-        // Terminal - Match
-        // ──────────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Pattern matches on the result, executing one of two actions based on success or failure.
-        /// </summary>
-        /// <param name="onOk">Action to execute on success.</param>
-        /// <param name="onError">Action to execute on error.</param>
-        public void Match(Action<T> onOk, Action<DomainError> onError)
+        public void Match(Action<T> onOk, Action<TError> onError)
         {
             if (result.IsSuccess)
                 onOk(result.ResultValue!);
@@ -264,12 +113,7 @@ public static class ResultExtensionMembers
                 onError(result.ErrorValue!);
         }
 
-        /// <summary>
-        /// Pattern matches on the result, executing one of two async actions based on success or failure.
-        /// </summary>
-        /// <param name="onOk">Async action to execute on success.</param>
-        /// <param name="onError">Async action to execute on error.</param>
-        public async Task Match(Func<T, Task> onOk, Func<DomainError, Task> onError)
+        public async Task Match(Func<T, Task> onOk, Func<TError, Task> onError)
         {
             if (result.IsSuccess)
                 await onOk(result.ResultValue!);
@@ -277,135 +121,58 @@ public static class ResultExtensionMembers
                 await onError(result.ErrorValue!);
         }
 
-        /// <summary>
-        /// Pattern matches on the result and returns a value based on success or failure.
-        /// </summary>
-        /// <typeparam name="TTarget">The type of value to return.</typeparam>
-        /// <param name="onOk">Function to execute on success.</param>
-        /// <param name="onError">Function to execute on error.</param>
-        /// <returns>The value returned by either onOk or onError.</returns>
-        public TTarget MatchToValue<TTarget>(Func<T, TTarget> onOk, Func<DomainError, TTarget> onError) =>
+        public TTarget MatchToValue<TTarget>(Func<T, TTarget> onOk, Func<TError, TTarget> onError) =>
+            result.IsSuccess ? onOk(result.ResultValue!) : onError(result.ErrorValue!);
+
+        public Result<T, TError> AddLog(Action<ILogger> logAction) =>
+            result with { TraceContext = result.TraceContext.AddLog(logAction) };
+
+        public Result<T, TError> AddLogOnSuccess(Func<T, Action<ILogger>> logAction) =>
             result.IsSuccess
-                ? onOk(result.ResultValue!)
-                : onError(result.ErrorValue!);
-
-      
-        // ──────────────────────────────────────────────────────────────────
-        // Logging - Trace Context
-        // ──────────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Adds a log action to the result's trace context.
-        /// The action will be executed when <see cref="FlushLogs"/> is called.
-        /// </summary>
-        /// <param name="logAction">The logging action to add.</param>
-        /// <returns>The result with the added log action.</returns>
-        public Result<T> AddLog(Action<ILogger> logAction) =>
-            result with {TraceContext = result.TraceContext.AddLog(logAction)};
-
-        /// <summary>
-        /// Adds a log action that will only be executed if the result is successful.
-        /// The action receives the success value to include in the log message.
-        /// </summary>
-        /// <param name="logAction">Function that takes the success value and returns a log action.</param>
-        /// <returns>The result with the conditionally added log action.</returns>
-        public Result<T> AddLogOnSuccess(Func<T, Action<ILogger>> logAction) =>
-            result.IsSuccess
-                ? result with {TraceContext = result.TraceContext.AddLog(logAction(result.ResultValue!))}
+                ? result with { TraceContext = result.TraceContext.AddLog(logAction(result.ResultValue!)) }
                 : result;
 
-        /// <summary>
-        /// Adds a log action that will only be executed if the result is a failure.
-        /// The action receives the error to include in the log message.
-        /// </summary>
-        /// <param name="logAction">Function that takes the error and returns a log action.</param>
-        /// <returns>The result with the conditionally added log action.</returns>
-        public Result<T> AddLogOnFailure(Func<DomainError, Action<ILogger>> logAction) =>
+        public Result<T, TError> AddLogOnFailure(Func<TError, Action<ILogger>> logAction) =>
             result.IsSuccess
                 ? result
-                : result with {TraceContext = result.TraceContext.AddLog(logAction(result.ErrorValue!))};
+                : result with { TraceContext = result.TraceContext.AddLog(logAction(result.ErrorValue!)) };
 
-        /// <summary>
-        /// Adds a property to the trace context that will be included in the logging scope.
-        /// </summary>
-        /// <param name="key">The property name.</param>
-        /// <param name="value">The property value.</param>
-        /// <returns>The result with the added property.</returns>
-        public Result<T> WithLogProperty(string key, object value) =>
-            result with {TraceContext = result.TraceContext.WithProperty(key, value)};
+        public Result<T, TError> WithLogProperty(string key, object value) =>
+            result with { TraceContext = result.TraceContext.WithProperty(key, value) };
 
-        /// <summary>
-        /// Adds a property derived from the success value to the trace context. On failure the
-        /// selector is not invoked and the result passes through unchanged, mirroring
-        /// <see cref="AddLogOnSuccess"/>.
-        /// </summary>
-        /// <param name="key">The property name.</param>
-        /// <param name="valueSelector">Selector invoked with the success value to produce the property value.</param>
-        /// <returns>The result with the added property when successful, otherwise unchanged.</returns>
-        public Result<T> WithLogProperty(string key, Func<T, object> valueSelector) =>
+        /// <summary>Adds a property from the success value; on failure the selector isn't invoked.</summary>
+        public Result<T, TError> WithLogProperty(string key, Func<T, object> valueSelector) =>
             result.IsFailure
                 ? result
-                : result with {TraceContext = result.TraceContext.WithProperty(key, valueSelector(result.ResultValue!))};
+                : result with { TraceContext = result.TraceContext.WithProperty(key, valueSelector(result.ResultValue!)) };
 
-        /// <summary>
-        /// Adds an <see cref="Telemetry.OperationNameTag"/> property to the trace context.
-        /// Convenience method for <see cref="WithLogProperty"/> with a standard key.
-        /// </summary>
-        /// <param name="value">The operation name.</param>
-        /// <returns>The result with the operation name property.</returns>
-        public Result<T> WithOperationName(string value) => result.WithLogProperty(Telemetry.OperationNameTag, value);
+        public Result<T, TError> WithOperationName(string value) =>
+            result.WithLogProperty(Telemetry.OperationNameTag, value);
 
-        /// <summary>
-        /// Adds multiple properties to the trace context that will be included in the logging scope.
-        /// </summary>
-        /// <param name="props">The properties to add.</param>
-        /// <returns>The result with the added properties.</returns>
-        public Result<T> WithLogProperties(IEnumerable<KeyValuePair<string, object>> props) =>
-            result with {TraceContext = result.TraceContext.WithProperties(props)};
+        public Result<T, TError> WithLogProperties(IEnumerable<KeyValuePair<string, object>> props) =>
+            result with { TraceContext = result.TraceContext.WithProperties(props) };
 
-        /// <summary>
-        /// Flushes all accumulated logs to the provided logger and clears the trace context.
-        /// On failure, the error's log action is automatically included.
-        /// Properties are written as a logging scope.
-        /// </summary>
-        /// <param name="logger">The logger to write to.</param>
-        /// <returns>The result with an empty trace context.</returns>
-        public Result<T> FlushLogs(ILogger logger)
+        /// <summary>Writes the trace context, plus the error's log action on failure, then clears it.</summary>
+        public Result<T, TError> FlushLogs(ILogger logger)
         {
             var contextToWrite = result.IsSuccess
                 ? result.TraceContext
-                : result.TraceContext.AddLog(result.ErrorValue!.LogAction());
+                : result.TraceContext.AddLog(ErrorCases.AsDomainError(result.ErrorValue!).LogAction());
 
             contextToWrite.Write(logger);
             return result with { TraceContext = TraceContext.Empty };
         }
 
-        /// <summary>
-        /// Terminal operation that finalizes the Result pipeline by writing all accumulated logs.
-        /// Unlike <see cref="FlushLogs"/>, this method returns void to signal chain termination.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Use <c>Complete</c> as the final call in a Result chain when no further operations are needed.
-        /// It writes all logs accumulated via <see cref="AddLog"/>, <see cref="AddLogOnSuccess"/>,
-        /// and <see cref="AddLogOnFailure"/> to the provided logger.
-        /// </para>
-        /// <para>
-        /// On failure, the error's <see cref="DomainError.LogAction"/> is automatically included in the output.
-        /// </para>
-        /// </remarks>
-        /// <param name="logger">The logger to write accumulated logs to.</param>
-        /// <example>
-        /// <code>
-        /// await GetLease(name)
-        ///     .Bind(_ => ProcessData(...))
-        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {series.count}", stats.Count))
-        ///     .Complete(logger);  // Terminal - writes all logs, returns void
-        /// </code>
-        /// </example>
-        public void Complete(ILogger logger)
-        {
-            result.FlushLogs(logger);
-        }
+        public void Complete(ILogger logger) => result.FlushLogs(logger);
+    }
+
+    internal static Result<TTarget, TError> Continue<TTarget, TError, TStepError>(
+        TraceContext previous,
+        Result<TTarget, TStepError> next) where TStepError : TError
+    {
+        var traceContext = previous.Merge(next.TraceContext);
+        return next.IsSuccess
+            ? Result<TTarget, TError>.Success(next.ResultValue!, traceContext)
+            : Result<TTarget, TError>.Failure(next.ErrorValue!, traceContext);
     }
 }

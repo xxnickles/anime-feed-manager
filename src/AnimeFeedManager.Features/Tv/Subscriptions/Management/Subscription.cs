@@ -5,7 +5,7 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 
 public static class Subscription
 {
-    public static Task<Result<SubscriptionStorage>> VerifyStorage(
+    public static Task<Result<SubscriptionStorage, SubscriptionError>> VerifyStorage(
         AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
@@ -13,6 +13,7 @@ public static class Subscription
         TvSubscriptionGetter subscriptionGetterGetter,
         CancellationToken token) =>
         subscriptionGetterGetter(user.UserId, seriesId, token)
+            .MapError(error => (SubscriptionError)error)
             .WithOperationName(nameof(VerifyStorage))
             .WithLogProperties([
                 new KeyValuePair<string, object>(Telemetry.SeriesIdTag, seriesId),
@@ -22,14 +23,14 @@ public static class Subscription
                 VerifyCurrentSubscription(subscription, user, seriesId, seriesTitle, feedTitle));
 
     // Toggles the stored state and returns the resulting one.
-    public static Task<Result<SubscriptionType>> UpdateSubscription(this Task<Result<SubscriptionStorage>> storage,
+    public static Task<Result<SubscriptionType, SubscriptionError>> UpdateSubscription(this Task<Result<SubscriptionStorage, SubscriptionError>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) =>
         storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
 
     // The feed title keys notifications, so a new subscription needs one; a stored one stays removable.
-    private static Result<SubscriptionStorage> VerifyCurrentSubscription(
+    private static Result<SubscriptionStorage, NoFeed> VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
         AuthenticatedUser user,
         string seriesId,
@@ -37,7 +38,7 @@ public static class Subscription
         string feedTitle) => subscription switch
     {
         not null => subscription,
-        _ when string.IsNullOrWhiteSpace(feedTitle) => Error.Create($"{seriesTitle} has no feed to subscribe to"),
+        _ when string.IsNullOrWhiteSpace(feedTitle) => new NoFeed(seriesTitle),
         _ => new SubscriptionStorage
         {
             PartitionKey = user.UserId,
@@ -49,7 +50,7 @@ public static class Subscription
         }
     };
 
-    private static Task<Result<SubscriptionType>> ToggleSubscription(
+    private static Task<Result<SubscriptionType, StorageError>> ToggleSubscription(
         SubscriptionStorage storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,

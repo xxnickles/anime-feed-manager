@@ -6,7 +6,7 @@ namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
 public static class UserRegistration
 {
-    public static Task<Result<UserRegistrationResult>> TryToRegister(
+    public static Task<Result<UserRegistrationResult, RegistrationError>> TryToRegister(
         string displayName,
         string email,
         IPasswordlessClient passwordlessClient,
@@ -22,24 +22,25 @@ public static class UserRegistration
     }
 
 
-    private static Task<Result<RegistrationProcessData>> VerifyData(
+    private static Task<Result<RegistrationProcessData, RegistrationError>> VerifyData(
         ExistentUserGetterByEmail userGetter,
         string displayName,
         string email,
         CancellationToken cancellationToken)
     {
         return (email, displayName).AsUserRegistration()
+            .MapError(error => (RegistrationError)error)
             .Bind(userData => userGetter(userData.Email, cancellationToken)
-                .Map(user => new RegistrationProcessData(userData, user,
-                    new RegisterOptions(userData.UserId, userData.Email)
-                    {
-                        DisplayName = userData.DisplayName,
-                        Aliases = [userData.Email]
-                    })));
+                    .Map(user => new RegistrationProcessData(userData, user,
+                        new RegisterOptions(userData.UserId, userData.Email)
+                        {
+                            DisplayName = userData.DisplayName,
+                            Aliases = [userData.Email]
+                        })));
     }
 
-    public static Task<Result<UserRegistrationResult>> CreateUser(
-        this Task<Result<RegistrationProcessData>> data,
+    public static Task<Result<UserRegistrationResult, RegistrationError>> CreateUser(
+        this Task<Result<RegistrationProcessData, RegistrationError>> data,
         IPasswordlessClient passwordlessClient,
         UserUpdater updater,
         CancellationToken cancellationToken)
@@ -51,7 +52,7 @@ public static class UserRegistration
     }
 
     // Try to register in passwordless; then store the new user
-    private static Task<Result<RegisterTokenResponse>> TryToCreate(
+    private static Task<Result<RegisterTokenResponse, RegistrationError>> TryToCreate(
         RegistrationProcessData data,
         IPasswordlessClient passwordlessClient,
         UserUpdater updater,
@@ -60,16 +61,17 @@ public static class UserRegistration
         return data.StorageStoredUser switch
         {
             ValidStoredUser user => Task
-                .FromResult<Result<RegisterTokenResponse>>(
-                    Error.Create($"Email '{user.Email}' already exist in the system")),
-            _ => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
+                .FromResult<Result<RegisterTokenResponse, RegistrationError>>(
+                    (RegistrationError)new AuthError.UserAlreadyExists(user.Email)),
+            NotAStoredUser => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
+                .MapError(error => (RegistrationError)error)
                 .Bind(token =>
-                    updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)
-                        .Map(_ => token))
+                        updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)
+                            .Map(_ => token))
         };
     }
 
-    private static async Task<Result<RegisterTokenResponse>> RegisterInPasswordless(
+    private static async Task<Result<RegisterTokenResponse, AuthError>> RegisterInPasswordless(
         IPasswordlessClient passwordlessClient,
         RegisterOptions options,
         CancellationToken token)
@@ -81,11 +83,11 @@ public static class UserRegistration
         }
         catch (PasswordlessApiException e)
         {
-            return PasswordlessError.FromException(e);
+            return new AuthError.PasswordlessFailure(e);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromException(e);
+            return new AuthError.RequestFailed(e);
         }
     }
 }

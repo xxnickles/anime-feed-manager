@@ -62,7 +62,7 @@ resource webApp 'Microsoft.Web/sites@2025-03-01' = {
     serverFarmId: webPlan.id
     reserved: true
     siteConfig: {
-      linuxFxVersion: 'DOTNETCORE|10.0'
+      linuxFxVersion: 'dotnet|11'
       ftpsState: 'Disabled'
       minTlsVersion: '1.2'
       http20Enabled: true

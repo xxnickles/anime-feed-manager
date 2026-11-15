@@ -1,37 +1,36 @@
-using AnimeFeedManager.Shared.Results.Errors;
-
 namespace AnimeFeedManager.Shared.Results.Static;
 
-/// <summary>
-/// Extension members for collections of <see cref="Result{T}"/>,
-/// providing bulk aggregation operations.
-/// </summary>
 public static class ResultCollectionExtensionMembers
 {
-    extension<T>(IEnumerable<Result<T>> results)
+    extension<T, TError>(IEnumerable<Result<T, TError>> results)
     {
         /// <summary>
-        /// Aggregates a collection of individual results into a single <see cref="BulkResult{T}"/> result
-        /// using a single pass over the collection.
+        /// <see cref="BulkResult{T, TError}.Completed"/> when all succeed, <see cref="BulkResult{T, TError}.Partial"/> when some fail;
+        /// when all fail, <paramref name="allFailed"/> builds the caller's error. Item trace contexts merge into the outcome.
         /// </summary>
-        /// <typeparam name="TTarget">The type produced by aggregating successful values.</typeparam>
-        /// <param name="flattenFunc">
-        /// Projection applied to successful values to produce the aggregated result
-        /// (e.g., summing RU costs into <c>OperationMetadata</c>).
-        /// </param>
-        /// <returns>
-        /// <list type="bullet">
-        ///   <item><see cref="CompletedBulkResult{T}"/> — all operations succeeded.</item>
-        ///   <item><see cref="PartialSuccessBulkResult{T}"/> — some succeeded, errors collected alongside.</item>
-        ///   <item><see cref="AggregatedError"/> — all operations failed.</item>
-        /// </list>
-        /// </returns>
-        public Result<BulkResult<TTarget>> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
+        public Result<BulkResult<TTarget, TError>, TFailure> Collect<TTarget, TFailure>(
+            Func<IEnumerable<T>, TTarget> flatten,
+            Func<ImmutableArray<TError>, TFailure> allFailed)
+        {
+            var (successes, errors, traceContext) = Split(results);
+            return Outcome(successes, errors, flatten, allFailed, traceContext);
+        }
+
+        /// <summary>The flattened values when every item succeeds; otherwise <paramref name="failed"/> builds the caller's error from the items that failed.</summary>
+        public Result<TTarget, TFailure> CollectAll<TTarget, TFailure>(
+            Func<IEnumerable<T>, TTarget> flatten,
+            Func<ImmutableArray<TError>, TFailure> failed)
+        {
+            var (successes, errors, traceContext) = Split(results);
+            return errors.Count == 0
+                ? Result<TTarget, TFailure>.Success(flatten(successes), traceContext)
+                : Result<TTarget, TFailure>.Failure(failed([..errors]), traceContext);
+        }
+
+        /// <summary>Never fails: flattens the successes and stages each failure's log on the merged trace context.</summary>
+        public Result<TTarget, TError> CollectSuccesses<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
         {
             var successes = new List<T>();
-            var errors = new List<DomainError>();
-            // Deferred log actions and scope properties staged on the per-item chains are merged so
-            // they survive the aggregation boundary and reach the eventual flush.
             var traceContext = TraceContext.Empty;
 
             foreach (var result in results)
@@ -40,29 +39,71 @@ public static class ResultCollectionExtensionMembers
                 if (result.IsSuccess)
                     successes.Add(result.ResultValue!);
                 else
+                    traceContext = traceContext.AddLog(ErrorCases.AsDomainError(result.ErrorValue!).LogAction());
+            }
+
+            return Result<TTarget, TError>.Success(flattenFunc(successes), traceContext);
+        }
+    }
+
+    extension<T, TError>(IEnumerable<Result<BulkResult<T, TError>, TError>> results)
+    {
+        /// <summary>Merges collected bulks into one: values combined, item errors concatenated, a failed bulk's error kept as one more item error; same outcomes as <c>Collect</c>.</summary>
+        public Result<BulkResult<TTarget, TError>, TFailure> Merge<TTarget, TFailure>(
+            Func<IEnumerable<T>, TTarget> combine,
+            Func<ImmutableArray<TError>, TFailure> allFailed)
+        {
+            var values = new List<T>();
+            var errors = new List<TError>();
+            var traceContext = TraceContext.Empty;
+
+            foreach (var result in results)
+            {
+                traceContext = traceContext.Merge(result.TraceContext);
+                if (result.IsSuccess)
+                {
+                    values.Add(result.ResultValue!.Value);
+                    errors.AddRange(result.ResultValue!.Errors);
+                }
+                else
                     errors.Add(result.ErrorValue!);
             }
 
-            Result<BulkResult<TTarget>> aggregated = (successes.Count, errors.Count) switch
-            {
-                (_, 0) => new CompletedBulkResult<TTarget>(flattenFunc(successes)),
-                (0, _) => new AggregatedError("All the operations in a bulk operation failed", [..errors]),
-                _ => new PartialSuccessBulkResult<TTarget>(flattenFunc(successes), [..errors])
-            };
-
-            return aggregated with {TraceContext = traceContext};
+            return Outcome(values, errors, combine, allFailed, traceContext);
         }
     }
 
-    extension<T>(Task<IEnumerable<Result<T>>> results)
+    private static (List<T> Successes, List<TError> Errors, TraceContext TraceContext) Split<T, TError>(
+        IEnumerable<Result<T, TError>> results)
     {
-        /// <summary>
-        /// Async variant of <see cref="Flatten{TTarget}"/>. Awaits the task, then delegates
-        /// to the synchronous overload.
-        /// </summary>
-        public async Task<Result<BulkResult<TTarget>>> Flatten<TTarget>(Func<IEnumerable<T>, TTarget> flattenFunc)
+        var successes = new List<T>();
+        var errors = new List<TError>();
+        var traceContext = TraceContext.Empty;
+
+        foreach (var result in results)
         {
-            return (await results).Flatten(flattenFunc);
+            traceContext = traceContext.Merge(result.TraceContext);
+            if (result.IsSuccess)
+                successes.Add(result.ResultValue!);
+            else
+                errors.Add(result.ErrorValue!);
         }
+
+        return (successes, errors, traceContext);
     }
+
+    private static Result<BulkResult<TTarget, TError>, TFailure> Outcome<T, TTarget, TError, TFailure>(
+        List<T> values,
+        List<TError> errors,
+        Func<IEnumerable<T>, TTarget> flatten,
+        Func<ImmutableArray<TError>, TFailure> allFailed,
+        TraceContext traceContext) =>
+        (values.Count, errors.Count) switch
+        {
+            (_, 0) => Result<BulkResult<TTarget, TError>, TFailure>.Success(
+                new BulkResult<TTarget, TError>.Completed(flatten(values)), traceContext),
+            (0, _) => Result<BulkResult<TTarget, TError>, TFailure>.Failure(allFailed([..errors]), traceContext),
+            _ => Result<BulkResult<TTarget, TError>, TFailure>.Success(
+                new BulkResult<TTarget, TError>.Partial(flatten(values), [..errors]), traceContext)
+        };
 }

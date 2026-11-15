@@ -43,7 +43,7 @@ public class InterestedSeriesTests
 
         var result = await Toggle(MakeSubscription(nameof(SubscriptionType.Subscribed)), updater, remover);
 
-        result.AssertError();
+        result.AssertOnError(error => Assert.Equal(new AlreadySubscribed("Black Torch"), error.Value));
         await updater.DidNotReceive().Invoke(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>());
         await remover.DidNotReceive().Invoke(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
@@ -52,7 +52,7 @@ public class InterestedSeriesTests
 
     #region Test Helpers
 
-    private static Task<Result<SubscriptionType>> Toggle(
+    private static Task<Result<SubscriptionType, InterestedError>> Toggle(
         SubscriptionStorage? stored,
         TvSubscriptionUpdater updater,
         TvSubscriptionsRemover remover) =>
@@ -63,7 +63,7 @@ public class InterestedSeriesTests
     {
         var getter = Substitute.For<TvSubscriptionGetter>();
         getter(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<SubscriptionStorage?>.Success(stored)));
+            .Returns(Task.FromResult(Result<SubscriptionStorage?, StorageError>.Success(stored)));
         return getter;
     }
 
@@ -71,7 +71,7 @@ public class InterestedSeriesTests
     {
         var updater = Substitute.For<TvSubscriptionUpdater>();
         updater(Arg.Any<SubscriptionStorage>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, StorageError>.Success(new Unit())));
         return updater;
     }
 
@@ -79,7 +79,7 @@ public class InterestedSeriesTests
     {
         var remover = Substitute.For<TvSubscriptionsRemover>();
         remover(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<Unit>.Success(new Unit())));
+            .Returns(Task.FromResult(Result<Unit, StorageError>.Success(new Unit())));
         return remover;
     }
 

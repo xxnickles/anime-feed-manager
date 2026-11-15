@@ -7,6 +7,9 @@ using AnimeFeedManager.Web.BlazorComponents.Email.Templates;
 
 namespace AnimeFeedManager.Functions.Tv.Notifications;
 
+[Widens<NotificationProcessError>]
+internal partial union FeedNotificationError(EmailError, StorageError, DeliveryError);
+
 public class OnTvFeedNotification
 {
     private static readonly ActivitySource Source = new(Telemetry.TvSubscriptionsFeedSource);
@@ -44,6 +47,7 @@ public class OnTvFeedNotification
                 NotificationEmailText.Render,
                 notification.ToEmailModel(),
                 cancellationToken)
+            .MapError(error => (FeedNotificationError)error)
             .Bind(_ => NotificationProcess.UpdateUserSubscriptions(notification,
                 _tableClientFactory.TableStorageTvSubscriptionsUpdater,
                 _domainPostman.SendMessages,

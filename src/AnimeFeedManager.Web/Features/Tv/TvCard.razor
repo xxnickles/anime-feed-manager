@@ -8,25 +8,7 @@
     <CardWrapper FilterAttributes="@FilterAttributesHelper.GetFilterAttributes(Series)">
         <SeriesCard SeriesInfo="@Series.TvSeries.AsSeriesCard()" LoaderId="@_loaderId" Id="@_cardId">
             <CardBadge>
-                @switch (Series)
-                {
-                    case Available:
-                    case AvailableForSubscription:
-                        <Badge Text="Available" Type="StatusType.Success"></Badge>
-                        break;
-                    case Subscribed:
-                        <Badge Text="Subscribed" Type="StatusType.Primary"></Badge>
-                        break;
-                    case Interested:
-                        <Badge Text="Interested" Type="StatusType.Secondary"></Badge>
-                        break;
-                    case Completed:
-                        <Badge Text="Completed" Type="StatusType.Info"></Badge>
-                        break;
-                    default:
-                        <Badge Text="Not Available" Type="StatusType.Warning"></Badge>
-                        break;
-                }
+                <Badge Text="@_status.Text" Type="@_status.Type"></Badge>
             </CardBadge>
 
             <CardActions>
@@ -35,25 +17,25 @@
                     <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
                     Releases
                 </a>
-                @if (Series.User is AuthenticatedUser)
+                @if (Series is SubscriberSeries subscriber)
                 {
-                    @switch (Series)
+                    @switch (subscriber)
                     {
-                        case AvailableForSubscription:
+                        case SubscriberSeries.AvailableForSubscription:
                             <ForSubscription Model="@GetActionModel(Series)"></ForSubscription>
                             break;
-                        case Subscribed:
+                        case SubscriberSeries.Subscribed:
                             <ForSubscriptionRemoval Model="@GetActionModel(Series)"></ForSubscriptionRemoval>
                             break;
-                        case AvailableForFuture:
+                        case SubscriberSeries.AvailableForFuture:
                             <ForInterested Model="@GetActionModel(Series)"></ForInterested>
                             break;
-                        case Interested:
+                        case SubscriberSeries.Interested:
                             <ForInterestedRemoval Model="@GetActionModel(Series)"></ForInterestedRemoval>
                             break;
                     }
 
-                    @if (Series.User is AdminUser)
+                    @if (subscriber.User is AdminUser)
                     {
                         <AdminActionsMenu>
                             <Buttons>
@@ -72,12 +54,27 @@
     private string _loaderId = string.Empty;
     private string _loaderSelector = string.Empty;
     private string _cardId = string.Empty;
+    private (string Text, StatusType Type) _status;
 
     protected override void OnInitialized()
     {
         _loaderId = IdHelpers.GetUniqueName("card-loader");
         _cardId = IdHelpers.GetUniqueName("card");
         _loaderSelector = $"#{_loaderId}";
+    }
+
+    private static (string Text, StatusType Type) Status(UserTvSeries series) => series switch
+    {
+        PublicSeries.Available or SubscriberSeries.AvailableForSubscription => ("Available", StatusType.Success),
+        SubscriberSeries.Subscribed => ("Subscribed", StatusType.Primary),
+        SubscriberSeries.Interested => ("Interested", StatusType.Secondary),
+        PublicSeries.Completed or SubscriberSeries.Completed => ("Completed", StatusType.Info),
+        PublicSeries.NotAvailable or SubscriberSeries.AvailableForFuture => ("Not Available", StatusType.Warning)
+    };
+
+    protected override void OnParametersSet()
+    {
+        if (Series is not null) _status = Status(Series);
     }
 
     public static RenderFragment AsRenderFragment(UserTvSeries series) => builder =>

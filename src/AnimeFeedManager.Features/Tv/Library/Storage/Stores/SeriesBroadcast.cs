@@ -1,13 +1,13 @@
 namespace AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 
-public abstract record ExpectedEpisodes;
+public closed record ExpectedEpisodes;
 
 public sealed record KnownEpisodes(int Count) : ExpectedEpisodes;
 
 /// <summary>No count yet; the series stays open until the provider or an admin supplies one.</summary>
 public sealed record UnknownEpisodes : ExpectedEpisodes;
 
-public abstract record ReleaseSlot;
+public closed record ReleaseSlot;
 
 /// <summary><paramref name="At"/> is the first sub release (UTC); its weekday and time anchor the weekly slot.</summary>
 public sealed record FirstRelease(DateTime At) : ReleaseSlot;

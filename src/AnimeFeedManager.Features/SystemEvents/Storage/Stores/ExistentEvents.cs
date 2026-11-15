@@ -2,18 +2,18 @@
 
 public record EventData<T>(EventType EventType, DateTimeOffset Timestamp, T Data) where T : SystemNotificationPayload;
 
-public delegate Task<Result<ImmutableArray<EventData<T>>>> SystemEventsGetter<T>(
+public delegate Task<Result<ImmutableArray<EventData<T>>, StorageError>> SystemEventsGetter<T>(
     TargetConsumer consumer,
     DateTimeOffset from,
     CancellationToken cancellationToken) where T : SystemNotificationPayload;
 
-public delegate Task<Result<ImmutableArray<EventData<T>>>> SystemEventsBroadGetter<T>(
+public delegate Task<Result<ImmutableArray<EventData<T>>, StorageError>> SystemEventsBroadGetter<T>(
     DateTimeOffset from,
     CancellationToken cancellationToken) where T : SystemNotificationPayload;
 
 public record EventOccurrence(string PayloadTypeName, DateTimeOffset Timestamp);
 
-public delegate Task<Result<ImmutableArray<EventOccurrence>>> SystemErrorsGetter(
+public delegate Task<Result<ImmutableArray<EventOccurrence>, StorageError>> SystemErrorsGetter(
     TargetConsumer consumer,
     DateTimeOffset from,
     CancellationToken cancellationToken);
@@ -62,7 +62,7 @@ public static class ExistentEvents
                     .ToImmutableArray());
         }
 
-        private static Result<ImmutableArray<EventData<T>>> Convert<T>(ImmutableArray<EventStorage> source)
+        private static Result<ImmutableArray<EventData<T>>, StorageError> Convert<T>(ImmutableArray<EventStorage> source)
             where T : SystemNotificationPayload
         {
             try
@@ -78,7 +78,7 @@ public static class ExistentEvents
             }
             catch (Exception e)
             {
-                return ExceptionError.FromException(e);
+                return new StorageError.UnreadablePayload(typeof(T), e);
             }
         }
     }

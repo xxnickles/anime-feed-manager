@@ -5,7 +5,7 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.Queries;
 
-public abstract record SeasonFeed(string SeriesId, string Title);
+public closed record SeasonFeed(string SeriesId, string Title);
 
 public sealed record UnfedSeries(string SeriesId, string Title, ExpectedEpisodes Episodes)
     : SeasonFeed(SeriesId, Title);
@@ -28,7 +28,7 @@ public enum BindingState
 public static class SeasonFeeds
 {
     /// <summary>Unfed, uncompleted library series plus the season's bindings; stale first, then unfed, tracking, completed.</summary>
-    public static Task<Result<ImmutableArray<SeasonFeed>>> GetSeasonFeeds(
+    public static Task<Result<ImmutableArray<SeasonFeed>, StorageError>> GetSeasonFeeds(
         SeriesSeason season,
         Uri publicBlobUri,
         TvLibrary libraryGetter,
@@ -43,7 +43,7 @@ public static class SeasonFeeds
             .WithOperationName(nameof(GetSeasonFeeds))
             .WithLogProperty(Telemetry.SeriesSeasonTag, IdHelpers.GenerateAnimePartitionKey(season));
 
-    private static async Task<Result<ImmutableArray<BoundSeries>>> Bound(
+    private static async Task<Result<ImmutableArray<BoundSeries>, StorageError>> Bound(
         ImmutableArray<NyaaBindingStorage> bindings,
         NyaaCatalogGetter catalogGetter,
         DateTimeOffset now,
@@ -53,8 +53,8 @@ public static class SeasonFeeds
             catalogGetter(binding.RowKey ?? string.Empty, token).Map(catalog => ToBound(binding, catalog, now))));
 
         // A bound series missing from the list would read as never bound.
-        return reads.Flatten(rows => rows.ToImmutableArray())
-            .Bind(bulk => bulk.RequireAll("Some binding catalogs could not be read"));
+        return reads.CollectAll(rows => rows.ToImmutableArray(),
+            StorageError (errors) => new StorageError.BatchFailed("Some binding catalogs could not be read", errors));
     }
 
     private static BoundSeries ToBound(

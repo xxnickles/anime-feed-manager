@@ -1,6 +1,30 @@
 <Project>
   <PropertyGroup>
-    <AssemblyVersion>4.0.0.0</AssemblyVersion>
-    <FileVersion>4.0.0.0</FileVersion>
+    <TargetFramework>net11.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Features>runtime-async=on</Features>
+    <!-- Union/closed exhaustiveness ships as warnings: non-exhaustive switch, unhandled null, impossible type test. -->
+    <WarningsAsErrors>$(WarningsAsErrors);CS8509;CS8655;CS0184</WarningsAsErrors>
   </PropertyGroup>
+
+  <!--  CI passes -p:BuildNumber and -p:BuildDate. -->
+  <PropertyGroup>
+    <VersionPrefix>5.0.0</VersionPrefix>
+    <BuildNumber Condition="'$(BuildNumber)' == ''">local</BuildNumber>
+    <BuildDate Condition="'$(BuildDate)' == ''">$([System.DateTime]::UtcNow.ToString('yyyy-MM-dd'))</BuildDate>
+    <InformationalVersion>$(VersionPrefix)+$(BuildNumber)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="BuildDate" Value="$(BuildDate)" />
+  </ItemGroup>
+
+  <Target Name="AddCommitShaMetadata" BeforeTargets="GetAssemblyAttributes"
+          DependsOnTargets="InitializeSourceControlInformation">
+    <ItemGroup Condition="'$(SourceRevisionId)' != ''">
+      <AssemblyMetadata Include="CommitSha" Value="$(SourceRevisionId)" />
+    </ItemGroup>
+  </Target>
 </Project>

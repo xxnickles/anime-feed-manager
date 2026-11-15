@@ -6,30 +6,28 @@ namespace AnimeFeedManager.Features.Tv.FeedManager.Collection;
 public static class NyaaWindow
 {
     /// <summary>The last stamped poll time; null before the first stamped run.</summary>
-    public static Task<Result<DateTimeOffset?>> LastPoll(LastNyaaPoll pollGetter, CancellationToken token) =>
+    public static Task<Result<DateTimeOffset?, StorageError>> LastPoll(LastNyaaPoll pollGetter, CancellationToken token) =>
         pollGetter(token)
             .Map(DateTimeOffset? (poll) => poll.At)
-            .BindOnErrorWhen(_ => Result<DateTimeOffset?>.Success(null), error => error is NotFoundError);
+            .BindOnErrorWhen(_ => Result<DateTimeOffset?, StorageError>.Success(null), error => error is StorageError.NotFound);
 
     /// <summary>Releases may have fallen out of the 75-item window: the oldest polled one is newer than the last poll. No stored poll is no gap.</summary>
     internal static bool HasGap(DateTimeOffset? lastPoll, DateTimeOffset? oldestPolled) =>
         lastPoll is { } last && oldestPolled is { } oldest && oldest > last;
 
-    extension(Task<Result<NyaaCollected>> collected)
-    {
-        /// <summary>On a gap, queues a paced backfill of every tracked binding with a warning; the run goes on either way.</summary>
-        public Task<Result<NyaaCollected>> BackfillOnGap(
-            DateTimeOffset? lastPoll,
-            DelayedMessageSender delayedSender,
-            CancellationToken token) =>
-            collected.Bind(c => HasGap(lastPoll, c.OldestPolled)
-                ? Backfill(c.TrackedSeries, delayedSender, token)
-                    .Map(_ => c)
-                    .AddLogOnSuccess(_ => GapWarning(lastPoll, c))
-                : Task.FromResult(Result<NyaaCollected>.Success(c)));
-    }
+    /// <summary>On a gap, queues a paced backfill of every tracked binding with a warning; fails only when no backfill could be queued.</summary>
+    public static Task<Result<NyaaCollected, DeliveryError>> BackfillOnGap(
+        NyaaCollected collected,
+        DateTimeOffset? lastPoll,
+        DelayedMessageSender delayedSender,
+        CancellationToken token) =>
+        HasGap(lastPoll, collected.OldestPolled)
+            ? Backfill(collected.TrackedSeries, delayedSender, token)
+                .Map(_ => collected)
+                .AddLogOnSuccess(_ => GapWarning(lastPoll, collected))
+            : Task.FromResult(Result<NyaaCollected, DeliveryError>.Success(collected));
 
-    private static async Task<Result<int>> Backfill(
+    private static async Task<Result<int, DeliveryError>> Backfill(
         ImmutableArray<string> seriesIds,
         DelayedMessageSender delayedSender,
         CancellationToken token)
@@ -38,7 +36,8 @@ public static class NyaaWindow
             delayedSender(new BackfillNyaaSeries(seriesId), NyaaPacing.For(index), token)));
 
         return sends
-            .Flatten(sent => sent.Count())
+            .Collect(sent => sent.Count(),
+                DeliveryError (errors) => new DeliveryError.BatchFailed("No tracked binding's backfill could be queued", errors))
             .AddLogOnSuccess(bulk => bulk.LogErrors)
             .Map(bulk => bulk.Value);
     }

@@ -58,7 +58,7 @@ public class NyaaWindowTests
     [Fact]
     public async Task Should_Return_Null_When_No_Poll_Is_Stored()
     {
-        var result = await NyaaWindow.LastPoll(Getter(NotFoundError.Create("none")),
+        var result = await NyaaWindow.LastPoll(Getter(new StorageError.NotFound(typeof(NyaaPoll))),
             TestContext.Current.CancellationToken);
 
         result.AssertOnSuccess(at => Assert.Null(at));
@@ -67,7 +67,7 @@ public class NyaaWindowTests
     [Fact]
     public async Task Should_Fail_When_The_Stored_Poll_Cannot_Be_Read()
     {
-        var result = await NyaaWindow.LastPoll(Getter(Error.Create("unreadable")),
+        var result = await NyaaWindow.LastPoll(Getter(new StorageError.UnreadablePayload(typeof(NyaaPoll), null)),
             TestContext.Current.CancellationToken);
 
         result.AssertError();
@@ -83,8 +83,8 @@ public class NyaaWindowTests
         var sent = new ConcurrentBag<(string SeriesId, TimeSpan Delay)>();
         ImmutableArray<string> tracked = ["a", "b", "c", "d", "e", "f"];
 
-        var result = await Task.FromResult(Result<NyaaCollected>.Success(Collected(LastPoll.AddMinutes(5), tracked)))
-            .BackfillOnGap(LastPoll, Recording(sent), TestContext.Current.CancellationToken);
+        var result = await NyaaWindow.BackfillOnGap(Collected(LastPoll.AddMinutes(5), tracked), LastPoll, Recording(sent),
+            TestContext.Current.CancellationToken);
 
         result.AssertSuccess();
         Assert.Equal(tracked, sent.Select(send => send.SeriesId).Order());
@@ -97,8 +97,8 @@ public class NyaaWindowTests
     {
         var sent = new ConcurrentBag<(string SeriesId, TimeSpan Delay)>();
 
-        var result = await Task.FromResult(Result<NyaaCollected>.Success(Collected(LastPoll.AddHours(-1), ["a"])))
-            .BackfillOnGap(LastPoll, Recording(sent), TestContext.Current.CancellationToken);
+        var result = await NyaaWindow.BackfillOnGap(Collected(LastPoll.AddHours(-1), ["a"]), LastPoll, Recording(sent),
+            TestContext.Current.CancellationToken);
 
         result.AssertSuccess();
         Assert.Empty(sent);
@@ -109,9 +109,29 @@ public class NyaaWindowTests
     {
         var collected = Collected(LastPoll.AddMinutes(5), ["a"]);
 
-        var result = await Task.FromResult(Result<NyaaCollected>.Success(collected))
-            .BackfillOnGap(LastPoll, Recording(new ConcurrentBag<(string, TimeSpan)>()),
-                TestContext.Current.CancellationToken);
+        var result = await NyaaWindow.BackfillOnGap(collected, LastPoll, Recording(new ConcurrentBag<(string, TimeSpan)>()),
+            TestContext.Current.CancellationToken);
+
+        result.AssertOnSuccess(value => Assert.Same(collected, value));
+    }
+
+    [Fact]
+    public async Task Should_Fail_With_BatchFailed_Carrying_Every_Send_Error_When_No_Backfill_Is_Queued()
+    {
+        var result = await NyaaWindow.BackfillOnGap(Collected(LastPoll.AddMinutes(5), ["a", "b"]), LastPoll,
+            FailingFor(["a", "b"]), TestContext.Current.CancellationToken);
+
+        result.AssertOnError(error =>
+            Assert.Equal(2, Assert.IsType<DeliveryError.BatchFailed>(error).Errors.Length));
+    }
+
+    [Fact]
+    public async Task Should_Keep_The_Collection_When_Only_Some_Backfills_Are_Queued()
+    {
+        var collected = Collected(LastPoll.AddMinutes(5), ["a", "b"]);
+
+        var result = await NyaaWindow.BackfillOnGap(collected, LastPoll, FailingFor(["a"]),
+            TestContext.Current.CancellationToken);
 
         result.AssertOnSuccess(value => Assert.Same(collected, value));
     }
@@ -120,14 +140,19 @@ public class NyaaWindowTests
 
     #region Test Helpers
 
-    private static LastNyaaPoll Getter(Result<NyaaPoll> outcome) => _ => Task.FromResult(outcome);
+    private static LastNyaaPoll Getter(Result<NyaaPoll, StorageError> outcome) => _ => Task.FromResult(outcome);
 
     private static DelayedMessageSender Recording(ConcurrentBag<(string SeriesId, TimeSpan Delay)> sent) =>
         (message, delay, _) =>
         {
             sent.Add((((BackfillNyaaSeries) message).SeriesId, delay.Value));
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
+
+    private static DelayedMessageSender FailingFor(ImmutableArray<string> failing) =>
+        (message, _, _) => Task.FromResult(failing.Contains(((BackfillNyaaSeries) message).SeriesId)
+            ? Result<Unit, DeliveryError>.Failure(new DeliveryError.NoTargetBox(typeof(BackfillNyaaSeries)))
+            : Result<Unit, DeliveryError>.Success(new Unit()));
 
     private static NyaaCollected Collected(DateTimeOffset oldestPolled, ImmutableArray<string> tracked) =>
         new([], Catalogued: 0, PolledAt: LastPoll.AddHours(1), oldestPolled, tracked);

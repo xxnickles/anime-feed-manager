@@ -1,7 +1,7 @@
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Common.Scrapping;
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Scrapping.AnimeSchedule;
-using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 namespace AnimeFeedManager.Features.Tests.Scrapping.AnimeSchedule;
@@ -42,7 +42,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = Substitute.For<IAnimeScheduleClient>();
         client.GetSeason(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>>.Failure(HandledError.Create())));
+            .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>, ScrapeError>.Failure(new ScrapeError.UnusablePayload("anime?seasons=spring&years=2026 page 1"))));
 
         var result = await AnimeScheduleTvScrapper.ScrapSeries(client, Spring2026, CancellationToken.None);
 
@@ -282,7 +282,7 @@ public partial class AnimeScheduleTvScrapperTests
     {
         var client = Substitute.For<IAnimeScheduleClient>();
         client.GetSeason(Arg.Any<int>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>>.Success([..series])));
+            .Returns(Task.FromResult(Result<ImmutableArray<AnimeScheduleAnime>, ScrapeError>.Success([..series])));
         return client;
     }
 

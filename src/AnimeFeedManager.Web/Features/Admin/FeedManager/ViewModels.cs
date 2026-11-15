@@ -3,7 +3,7 @@ using AnimeFeedManager.Features.Tv.FeedManager.Search;
 
 namespace AnimeFeedManager.Web.Features.Admin.FeedManager;
 
-public abstract record SearchOutcome;
+public closed record SearchOutcome;
 
 public sealed record NotSearched : SearchOutcome;
 

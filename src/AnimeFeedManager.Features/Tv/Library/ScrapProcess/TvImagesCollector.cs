@@ -15,7 +15,8 @@ internal static class TvImagesCollector
 
     private static readonly ActivitySource Source = new(Telemetry.ImagesSource);
 
-    public static async Task<Result<ScrapTvLibraryData>> AddImagesLink(
+    // Never fails: a cover that will not download keeps its series without an image.
+    public static async Task<Result<ScrapTvLibraryData, ImageNotStored>> AddImagesLink(
         this ImageProcessor imageProvider,
         ScrapTvLibraryData data,
         CancellationToken token = default)
@@ -29,9 +30,9 @@ internal static class TvImagesCollector
         var pending = seriesData.Select(ToPendingImage).OfType<PendingImage>().ToArray();
         var untouched = seriesData
             .Where(series => ToPendingImage(series) is null)
-            .Select(series => Result<ImageOutcome>.Success(new ImageOutcome(series, false)));
+            .Select(series => Result<ImageOutcome, ImageNotStored>.Success(new ImageOutcome(series, false)));
 
-        var downloaded = new List<Result<ImageOutcome>>(pending.Length);
+        var downloaded = new List<Result<ImageOutcome, ImageNotStored>>(pending.Length);
         foreach (var batch in pending.Chunk(BatchSize))
         {
             // Skipped ahead of the first batch, so a single-batch import never waits.
@@ -43,10 +44,9 @@ internal static class TvImagesCollector
         }
 
         return downloaded.Concat(untouched)
-            .Flatten(items => items.ToImmutableArray())
-            .AddLogOnSuccess(bulk => LogImageOutcome(bulk, pending.Length, seriesData.Length))
-            .AddLogOnSuccess(bulk => bulk.LogErrors)
-            .Map(bulk => data with { SeriesData = bulk.Value.Select(outcome => outcome.Data) });
+            .CollectSuccesses(items => items.ToImmutableArray())
+            .AddLogOnSuccess(outcomes => LogImageOutcome(outcomes, pending.Length, seriesData.Length))
+            .Map(outcomes => data with { SeriesData = outcomes.Select(outcome => outcome.Data) });
     }
 
     private readonly record struct ImageOutcome(StorageData Data, bool Downloaded);
@@ -62,18 +62,18 @@ internal static class TvImagesCollector
     // Series with nothing to fetch pass through this step as successes, so the only honest count is
     // of the ones that actually had an image to download.
     private static Action<ILogger> LogImageOutcome(
-        BulkResult<ImmutableArray<ImageOutcome>> bulk,
+        ImmutableArray<ImageOutcome> outcomes,
         int candidates,
         int total) => logger =>
     {
-        var downloaded = bulk.Value.Count(outcome => outcome.Downloaded);
+        var downloaded = outcomes.Count(outcome => outcome.Downloaded);
 
         logger.LogInformation(
             "{image.downloaded_count} of {image.candidate_count} images downloaded, {image.failed_count} series kept without one; {image.skipped_count} of {series.count} series had no image to fetch",
             downloaded, candidates, candidates - downloaded, total - candidates, total);
     };
 
-    private static async Task<Result<ImageOutcome>> AddImageLink(
+    private static async Task<Result<ImageOutcome, ImageNotStored>> AddImageLink(
         ImageProcessor imageProvider,
         PendingImage pending,
         string targetDirectory,
@@ -86,6 +86,7 @@ internal static class TvImagesCollector
                 pending.Url), cancellationToken)
             .Map(uri => new ImageOutcome(AddUrl(pending.Data, uri), true))
             // A cover that will not download must not cost the series its row in the library.
+            .AddLogOnFailure(error => error.LogAction())
             .AddLogOnFailure(error => logger => logger.LogWarning(
                 "Storing {series.title} without an image: {domain_error.message}", pending.Data.Series.Title, error.Message))
             .BindOnError(_ => new ImageOutcome(pending.Data, false));

@@ -2,39 +2,37 @@ using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Shared.Results.Static;
 
-/// <summary>Bridges <see cref="Result{T}"/> failure into the active <see cref="Activity"/>'s OTel error status.</summary>
 public static class ResultActivityExtensions
 {
-    extension<T>(Result<T> result)
+    extension<T, TError>(Result<T, TError> result)
     {
         /// <summary>
-        /// On failure, sets <see cref="Activity.Current"/>'s status to <see cref="ActivityStatusCode.Error"/> and tags
-        /// <see cref="Telemetry.ErrorTypeTag"/> with the error's class name. Skips <see cref="Warning"/> and validation
-        /// errors (client input, like HTTP 4xx); call after any recovery so recovered failures stay unmarked.
+        /// On failure, marks <see cref="Activity.Current"/> errored and tags the error type; client-input errors
+        /// (<see cref="Warning"/>, validation) are skipped. Call after any recovery, inside the method that owns the activity.
         /// </summary>
-        /// <remarks>
-        /// <see cref="Activity.Current"/> is <c>AsyncLocal</c>, so it resolves to the caller's
-        /// <c>using var activity</c> as long as the chain stays inside that method.
-        /// </remarks>
-        public Result<T> MarkActivityErroredOnError() =>
-            result.TapError(error =>
+        public Result<T, TError> MarkActivityErroredOnError() =>
+            result.TapError(caseError =>
             {
+                var error = ErrorCases.AsDomainError(caseError);
                 if (Activity.Current is not { } activity || !IsSpanError(error))
                     return;
 
                 activity.SetStatus(ActivityStatusCode.Error,
                     string.IsNullOrEmpty(error.Message) ? null : error.Message);
-                activity.SetTag(Telemetry.ErrorTypeTag, error.GetType().Name);
+                activity.SetTag(Telemetry.ErrorTypeTag, ErrorTypeName(error.GetType()));
             });
     }
 
-    extension<T>(Task<Result<T>> resultTask)
+    extension<T, TError>(Task<Result<T, TError>> resultTask)
     {
-        /// <inheritdoc cref="MarkActivityErroredOnError{T}(Result{T})"/>
-        public async Task<Result<T>> MarkActivityErroredOnError() =>
+        public async Task<Result<T, TError>> MarkActivityErroredOnError() =>
             (await resultTask).MarkActivityErroredOnError();
     }
 
+    // A leaf nested in its family keeps the family in the name: StorageError.NotFound, not NotFound.
+    private static string ErrorTypeName(Type type) =>
+        type.DeclaringType is { } family ? $"{family.Name}.{type.Name}" : type.Name;
+
     private static bool IsSpanError(DomainError error) =>
-        error is not (Warning or DomainValidationErrors or FormDataValidationError);
+        error is not (Warning or ValidationError);
 }

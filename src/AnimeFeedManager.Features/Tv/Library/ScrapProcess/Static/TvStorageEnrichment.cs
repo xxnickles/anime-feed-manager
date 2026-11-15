@@ -4,13 +4,13 @@ namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess.Static;
 
 internal static class TvStorageEnrichment
 {
-    internal static Task<Result<ScrapTvLibraryData>> AddDataFromStorage(
-        this Task<Result<ScrapTvLibraryData>> data,
+    internal static Task<Result<ScrapTvLibraryData, TvScrapError>> AddDataFromStorage(
+        this Task<Result<ScrapTvLibraryData, TvScrapError>> data,
         StoredSeriesGetter storedSeriesGetter,
         CancellationToken token = default) =>
         data.Bind(d => AddExistentDataFromStorage(d, storedSeriesGetter, token));
 
-    private static Task<Result<ScrapTvLibraryData>> AddExistentDataFromStorage(
+    private static Task<Result<ScrapTvLibraryData, StorageError>> AddExistentDataFromStorage(
         ScrapTvLibraryData scrapTvLibraryData,
         StoredSeriesGetter storedSeriesGetter,
         CancellationToken token = default)

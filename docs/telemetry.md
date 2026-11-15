@@ -40,8 +40,8 @@ Applies to both hosts: Web (Blazor SSR) and Functions (isolated worker). Signals
 | Domain span | Started by the entry point (function, endpoint handler, component) with `using var activity = Source.StartActivity(...)`. |
 | Child spans | Timing detail only (e.g. `Images.Download`); logs belong to the domain span that flushes them. |
 | Logs inside the span | `FlushLogs` / `Complete` must run before the span disposes, in the same method that owns `using var activity`. |
-| Errors | `MarkActivityErroredOnError()` sets status `Error` (message = domain error message) and `error.type` = `DomainError` class name (e.g. `NotFoundError`). |
-| Not marked | `Warning`, `DomainValidationErrors`, `FormDataValidationError` (client input, like HTTP 4xx). `HandledError` is marked (already logged; operation still failed). |
+| Errors | `MarkActivityErroredOnError()` sets status `Error` (message = domain error message) and `error.type` = `DomainError` class name, prefixed by its family when nested (e.g. `NoLatestSeason`, `StorageError.NotFound`). |
+| Not marked | `Warning`, `ValidationError` (client input, like HTTP 4xx). |
 | Mark placement | After any recovery, so recovered failures stay unmarked; inside the method that owns the span (`Activity.Current` is async-local). |
 | Exceptions | Logged once via `LogError(ex)` (the exception error's log action does this). Spans never get `AddException`. |
 | Errors by feature | Span-name prefix (`Tv.Library`, `Tv.Subscriptions`, ...) identifies the feature of a failure. |
@@ -78,7 +78,7 @@ Domain keys (`series.*`, `user.*`) are written as log scope properties. The only
 
 - The producer stamps its span context (or the caller's, when the send span is unsampled) into the message's trace information; the consumer reads it to build the link.
 - `messaging.message.id` is the join key across hops.
-- A failed send sets span status `Error` and `error.type` = the exception's full type name (not a `DomainError` class name); the caller's `MessagesNotDelivered` logs it once.
+- A failed send sets span status `Error` and `error.type` = the exception's full type name (not a `DomainError` class name); the caller's `DeliveryError.NotDelivered` logs it once.
 - Every queue-triggered function starts `message.StartProcessActivity(functionContext)` first, then its domain span. Timer-triggered functions start only the domain span.
 
 ## 6. Dictionary: sources and spans

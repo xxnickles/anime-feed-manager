@@ -1,12 +1,28 @@
 ﻿namespace AnimeFeedManager.Features.Tv.Library.Queries;
 
-public abstract record UserTvSeries(AppUser User, TvSeries TvSeries);
+public closed record UserTvSeries(TvSeries TvSeries);
 
-public record NotAvailable(AppUser User, TvSeries TvSeries) : UserTvSeries(User, TvSeries);
-public record Available(AppUser User, TvSeries TvSeries) : UserTvSeries(User, TvSeries);
-// Completed series take no user actions; IsSubscribed keeps the subscription visible to filtering.
-public record Completed(AppUser User, TvSeries TvSeries, bool IsSubscribed) : UserTvSeries(User, TvSeries);
-public record AvailableForFuture(AppUser User, TvSeries TvSeries) : UserTvSeries(User, TvSeries);
-public record AvailableForSubscription(AppUser User, TvSeries TvSeries) : UserTvSeries(User, TvSeries);
-public record Interested(AppUser User, TvSeries TvSeries) : UserTvSeries(User, TvSeries);
-public record Subscribed(AppUser User, TvSeries TvSeries) : UserTvSeries(User, TvSeries);
+/// <summary>A series as a signed-out visitor sees it.</summary>
+public closed record PublicSeries(TvSeries TvSeries) : UserTvSeries(TvSeries)
+{
+    public sealed record Available(TvSeries TvSeries) : PublicSeries(TvSeries);
+
+    public sealed record NotAvailable(TvSeries TvSeries) : PublicSeries(TvSeries);
+
+    public sealed record Completed(TvSeries TvSeries) : PublicSeries(TvSeries);
+}
+
+/// <summary>A series as a signed-in user sees it; <paramref name="User"/> decides the admin actions.</summary>
+public closed record SubscriberSeries(AuthenticatedUser User, TvSeries TvSeries) : UserTvSeries(TvSeries)
+{
+    public sealed record AvailableForSubscription(AuthenticatedUser User, TvSeries TvSeries) : SubscriberSeries(User, TvSeries);
+
+    public sealed record AvailableForFuture(AuthenticatedUser User, TvSeries TvSeries) : SubscriberSeries(User, TvSeries);
+
+    public sealed record Subscribed(AuthenticatedUser User, TvSeries TvSeries) : SubscriberSeries(User, TvSeries);
+
+    public sealed record Interested(AuthenticatedUser User, TvSeries TvSeries) : SubscriberSeries(User, TvSeries);
+
+    // Takes no user actions; IsSubscribed keeps the subscription visible to filtering.
+    public sealed record Completed(AuthenticatedUser User, TvSeries TvSeries, bool IsSubscribed) : SubscriberSeries(User, TvSeries);
+}

@@ -24,10 +24,10 @@ internal static class Notifications
         CreateToast(title, message, type);
 
     // 4xx errors are the user's to fix: a toast. 5xx are ours: a dialog with the trace ID.
-    internal static RenderFragment CreateErrorNotification(string title, DomainError error) =>
-        error.ToStatusCode() >= StatusCodes.Status500InternalServerError
-            ? CreateErrorDialog(title, ErrorToContent(error), error.ToStatusCode(), error.ToString())
-            : CreateToast(title, ErrorToContent(error), ToToastType(error));
+    internal static RenderFragment CreateErrorNotification(string title, ErrorContent content, string? details) =>
+        content.StatusCode >= StatusCodes.Status500InternalServerError
+            ? CreateErrorDialog(title, content.Message, content.StatusCode, details)
+            : CreateToast(title, content.Message, content.Severity);
 
     internal static RenderFragment CreateErrorDialog(string title, RenderFragment message, int statusCode,
         string? details) => builder =>
@@ -39,45 +39,4 @@ internal static class Notifications
         builder.AddComponentParameter(4, nameof(ErrorDialogOob.Details), details);
         builder.CloseComponent();
     };
-
-    private static ToastType ToToastType(DomainError error) => error switch
-    {
-        NotFoundError => ToastType.Info,
-        DomainValidationErrors or FormDataValidationError => ToastType.Warning,
-        _ => ToastType.Error
-    };
-
-    private static RenderFragment ErrorToContent(DomainError error)
-    {
-        return builder =>
-        {
-            switch (error)
-            {
-                case NotFoundError:
-                    builder.AddContent(1, "The requested resource was not found.");
-                    break;
-
-                case DomainValidationErrors:
-                    builder.AddContent(2, "One or more validation errors occurred:");
-                    break;
-
-                case ExceptionError:
-                    builder.AddContent(1, "An internal server error occurred. Please try again later.");
-                    break;
-
-                case Error basic:
-                    builder.AddContent(1, basic.Message);
-                    break;
-
-                case FormDataValidationError:
-                    builder.AddContent(1, "Form validation failed. Please check your input and try again.");
-                    break;
-
-
-                default:
-                    builder.AddContent(1, "An unexpected error occurred.");
-                    break;
-            }
-        };
-    }
 }

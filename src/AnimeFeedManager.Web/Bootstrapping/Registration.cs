@@ -46,7 +46,7 @@ internal static class Registration
                                 ctx.Response.Redirect(loginPath);
                                 break;
                             }
-                            default:
+                            case Html or HxBoosted:
                                 // Normal full-page navigation
                                 ctx.Response.Redirect(ctx.RedirectUri);
                                 break;
@@ -75,7 +75,7 @@ internal static class Registration
                                 ctx.Response.Redirect(loginPath);
                                 break;
                             }
-                            default:
+                            case Html or HxBoosted:
                                 // Normal full-page navigation
                                 ctx.Response.Redirect(ctx.RedirectUri);
                                 break;

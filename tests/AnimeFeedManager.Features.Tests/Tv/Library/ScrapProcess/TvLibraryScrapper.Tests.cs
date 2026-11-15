@@ -54,7 +54,7 @@ public class TvLibraryScrapperTests
 
         var result = await TvLibraryScrapper.ResolveSeason(new Current(), getter, CancellationToken.None);
 
-        result.AssertError();
+        result.AssertOnError(error => Assert.IsType<NoLatestSeason>(error.Value));
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class TvLibraryScrapperTests
     {
         var getter = Substitute.For<LatestSeasonGetter>();
         getter(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<SeasonStorageData>.Failure(HandledError.Create())));
+            .Returns(Task.FromResult(Result<LatestSeasonRead, StorageError>.Failure(new StorageError.NotFound(typeof(SeasonStorage)))));
 
         var result = await TvLibraryScrapper.ResolveSeason(new Current(), getter, CancellationToken.None);
 
@@ -99,10 +99,10 @@ public class TvLibraryScrapperTests
 
     #region Test Helpers
 
-    private static LatestSeasonGetter LatestReturning(SeasonStorageData data)
+    private static LatestSeasonGetter LatestReturning(LatestSeasonRead data)
     {
         var getter = Substitute.For<LatestSeasonGetter>();
-        getter(Arg.Any<CancellationToken>()).Returns(Task.FromResult(Result<SeasonStorageData>.Success(data)));
+        getter(Arg.Any<CancellationToken>()).Returns(Task.FromResult(Result<LatestSeasonRead, StorageError>.Success(data)));
         return getter;
     }
 

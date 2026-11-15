@@ -3,7 +3,7 @@ using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.Completion;
 
-public abstract record CompletionOutcome;
+public closed record CompletionOutcome;
 
 public sealed record FeedCompleted(DateTimeOffset At) : CompletionOutcome;
 
@@ -27,7 +27,7 @@ public static class NyaaCompletion
             : new FeedOpen();
 
     /// <summary>Stamps a completed binding; the library completes when the binding retires.</summary>
-    public static Task<Result<CompletionOutcome>> CompleteWhenReached(
+    public static Task<Result<CompletionOutcome, StorageError>> CompleteWhenReached(
         string seriesId,
         SeriesSeason season,
         NyaaBindingGetter bindingGetter,
@@ -44,9 +44,9 @@ public static class NyaaCompletion
                             catalog))))
                     .Bind(state => state.Outcome is FeedCompleted completed
                         ? bindingUpdater(Stamp(state.Binding, completed.At), attemptToken).Map(_ => state.Outcome)
-                        : Task.FromResult(Result<CompletionOutcome>.Success(state.Outcome))),
+                        : Task.FromResult(Result<CompletionOutcome, StorageError>.Success(state.Outcome))),
                 token,
-                error => error is PreconditionFailedError)
+                error => error is StorageError.Conflict)
             .WithOperationName(nameof(CompleteWhenReached))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 

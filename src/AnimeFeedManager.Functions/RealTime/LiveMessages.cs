@@ -8,6 +8,6 @@ internal static class LiveMessages
         EveryConnection => new SignalRMessageAction(method) { Arguments = [argument] },
         GroupAudience group => new SignalRMessageAction(method) { Arguments = [argument], GroupName = group.Group },
         UserAudience user => new SignalRMessageAction(method) { Arguments = [argument], UserId = user.UserId },
-        _ => null
+        NoAudience => null
     };
 }

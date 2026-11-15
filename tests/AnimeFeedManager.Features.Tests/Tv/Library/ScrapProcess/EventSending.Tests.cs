@@ -4,7 +4,6 @@ using AnimeFeedManager.Features.Infrastructure.Messaging;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Seasons.Events;
 using AnimeFeedManager.Features.SystemEvents;
-using AnimeFeedManager.Features.Tv.Library.Events;
 using AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 using AnimeFeedManager.Features.Tv.Library.Storage;
 
@@ -25,7 +24,7 @@ public class EventSendingTests
         };
         var postman = new TestDomainPostman();
 
-        var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(new ScrapTvLibraryData([.. items], season)))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, ScrapProcessError>.Success(new ScrapTvLibraryData([.. items], season)))
             .SendEvents(postman, new SeasonParameters(season.Season.ToString(), (ushort) season.Year),
                 CancellationToken.None);
 
@@ -47,7 +46,7 @@ public class EventSendingTests
             MakeSeries("n-1", SeriesStatus.NotAvailable(), Status.NewSeries)
         };
 
-        var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(new ScrapTvLibraryData([.. items], season)))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, ScrapProcessError>.Success(new ScrapTvLibraryData([.. items], season)))
             .SendEvents(new TestDomainPostman(), null, CancellationToken.None);
 
         result.AssertOnSuccess(summary =>
@@ -66,7 +65,7 @@ public class EventSendingTests
         var postman = new TestDomainPostman {FailOnFirstSend = true};
 
         var parameters = new SeasonParameters(season.Season.ToString(), (ushort) season.Year);
-        var result = await Task.FromResult(Result<ScrapTvLibraryData>.Success(data))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, ScrapProcessError>.Success(data))
             .SendEvents(postman, parameters, CancellationToken.None);
 
         result.AssertError();
@@ -85,11 +84,11 @@ public class EventSendingTests
             if (FailOnFirstSend && !_firstCallDone)
             {
                 _firstCallDone = true;
-                return Task.FromResult<Result<Unit>>(MessagesNotDelivered.Create("forced failure", messages));
+                return Task.FromResult<Result<Unit, DeliveryError>>(new DeliveryError.NotDelivered([.. messages], new InvalidOperationException("forced failure")));
             }
 
             Sent.AddRange(messages);
-            return Task.FromResult(Result<Unit>.Success(new Unit()));
+            return Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
         };
 
         public static implicit operator DomainCollectionSender(TestDomainPostman wrapper) => wrapper.Delegate;

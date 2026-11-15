@@ -5,12 +5,13 @@ namespace AnimeFeedManager.Features.Tv.Subscriptions.Management;
 
 public static class InterestedSeries
 {
-    public static Task<Result<SubscriptionStorage>> VerifyStorage(
+    public static Task<Result<SubscriptionStorage, InterestedError>> VerifyStorage(
         AuthenticatedUser user,
         string seriesId,
         string seriesTitle,
         TvSubscriptionGetter subscriptionGetterGetter,
         CancellationToken token) => subscriptionGetterGetter(user.UserId, seriesId, token)
+        .MapError(error => (InterestedError)error)
         .WithOperationName(nameof(VerifyStorage))
         .WithLogProperties([
             new KeyValuePair<string, object>(Telemetry.UserIdTag, user.UserId),
@@ -21,13 +22,13 @@ public static class InterestedSeries
 
 
     // Toggles the stored state and returns the resulting one.
-    public static Task<Result<SubscriptionType>> UpdateInterested(this Task<Result<SubscriptionStorage>> storage,
+    public static Task<Result<SubscriptionType, InterestedError>> UpdateInterested(this Task<Result<SubscriptionStorage, InterestedError>> storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,
         CancellationToken token) =>
         storage.Bind(s => ToggleSubscription(s, subscriptionUpdater, subscriptionsRemover, token));
 
-    private static Result<SubscriptionStorage> VerifyCurrentSubscription(
+    private static Result<SubscriptionStorage, AlreadySubscribed> VerifyCurrentSubscription(
         SubscriptionStorage? subscription,
         string userId,
         string seriesId,
@@ -45,13 +46,13 @@ public static class InterestedSeries
             };
 
         if (subscription.Type == nameof(SubscriptionType.Subscribed))
-            return Error.Create($"You are already subscribed to {seriesTitle}");
+            return new AlreadySubscribed(seriesTitle);
 
         return subscription;
     }
 
 
-    private static Task<Result<SubscriptionType>> ToggleSubscription(
+    private static Task<Result<SubscriptionType, StorageError>> ToggleSubscription(
         SubscriptionStorage storage,
         TvSubscriptionUpdater subscriptionUpdater,
         TvSubscriptionsRemover subscriptionsRemover,

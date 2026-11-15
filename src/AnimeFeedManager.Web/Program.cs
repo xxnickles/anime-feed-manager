@@ -56,9 +56,6 @@ app.UseHttpsRedirection();
 app.MapStaticAssets();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseAntiforgery();
-
-
 
 app.MapDefaultEndpoints();
 app.MapRazorComponents<App>();

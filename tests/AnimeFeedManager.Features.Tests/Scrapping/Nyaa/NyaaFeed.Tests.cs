@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Scrapping.Nyaa;
 
 namespace AnimeFeedManager.Features.Tests.Scrapping.Nyaa;
@@ -51,7 +52,7 @@ public class NyaaFeedTests
         result.AssertOnSuccess(bulk =>
         {
             Assert.Equal("good", Assert.Single(bulk.Value).Title);
-            Assert.IsType<PartialSuccessBulkResult<ImmutableArray<NyaaItem>>>(bulk);
+            Assert.IsType<BulkResult<ImmutableArray<NyaaItem>, ValidationError.Fields>.Partial>(bulk);
         });
     }
 
@@ -66,7 +67,8 @@ public class NyaaFeedTests
     [Fact]
     public void Should_Fail_When_Document_Is_Not_An_Rss_Feed()
     {
-        NyaaFeed.Parse(XDocument.Parse("<html><body>challenge</body></html>")).AssertError();
+        NyaaFeed.Parse(XDocument.Parse("<html><body>challenge</body></html>"))
+            .AssertOnError(error => Assert.IsType<ScrapeError.UnusablePayload>(error));
     }
 
     #endregion

@@ -18,32 +18,33 @@ public class LastSeasonsUpdateTests
 
         var result = await SeasonUpdate
             .CheckSeasonExist(SeasonGetter, incoming, token)
+            .CreateNewSeason()
             .UpdateLast4Seasons(GetAllSeasons, LatestUpdater, token);
 
         Assert.False(latestUpdaterCalled); // No update should occur
         return;
 
         // SeasonGetter returns NoUpdateRequired to simulate no change
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
-            Task.FromResult<Result<SeasonStorageData>>(new NoUpdateRequired());
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoUpdateRequired()));
 
-        Task<Result<Unit>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
+        Task<Result<Unit, StorageError>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
         {
             latestUpdaterCalled = true;
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, StorageError>.Success(new Unit()));
         }
 
-        Task<Result<ImmutableArray<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
-            Task.FromResult(Result<ImmutableArray<SeriesSeason>>.Success(ImmutableArray<SeriesSeason>.Empty));
+        Task<Result<ImmutableArray<SeriesSeason>, StorageError>> GetAllSeasons(CancellationToken _) =>
+            Task.FromResult(Result<ImmutableArray<SeriesSeason>, StorageError>.Success(ImmutableArray<SeriesSeason>.Empty));
     }
 
     [Fact]
     public async Task Should_Update_With_Last_4_Seasons_In_Order()
     {
         var incoming = new SeriesSeason(Season.Summer(), Year.FromNumber(2026), true);
-        // Force path that is not NoUpdateRequired so UpdateLast4Seasons executes
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
-            Task.FromResult<Result<SeasonStorageData>>(new NewSeason(new SeasonStorage()));
+        // NoMatch becomes NewSeason, so UpdateLast4Seasons executes
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoMatch()));
 
         var seasons = new List<SeriesSeason>
         {
@@ -61,6 +62,7 @@ public class LastSeasonsUpdateTests
         var token = CancellationToken.None;
         var result = await SeasonUpdate
             .CheckSeasonExist(SeasonGetter, incoming, token)
+            .CreateNewSeason()
             .UpdateLast4Seasons(GetAllSeasons, LatestUpdater, token);
 
         Assert.NotNull(stored);
@@ -81,13 +83,13 @@ public class LastSeasonsUpdateTests
         }
         return;
 
-        Task<Result<Unit>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
+        Task<Result<Unit, StorageError>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
         {
             stored = s;
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, StorageError>.Success(new Unit()));
         }
 
-        Task<Result<ImmutableArray<SeriesSeason>>> GetAllSeasons(CancellationToken _) =>
-            Task.FromResult(Result<ImmutableArray<SeriesSeason>>.Success([..seasons]));
+        Task<Result<ImmutableArray<SeriesSeason>, StorageError>> GetAllSeasons(CancellationToken _) =>
+            Task.FromResult(Result<ImmutableArray<SeriesSeason>, StorageError>.Success([..seasons]));
     }
 }

@@ -5,7 +5,7 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Map_Success_Value_To_New_Type()
     {
-        var result = Result<int>.Success(42)
+        var result = Result<int, DomainError>.Success(42)
             .Map(x => x.ToString());
 
         result.AssertOnSuccess(value => Assert.Equal("42", value));
@@ -14,8 +14,8 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Not_Map_When_Result_Is_Failure()
     {
-        var error = NotFoundError.Create("Test error");
-        var result = Result<int>.Failure(error)
+        var error = new TestError("Test error");
+        var result = Result<int, DomainError>.Failure(error)
             .Map(x => x.ToString());
 
         result.AssertError();
@@ -24,7 +24,7 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Chain_Multiple_Map_Operations()
     {
-        var result = Result<int>.Success(5)
+        var result = Result<int, DomainError>.Success(5)
             .Map(x => x * 2)
             .Map(x => x + 10)
             .Map(x => x.ToString());
@@ -35,8 +35,8 @@ public class MapExtensionsTests
     [Fact]
     public void Should_Preserve_Error_Through_Map_Chain()
     {
-        var error = NotFoundError.Create("Test error");
-        var result = Result<int>.Failure(error)
+        var error = new TestError("Test error");
+        var result = Result<int, DomainError>.Failure(error)
             .Map(x => x * 2)
             .Map(x => x + 10)
             .Map(x => x.ToString());
@@ -45,20 +45,19 @@ public class MapExtensionsTests
     }
 
     [Fact]
-    public void Should_Map_Error_To_New_Error()
+    public void Should_Change_Error_Type_When_MapError_Runs_On_Failure()
     {
-        var originalError = NotFoundError.Create("Original error");
-        var result = Result<int>.Failure(originalError)
-            .MapError(_ => Error.Create("Mapped error"));
+        Result<int, OtherTestError> result = Result<int, DomainError>.Failure(new TestError("Not found"))
+            .MapError(error => new OtherTestError($"Wrapped: {error.Message}"));
 
-        result.AssertError();
+        result.AssertOnError(error => Assert.Equal("Wrapped: Not found", error.Message));
     }
 
     [Fact]
     public void Should_Not_Map_Error_When_Result_Is_Success()
     {
         var mapErrorCalled = false;
-        var result = Result<int>.Success(42)
+        var result = Result<int, DomainError>.Success(42)
             .MapError(error =>
             {
                 mapErrorCalled = true;
@@ -70,12 +69,30 @@ public class MapExtensionsTests
     }
 
     [Fact]
-    public void Should_Transform_Error_Type_With_MapError()
+    public void Should_Keep_Trace_Context_When_MapError_Changes_Error_Type()
     {
-        var originalError = NotFoundError.Create("Not found");
-        var result = Result<int>.Failure(originalError)
-            .MapError(error => Error.Create($"Wrapped: {error.Message}"));
+        var logger = new RecordingLogger();
 
-        result.AssertError();
+        Result<int, DomainError>.Failure(new TestError("Not found"))
+            .AddLog(log => log.LogInformation("staged"))
+            .WithLogProperty("Key", "value")
+            .MapError(error => new OtherTestError($"Wrapped: {error.Message}"))
+            .FlushLogs(logger);
+
+        Assert.Equal(["staged", "Wrapped: Not found"], logger.Entries);
+        Assert.Contains(new KeyValuePair<string, object>("Key", "value"), logger.ScopeProperties);
+    }
+
+    [Fact]
+    public void Should_Keep_Trace_Context_When_MapError_Runs_On_Success()
+    {
+        var logger = new RecordingLogger();
+
+        Result<int, DomainError>.Success(42)
+            .AddLog(log => log.LogInformation("staged"))
+            .MapError(error => new OtherTestError(error.Message))
+            .FlushLogs(logger);
+
+        Assert.Equal(["staged"], logger.Entries);
     }
 }

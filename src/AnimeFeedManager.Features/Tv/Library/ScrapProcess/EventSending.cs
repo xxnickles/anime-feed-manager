@@ -6,8 +6,8 @@ namespace AnimeFeedManager.Features.Tv.Library.ScrapProcess;
 
 public static class EventSending
 {
-    public static Task<Result<ScrapTvLibraryResult>> SendEvents(
-        this Task<Result<ScrapTvLibraryData>> processData,
+    public static Task<Result<ScrapTvLibraryResult, ScrapProcessError>> SendEvents(
+        this Task<Result<ScrapTvLibraryData, ScrapProcessError>> processData,
         DomainCollectionSender domainPostman,
         SeasonParameters? parameters,
         CancellationToken token) => processData

@@ -29,15 +29,18 @@ public static class NyaaFeed
     public static bool IsFull(XDocument document) =>
         document.Root?.Element("channel")?.Elements("item").Count() >= MaxItems;
 
-    /// <summary>Parses an RSS feed requested with <c>m=true</c>; an item with any field missing or invalid is skipped.</summary>
-    public static Result<BulkResult<ImmutableArray<NyaaItem>>> Parse(XDocument document) =>
+    /// <summary>Parses an RSS feed requested with <c>m=true</c>; an item with any field missing or invalid is skipped, and a feed where none parse is unusable.</summary>
+    public static Result<BulkResult<ImmutableArray<NyaaItem>, ValidationError.Fields>, ScrapeError> Parse(XDocument document) =>
         document.Root?.Element("channel") is { } channel
             ? channel.Elements("item")
                 .Select(ParseItem)
-                .Flatten(items => items.ToImmutableArray())
-            : Error.Create("Nyaa response is not an RSS feed");
+                .Collect(items => items.ToImmutableArray(),
+                    ScrapeError (errors) => new ScrapeError.UnusableItems(FeedRequest, errors))
+            : new ScrapeError.UnusablePayload(FeedRequest);
 
-    private static Result<NyaaItem> ParseItem(XElement item) =>
+    private const string FeedRequest = "Nyaa RSS feed";
+
+    private static Result<NyaaItem, ValidationError.Fields> ParseItem(XElement item) =>
         Required(item, "title")
             .And(Magnet(item))
             .And(Torrent(item))
@@ -113,5 +116,5 @@ public static class NyaaFeed
     private static Validation<T> Missing<T>(XName name) => Invalid<T>(name, "Missing");
 
     private static Validation<T> Invalid<T>(XName name, string message) =>
-        Validation<T>.Invalid(DomainValidationError.Create(name.LocalName, message).ToErrors());
+        Validation<T>.Invalid(new FieldError(name.LocalName, [message]));
 }

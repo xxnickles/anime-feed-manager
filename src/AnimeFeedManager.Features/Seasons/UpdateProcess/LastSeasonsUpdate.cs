@@ -4,20 +4,20 @@ namespace AnimeFeedManager.Features.Seasons.UpdateProcess;
 
 public static class LastSeasonsUpdate
 {
-    public static Task<Result<SeasonUpdateData>> UpdateLast4Seasons(
-        this Task<Result<SeasonUpdateData>> result,
+    public static Task<Result<SeasonUpdateData, SeasonUpdateError>> UpdateLast4Seasons(
+        this Task<Result<SeasonUpdateData, SeasonUpdateError>> result,
         AllSeasonsGetter seasonsGetter,
         LastestSeasonsUpdater latestSeasonUpdater,
         CancellationToken cancellationToken) =>
-        result.Bind(r => r.SeasonData switch
+        result.Bind(r => r.Plan switch
         {
-            NoUpdateRequired => Task.FromResult(Result<SeasonUpdateData>.Success(r)),
+            NoUpdateRequired => Task.FromResult(Result<SeasonUpdateData, StorageError>.Success(r)),
             _ => GetLast4Season(seasonsGetter, cancellationToken)
                 .Bind(s => StoreLatestSeason(latestSeasonUpdater, s, cancellationToken))
                 .Map(_ => r)
         });
 
-    private static Task<Result<IEnumerable<SeriesSeason>>> GetLast4Season(AllSeasonsGetter seasonsGetter,
+    private static Task<Result<IEnumerable<SeriesSeason>, StorageError>> GetLast4Season(AllSeasonsGetter seasonsGetter,
         CancellationToken cancellationToken) =>
         seasonsGetter(cancellationToken)
             .Map(seasons => seasons
@@ -26,7 +26,7 @@ public static class LastSeasonsUpdate
                 .Take(4)
                 .Reverse());
 
-    private static Task<Result<Unit>> StoreLatestSeason(
+    private static Task<Result<Unit, StorageError>> StoreLatestSeason(
         LastestSeasonsUpdater latestSeasonUpdater,
         IEnumerable<SeriesSeason> seasons,
         CancellationToken cancellationToken)

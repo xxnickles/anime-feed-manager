@@ -1,7 +1,6 @@
 @page "/"
 @using AnimeFeedManager.Features.Seasons.Queries
 @using AnimeFeedManager.Features.Seasons.Storage
-@using AnimeFeedManager.Features.Seasons.UpdateProcess
 @using AnimeFeedManager.Web.Features.Tv
 @inject ITableClientFactory TableClientFactory;
 @inject ILogger<HomePage> Logger;
@@ -20,18 +19,9 @@ else
 @code {
     private SeriesSeason? _season;
 
-    private static Result<SeriesSeason> ParseSeason(SeasonStorage season) =>
-        (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason();
-
     protected override async Task OnInitializedAsync()
     {
         await SeasonQueries.GetLatestSeason(TableClientFactory.TableStorageLatestSeason, CancellationToken.None)
-            .Bind(season => season switch
-            {
-                CurrentLatestSeason currentLatestSeason => ParseSeason(currentLatestSeason.Season),
-                FallbackLatestSeason newestSeason => ParseSeason(newestSeason.Season),
-                _ => Error.Create("Season is not latest")
-            })
             .FlushLogs(Logger)
             .Match(
                 season => _season = season,

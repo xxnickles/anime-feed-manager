@@ -17,11 +17,13 @@ internal static class SeasonAdminHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.SetFeaturedSeasonSpan);
         return await Validate(viewModel)
+            .MapError(error => (AdminCommandError)error)
             .Bind(vm => vm.Season.ParseAsSeriesSeason())
             .Map(season => season with {IsLatest = true})
             .Bind(season => domainPostman.SendMessages([new SeasonUpdated(season)], cancellationToken))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
-            .ToComponentNotification<Unit, FeaturedSeasonViewModel, FeaturedSeasonUpdate>(viewModel);
+            .ToComponentNotification(viewModel, error => error.ToContent())
+            .For<FeaturedSeasonUpdate>();
     }
 }

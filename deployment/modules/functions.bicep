@@ -89,7 +89,7 @@ resource functionApp 'Microsoft.Web/sites@2025-03-01' = {
       }
       runtime: {
         name: 'dotnet-isolated'
-        version: '10.0'
+        version: '11.0'
       }
       siteUpdateStrategy: {
         type: 'RollingUpdate'

@@ -1,40 +1,67 @@
-﻿using AnimeFeedManager.Web.BlazorComponents;
+﻿using System.Runtime.CompilerServices;
+using AnimeFeedManager.Web.BlazorComponents;
 using Microsoft.AspNetCore.Components;
 
 namespace AnimeFeedManager.Web.Features.Components.Responses;
 
 internal static class ComponentResults
 {
-    private static RazorComponentResult ToComponentResult<T>(this Result<T> result,
-        Func<T, RenderFragment[]> onSuccess,
-        Func<DomainError, RenderFragment[]> onError)
+    extension<T, TError>(Task<Result<T, TError>> result)
     {
-        return result.MatchToValue<T,RazorComponentResult>(
-            ok => onSuccess(ok).AggregateComponents(StatusCodes.Status200OK),
-            error => onError(error).AggregateComponents(error.ToStatusCode()));
+        /// <summary>Renders the error as a notification titled <paramref name="errorTitle"/>.</summary>
+        internal Task<RazorComponentResult> ToComponentResult(Func<T, RenderFragment[]> onSuccess,
+            Func<TError, ErrorContent> toContent,
+            string errorTitle)
+        {
+            return result.MatchToValue(
+                ok => onSuccess(ok).AggregateComponents(StatusCodes.Status200OK),
+                error =>
+                {
+                    var content = toContent(error);
+                    // A union's ToString prints only its type name.
+                    var details = (error is IUnion { Value: { } value } ? value : error)?.ToString();
+                    return new[] { Notifications.CreateErrorNotification(errorTitle, content, details) }
+                        .AggregateComponents(content.StatusCode);
+                });
+        }
+
+        internal Task<RazorComponentResult> ToComponentResult(Func<T, RenderFragment[]> onSuccess,
+            Func<TError, ErrorContent> toContent,
+            Func<ErrorContent, RenderFragment[]> onError)
+        {
+            return result.MatchToValue(
+                ok => onSuccess(ok).AggregateComponents(StatusCodes.Status200OK),
+                error =>
+                {
+                    var content = toContent(error);
+                    return onError(content).AggregateComponents(content.StatusCode);
+                });
+        }
+
+        internal PendingNotification<T, TError, TViewModel> ToComponentNotification<TViewModel>(TViewModel viewModel,
+            Func<TError, ErrorContent> toContent)
+            where TViewModel : class, new() => new(result, viewModel, toContent);
     }
+}
 
-    extension<T>(Task<Result<T>> result)
+/// <summary>A notification awaiting its component; <see cref="For{TComponent}"/> renders it.</summary>
+internal sealed class PendingNotification<T, TError, TViewModel>(
+    Task<Result<T, TError>> result,
+    TViewModel viewModel,
+    Func<TError, ErrorContent> toContent)
+    where TViewModel : class, new()
+{
+    internal Task<RazorComponentResult> For<TComponent>() where TComponent : INotifiableComponent<TViewModel>
     {
-        internal async Task<RazorComponentResult> ToComponentResult(Func<T, RenderFragment[]> onSuccess,
-            Func<DomainError, RenderFragment[]> onError)
-        {
-            return (await result).ToComponentResult(onSuccess, onError);
-        }
-
-        internal Task<RazorComponentResult> ToComponentNotification<TViewModel, TComponent>(TViewModel viewModel)
-            where TViewModel : class, new()
-            where TComponent : INotifiableComponent<TViewModel>
-        {
-            return result.ToComponentResult(
-                _ =>
-                [
-                    TComponent.AsRenderFragment(viewModel),
-                    Notifications.CreateNotificationToast(
-                        TComponent.SuccessNotificationTitle,
-                        TComponent.OkNotificationContent(viewModel))
-                ],
-                error => [Notifications.CreateErrorNotification(TComponent.ErrorNotificationTitle, error)]);
-        }
+        return result.ToComponentResult(
+            _ =>
+            [
+                TComponent.AsRenderFragment(viewModel),
+                Notifications.CreateNotificationToast(
+                    TComponent.SuccessNotificationTitle,
+                    TComponent.OkNotificationContent(viewModel))
+            ],
+            toContent,
+            TComponent.ErrorNotificationTitle);
     }
 }

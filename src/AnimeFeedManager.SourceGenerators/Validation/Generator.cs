@@ -84,7 +84,7 @@ public class ValidationAndExtensionsGenerator : IIncrementalGenerator
         sb.AppendLine("            (validation.IsSuccess, other.IsSuccess) switch");
         sb.AppendLine("            {");
         sb.AppendLine("                (true, true) => Validation<(T, T2)>.Valid((validation.ValidValue, other.ValidValue)),");
-        sb.AppendLine("                (false, false) => Validation<(T, T2)>.Invalid(validation.ErrorValue.AppendErrors(other.ErrorValue)),");
+        sb.AppendLine("                (false, false) => Validation<(T, T2)>.Invalid(validation.ErrorValue.Append(other.ErrorValue)),");
         sb.AppendLine("                (false, _) => Validation<(T, T2)>.Invalid(validation.ErrorValue),");
         sb.AppendLine("                (_, false) => Validation<(T, T2)>.Invalid(other.ErrorValue)");
         sb.AppendLine("            };");
@@ -118,7 +118,7 @@ public class ValidationAndExtensionsGenerator : IIncrementalGenerator
         sb.AppendLine($"                (true, true) => Validation<({resultTypeParams})>.Valid(({validTupleItems}, other.ValidValue)),");
 
         // (false, false) case - accumulate errors
-        sb.AppendLine($"                (false, false) => Validation<({resultTypeParams})>.Invalid(validation.ErrorValue.AppendErrors(other.ErrorValue)),");
+        sb.AppendLine($"                (false, false) => Validation<({resultTypeParams})>.Invalid(validation.ErrorValue.Append(other.ErrorValue)),");
 
         // (false, _) case
         sb.AppendLine($"                (false, _) => Validation<({resultTypeParams})>.Invalid(validation.ErrorValue),");

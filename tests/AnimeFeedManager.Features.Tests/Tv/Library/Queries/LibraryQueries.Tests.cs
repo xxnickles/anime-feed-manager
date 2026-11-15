@@ -16,15 +16,15 @@ public class LibraryQueriesTests
 
     public static TheoryData<string, string, Type> SubscriptionMatrix => new()
     {
-        {SeriesStatus.OngoingValue, nameof(SubscriptionType.Subscribed), typeof(Subscribed)},
-        {SeriesStatus.OngoingValue, nameof(SubscriptionType.Interested), typeof(Interested)},
-        {SeriesStatus.OngoingValue, nameof(SubscriptionType.None), typeof(AvailableForSubscription)},
-        {SeriesStatus.CompletedValue, nameof(SubscriptionType.Subscribed), typeof(Completed)},
-        {SeriesStatus.CompletedValue, nameof(SubscriptionType.Interested), typeof(Completed)},
-        {SeriesStatus.CompletedValue, nameof(SubscriptionType.None), typeof(Completed)},
-        {SeriesStatus.NotAvailableValue, nameof(SubscriptionType.Subscribed), typeof(Subscribed)},
-        {SeriesStatus.NotAvailableValue, nameof(SubscriptionType.Interested), typeof(Interested)},
-        {SeriesStatus.NotAvailableValue, nameof(SubscriptionType.None), typeof(AvailableForFuture)}
+        {SeriesStatus.OngoingValue, nameof(SubscriptionType.Subscribed), typeof(SubscriberSeries.Subscribed)},
+        {SeriesStatus.OngoingValue, nameof(SubscriptionType.Interested), typeof(SubscriberSeries.Interested)},
+        {SeriesStatus.OngoingValue, nameof(SubscriptionType.None), typeof(SubscriberSeries.AvailableForSubscription)},
+        {SeriesStatus.CompletedValue, nameof(SubscriptionType.Subscribed), typeof(SubscriberSeries.Completed)},
+        {SeriesStatus.CompletedValue, nameof(SubscriptionType.Interested), typeof(SubscriberSeries.Completed)},
+        {SeriesStatus.CompletedValue, nameof(SubscriptionType.None), typeof(SubscriberSeries.Completed)},
+        {SeriesStatus.NotAvailableValue, nameof(SubscriptionType.Subscribed), typeof(SubscriberSeries.Subscribed)},
+        {SeriesStatus.NotAvailableValue, nameof(SubscriptionType.Interested), typeof(SubscriberSeries.Interested)},
+        {SeriesStatus.NotAvailableValue, nameof(SubscriptionType.None), typeof(SubscriberSeries.AvailableForFuture)}
     };
 
     [Theory]
@@ -55,7 +55,7 @@ public class LibraryQueriesTests
         var result = await MapSingle(SeriesStatus.CompletedValue, MakeSubscription(SeriesId, subscriptionType));
 
         result.AssertOnSuccess(series =>
-            Assert.Equal(expectedSubscribed, Assert.IsType<Completed>(Assert.Single(series)).IsSubscribed));
+            Assert.Equal(expectedSubscribed, Assert.IsType<SubscriberSeries.Completed>(Assert.Single(series)).IsSubscribed));
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class LibraryQueriesTests
         var result = await MapSingle(SeriesStatus.OngoingValue,
             MakeSubscription("some-other-series", nameof(SubscriptionType.Subscribed)));
 
-        result.AssertOnSuccess(series => Assert.IsType<AvailableForSubscription>(Assert.Single(series)));
+        result.AssertOnSuccess(series => Assert.IsType<SubscriberSeries.AvailableForSubscription>(Assert.Single(series)));
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class LibraryQueriesTests
     {
         var result = await MapSingle(SeriesStatus.OngoingValue);
 
-        result.AssertOnSuccess(series => Assert.IsType<AvailableForSubscription>(Assert.Single(series)));
+        result.AssertOnSuccess(series => Assert.IsType<SubscriberSeries.AvailableForSubscription>(Assert.Single(series)));
     }
 
     #endregion
@@ -81,9 +81,9 @@ public class LibraryQueriesTests
 
     public static TheoryData<string, Type> AnonymousMatrix => new()
     {
-        {SeriesStatus.OngoingValue, typeof(Available)},
-        {SeriesStatus.CompletedValue, typeof(Completed)},
-        {SeriesStatus.NotAvailableValue, typeof(NotAvailable)}
+        {SeriesStatus.OngoingValue, typeof(PublicSeries.Available)},
+        {SeriesStatus.CompletedValue, typeof(PublicSeries.Completed)},
+        {SeriesStatus.NotAvailableValue, typeof(PublicSeries.NotAvailable)}
     };
 
     [Theory]
@@ -97,15 +97,6 @@ public class LibraryQueriesTests
 
         result.AssertOnSuccess(series => Assert.IsType(expected, Assert.Single(series)));
         await getter.DidNotReceive().Invoke(Arg.Any<string>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task Should_Not_Flag_Completed_As_Subscribed_When_User_Is_Anonymous()
-    {
-        var result = await Library([MakeSeries(SeriesStatus.CompletedValue)])
-            .GetTvLibraryForUser(new Anonymous(), Subscriptions(), CancellationToken.None);
-
-        result.AssertOnSuccess(series => Assert.False(Assert.IsType<Completed>(Assert.Single(series)).IsSubscribed));
     }
 
     #endregion
@@ -125,8 +116,8 @@ public class LibraryQueriesTests
     {
         var getter = Substitute.For<TvSubscriptions>();
         getter(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<ImmutableArray<SubscriptionStorage>>>(
-                Error.Create("subscriptions unavailable")));
+            .Returns(Task.FromResult<Result<ImmutableArray<SubscriptionStorage>, StorageError>>(
+                new StorageError.RequestFailed("test", new InvalidOperationException("subscriptions unavailable"))));
 
         var result = await Library([MakeSeries(SeriesStatus.OngoingValue)])
             .GetTvLibraryForUser(MakeUser(), getter, CancellationToken.None);
@@ -138,20 +129,20 @@ public class LibraryQueriesTests
 
     #region Test Helpers
 
-    private static Task<Result<ImmutableArray<UserTvSeries>>> MapSingle(
+    private static Task<Result<ImmutableArray<UserTvSeries>, StorageError>> MapSingle(
         string seriesStatus,
         params SubscriptionStorage[] subscriptions) =>
         Library([MakeSeries(seriesStatus)])
             .GetTvLibraryForUser(MakeUser(), Subscriptions(subscriptions), CancellationToken.None);
 
-    private static Task<Result<ImmutableArray<TvSeries>>> Library(TvSeries[] series) =>
-        Task.FromResult(Result<ImmutableArray<TvSeries>>.Success([..series]));
+    private static Task<Result<ImmutableArray<TvSeries>, StorageError>> Library(TvSeries[] series) =>
+        Task.FromResult(Result<ImmutableArray<TvSeries>, StorageError>.Success([..series]));
 
     private static TvSubscriptions Subscriptions(params SubscriptionStorage[] subscriptions)
     {
         var getter = Substitute.For<TvSubscriptions>();
         getter(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>>.Success([..subscriptions])));
+            .Returns(Task.FromResult(Result<ImmutableArray<SubscriptionStorage>, StorageError>.Success([..subscriptions])));
         return getter;
     }
 

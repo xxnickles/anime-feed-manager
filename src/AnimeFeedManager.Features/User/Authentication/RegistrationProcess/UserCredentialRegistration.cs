@@ -13,21 +13,22 @@ public static class UserCredentialRegistration
     /// <param name="passwordlessClient"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static Task<Result<UserRegistrationResult>> TryAddCredential(
+    public static Task<Result<UserRegistrationResult, AddCredentialError>> TryAddCredential(
         string id,
         ExistentUserGetterById userGetter,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken)
     {
-       return id.ParseAsNonEmpty("Display Name")
+       return id.ParseAsNonEmpty("Id")
             .AsResult()
+            .MapError(error => (AddCredentialError)error)
             .WithOperationName(nameof(UserCredentialRegistration))
             .AddLog((logger) => logger.LogInformation("Trying to add credential for user {user.id}", id))
             .Bind(safeId => userGetter(safeId, cancellationToken))
             .Bind(user => TryToCreate(user, passwordlessClient, cancellationToken));
     }
 
-    private static Task<Result<UserRegistrationResult>> TryToCreate(
+    private static Task<Result<UserRegistrationResult, AuthError>> TryToCreate(
         StoredUser storedUser,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken
@@ -36,11 +37,11 @@ public static class UserCredentialRegistration
         return storedUser switch
         {
             ValidStoredUser u => TryToGetCredential(u, passwordlessClient, cancellationToken),
-            _ => Task.FromResult<Result<UserRegistrationResult>>(Error.Create("User doesn't exist in the system"))
+            NotAStoredUser => Task.FromResult<Result<UserRegistrationResult, AuthError>>(new AuthError.UserNotFound())
         };
     }
 
-    private static async Task<Result<UserRegistrationResult>> TryToGetCredential(
+    private static async Task<Result<UserRegistrationResult, AuthError>> TryToGetCredential(
         ValidStoredUser storedUser,
         IPasswordlessClient passwordlessClient,
         CancellationToken cancellationToken)
@@ -56,11 +57,11 @@ public static class UserCredentialRegistration
         }
         catch (PasswordlessApiException e)
         {
-            return PasswordlessError.FromException(e);
+            return new AuthError.PasswordlessFailure(e);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromException(e);
+            return new AuthError.RequestFailed(e);
         }
     }
 }

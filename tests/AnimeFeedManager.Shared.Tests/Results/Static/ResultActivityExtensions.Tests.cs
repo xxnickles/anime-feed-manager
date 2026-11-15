@@ -25,11 +25,11 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(Error.Create("storage unavailable")).MarkActivityErroredOnError();
+        Result<int, DomainError>.Failure(new OtherTestError("storage unavailable")).MarkActivityErroredOnError();
 
         Assert.Equal(ActivityStatusCode.Error, activity.Status);
         Assert.Equal("storage unavailable", activity.StatusDescription);
-        Assert.Equal(nameof(Error), activity.GetTagItem(Telemetry.ErrorTypeTag));
+        Assert.Equal(nameof(OtherTestError), activity.GetTagItem(Telemetry.ErrorTypeTag));
     }
 
     [Fact]
@@ -37,22 +37,21 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(HandledError.Create()).MarkActivityErroredOnError();
+        Result<int, DomainError>.Failure(new TestError(string.Empty)).MarkActivityErroredOnError();
 
         Assert.Equal(ActivityStatusCode.Error, activity.Status);
         Assert.Null(activity.StatusDescription);
-        Assert.Equal(nameof(HandledError), activity.GetTagItem(Telemetry.ErrorTypeTag));
+        Assert.Equal(nameof(TestError), activity.GetTagItem(Telemetry.ErrorTypeTag));
     }
 
     [Fact]
-    public void Should_Mark_Error_When_Result_Is_Not_Found()
+    public void Should_Tag_Family_And_Leaf_When_Error_Is_Nested_In_Its_Family()
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(NotFoundError.Create("series missing")).MarkActivityErroredOnError();
+        Result<int, NestedFailure>.Failure(new NestedFailure.Gone()).MarkActivityErroredOnError();
 
-        Assert.Equal(ActivityStatusCode.Error, activity.Status);
-        Assert.Equal(nameof(NotFoundError), activity.GetTagItem(Telemetry.ErrorTypeTag));
+        Assert.Equal("NestedFailure.Gone", activity.GetTagItem(Telemetry.ErrorTypeTag));
     }
 
     [Fact]
@@ -60,7 +59,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Success(42).MarkActivityErroredOnError();
+        Result<int, DomainError>.Success(42).MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
     }
@@ -70,17 +69,17 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(Warning.Create("nothing to import")).MarkActivityErroredOnError();
+        Result<int, DomainError>.Failure(Warning.Create("nothing to import")).MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
     }
 
     [Fact]
-    public void Should_Leave_Status_Unset_When_Error_Is_Domain_Validation()
+    public void Should_Leave_Status_Unset_When_Error_Is_Field_Validation()
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(DomainValidationErrors.Create([DomainValidationError.Create("Email", "required")]))
+        Result<int, DomainError>.Failure(new ValidationError.Fields([new FieldError("Email", ["required"])]))
             .MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
@@ -91,7 +90,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        Result<int>.Failure(new FormDataValidationError<string>([new ValidationResult("required", ["Email"])]))
+        Result<int, DomainError>.Failure(new ValidationError.Form<string>([new ValidationResult("required", ["Email"])]))
             .MarkActivityErroredOnError();
 
         AssertUnmarked(activity);
@@ -102,7 +101,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         using var activity = StartActivity();
 
-        await Task.FromResult(Result<int>.Failure(Error.Create("boom"))).MarkActivityErroredOnError();
+        await Task.FromResult(Result<int, DomainError>.Failure(new OtherTestError("boom"))).MarkActivityErroredOnError();
 
         Assert.Equal(ActivityStatusCode.Error, activity.Status);
     }
@@ -112,7 +111,7 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     {
         Assert.Null(Activity.Current);
 
-        var result = Result<int>.Failure(Error.Create("boom")).MarkActivityErroredOnError();
+        var result = Result<int, DomainError>.Failure(new OtherTestError("boom")).MarkActivityErroredOnError();
 
         result.AssertError();
     }
@@ -131,4 +130,11 @@ public sealed class ResultActivityExtensionsTests : IDisposable
     }
 
     #endregion
+}
+
+public closed record NestedFailure(string Message) : DomainError(Message)
+{
+    public override Action<ILogger> LogAction() => _ => { };
+
+    public sealed record Gone() : NestedFailure("gone");
 }

@@ -33,9 +33,7 @@ public static class NoEmptyStringExtensions
         [CallerArgumentExpression(nameof(value))] string propertyName = ""
     ) => !string.IsNullOrWhiteSpace(value)
         ? Validation<NoEmptyString>.Valid(NoEmptyString.FromString(value))
-        : Validation<NoEmptyString>.Invalid(
-            DomainValidationError.Create(propertyName, "Value cannot be empty")
-                .ToErrors());
+        : Validation<NoEmptyString>.Invalid(new FieldError(propertyName, ["Value cannot be empty"]));
 }
 
 public class NoEmptyStringConverter : JsonConverter<NoEmptyString>

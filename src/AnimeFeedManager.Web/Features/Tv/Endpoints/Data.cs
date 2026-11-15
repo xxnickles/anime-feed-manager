@@ -17,21 +17,22 @@ internal partial class TvEndpointJsonContext : JsonSerializerContext;
 internal static class Data
 {
     // Season comes from the id, so the series read stays a partition + row key point operation.
-    internal static Task<Result<(AuthenticatedUser User, TvSeries Series)>> GetSeriesForUser(
+    internal static Task<Result<(AuthenticatedUser User, TvSeries Series), SeriesForUserError>> GetSeriesForUser(
         HttpContext context,
         string seriesId,
         TvLibrarySeries seriesGetter,
         Uri publicBlobUri,
         CancellationToken token) =>
         CurrentUser(context)
+            .MapError(error => (SeriesForUserError)error)
             .Bind(user => IdHelpers.SeriesSeasonFromId(seriesId).Map(season => (User: user, Season: season)))
             .Bind(data => seriesGetter(seriesId, data.Season, publicBlobUri, token)
-                .Map(series => (data.User, Series: series)));
+                    .Map(series => (data.User, Series: series)));
 
-    private static Result<AuthenticatedUser> CurrentUser(HttpContext context) =>
+    private static Result<AuthenticatedUser, UserIsAnonymous> CurrentUser(HttpContext context) =>
         context.GetCurrentUser() switch
         {
             AuthenticatedUser user => user,
-            _ => Error.Create("User can not be anonymous")
+            Anonymous => new UserIsAnonymous()
         };
 }

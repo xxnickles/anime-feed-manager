@@ -4,15 +4,15 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Seasons.Storage;
 
-public delegate Task<Result<SeasonStorageData>> LatestSeasonGetter(CancellationToken cancellationToken = default);
+public delegate Task<Result<LatestSeasonRead, StorageError>> LatestSeasonGetter(CancellationToken cancellationToken = default);
 
-public delegate Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason season,
+public delegate Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason season,
     CancellationToken cancellation = default);
 
-public delegate Task<Result<ImmutableArray<SeriesSeason>>> AllSeasonsGetter(
+public delegate Task<Result<ImmutableArray<SeriesSeason>, StorageError>> AllSeasonsGetter(
     CancellationToken cancellationToken = default);
 
-public delegate Task<Result<ImmutableArray<SeriesSeason>>> Latest4SeasonsGetter(
+public delegate Task<Result<ImmutableArray<SeriesSeason>, StorageError>> Latest4SeasonsGetter(
     CancellationToken cancellationToken = default);
 
 public static class ExistentSeasons
@@ -29,7 +29,7 @@ public static class ExistentSeasons
                     .ExecuteQuery<SeasonStorage>(
                         storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
                         cancellationToken)
-                    .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(seasons =>
+                    .Map(LatestSeasonRead (seasons) =>
                         seasons.FirstOrDefault(season => season.Latest) is { } flagged
                             ? new CurrentLatestSeason(flagged)
                             : NewestSeason(seasons)));
@@ -41,7 +41,7 @@ public static class ExistentSeasons
                 .Bind(client => client.ExecuteQuery<SeasonStorage>(storage =>
                         storage.PartitionKey == SeasonStorage.SeasonPartition &&
                         storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
-                    .Map<ImmutableArray<SeasonStorage>, SeasonStorageData>(matches =>
+                    .Map(SeasonRead (matches) =>
                     {
                         if (matches.IsEmpty)
                             return new NoMatch();
@@ -66,20 +66,20 @@ public static class ExistentSeasons
                 .Bind(client =>
                     client.ExecuteQuery<SeasonStorage>(storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
                         cancellationToken))
-                .Map(seasons => seasons.TransformToSeriesSeason());
+                .Bind(seasons => seasons.TransformToSeriesSeason());
 
-        public Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(ILogger logger) =>
+        public Latest4SeasonsGetter TableStorageLatest4SeasonsGetter =>
             cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
-                .WithOperationName(nameof(TableStorageLatest4SeasonsGetter))
+                .WithOperationName("TableStorageLatest4SeasonsGetter")
                 .Bind(client => client.ExecuteQuery<LatestSeasonsStorage>(storage =>
                         storage.PartitionKey == LatestSeasonsStorage.Partition &&
                         storage.RowKey == LatestSeasonsStorage.Key, cancellationToken)
                     .SingleItem()
                 )
-                .Map(seasons => seasons.TransformToSeriesSeason(logger));
+                .Bind(seasons => DeserializeSeasons(seasons.Payload));
     }
 
-    private static SeasonStorageData NewestSeason(ImmutableArray<SeasonStorage> seasons) =>
+    private static LatestSeasonRead NewestSeason(ImmutableArray<SeasonStorage> seasons) =>
         seasons
             .Where(season => Season.IsValid(season.Season ?? string.Empty))
             .OrderByDescending(season => season.Year)
@@ -94,23 +94,24 @@ public static class ExistentSeasons
         return new ReplaceLatestSeason(storage);
     }
 
-    private static ImmutableArray<SeriesSeason> TransformToSeriesSeason(this LatestSeasonsStorage seasons,
-        ILogger logger)
+    private static Result<ImmutableArray<SeriesSeason>, StorageError> DeserializeSeasons(string? payload)
     {
         try
         {
-            return (JsonSerializer.Deserialize(seasons.Payload ?? string.Empty,
-                CommonJsonContext.Default.SeriesSeasonArray) ?? []).ToImmutableArray();
+            return JsonSerializer.Deserialize(payload ?? string.Empty, CommonJsonContext.Default.SeriesSeasonArray) is { } seasons
+                ? seasons.ToImmutableArray()
+                : new StorageError.UnreadablePayload(typeof(LatestSeasonsStorage), null);
         }
-        catch (Exception e)
+        catch (JsonException e)
         {
-            logger.LogWarning(e, "An error occurred when trying to deserialize the latest seasons");
-            return [];
+            return new StorageError.UnreadablePayload(typeof(LatestSeasonsStorage), e);
         }
     }
 
-    private static ImmutableArray<SeriesSeason> TransformToSeriesSeason(this ImmutableArray<SeasonStorage> seasons) =>
-        seasons.Select(s => (s.Season ?? string.Empty, s.Year, s.Latest).ParseAsSeriesSeason())
-            .Flatten(list => list.ToImmutableArray())
-            .MatchToValue(bulk => bulk.Value, _ => ImmutableArray<SeriesSeason>.Empty);
+    // Unreadable rows are logged and left out.
+    private static Result<ImmutableArray<SeriesSeason>, StorageError> TransformToSeriesSeason(
+        this ImmutableArray<SeasonStorage> seasons) =>
+        seasons.Select(s => (s.Season ?? string.Empty, s.Year, s.Latest).ParseAsSeriesSeason()
+                .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SeasonStorage), fields.Errors)))
+            .CollectSuccesses(list => list.ToImmutableArray());
 }

@@ -1,322 +1,92 @@
 namespace AnimeFeedManager.Shared.Results.Static;
 
-/// <summary>
-/// Provides extension members for <see cref="Task{TResult}"/> of <see cref="Result{T}"/>,
-/// enabling async operations in result chains without explicit awaiting.
-/// These are async wrappers that delegate to <see cref="ResultExtensionMembers"/>.
-/// </summary>
+/// <summary>Task mirrors of <see cref="ResultExtensionMembers"/>, so chains compose without explicit awaits.</summary>
 public static class ResultTaskExtensionMembers
 {
-    extension<T>(Task<Result<T>> resultTask)
+    extension<T, TError>(Task<Result<T, TError>> resultTask)
     {
-        // ──────────────────────────────────────────────────────────────────
-        // Transformation - Map
-        // ──────────────────────────────────────────────────────────────────
+        public async Task<Result<TTarget, TError>> Map<TTarget>(Func<T, TTarget> mapper) =>
+            (await resultTask).Map(mapper);
 
-        /// <summary>
-        /// Transforms the success value using the provided mapper function.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Map{T,TTarget}(Result{T}, Func{T, TTarget})"/>.
-        /// </summary>
-        /// <typeparam name="TTarget">The type to map to.</typeparam>
-        /// <param name="mapper">Function to transform the success value.</param>
-        /// <returns>A <see cref="Result{T}"/> with the mapped value.</returns>
-        public async Task<Result<TTarget>> Map<TTarget>(Func<T, TTarget> mapper)
-            => (await resultTask).Map(mapper);
+        public async Task<Result<T, TNew>> MapError<TNew>(Func<TError, TNew> mapper) =>
+            (await resultTask).MapError(mapper);
 
-        /// <summary>
-        /// Transforms the error using the provided mapper function.
-        /// Async wrapper for <see cref="ResultExtensionMembers.MapError{T}(Result{T}, Func{DomainError, DomainError})"/>.
-        /// </summary>
-        /// <param name="mapper">Function to transform the error.</param>
-        /// <returns>A <see cref="Result{T}"/> with the mapped error.</returns>
-        public async Task<Result<T>> MapError(Func<DomainError, DomainError> mapper)
-            => (await resultTask).MapError(mapper);
+        public async Task<Result<T, TNew>> MapError<TNew>(Func<TError, Task<TNew>> mapper) =>
+            await (await resultTask).MapError(mapper);
 
-        /// <summary>
-        /// Transforms the error using the provided async mapper function.
-        /// Async wrapper for <see cref="ResultExtensionMembers.MapError{T}(Result{T}, Func{DomainError, Task{DomainError}})"/>.
-        /// </summary>
-        /// <param name="mapper">Async function to transform the error.</param>
-        /// <returns>A <see cref="Result{T}"/> with the mapped error.</returns>
-        public async Task<Result<T>> MapError(Func<DomainError, Task<DomainError>> mapper)
-            => await (await resultTask).MapError(mapper);
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(Func<T, Result<TTarget, TStepError>> binder)
+            where TStepError : TError =>
+            (await resultTask).Bind(binder);
 
-        // ──────────────────────────────────────────────────────────────────
-        // Chaining - Bind
-        // ──────────────────────────────────────────────────────────────────
+        public async Task<Result<TTarget, TError>> Bind<TTarget, TStepError>(Func<T, Task<Result<TTarget, TStepError>>> binder)
+            where TStepError : TError =>
+            await (await resultTask).Bind(binder);
 
-        /// <summary>
-        /// Chains a new operation that returns a <see cref="Result{T}"/>.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Bind{T,TTarget}(Result{T}, Func{T, Result{TTarget}})"/>.
-        /// </summary>
-        /// <typeparam name="TTarget">The type of the new result.</typeparam>
-        /// <param name="binder">Function to bind the success value.</param>
-        /// <returns>A new <see cref="Result{T}"/> from the binder.</returns>
-        public async Task<Result<TTarget>> Bind<TTarget>(Func<T, Result<TTarget>> binder)
-            => (await resultTask).Bind(binder);
+        public async Task<Result<T, TError>> BindWhen<TStepError>(
+            Func<T, Task<Result<T, TStepError>>> binder,
+            Func<T, bool> predicate) where TStepError : TError =>
+            await (await resultTask).BindWhen(binder, predicate);
 
-        /// <summary>
-        /// Chains a new async operation that returns a <see cref="Result{T}"/>.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Bind{T,TTarget}(Result{T}, Func{T, Task{Result{TTarget}}})"/>.
-        /// </summary>
-        /// <typeparam name="TTarget">The type of the new result.</typeparam>
-        /// <param name="binder">Async function to bind the success value.</param>
-        /// <returns>A new <see cref="Result{T}"/> from the binder.</returns>
-        public async Task<Result<TTarget>> Bind<TTarget>(Func<T, Task<Result<TTarget>>> binder)
-            => await (await resultTask).Bind(binder);
+        public async Task<Result<T, TError>> BindOnError(Func<TError, Result<T, TError>> binder) =>
+            (await resultTask).BindOnError(binder);
 
-        /// <summary>
-        /// Conditionally chains a new operation based on a predicate.
-        /// Async wrapper for <see cref="ResultExtensionMembers.BindWhen{T}(Result{T}, Func{T, Result{T}}, Func{T, bool})"/>.
-        /// </summary>
-        /// <param name="binder">Async function to bind the success value.</param>
-        /// <param name="predicate">Function to test whether to apply the binder.</param>
-        /// <returns>A new <see cref="Result{T}"/> from the binder if predicate is true, otherwise the original value.</returns>
-        public Task<Result<T>> BindWhen(
-            Func<T, Task<Result<T>>> binder,
-            Func<T, bool> predicate)
-            => resultTask.Bind(v =>
-                predicate(v) ? binder(v) : resultTask);
+        public async Task<Result<T, TError>> BindOnError(Func<TError, Task<Result<T, TError>>> binder) =>
+            await (await resultTask).BindOnError(binder);
 
+        public async Task<Result<T, TError>> BindOnErrorWhen(
+            Func<TError, Result<T, TError>> binder,
+            Func<TError, bool> predicate) =>
+            (await resultTask).BindOnErrorWhen(binder, predicate);
 
-        /// <summary>
-        /// Conditionally chains a new operation that returns a <see cref="Result{T}"/> and maps the result.
-        /// Async wrapper for <see cref="ResultExtensionMembers.BindWhen{T,TTarget}(Result{T}, Func{T, Result{T}}, Func{T, TTarget}, Func{T, bool})"/>.
-        /// </summary>
-        /// <typeparam name="TTarget">The type of the new result.</typeparam>
-        /// <param name="binder">Async function to bind the success value.</param>
-        /// <param name="mapper">Function to transform the success value.</param>
-        /// <param name="predicate">Function to test whether to apply the binder.</param>
-        /// <returns>A new <see cref="Result{T}"/> from the binder mapped if predicate is true, otherwise the mapped original value.</returns>
-        public Task<Result<TTarget>> BindWhen<TTarget>(
-            Func<T, Task<Result<T>>> binder,
-            Func<T, TTarget> mapper,
-            Func<T, bool> predicate) => resultTask.Bind(v =>
-            predicate(v) ? binder(v).Map(mapper) : resultTask.Map(mapper));
+        public async Task<Result<T, TError>> BindOnErrorWhen(
+            Func<TError, Task<Result<T, TError>>> binder,
+            Func<TError, bool> predicate) =>
+            await (await resultTask).BindOnErrorWhen(binder, predicate);
 
-        /// <summary>
-        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnError{T}(Result{T}, Func{DomainError, Result{T}})"/>.
-        /// </summary>
-        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
-        /// <returns>The original success or the result from the binder.</returns>
-        public async Task<Result<T>> BindOnError(Func<DomainError, Result<T>> binder)
-            => (await resultTask).BindOnError(binder);
+        public async Task<Result<T, TError>> Tap(Action<T> action) =>
+            (await resultTask).Tap(action);
 
-        /// <summary>
-        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnError{T}(Result{T}, Func{DomainError, Task{Result{T}}})"/>.
-        /// </summary>
-        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
-        /// <returns>The original success or the awaited result from the binder.</returns>
-        public async Task<Result<T>> BindOnError(Func<DomainError, Task<Result<T>>> binder)
-            => await (await resultTask).BindOnError(binder);
+        public async Task<Result<T, TError>> Tap(Func<T, Task> action) =>
+            await (await resultTask).Tap(action);
 
-        /// <summary>
-        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnErrorWhen{T}(Result{T}, Func{DomainError, Result{T}}, Func{DomainError, bool})"/>.
-        /// </summary>
-        /// <param name="binder">Function that takes the error and returns a recovery result.</param>
-        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
-        /// <returns>The original success, the binder's result if the predicate matches, otherwise the original failure.</returns>
-        public async Task<Result<T>> BindOnErrorWhen(
-            Func<DomainError, Result<T>> binder,
-            Func<DomainError, bool> predicate)
-            => (await resultTask).BindOnErrorWhen(binder, predicate);
+        public async Task<Result<T, TError>> TapError(Action<TError> action) =>
+            (await resultTask).TapError(action);
 
-        /// <summary>
-        /// Async wrapper for <see cref="ResultExtensionMembers.BindOnErrorWhen{T}(Result{T}, Func{DomainError, Task{Result{T}}}, Func{DomainError, bool})"/>.
-        /// </summary>
-        /// <param name="binder">Async function that takes the error and returns a recovery result.</param>
-        /// <param name="predicate">Function to test whether to apply the binder against the error.</param>
-        /// <returns>The original success, the awaited binder's result if the predicate matches, otherwise the original failure.</returns>
-        public async Task<Result<T>> BindOnErrorWhen(
-            Func<DomainError, Task<Result<T>>> binder,
-            Func<DomainError, bool> predicate)
-            => await (await resultTask).BindOnErrorWhen(binder, predicate);
+        public async Task<Result<T, TError>> TapError(Func<TError, Task> action) =>
+            await (await resultTask).TapError(action);
 
-        // ──────────────────────────────────────────────────────────────────
-        // Side Effects - Tap
-        // ──────────────────────────────────────────────────────────────────
+        public async Task Match(Action<T> onSuccess, Action<TError> onError) =>
+            (await resultTask).Match(onSuccess, onError);
 
-        /// <summary>
-        /// Executes a side effect action on the success value without modifying the result.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Tap{T}(Result{T}, Action{T})"/>.
-        /// </summary>
-        /// <param name="action">Action to execute on the success value.</param>
-        /// <returns>The original result unchanged.</returns>
-        public async Task<Result<T>> Tap(Action<T> action)
-            => (await resultTask).Tap(action);
+        public async Task Match(Func<T, Task> onSuccess, Func<TError, Task> onError) =>
+            await (await resultTask).Match(onSuccess, onError);
 
-        /// <summary>
-        /// Executes an async side effect action on the success value without modifying the result.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Tap{T}(Result{T}, Func{T, Task})"/>.
-        /// </summary>
-        /// <param name="action">Async action to execute on the success value.</param>
-        /// <returns>The original result unchanged.</returns>
-        public async Task<Result<T>> Tap(Func<T, Task> action)
-        {
-            var r = await resultTask;
-            if (r.IsSuccess)
-                await r.Tap(action);
-            return r;
-        }
+        public async Task<TTarget> MatchToValue<TTarget>(Func<T, TTarget> onSuccess, Func<TError, TTarget> onError) =>
+            (await resultTask).MatchToValue(onSuccess, onError);
 
-        /// <summary>
-        /// Executes a side effect action on the failure value without modifying the result.
-        /// Async wrapper for <see cref="ResultExtensionMembers.TapError{T}(Result{T}, Action{DomainError})"/>.
-        /// </summary>
-        /// <param name="action">Action to execute on the failure value.</param>
-        /// <returns>The original result unchanged.</returns>
-        public async Task<Result<T>> TapError(Action<DomainError> action)
-            => (await resultTask).TapError(action);
+        public async Task<Result<T, TError>> AddLogOnSuccess(Func<T, Action<ILogger>> logAction) =>
+            (await resultTask).AddLogOnSuccess(logAction);
 
-        /// <summary>
-        /// Executes an async side effect action on the failure value without modifying the result.
-        /// Async wrapper for <see cref="ResultExtensionMembers.TapError{T}(Result{T}, Func{DomainError, Task})"/>.
-        /// </summary>
-        /// <param name="action">Async action to execute on the failure value.</param>
-        /// <returns>The original result unchanged.</returns>
-        public async Task<Result<T>> TapError(Func<DomainError, Task> action)
-        {
-            var r = await resultTask;
-            if (r.IsFailure)
-                await r.TapError(action);
-            return r;
-        }
+        public async Task<Result<T, TError>> AddLogOnFailure(Func<TError, Action<ILogger>> logAction) =>
+            (await resultTask).AddLogOnFailure(logAction);
 
-        // ──────────────────────────────────────────────────────────────────
-        // Terminal - Match
-        // ──────────────────────────────────────────────────────────────────
+        public async Task<Result<T, TError>> WithOperationName(string value) =>
+            (await resultTask).WithOperationName(value);
 
-        /// <summary>
-        /// Pattern matches on the result, executing one of two actions based on success or failure.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Match{T}(Result{T}, Action{T}, Action{DomainError})"/>.
-        /// </summary>
-        /// <param name="onSuccess">Action to execute on success.</param>
-        /// <param name="onError">Action to execute on error.</param>
-        public async Task Match(Action<T> onSuccess, Action<DomainError> onError)
-            => (await resultTask).Match(onSuccess, onError);
+        public async Task<Result<T, TError>> WithLogProperty(string key, object value) =>
+            (await resultTask).WithLogProperty(key, value);
 
-        /// <summary>
-        /// Pattern matches on the result, executing one of two async actions based on success or failure.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Match{T}(Result{T}, Func{T, Task}, Func{DomainError, Task})"/>.
-        /// </summary>
-        /// <param name="onSuccess">Async action to execute on success.</param>
-        /// <param name="onError">Async action to execute on error.</param>
-        public async Task Match(Func<T, Task> onSuccess, Func<DomainError, Task> onError)
-            => await (await resultTask).Match(onSuccess, onError);
+        public async Task<Result<T, TError>> WithLogProperty(string key, Func<T, object> valueSelector) =>
+            (await resultTask).WithLogProperty(key, valueSelector);
 
-        /// <summary>
-        /// Pattern matches on the result and returns a value based on success or failure.
-        /// Async wrapper for <see cref="ResultExtensionMembers.MatchToValue{T,TTarget}(Result{T}, Func{T, TTarget}, Func{DomainError, TTarget})"/>.
-        /// </summary>
-        /// <typeparam name="TTarget">The type of value to return.</typeparam>
-        /// <param name="onSuccess">Function to execute on success.</param>
-        /// <param name="onError">Function to execute on error.</param>
-        /// <returns>The value returned by either onSuccess or onError.</returns>
-        public async Task<TTarget> MatchToValue<TTarget>(
-            Func<T, TTarget> onSuccess,
-            Func<DomainError, TTarget> onError)
-            => (await resultTask).MatchToValue(onSuccess, onError);
+        public async Task<Result<T, TError>> WithLogProperties(IEnumerable<KeyValuePair<string, object>> props) =>
+            (await resultTask).WithLogProperties(props);
 
-       
-        // ──────────────────────────────────────────────────────────────────
-        // Logging - Trace Context
-        // ──────────────────────────────────────────────────────────────────
+        public async Task<Result<T, TError>> FlushLogs(ILogger logger) =>
+            (await resultTask).FlushLogs(logger);
 
-        /// <summary>
-        /// Adds a log action that will only be executed if the result is successful.
-        /// Async wrapper for <see cref="ResultExtensionMembers.AddLogOnSuccess{T}(Result{T}, Func{T, Action{ILogger}})"/>.
-        /// </summary>
-        /// <param name="logAction">Function that takes the success value and returns a log action.</param>
-        /// <returns>The result with the conditionally added log action.</returns>
-        public async Task<Result<T>> AddLogOnSuccess(Func<T, Action<ILogger>> logAction)
-            => (await resultTask).AddLogOnSuccess(logAction);
-
-        /// <summary>
-        /// Adds a log action that will only be executed if the result is a failure.
-        /// Async wrapper for <see cref="ResultExtensionMembers.AddLogOnFailure{T}(Result{T}, Func{DomainError, Action{ILogger}})"/>.
-        /// </summary>
-        /// <param name="logAction">Function that takes the error and returns a log action.</param>
-        /// <returns>The result with the conditionally added log action.</returns>
-        public async Task<Result<T>> AddLogOnFailure(Func<DomainError, Action<ILogger>> logAction)
-            => (await resultTask).AddLogOnFailure(logAction);
-
-        /// <summary>
-        /// Adds an <see cref="Telemetry.OperationNameTag"/> property to the trace context.
-        /// Async wrapper for <see cref="ResultExtensionMembers.WithOperationName{T}(Result{T}, string)"/>.
-        /// </summary>
-        /// <param name="value">The operation name.</param>
-        /// <returns>The result with the operation name property.</returns>
-        public async Task<Result<T>> WithOperationName(string value)
-            => (await resultTask).WithLogProperty(Telemetry.OperationNameTag, value);
-
-        /// <summary>
-        /// Adds a property to the trace context that will be included in the logging scope.
-        /// Async wrapper for <see cref="ResultExtensionMembers.WithLogProperty{T}(Result{T}, string, object)"/>.
-        /// </summary>
-        /// <param name="key">The property name.</param>
-        /// <param name="value">The property value.</param>
-        /// <returns>The result with the added property.</returns>
-        public async Task<Result<T>> WithLogProperty(string key, object value)
-            => (await resultTask).WithLogProperty(key, value);
-
-        /// <summary>
-        /// Adds a property derived from the success value to the trace context. On failure the
-        /// selector is not invoked and the result passes through unchanged.
-        /// Async wrapper for <see cref="ResultExtensionMembers.WithLogProperty{T}(Result{T}, string, Func{T, object})"/>.
-        /// </summary>
-        /// <param name="key">The property name.</param>
-        /// <param name="valueSelector">Selector invoked with the success value to produce the property value.</param>
-        /// <returns>The result with the added property when successful, otherwise unchanged.</returns>
-        public async Task<Result<T>> WithLogProperty(string key, Func<T, object> valueSelector)
-            => (await resultTask).WithLogProperty(key, valueSelector);
-
-        /// <summary>
-        /// Adds multiple properties to the trace context that will be included in the logging scope.
-        /// Async wrapper for <see cref="ResultExtensionMembers.WithLogProperties{T}(Result{T}, IEnumerable{KeyValuePair{string, object}})"/>.
-        /// </summary>
-        /// <param name="props">The properties to add.</param>
-        /// <returns>The result with the added properties.</returns>
-        public async Task<Result<T>> WithLogProperties(IEnumerable<KeyValuePair<string, object>> props)
-            => (await resultTask).WithLogProperties(props);
-
-        /// <summary>
-        /// Flushes all accumulated logs to the provided logger and clears the trace context.
-        /// Async wrapper for <see cref="ResultExtensionMembers.FlushLogs{T}(Result{T}, ILogger)"/>.
-        /// </summary>
-        /// <param name="logger">The logger to write to.</param>
-        /// <returns>The result with an empty trace context.</returns>
-        public async Task<Result<T>> FlushLogs(ILogger logger)
-            => (await resultTask).FlushLogs(logger);
-        
-        /// <summary>
-        /// Terminal operation that finalizes the async Result pipeline by writing all accumulated logs.
-        /// Async wrapper for <see cref="ResultExtensionMembers.Complete"/>.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Use <c>Complete</c> as the final call in a Result chain when no further operations are needed.
-        /// It flushes all logs accumulated via <c>AddLog</c>, <c>AddLogOnSuccess</c>,
-        /// and <c>AddLogOnFailure</c> to the provided logger and clears the trace context.
-        /// </para>
-        /// <para>
-        /// On failure, the error's <see cref="DomainError.LogAction"/> is automatically included in the output.
-        /// </para>
-        /// <para>
-        /// Note: Unlike the sync version which returns void, this async version returns
-        /// <see cref="Task{TResult}"/> of <see cref="Result{T}"/> with an empty trace context.
-        /// The returned result carries only the value/error for aggregation purposes.
-        /// </para>
-        /// </remarks>
-        /// <param name="logger">The logger to write accumulated logs to.</param>
-        /// <returns>The result unchanged (for async compatibility).</returns>
-        /// <example>
-        /// <code>
-        /// await GetLease(name)
-        ///     .Bind(_ => ProcessDataAsync(...))
-        ///     .AddLogOnSuccess(stats => log => log.LogInformation("Done: {series.count}", stats.Count))
-        ///     .Complete(logger);  // Terminal - writes all logs
-        /// </code>
-        /// </example>
-        public async Task<Result<T>> Complete(ILogger logger) => (await resultTask).FlushLogs(logger);
+        /// <summary>Unlike the sync form, returns the flushed result so it can still be aggregated.</summary>
+        public async Task<Result<T, TError>> Complete(ILogger logger) =>
+            (await resultTask).FlushLogs(logger);
     }
 }

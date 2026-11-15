@@ -28,23 +28,23 @@ public class SeasonUpdateLatestFlagTests
         Assert.Equal(incoming.Year.Value, (ushort) stored.Year);
         return;
 
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new NoMatch());
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoMatch()));
 
-        Task<Result<SeasonStorageData>> LatestGetter(CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new CurrentLatestSeason(new SeasonStorage
+        Task<Result<LatestSeasonRead, StorageError>> LatestGetter(CancellationToken ct) =>
+            Task.FromResult(Result<LatestSeasonRead, StorageError>.Success(new CurrentLatestSeason(new SeasonStorage
             {
                 PartitionKey = SeasonStorage.SeasonPartition,
                 RowKey = "latest-2026-winter",
                 Latest = true,
                 Season = Season.Winter(),
                 Year = 2026
-            }));
+            })));
 
-        Task<Result<Unit>> SeasonUpdater(SeasonStorage s, CancellationToken ct)
+        Task<Result<Unit, StorageError>> SeasonUpdater(SeasonStorage s, CancellationToken ct)
         {
             stored = s;
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, StorageError>.Success(new Unit()));
         }
     }
 
@@ -87,18 +87,18 @@ public class SeasonUpdateLatestFlagTests
         Assert.Equal([("2026-summer", true)], writes);
         return;
 
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new ReplaceLatestSeason(promoted));
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new ReplaceLatestSeason(promoted)));
 
         // Nothing carries the flag, so the newest season stands in for it — and it is the very
         // season being promoted.
-        Task<Result<SeasonStorageData>> LatestGetter(CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new FallbackLatestSeason(newestKnown));
+        Task<Result<LatestSeasonRead, StorageError>> LatestGetter(CancellationToken ct) =>
+            Task.FromResult(Result<LatestSeasonRead, StorageError>.Success(new FallbackLatestSeason(newestKnown)));
 
-        Task<Result<Unit>> SeasonUpdater(SeasonStorage s, CancellationToken ct)
+        Task<Result<Unit, StorageError>> SeasonUpdater(SeasonStorage s, CancellationToken ct)
         {
             writes.Add((s.RowKey!, s.Latest));
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, StorageError>.Success(new Unit()));
         }
     }
 
@@ -120,7 +120,7 @@ public class SeasonUpdateLatestFlagTests
         SeasonUpdater seasonUpdater = (s, _) =>
         {
             calls.Add(Clone(s));
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, StorageError>.Success(new Unit()));
         };
 
         var token = CancellationToken.None;
@@ -145,11 +145,11 @@ public class SeasonUpdateLatestFlagTests
         Assert.Equal(2025, demoted.Year);
         return;
 
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new NoMatch());
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoMatch()));
 
-        Task<Result<SeasonStorageData>> LatestGetter(CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new CurrentLatestSeason(previousLatest));
+        Task<Result<LatestSeasonRead, StorageError>> LatestGetter(CancellationToken ct) =>
+            Task.FromResult(Result<LatestSeasonRead, StorageError>.Success(new CurrentLatestSeason(previousLatest)));
     }
 
     [Fact]
@@ -171,14 +171,14 @@ public class SeasonUpdateLatestFlagTests
         SeasonUpdater seasonUpdater = (s, _) =>
         {
             calls++;
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, StorageError>.Success(new Unit()));
         };
 
         var token = CancellationToken.None;
         var result = await SeasonUpdate
             .CheckSeasonExist(SeasonGetter, incoming, token)
-            .CreateNewSeason() // no-op for existent current latest
-            .AddLatestSeasonData(latestGetter, token) // predicate prevents call due to CurrentLatestSeason
+            .CreateNewSeason() // NoUpdateRequired passes through
+            .AddLatestSeasonData(latestGetter, token) // not a promotion, so not read
             .StoreUpdatedSeason(seasonUpdater, token)
             .DemoteCurrentLatest(seasonUpdater, token);
 
@@ -189,8 +189,8 @@ public class SeasonUpdateLatestFlagTests
         return;
 
         // matching the current latest will produce no update
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new NoUpdateRequired());
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoUpdateRequired()));
     }
 
     [Fact]
@@ -220,13 +220,13 @@ public class SeasonUpdateLatestFlagTests
         SeasonUpdater seasonUpdater = (s, _) =>
         {
             calls.Add(Clone(s));
-            return Task.FromResult(Result<Unit>.Success());
+            return Task.FromResult(Result<Unit, StorageError>.Success(new Unit()));
         };
 
         var token = CancellationToken.None;
         var result = await SeasonUpdate
             .CheckSeasonExist(SeasonGetter, incoming, token)
-            .CreateNewSeason() // no-op because SeasonData is ReplaceLatestSeason already
+            .CreateNewSeason() // ReplaceLatestSeason passes through
             .AddLatestSeasonData(LatestGetter, token)
             .StoreUpdatedSeason(seasonUpdater, token)
             .DemoteCurrentLatest(seasonUpdater, token);
@@ -245,18 +245,18 @@ public class SeasonUpdateLatestFlagTests
         Assert.False(demoted.Latest);
         return;
 
-        Task<Result<SeasonStorageData>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new ReplaceLatestSeason(new SeasonStorage
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason s, CancellationToken ct) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new ReplaceLatestSeason(new SeasonStorage
             {
                 PartitionKey = SeasonStorage.SeasonPartition,
                 RowKey = existentNonLatest.RowKey,
                 Latest = true,
                 Season = existentNonLatest.Season,
                 Year = existentNonLatest.Year
-            }));
+            })));
 
-        Task<Result<SeasonStorageData>> LatestGetter(CancellationToken ct) =>
-            Task.FromResult<Result<SeasonStorageData>>(new CurrentLatestSeason(previousLatest));
+        Task<Result<LatestSeasonRead, StorageError>> LatestGetter(CancellationToken ct) =>
+            Task.FromResult(Result<LatestSeasonRead, StorageError>.Success(new CurrentLatestSeason(previousLatest)));
     }
 
     // As SeasonStorage is mutable, we can clone it to avoid side effects in the original object

@@ -5,6 +5,9 @@ using AnimeFeedManager.Web.BlazorComponents.SignalRContent;
 
 namespace AnimeFeedManager.Functions.SystemEvents;
 
+[Widens]
+internal partial union SystemEventError(StorageError, UnreadableEventPayload);
+
 public class OnSystemEvent
 {
     private static readonly ActivitySource Source = new(Telemetry.SystemEventsUpdateSource);
@@ -36,11 +39,12 @@ public class OnSystemEvent
         return await SystemEventUpdate.StartProcess(message)
             .StoreEvent(_tableClientFactory.TableStorageEventUpdater(), cancellationToken)
             .PrepareUiNotification()
+            .MapError(error => (SystemEventError)error)
             .Bind(result =>
             {
                 var audience = LiveAudience.From(result.Event.Consumer);
                 if (!result.NotifyUi || audience is NoAudience)
-                    return Task.FromResult(Result<SignalRMessageAction?>.Success(null));
+                    return Task.FromResult(Result<SignalRMessageAction?, UnreadableEventPayload>.Success(null));
 
                 return NotificationFactory.GenerateNotificationContent(result.Event,
                         EventPayloadDeserializer.Deserialize, _blazorRenderer)

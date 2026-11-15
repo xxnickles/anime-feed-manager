@@ -19,7 +19,7 @@ internal sealed record SeriesCatalog(NyaaBindingStorage Binding, ImmutableArray<
 public static class RecentReleasesQuery
 {
     /// <summary>Tracked series with releases inside the notification feed window, newest first; any unreadable catalog fails the query.</summary>
-    public static Task<Result<ImmutableArray<RecentSeries>>> GetRecentReleases(
+    public static Task<Result<ImmutableArray<RecentSeries>, StorageError>> GetRecentReleases(
         TrackedNyaaBindings trackedBindings,
         NyaaCatalogGetter catalogGetter,
         DateTimeOffset now,
@@ -29,7 +29,7 @@ public static class RecentReleasesQuery
             .Map(catalogs => Summarize(catalogs, now - NyaaCollection.FeedWindow))
             .WithOperationName(nameof(GetRecentReleases));
 
-    private static async Task<Result<ImmutableArray<SeriesCatalog>>> ReadCatalogs(
+    private static async Task<Result<ImmutableArray<SeriesCatalog>, StorageError>> ReadCatalogs(
         ImmutableArray<NyaaBindingStorage> tracked,
         NyaaCatalogGetter catalogGetter,
         CancellationToken token)
@@ -37,8 +37,8 @@ public static class RecentReleasesQuery
         var reads = await Task.WhenAll(tracked.Select(binding =>
             catalogGetter(binding.RowKey ?? string.Empty, token).Map(catalog => new SeriesCatalog(binding, catalog))));
 
-        return reads.Flatten(series => series.ToImmutableArray())
-            .Bind(bulk => bulk.RequireAll("Some tracked series' catalogs could not be read"));
+        return reads.CollectAll(series => series.ToImmutableArray(),
+            StorageError (errors) => new StorageError.BatchFailed("Some tracked series' catalogs could not be read", errors));
     }
 
     /// <summary>Same series selection as the notification feed; repeated episode labels keep the newest upload.</summary>

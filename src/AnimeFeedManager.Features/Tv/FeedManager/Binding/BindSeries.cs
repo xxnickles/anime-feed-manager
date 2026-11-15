@@ -8,15 +8,19 @@ namespace AnimeFeedManager.Features.Tv.FeedManager.Binding;
 
 public sealed record BoundSeries(string Title, string FeedTitle, bool WasOngoing);
 
+[Widens]
+public partial union BindingError(UnreadableMessage, StorageError, DeliveryError);
+
 public static class BindSeries
 {
     /// <summary>Replaces the binding, feeds the library series from it, then queues the backfill; the catalog is kept.</summary>
-    public static Task<Result<BoundSeries>> Bind(
+    public static Task<Result<BoundSeries, BindingError>> Bind(
         BindNyaaSeries request,
         ITableClientFactory clientFactory,
         DomainCollectionSender domainPostman,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(request.SeriesId)
+            .MapError(BindingError (fields) => new UnreadableMessage(typeof(BindNyaaSeries), fields.Errors))
             .Bind(season => clientFactory.TableStorageTvSeriesGetter(request.SeriesId, season, token)
                 .Bind(series => clientFactory.TableStorageNyaaBindingReplacer(NewBinding(request, season, series), token))
                 .Bind(_ => FeedLibrarySeries(request, season,
@@ -48,7 +52,7 @@ public static class BindSeries
             Premiere = series.Date is { } date ? new DateTimeOffset(DateTime.SpecifyKind(date, DateTimeKind.Utc)) : null
         };
 
-    private static Task<Result<BoundSeries>> FeedLibrarySeries(
+    private static Task<Result<BoundSeries, StorageError>> FeedLibrarySeries(
         BindNyaaSeries request,
         SeriesSeason season,
         TvSeriesGetter seriesGetter,
@@ -59,7 +63,7 @@ public static class BindSeries
                 .Map(series => FeedFromBinding(series, request))
                 .Bind(fed => seriesUpdater(fed.Series, attemptToken).Map(_ => fed.Bound)),
             token,
-            error => error is PreconditionFailedError);
+            error => error is StorageError.Conflict);
 
     private static (AnimeInfoStorage Series, BoundSeries Bound) FeedFromBinding(AnimeInfoStorage series,
         BindNyaaSeries request)

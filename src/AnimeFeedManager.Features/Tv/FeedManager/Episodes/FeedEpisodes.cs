@@ -19,7 +19,7 @@ internal sealed record EpisodesProcess(
 public static class FeedEpisodes
 {
     /// <summary>Copies the library count into the binding, then runs the completion rule.</summary>
-    public static Task<Result<EpisodesUpdated>> UpdateFromLibrary(
+    public static Task<Result<EpisodesUpdated, StorageRequestError>> UpdateFromLibrary(
         string seriesId,
         ITableClientFactory clientFactory,
         CancellationToken token) =>
@@ -32,7 +32,7 @@ public static class FeedEpisodes
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
     /// <summary>Writes the count to the library and, when bound, to the binding, then runs the completion rule.</summary>
-    public static Task<Result<EpisodesUpdated>> Override(
+    public static Task<Result<EpisodesUpdated, StorageRequestError>> Override(
         string seriesId,
         int episodes,
         ITableClientFactory clientFactory,
@@ -46,40 +46,41 @@ public static class FeedEpisodes
             .WithOperationName(nameof(Override))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
-    private static Task<Result<EpisodesProcess>> StartProcess(string seriesId) =>
+    private static Task<Result<EpisodesProcess, StorageRequestError>> StartProcess(string seriesId) =>
         Task.FromResult(IdHelpers.SeriesSeasonFromId(seriesId)
+            .MapError(error => (StorageRequestError)error)
             .Map(season => new EpisodesProcess(seriesId, season, null, false, new FeedOpen())));
 
-    extension(Task<Result<EpisodesProcess>> process)
+    extension(Task<Result<EpisodesProcess, StorageRequestError>> process)
     {
-        private Task<Result<EpisodesProcess>> ReadLibrary(TvSeriesGetter seriesGetter, CancellationToken token) =>
+        private Task<Result<EpisodesProcess, StorageRequestError>> ReadLibrary(TvSeriesGetter seriesGetter, CancellationToken token) =>
             process.Bind(p => seriesGetter(p.SeriesId, p.Season, token)
-                .Map(series => p with {Episodes = series.Episodes}));
+                    .Map(series => p with {Episodes = series.Episodes}));
 
-        private Task<Result<EpisodesProcess>> UpdateLibrary(
+        private Task<Result<EpisodesProcess, StorageRequestError>> UpdateLibrary(
             int episodes,
             ITableClientFactory clientFactory,
             CancellationToken token) =>
             process.Bind(p => Series.UpdateExpectedEpisodes(
-                    p.SeriesId,
-                    p.Season,
-                    episodes,
-                    clientFactory.TableStorageTvSeriesGetter,
-                    clientFactory.TableStorageTvSeriesUpdater,
-                    token)
-                .Map(_ => p));
+                        p.SeriesId,
+                        p.Season,
+                        episodes,
+                        clientFactory.TableStorageTvSeriesGetter,
+                        clientFactory.TableStorageTvSeriesUpdater,
+                        token)
+                    .Map(_ => p));
 
-        private Task<Result<EpisodesProcess>> UpdateBinding(ITableClientFactory clientFactory, CancellationToken token) =>
+        private Task<Result<EpisodesProcess, StorageRequestError>> UpdateBinding(ITableClientFactory clientFactory, CancellationToken token) =>
             process.Bind(p => OptimisticConcurrency.UntilWritten(
-                    attemptToken => clientFactory.TableStorageNyaaBindingGetter(p.SeriesId, p.Season, attemptToken)
-                        .Bind(binding => clientFactory.TableStorageNyaaBindingUpdater(
-                            WithEpisodes(binding, p.Episodes), attemptToken)),
-                    token,
-                    error => error is PreconditionFailedError)
-                .Map(_ => p with {Bound = true})
-                .BindOnErrorWhen(_ => p, error => error is NotFoundError));
+                        attemptToken => clientFactory.TableStorageNyaaBindingGetter(p.SeriesId, p.Season, attemptToken)
+                            .Bind(binding => clientFactory.TableStorageNyaaBindingUpdater(
+                                WithEpisodes(binding, p.Episodes), attemptToken)),
+                        token,
+                        error => error is StorageError.Conflict)
+                    .Map(_ => p with {Bound = true})
+                    .BindOnErrorWhen(_ => p, error => error is StorageError.NotFound));
 
-        private Task<Result<EpisodesProcess>> EvaluateCompletion(
+        private Task<Result<EpisodesProcess, StorageRequestError>> EvaluateCompletion(
             ITableClientFactory clientFactory,
             CancellationToken token) =>
             process.BindWhen(p => NyaaCompletion.CompleteWhenReached(

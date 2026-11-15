@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using AnimeFeedManager.Features.Infrastructure.Messaging;
+using AnimeFeedManager.Features.User.Authentication;
 using AnimeFeedManager.Features.User.Authentication.LoginProcess;
 using AnimeFeedManager.Features.User.Authentication.Queries;
 using AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 using AnimeFeedManager.Features.User.Authentication.Storage.Stores;
-using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Htmx.Static;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -43,7 +43,8 @@ internal static class SecurityHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 model => [RegistrationForm.SuccessFragment(model)],
-                error => [RegistrationForm.ErrorFragment(viewModel, error)]
+                error => error.ToContent(),
+                content => [RegistrationForm.ErrorFragment(viewModel, content.Message)]
             );
     }
 
@@ -57,20 +58,25 @@ internal static class SecurityHandlers
     {
         using var activity = Source.StartActivity(SecurityTelemetry.LoginSpan);
         return await LoginVerification.VerifyUser(passwordlessClient, viewModel.Token, cancellationToken)
-            .Bind(verified => verified.UserId.ParseAsNonEmpty("UserId").AsResult())
+            .MapError(error => (LoginError)error)
             .Bind(id => Users.GetById(
-                tableClientFactory.TableStorageExistentUserGetterById(),
-                id,
-                cancellationToken))
+                    tableClientFactory.TableStorageExistentUserGetterById(),
+                    id,
+                    cancellationToken))
             .Bind(TryToCreatePrincipal)
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .Tap(principal => httpContext.SignInAsync(
                 principal,
                 new AuthenticationProperties { IsPersistent = true }))
-            .MatchToValue<ClaimsPrincipal, IResult>(
-                _ => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
-                error => new[] { LoginForm.ErrorFragment(viewModel, error) }.AggregateComponents(error.ToStatusCode()));
+            .MatchToValue(
+                IResult (_) => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
+                error =>
+                {
+                    var content = error.ToContent();
+                    return new[] { LoginForm.ErrorFragment(viewModel, content.Message) }
+                        .AggregateComponents(content.StatusCode);
+                });
     }
 
     // The CancellationToken keeps the signature off the (HttpContext) => Task RequestDelegate shape,
@@ -101,12 +107,12 @@ internal static class SecurityHandlers
             ? returnUrl
             : "/";
 
-    private static Result<ClaimsPrincipal> TryToCreatePrincipal(StoredUser user)
+    private static Result<ClaimsPrincipal, AuthError> TryToCreatePrincipal(StoredUser user)
     {
         return user switch
         {
             ValidStoredUser vu => CreatePrincipal(vu),
-            _ => Error.Create("Provided user doesn't exist in the system")
+            NotAStoredUser => new AuthError.UserNotFound()
         };
     }
 
@@ -145,7 +151,8 @@ internal static class SecurityHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 model => [AddCredentialForm.SuccessFragment(model)],
-                error => [AddCredentialForm.ErrorFragment(viewModel, error)]
+                error => error.ToContent(),
+                content => [AddCredentialForm.ErrorFragment(viewModel, content.Message)]
             );
     }
 }

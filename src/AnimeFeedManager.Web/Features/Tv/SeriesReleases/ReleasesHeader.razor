@@ -51,7 +51,7 @@
     private string Count(NyaaReleaseFeed feed) => Listing.Episodes switch
     {
         KnownEpisodes known => $"{feed.Indexed} / {known.Count} episodes",
-        _ => $"{feed.Indexed} / ? episodes"
+        UnknownEpisodes => $"{feed.Indexed} / ? episodes"
     };
 
     private string InfoLine => Listing.Feed switch
@@ -60,17 +60,16 @@
         NyaaReleaseFeed {Cadence: NoReleases} => Listing.Broadcast.When switch
         {
             FirstRelease first => $"First episode expected {ReleaseTimes.Format(first.At)} UTC",
-            _ => "Release time not announced yet"
+            UnknownRelease => "Release time not announced yet"
         },
         NyaaReleaseFeed {Cadence: WeeklyCadence weekly} feed when Status != SeriesStatus.CompletedValue =>
             $"Weekly · {weekly.Day}s ~{weekly.Time:HH:mm} UTC · {Count(feed)}",
-        NyaaReleaseFeed feed => $"{Count(feed)} · last release {ReleaseTimes.Date(LastPublished(feed))}",
-        _ => "Not tracked on nyaa"
+        NyaaReleaseFeed {Cadence: LastRelease last} feed => LastReleaseLine(feed, last.Published),
+        NyaaReleaseFeed {Cadence: WeeklyCadence} feed =>
+            LastReleaseLine(feed, feed.Episodes.SelectMany(e => e.Earlier.Prepend(e.Latest)).Max(r => r.Published)),
+        NoReleaseFeed => "Not tracked on nyaa"
     };
 
-    private static DateTimeOffset LastPublished(NyaaReleaseFeed feed) => feed.Cadence switch
-    {
-        LastRelease last => last.Published,
-        _ => feed.Episodes.SelectMany(e => e.Earlier.Prepend(e.Latest)).Max(r => r.Published)
-    };
+    private string LastReleaseLine(NyaaReleaseFeed feed, DateTimeOffset published) =>
+        $"{Count(feed)} · last release {ReleaseTimes.Date(published)}";
 }

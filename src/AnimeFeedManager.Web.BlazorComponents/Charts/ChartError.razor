@@ -7,16 +7,16 @@
 </div>
 
 @code {
-    [Parameter] public string Message { get; set; } = DefaultMessage;
+    [Parameter] public RenderFragment Message { get; set; } = DefaultMessage;
 
-    private const string DefaultMessage = "Failed to load chart";
-    
+    private static readonly RenderFragment DefaultMessage = builder => builder.AddContent(0, "Failed to load chart");
+
     public static RenderFragment AsRenderFragment() => AsRenderFragment(DefaultMessage);
-    
-    public static RenderFragment AsRenderFragment(string message) => builder =>
+
+    public static RenderFragment AsRenderFragment(RenderFragment message) => builder =>
     {
         builder.OpenComponent<ChartError>(0);
-        builder.AddAttribute(1, nameof(message), message);
+        builder.AddAttribute(1, nameof(Message), message);
         builder.CloseComponent();
     };
 

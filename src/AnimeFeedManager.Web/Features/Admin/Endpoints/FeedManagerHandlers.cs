@@ -24,9 +24,10 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.BindNyaaSeriesSpan);
         return await Validate(viewModel)
+            .MapError(error => (AdminCommandError)error)
             .Bind(vm => domainPostman.SendMessages(
-                [new BindNyaaSeries(vm.SeriesId, vm.Group, vm.ReleaseTitle, vm.Variant ?? string.Empty, vm.Trusted)],
-                token))
+                    [new BindNyaaSeries(vm.SeriesId, vm.Group, vm.ReleaseTitle, vm.Variant ?? string.Empty, vm.Trusted)],
+                    token))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
@@ -37,7 +38,7 @@ internal static class FeedManagerHandlers
                             $"{viewModel.SeriesTitle} will be bound to [{viewModel.Group}] and indexed in the background."),
                         ToastType.Info)
                 ],
-                error => [Notifications.CreateErrorNotification("Feed binding", error)]);
+                error => error.ToContent(), "Feed binding");
     }
 
     internal static async Task<RazorComponentResult> Backfill(
@@ -48,6 +49,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.BackfillNyaaSeriesSpan);
         return await Validate(viewModel)
+            .MapError(error => (AdminCommandError)error)
             .Bind(vm => domainPostman.SendMessages([new BackfillNyaaSeries(vm.SeriesId)], token))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
@@ -58,7 +60,7 @@ internal static class FeedManagerHandlers
                         Notifications.TextBody($"{viewModel.SeriesTitle} will be backfilled in the background."),
                         ToastType.Info)
                 ],
-                error => [Notifications.CreateErrorNotification("Backfill", error)]);
+                error => error.ToContent(), "Backfill");
     }
 
     internal static async Task<RazorComponentResult> ClearCatalog(
@@ -69,6 +71,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.ClearNyaaCatalogSpan);
         return await Validate(viewModel)
+            .MapError(error => (StorageRequestError)error)
             .Bind(vm => clientFactory.TableStorageNyaaCatalogWiper(vm.SeriesId, token))
             .Bind(_ => Reload(viewModel.SeriesId, clientFactory, token))
             .MarkActivityErroredOnError()
@@ -80,7 +83,7 @@ internal static class FeedManagerHandlers
                     Notifications.CreateNotificationToast("Catalog cleared",
                         Notifications.TextBody($"{viewModel.SeriesTitle} has no catalogued releases. Backfill to index the bound release again."))
                 ],
-                error => [Notifications.CreateErrorNotification("Clear catalog", error)]);
+                error => error.ToContent(), "Clear catalog");
     }
 
     internal static async Task<RazorComponentResult> UpdateEpisodesFromLibrary(
@@ -91,6 +94,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.UpdateFeedEpisodesSpan);
         return await Validate(viewModel)
+            .MapError(error => (StorageRequestError)error)
             .Bind(vm => FeedEpisodes.UpdateFromLibrary(vm.SeriesId, clientFactory, token))
             .Bind(updated => Reload(viewModel.SeriesId, clientFactory, token).Map(series => (Updated: updated, Series: series)))
             .MarkActivityErroredOnError()
@@ -102,7 +106,7 @@ internal static class FeedManagerHandlers
                     Notifications.CreateNotificationToast("Feed episodes",
                         Notifications.TextBody(FromLibraryMessage(viewModel.SeriesTitle, result.Updated)))
                 ],
-                error => [Notifications.CreateErrorNotification("Feed episodes", error)]);
+                error => error.ToContent(), "Feed episodes");
     }
 
     internal static async Task<RazorComponentResult> OverrideEpisodes(
@@ -113,6 +117,7 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.OverrideEpisodesSpan);
         return await Validate(viewModel)
+            .MapError(error => (StorageRequestError)error)
             .Bind(vm => FeedEpisodes.Override(vm.SeriesId, vm.Episodes, clientFactory, token))
             .Bind(updated => Reload(viewModel.SeriesId, clientFactory, token).Map(series => (Updated: updated, Series: series)))
             .MarkActivityErroredOnError()
@@ -124,7 +129,7 @@ internal static class FeedManagerHandlers
                     Notifications.CreateNotificationToast("Episodes override",
                         Notifications.TextBody(OverrideMessage(viewModel.SeriesTitle, result.Updated)))
                 ],
-                error => [Notifications.CreateErrorNotification("Episodes override", error)]);
+                error => error.ToContent(), "Episodes override");
     }
 
     internal static async Task<RazorComponentResult> Cards(
@@ -139,7 +144,7 @@ internal static class FeedManagerHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 series => [BindingCards.AsOobFragment(series)],
-                error => [Notifications.CreateErrorNotification("Feed cards", error)]);
+                error => error.ToContent(), "Feed cards");
     }
 
     internal static async Task<RazorComponentResult> Candidates(
@@ -153,16 +158,17 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.RefreshReleaseCandidatesSpan);
         return await Reload(seriesId, clientFactory, token)
+            .MapError(error => (ReleaseCandidatesError)error)
             .Bind(series => ReleaseSearch.Search(q, trusted, series.Binding, nyaaClient, token)
                 .Map(results => (Series: series, Results: results)))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 result => [ReleaseCandidates.AsOobFragment(result.Series, q, trusted, result.Results)],
-                error => [Notifications.CreateErrorNotification("Release search", error)]);
+                error => error.ToContent(), "Release search");
     }
 
-    private static Task<Result<FeedManagerSeries>> Reload(
+    private static Task<Result<FeedManagerSeries, StorageRequestError>> Reload(
         string seriesId,
         ITableClientFactory clientFactory,
         CancellationToken token) =>

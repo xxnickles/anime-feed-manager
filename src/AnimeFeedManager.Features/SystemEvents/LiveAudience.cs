@@ -1,7 +1,7 @@
 namespace AnimeFeedManager.Features.SystemEvents;
 
 /// <summary>Who receives a live (SignalR) message.</summary>
-public abstract record LiveAudience
+public closed record LiveAudience
 {
     /// <summary>SignalR user group holding admins; membership is set when a connection is negotiated.</summary>
     public const string AdminGroup = "admin";

@@ -14,7 +14,7 @@ public static class SystemEventUpdate
         _ => throw new ArgumentOutOfRangeException(nameof(systemEvent))
     };
 
-    public static Task<Result<SystemEventUpdateData>> StoreEvent(this SystemEventUpdateData data,
+    public static Task<Result<SystemEventUpdateData, StorageError>> StoreEvent(this SystemEventUpdateData data,
         EventUpdater eventUpdater,
         CancellationToken cancellationToken)
     {
@@ -22,16 +22,16 @@ public static class SystemEventUpdate
         {
             FullUpdate fullUpdate => eventUpdater(fullUpdate.Storage, cancellationToken),
             LocalStorage localStorage => eventUpdater(localStorage.Storage, cancellationToken),
-            _ => Task.FromResult(Result<Unit>.Success())
+            Notification => Task.FromResult(Result<Unit, StorageError>.Success(new Unit()))
         }).Map(_ => data);
     }
 
-    public static Task<Result<UpdateResult>> PrepareUiNotification(this Task<Result<SystemEventUpdateData>> data)
+    public static Task<Result<UpdateResult, StorageError>> PrepareUiNotification(this Task<Result<SystemEventUpdateData, StorageError>> data)
     {
         return data.Map(d => d switch
         {
             LocalStorage localStorage => new UpdateResult(localStorage.Event, false),
-            _ => new UpdateResult(d.Event, true)
+            FullUpdate or Notification => new UpdateResult(d.Event, true)
         });
     }
 

@@ -4,21 +4,25 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 
+[Widens]
+public partial union NotificationProcessError(StorageError, DeliveryError);
+
 public static class NotificationProcess
 {
-    public static Task<Result<UserNotificationSummary>> UpdateUserSubscriptions(
+    public static Task<Result<UserNotificationSummary, NotificationProcessError>> UpdateUserSubscriptions(
         FeedNotification updateNotification,
         TvSubscriptionsUpdater updater,
         DomainCollectionSender domainPostman,
         CancellationToken token)
     {
         return UpdateUserSubscription(updateNotification, updater, token)
+            .MapError(error => (NotificationProcessError)error)
             .Map(_ => ToUserNotificationResult(updateNotification))
             .Bind(results => SendNotifications(domainPostman, results))
             .Summarize();
     }
 
-    private static Task<Result<Unit>> UpdateUserSubscription(
+    private static Task<Result<Unit, StorageError>> UpdateUserSubscription(
         FeedNotification updateNotification,
         TvSubscriptionsUpdater updater,
         CancellationToken token)
@@ -92,7 +96,7 @@ public static class NotificationProcess
         return second <= first + 1 ? string.Empty : $"{id[..first]}-{id[(first + 1)..second]}";
     }
 
-    private static Task<Result<UserNotificationResult>> SendNotifications(DomainCollectionSender domainPostman, UserNotificationResult result)
+    private static Task<Result<UserNotificationResult, DeliveryError>> SendNotifications(DomainCollectionSender domainPostman, UserNotificationResult result)
     {
         var messages = result.Notifications.Select(n =>
             new SystemEvent(
@@ -106,6 +110,6 @@ public static class NotificationProcess
             .WithOperationName(nameof(SendNotifications));
     }
     
-    private static Task<Result<UserNotificationSummary>> Summarize(this Task<Result<UserNotificationResult>> result) =>
+    private static Task<Result<UserNotificationSummary, NotificationProcessError>> Summarize(this Task<Result<UserNotificationResult, NotificationProcessError>> result) =>
         result.Map(r => new UserNotificationSummary(r.UserId, r.Notifications.Length));
 }

@@ -4,7 +4,8 @@ namespace AnimeFeedManager.Features.User.Authentication.LoginProcess;
 
 public static class LoginVerification
 {
-    public static async Task<Result<VerifiedUser>> VerifyUser(
+    /// <summary>The id of the user Passwordless verified the sign-in token for.</summary>
+    public static async Task<Result<NoEmptyString, AuthError>> VerifyUser(
         IPasswordlessClient passwordlessClient,
         string token,
         CancellationToken cancellationToken = default)
@@ -12,17 +13,20 @@ public static class LoginVerification
         try
         {
             var verifiedUser = await passwordlessClient.VerifyAuthenticationTokenAsync(token, cancellationToken);
-            return verifiedUser.Success
-                ? verifiedUser
-                : NotFoundError.Create("User not found");
+            return verifiedUser switch
+            {
+                { Success: false } => new AuthError.UserNotVerified(),
+                { UserId: var userId } when string.IsNullOrWhiteSpace(userId) => new AuthError.UnusableVerification(),
+                _ => NoEmptyString.FromString(verifiedUser.UserId)
+            };
         }
         catch (PasswordlessApiException e)
         {
-            return PasswordlessError.FromException(e);
+            return new AuthError.PasswordlessFailure(e);
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            return ExceptionError.FromException(e);
+            return new AuthError.RequestFailed(e);
         }
     }
 }

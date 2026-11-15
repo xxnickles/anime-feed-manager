@@ -18,7 +18,7 @@ public sealed record ReleaseListing(
     BroadcastHint Broadcast,
     ReleaseFeed Feed);
 
-public abstract record ReleaseFeed;
+public closed record ReleaseFeed;
 
 public sealed record NoReleaseFeed : ReleaseFeed;
 
@@ -35,8 +35,8 @@ public sealed record NyaaReleaseFeed(
 
 public static class ReleaseListingQuery
 {
-    /// <summary>A library series with its nyaa releases; an unbound series reads as <see cref="NoReleaseFeed"/>, one missing from the library fails with <see cref="NotFoundError"/>.</summary>
-    public static Task<Result<ReleaseListing>> GetReleaseListing(
+    /// <summary>A library series with its nyaa releases; an unbound series reads as <see cref="NoReleaseFeed"/>, one missing from the library fails with <see cref="StorageError.NotFound"/>.</summary>
+    public static Task<Result<ReleaseListing, StorageRequestError>> GetReleaseListing(
         string seriesId,
         TvLibrarySeries seriesGetter,
         Uri publicBlobUri,
@@ -44,6 +44,7 @@ public static class ReleaseListingQuery
         NyaaCatalogGetter catalogGetter,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
+            .MapError(error => (StorageRequestError)error)
             .Bind(season => seriesGetter(seriesId, season, publicBlobUri, token)
                 .Map(series => (Season: season, Series: series)))
             .Bind(found => Feed(seriesId, found.Season, bindingGetter, catalogGetter, token)
@@ -51,7 +52,7 @@ public static class ReleaseListingQuery
             .WithOperationName(nameof(GetReleaseListing))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
-    private static Task<Result<ReleaseFeed>> Feed(
+    private static Task<Result<ReleaseFeed, StorageError>> Feed(
         string seriesId,
         SeriesSeason season,
         NyaaBindingGetter bindingGetter,
@@ -60,7 +61,7 @@ public static class ReleaseListingQuery
         bindingGetter(seriesId, season, token)
             .Bind(binding => catalogGetter(seriesId, token)
                 .Map(catalog => (ReleaseFeed) ToFeed(binding, catalog)))
-            .BindOnErrorWhen(_ => new NoReleaseFeed(), error => error is NotFoundError);
+            .BindOnErrorWhen(_ => new NoReleaseFeed(), error => error is StorageError.NotFound);
 
     private static NyaaReleaseFeed ToFeed(NyaaBindingStorage binding, ImmutableArray<NyaaCatalogStorage> catalog) =>
         new(binding.Group,

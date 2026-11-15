@@ -1,8 +1,7 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AnimeFeedManager.Shared.Results;
-using AnimeFeedManager.Shared.Results.Errors;
 
 namespace AnimeFeedManager.Shared.Types;
 
@@ -47,9 +46,7 @@ public static class YearExtensions
     public static Validation<Year> ParseAsYear(this int value) =>
         Year.NumberIsValid(value)
             ? Validation<Year>.Valid(Year.FromNumber(value))
-            : Validation<Year>.Invalid(
-                DomainValidationError.Create<Year>($"'{value}' is not a valid year")
-                    .ToErrors());
+            : Validation<Year>.Invalid($"'{value}' is not a valid year");
 }
 
 public class YearJsonConverter : JsonConverter<Year>

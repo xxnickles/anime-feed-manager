@@ -103,7 +103,7 @@ else if (_error is not null)
                 listing => _listing = listing,
                 error =>
                 {
-                    var notFound = error is NotFoundError;
+                    var notFound = error is StorageError.NotFound;
                     if (notFound && HttpContextAccessor.HttpContext is { } context)
                         context.Response.StatusCode = StatusCodes.Status404NotFound;
                     _error = notFound

@@ -14,7 +14,7 @@ public sealed record FeedManagerSeries(
     ImmutableArray<StreamLink> Streams,
     CurrentBinding Binding);
 
-public abstract record CurrentBinding;
+public closed record CurrentBinding;
 
 public sealed record NoBinding : CurrentBinding;
 
@@ -36,7 +36,7 @@ public sealed record LatestRelease(string Episode, DateTimeOffset Published);
 public static class FeedManagerSeriesQuery
 {
     /// <summary>A library series with its binding and catalog summary; a series never bound reads as <see cref="NoBinding"/>.</summary>
-    public static Task<Result<FeedManagerSeries>> GetFeedManagerSeries(
+    public static Task<Result<FeedManagerSeries, StorageRequestError>> GetFeedManagerSeries(
         string seriesId,
         TvSeriesGetter seriesGetter,
         NyaaBindingGetter bindingGetter,
@@ -44,13 +44,14 @@ public static class FeedManagerSeriesQuery
         DateTimeOffset now,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
+            .MapError(error => (StorageRequestError)error)
             .Bind(season => seriesGetter(seriesId, season, token).Map(series => (Season: season, Series: series)))
             .Bind(found => Binding(seriesId, found.Season, bindingGetter, catalogGetter, now, token)
-                .Map(binding => ToSeries(seriesId, found.Season, found.Series, binding)))
+                    .Map(binding => ToSeries(seriesId, found.Season, found.Series, binding)))
             .WithOperationName(nameof(GetFeedManagerSeries))
             .WithLogProperty(Telemetry.SeriesIdTag, seriesId);
 
-    private static Task<Result<CurrentBinding>> Binding(
+    private static Task<Result<CurrentBinding, StorageError>> Binding(
         string seriesId,
         SeriesSeason season,
         NyaaBindingGetter bindingGetter,
@@ -60,7 +61,7 @@ public static class FeedManagerSeriesQuery
         bindingGetter(seriesId, season, token)
             .Bind(binding => catalogGetter(seriesId, token)
                 .Map(catalog => (CurrentBinding) ToActive(binding, catalog, now)))
-            .BindOnErrorWhen(_ => new NoBinding(), error => error is NotFoundError);
+            .BindOnErrorWhen(_ => new NoBinding(), error => error is StorageError.NotFound);
 
     private static ActiveBinding ToActive(
         NyaaBindingStorage binding,

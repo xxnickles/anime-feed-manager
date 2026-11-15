@@ -4,12 +4,12 @@ namespace AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 
 internal static class EventSending
 {
-    internal static Task<Result<UserRegistrationResult>> SendEvents(
-        this Task<Result<UserRegistrationResult>> processData,
+    internal static Task<Result<UserRegistrationResult, RegistrationError>> SendEvents(
+        this Task<Result<UserRegistrationResult, RegistrationError>> processData,
         DomainCollectionSender domainPostman,
         CancellationToken token) => processData
         .Bind(data => domainPostman(GetEvents(new UserRegistered(data.Email, data.UserId)), token)
-        .Map(_ => data));
+                .Map(_ => data));
 
 
     private static DomainMessage[] GetEvents(UserRegistered payload) =>

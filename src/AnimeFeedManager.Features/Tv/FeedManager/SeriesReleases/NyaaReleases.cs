@@ -19,7 +19,7 @@ public sealed record EpisodeReleases(
     SeriesRelease Latest,
     ImmutableArray<SeriesRelease> Earlier);
 
-public abstract record ReleaseCadence;
+public closed record ReleaseCadence;
 
 /// <summary>UTC weekday and time, rounded to the half hour.</summary>
 public sealed record WeeklyCadence(DayOfWeek Day, TimeOnly Time) : ReleaseCadence;

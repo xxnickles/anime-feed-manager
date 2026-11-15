@@ -19,7 +19,7 @@ permissions:
 
 env:
   RESOURCE_GROUP: amf-rg
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: '11.0.x'
 
 jobs:
   build-and-deploy:
@@ -48,7 +48,7 @@ jobs:
           dotnet test tests/AnimeFeedManager.Web.BlazorComponents.Tests -c Release --verbosity normal
 
       - name: Publish
-        run: dotnet publish src/AnimeFeedManager.Functions -c Release -o ./output
+        run: dotnet publish src/AnimeFeedManager.Functions -c Release -o ./output -p:BuildNumber=${{ github.run_number }} -p:BuildDate=$(date -u +%F)
 
       - name: Azure Login (OIDC)
         uses: azure/login@v3.1.0

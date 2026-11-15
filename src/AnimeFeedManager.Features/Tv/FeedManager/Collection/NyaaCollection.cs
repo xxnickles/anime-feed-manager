@@ -1,4 +1,5 @@
 using System.Xml.Linq;
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Scrapping.Nyaa;
 using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.FeedManager.Matching;
@@ -22,9 +23,11 @@ public sealed record NyaaCollected(
 
 internal sealed record SeriesMatch(NyaaBindingStorage Binding, ImmutableArray<NyaaCatalogStorage> Rows);
 
+/// <param name="SeasonOrder">Ranks series sharing a feed title; the newest wins.</param>
 /// <param name="Matched">Info hashes matched this run.</param>
 internal sealed record CollectedSeries(
     NyaaBindingStorage Binding,
+    (Year Year, Season Season) SeasonOrder,
     ImmutableArray<NyaaCatalogStorage> Catalog,
     ImmutableHashSet<string> Matched);
 
@@ -51,12 +54,13 @@ public static class NyaaCollection
     private static readonly NyaaQuery PollQuery = NyaaQuery.Create().Search(PollTerm);
 
     /// <summary>Polls nyaa once, catalogs every tracked binding's matches, then builds feeds from the tracked catalogs; any failure fails the run.</summary>
-    public static Task<Result<NyaaCollected>> Collect(
+    public static Task<Result<NyaaCollected, NyaaCollectionError>> Collect(
         INyaaClient nyaaClient,
         ITableClientFactory clientFactory,
         WebAppHost host,
         CancellationToken token) =>
         clientFactory.TableStorageTrackedNyaaBindings(token)
+            .MapError(error => (NyaaCollectionError)error)
             .Map(tracked => new CollectionProcess(tracked))
             .PollReleases(nyaaClient, token)
             .StoreReleases(clientFactory.TableStorageNyaaCatalogUpdater, token)
@@ -69,18 +73,19 @@ public static class NyaaCollection
                 [.. p.Tracked.Select(binding => binding.RowKey ?? string.Empty)]))
             .WithOperationName(nameof(Collect));
 
-    extension(Task<Result<CollectionProcess>> process)
+    extension(Task<Result<CollectionProcess, NyaaCollectionError>> process)
     {
-        private Task<Result<CollectionProcess>> PollReleases(INyaaClient nyaaClient, CancellationToken token) =>
+        private Task<Result<CollectionProcess, NyaaCollectionError>> PollReleases(INyaaClient nyaaClient,
+            CancellationToken token) =>
             process.Bind(p => p.Tracked.IsEmpty
-                ? Task.FromResult(Result<CollectionProcess>.Success(p))
+                ? Task.FromResult(Result<CollectionProcess, ScrapeError>.Success(p))
                 : Poll(p with {PolledAt = DateTimeOffset.UtcNow}, nyaaClient, token));
 
-        private Task<Result<CollectionProcess>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
+        private Task<Result<CollectionProcess, NyaaCollectionError>> StoreReleases(NyaaCatalogUpdater catalogUpdater,
             CancellationToken token) =>
             process.Bind(p => catalogUpdater(p.Matches.SelectMany(match => match.Rows), token).Map(_ => p));
 
-        private Task<Result<CollectionProcess>> ReadCatalogs(NyaaCatalogGetter catalogGetter,
+        private Task<Result<CollectionProcess, NyaaCollectionError>> ReadCatalogs(NyaaCatalogGetter catalogGetter,
             CancellationToken token) =>
             process.Bind(async p =>
             {
@@ -90,17 +95,19 @@ public static class NyaaCollection
                 return (await Task.WhenAll(p.Tracked.Select(binding =>
                         ReadCatalog(binding, matched.GetValueOrDefault(binding.RowKey ?? string.Empty, []),
                             catalogGetter, token))))
-                    .Flatten(series => series.ToImmutableArray())
-                    .Bind(bulk => bulk.RequireAll("Some tracked series' catalogs could not be read"))
+                    .CollectAll(series => series.ToImmutableArray(),
+                        StorageError (errors) => new StorageError.BatchFailed(
+                            "Some tracked series' catalogs could not be read", errors))
                     .Map(collected => p with {Collected = collected});
             });
     }
 
-    private static Task<Result<CollectionProcess>> Poll(CollectionProcess process, INyaaClient nyaaClient,
+    private static Task<Result<CollectionProcess, ScrapeError>> Poll(CollectionProcess process, INyaaClient nyaaClient,
         CancellationToken token) =>
-        nyaaClient.Fetch(PollQuery, token).Bind(document => MatchReleases(process, document));
+        nyaaClient.Fetch(PollQuery, token)
+            .Bind(document => MatchReleases(process, document));
 
-    private static Result<CollectionProcess> MatchReleases(CollectionProcess process, XDocument document) =>
+    private static Result<CollectionProcess, ScrapeError> MatchReleases(CollectionProcess process, XDocument document) =>
         NyaaFeed.Parse(document)
             .AddLogOnSuccess(feed => feed.LogErrors)
             .Map(feed => process with
@@ -109,10 +116,11 @@ public static class NyaaCollection
                 OldestPolled = feed.Value.IsEmpty ? null : feed.Value.Min(item => item.Published)
             });
 
-    private static Task<Result<CollectedSeries>> ReadCatalog(NyaaBindingStorage binding,
+    private static Task<Result<CollectedSeries, StorageError>> ReadCatalog(NyaaBindingStorage binding,
         ImmutableHashSet<string> matched, NyaaCatalogGetter catalogGetter, CancellationToken token) =>
-        catalogGetter(binding.RowKey ?? string.Empty, token)
-            .Map(catalog => new CollectedSeries(binding, catalog, matched));
+        SeasonOrder(binding)
+            .Bind(order => catalogGetter(binding.RowKey ?? string.Empty, token)
+                .Map(catalog => new CollectedSeries(binding, order, catalog, matched)));
 
     /// <summary>Each tracked binding's catalog rows among the polled items; bindings without any are left out.</summary>
     internal static ImmutableArray<SeriesMatch> Match(ImmutableArray<NyaaBindingStorage> tracked,
@@ -132,7 +140,7 @@ public static class NyaaCollection
             .Where(series => !string.IsNullOrWhiteSpace(series.Binding.FeedTitle))
             .Where(series => series.Catalog.Any(row => row.Published >= since))
             .GroupBy(series => series.Binding.FeedTitle)
-            .Select(group => group.MaxBy(series => SeasonOrder(series.Binding))!)
+            .Select(group => group.MaxBy(series => series.SeasonOrder)!)
             .Select(series => Feed(series, host))
     ];
 
@@ -151,9 +159,11 @@ public static class NyaaCollection
                         series.Matched.Contains(row.InfoHash)))
             ]);
 
-    // An unparsable id sorts oldest.
-    private static (Year Year, Season Season) SeasonOrder(NyaaBindingStorage binding) =>
-        IdHelpers.SeriesSeasonFromId(binding.RowKey ?? string.Empty).MatchToValue(
-            season => (season.Year, season.Season),
-            _ => default);
+    /// <summary>Never fails: an unreadable id is logged and sorts oldest.</summary>
+    internal static Result<(Year Year, Season Season), StorageError> SeasonOrder(NyaaBindingStorage binding) =>
+        IdHelpers.SeriesSeasonFromId(binding.RowKey ?? string.Empty)
+            .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(NyaaBindingStorage), fields.Errors))
+            .Map(season => (season.Year, season.Season))
+            .AddLogOnFailure(error => error.LogAction())
+            .BindOnError(_ => default((Year, Season)));
 }
