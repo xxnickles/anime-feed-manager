@@ -37,7 +37,7 @@ public static class UserCredentialRegistration
         return storedUser switch
         {
             ValidStoredUser u => TryToGetCredential(u, passwordlessClient, cancellationToken),
-            _ => Task.FromResult<Result<UserRegistrationResult, AuthError>>(new AuthError.UserNotFound())
+            NotAStoredUser => Task.FromResult<Result<UserRegistrationResult, AuthError>>(new AuthError.UserNotFound())
         };
     }
 

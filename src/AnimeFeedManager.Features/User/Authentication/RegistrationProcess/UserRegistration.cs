@@ -63,7 +63,7 @@ public static class UserRegistration
             ValidStoredUser user => Task
                 .FromResult<Result<RegisterTokenResponse, RegistrationError>>(
                     (RegistrationError)new AuthError.UserAlreadyExists(user.Email)),
-            _ => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
+            NotAStoredUser => RegisterInPasswordless(passwordlessClient, data.Options, cancellationToken)
                 .MapError(error => (RegistrationError)error)
                 .Bind(token =>
                         updater(data.Registration.Email, data.Registration.UserId, UserRole.User(), cancellationToken)

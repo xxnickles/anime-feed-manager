@@ -34,7 +34,6 @@ public static class TvLibraryScrapper
         {
             Current => SeasonQueries.GetLatestSeason(latestSeason, token).Map(season => season with {IsLatest = false}),
             BySeason bySeason => Task.FromResult(
-                Result<SeriesSeason, LatestSeasonError>.Success(new SeriesSeason(bySeason.Season, bySeason.Year))),
-            _ => throw new UnreachableException()
+                Result<SeriesSeason, LatestSeasonError>.Success(new SeriesSeason(bySeason.Season, bySeason.Year)))
         };
 }

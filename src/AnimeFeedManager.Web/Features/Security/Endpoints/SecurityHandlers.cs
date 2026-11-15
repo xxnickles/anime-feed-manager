@@ -112,7 +112,7 @@ internal static class SecurityHandlers
         return user switch
         {
             ValidStoredUser vu => CreatePrincipal(vu),
-            _ => new AuthError.UserNotFound()
+            NotAStoredUser => new AuthError.UserNotFound()
         };
     }
 

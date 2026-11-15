@@ -1,6 +1,6 @@
 namespace AnimeFeedManager.Features.Common.Scrapping;
 
-public abstract record ImageInformation;
+public closed record ImageInformation;
 
 internal sealed record NoImage : ImageInformation;
 
