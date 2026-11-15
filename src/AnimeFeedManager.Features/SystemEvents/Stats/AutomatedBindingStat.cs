@@ -3,7 +3,7 @@ using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
 namespace AnimeFeedManager.Features.SystemEvents.Stats;
 
-public abstract record LastAutomatedBinding;
+public closed record LastAutomatedBinding;
 
 public sealed record NoAutomatedBinding : LastAutomatedBinding;
 

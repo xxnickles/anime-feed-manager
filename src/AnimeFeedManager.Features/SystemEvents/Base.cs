@@ -8,7 +8,7 @@ public record NotificationComponent(string Title, RenderFragment Content)
     public NotificationLifetime Lifetime { get; init; } = NotificationLifetime.Default;
 }
 
-public abstract record NotificationLifetime
+public closed record NotificationLifetime
 {
     public static readonly NotificationLifetime Default = new Timed(TimeSpan.FromSeconds(8));
 }

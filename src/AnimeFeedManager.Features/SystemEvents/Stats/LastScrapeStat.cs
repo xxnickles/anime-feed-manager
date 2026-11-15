@@ -3,7 +3,7 @@ using AnimeFeedManager.Features.Tv.Library.Events;
 
 namespace AnimeFeedManager.Features.SystemEvents.Stats;
 
-public abstract record LastScrape;
+public closed record LastScrape;
 
 public sealed record NoScrape : LastScrape;
 

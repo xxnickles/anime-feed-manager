@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace AnimeFeedManager.Features.SystemEvents.Notifications;
 
-public abstract record EpisodeSegment(int From, int To)
+public closed record EpisodeSegment(int From, int To)
 {
     public int Length => To - From + 1;
     public string Label => From == To ? $"{From:00}" : $"{From:00}–{To:00}";
@@ -54,7 +54,7 @@ public static class EpisodeSegments
             : new EpisodeCoverage(numbers.Length, numbers[^1], [..Collapse(numbers)], [..rereleases], specials);
     }
 
-    private abstract record ParsedEpisode(string Raw);
+    private closed record ParsedEpisode(string Raw);
 
     private sealed record RegularEpisode(int Number, string Raw, bool IsRerelease) : ParsedEpisode(Raw);
 
