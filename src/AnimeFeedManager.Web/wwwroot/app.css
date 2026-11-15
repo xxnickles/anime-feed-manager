@@ -4298,6 +4298,17 @@
       --alert-border-color: var(--color-warning);
       --alert-color: var(--color-warning);
     }
+    .link-accent {
+      color: var(--color-accent);
+    }
+    @media (hover: hover) {
+      .link-accent:hover {
+        color: var(--color-accent);
+        @supports (color: color-mix(in lab, red, red)) {
+          color: color-mix(in oklab, var(--color-accent) 80%, #000);
+        }
+      }
+    }
     .link-primary {
       color: var(--color-primary);
     }

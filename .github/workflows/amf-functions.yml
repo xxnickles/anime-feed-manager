@@ -48,7 +48,7 @@ jobs:
           dotnet test tests/AnimeFeedManager.Web.BlazorComponents.Tests -c Release --verbosity normal
 
       - name: Publish
-        run: dotnet publish src/AnimeFeedManager.Functions -c Release -o ./output
+        run: dotnet publish src/AnimeFeedManager.Functions -c Release -o ./output -p:BuildNumber=${{ github.run_number }} -p:BuildDate=$(date -u +%F)
 
       - name: Azure Login (OIDC)
         uses: azure/login@v3.1.0

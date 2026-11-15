@@ -62,12 +62,8 @@ jobs:
           dotnet test tests/AnimeFeedManager.Shared.Tests -c Release --verbosity normal
           dotnet test tests/AnimeFeedManager.Web.BlazorComponents.Tests -c Release --verbosity normal
 
-      - name: Compute version
-        id: version
-        run: echo "build_version=4.$(date +%y%m).${{ github.run_number }}" >> "$GITHUB_OUTPUT"
-
       - name: Publish
-        run: dotnet publish ${{ env.APP_PATH }} -c Release -o ./output -p:Version=${{ steps.version.outputs.build_version }}
+        run: dotnet publish ${{ env.APP_PATH }} -c Release -o ./output -p:BuildNumber=${{ github.run_number }} -p:BuildDate=$(date -u +%F)
 
       - name: Azure Login (OIDC)
         uses: azure/login@v3.1.0
