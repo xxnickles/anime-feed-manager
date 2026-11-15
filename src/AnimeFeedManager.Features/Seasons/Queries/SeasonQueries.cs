@@ -1,6 +1,3 @@
-using AnimeFeedManager.Features.Seasons.Storage;
-using AnimeFeedManager.Features.Seasons.UpdateProcess;
-
 namespace AnimeFeedManager.Features.Seasons.Queries;
 
 [Widens]

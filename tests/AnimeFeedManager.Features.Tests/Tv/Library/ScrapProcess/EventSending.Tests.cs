@@ -24,7 +24,7 @@ public class EventSendingTests
         };
         var postman = new TestDomainPostman();
 
-        var result = await Task.FromResult(Result<ScrapTvLibraryData, DomainError>.Success(new ScrapTvLibraryData([.. items], season)))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, ScrapProcessError>.Success(new ScrapTvLibraryData([.. items], season)))
             .SendEvents(postman, new SeasonParameters(season.Season.ToString(), (ushort) season.Year),
                 CancellationToken.None);
 
@@ -46,7 +46,7 @@ public class EventSendingTests
             MakeSeries("n-1", SeriesStatus.NotAvailable(), Status.NewSeries)
         };
 
-        var result = await Task.FromResult(Result<ScrapTvLibraryData, DomainError>.Success(new ScrapTvLibraryData([.. items], season)))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, ScrapProcessError>.Success(new ScrapTvLibraryData([.. items], season)))
             .SendEvents(new TestDomainPostman(), null, CancellationToken.None);
 
         result.AssertOnSuccess(summary =>
@@ -65,7 +65,7 @@ public class EventSendingTests
         var postman = new TestDomainPostman {FailOnFirstSend = true};
 
         var parameters = new SeasonParameters(season.Season.ToString(), (ushort) season.Year);
-        var result = await Task.FromResult(Result<ScrapTvLibraryData, DomainError>.Success(data))
+        var result = await Task.FromResult(Result<ScrapTvLibraryData, ScrapProcessError>.Success(data))
             .SendEvents(postman, parameters, CancellationToken.None);
 
         result.AssertError();

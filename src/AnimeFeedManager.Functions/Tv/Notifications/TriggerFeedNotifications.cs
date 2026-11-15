@@ -1,6 +1,5 @@
 using AnimeFeedManager.Features.Common;
 using AnimeFeedManager.Features.Scrapping.Nyaa;
-using AnimeFeedManager.Features.Scrapping.Types;
 using AnimeFeedManager.Features.Tv.FeedManager.Collection;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;

@@ -5,7 +5,6 @@ using AnimeFeedManager.Features.User.Authentication.LoginProcess;
 using AnimeFeedManager.Features.User.Authentication.Queries;
 using AnimeFeedManager.Features.User.Authentication.RegistrationProcess;
 using AnimeFeedManager.Features.User.Authentication.Storage.Stores;
-using AnimeFeedManager.Shared.Types;
 using AnimeFeedManager.Web.Htmx.Static;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;

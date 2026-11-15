@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace AnimeFeedManager.Shared.Results;
 
 // Consumed unions are struct unions (what `union` declares) holding only cases of the marked union (WID002).
