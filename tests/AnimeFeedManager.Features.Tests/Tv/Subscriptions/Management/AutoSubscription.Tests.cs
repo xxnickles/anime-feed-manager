@@ -104,7 +104,7 @@ public class AutoSubscriptionTests
         );
 
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, AutoSubscriptionError>.Success(process));
 
         var updater = Substitute.For<TvSubscriptionsUpdater>();
         updater(Arg.Any<IEnumerable<SubscriptionStorage>>(), Arg.Any<CancellationToken>())
@@ -136,7 +136,7 @@ public class AutoSubscriptionTests
         );
 
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, AutoSubscriptionError>.Success(process));
 
         var error = new StorageError.RequestFailed("test", new InvalidOperationException("Storage error"));
         var updater = Substitute.For<TvSubscriptionsUpdater>();
@@ -151,8 +151,8 @@ public class AutoSubscriptionTests
     [Fact]
     public async Task StoreChanges_Should_Propagate_Failure_From_Previous_Step()
     {
-        var error = new OtherTestError("Previous step error");
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(error));
+        var error = new StorageError.NotFound(typeof(SubscriptionStorage));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, AutoSubscriptionError>.Failure(error));
 
         var updater = Substitute.For<TvSubscriptionsUpdater>();
 
@@ -172,7 +172,7 @@ public class AutoSubscriptionTests
         );
 
         var process = new AutoSubscriptionProcess(seriesId, interestedSubscriptions);
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, AutoSubscriptionError>.Success(process));
 
         var capturedEvents = new List<SystemEvent>();
         DomainCollectionSender domainPostman = (messages, _) =>
@@ -199,7 +199,7 @@ public class AutoSubscriptionTests
         var emptySubscriptions = ImmutableArray<SubscriptionStorage>.Empty;
 
         var process = new AutoSubscriptionProcess(seriesId, emptySubscriptions);
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Success(process));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, AutoSubscriptionError>.Success(process));
 
         DomainCollectionSender domainPostman = (messages, _) =>
             Task.FromResult(Result<Unit, DeliveryError>.Success(new Unit()));
@@ -213,8 +213,8 @@ public class AutoSubscriptionTests
     public async Task SendEvents_Should_Send_Error_Event_And_Return_Original_Error_When_Process_Fails()
     {
         const string seriesId = "test-series-123";
-        var originalError = new OtherTestError("Process failed");
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(originalError));
+        var originalError = new StorageError.NotFound(typeof(SubscriptionStorage));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, AutoSubscriptionError>.Failure(originalError));
 
         var capturedEvents = new List<SystemEvent>();
         DomainCollectionSender domainPostman = (messages, _) =>
@@ -238,8 +238,8 @@ public class AutoSubscriptionTests
     public async Task SendEvents_Should_Return_Error_Event_Failure_When_Both_Process_And_ErrorEvent_Fail()
     {
         const string seriesId = "test-series-123";
-        var originalError = new OtherTestError("Process failed");
-        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, DomainError>.Failure(originalError));
+        var originalError = new StorageError.NotFound(typeof(SubscriptionStorage));
+        var processTask = Task.FromResult(Result<AutoSubscriptionProcess, AutoSubscriptionError>.Failure(originalError));
 
         var errorEventError = new DeliveryError.NotDelivered([], new InvalidOperationException("Failed to send error event"));
         DomainCollectionSender domainPostman = (messages, _) =>

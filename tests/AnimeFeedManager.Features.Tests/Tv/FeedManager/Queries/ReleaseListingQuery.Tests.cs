@@ -20,7 +20,7 @@ public class ReleaseListingQueryTests
             Task.FromResult(Result<TvSeries, StorageError>.Failure(new StorageError.NotFound(typeof(TvSeries)))),
             Bound());
 
-        result.AssertOnError(error => Assert.IsType<StorageError.NotFound>(error));
+        result.AssertOnError(error => Assert.IsType<StorageError.NotFound>(error.Value));
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class ReleaseListingQueryTests
 
     #region Test Helpers
 
-    private static Task<Result<ReleaseListing, DomainError>> GetListing(
+    private static Task<Result<ReleaseListing, StorageRequestError>> GetListing(
         Task<Result<TvSeries, StorageError>> series,
         Task<Result<NyaaBindingStorage, StorageError>> binding,
         ImmutableArray<NyaaCatalogStorage> catalog = default,

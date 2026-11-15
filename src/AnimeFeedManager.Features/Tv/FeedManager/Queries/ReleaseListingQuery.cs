@@ -36,7 +36,7 @@ public sealed record NyaaReleaseFeed(
 public static class ReleaseListingQuery
 {
     /// <summary>A library series with its nyaa releases; an unbound series reads as <see cref="NoReleaseFeed"/>, one missing from the library fails with <see cref="StorageError.NotFound"/>.</summary>
-    public static Task<Result<ReleaseListing, DomainError>> GetReleaseListing(
+    public static Task<Result<ReleaseListing, StorageRequestError>> GetReleaseListing(
         string seriesId,
         TvLibrarySeries seriesGetter,
         Uri publicBlobUri,
@@ -44,7 +44,7 @@ public static class ReleaseListingQuery
         NyaaCatalogGetter catalogGetter,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(seriesId)
-            .MapError(error => (DomainError)error)
+            .MapError(error => (StorageRequestError)error)
             .Bind(season => seriesGetter(seriesId, season, publicBlobUri, token)
                 .Map(series => (Season: season, Series: series)))
             .Bind(found => Feed(seriesId, found.Season, bindingGetter, catalogGetter, token)
