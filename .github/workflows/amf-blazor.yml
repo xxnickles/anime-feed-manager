@@ -20,7 +20,7 @@ permissions:
 
 env:
   RESOURCE_GROUP: amf-rg
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: '11.0.x'
   APP_PATH: './src/AnimeFeedManager.Web'
 
 jobs:
