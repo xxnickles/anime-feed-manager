@@ -158,19 +158,14 @@ internal static class FeedManagerHandlers
     {
         using var activity = Source.StartActivity(AdminTelemetry.RefreshReleaseCandidatesSpan);
         return await Reload(seriesId, clientFactory, token)
-            // Transitional until the release search has its path union.
-            .MapError(error => error switch
-            {
-                ValidationError validation => (DomainError)validation,
-                StorageError storage => storage
-            })
+            .MapError(error => (ReleaseCandidatesError)error)
             .Bind(series => ReleaseSearch.Search(q, trusted, series.Binding, nyaaClient, token)
                 .Map(results => (Series: series, Results: results)))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
                 result => [ReleaseCandidates.AsOobFragment(result.Series, q, trusted, result.Results)],
-                error => error.ToContentFallback(), "Release search");
+                error => error.ToContent(), "Release search");
     }
 
     private static Task<Result<FeedManagerSeries, StorageRequestError>> Reload(

@@ -113,13 +113,13 @@ Synthesizes an internal `WithTableNameAttribute` for marking Azure Table Storage
 
 ### UnionWidening
 
-Implements `IWidensFrom<TSelf, TFamily>` (`AnimeFeedManager.Shared.Results`) on unions marked `[Widens]`, so the constrained `Bind` / `BindWhen` in `ResultWidening` can widen a step's error.
+Implements `IWidensFrom<TSelf, TFamily>` (`AnimeFeedManager.Shared.Results`) on unions marked `[Widens]`, so the constrained `Bind` / `BindWhen` in `ResultWidening` can widen a step's error; each consumed union also converts implicitly (casts, `return`, assignment).
 
 | Detail | Value |
 |---|---|
 | Trigger | `[Widens]` / `[Widens<TUnion1, …>]` (up to 4) on a `partial union`; `partial` alone generates nothing |
 | Constraints | Consumed types are `struct, IUnion` (compiler-checked: a family or case record listed there is CS0453 / CS0315); attribute targets structs only (CS0592 on a class) |
-| Emitted | One `IWidensFrom` per case (`=> error`); one per consumed union, a switch mapping each of its cases |
+| Emitted | Per consumed union, a `public static implicit operator` switching each of its cases; one `IWidensFrom` per case and consumed union (`=> error`, through the case or user-defined conversion) |
 | Case discovery | The union's single-parameter constructors (compiler-synthesized, one per case); works for unions from referenced assemblies |
 | Output namespace | Same namespace as the union |
 | Consumer wiring | None beyond the project reference; consuming project must reference `AnimeFeedManager.Shared` |

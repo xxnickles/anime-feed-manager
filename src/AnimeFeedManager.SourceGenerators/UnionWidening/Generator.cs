@@ -169,18 +169,19 @@ public class UnionWideningGenerator : IIncrementalGenerator
             sb.AppendLine($"    {(i == 0 ? ":" : ",")} {WidensFrom}<{name}, {families[i]}>");
         sb.AppendLine("{");
 
-        foreach (var @case in cases)
-            sb.AppendLine($"    static {name} {WidensFrom}<{name}, {@case}>.Widen({@case} error) => error;");
-
+        // The compiler converts a case into its union; a consumed union needs a user-defined conversion.
         foreach (var (union, unionCases) in consumed)
         {
-            sb.AppendLine();
-            sb.AppendLine($"    static {name} {WidensFrom}<{name}, {union}>.Widen({union} error) => error switch");
+            sb.AppendLine($"    public static implicit operator {name}({union} error) => error switch");
             sb.AppendLine("    {");
             for (var i = 0; i < unionCases.Length; i++)
                 sb.AppendLine($"        {unionCases[i]} case{i} => case{i}{(i < unionCases.Length - 1 ? "," : "")}");
             sb.AppendLine("    };");
+            sb.AppendLine();
         }
+
+        foreach (var family in families)
+            sb.AppendLine($"    static {name} {WidensFrom}<{name}, {family}>.Widen({family} error) => error;");
 
         sb.AppendLine("}");
         return sb.ToString();
