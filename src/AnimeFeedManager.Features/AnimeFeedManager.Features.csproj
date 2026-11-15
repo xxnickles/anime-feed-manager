@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AnimeFeedManager.Shared\AnimeFeedManager.Shared.csproj" />
-        <ProjectReference Include="..\AnimeFeedManager.SourceGenerators\AnimeFeedManager.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+        <ProjectReference Include="..\AnimeFeedManager.SourceGenerators\AnimeFeedManager.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
     <ItemGroup>
