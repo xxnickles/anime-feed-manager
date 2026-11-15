@@ -5,7 +5,7 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.Queries;
 
-public abstract record SeasonFeed(string SeriesId, string Title);
+public closed record SeasonFeed(string SeriesId, string Title);
 
 public sealed record UnfedSeries(string SeriesId, string Title, ExpectedEpisodes Episodes)
     : SeasonFeed(SeriesId, Title);

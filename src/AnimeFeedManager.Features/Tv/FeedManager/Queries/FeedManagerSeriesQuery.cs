@@ -14,7 +14,7 @@ public sealed record FeedManagerSeries(
     ImmutableArray<StreamLink> Streams,
     CurrentBinding Binding);
 
-public abstract record CurrentBinding;
+public closed record CurrentBinding;
 
 public sealed record NoBinding : CurrentBinding;
 

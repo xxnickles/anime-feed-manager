@@ -18,7 +18,7 @@ public sealed record ReleaseListing(
     BroadcastHint Broadcast,
     ReleaseFeed Feed);
 
-public abstract record ReleaseFeed;
+public closed record ReleaseFeed;
 
 public sealed record NoReleaseFeed : ReleaseFeed;
 

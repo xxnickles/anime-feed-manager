@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace AnimeFeedManager.Features.Scrapping.Nyaa;
 
-public abstract record NyaaEpisode(string Label);
+public closed record NyaaEpisode(string Label);
 
 public sealed record RegularEpisode(int Number, string Label) : NyaaEpisode(Label);
 

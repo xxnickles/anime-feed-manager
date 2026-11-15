@@ -80,7 +80,6 @@ public static class ReleaseSearch
     private static decimal EpisodeOrder(NyaaEpisode episode) => episode switch
     {
         RegularEpisode regular => regular.Number,
-        SpecialEpisode special => special.Number,
-        _ => throw new ArgumentOutOfRangeException(nameof(episode), episode, null)
+        SpecialEpisode special => special.Number
     };
 }

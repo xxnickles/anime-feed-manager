@@ -3,7 +3,7 @@ using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.Completion;
 
-public abstract record CompletionOutcome;
+public closed record CompletionOutcome;
 
 public sealed record FeedCompleted(DateTimeOffset At) : CompletionOutcome;
 

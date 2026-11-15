@@ -43,8 +43,7 @@ public static class NyaaCatalogRows
             EpisodeNumber = release.Episode switch
             {
                 RegularEpisode regular => regular.Number,
-                SpecialEpisode special => (double) special.Number,
-                _ => throw new ArgumentOutOfRangeException(nameof(release), release.Episode, null)
+                SpecialEpisode special => (double) special.Number
             },
             EpisodeLabel = release.Episode.Label,
             Special = release.Episode is SpecialEpisode
@@ -75,7 +74,6 @@ public static class NyaaCatalogRows
     private static string EpisodeKey(NyaaEpisode episode) => episode switch
     {
         RegularEpisode regular => regular.Number.ToString("0000", CultureInfo.InvariantCulture),
-        SpecialEpisode special => special.Number.ToString("0000.####", CultureInfo.InvariantCulture),
-        _ => throw new ArgumentOutOfRangeException(nameof(episode), episode, null)
+        SpecialEpisode special => special.Number.ToString("0000.####", CultureInfo.InvariantCulture)
     };
 }
