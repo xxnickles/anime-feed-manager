@@ -31,35 +31,32 @@ public static class LibraryQueries
         {
             return subscriptionsGetter(au.UserId, cancellationToken)
                 .Map(subscriptions => libraryData
-                    .Select(s => s.ForUser(user, GetSubscriptionType(subscriptions, s.Id)))
+                    .Select(UserTvSeries (s) => s.ForUser(au, GetSubscriptionType(subscriptions, s.Id)))
                     .ToImmutableArray());
         }
 
         return Task.FromResult(
-            Result<ImmutableArray<UserTvSeries>, StorageError>.Success(libraryData.Select(s => MapForAnonymous(s, user)).ToImmutableArray()));
+            Result<ImmutableArray<UserTvSeries>, StorageError>.Success(libraryData.Select(UserTvSeries (s) => MapForAnonymous(s)).ToImmutableArray()));
     }
 
 
-    private static UserTvSeries MapForAnonymous(TvSeries series, AppUser user)
+    private static PublicSeries MapForAnonymous(TvSeries series) => series.Status.ToString() switch
     {
-        return series.Status.ToString() switch
-        {
-            SeriesStatus.OngoingValue => new Available(user, series),
-            SeriesStatus.CompletedValue => new Completed(user, series, false),
-            _ => new NotAvailable(user, series)
-        };
-    }
+        SeriesStatus.OngoingValue => new PublicSeries.Available(series),
+        SeriesStatus.CompletedValue => new PublicSeries.Completed(series),
+        _ => new PublicSeries.NotAvailable(series)
+    };
 
     // A completed series wins over any subscription state (it takes no user actions); the
     // subscription survives only as a flag. Otherwise subscription state wins over airing state.
-    public static UserTvSeries ForUser(this TvSeries series, AppUser user, SubscriptionType subscription) =>
+    public static SubscriberSeries ForUser(this TvSeries series, AuthenticatedUser user, SubscriptionType subscription) =>
         (series.Status.ToString(), subscription) switch
         {
-            (SeriesStatus.CompletedValue, var type) => new Completed(user, series, type == SubscriptionType.Subscribed),
-            (_, SubscriptionType.Subscribed) => new Subscribed(user, series),
-            (_, SubscriptionType.Interested) => new Interested(user, series),
-            (SeriesStatus.OngoingValue, _) => new AvailableForSubscription(user, series),
-            _ => new AvailableForFuture(user, series)
+            (SeriesStatus.CompletedValue, var type) => new SubscriberSeries.Completed(user, series, type == SubscriptionType.Subscribed),
+            (_, SubscriptionType.Subscribed) => new SubscriberSeries.Subscribed(user, series),
+            (_, SubscriptionType.Interested) => new SubscriberSeries.Interested(user, series),
+            (SeriesStatus.OngoingValue, _) => new SubscriberSeries.AvailableForSubscription(user, series),
+            _ => new SubscriberSeries.AvailableForFuture(user, series)
         };
 
 

@@ -21,10 +21,10 @@ public static class FilterAttributesHelper
 
         switch (series)
         {
-            case Subscribed or Completed { IsSubscribed: true }:
+            case SubscriberSeries.Subscribed or SubscriberSeries.Completed { IsSubscribed: true }:
                 attributes[SubscribedKey] = true;
                 break;
-            case Interested:
+            case SubscriberSeries.Interested:
                 attributes[InterestedKey] = true;
                 break;
         }

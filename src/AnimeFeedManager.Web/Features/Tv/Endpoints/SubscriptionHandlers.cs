@@ -59,7 +59,7 @@ internal static class SubscriptionHandlers
                 [
                     TvCard.AsRenderFragment(card),
                     Notifications.CreateNotificationToast("TV Subscription",
-                        Notifications.TextBody(card is Subscribed
+                        Notifications.TextBody(card is SubscriberSeries.Subscribed
                             ? $"{card.TvSeries.Title} has been added to your subscriptions"
                             : $"{card.TvSeries.Title} has been removed from your subscriptions"))
                 ],

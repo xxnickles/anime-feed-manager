@@ -58,7 +58,7 @@ internal static class InterestedHandlers
                 [
                     TvCard.AsRenderFragment(card),
                     Notifications.CreateNotificationToast("Interested",
-                        Notifications.TextBody(card is Interested
+                        Notifications.TextBody(card is SubscriberSeries.Interested
                             ? $"{card.TvSeries.Title} has been added to your interested list"
                             : $"{card.TvSeries.Title} has been removed from your interested list"))
                 ],
