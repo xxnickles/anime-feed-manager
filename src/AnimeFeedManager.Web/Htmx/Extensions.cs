@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace AnimeFeedManager.Web.Htmx;
 
-internal abstract record HtmxRequestType;
+internal closed record HtmxRequestType;
 
 internal sealed record Html : HtmxRequestType;
 

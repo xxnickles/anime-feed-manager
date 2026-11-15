@@ -33,6 +33,6 @@ internal static class Data
         context.GetCurrentUser() switch
         {
             AuthenticatedUser user => user,
-            _ => new UserIsAnonymous()
+            Anonymous => new UserIsAnonymous()
         };
 }
