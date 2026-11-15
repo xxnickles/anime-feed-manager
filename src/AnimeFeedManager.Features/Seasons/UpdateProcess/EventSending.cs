@@ -10,11 +10,11 @@ public static class EventSending
         SeriesSeason seriesSeason,
         CancellationToken cancellationToken) =>
         result
-            .Map(d => d.SeasonData switch
+            .Map(d => d.Plan switch
             {
-                NoUpdateRequired or NoMatch => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.NoChanges),
+                NoUpdateRequired => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.NoChanges),
                 NewSeason => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.New),
-                _ => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.Updated)
+                ExistentSeason or ReplaceLatestSeason => new SeasonUpdateResult(seriesSeason, SeasonUpdateStatus.Updated)
             })
             .Bind(r => domainPostman(GetOnCompletedEvents(r), cancellationToken)
                 .Map(_ => r))

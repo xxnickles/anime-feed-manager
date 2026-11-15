@@ -26,7 +26,7 @@ public class EventSendingTests
         Assert.Equal(nameof(SeasonUpdateResult), stored.Payload.PayloadTypeName);
     }
 
-    public static TheoryData<SeasonStorageData, SeasonUpdateStatus> NonCreationOutcomes => new()
+    public static TheoryData<SeasonPlan, SeasonUpdateStatus> NonCreationOutcomes => new()
     {
         { new ReplaceLatestSeason(new SeasonStorage()), SeasonUpdateStatus.Updated },
         { new ExistentSeason(new SeasonStorage()), SeasonUpdateStatus.Updated },
@@ -35,12 +35,12 @@ public class EventSendingTests
 
     [Theory]
     [MemberData(nameof(NonCreationOutcomes))]
-    public async Task Should_Only_Store_Event_When_Season_Is_Not_Created(SeasonStorageData seasonData,
+    public async Task Should_Only_Store_Event_When_Season_Is_Not_Created(SeasonPlan plan,
         SeasonUpdateStatus expectedStatus)
     {
         var postman = new TestDomainPostman();
 
-        var result = await Send(seasonData, postman);
+        var result = await Send(plan, postman);
 
         result.AssertOnSuccess(r => Assert.Equal(expectedStatus, r.SeasonUpdateStatus));
         var stored = Assert.Single(postman.Events);
@@ -77,8 +77,8 @@ public class EventSendingTests
 
     #region Test Helpers
 
-    private static Task<Result<SeasonUpdateResult, SeasonUpdateError>> Send(SeasonStorageData seasonData, TestDomainPostman postman) =>
-        Task.FromResult(Result<SeasonUpdateData, SeasonUpdateError>.Success(new SeasonUpdateData(TestSeason, seasonData, new NoMatch())))
+    private static Task<Result<SeasonUpdateResult, SeasonUpdateError>> Send(SeasonPlan plan, TestDomainPostman postman) =>
+        Task.FromResult(Result<SeasonUpdateData, SeasonUpdateError>.Success(new SeasonUpdateData(TestSeason, plan, new NoMatch())))
             .SentEvents(postman, TestSeason, CancellationToken.None);
 
     private sealed class TestDomainPostman

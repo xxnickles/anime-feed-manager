@@ -14,7 +14,7 @@ public class SeasonUpdateTests
 
         var seasonGetter = Substitute.For<SeasonGetter>();
         seasonGetter(season, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoUpdateRequired()));
+            .Returns(Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoUpdateRequired())));
 
         var latestGetter = Substitute.For<LatestSeasonGetter>();
         // Should not be called due to predicate
@@ -30,7 +30,7 @@ public class SeasonUpdateTests
 
         result.AssertOnSuccess(data =>
         {
-             Assert.IsType<NoUpdateRequired>(data.SeasonData);
+             Assert.IsType<NoUpdateRequired>(data.Plan.Value);
         });
 
         _ = seasonUpdater.DidNotReceive()(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>());
@@ -44,19 +44,9 @@ public class SeasonUpdateTests
 
         var seasonGetter = Substitute.For<SeasonGetter>();
         seasonGetter(season, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoMatch()));
+            .Returns(Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoMatch())));
 
         var latestGetter = Substitute.For<LatestSeasonGetter>();
-        // Predicate WhenNewIsNotLatest will call this (CurrentLatestSeasonData initially NoMatch)
-        latestGetter(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new CurrentLatestSeason(new SeasonStorage
-            {
-                PartitionKey = SeasonStorage.SeasonPartition,
-                RowKey = "latest-2025",
-                Latest = true,
-                Season = "Spring",
-                Year = 2025
-            })));
 
         var seasonUpdater = Substitute.For<SeasonUpdater>();
         seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
@@ -71,13 +61,14 @@ public class SeasonUpdateTests
 
         result.AssertOnSuccess(data =>
         {
-            var newData = Assert.IsType<NewSeason>(data.SeasonData);
+            var newData = Assert.IsType<NewSeason>(data.Plan.Value);
             Assert.False(newData.Season.Latest);
             Assert.Equal(season.Season.ToString(), newData.Season.Season);
             Assert.Equal(season.Year.Value, (ushort)newData.Season.Year);
         });
 
         _ = seasonUpdater.Received(1)(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>());
+        _ = latestGetter.DidNotReceive()(Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -96,7 +87,7 @@ public class SeasonUpdateTests
 
         var seasonGetter = Substitute.For<SeasonGetter>();
         seasonGetter(season, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new ExistentSeason(existingStorage)));
+            .Returns(Task.FromResult(Result<SeasonRead, StorageError>.Success(new ExistentSeason(existingStorage))));
 
         var seasonUpdater = Substitute.For<SeasonUpdater>();
         seasonUpdater(existingStorage, Arg.Any<CancellationToken>())
@@ -108,7 +99,7 @@ public class SeasonUpdateTests
             .CreateNewSeason()
             .StoreUpdatedSeason(seasonUpdater, token);
 
-        result.AssertOnSuccess(data => Assert.IsType<ExistentSeason>(data.SeasonData));
+        result.AssertOnSuccess(data => Assert.IsType<ExistentSeason>(data.Plan.Value));
 
         _ = seasonUpdater.Received(1)(existingStorage, Arg.Any<CancellationToken>());
     }
@@ -119,9 +110,9 @@ public class SeasonUpdateTests
         var incoming = new SeriesSeason(Season.Fall(), Year.FromNumber(2025), true);
 
         var seasonGetter = Substitute.For<SeasonGetter>();
-        // Incoming is latest but not present -> NoMatch, then CreateNewSeason -> ReplaceLatestSeason
+        // Incoming is latest but not present -> NoMatch, then CreateNewSeason -> NewSeason {Latest: true}
         seasonGetter(incoming, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoMatch()));
+            .Returns(Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoMatch())));
 
         var currentLatest = new SeasonStorage
         {
@@ -134,7 +125,7 @@ public class SeasonUpdateTests
 
         var latestGetter = Substitute.For<LatestSeasonGetter>();
         latestGetter(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new CurrentLatestSeason(currentLatest)));
+            .Returns(Task.FromResult(Result<LatestSeasonRead, StorageError>.Success(new CurrentLatestSeason(currentLatest))));
 
         var seasonUpdater = Substitute.For<SeasonUpdater>();
         seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
@@ -143,15 +134,15 @@ public class SeasonUpdateTests
         var token = CancellationToken.None;
         var result = await SeasonUpdate
             .CheckSeasonExist(seasonGetter, incoming, token)
-            .CreateNewSeason() // -> ReplaceLatestSeason
+            .CreateNewSeason() // -> NewSeason {Latest: true}
             .AddLatestSeasonData(latestGetter, token) // -> CurrentLatestSeason loaded
             .StoreUpdatedSeason(seasonUpdater, token) // store new latest
             .DemoteCurrentLatest(seasonUpdater, token); // demote previous latest
 
         result.AssertOnSuccess(data =>
         {
-            Assert.IsType<NewSeason>(data.SeasonData);
-            Assert.IsType<CurrentLatestSeason>(data.CurrentLatestSeasonData);
+            Assert.IsType<NewSeason>(data.Plan.Value);
+            Assert.IsType<CurrentLatestSeason>(data.Latest.Value);
         });
 
         // Two updates: one for new latest, one for demotion
@@ -165,12 +156,12 @@ public class SeasonUpdateTests
 
         var seasonGetter = Substitute.For<SeasonGetter>();
         seasonGetter(incoming, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoMatch()));
+            .Returns(Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoMatch())));
 
         var latestGetter = Substitute.For<LatestSeasonGetter>();
         // No current latest in storage
         latestGetter(Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoMatch()));
+            .Returns(Task.FromResult(Result<LatestSeasonRead, StorageError>.Success(new NoMatch())));
 
         var seasonUpdater = Substitute.For<SeasonUpdater>();
         seasonUpdater(Arg.Any<SeasonStorage>(), Arg.Any<CancellationToken>())
@@ -185,8 +176,8 @@ public class SeasonUpdateTests
 
         result.AssertOnSuccess(data =>
         {
-            Assert.IsType<NewSeason>(data.SeasonData);
-            Assert.IsType<NoMatch>(data.CurrentLatestSeasonData);
+            Assert.IsType<NewSeason>(data.Plan.Value);
+            Assert.IsType<NoMatch>(data.Latest.Value);
         });
 
         // Only one store call, no demotion

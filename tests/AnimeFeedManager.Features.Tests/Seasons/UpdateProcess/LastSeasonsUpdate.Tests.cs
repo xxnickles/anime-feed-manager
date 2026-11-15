@@ -18,14 +18,15 @@ public class LastSeasonsUpdateTests
 
         var result = await SeasonUpdate
             .CheckSeasonExist(SeasonGetter, incoming, token)
+            .CreateNewSeason()
             .UpdateLast4Seasons(GetAllSeasons, LatestUpdater, token);
 
         Assert.False(latestUpdaterCalled); // No update should occur
         return;
 
         // SeasonGetter returns NoUpdateRequired to simulate no change
-        Task<Result<SeasonStorageData, StorageError>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
-            Task.FromResult<Result<SeasonStorageData, StorageError>>(new NoUpdateRequired());
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoUpdateRequired()));
 
         Task<Result<Unit, StorageError>> LatestUpdater(LatestSeasonsStorage s, CancellationToken _)
         {
@@ -41,9 +42,9 @@ public class LastSeasonsUpdateTests
     public async Task Should_Update_With_Last_4_Seasons_In_Order()
     {
         var incoming = new SeriesSeason(Season.Summer(), Year.FromNumber(2026), true);
-        // Force path that is not NoUpdateRequired so UpdateLast4Seasons executes
-        Task<Result<SeasonStorageData, StorageError>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
-            Task.FromResult<Result<SeasonStorageData, StorageError>>(new NewSeason(new SeasonStorage()));
+        // NoMatch becomes NewSeason, so UpdateLast4Seasons executes
+        Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason _, CancellationToken __) =>
+            Task.FromResult(Result<SeasonRead, StorageError>.Success(new NoMatch()));
 
         var seasons = new List<SeriesSeason>
         {
@@ -61,6 +62,7 @@ public class LastSeasonsUpdateTests
         var token = CancellationToken.None;
         var result = await SeasonUpdate
             .CheckSeasonExist(SeasonGetter, incoming, token)
+            .CreateNewSeason()
             .UpdateLast4Seasons(GetAllSeasons, LatestUpdater, token);
 
         Assert.NotNull(stored);

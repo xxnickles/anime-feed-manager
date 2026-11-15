@@ -4,9 +4,9 @@ using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Seasons.Storage;
 
-public delegate Task<Result<SeasonStorageData, StorageError>> LatestSeasonGetter(CancellationToken cancellationToken = default);
+public delegate Task<Result<LatestSeasonRead, StorageError>> LatestSeasonGetter(CancellationToken cancellationToken = default);
 
-public delegate Task<Result<SeasonStorageData, StorageError>> SeasonGetter(SeriesSeason season,
+public delegate Task<Result<SeasonRead, StorageError>> SeasonGetter(SeriesSeason season,
     CancellationToken cancellation = default);
 
 public delegate Task<Result<ImmutableArray<SeriesSeason>, StorageError>> AllSeasonsGetter(
@@ -29,7 +29,7 @@ public static class ExistentSeasons
                     .ExecuteQuery<SeasonStorage>(
                         storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
                         cancellationToken)
-                    .Map(SeasonStorageData (seasons) =>
+                    .Map(LatestSeasonRead (seasons) =>
                         seasons.FirstOrDefault(season => season.Latest) is { } flagged
                             ? new CurrentLatestSeason(flagged)
                             : NewestSeason(seasons)));
@@ -41,7 +41,7 @@ public static class ExistentSeasons
                 .Bind(client => client.ExecuteQuery<SeasonStorage>(storage =>
                         storage.PartitionKey == SeasonStorage.SeasonPartition &&
                         storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
-                    .Map(SeasonStorageData (matches) =>
+                    .Map(SeasonRead (matches) =>
                     {
                         if (matches.IsEmpty)
                             return new NoMatch();
@@ -79,7 +79,7 @@ public static class ExistentSeasons
                 .Map(seasons => seasons.TransformToSeriesSeason(logger));
     }
 
-    private static SeasonStorageData NewestSeason(ImmutableArray<SeasonStorage> seasons) =>
+    private static LatestSeasonRead NewestSeason(ImmutableArray<SeasonStorage> seasons) =>
         seasons
             .Where(season => Season.IsValid(season.Season ?? string.Empty))
             .OrderByDescending(season => season.Year)

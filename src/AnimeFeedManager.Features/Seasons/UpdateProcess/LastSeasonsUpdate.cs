@@ -9,7 +9,7 @@ public static class LastSeasonsUpdate
         AllSeasonsGetter seasonsGetter,
         LastestSeasonsUpdater latestSeasonUpdater,
         CancellationToken cancellationToken) =>
-        result.Bind(r => r.SeasonData switch
+        result.Bind(r => r.Plan switch
         {
             NoUpdateRequired => Task.FromResult(Result<SeasonUpdateData, StorageError>.Success(r)),
             _ => GetLast4Season(seasonsGetter, cancellationToken)
