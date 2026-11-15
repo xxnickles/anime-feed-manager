@@ -4,16 +4,19 @@ using AnimeFeedManager.Features.Tv.Subscriptions.Storage.Stores;
 
 namespace AnimeFeedManager.Features.Tv.Subscriptions.Feed;
 
+[Widens]
+public partial union NotificationProcessError(StorageError, DeliveryError);
+
 public static class NotificationProcess
 {
-    public static Task<Result<UserNotificationSummary, DomainError>> UpdateUserSubscriptions(
+    public static Task<Result<UserNotificationSummary, NotificationProcessError>> UpdateUserSubscriptions(
         FeedNotification updateNotification,
         TvSubscriptionsUpdater updater,
         DomainCollectionSender domainPostman,
         CancellationToken token)
     {
         return UpdateUserSubscription(updateNotification, updater, token)
-            .MapError(error => (DomainError)error)
+            .MapError(error => (NotificationProcessError)error)
             .Map(_ => ToUserNotificationResult(updateNotification))
             .Bind(results => SendNotifications(domainPostman, results))
             .Summarize();
@@ -107,6 +110,6 @@ public static class NotificationProcess
             .WithOperationName(nameof(SendNotifications));
     }
     
-    private static Task<Result<UserNotificationSummary, DomainError>> Summarize(this Task<Result<UserNotificationResult, DomainError>> result) =>
+    private static Task<Result<UserNotificationSummary, NotificationProcessError>> Summarize(this Task<Result<UserNotificationResult, NotificationProcessError>> result) =>
         result.Map(r => new UserNotificationSummary(r.UserId, r.Notifications.Length));
 }

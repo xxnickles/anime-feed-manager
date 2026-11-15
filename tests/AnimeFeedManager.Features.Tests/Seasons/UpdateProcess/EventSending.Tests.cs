@@ -53,7 +53,7 @@ public class EventSendingTests
     {
         var postman = new TestDomainPostman();
 
-        var result = await Task.FromResult<Result<SeasonUpdateData, DomainError>>(new OtherTestError("update failed"))
+        var result = await Task.FromResult(Result<SeasonUpdateData, SeasonUpdateError>.Failure(new StorageError.NotFound(typeof(SeasonStorage))))
             .SentEvents(postman, TestSeason, CancellationToken.None);
 
         result.AssertError();
@@ -77,8 +77,8 @@ public class EventSendingTests
 
     #region Test Helpers
 
-    private static Task<Result<SeasonUpdateResult, DomainError>> Send(SeasonStorageData seasonData, TestDomainPostman postman) =>
-        Task.FromResult(Result<SeasonUpdateData, DomainError>.Success(new SeasonUpdateData(TestSeason, seasonData, new NoMatch())))
+    private static Task<Result<SeasonUpdateResult, SeasonUpdateError>> Send(SeasonStorageData seasonData, TestDomainPostman postman) =>
+        Task.FromResult(Result<SeasonUpdateData, SeasonUpdateError>.Success(new SeasonUpdateData(TestSeason, seasonData, new NoMatch())))
             .SentEvents(postman, TestSeason, CancellationToken.None);
 
     private sealed class TestDomainPostman

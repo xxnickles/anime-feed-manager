@@ -4,8 +4,8 @@ namespace AnimeFeedManager.Features.Seasons.UpdateProcess;
 
 public static class LastSeasonsUpdate
 {
-    public static Task<Result<SeasonUpdateData, DomainError>> UpdateLast4Seasons(
-        this Task<Result<SeasonUpdateData, DomainError>> result,
+    public static Task<Result<SeasonUpdateData, SeasonUpdateError>> UpdateLast4Seasons(
+        this Task<Result<SeasonUpdateData, SeasonUpdateError>> result,
         AllSeasonsGetter seasonsGetter,
         LastestSeasonsUpdater latestSeasonUpdater,
         CancellationToken cancellationToken) =>
