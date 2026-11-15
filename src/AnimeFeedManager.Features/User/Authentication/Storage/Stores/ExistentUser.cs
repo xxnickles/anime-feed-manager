@@ -49,7 +49,7 @@ public static class ExistentUser
 
         return matchingStorage.Email.ParseAsEmail()
             .And((matchingStorage.RowKey ?? string.Empty).ParseAsNonEmpty())
-            .Map<StoredUser>(data => new ValidStoredUser(data.Item1, data.Item2, UserRole.FromString(matchingStorage.Role)))
+            .Map(StoredUser (data) => new ValidStoredUser(data.Item1, data.Item2, UserRole.FromString(matchingStorage.Role)))
             .AsResult()
             .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(UserStorage), fields.Errors));
     }

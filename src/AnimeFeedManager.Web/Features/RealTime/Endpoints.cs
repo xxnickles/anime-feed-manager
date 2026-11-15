@@ -28,8 +28,8 @@ internal static class Endpoints
             .Bind(hubContext => Negotiation.Negotiate(hubContext, user, cancellationToken))
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
-            .MatchToValue<NegotiationResponse, RealTimeError, IResult>(
-                negotiation => Results.Json(new NegotiateResponse(negotiation.Url, negotiation.AccessToken)),
+            .MatchToValue(
+                IResult (negotiation) => Results.Json(new NegotiateResponse(negotiation.Url, negotiation.AccessToken)),
                 _ => Results.StatusCode(StatusCodes.Status503ServiceUnavailable));
     }
 

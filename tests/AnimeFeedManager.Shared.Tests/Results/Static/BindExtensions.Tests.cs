@@ -312,24 +312,6 @@ public class BindExtensionsTests
         result.AssertOnError(error => Assert.IsType<MissingEntry>(error));
     }
 
-    [Fact]
-    public async Task Should_Map_Without_Binding_When_Task_BindWhen_Predicate_Is_False()
-    {
-        var binderCalled = false;
-
-        var result = await Task.FromResult(Result<int, DomainError>.Success(3))
-            .BindWhen(x =>
-                {
-                    binderCalled = true;
-                    return Task.FromResult(Result<int, MissingEntry>.Success(x));
-                },
-                x => x.ToString(),
-                _ => false);
-
-        Assert.False(binderCalled);
-        result.AssertOnSuccess(value => Assert.Equal("3", value));
-    }
-
     #endregion
 
     #region Union Widening BindWhen

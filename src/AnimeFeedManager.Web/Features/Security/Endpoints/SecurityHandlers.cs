@@ -69,8 +69,8 @@ internal static class SecurityHandlers
             .Tap(principal => httpContext.SignInAsync(
                 principal,
                 new AuthenticationProperties { IsPersistent = true }))
-            .MatchToValue<ClaimsPrincipal, LoginError, IResult>(
-                _ => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
+            .MatchToValue(
+                IResult (_) => Redirect(httpContext, LocalReturnUrl(viewModel.ReturnUrl)),
                 error =>
                 {
                     var content = error.ToContent();

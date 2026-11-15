@@ -29,7 +29,7 @@ public static class ExistentSeasons
                     .ExecuteQuery<SeasonStorage>(
                         storage => storage.PartitionKey == SeasonStorage.SeasonPartition,
                         cancellationToken)
-                    .Map<ImmutableArray<SeasonStorage>, StorageError, SeasonStorageData>(seasons =>
+                    .Map(SeasonStorageData (seasons) =>
                         seasons.FirstOrDefault(season => season.Latest) is { } flagged
                             ? new CurrentLatestSeason(flagged)
                             : NewestSeason(seasons)));
@@ -41,7 +41,7 @@ public static class ExistentSeasons
                 .Bind(client => client.ExecuteQuery<SeasonStorage>(storage =>
                         storage.PartitionKey == SeasonStorage.SeasonPartition &&
                         storage.RowKey == IdHelpers.GenerateAnimePartitionKey(season), cancellationToken)
-                    .Map<ImmutableArray<SeasonStorage>, StorageError, SeasonStorageData>(matches =>
+                    .Map(SeasonStorageData (matches) =>
                     {
                         if (matches.IsEmpty)
                             return new NoMatch();
