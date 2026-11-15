@@ -129,23 +129,6 @@ internal static class ErrorContents
         };
     }
 
-    /// <summary>Transitional: for chains still typed <see cref="DomainError"/> until their path union lands (Phase 6).</summary>
-    extension(DomainError error)
-    {
-        internal ErrorContent ToContentFallback() => error switch
-        {
-            ValidationError validation => validation.ToContent(),
-            StorageError storage => storage.ToContent(),
-            DeliveryError delivery => delivery.ToContent(),
-            AuthError auth => auth.ToContent(),
-            ScrapeError scrape => scrape.ToContent(),
-            NoFeed noFeed => noFeed.ToContent(),
-            AlreadySubscribed alreadySubscribed => alreadySubscribed.ToContent(),
-            UserIsAnonymous anonymous => anonymous.ToContent(),
-            _ => ErrorContent.Unexpected
-        };
-    }
-
     private static ErrorContent Invalid(IEnumerable<string> messages) =>
         new(StatusCodes.Status422UnprocessableEntity, ToastType.Warning, TextBody(string.Join(", ", messages)));
 

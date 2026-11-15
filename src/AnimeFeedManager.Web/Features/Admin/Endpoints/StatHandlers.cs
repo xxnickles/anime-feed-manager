@@ -95,7 +95,7 @@ internal static class StatHandlers
             .FlushLogs(logger)
             .ToComponentResult(
                 series => [RecentReleasesList.AsRenderFragment(series)],
-                error => error.ToContentFallback(),
+                error => error.ToContent(),
                 _ => [StatCardError.AsRenderFragment("Recent releases")]);
     }
 }
