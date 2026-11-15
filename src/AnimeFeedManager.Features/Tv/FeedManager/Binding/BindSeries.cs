@@ -8,16 +8,19 @@ namespace AnimeFeedManager.Features.Tv.FeedManager.Binding;
 
 public sealed record BoundSeries(string Title, string FeedTitle, bool WasOngoing);
 
+[Widens]
+public partial union BindingError(UnreadableMessage, StorageError, DeliveryError);
+
 public static class BindSeries
 {
     /// <summary>Replaces the binding, feeds the library series from it, then queues the backfill; the catalog is kept.</summary>
-    public static Task<Result<BoundSeries, DomainError>> Bind(
+    public static Task<Result<BoundSeries, BindingError>> Bind(
         BindNyaaSeries request,
         ITableClientFactory clientFactory,
         DomainCollectionSender domainPostman,
         CancellationToken token) =>
         IdHelpers.SeriesSeasonFromId(request.SeriesId)
-            .MapError(error => (DomainError)error)
+            .MapError(BindingError (fields) => new UnreadableMessage(typeof(BindNyaaSeries), fields.Errors))
             .Bind(season => clientFactory.TableStorageTvSeriesGetter(request.SeriesId, season, token)
                 .Bind(series => clientFactory.TableStorageNyaaBindingReplacer(NewBinding(request, season, series), token))
                 .Bind(_ => FeedLibrarySeries(request, season,
