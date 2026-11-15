@@ -2,7 +2,7 @@
 
 namespace AnimeFeedManager.Features.SystemEvents.UpdateProcess;
 
-public abstract record SystemEventUpdateData(SystemEvent Event);
+public closed record SystemEventUpdateData(SystemEvent Event);
 
 public sealed record FullUpdate(SystemEvent Event, EventStorage Storage) : SystemEventUpdateData(Event);
 

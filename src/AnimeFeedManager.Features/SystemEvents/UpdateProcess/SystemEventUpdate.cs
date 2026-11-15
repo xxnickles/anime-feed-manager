@@ -22,7 +22,7 @@ public static class SystemEventUpdate
         {
             FullUpdate fullUpdate => eventUpdater(fullUpdate.Storage, cancellationToken),
             LocalStorage localStorage => eventUpdater(localStorage.Storage, cancellationToken),
-            _ => Task.FromResult(Result<Unit, StorageError>.Success(new Unit()))
+            Notification => Task.FromResult(Result<Unit, StorageError>.Success(new Unit()))
         }).Map(_ => data);
     }
 
@@ -31,7 +31,7 @@ public static class SystemEventUpdate
         return data.Map(d => d switch
         {
             LocalStorage localStorage => new UpdateResult(localStorage.Event, false),
-            _ => new UpdateResult(d.Event, true)
+            FullUpdate or Notification => new UpdateResult(d.Event, true)
         });
     }
 
