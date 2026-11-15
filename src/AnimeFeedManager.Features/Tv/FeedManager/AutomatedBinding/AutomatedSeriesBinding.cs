@@ -1,10 +1,18 @@
+using AnimeFeedManager.Features.Scrapping;
 using AnimeFeedManager.Features.Scrapping.SubsPlease;
+using AnimeFeedManager.Features.Seasons.Queries;
 using AnimeFeedManager.Features.Tv.FeedManager.Events;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage;
 using AnimeFeedManager.Features.Tv.FeedManager.Storage.Stores;
 using IdHelpers = AnimeFeedManager.Features.Common.IdHelpers;
 
 namespace AnimeFeedManager.Features.Tv.FeedManager.AutomatedBinding;
+
+[Widens<LatestSeasonError>]
+public partial union AutomatedBindingError(StorageError, NoLatestSeason, DeliveryError);
+
+/// <summary>The SubsPlease schedule, or why it couldn't be read.</summary>
+internal union ScheduleRead(ImmutableArray<ScheduledShow>, ScrapeError);
 
 internal sealed record AutomatedBindingProcess(ImmutableArray<ScheduledShow> Schedule, bool ScheduleSkipped)
 {
@@ -22,14 +30,15 @@ public static class AutomatedSeriesBinding
     public const string RunSubject = "latest";
 
     /// <summary>Binds unbound, unfinished series from the SubsPlease schedule, stores the run and toasts it; a failed or empty schedule skips binding with a warning.</summary>
-    public static Task<Result<AutomatedBindingCompleted, DomainError>> Run(
+    public static Task<Result<AutomatedBindingCompleted, AutomatedBindingError>> Run(
         ISubsPleaseSchedule schedule,
         ITableClientFactory clientFactory,
         DelayedMessageSender delayedSender,
         DomainCollectionSender domainPostman,
         CancellationToken token) =>
-        StartProcess(schedule, token)
-            .LoadCandidates(clientFactory, token)
+        ReadSchedule(schedule, token)
+            .Then(Result<ScheduleRead, AutomatedBindingError>.Success)
+            .StartProcess(clientFactory, token)
             .MatchSchedule()
             .SendBinds(delayedSender, token)
             .StoreRun(clientFactory.TableStorageAutomatedBindingRunUpdater, token)
@@ -42,42 +51,47 @@ public static class AutomatedSeriesBinding
                 token)
             .WithOperationName(nameof(Run));
 
-    private static Task<Result<AutomatedBindingProcess, DomainError>> StartProcess(ISubsPleaseSchedule schedule,
-        CancellationToken token) =>
-        schedule.Fetch(token)
-            .Map(shows => new AutomatedBindingProcess(shows, ScheduleSkipped: false))
-            .BindOnError(error => Result<AutomatedBindingProcess, DomainError>
-                .Success(new AutomatedBindingProcess([], ScheduleSkipped: true))
-                .AddLog(ScheduleSkipped(error)));
+    private static Task<ScheduleRead> ReadSchedule(ISubsPleaseSchedule schedule, CancellationToken token) =>
+        schedule.Fetch(token).MatchToValue(ScheduleRead (shows) => shows, error => error);
 
-    extension(Task<Result<AutomatedBindingProcess, DomainError>> process)
+    extension(Task<Result<ScheduleRead, AutomatedBindingError>> read)
     {
-        private Task<Result<AutomatedBindingProcess, DomainError>> LoadCandidates(ITableClientFactory clientFactory,
+        private Task<Result<AutomatedBindingProcess, AutomatedBindingError>> StartProcess(
+            ITableClientFactory clientFactory,
             CancellationToken token) =>
-            process.Bind(p => p.Schedule.IsEmpty
-                ? Task.FromResult(Result<AutomatedBindingProcess, DomainError>.Success(p))
-                : Candidates(clientFactory, token).Map(candidates => p with {Candidates = candidates}));
+            read.Bind(schedule => schedule switch
+            {
+                ImmutableArray<ScheduledShow> shows => Candidates(clientFactory, token)
+                    .Map(candidates => new AutomatedBindingProcess(shows, ScheduleSkipped: false) {Candidates = candidates}),
+                ScrapeError error => Task.FromResult(Result<AutomatedBindingProcess, LatestSeasonError>
+                    .Success(new AutomatedBindingProcess([], ScheduleSkipped: true))
+                    .AddLog(ScheduleSkipped(error)))
+            });
+    }
 
-        private Task<Result<AutomatedBindingProcess, DomainError>> MatchSchedule() =>
+    extension(Task<Result<AutomatedBindingProcess, AutomatedBindingError>> process)
+    {
+
+        private Task<Result<AutomatedBindingProcess, AutomatedBindingError>> MatchSchedule() =>
             process.Map(p => p with {Matches = ScheduleMatching.Match(p.Schedule, p.Candidates)})
                 .AddLogOnSuccess(p => LogTies(p.Matches.Ties));
 
-        private Task<Result<AutomatedBindingProcess, DomainError>> SendBinds(DelayedMessageSender delayedSender,
+        private Task<Result<AutomatedBindingProcess, AutomatedBindingError>> SendBinds(DelayedMessageSender delayedSender,
             CancellationToken token) =>
             process.Bind(p => p.Matches.Matches.IsEmpty
                 ? Task.FromResult(Result<AutomatedBindingProcess, DeliveryError>.Success(p))
                 : Send(p.Matches.Matches, delayedSender, token).Map(sent => p with {Sent = sent}));
 
-        private Task<Result<AutomatedBindingCompleted, DomainError>> StoreRun(AutomatedBindingRunUpdater runUpdater,
+        private Task<Result<AutomatedBindingCompleted, AutomatedBindingError>> StoreRun(AutomatedBindingRunUpdater runUpdater,
             CancellationToken token) =>
             process.Map(p => new AutomatedBindingCompleted(DateTimeOffset.UtcNow, p.Schedule.Length, p.Sent,
                     p.Matches.Ties, p.ScheduleSkipped))
                 .Bind(run => runUpdater(run, token).Map(_ => run));
     }
 
-    extension(Task<Result<AutomatedBindingCompleted, DomainError>> run)
+    extension(Task<Result<AutomatedBindingCompleted, AutomatedBindingError>> run)
     {
-        private Task<Result<AutomatedBindingCompleted, DomainError>> SendSummary(DomainCollectionSender domainPostman,
+        private Task<Result<AutomatedBindingCompleted, AutomatedBindingError>> SendSummary(DomainCollectionSender domainPostman,
             CancellationToken token) =>
             run.Bind(summary => domainPostman(SummaryEvents(summary), token).Map(_ => summary));
     }
@@ -91,9 +105,9 @@ public static class AutomatedSeriesBinding
 
     // Latest season plus carry-overs; a season whose bindings can't be read fails the run, since its
     // series would read as unbound and a manual binding could be replaced.
-    private static Task<Result<ImmutableArray<BindingCandidate>, DomainError>> Candidates(ITableClientFactory clientFactory,
+    private static Task<Result<ImmutableArray<BindingCandidate>, LatestSeasonError>> Candidates(ITableClientFactory clientFactory,
         CancellationToken token) =>
-        LatestSeason(clientFactory.TableStorageLatestSeason, token)
+        SeasonQueries.GetLatestSeason(clientFactory.TableStorageLatestSeason, token)
             .Bind(season => clientFactory.TableStorageRawExistentStoredSeries()(season, token))
             .Bind(latest => clientFactory.TableStorageOnGoingStoredTvSeries(token)
                 .Map(ongoing => Unfinished([.. latest, .. ongoing])))
@@ -102,15 +116,6 @@ public static class AutomatedSeriesBinding
                     .Where(entry => !bound.Contains(entry.RowKey ?? string.Empty))
                     .Select(ToCandidate)
                     .ToImmutableArray()));
-
-    private static Task<Result<SeriesSeason, DomainError>> LatestSeason(LatestSeasonGetter seasonGetter, CancellationToken token) =>
-        seasonGetter(token).MapError(error => (DomainError)error)
-            .Bind(stored => stored.AsFeaturedSeason())
-            .Bind(SeasonOf);
-
-    private static Result<SeriesSeason, StorageError> SeasonOf(SeasonStorage season) =>
-        (season.Season ?? string.Empty, season.Year, season.Latest).ParseAsSeriesSeason()
-            .MapError(StorageError (fields) => new StorageError.InvalidRecord(typeof(SeasonStorage), fields.Errors));
 
     private static ImmutableArray<AnimeInfoStorage> Unfinished(IEnumerable<AnimeInfoStorage> series) =>
     [
@@ -174,7 +179,7 @@ public static class AutomatedSeriesBinding
                 tie.ShowTitle, string.Join(",", tie.Series.Select(series => series.SeriesId)));
     };
 
-    private static Action<ILogger> ScheduleSkipped(DomainError error) =>
+    private static Action<ILogger> ScheduleSkipped(ScrapeError error) =>
         logger => logger.LogWarning(
             "SubsPlease schedule unavailable, automated binding skipped: {domain_error.message}", error.Message);
 }

@@ -66,7 +66,8 @@ public class ResultTests
             {
                 TestError => "not found",
                 OtherTestError => "error"
-            }
+            },
+            _ => throw new ArgumentOutOfRangeException()
         };
 
         Assert.Equal("not found", description);
@@ -151,7 +152,8 @@ public class ResultTests
     private static string Describe(Result<int, DomainError> result) => result switch
     {
         int value => $"value {value}",
-        DomainError error => $"error {error.Message}"
+        DomainError error => $"error {error.Message}",
+        _ => throw new ArgumentOutOfRangeException(nameof(result), result, null)
     };
 
     private static Result<int, LookupError> LookupFailure(LookupError error) =>

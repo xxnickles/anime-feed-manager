@@ -4,7 +4,7 @@ public sealed record ScheduledShow(string Title);
 
 public interface ISubsPleaseSchedule
 {
-    Task<Result<ImmutableArray<ScheduledShow>, DomainError>> Fetch(CancellationToken token = default);
+    Task<Result<ImmutableArray<ScheduledShow>, ScrapeError>> Fetch(CancellationToken token = default);
 }
 
 /// <summary>Reads the unofficial JSON endpoint behind the site's schedule page.</summary>
@@ -19,9 +19,8 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
         _httpClient = httpClient;
     }
 
-    public Task<Result<ImmutableArray<ScheduledShow>, DomainError>> Fetch(CancellationToken token = default) =>
+    public Task<Result<ImmutableArray<ScheduledShow>, ScrapeError>> Fetch(CancellationToken token = default) =>
         FetchSchedule(token)
-            .MapError(error => (DomainError)error)
             .Bind(ToShows)
             .WithOperationName(nameof(Fetch))
             .WithLogProperty(ScrappingTelemetry.QueryTag, Request);
@@ -62,7 +61,7 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
         }
     }
 
-    private static Result<ImmutableArray<ScheduledShow>, DomainError> ToShows(SubsPleaseScheduleResponse response)
+    private static Result<ImmutableArray<ScheduledShow>, ScrapeError> ToShows(SubsPleaseScheduleResponse response)
     {
         var shows = response.Schedule.Values
             .SelectMany(day => day)
@@ -73,7 +72,7 @@ internal sealed class SubsPleaseSchedule : ISubsPleaseSchedule
             .ToImmutableArray();
 
         return shows.IsEmpty
-            ? Warning.Create($"SubsPlease {Request} listed no shows")
+            ? new ScrapeError.UnusablePayload(Request)
             : shows;
     }
 }
