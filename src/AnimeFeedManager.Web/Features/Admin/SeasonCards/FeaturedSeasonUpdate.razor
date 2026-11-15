@@ -43,7 +43,7 @@
     protected override async Task OnInitializedAsync()
     {
         await SeasonQueries
-            .GetLast4Seasons(TableClientFactory.TableStorageLatest4SeasonsGetter(Logger), CancellationToken.None)
+            .GetLast4Seasons(TableClientFactory.TableStorageLatest4SeasonsGetter, CancellationToken.None)
             .FlushLogs(Logger)
             .Match(
                 // Stored oldest-first; the newest season is the likelier pick, so lead with it.

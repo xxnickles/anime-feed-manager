@@ -68,15 +68,15 @@ public static class ExistentSeasons
                         cancellationToken))
                 .Bind(seasons => seasons.TransformToSeriesSeason());
 
-        public Latest4SeasonsGetter TableStorageLatest4SeasonsGetter(ILogger logger) =>
+        public Latest4SeasonsGetter TableStorageLatest4SeasonsGetter =>
             cancellationToken => clientFactory.GetClient<LatestSeasonsStorage>()
-                .WithOperationName(nameof(TableStorageLatest4SeasonsGetter))
+                .WithOperationName("TableStorageLatest4SeasonsGetter")
                 .Bind(client => client.ExecuteQuery<LatestSeasonsStorage>(storage =>
                         storage.PartitionKey == LatestSeasonsStorage.Partition &&
                         storage.RowKey == LatestSeasonsStorage.Key, cancellationToken)
                     .SingleItem()
                 )
-                .Map(seasons => seasons.TransformToSeriesSeason(logger));
+                .Bind(seasons => DeserializeSeasons(seasons.Payload));
     }
 
     private static LatestSeasonRead NewestSeason(ImmutableArray<SeasonStorage> seasons) =>
@@ -94,18 +94,17 @@ public static class ExistentSeasons
         return new ReplaceLatestSeason(storage);
     }
 
-    private static ImmutableArray<SeriesSeason> TransformToSeriesSeason(this LatestSeasonsStorage seasons,
-        ILogger logger)
+    private static Result<ImmutableArray<SeriesSeason>, StorageError> DeserializeSeasons(string? payload)
     {
         try
         {
-            return (JsonSerializer.Deserialize(seasons.Payload ?? string.Empty,
-                CommonJsonContext.Default.SeriesSeasonArray) ?? []).ToImmutableArray();
+            return JsonSerializer.Deserialize(payload ?? string.Empty, CommonJsonContext.Default.SeriesSeasonArray) is { } seasons
+                ? seasons.ToImmutableArray()
+                : new StorageError.UnreadablePayload(typeof(LatestSeasonsStorage), null);
         }
-        catch (Exception e)
+        catch (JsonException e)
         {
-            logger.LogWarning(e, "An error occurred when trying to deserialize the latest seasons");
-            return [];
+            return new StorageError.UnreadablePayload(typeof(LatestSeasonsStorage), e);
         }
     }
 
