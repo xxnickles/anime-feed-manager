@@ -12,7 +12,7 @@
     @if (Listing.Feed is NyaaReleaseFeed feed)
     {
         <div class="flex flex-wrap items-center gap-2">
-            <span class="badge badge-outline">@feed.Group · @feed.Variant</span>
+            <VariantBadge Text="@($"{feed.Group} · {feed.Variant}")"/>
             @if (feed.Trusted)
             {
                 <span class="badge badge-success">

@@ -3508,6 +3508,12 @@
   .max-w-72 {
     max-width: calc(var(--spacing) * 72);
   }
+  .max-w-\[min\(90vw\,32rem\)\] {
+    max-width: min(90vw, 32rem);
+  }
+  .max-w-\[min\(100\%\,20rem\)\] {
+    max-width: min(100%, 20rem);
+  }
   .max-w-full {
     max-width: 100%;
   }
@@ -4090,6 +4096,9 @@
   }
   .p-2 {
     padding: calc(var(--spacing) * 2);
+  }
+  .p-3 {
+    padding: calc(var(--spacing) * 3);
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);
