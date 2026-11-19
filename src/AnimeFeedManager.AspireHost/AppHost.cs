@@ -18,7 +18,7 @@ var tables = storage.AddTables("TablesConnection");
 
 builder.AddJavaScriptApp("BuildJsCss", "../AnimeFeedManager.Web", "watch");
 
-var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Functions>("functions")
+var functions = builder.AddAzureFunctionsProject("functions", "../AnimeFeedManager.Functions/AnimeFeedManager.Functions.csproj")
     .WithExternalHttpEndpoints()
     .WithHostStorage(storage)
     .WaitFor(signalR)
@@ -34,7 +34,7 @@ var functions = builder.AddAzureFunctionsProject<Projects.AnimeFeedManager_Funct
     .WithEnvironment("AutomatedBindingSchedule", "0 20 * * * *")
     .WithEnvironment("FeedSettlementSchedule", "0 40 * * * *");
 
-var web = builder.AddProject<Projects.AnimeFeedManager_Web>("web")
+var web = builder.AddDotnetProject("web", "../AnimeFeedManager.Web/AnimeFeedManager.Web.csproj")
     .WaitFor(functions)
     .WithReference(signalR)
     .WaitFor(signalR)
