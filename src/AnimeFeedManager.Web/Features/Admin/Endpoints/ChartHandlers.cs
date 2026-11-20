@@ -28,7 +28,7 @@ internal static class ChartHandlers
             .MarkActivityErroredOnError()
             .FlushLogs(logger)
             .ToComponentResult(
-                data => [ChartContent.AsRenderFragment("Scraping Events", data, ChartJsOptions.IntegerScale)],
+                data => [ChartContent.AsRenderFragment("Scraping Events", data)],
                 error => error.ToContent(),
                 content => [ChartError.AsRenderFragment(content.Message)]
             );
@@ -52,7 +52,7 @@ internal static class ChartHandlers
             .ToComponentResult(
                 data =>
                 [
-                    ChartContent.AsRenderFragment("Notifications Sent", data.Chart, ChartJsOptions.IntegerScale),
+                    ChartContent.AsRenderFragment("Notifications Sent", data.Chart),
                     StatCardOob.AsRenderFragment(NotificationsStatCard.CardId,
                         NotificationsStatCard.AsRenderFragment(data.Stats))
                 ],

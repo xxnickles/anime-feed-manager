@@ -2,12 +2,9 @@
 global using AnimeFeedManager.Features.Infrastructure.TableStorage;
 global using AnimeFeedManager.Features.SystemEvents;
 global using AnimeFeedManager.Shared;
-global using AnimeFeedManager.Shared.Charts;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;
 global using AnimeFeedManager.Shared.Results.Static;
-global using AnimeFeedManager.Web.BlazorComponents.Charts.ChartJs;
-global using AnimeFeedManager.Web.Features.Components.Badge;
 global using AnimeFeedManager.Web.Features.Components.Responses;
 global using AnimeFeedManager.Web.Features.Security;
 global using AnimeFeedManager.Web.Htmx;
