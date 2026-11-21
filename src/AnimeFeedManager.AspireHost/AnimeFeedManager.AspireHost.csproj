@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.6.5">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>      
@@ -11,11 +11,8 @@
         <PackageReference Include="Aspire.Hosting.Azure.SignalR" />
         <PackageReference Include="Aspire.Hosting.Azure.Storage" />
         <PackageReference Include="Aspire.Hosting.JavaScript" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\AnimeFeedManager.Functions\AnimeFeedManager.Functions.csproj" />
-      <ProjectReference Include="..\AnimeFeedManager.Web\AnimeFeedManager.Web.csproj" />
+        <PackageReference Include="Aspire.Hosting.AppHost" />
+        <PackageReference Include="Aspire.Hosting.Dotnet" />
     </ItemGroup>
 
 </Project>

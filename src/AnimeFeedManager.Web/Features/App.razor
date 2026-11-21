@@ -63,7 +63,7 @@ else
     </script>
 
     <EnvironmentView Exclude="@Environments.Development">
-        <script defer src="@Assets["webcomponents/afm-logo.min.js"]"></script>
+        <script type="module" src="@Assets["webcomponents/afm-logo.min.js"]"></script>
         <script defer src="@Assets["lib/htmx/dist/htmx.min.js"]"></script>
         <script defer src="@Assets["lib/hyperscript/dist/_hyperscript.min.js"]"></script>
         <script defer src="@Assets["lib/hyperscript/dist/ext/component.min.js"]"></script>
@@ -73,12 +73,13 @@ else
         <script defer
                 src="@Assets["lib/passwordless-client/dist/umd/passwordless.umd.min.js"]"></script>
         <script defer src="@Assets["lib/signalr/dist/browser/signalr.min.js"]"></script>
-        <script defer src="@Assets["lib/chartjs/dist/chart.umd.min.js"]"></script>
+        <script defer src="@Assets["lib/apexcharts/dist/apexcharts.min.js"]"></script>
+        <script type="module" src="@Assets["webcomponents/afm-chart.min.js"]"></script>
         <script defer src="@Assets["scripts/hx-signalr.min.js"]" type="module"></script>
     </EnvironmentView>
 
     <EnvironmentView Include="@Environments.Development">
-        <script defer src="@Assets["webcomponents/afm-logo.js"]"></script>
+        <script type="module" src="@Assets["webcomponents/afm-logo.js"]"></script>
         <script defer src="@Assets["lib/htmx/dist/htmx.js"]"></script>
         <script defer src="@Assets["lib/hyperscript/dist/_hyperscript.js"]"></script>
         <script defer src="@Assets["lib/hyperscript/dist/ext/component.js"]"></script>
@@ -87,7 +88,8 @@ else
         <script defer src="@Assets["scripts/htmx-event-params.js"]" type="text/javascript"></script>
         <script defer src="@Assets["lib/passwordless-client/dist/umd/passwordless.umd.js"]"></script>
         <script defer src="@Assets["lib/signalr/dist/browser/signalr.js"]"></script>
-        <script defer src="@Assets["lib/chartjs/dist/chart.umd.min.js"]"></script>
+        <script defer src="@Assets["lib/apexcharts/dist/apexcharts.js"]"></script>
+        <script type="module" src="@Assets["webcomponents/afm-chart.js"]"></script>
         <script defer src="@Assets["scripts/hx-signalr.js"]" type="module"></script>
     </EnvironmentView>
 

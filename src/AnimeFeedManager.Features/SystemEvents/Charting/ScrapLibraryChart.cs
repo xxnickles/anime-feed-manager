@@ -40,15 +40,15 @@ public static class ScrapLibraryChart
             Labels: allDates.Select(d => d.ToString("MMM dd")).ToArray(),
             Datasets:
             [
-                new LineDataset(
+                new CartesianDataset(
                     Label: "Completed",
                     Data: allDates.Select(d => (float) completedByDay.GetValueOrDefault(d, 0)).ToArray(),
-                    BorderColor: ChartColor.Success
+                    Color: ChartColor.Success
                 ),
-                new LineDataset(
+                new CartesianDataset(
                     Label: "Errors",
                     Data: allDates.Select(d => (float) failedByDay.GetValueOrDefault(d, 0)).ToArray(),
-                    BorderColor: ChartColor.Error
+                    Color: ChartColor.Error
                 )
             ]
         );

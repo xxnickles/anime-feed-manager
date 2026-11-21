@@ -1,0 +1,43 @@
+@using AnimeFeedManager.Features.Tv.FeedManager.Queries
+@using AnimeFeedManager.Shared.Charts
+
+<article class="mb-6 bg-base-200/80 rounded-box border-(length:--border) border-base-content/10 p-7 md:p-10">
+    <div class="flex items-center justify-between gap-6">
+        <div class="flex flex-col gap-2 min-w-0">
+            <h2 class="m-0 text-sm font-semibold text-base-content/60">Feed coverage</h2>
+            <p class="text-3xl font-bold text-base-content leading-tight">@Coverage.Fed / @Coverage.Total</p>
+            <p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-semibold">
+                @if (Coverage is { Stale: 0, Unfed: 0 })
+                {
+                    <span class="text-success">All series fed</span>
+                }
+                else
+                {
+                    @if (Coverage.Stale > 0)
+                    {
+                        <span class="flex items-center gap-1.5 text-warning">
+                            <span class="size-2 rounded-selector bg-warning"></span>@Coverage.Stale stale
+                        </span>
+                    }
+                    @if (Coverage.Unfed > 0)
+                    {
+                        <span class="flex items-center gap-1.5 text-base-content/70">
+                            <span class="size-2 rounded-selector bg-base-content"></span>@Coverage.Unfed no feed
+                        </span>
+                    }
+                }
+            </p>
+        </div>
+        <div class="size-24 shrink-0">
+            <ChartPlot Id="feed-coverage-plot" Data="_chart" Class="block size-full"/>
+        </div>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public required FeedCoverage Coverage { get; set; }
+
+    private DonutChart _chart = null!;
+
+    protected override void OnParametersSet() => _chart = Coverage.ToDonutChart();
+}

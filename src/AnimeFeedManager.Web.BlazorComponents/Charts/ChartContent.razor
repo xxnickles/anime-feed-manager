@@ -1,25 +1,27 @@
-<div class="card-body">
-    <header>
-        <h3 class="card-title text-lg">@Title</h3>
-    </header>
-    <figure data-chart-config="@Data.ToChartJsConfig(Options).ToJson()"
-            class="relative h-64"
-            _="@Script">
-        <canvas data-chart-canvas role="img" aria-label="@Title"></canvas>
-    </figure>
-</div>
+<header class="mb-4">
+    <h3 class="text-lg font-semibold text-base-content">@Title</h3>
+</header>
+<ChartPlot Id="@($"{ChartId}-plot")" Data="Data" Class="block h-75"/>
+<ChartLegend Datasets="Datasets"/>
 
 @code {
+    [Parameter, EditorRequired] public required string ChartId { get; set; }
     [Parameter, EditorRequired] public required string Title { get; set; }
     [Parameter, EditorRequired] public required Chart Data { get; set; }
-    [Parameter] public ChartJsOptions? Options { get; set; }
 
-    public static RenderFragment AsRenderFragment(string title, Chart data, ChartJsOptions? options = null) => builder =>
+    private CartesianDataset[] Datasets => Data switch
+    {
+        LineChart line => line.Datasets,
+        ColumnChart column => column.Datasets,
+        DonutChart => []
+    };
+
+    public static RenderFragment AsRenderFragment(string chartId, string title, Chart data) => builder =>
     {
         builder.OpenComponent<ChartContent>(0);
-        builder.AddAttribute(1, nameof(Title), title);
-        builder.AddAttribute(2, nameof(Data), data);
-        builder.AddAttribute(3, nameof(Options), options);
+        builder.AddAttribute(1, nameof(ChartId), chartId);
+        builder.AddAttribute(2, nameof(Title), title);
+        builder.AddAttribute(3, nameof(Data), data);
         builder.CloseComponent();
     };
 

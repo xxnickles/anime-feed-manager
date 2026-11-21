@@ -1,0 +1,19 @@
+<button type="button"
+        class="badge badge-outline max-w-[min(100%,20rem)] cursor-pointer"
+        popovertarget="@_id"
+        style="anchor-name:--@_id"
+        title="@Text">
+    <span class="min-w-0 truncate">@Text</span>
+</button>
+<div class="dropdown max-w-[min(90vw,32rem)] rounded-box border border-base-300 bg-base-100 p-3 text-sm shadow-xl"
+     popover
+     id="@_id"
+     style="position-anchor:--@_id">
+    @Text
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = null!;
+
+    private readonly string _id = IdHelpers.GetUniqueName("variant");
+}

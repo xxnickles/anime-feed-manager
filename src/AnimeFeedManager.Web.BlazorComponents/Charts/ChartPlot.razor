@@ -1,0 +1,27 @@
+<afm-chart id="@Id"
+           data-kind="@_payload.Kind"
+           data-chart="@_payload.Data"
+           class="@Class
+                  [&_.apexcharts-xaxistooltip]:bg-base-200! [&_.apexcharts-xaxistooltip]:text-base-content!
+                  [&_.apexcharts-xaxistooltip]:border-none! [&_.apexcharts-xaxistooltip]:rounded-field!
+                  [&_.apexcharts-xaxistooltip]:shadow-lg!
+                  [&_.apexcharts-xaxistooltip-bottom:before]:border-b-base-200!
+                  [&_.apexcharts-xaxistooltip-bottom:after]:border-b-base-200!
+                  [&_.apexcharts-tooltip]:bg-base-200! [&_.apexcharts-tooltip]:border-base-content/5!
+                  [&_.apexcharts-tooltip]:shadow-xl! [&_.apexcharts-tooltip]:rounded-box!
+                  [&_.apexcharts-svg]:outline-none">
+</afm-chart>
+
+@code {
+    /// <summary>Becomes the ApexCharts chart id.</summary>
+    [Parameter] public string? Id { get; set; }
+
+    [Parameter, EditorRequired] public required Chart Data { get; set; }
+
+    /// <summary>Display and size classes; a percentage-height chart (donut) sizes to this element's parent.</summary>
+    [Parameter, EditorRequired] public required string Class { get; set; }
+
+    private ApexPayload _payload = null!;
+
+    protected override void OnParametersSet() => _payload = Data.ToApexPayload();
+}

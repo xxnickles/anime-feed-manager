@@ -1,0 +1,19 @@
+@if (Datasets.Length > 1)
+{
+    <ul class="flex flex-wrap items-center gap-4 mt-2" aria-label="Legend">
+        @foreach (var dataset in Datasets)
+        {
+            <li class="flex items-center gap-2">
+                <span class="size-2 rounded-selector" style="@Swatch(dataset.Color)"></span>
+                <span class="text-base-content text-xs">@dataset.Label</span>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    /// <summary>Rendered only when there are several datasets; a single one is named by the chart title.</summary>
+    [Parameter, EditorRequired] public required CartesianDataset[] Datasets { get; set; }
+
+    private static string Swatch(ChartColor color) => $"background-color: var(--color-{color.Token})";
+}

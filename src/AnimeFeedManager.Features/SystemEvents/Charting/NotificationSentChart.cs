@@ -5,7 +5,7 @@ using static AnimeFeedManager.Features.SystemEvents.Charting.Utils;
 
 namespace AnimeFeedManager.Features.SystemEvents.Charting;
 
-public sealed record NotificationActivity(BarChart Chart, NotificationStats Stats);
+public sealed record NotificationActivity(ColumnChart Chart, NotificationStats Stats);
 
 public static class NotificationSentChart
 {
@@ -18,11 +18,11 @@ public static class NotificationSentChart
     {
         return eventGetter(from, cancellationToken)
             .Map(events => new NotificationActivity(
-                MapToBarChart(events, from, to),
+                MapToColumnChart(events, from, to),
                 NotificationStat.Summarize(events)));
     }
 
-    private static BarChart MapToBarChart(
+    private static ColumnChart MapToColumnChart(
         ImmutableArray<EventData<NotificationSent>> notificationEvents,
         DateTimeOffset from,
         DateTimeOffset to)
@@ -34,12 +34,12 @@ public static class NotificationSentChart
                 g => g.Count()
             );
         var allDates = GenerateDateRange(from.Date, to.Date).ToList();
-        return new BarChart(
+        return new ColumnChart(
             Labels: allDates.Select(d => d.ToString("MMM dd")).ToArray(),
             Datasets: [
-             new BarDataset(Label: "Notifications Sent", 
+             new CartesianDataset(Label: "Notifications Sent",
                  Data: allDates.Select(dateTime => (float)(byDay.GetValueOrDefault(dateTime, 0))).ToArray(),
-                 BackgroundColor: ChartColor.Purple)
+                 Color: ChartColor.BaseContent)
             ]);
     }
 }

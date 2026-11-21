@@ -1,6 +1,5 @@
 ﻿global using System.Collections.Immutable;
 global using System.Diagnostics;
-global using System.Runtime.CompilerServices;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using AnimeFeedManager.Features.AppEvents;
@@ -15,7 +14,6 @@ global using AnimeFeedManager.Features.Tv.Library.Storage.Stores;
 global using AnimeFeedManager.Generated;
 global using AnimeFeedManager.Shared;
 global using AnimeFeedManager.Shared.Charts;
-global using AnimeFeedManager.Shared.Charts.Static;
 global using AnimeFeedManager.Shared.Results;
 global using AnimeFeedManager.Shared.Results.Errors;
 global using AnimeFeedManager.Shared.Results.Static;
