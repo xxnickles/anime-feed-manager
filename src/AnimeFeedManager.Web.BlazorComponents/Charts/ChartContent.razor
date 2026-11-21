@@ -1,19 +1,7 @@
 <header class="mb-4">
     <h3 class="text-lg font-semibold text-base-content">@Title</h3>
 </header>
-<afm-chart id="@PlotId"
-           data-kind="@_payload.Kind"
-           data-chart="@_payload.Data"
-           class="block h-75
-                  [&_.apexcharts-xaxistooltip]:bg-base-200! [&_.apexcharts-xaxistooltip]:text-base-content!
-                  [&_.apexcharts-xaxistooltip]:border-none! [&_.apexcharts-xaxistooltip]:rounded-field!
-                  [&_.apexcharts-xaxistooltip]:shadow-lg!
-                  [&_.apexcharts-xaxistooltip-bottom:before]:border-b-base-200!
-                  [&_.apexcharts-xaxistooltip-bottom:after]:border-b-base-200!
-                  [&_.apexcharts-tooltip]:bg-base-200! [&_.apexcharts-tooltip]:border-base-content/5!
-                  [&_.apexcharts-tooltip]:shadow-xl! [&_.apexcharts-tooltip]:rounded-box!
-                  [&_.apexcharts-svg]:outline-none">
-</afm-chart>
+<ChartPlot Id="@($"{ChartId}-plot")" Data="Data" Class="block h-75"/>
 <ChartLegend Datasets="Datasets"/>
 
 @code {
@@ -21,18 +9,12 @@
     [Parameter, EditorRequired] public required string Title { get; set; }
     [Parameter, EditorRequired] public required Chart Data { get; set; }
 
-    private ApexPayload _payload = null!;
-
-    private string PlotId => $"{ChartId}-plot";
-
     private CartesianDataset[] Datasets => Data switch
     {
         LineChart line => line.Datasets,
         ColumnChart column => column.Datasets,
         DonutChart => []
     };
-
-    protected override void OnParametersSet() => _payload = Data.ToApexPayload();
 
     public static RenderFragment AsRenderFragment(string chartId, string title, Chart data) => builder =>
     {

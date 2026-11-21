@@ -3565,6 +3565,10 @@
     width: 18px;
     height: 18px;
   }
+  .size-full {
+    width: 100%;
+    height: 100%;
+  }
   .h-2\.5 {
     height: calc(var(--spacing) * 2.5);
   }
@@ -4205,6 +4209,9 @@
   .bg-base-300 {
     background-color: var(--color-base-300);
   }
+  .bg-base-content {
+    background-color: var(--color-base-content);
+  }
   .bg-base-content\/80 {
     background-color: var(--color-base-content);
     @supports (color: color-mix(in lab, red, red)) {
@@ -4222,6 +4229,9 @@
   }
   .bg-secondary {
     background-color: var(--color-secondary);
+  }
+  .bg-warning {
+    background-color: var(--color-warning);
   }
   .bg-gradient-to-r {
     --tw-gradient-position: to right in oklab;
