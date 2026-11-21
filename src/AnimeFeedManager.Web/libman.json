@@ -3,14 +3,6 @@
   "defaultProvider": "jsdelivr",
   "libraries": [
     {
-      "library": "chart.js@4.6.1",
-      "destination": "wwwroot/lib/chartjs/",
-      "files": [
-        "dist/chart.umd.min.js",
-        "dist/chart.umd.min.js.map"
-      ]
-    },
-    {
       "library": "htmx.org@4.0.2",
       "destination": "wwwroot/lib/htmx/",
       "files": [
@@ -47,6 +39,14 @@
       "files": [
         "dist/umd/passwordless.umd.js",
         "dist/umd/passwordless.umd.min.js"
+      ]
+    },
+    {
+      "library": "apexcharts@8.9.1",
+      "destination": "wwwroot/lib/apexcharts/",
+      "files": [
+        "dist/apexcharts.js",
+        "dist/apexcharts.min.js"
       ]
     }
   ]
