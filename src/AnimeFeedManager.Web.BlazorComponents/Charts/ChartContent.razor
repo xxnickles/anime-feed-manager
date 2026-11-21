@@ -28,7 +28,8 @@
     private CartesianDataset[] Datasets => Data switch
     {
         LineChart line => line.Datasets,
-        ColumnChart column => column.Datasets
+        ColumnChart column => column.Datasets,
+        DonutChart => []
     };
 
     protected override void OnParametersSet() => _payload = Data.ToApexPayload();

@@ -23,6 +23,14 @@ public class ApexPayloadTests
         Assert.Equal("column", payload.Kind);
     }
 
+    [Fact]
+    public void Should_Use_Donut_Kind_When_Chart_Is_DonutChart()
+    {
+        var payload = new DonutChart([new ChartSlice("Tracking", 1, ChartColor.Success)]).ToApexPayload();
+
+        Assert.Equal("donut", payload.Kind);
+    }
+
     #endregion
 
     #region Data
@@ -59,6 +67,22 @@ public class ApexPayloadTests
         var payload = new LineChart([], []).ToApexPayload();
 
         Assert.Equal("""{"categories":[],"series":[]}""", payload.Data);
+    }
+
+    [Fact]
+    public void Should_Serialize_Slices_When_Chart_Is_DonutChart()
+    {
+        var chart = new DonutChart(
+        [
+            new ChartSlice("Tracking", 5, ChartColor.Success),
+            new ChartSlice("No feed", 0, ChartColor.BaseContent)
+        ]);
+
+        var payload = chart.ToApexPayload();
+
+        Assert.Equal(
+            """{"slices":[{"name":"Tracking","value":5,"color":"success"},{"name":"No feed","value":0,"color":"base-content"}]}""",
+            payload.Data);
     }
 
     #endregion
